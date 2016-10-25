@@ -1,8 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
-
 let parts = [];
 for (let i = 0; i < 22; i++) {
   parts.push(MOVE);

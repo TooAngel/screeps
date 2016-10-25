@@ -183,6 +183,7 @@ module.exports = function(grunt) {
         files: {
           'dist/main.js': [
             'src/config.js',
+            'src/config_logging.js',
             'src/config_brain_memory.js',
             'src/config_brain_nextroom.js',
             'src/config_brain_squadmanager.js',
@@ -222,6 +223,7 @@ module.exports = function(grunt) {
             '!main.js',
             '!require.js',
             '!config.js',
+            '!config_logging.js',
             '!config_brain_memory.js',
             '!config_brain_nextroom.js',
             '!config_brain_squadmanager.js',
@@ -268,6 +270,7 @@ module.exports = function(grunt) {
             'main.js',
             'require.js',
             'config.js',
+            'config_logging.js',
             'config_brain_memory.js',
             'config_brain_nextroom.js',
             'config_brain_squadmanager.js',
@@ -308,7 +311,7 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('default', ['jshint', 'jsbeautifier', 'clean', 'copy', 'screeps']);
+  grunt.registerTask('default', ['jshint', 'jsbeautifier', 'clean', 'copy:uglify', 'copy:main', 'screeps']);
   grunt.registerTask('release', ['jshint', 'jsbeautifier', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
   grunt.registerTask('local', ['jshint', 'jsbeautifier', 'clean', 'copy:uglify', 'copy:main', 'sync']);
   grunt.registerTask('requireFile', 'Creates an empty file', function() {

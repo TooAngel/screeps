@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 function existInArray(array, item) {
   for (var i in array) {
     if (array[i].role === item.role) {
@@ -57,6 +55,9 @@ Creep.prototype.spawnCarry = function() {
       this.memory.wait = 0;
     }
     if (this.memory.wait <= 0) {
+      if (!Game.rooms[this.memory.base].memory.queue) {
+        Game.rooms[this.memory.base].memory.queue = [];
+      }
       Game.rooms[this.memory.base].memory.queue.push(spawn);
       this.memory.wait = waitTime;
     }

@@ -1,7 +1,6 @@
 'use strict';
 
 var creepbuilder = require('creepbuilder');
-var helper = require('helper');
 
 Room.prototype.controller_level_tasks = function() {
 
@@ -14,6 +13,9 @@ Room.prototype.controller_level_tasks = function() {
       }
     }
     this.memory.basebuilderInterval = 0;
+    this.memory.controllerLevel.checkPathInterval = 1;
+    this.memory.controllerLevel.checkWrongStructureInterval = 1;
+    this.memory.controllerLevel.buildStructuresInterval = 1;
     this.memory.controllerLevel['setup_level_' + this.controller.level] = Game.time;
   }
 

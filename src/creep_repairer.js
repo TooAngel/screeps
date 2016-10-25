@@ -61,6 +61,7 @@ let execute = function(creep) {
   }
 
   methods.push(Creep.repairStructure);
+  methods.push(Creep.constructTask);
 
   if (Creep.execute(creep, methods)) {
     return true;

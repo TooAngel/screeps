@@ -1,5 +1,49 @@
 'use strict';
 
+
+Room.prototype.findAttackCreeps = function(object) {
+  let friends = [];
+  try {
+    friends = require('friends');
+  } catch (error) {
+
+  }
+
+  if (object.owner.username == 'Source Keeper') {
+    return false;
+  }
+
+  if (friends.indexOf(object.owner.username) >= 0) {
+    console.log('friend found');
+    return false;
+  }
+
+  for (var item in object.body) {
+    var part = object.body[item];
+    if (part.energy === 0) {
+      continue;
+    }
+    if (part.type == 'attack') {
+      return true;
+    }
+    if (part.type == 'ranged_attack') {
+      return true;
+    }
+    if (part.type == 'heal') {
+      return true;
+    }
+    if (part.type == 'work') {
+      return true;
+    }
+    if (part.type == 'claim') {
+      return true;
+    }
+  }
+  return true;
+  // TODO defender stop in rooms with (non attacking) enemies
+  //    return false;
+};
+
 Room.prototype.handleNukeAttack = function() {
   if (Game.time % config.room.handleNukeAttackInterval !== 0) {
     return false;
@@ -53,7 +97,7 @@ Room.prototype.handleNukeAttack = function() {
   return true;
 };
 
-Room.prototype.handle_tower = function() {
+Room.prototype.handleTower = function() {
   var tower_id;
   var towers = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {

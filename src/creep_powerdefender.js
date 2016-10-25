@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.get_part_config = function(room, energy, heal) {
   var parts = [MOVE, RANGED_ATTACK];
   return room.get_part_config(energy, parts).sort().reverse();
@@ -20,7 +18,7 @@ function attack(creep) {
     return false;
   }
   var hostile_creeps = creep.room.find(FIND_HOSTILE_CREEPS, {
-    filter: helper.find_attack_creep
+    filter: creep.room.findAttackCreeps
   });
   if (hostile_creeps.length > 0) {
     creep.moveTo(hostile_creeps[0]);
@@ -66,7 +64,6 @@ function attack(creep) {
 }
 
 module.exports.action = function(creep) {
-  creep.log('hia');
   attack();
   return true;
 };

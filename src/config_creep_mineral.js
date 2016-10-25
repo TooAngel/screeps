@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 Creep.prototype.boost = function() {
   if (!this.room.terminal || !this.room.terminal.my) {
     this.memory.boosted = true;
@@ -59,7 +57,7 @@ Creep.prototype.boost = function() {
                   pos: labs[0].pos,
                   range: 1
                 }, {
-                  roomCallback: helper.getAvoids(this.room, {}, true),
+                  roomCallback: this.room.getAvoids(this.room, {}, true),
                   maxRooms: 1
                 }
               );

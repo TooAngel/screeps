@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 function getOppositeDirection(direction) {
   console.log('getOppositeDirection typeof: ' + typeof direction);
   return ((direction + 3) % 8) + 1;
@@ -85,13 +83,6 @@ Creep.prototype.handle = function() {
   }
 };
 
-Creep.prototype.log = function(message, level) {
-  if (!level || level != 'DEBUG') {
-    //     console.log(`<font color=red>${this.room.name.rpad(' ', 6)}</font>`, `<font color=green>${this.name.rpad(' ', 20)}</font>`, message);
-    console.log(`${this.room.name.rpad(' ', 6)} ${this.name.rpad(' ', 20)} ${message}`);
-  }
-};
-
 Creep.prototype.getEnergyFromStructure = function() {
   if (this.carry.energy == this.carryCapacity) {
     return false;
@@ -154,20 +145,14 @@ Creep.prototype.buildRoad = function() {
     return true;
   }
 
-  var structures = this.pos.findInRange(FIND_STRUCTURES, 3, {
-    filter: function(object) {
-      if (object.structureType != STRUCTURE_ROAD) {
-        return false;
-      }
-      if (object.hits > 0.8 * object.hitsMax) {
-        return false;
-      }
-      return true;
-    }
-  });
+  let structures = this.pos.lookFor(LOOK_STRUCTURES);
   if (structures.length > 0) {
-    this.repair(structures[0]);
-    return true;
+    for (let structure of structures) {
+      if (structure.structureType == STRUCTURE_ROAD) {
+        this.repair(structure);
+        return true;
+      }
+    }
   }
 
   let creep = this;
@@ -253,7 +238,7 @@ Creep.prototype.getPositionInPath = function(target) {
 
     this.memory.path[this.room.name] = this.room.findPath(start, end, {
       ignoreCreeps: true,
-      costCallback: helper.getAvoids(this.room, {
+      costCallback: this.room.getAvoids(this.room, {
         controller: true,
         power: true,
         filler: true

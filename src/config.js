@@ -1,13 +1,19 @@
 'use strict';
 
 global.brain = {};
+global.roles = {};
 global.config = {
   profiler: {
     enabled: false
   },
 
+  performance: {
+    serializePath: false
+  },
+
   stats: {
-    enabled: false
+    enabled: false,
+    summary: false
   },
   autoattack: {
     disabled: false // Currently disabled, have to make sure my ally doesn't get attacked
@@ -16,7 +22,7 @@ global.config = {
     scoutMinControllerLevel: 4,
     ttlPerRoomForScout: 500,
     numberOfNextroomers: 3,
-    maxRooms: 1,
+    maxRooms: 30,
     revive: true,
     maxDistance: 17
   },

@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 Creep.execute = function(creep, methods) {
   for (var method of methods) {
     if (method(creep)) {
@@ -11,7 +9,7 @@ Creep.execute = function(creep, methods) {
 };
 
 Creep.upgradeControllerTask = function(creep) {
-  creep.say('upgradeController');
+  creep.say('upgradeController', true);
   if (creep.carry.energy === 0) {
     return false;
   }
@@ -31,10 +29,12 @@ Creep.upgradeControllerTask = function(creep) {
 };
 
 Creep.constructTask = function(creep) {
+  creep.say('construct', true);
   return creep.construct();
 };
 
 Creep.transferEnergy = function(creep) {
+  creep.say('transferEnergy', true);
   return creep.transferEnergyMy();
 };
 
@@ -130,7 +130,7 @@ Creep.getEnergyFromStorage = function(creep) {
     if (300 < target.energy && energyRange < 4) {
       return creep.moveTo(target, {
         reusePath: 5,
-        costCallback: helper.getAvoids(creep.room)
+        costCallback: creep.room.getAvoids(creep.room)
       }) === 0;
     }
   }
@@ -138,8 +138,40 @@ Creep.getEnergyFromStorage = function(creep) {
   var storage = creep.room.storage;
   if (!storage) {
     creep.log('No storage');
+
+    let transferablesFull = function(object) {
+      if (object.structureType == STRUCTURE_RAMPART) {
+        return false;
+      }
+      if (object.structureType == STRUCTURE_CONTROLLER) {
+        return false;
+      }
+      if (object.structureType == STRUCTURE_EXTENSION) {
+        return object.energy > 0;
+      }
+      if (object.structureType == STRUCTURE_LINK) {
+        return object.energy > 0;
+      }
+      if (object.structureType == STRUCTURE_SPAWN) {
+        return object.energy > 0;
+      }
+      if (object.structureType == STRUCTURE_STORAGE) {
+        return object.store.energy > 0;
+      }
+      if (object.structureType == STRUCTURE_TOWER) {
+        return false;
+      }
+      if (object.structureType == STRUCTURE_POWER_SPAWN) {
+        return false;
+      }
+      if (object.structureType == STRUCTURE_OBSERVER) {
+        return false;
+      }
+      console.log('config_creep_startup_tasks.transferablesFull', object.structureType, JSON.stringify(object));
+    };
+
     storage = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-      filter: helper.transferablesFull
+      filter: transferablesFull
     });
   } else {
     if (storage.store.energy === 0) {
@@ -156,7 +188,7 @@ Creep.getEnergyFromStorage = function(creep) {
     returnCode = creep.moveTo(storage, {
       reusePath: 15,
       ignoreCreeps: true,
-      costCallback: helper.getAvoids(creep.room, {}, true)
+      costCallback: creep.room.getAvoids(creep.room, {}, true)
     });
     if (returnCode == ERR_NO_PATH) {
       creep.moveRandom();

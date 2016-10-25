@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.boostActions = ['harvest', 'capacity'];
 
 module.exports.get_part_config = function(room, energy, heal) {
@@ -27,7 +25,7 @@ let execute = function(creep) {
         pos: creep.room.terminal.pos,
         range: 1
       }, {
-        roomCallback: helper.getAvoids(creep.room, {}, true),
+        roomCallback: creep.room.getAvoids(creep.room, {}, true),
       }
     );
     let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
@@ -49,7 +47,7 @@ let execute = function(creep) {
         pos: pos,
         range: 0
       }, {
-        roomCallback: helper.getAvoids(creep.room, {}, true),
+        roomCallback: creep.room.getAvoids(creep.room, {}, true),
       }
     );
     let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));

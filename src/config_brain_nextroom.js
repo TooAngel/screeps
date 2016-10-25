@@ -5,7 +5,7 @@ brain.handleNextroom = function() {
     if (Game.time % config.nextRoom.ttlPerRoomForScout === 0) {
       for (let roomName of Memory.myRooms) {
         let room = Game.rooms[roomName];
-        if (room.memory.queue && room.memory.queue.length > 0) {
+        if (room.memory.queue && room.memory.queue.length > 3) {
           continue;
         }
         if (room.controller.level < config.nextRoom.scoutMinControllerLevel) {

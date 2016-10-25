@@ -7,9 +7,14 @@ Creep.prototype.getRoute = function() {
 
   // Add room avoidance
   let route = [];
+  let creep = this;
   if (this.memory.base != this.memory.routing.targetRoom) {
     // TODO more dynamic, room.memory.hostile value?
     let routeCallback = function(roomName, fromRoomName) {
+
+      if (roomName == creep.memory.routing.targetRoom) {
+        return 1;
+      }
 
       // TODO automatically recognize reserved blocked rooms
       // AzuraStar
@@ -303,6 +308,27 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
       callback = function(end) {
         let callbackInner = function(roomName) {
           let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
+
+          // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
+          let structures = room.find(FIND_STRUCTURES, {
+            filter: function(object) {
+              if (object.structureType == STRUCTURE_RAMPART) {
+                return false;
+              }
+              if (object.structureType == STRUCTURE_ROAD) {
+                return false;
+              }
+              if (object.structureType == STRUCTURE_CONTAINER) {
+                return false;
+              }
+              return true;
+            }
+          });
+          for (let structure of structures) {
+            costMatrix.set(structure.pos.x, structure.pos.y, config.layout.structureAvoid);
+          }
+
+
           return costMatrix;
         };
         return callbackInner;
@@ -340,7 +366,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     // this.pos.getDirectionTo(search.path[0]) + ' pathPos: ' + pathPos + ' pos:
     // ' + this.pos + ' routePos: ' + routePos + ' path: ' +
     // JSON.stringify(path) + ' route: ' + JSON.stringify(route));
-    this.say('R:p-1: ' + this.pos.getDirectionTo(search.path[0]));
+    this.say('R:p-1: ' + this.pos.getDirectionTo(search.path[0]), true);
     let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
     if (returnCode == OK) {
       return true;
@@ -376,6 +402,9 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
   if (!directions) {
     return false;
   }
+  if (!directions.forwardDirection && !directions.backwardDirection) {
+    return false;
+  }
 
   if (!skipPreMove) {
     if (unit.preMove) {
@@ -393,7 +422,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
   }
   //this.say(directions.direction);
   if (!directions.direction) {
-    this.log(JSON.stringify(directions) + ' ' + JSON.stringify(this.memory.routing));
+    this.log('config_creep_routing no directions.direction: ' + JSON.stringify(directions) + ' ' + JSON.stringify(this.memory.routing));
   }
 
   this.move(directions.direction);

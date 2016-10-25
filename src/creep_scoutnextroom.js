@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.get_part_config = function(room, energy, heal) {
   var parts = [MOVE, CLAIM];
   return room.get_part_config(energy, parts);
@@ -170,7 +168,7 @@ module.exports.execute = function(creep) {
       pos: targetPosObject,
       range: 0
     }, {
-      roomCallback: helper.getAvoids(creep.room, {
+      roomCallback: creep.room.getAvoids(creep.room, {
         pos: targetPosObject,
         scout: true
       }),

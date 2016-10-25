@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.get_part_config = function(room, energy, heal) {
   var parts = [MOVE, ATTACK];
   return room.get_part_config(energy, parts);
@@ -23,7 +21,7 @@ module.exports.execute = function(creep) {
   let search = PathFinder.search(
     creep.pos,
     hostile.pos, {
-      roomCallback: helper.getAvoids(creep.room)
+      roomCallback: creep.room.getAvoids(creep.room)
     });
   let direction = creep.pos.getDirectionTo(search.path[0]);
   creep.moveCreep(search.path[0], (direction + 3) % 8 + 1);

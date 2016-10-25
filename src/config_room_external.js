@@ -1,8 +1,68 @@
+Room.prototype.handleUnreservedRoom = function() {
+  this.memory.state = 'Unreserved';
+  this.memory.lastSeen = Game.time;
+
+  if (this.memory.reservation) {
+    if (this.name == this.memory.reservation.base) {
+      this.log('Want to spawn reserver for the base room, why?');
+      return false;
+    }
+    this.memory.state = 'Reserved';
+    if (Game.time % 500 === 0) {
+      var reserverSpawn = {
+        role: 'reserver',
+        target: this.name,
+        target_id: this.controller.id,
+        level: 2
+      };
+      // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
+      if (Game.rooms[this.memory.reservation.base].controller.level > 3 && Game.rooms[this.memory.reservation.base].energyCapacityAvailable > 1500) {
+        this.log('Queuing reserver ' + this.memory.reservation.base + ' ' + JSON.stringify(reserverSpawn));
+        Game.rooms[this.memory.reservation.base].memory.queue.push(reserverSpawn);
+      }
+    }
+  } else {
+    for (let roomName of Memory.myRooms) {
+      let room = Game.rooms[roomName];
+      // TODO mark as reserved earlier, but only send sourcer
+      if (room.controller.level < 4) {
+        continue;
+      }
+
+      let distance = Game.map.getRoomLinearDistance(this.name, roomName);
+      if (distance <= config.external.distance) {
+        if (room.memory.queue.length === 0) {
+          let reservedRooms = _.filter(Memory.rooms, function(object) {
+            if (!object.reservation) {
+              return false;
+            }
+            return object.reservation.base == roomName;
+          });
+          if (reservedRooms < room.controller.level - 1) {
+            this.log('Would start to spawn');
+
+            // TODO Check paths to decide for structurer
+
+            this.memory.reservation = {
+              base: roomName,
+              tick: Game.time
+            };
+            break;
+          }
+        }
+      }
+    }
+
+    //    this.log(`Unreserved room found`);
+  }
+  return true;
+};
+
+
 Room.prototype.handleSourceKeeperRoom = function() {
   if (!this.memory.base) {
     return false;
   }
-
 
   if (Game.time % 893 !== 0) {
     return false;
@@ -24,7 +84,6 @@ Room.prototype.handleSourceKeeperRoom = function() {
       melee++;
       continue;
     }
-
   }
 
   if (sourcer < 3) {
@@ -69,7 +128,4 @@ Room.prototype.handleSourceKeeperRoom = function() {
     this.log(`!!!!!!!!!!!! ${JSON.stringify(spawn)}`);
     Game.rooms[this.memory.base].memory.queue.push(spawn);
   }
-
-
-
 };

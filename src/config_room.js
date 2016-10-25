@@ -1,9 +1,14 @@
 'use strict';
 
 var creepbuilder = require('creepbuilder');
-var helper = require('helper');
+var players = require('enemyplayers');
+
 
 Room.pathToString = function(path) {
+  if (!config.performance.serializePath) {
+    return path;
+  }
+
   //   console.log(path);
   let result = path[0].roomName + ':';
   result += path[0].x.toString().lpad('0', 2) + path[0].y.toString().lpad('0', 2);
@@ -22,6 +27,10 @@ Room.pathToString = function(path) {
 };
 
 Room.stringToPath = function(string) {
+  if (!config.performance.serializePath) {
+    return string;
+  }
+
   let parts = string.split(':');
   let roomName = parts[0];
   string = parts[1];
@@ -58,20 +67,67 @@ Room.test = function() {
   }
 };
 
-
-Room.prototype.log = function(message) {
-  //  console.log(`<font color=red>${this.name.rpad(' ', 27)}</font>`, message);
-  console.log(`${this.name.rpad(' ', 27)} ${message}`);
-};
-
-
 Room.prototype.handleMyRoom = function() {
+  if (!Memory.username) {
+    Memory.username = this.controller.owner.username;
+  }
   this.memory.lastSeen = Game.time;
   this.memory.constructionSites = this.find(FIND_CONSTRUCTION_SITES);
   this.memory.droppedResources = this.find(FIND_DROPPED_RESOURCES);
+  let room = this;
+
+
+  // TODO Fix for after `delete Memory.rooms`
+  if (!room.memory.position || !room.memory.position.structure) {
+    this.setup();
+  }
+
+  // TODO better update it with something like 'checkStructures', even better when the last cs is build
+  this.memory.transferableStructures = this.find(FIND_STRUCTURES, {
+    filter: function(object) {
+      if (object.structureType == STRUCTURE_CONTROLLER) {
+        return false;
+      }
+      if (object.structureType == STRUCTURE_ROAD) {
+        return false;
+      }
+      if (object.structureType == STRUCTURE_WALL) {
+        return false;
+      }
+      if (object.structureType == STRUCTURE_RAMPART) {
+        return false;
+      }
+      if (object.structureType == STRUCTURE_OBSERVER) {
+        return false;
+      }
+      if (object.structureType == STRUCTURE_ROAD) {
+        return false;
+      }
+      if (object.structureType == STRUCTURE_WALL) {
+        return false;
+      }
+      if (object.structureType == STRUCTURE_RAMPART) {
+        return false;
+      }
+
+
+      if (object.structureType == STRUCTURE_LINK) {
+        if (object.pos.isEqualTo(room.memory.position.structure.link[0].x, room.memory.position.structure.link[0].y)) {
+          return false;
+        }
+        if (object.pos.isEqualTo(room.memory.position.structure.link[0].x, room.memory.position.structure.link[1].y)) {
+          return false;
+        }
+        if (object.pos.isEqualTo(room.memory.position.structure.link[0].x, room.memory.position.structure.link[2].y)) {
+          return false;
+        }
+      }
+      return true;
+    }
+  });
 
   var hostiles = this.find(FIND_HOSTILE_CREEPS, {
-    filter: helper.find_attack_creep
+    filter: this.findAttackCreeps
   });
   if (hostiles.length === 0) {
     delete this.memory.hostile;
@@ -152,7 +208,7 @@ Room.prototype.handle = function() {
     return this.executeHighwayRoom();
   }
 
-  if (this.controller && this.controller.reservation && this.controller.reservation.username == 'TooAngel') {
+  if (this.controller && this.controller.reservation && this.controller.reservation.username == Memory.username) {
     this.memory.lastSeen = Game.time;
     this.memory.constructionSites = this.find(FIND_CONSTRUCTION_SITES);
     this.memory.droppedResources = this.find(FIND_DROPPED_RESOURCES);
@@ -166,6 +222,27 @@ Room.prototype.handle = function() {
       // TODO replace with enum
       this.memory.state = 'Occupied';
       this.memory.player = this.controller.owner.username;
+
+
+      // TODO Not if in safe mode
+      // TODO trigger everytime?
+      if (!this.controller.safeMode) {
+        let myCreeps = this.find(FIND_MY_CREEPS);
+        if (myCreeps.length > 0) {
+          return false;
+        }
+
+
+        var spawns = this.find(FIND_HOSTILE_STRUCTURES, {
+          filter: function(object) {
+            return object.structureType == 'spawn';
+          }
+        });
+        if (spawns.length > 0) {
+          players.attackRoom(this);
+        }
+      }
+
       return false;
     }
   }
@@ -174,6 +251,12 @@ Room.prototype.handle = function() {
   if (blocked) {
     this.memory.lastSeen = Game.time;
     this.memory.state = 'Blocked';
+  }
+
+  if (this.controller && !this.controller.reservation) {
+    if (this.handleUnreservedRoom()) {
+      return false;
+    }
   }
 
   if (!this.controller) {
@@ -205,6 +288,7 @@ Room.prototype.execute = function() {
 
   delete this.memory.constructionSites;
   delete this.memory.droppedResources;
+  delete this.memory.transferableStructures;
   return returnCode;
 };
 
@@ -381,16 +465,14 @@ Room.prototype.handleObserver = function() {
   }
 };
 
-Room.prototype.handle_scout = function() {
+Room.prototype.handleScout = function() {
   if (this.name == 'sim') {
     return false;
   }
   if (
     ((Game.time + this.controller.pos.x + this.controller.pos.y) % config.room.scoutInterval) === 0 &&
-    this.controller.level >= 4 &&
+    this.controller.level >= 2 &&
     this.memory.queue.length === 0 &&
-    // TODO min energy for reserver
-    this.energyCapacityAvailable > 1000 &&
     config.room.scout
   ) {
     var scout_spawn = {
@@ -413,7 +495,7 @@ Room.prototype.reviveRoom = function() {
     //this.memory.underSiege = true;
   }
 
-  this.handle_tower();
+  this.handleTower();
   this.handleTerminal();
   this.memory.active = false;
   if (!config.room.revive) {
@@ -506,7 +588,7 @@ Room.prototype.executeRoom = function() {
   });
 
   var hostiles = this.find(FIND_HOSTILE_CREEPS, {
-    filter: helper.find_attack_creep
+    filter: this.findAttackCreeps
   });
   if (hostiles.length === 0) {
     this.memory.attack_timer = Math.max(this.memory.attack_timer - 5, 0);
@@ -553,7 +635,8 @@ Room.prototype.executeRoom = function() {
     creepsConfig.push('harvester');
     if (!room.storage) {
       creepsConfig.push('harvester');
-      if (room.controller.level == 2) {
+      // TODO maybe better spawn harvester when a carry recognize that the dropped energy > threshold
+      if (room.controller.level == 2 || room.controller.level == 3) {
         creepsConfig.push('harvester');
         creepsConfig.push('harvester');
         creepsConfig.push('harvester');
@@ -688,7 +771,7 @@ Room.prototype.executeRoom = function() {
   }
 
   if (!building && nextroomers.length === 0) {
-    this.handle_scout();
+    this.handleScout();
   }
 
   let constructionSitesBlocker = this.find(FIND_MY_CONSTRUCTION_SITES, {
@@ -703,7 +786,7 @@ Room.prototype.executeRoom = function() {
     }
   });
 
-  this.handle_tower();
+  this.handleTower();
   if (this.controller.level > 1) {
     creepsConfig.push('repairer');
   }

@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.energyRequired = function(room) {
   return Math.min(room.energyCapacityAvailable, 1400);
 };

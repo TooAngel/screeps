@@ -1,7 +1,5 @@
 'use strict';
 
-let helper = require('helper');
-
 module.exports.get_part_config = function(room, energy, heal) {
   var parts = [MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK];
   return room.get_part_config(energy, parts);
@@ -66,7 +64,7 @@ module.exports.execute = function(creep) {
   creep.memory.countdown = creep.memory.countdown || 100;
 
   let hostiles = creep.room.find(FIND_HOSTILE_CREEPS, {
-    filter: helper.find_attack_creep
+    filter: creep.room.findAttackCreeps
   });
   if (hostiles.length === 0) {
     if (recycleCreep(creep)) {

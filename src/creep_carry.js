@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.buildRoad = true;
 module.exports.flee = true;
 
@@ -9,7 +7,7 @@ module.exports.boostActions = ['capacity'];
 
 let pickup = function(creep, reverse) {
   if (creep.room.name == creep.memory.base && creep.memory.routing.pathPos < 2) {
-    return false;
+    return reverse;
   }
 
   if (_.sum(creep.carry) < creep.carryCapacity) {
@@ -86,9 +84,13 @@ module.exports.preMove = function(creep, directions) {
   if (_.sum(creep.carry) > carryPercentage * creep.carryCapacity) {
     reverse = true;
     if (creep.room.name == creep.memory.base) {
-      if (creep.transferToStructures()) {
+      let transferred = creep.transferToStructures();
+      if (transferred) {
         creep.say('transfer');
-        reverse = false;
+        if (transferred.moreStructures) {
+          return true;
+        }
+        reverse = creep.carry.energy - transferred.transferred > 0;
       } else if (!creep.room.storage && creep.memory.routing.pathPos === 0) {
         creep.say('Drop');
         creep.drop(RESOURCE_ENERGY);
@@ -111,7 +113,6 @@ module.exports.preMove = function(creep, directions) {
   };
 
   reverse = pickup(creep, reverse);
-
   if (reverse) {
     //     creep.log('reverse');
     directions.direction = directions.backwardDirection;
@@ -168,6 +169,8 @@ module.exports.action = function(creep) {
     }
   }
 
+  creep.memory.routing.reached = false;
+  creep.memory.routing.reverse = true;
 
   return true;
 };

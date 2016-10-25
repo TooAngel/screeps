@@ -22,6 +22,7 @@ module.exports.energyBuild = function(room, energy) {
     if (room.storage && room.storage.store.energy < 50000) {
       return 350;
     }
+    // TODO extract room.energyCapacityAvailable to a new method, which takes into account if the spawn is at the wrong place (-300) or the base is setup (-0)
     return Math.min(1950, room.energyCapacityAvailable - 300);
   }
   var energyNeeded = 200;

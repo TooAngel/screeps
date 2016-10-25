@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 var avoid_fields = [new RoomPosition(29, 27, 'E4S9'), new RoomPosition(29, 28, 'E4S9')];
 
 module.exports.get_part_config = function(room, energy, heal) {
@@ -79,7 +77,7 @@ module.exports.action = function(creep) {
     creep.log('Fill storage');
     creep.moveTo(creep.room.storage, {
       ignoreCreeps: true,
-      costCallback: helper.getAvoids(creep.room)
+      costCallback: creep.room.getAvoids(creep.room)
     });
     var return_code = creep.transfer(creep.room.storage, RESOURCE_POWER);
     if (return_code == OK) {

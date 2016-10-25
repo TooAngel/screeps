@@ -112,7 +112,12 @@ module.exports = {
 
         // TODO maybe skip only if there is a spawn which is not spawning
         creep.ttl = creep.ttl || config.creep.queueTtl;
-        creep.ttl--;
+        let spawnsNotSpawning = _.filter(room.find(FIND_MY_SPAWNS), function(object) {
+          return !object.spawning;
+        });
+        if (spawnsNotSpawning.length === 0) {
+          creep.ttl--;
+        }
       }
       // Spawing only one per tick
       return;

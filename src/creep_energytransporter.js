@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 var min_energy = 3000;
 
 module.exports.get_part_config = function(room, energy, heal) {
@@ -25,7 +23,7 @@ module.exports.execute = function(creep) {
   if (creep.room.name == creep.memory.base && creep.carry.energy < creep.carryCapacity) {
     creep.moveTo(creep.room.storage, {
       ignoreCreeps: true,
-      costCallback: helper.getAvoids(creep.room)
+      costCallback: creep.room.getAvoids(creep.room)
     });
     creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
     return true;
@@ -83,6 +81,6 @@ module.exports.execute = function(creep) {
   creep.moveTo(flags[creep.memory.step], {
     reusePath: 50,
     ignoreCreeps: true,
-    costCallback: helper.getAvoids(creep.room)
+    costCallback: creep.room.getAvoids(creep.room)
   });
 };

@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.stayInRoom = true;
 module.exports.buildRoad = true;
 

@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.buildRoad = true;
 module.exports.killPrevious = true;
 

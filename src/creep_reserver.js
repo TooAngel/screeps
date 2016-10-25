@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.killPrevious = true;
 // TODO should be true, but flee must be fixed before 2016-10-13
 module.exports.flee = false;
@@ -17,7 +15,6 @@ module.exports.energyRequired = function(room) {
 
 module.exports.energyBuild = function(room, energy, source, heal, level) {
   if (!level) {
-    console.log(room.name, 'reserver set level.');
     level = 1;
   }
 
@@ -68,7 +65,7 @@ function check_sourcer(creep) {
         //  role: 'cleaner',
         //  target: creep.room.name
         //});
-        continue;
+        //        continue;
       }
 
       if (check_sourcer_match(sourcer, sources[sources_id].pos)) {
@@ -154,7 +151,7 @@ function work(creep) {
   if (creep.room.controller.reservation && creep.room.controller.reservation.ticksToEnd > 4500) {
     creep.memory.level = 1;
   }
-  if (!creep.room.controller.my && (!creep.room.controller.reservation || creep.room.controller.reservation.username != 'TooAngel')) {
+  if (!creep.room.controller.my && (!creep.room.controller.reservation || creep.room.controller.reservation.username != Memory.username)) {
     creep.memory.level = 5;
   }
   let repairers = creep.room.find(FIND_MY_CREEPS, {
@@ -170,13 +167,13 @@ function work(creep) {
   }
   call_cleaner(creep);
 
-  if (Game.time % 100 === 0 && creep.room.controller.reservation && creep.room.controller.reservation.username == 'TooAngel') {
+  if (Game.time % 100 === 0 && creep.room.controller.reservation && creep.room.controller.reservation.username == Memory.username) {
     check_sourcer(creep);
   }
 
   if (config.creep.reserverDefender) {
     var hostiles = creep.room.find(FIND_HOSTILE_CREEPS, {
-      filter: helper.find_attack_creep
+      filter: creep.room.findAttackCreeps
     });
     if (hostiles.length > 0) {
       //creep.log('Reserver under attack');
@@ -192,7 +189,7 @@ function work(creep) {
 
   var method = creep.reserveController;
   var return_code;
-  if (creep.room.controller.owner && creep.room.controller.owner != 'TooAngel') {
+  if (creep.room.controller.owner && creep.room.controller.owner != Memory.username) {
     creep.say('attack');
     return_code = creep.attackController(creep.room.controller);
   } else {
@@ -228,7 +225,7 @@ function work(creep) {
 module.exports.action = function(creep) {
   if (!creep.memory.routing.targetId) {
     // TODO check when this happens and fix it
-    creep.log('creep_reserver.action No targetId !!!!!!!!!!!');
+    creep.log('creep_reserver.action No targetId !!!!!!!!!!!' + JSON.stringify(creep.memory));
     if (creep.room.name == creep.memory.routing.targetRoom) {
       creep.memory.routing.targetId = creep.room.controller.id;
     }
@@ -238,10 +235,14 @@ module.exports.action = function(creep) {
   // TODO this should be enabled, because the reserver should flee without being attacked
   creep.notifyWhenAttacked(false);
   if (!creep.memory.target) {
-    creep.log('No target suiciding: ' + JSON.stringify(creep.memory));
-    creep.memory.killed = true;
-    creep.suicide();
-    return true;
+    if (creep.memory.routing.targetRoom) {
+      creep.memory.target = creep.memory.routing.targetRoom;
+    } else {
+      creep.log('No target suiciding: ' + JSON.stringify(creep.memory));
+      creep.memory.killed = true;
+      creep.suicide();
+      return true;
+    }
   }
 
   work(creep);

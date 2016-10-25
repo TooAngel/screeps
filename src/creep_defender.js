@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.boostActions = ['rangedAttack', 'heal'];
 
 module.exports.get_part_config = function(room, energy, heal) {
@@ -26,7 +24,7 @@ module.exports.energyBuild = function(room, energy) {
 
 function fightRampart(creep) {
   let hostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-    filter: helper.find_attack_creep
+    filter: creep.room.findAttackCreeps
   });
   if (hostile === null) {
     return false;
@@ -61,7 +59,7 @@ function attack(creep) {
 
   var range;
   var hostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-    filter: helper.find_attack_creep
+    filter: creep.room.findAttackCreeps
   });
   if (hostile === null) {
     var my_creeps = creep.room.find(FIND_MY_CREEPS, {
@@ -129,7 +127,7 @@ function attack(creep) {
         if (!object.owner) {
           return false;
         }
-        if (object.owner.username == 'TooAngel') {
+        if (object.owner.username == Memory.username) {
           return false;
         }
         return true;
@@ -227,7 +225,7 @@ module.exports.action = function(creep) {
 module.exports.preMove = function(creep, directions) {
   creep.heal(creep);
   let target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-    filter: helper.find_attack_creep
+    filter: creep.room.findAttackCreeps
   });
   if (target !== null) {
     attack(creep);

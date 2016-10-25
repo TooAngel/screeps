@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.get_part_config = function(room, energy, heal) {
   var parts = [MOVE, ATTACK];
   return room.get_part_config(energy, parts);
@@ -96,7 +94,7 @@ function ranged_attack(creep, target) {
 function attack_attack_creep(creep) {
   var direction;
   var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-    filter: helper.find_attack_creep
+    filter: creep.room.findAttackCreeps
   });
   if (target === null) {
     return false;
@@ -342,7 +340,7 @@ module.exports.execute = function(creep) {
 
   creep.moveTo(flags[creep.memory.step], {
     ignoreCreeps: true,
-    costCallback: helper.getAvoids(creep.room)
+    costCallback: creep.room.getAvoids(creep.room)
   });
 
   if (typeof(flags[creep.memory.step]) == 'undefined' || flags[creep.memory.step].pos.roomName == creep.room.name) {

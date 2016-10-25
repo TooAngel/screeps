@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 Creep.prototype.pickupEnergy = function() {
   // TODO Extract to somewhere (also in creep_harvester, creep_carry, config_creep_resources)
   let creep = this;
@@ -88,76 +86,41 @@ Creep.prototype.transferToStructures = function() {
   let transferred = false;
 
   let creep = this;
-  let structures = this.pos.findInRange(FIND_STRUCTURES, 1, {
-    filter: function(object) {
-      let factor = 0.9;
-      if (creep.memory.role == 'harvester') {
-        factor = 0.4;
-      }
-      if (object.structureType == STRUCTURE_TOWER && object.energy > factor * object.energyCapacity) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_CONTROLLER) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_ROAD) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_WALL) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_RAMPART) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_OBSERVER) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_ROAD) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_WALL) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_RAMPART) {
-        return false;
-      }
 
-      if (object.structureType == STRUCTURE_TERMINAL && (object.store.energy || 0) > 10000) {
-        return false;
-      }
-
-      if (creep.memory.role == 'harvester' && object.structureType == STRUCTURE_STORAGE) {
-        return false;
-      }
-
-      if (creep.memory.role == 'harvester' && object.structureType == STRUCTURE_LINK) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_LINK) {
-        if (object.pos.isEqualTo(creep.room.memory.position.structure.link[0].x, creep.room.memory.position.structure.link[0].y)) {
-          return false;
-        }
-        if (object.pos.isEqualTo(creep.room.memory.position.structure.link[0].x, creep.room.memory.position.structure.link[1].y)) {
-          return false;
-        }
-        if (object.pos.isEqualTo(creep.room.memory.position.structure.link[0].x, creep.room.memory.position.structure.link[2].y)) {
-          return false;
-        }
-      }
-
-
-      if ((object.structureType == STRUCTURE_LAB ||
-          object.structureType == STRUCTURE_EXTENSION ||
-          object.structureType == STRUCTURE_SPAWN ||
-          object.structureType == STRUCTURE_NUKER ||
-          object.structureType == STRUCTURE_POWER_SPAWN ||
-          object.structureType == STRUCTURE_LINK) &&
-        object.energy == object.energyCapacity) {
-        return false;
-      }
-      return true;
+  let filterTransferrables = function(object) {
+    if (object.structureType == STRUCTURE_TERMINAL && (object.store.energy || 0) > 10000) {
+      return false;
     }
-  });
+    let factor = 0.9;
+    if (creep.memory.role == 'harvester') {
+      factor = 0.4;
+    }
+    if (object.structureType == STRUCTURE_TOWER && object.energy > factor * object.energyCapacity) {
+      return false;
+    }
+
+    if (creep.memory.role == 'harvester' && object.structureType == STRUCTURE_STORAGE) {
+      return false;
+    }
+
+    if (creep.memory.role == 'harvester' && object.structureType == STRUCTURE_LINK) {
+      return false;
+    }
+
+    if ((object.structureType == STRUCTURE_LAB ||
+        object.structureType == STRUCTURE_EXTENSION ||
+        object.structureType == STRUCTURE_SPAWN ||
+        object.structureType == STRUCTURE_NUKER ||
+        object.structureType == STRUCTURE_POWER_SPAWN ||
+        object.structureType == STRUCTURE_LINK) &&
+      object.energy == object.energyCapacity) {
+      return false;
+    }
+
+    return creep.pos.getRangeTo(object.pos) < 2;
+  };
+
+  let structures = _.filter(creep.room.memory.transferableStructures, filterTransferrables);
 
   if (structures.length > 0) {
     let returnCode = -1;
@@ -167,7 +130,9 @@ Creep.prototype.transferToStructures = function() {
         returnCode = this.transfer(structure, resource);
         if (returnCode == OK) {
           return {
-            moreStructures: structures.length > 1
+            moreStructures: structures.length > 1,
+            // TODO handle different type of resources on the structure side
+            transferred: Math.min(this.carry[resource], structure.energyCapacity - structure.energy)
           };
         }
         this.log('TransferToStructure: ' + returnCode + ' pos: ' + structure.pos + ' resource: ' + resource);
@@ -283,7 +248,7 @@ Creep.prototype.getEnergy = function() {
             pos: target.pos,
             range: 1
           }, {
-            roomCallback: helper.getAvoids(this.room, {}, true),
+            roomCallback: this.room.getAvoids(this.room, {}, true),
             maxRooms: 0
           }
         );
@@ -316,7 +281,7 @@ Creep.prototype.getEnergy = function() {
         delete this.memory.routing.cache[target.id];
         return true;
       }
-      this.say('de:' + this.pos.getDirectionTo(path[pos + 1].x, path[pos + 1].y));
+      this.say('de:' + this.pos.getDirectionTo(path[pos + 1].x, path[pos + 1].y), true);
       if (!this.pos.getDirectionTo(path[pos + 1].x, path[pos + 1].y)) {
         this.log(pos + ' ' + this.pos.getDirectionTo(path[pos + 1].x, path[pos + 1].y) + ' ' + JSON.stringify(path));
         this.say('no path pos');
@@ -370,7 +335,7 @@ Creep.prototype.getEnergy = function() {
       this.moveTo(source, {
         reusePath: 5,
         ignoreCreeps: true,
-        costCallback: helper.getAvoids(this.room)
+        costCallback: this.room.getAvoids(this.room)
 
       });
       return true;
@@ -380,7 +345,7 @@ Creep.prototype.getEnergy = function() {
   }
 
   range = this.pos.getRangeTo(item);
-  this.say('r:' + range);
+  this.say('range:' + range, true);
   if (this.carry.energy > 0 && range > 1) {
     return false;
   }
@@ -428,8 +393,6 @@ Creep.prototype.getEnergy = function() {
     this.cancelOrder('moveTo');
     return true;
   } else {
-    this.say('hia');
-
     if (!this.memory.routing) {
       this.memory.routing = {};
     }
@@ -448,7 +411,7 @@ Creep.prototype.repairStructure = function() {
   var i = null;
   var structures = null;
 
-  this.say('repair');
+  this.say('repair', true);
 
   if (this.memory.target) {
     var to_repair = Game.getObjectById(this.memory.target);
@@ -463,7 +426,7 @@ Creep.prototype.repairStructure = function() {
             pos: to_repair.pos,
             range: 3
           }, {
-            roomCallback: helper.getAvoids(this.room, {}, true),
+            roomCallback: this.room.getAvoids(this.room, {}, true),
             maxRooms: 0
           }
         );
@@ -493,7 +456,7 @@ Creep.prototype.repairStructure = function() {
                 pos: to_repair.pos,
                 range: 3
               }, {
-                roomCallback: helper.getAvoids(this.room, {}, true),
+                roomCallback: this.room.getAvoids(this.room, {}, true),
                 maxRooms: 0
               }
             );
@@ -523,7 +486,7 @@ Creep.prototype.repairStructure = function() {
               this.log('No path : ' + JSON.stringify(search));
               returnCode = this.moveTo(to_repair, {
                 ignoreCreeps: true,
-                costCallback: helper.getAvoids(this.room, {
+                costCallback: this.room.getAvoids(this.room, {
                   power: true
                 })
               });
@@ -587,7 +550,7 @@ Creep.prototype.repairStructure = function() {
         pos: lowRamparts[0].pos,
         range: 3
       }, {
-        roomCallback: helper.getAvoids(this.room, {}, true),
+        roomCallback: this.room.getAvoids(this.room, {}, true),
         maxRooms: 0
       }
     );
@@ -652,14 +615,14 @@ Creep.prototype.repairStructure = function() {
         pos: target.pos,
         range: 3
       }, {
-        roomCallback: helper.getAvoids(this.room, {}, true),
+        roomCallback: this.room.getAvoids(this.room, {}, true),
         maxRooms: 0
       }
     );
     this.log('ConstructionSite: ' + target.pos + ' search: ' + JSON.stringify(search));
     // for (let x = 19; x < 31; x++) {
     // for (let y = 2; y < 7; y++) {
-    // let costmatrix = helper.getAvoids(this.room, {}, true)(this.room.name);
+    // let costmatrix = this.room.getAvoids(this.room, {}, true)(this.room.name);
     // this.log(x + ',' + y + ' ' + costmatrix.get(x, y));
     // }
     // }
@@ -708,6 +671,7 @@ Creep.prototype.repairStructure = function() {
 };
 
 Creep.prototype.construct = function() {
+  this.say('construct', true);
   var target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
 
   if (target === null) {
@@ -763,6 +727,26 @@ Creep.prototype.construct = function() {
         let callbackInner = function(roomName) {
           let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
           costMatrix.set(creep.pos.x, creep.pos.y, 0);
+
+          // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
+          let structures = room.find(FIND_STRUCTURES, {
+            filter: function(object) {
+              if (object.structureType == STRUCTURE_RAMPART) {
+                return false;
+              }
+              if (object.structureType == STRUCTURE_ROAD) {
+                return false;
+              }
+              if (object.structureType == STRUCTURE_CONTAINER) {
+                return false;
+              }
+              return true;
+            }
+          });
+          for (let structure of structures) {
+            costMatrix.set(structure.pos.x, structure.pos.y, config.layout.structureAvoid);
+          }
+
           return costMatrix;
         };
         return callbackInner;
@@ -846,16 +830,30 @@ Creep.prototype.transferEnergyMy = function() {
         pos: target.pos,
         range: 1
       }, {
-        roomCallback: helper.getAvoids(this.room, {}, true),
-        maxRooms: 0
+        roomCallback: this.room.getAvoids(this.room, {
+          scout: true
+        }, true),
+        maxRooms: 1
       }
     );
     if (search.path.length === 0) {
       this.moveRandom();
       return true;
     }
-    this.say('t:' + this.pos.getDirectionTo(search.path[0]));
-    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+    if (search.incomplete) {
+      this.say('tr:incompl', true);
+      let search = PathFinder.search(
+        this.pos, {
+          pos: target.pos,
+          range: 1
+        }, {
+          maxRooms: 1
+        });
+      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+    } else {
+      this.say('tr:' + this.pos.getDirectionTo(search.path[0]), true);
+      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+    }
   }
   return true;
 };

@@ -1,7 +1,6 @@
 'use strict';
 
 var creepbuilder = require('creepbuilder');
-var helper = require('helper');
 
 Room.prototype.split_room_name = function() {
   var patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;

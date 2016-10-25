@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.get_part_config = function(room, energy, heal, target) {
   var parts = [MOVE, WORK, MOVE, CARRY];
   var config = room.get_part_config(energy, parts);
@@ -329,7 +327,7 @@ function settle(creep) {
     methods.push(Creep.constructTask);
   }
   if (creep.room.controller.level < 8) {
-    methods.push(Creep.upgradeController);
+    methods.push(Creep.upgradeControllerTask);
   }
   methods.push(Creep.transferEnergy);
   return Creep.execute(creep, methods);

@@ -272,7 +272,16 @@ Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
     };
   }
 
-  return Room.stringToPath(this.memory.routing[pathName].path);
+  if (!this.cache) {
+    this.cache = {};
+  }
+
+  let cacheName = this.name + ':' + pathName;
+  if (!this.cache[cacheName]) {
+    this.cache[cacheName] = Room.stringToPath(this.memory.routing[pathName].path);
+  }
+
+  return this.cache[cacheName];
 };
 
 

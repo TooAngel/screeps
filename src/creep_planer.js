@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.stayInRoom = true;
 
 module.exports.get_part_config = function(room, energy, heal) {
@@ -15,7 +13,7 @@ module.exports.energyBuild = function(room, energy) {
 
 module.exports.action = function(creep) {
   var methods = [Creep.getEnergy];
-  if (creep.room.storage && creep.room.controller.level > 5 && creep.room.storage.store.energy > 2000) {
+  if (creep.room.storage && creep.room.storage.store.energy > config.creep.energyFromStorageThreshold) {
     methods = [Creep.getEnergyFromStorage];
   }
 
@@ -30,7 +28,7 @@ module.exports.action = function(creep) {
 
 module.exports.execute = function(creep) {
   var methods = [Creep.getEnergy];
-  if (creep.room.storage && creep.room.controller.level > 5 && creep.room.storage.store.energy > 2000) {
+  if (creep.room.storage && creep.room.storage.store.energy > config.creep.energyFromStorageThreshold) {
     methods = [Creep.getEnergyFromStorage];
   }
 

@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.energyRequired = function(room) {
   return 1600;
 };

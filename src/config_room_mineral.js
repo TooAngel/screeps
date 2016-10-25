@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 Room.prototype.getNextReaction = function() {
   for (let mineralFirst in this.terminal.store) {
     if (!REACTIONS[mineralFirst]) {

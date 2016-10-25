@@ -27,34 +27,43 @@ function addRoom(player, room) {
   }
 }
 
-function attack0(creep) {
-  creep.log('Queuing level 0 attack from scout <------ ' + creep.memory.base);
-  Game.notify(Game.time + ' ' + creep.room.name + ' Queuing autoattacker');
-  Game.rooms[creep.memory.base].memory.queue.push({
+function attack0(room) {
+  room.log('Queuing level 0 attack');
+  Game.notify(Game.time + ' ' + room.name + ' Queuing autoattacker');
+
+
+  let sortByDistance = function(object) {
+    return Game.map.getRoomLinearDistance(room.name, object);
+  };
+
+  let roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
+
+  Game.rooms[roomsMy[0]].memory.queue.push({
     role: 'autoattackmelee',
-    target: creep.room.name
+    target: room.name
   });
+
   return true;
 }
 
 
-function attack1(creep) {
+function attack1(room) {
 
 }
 
 
 module.exports = {
 
-  attackRoom: function(creep) {
+  attackRoom: function(room) {
     if (config.autoattack.disabled) {
       return true;
     }
     var name;
-    if (creep.room.controller.owner) {
-      name = creep.room.controller.owner.username;
+    if (room.controller.owner) {
+      name = room.controller.owner.username;
     } else {
-      if (creep.room.controller.reservation) {
-        name = creep.room.controller.reservation.username;
+      if (room.controller.reservation) {
+        name = room.controller.reservation.username;
       } else {
         return;
       }
@@ -70,10 +79,10 @@ module.exports = {
     }
 
     var player = getPlayer(name);
-    addRoom(player, creep.room);
+    addRoom(player, room);
 
     if (player.level === 0) {
-      attack0(creep);
+      attack0(room);
       player.counter++;
       if (player.counter > 5) {
         player.level = 1;

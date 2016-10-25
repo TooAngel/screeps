@@ -1,6 +1,5 @@
 'use strict';
 
-var helper = require('helper');
 var squadmanager = require('squadmanager');
 
 module.exports.get_part_config = function(room, energy, heal) {

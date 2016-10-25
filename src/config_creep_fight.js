@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 Creep.prototype.waitRampart = function() {
   this.say('waitRampart');
   let creep = this;
@@ -19,7 +17,7 @@ Creep.prototype.waitRampart = function() {
       pos: structure.pos,
       range: 0
     }, {
-      roomCallback: helper.getAvoids(this.room, {}, true),
+      roomCallback: this.room.getAvoids(this.room, {}, true),
       maxRooms: 0
     }
   );
@@ -51,7 +49,7 @@ Creep.prototype.fightRampart = function(target) {
 
   let callback = this.room.getMatrixCallback;
 
-  // TODO Extract the callback method to ... e.g. room and replace helper.getAvoids
+  // TODO Extract the callback method to ... e.g. room and replace this.room.getAvoids
   if (this.room.memory.costMatrix && this.room.memory.costMatrix.base) {
     let room = this.room;
     callback = function(end) {
@@ -86,7 +84,7 @@ Creep.prototype.fightRampart = function(target) {
   this.log('creep_fight.fightRampart returnCode: ' + returnCode + ' path: ' + JSON.stringify(search.path[0]));
 
   let targets = this.pos.findInRange(FIND_HOSTILE_CREEPS, 3, {
-    filter: helper.find_attack_creep
+    filter: this.room.findAttackCreeps
   });
   if (targets.length > 1) {
     this.rangedMassAttack();
@@ -131,7 +129,7 @@ Creep.prototype.fightRanged = function(target) {
 
   let creep = this;
   let callbackFunction = function(roomName) {
-    let callback = helper.getAvoids(creep.room);
+    let callback = creep.room.getAvoids(creep.room);
     let costMatrix = callback(roomName);
     for (let i = 0; i < 50; i++) {
       costMatrix.set(i, 0, 0xFF);

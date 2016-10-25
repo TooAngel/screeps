@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 let states = [{
   name: 'storage result',
   destination: STRUCTURE_TERMINAL,
@@ -75,7 +73,7 @@ function moveTo(creep, target) {
       pos: target.pos,
       range: 1
     }, {
-      roomCallback: helper.getAvoids(creep.room, {}, true),
+      roomCallback: creep.room.getAvoids(creep.room, {}, true),
     }
   );
   let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
@@ -155,7 +153,7 @@ function cleanUpLabs(creep) {
   if (_.sum(creep.carry) > 0) {
     creep.moveTo(creep.room.terminal, {
       ignoreCreeps: true,
-      costCallback: helper.getAvoids(creep.room)
+      costCallback: creep.room.getAvoids(creep.room)
     });
     for (let resource in creep.carry) {
       if (creep.carry[resource] === 0) {
@@ -184,7 +182,7 @@ function cleanUpLabs(creep) {
     }
     creep.moveTo(lab, {
       ignoreCreeps: true,
-      costCallback: helper.getAvoids(creep.room)
+      costCallback: creep.room.getAvoids(creep.room)
     });
     let returnCode = creep.withdraw(lab, lab.mineralType);
     //    creep.log(returnCode + ' ' + lab.mineralType + ' ' + JSON.stringify(lab));
@@ -300,14 +298,14 @@ function prepareBoost(creep) {
     if (creep.carry.energy > 0) {
       creep.moveTo(lab, {
         ignoreCreeps: true,
-        costCallback: helper.getAvoids(creep.room)
+        costCallback: creep.room.getAvoids(creep.room)
       });
       creep.transfer(lab, RESOURCE_ENERGY);
       return true;
     } else {
       creep.moveTo(creep.room.storage, {
         ignoreCreeps: true,
-        costCallback: helper.getAvoids(creep.room)
+        costCallback: creep.room.getAvoids(creep.room)
       });
       if (_.sum(creep.carry) > 0) {
         for (let resource in creep.carry) {
@@ -324,7 +322,7 @@ function prepareBoost(creep) {
     if (creep.carry[creep.memory.boostAction.mineral] > 0) {
       creep.moveTo(lab, {
         ignoreCreeps: true,
-        costCallback: helper.getAvoids(creep.room)
+        costCallback: creep.room.getAvoids(creep.room)
       });
       creep.transfer(lab, creep.memory.boostAction.mineral);
       return true;
@@ -335,7 +333,7 @@ function prepareBoost(creep) {
       }
       creep.moveTo(creep.room.terminal, {
         ignoreCreeps: true,
-        costCallback: helper.getAvoids(creep.room)
+        costCallback: creep.room.getAvoids(creep.room)
       });
       creep.withdraw(creep.room.terminal, creep.memory.boostAction.mineral);
       return true;
@@ -356,7 +354,7 @@ function checkTerminal(creep) {
   if (creep.carry.energy === 0) {
     creep.moveTo(creep.room.terminal.pos, {
       ignoreCreeps: true,
-      costCallback: helper.getAvoids(creep.room)
+      costCallback: creep.room.getAvoids(creep.room)
     });
     for (let resource in creep.carry) {
       creep.transfer(creep.room.terminal, resource);
@@ -367,7 +365,7 @@ function checkTerminal(creep) {
 
   creep.moveTo(creep.room.storage.pos, {
     ignoreCreeps: true,
-    costCallback: helper.getAvoids(creep.room)
+    costCallback: creep.room.getAvoids(creep.room)
   });
   creep.transfer(creep.room.storage, RESOURCE_ENERGY);
   return true;
@@ -391,7 +389,7 @@ function checkStorage(creep) {
   if (_.sum(creep.carry) > 0) {
     creep.moveTo(creep.room.terminal.pos, {
       ignoreCreeps: true,
-      costCallback: helper.getAvoids(creep.room)
+      costCallback: creep.room.getAvoids(creep.room)
     });
     for (let transfer in creep.carry) {
       let returnCode = creep.transfer(creep.room.terminal, transfer);
@@ -405,7 +403,7 @@ function checkStorage(creep) {
 
   creep.moveTo(creep.room.storage.pos, {
     ignoreCreeps: true,
-    costCallback: helper.getAvoids(creep.room)
+    costCallback: creep.room.getAvoids(creep.room)
   });
   creep.withdraw(creep.room.storage, resource);
   return true;
@@ -424,13 +422,13 @@ function checkNuke(creep) {
         if (creep.carry[RESOURCE_GHODIUM] > 0) {
           creep.moveTo(nuker, {
             ignoreCreeps: true,
-            costCallback: helper.getAvoids(creep.room)
+            costCallback: creep.room.getAvoids(creep.room)
           });
           creep.transfer(nuker, RESOURCE_GHODIUM);
         } else {
           creep.moveTo(creep.room.terminal, {
             ignoreCreeps: true,
-            costCallback: helper.getAvoids(creep.room)
+            costCallback: creep.room.getAvoids(creep.room)
           });
           creep.withdraw(creep.room.terminal, RESOURCE_GHODIUM);
         }
@@ -491,7 +489,7 @@ let execute = function(creep) {
     if (_.sum(creep.carry) - creep.carry.energy > 0) {
       creep.moveTo(room.terminal, {
         ignoreCreeps: true,
-        costCallback: helper.getAvoids(creep.room)
+        costCallback: creep.room.getAvoids(creep.room)
       });
       for (let resource in creep.carry) {
         creep.transfer(room.terminal, resource);
@@ -503,13 +501,13 @@ let execute = function(creep) {
     if (creep.carry.energy > 0) {
       creep.moveTo(room.terminal, {
         ignoreCreeps: true,
-        costCallback: helper.getAvoids(creep.room)
+        costCallback: creep.room.getAvoids(creep.room)
       });
       creep.transfer(room.terminal, RESOURCE_ENERGY);
     } else {
       creep.moveTo(room.storage, {
         ignoreCreeps: true,
-        costCallback: helper.getAvoids(creep.room)
+        costCallback: creep.room.getAvoids(creep.room)
       });
       creep.withdraw(room.storage, RESOURCE_ENERGY);
     }
@@ -537,7 +535,7 @@ let execute = function(creep) {
   }
   moveTo(creep, target, {
     ignoreCreeps: true,
-    costCallback: helper.getAvoids(creep.room)
+    costCallback: creep.room.getAvoids(creep.room)
   });
 
   let resource = RESOURCE_ENERGY;

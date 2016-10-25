@@ -1,18 +1,16 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.get_part_config = function(room, energy, heal) {
   var parts = [MOVE, ATTACK];
   return room.get_part_config(energy, parts).sort().reverse();
 };
 
 module.exports.energyRequired = function(room) {
-  return Math.min(room.energyCapacityAvailable - 50, 3250);
+  return Math.min(room.energyCapacityAvailable - 300, 3250);
 };
 
 module.exports.energyBuild = function(room, energy) {
-  return Math.min(room.energyCapacityAvailable - 50, 3250);
+  return Math.min(room.energyCapacityAvailable - 300, 3250);
 };
 
 module.exports.died = function(name, memory) {
@@ -20,8 +18,8 @@ module.exports.died = function(name, memory) {
   delete Memory.creeps[name];
 };
 
-module.export.preMove = function(creep) {
-  creep.log('!!!!!!!!!!!!!!!! Autoattacking');
+module.exports.preMove = function(creep) {
+  //  creep.log('!!!!!!!!!!!!!!!! Autoattacking');
 };
 
 function attack(creep) {
@@ -41,19 +39,39 @@ function attack(creep) {
 
   if (spawn === null) {
     var hostile_creep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-      filter: helper.find_attack_creep
+      filter: creep.room.findAttackCreeps
     });
-    if (hostile_creep !== null) {
-      creep.moveTo(hostile_creep);
-      creep.attack(hostile_creep);
+    if (hostile_creep === null) {
+      var structures = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES);
+
+      if (structures === null) {
+        var constructionSites = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+        creep.moveTo(constructionSites);
+        return true;
+      }
+
+      creep.moveTo(structures);
+      creep.attack(structures);
+      return true;
     }
+    creep.moveTo(hostile_creep);
+    creep.attack(hostile_creep);
     return true;
   }
-  var path = creep.pos.findPathTo(spawn, {
-    ignoreDestructibleStructures: true
-  });
+  //  var path = creep.pos.findPathTo(spawn, {
+  //    ignoreDestructibleStructures: true
+  //  });
+  //  
+  let search = PathFinder.search(
+    creep.pos, {
+      pos: spawn.pos,
+      range: 1
+    }, {
+      maxRooms: 1
+    }
+  );
+  creep.move(creep.pos.getDirectionTo(search.path[0]));
   creep.attack(spawn);
-  var return_code = creep.moveByPath(path);
   return true;
 }
 

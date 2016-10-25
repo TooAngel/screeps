@@ -1,7 +1,5 @@
 'use strict';
 
-var helper = require('helper');
-
 module.exports.boostActions = ['dismantle'];
 
 module.exports.energyRequired = function(room) {
@@ -178,7 +176,6 @@ function setTargetId(creep) {
       return true;
     }
   }
-  creep.say('hia');
   creep.memory.targetReached = true;
   return Creep.recycleCreep(creep);
 }
