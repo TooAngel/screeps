@@ -1,6 +1,5 @@
 'use strict';
 
-var actions = require('actions');
 let helper = require('helper');
 
 module.exports.get_part_config = function(room, energy, heal) {
@@ -31,7 +30,7 @@ function recycleCreep(creep) {
       return true;
     }
   }
-  return actions.recycleCreep(creep);
+  return Creep.recycleCreep(creep);
 }
 
 // TODO This overwrites the target so redo and enable again

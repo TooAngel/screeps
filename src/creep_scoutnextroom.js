@@ -1,6 +1,5 @@
 'use strict';
 
-var actions = require('actions');
 var helper = require('helper');
 
 module.exports.get_part_config = function(room, energy, heal) {
@@ -82,7 +81,7 @@ function check_new_room(creep, opponent_room) {
     if (creep.room.controller && sources.length == 2) {
 
 
-      for (let roomName of Memory.my_rooms) {
+      for (let roomName of Memory.myRooms) {
         let distance = Game.map.getRoomLinearDistance(creep.room.name, roomName);
         if (distance < 3) {
           return false;

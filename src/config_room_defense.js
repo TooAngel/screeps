@@ -1,8 +1,5 @@
 'use strict';
 
-var config = require('config');
-
-
 Room.prototype.handleNukeAttack = function() {
   if (Game.time % config.room.handleNukeAttackInterval !== 0) {
     return false;

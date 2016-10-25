@@ -1,7 +1,6 @@
 'use strict';
 
 var helper = require('helper');
-var config = require('config');
 
 module.exports.boostActions = ['harvest', 'capacity'];
 

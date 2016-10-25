@@ -1,6 +1,5 @@
 'use strict';
 
-var actions = require('actions');
 var helper = require('helper');
 
 var min_energy = 3000;

@@ -1,7 +1,5 @@
 'use strict';
 
-var config = require('config');
-
 Creep.prototype.getRoute = function() {
   if (this.memory.routing.route) {
     return this.memory.routing.route;
@@ -24,6 +22,11 @@ Creep.prototype.getRoute = function() {
 
       if (Memory.rooms[roomName] && Memory.rooms[roomName].state == 'Occupied') {
         console.log(`Creep.prototype.getRoute: Do not route throug occupied rooms ${roomName}`);
+        return Infinity;
+      }
+
+      if (Memory.rooms[roomName] && Memory.rooms[roomName].state == 'Blocked') {
+        console.log(`Creep.prototype.getRoute: Do not route throug blocked rooms ${roomName}`);
         return Infinity;
       }
 
@@ -83,7 +86,8 @@ Creep.prototype.getPathPos = function(route, routePos, path) {
     pathPos = _.findIndex(path, i => i.x == this.pos.x && i.y == this.pos.y);
     if (pathPos == -1) {
       // Not sure if this method is the best place
-      //      this.log('routing: Not on path, pos: ' + JSON.stringify(this.pos) + ' path: ' + JSON.stringify(path));
+      // this.log('routing: Not on path, pos: ' + JSON.stringify(this.pos) + '
+      // path: ' + JSON.stringify(path));
 
       if (Room.isRoomUnderAttack(this.room.name)) {
         this.moveTo(path[0].x, path[0].y, {
@@ -104,7 +108,7 @@ Creep.prototype.getPathPos = function(route, routePos, path) {
 
       // TODO when does this happen?
       if (!posTarget) {
-        //        this.log('config_creep_routing.move middle: ' + posTarget);
+        // this.log('config_creep_routing.move middle: ' + posTarget);
         return -1;
       }
       let returnCode = this.moveTo(posTarget.x, posTarget.y, {
@@ -212,8 +216,9 @@ Creep.prototype.getDirections = function(path, pathPos) {
     direction = backwardDirection;
   } else {
     if (pathPos + 1 > path.length - 1) {
-      //      this.log('creep_routing.getDirections: ' + this.memory.routing.reached);
-      //      if (true) throw new Error();
+      // this.log('creep_routing.getDirections: ' +
+      // this.memory.routing.reached);
+      // if (true) throw new Error();
       this.say('EoP');
       return;
     }
@@ -233,10 +238,10 @@ Creep.prototype.followPath = function(action) {
   let routePos = this.getRoutePos(route);
 
   // TODO Disable base room for now
-  //  if (routePos === 0) {
-  //    this.say('R:Base');
-  //    return false;
-  //  }
+  // if (routePos === 0) {
+  // this.say('R:Base');
+  // return false;
+  // }
 
   let unit = require('creep_' + this.memory.role);
   if (!this.memory.routing.targetId && routePos == route.length - 1) {
@@ -258,9 +263,12 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
   let path = this.room.getPath(route, routePos, start, target);
   if (!path) {
     // TODO this could be because the targetId Object does not exist anymore
-    //    this.log('newmove: no path legacy fallback: ' + this.memory.base + ' ' + this.room.name + ' ' + this.memory.base + ' ' + this.memory.routing.targetRoom + ' routePos: ' + routePos + ' route: ' + JSON.stringify(route));
+    // this.log('newmove: no path legacy fallback: ' + this.memory.base + ' ' +
+    // this.room.name + ' ' + this.memory.base + ' ' +
+    // this.memory.routing.targetRoom + ' routePos: ' + routePos + ' route: ' +
+    // JSON.stringify(route));
     this.say('R:no path');
-    //    this.log('R:no path: pathStart-' + this.memory.routing.targetId);
+    // this.log('R:no path: pathStart-' + this.memory.routing.targetId);
     if (!skipPreMove) {
       if (unit.preMove) {
         if (unit.preMove(this)) {
@@ -288,7 +296,9 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     let callback = this.room.getMatrixCallback;
 
     if (this.room.memory.costMatrix && this.room.memory.costMatrix.base) {
-      //this.log('base matrix: ' + PathFinder.CostMatrix.deserialize(this.room.memory.costMatrix.base).get(28, 13));
+      // this.log('base matrix: ' +
+      // PathFinder.CostMatrix.deserialize(this.room.memory.costMatrix.base).get(28,
+      // 13));
       let room = this.room;
       callback = function(end) {
         let callbackInner = function(roomName) {
@@ -298,8 +308,11 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
         return callbackInner;
       };
     }
-    //    this.log('matrix: ' + PathFinder.CostMatrix.deserialize(this.room.memory.costMatrix.base).get(19, 24));
-    //    this.log('storage: ' + JSON.stringify(this.room.memory.position.structure.storage));
+    // this.log('matrix: ' +
+    // PathFinder.CostMatrix.deserialize(this.room.memory.costMatrix.base).get(19,
+    // 24));
+    // this.log('storage: ' +
+    // JSON.stringify(this.room.memory.position.structure.storage));
 
     if (path.length === 0) {
       this.log('config_creep_routing.followPath no pos: ' + JSON.stringify(path));
@@ -323,7 +336,10 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
       return true;
     }
 
-    //    this.log('creep_routing.followPath not on path: ' + this.pos.getDirectionTo(search.path[0]) + ' pathPos: ' + pathPos + ' pos: ' + this.pos + ' routePos: ' + routePos + ' path: ' + JSON.stringify(path) + ' route: ' + JSON.stringify(route));
+    // this.log('creep_routing.followPath not on path: ' +
+    // this.pos.getDirectionTo(search.path[0]) + ' pathPos: ' + pathPos + ' pos:
+    // ' + this.pos + ' routePos: ' + routePos + ' path: ' +
+    // JSON.stringify(path) + ' route: ' + JSON.stringify(route));
     this.say('R:p-1: ' + this.pos.getDirectionTo(search.path[0]));
     let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
     if (returnCode == OK) {
@@ -347,7 +363,8 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
         }
       }
       if (pathPos == path.length - 1 && !this.memory.routing.reverse) {
-        //        this.log('creep_routing.followPath reached: ' + pathPos + ' path.length: ' + path.length);
+        // this.log('creep_routing.followPath reached: ' + pathPos + '
+        // path.length: ' + path.length);
         this.memory.routing.reached = true;
         return action(this);
       }
@@ -368,12 +385,17 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     }
   }
 
-  //  this.say(directions.direction);
+  // this.say(directions.direction);
   if (directions.direction === 0) {
-    this.log('zero direction: pathPos: ' + pathPos + ' path: ' + path);
-    //    throw new Error();
+    // TODO When does this happen?
+    // this.log('zero direction: pathPos: ' + pathPos + ' path: ' + path);
+    // throw new Error();
   }
-  this.say(directions.direction);
+  //this.say(directions.direction);
+  if (!directions.direction) {
+    this.log(JSON.stringify(directions) + ' ' + JSON.stringify(this.memory.routing));
+  }
+
   this.move(directions.direction);
 
   this.memory.routing.routePos = routePos;

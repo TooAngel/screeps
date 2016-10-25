@@ -1,7 +1,6 @@
 'use strict';
 
 var helper = require('helper');
-var config = require('config');
 
 let states = [{
   name: 'storage result',

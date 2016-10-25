@@ -1,9 +1,9 @@
 'use strict';
 
 var helper = require('helper');
-var config = require('config');
 
 function getOppositeDirection(direction) {
+  console.log('getOppositeDirection typeof: ' + typeof direction);
   return ((direction + 3) % 8) + 1;
 }
 
@@ -193,7 +193,7 @@ Creep.prototype.buildRoad = function() {
       return false;
     }
   });
-  if (constructionSites.length <= config.buildRoad.maxConstructionSitesRoom && Object.keys(Game.constructionSites).length < config.buildRoad.maxConstructionSitesTotal) {
+  if (constructionSites.length <= config.buildRoad.maxConstructionSitesRoom && Object.keys(Game.constructionSites).length < config.buildRoad.maxConstructionSitesTotal && this.pos.inPath()) {
     let returnCode = this.pos.createConstructionSite(STRUCTURE_ROAD);
     if (returnCode == OK) {
       return true;

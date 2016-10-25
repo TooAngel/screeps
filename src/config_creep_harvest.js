@@ -1,7 +1,6 @@
 'use strict';
 
 var helper = require('helper');
-var config = require('config');
 
 function existInArray(array, item) {
   for (var i in array) {

@@ -1,6 +1,5 @@
 'use strict';
 
-var actions = require('actions');
 var helper = require('helper');
 
 module.exports.get_part_config = function(room, energy, heal) {
@@ -19,7 +18,7 @@ module.exports.energyBuild = function(room, energy) {
 module.exports.execute = function(creep) {
   let hostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
   if (hostile === null) {
-    return actions.recycleCreep(creep);
+    return Creep.recycleCreep(creep);
   }
   let search = PathFinder.search(
     creep.pos,

@@ -1,6 +1,5 @@
 'use strict';
 
-var actions = require('actions');
 var helper = require('helper');
 
 module.exports.stayInRoom = true;
@@ -15,34 +14,30 @@ module.exports.energyBuild = function(room, energy) {
 };
 
 module.exports.action = function(creep) {
-  var methods = [actions.getEnergy];
+  var methods = [Creep.getEnergy];
   if (creep.room.storage && creep.room.controller.level > 5 && creep.room.storage.store.energy > 2000) {
-    methods = [actions.getEnergyFromStorage];
+    methods = [Creep.getEnergyFromStorage];
   }
 
-  methods.push(actions.construct);
-  methods.push(actions.buildRoads);
-  methods.push(actions.recycleCreep);
-  //methods.push(actions.upgradeController);
-  //methods.push(actions.repairStructure);
-  methods.push(actions.transferEnergy);
+  methods.push(Creep.constructTask);
+  methods.push(Creep.buildRoads);
+  methods.push(Creep.recycleCreep);
+  methods.push(Creep.transferEnergy);
 
-  return actions.execute(creep, methods);
+  return Creep.execute(creep, methods);
 };
 
 
 module.exports.execute = function(creep) {
-  var methods = [actions.getEnergy];
+  var methods = [Creep.getEnergy];
   if (creep.room.storage && creep.room.controller.level > 5 && creep.room.storage.store.energy > 2000) {
-    methods = [actions.getEnergyFromStorage];
+    methods = [Creep.getEnergyFromStorage];
   }
 
-  methods.push(actions.construct);
-  methods.push(actions.buildRoads);
-  methods.push(actions.recycleCreep);
-  //methods.push(actions.upgradeController);
-  //methods.push(actions.repairStructure);
-  methods.push(actions.transferEnergy);
+  methods.push(Creep.constructTask);
+  methods.push(Creep.buildRoads);
+  methods.push(Creep.recycleCreep);
+  methods.push(Creep.transferEnergy);
 
-  return actions.execute(creep, methods);
+  return Creep.execute(creep, methods);
 };

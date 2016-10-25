@@ -2,9 +2,6 @@
 
 var creepbuilder = require('creepbuilder');
 var helper = require('helper');
-var basebuilder = require('basebuilder');
-var config = require('config');
-
 
 Room.pathToString = function(path) {
   //   console.log(path);
@@ -107,14 +104,48 @@ Room.prototype.handleMyRoom = function() {
 
   //this.build();
   return this.executeRoom();
+};
 
+Room.prototype.checkBlocked = function() {
+  let exits = Game.map.describeExits(this.name);
+  let room = this;
+  let roomCallback = function(roomName) {
+    let costMatrix = new PathFinder.CostMatrix();
+    let structures = room.find(FIND_STRUCTURES);
+    for (let structure of structures) {
+      costMatrix.set(structure.pos.x, structure.pos.y, 0xFF);
+    }
+    return costMatrix;
+  };
+  for (let fromDirection in exits) {
+    let fromExitDirection = this.findExitTo(exits[fromDirection]);
+    let fromExitPoss = this.find(fromExitDirection);
+    let fromNextExit = fromExitPoss[Math.floor(fromExitPoss.length / 2)];
+    for (let toDirection in exits) {
+      if (fromDirection == toDirection) {
+        continue;
+      }
+
+      let toExitDirection = this.findExitTo(exits[toDirection]);
+      let toExitPoss = this.find(toExitDirection);
+      let toNextExit = toExitPoss[Math.floor(toExitPoss.length / 2)];
+
+      let search = PathFinder.search(fromNextExit, toNextExit, {
+        maxRooms: 0,
+        roomCallback: roomCallback
+      });
+      if (search.incomplete) {
+        return true;
+      }
+    }
+  }
+  return false;
 };
 
 Room.prototype.handle = function() {
   if (this.controller && this.controller.my) {
     return this.handleMyRoom();
   }
-
 
   var name_split = this.split_room_name();
   if (name_split[2] % 10 === 0 || name_split[4] % 10 === 0) {
@@ -137,6 +168,12 @@ Room.prototype.handle = function() {
       this.memory.player = this.controller.owner.username;
       return false;
     }
+  }
+
+  let blocked = this.checkBlocked();
+  if (blocked) {
+    this.memory.lastSeen = Game.time;
+    this.memory.state = 'Blocked';
   }
 
   if (!this.controller) {
@@ -350,7 +387,7 @@ Room.prototype.handle_scout = function() {
   }
   if (
     ((Game.time + this.controller.pos.x + this.controller.pos.y) % config.room.scoutInterval) === 0 &&
-    this.controller.level >= 5 &&
+    this.controller.level >= 4 &&
     this.memory.queue.length === 0 &&
     // TODO min energy for reserver
     this.energyCapacityAvailable > 1000 &&
@@ -399,13 +436,13 @@ Room.prototype.reviveRoom = function() {
       return Game.map.getRoomLinearDistance(room.name, object);
     };
 
-    let roomsMy = _.sortBy(Memory.my_rooms, sortByDistance);
+    let roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
 
     for (let roomIndex in roomsMy) {
       if (nextroomerCalled > config.nextRoom.numberOfNextroomers) {
         break;
       }
-      let roomName = Memory.my_rooms[roomIndex];
+      let roomName = Memory.myRooms[roomIndex];
       if (this.name == roomName) {
         continue;
       }
@@ -432,7 +469,7 @@ Room.prototype.reviveRoom = function() {
 
 
       let distance = Game.map.getRoomLinearDistance(this.name, roomName);
-      if (distance < 26) {
+      if (distance < config.nextRoom.maxDistance) {
         let creepToSpawn = {
           role: 'nextroomer',
           target: this.name
@@ -480,7 +517,7 @@ Room.prototype.executeRoom = function() {
   }
 
   if (spawns.length === 0) {
-    return this.reviveRoom();
+    this.reviveRoom();
   }
   if (this.energyCapacityAvailable < 1000) {
     this.reviveRoom();
@@ -516,6 +553,11 @@ Room.prototype.executeRoom = function() {
     creepsConfig.push('harvester');
     if (!room.storage) {
       creepsConfig.push('harvester');
+      if (room.controller.level == 2) {
+        creepsConfig.push('harvester');
+        creepsConfig.push('harvester');
+        creepsConfig.push('harvester');
+      }
     }
   }
 

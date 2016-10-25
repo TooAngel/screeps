@@ -3,9 +3,6 @@
 // TODO get energy from links
 // TODO move with the costmatrix
 
-var actions = require('actions');
-let config = require('config');
-
 module.exports.stayInRoom = true;
 
 module.exports.get_part_config = function(room, energy, heal) {
@@ -58,14 +55,14 @@ let execute = function(creep) {
     }
   }
 
-  var methods = [actions.getEnergy];
+  var methods = [Creep.getEnergy];
   if (creep.room.controller.level >= 5 && creep.room.storage && creep.room.storage.store.energy > config.creep.energyFromStorageThreshold) {
-    methods = [actions.getEnergyFromStorage];
+    methods = [Creep.getEnergyFromStorage];
   }
 
-  methods.push(actions.repairStructure);
+  methods.push(Creep.repairStructure);
 
-  if (actions.execute(creep, methods)) {
+  if (Creep.execute(creep, methods)) {
     return true;
   }
   return true;

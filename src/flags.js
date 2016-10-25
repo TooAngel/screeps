@@ -135,8 +135,8 @@ module.exports = {
   },
 
   findOldPath: function() {
-    for (var room_i in Memory.my_rooms) {
-      var room = Game.rooms[Memory.my_rooms[room_i]];
+    for (var room_i in Memory.myRooms) {
+      var room = Game.rooms[Memory.myRooms[room_i]];
       for (var gp_i in room.memory.globalPath) {
         var gp = room.memory.globalPath[gp_i];
         if (!gp.fixed) {

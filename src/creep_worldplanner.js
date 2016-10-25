@@ -1,6 +1,5 @@
 'use strict';
 
-var actions = require('actions');
 var helper = require('helper');
 
 var min_energy = 3000;
@@ -21,14 +20,14 @@ module.exports.energyBuild = function(room, energy) {
 function build(creep) {
   let methods = null;
   methods = [
-    actions.getEnergy,
-    actions.construct,
-    actions.transferEnergy,
-    actions.upgradeController,
-    actions.repairStructure
+    Creep.getEnergy,
+    Creep.constructTask,
+    Creep.transferEnergy,
+    Creep.upgradeControllerTask,
+    Creep.repairStructure
   ];
 
-  return actions.execute(creep, methods);
+  return Creep.execute(creep, methods);
 }
 
 module.exports.execute = function(creep) {

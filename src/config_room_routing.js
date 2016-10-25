@@ -1,7 +1,5 @@
 'use strict';
 
-var config = require('config');
-
 Room.isRoomUnderAttack = function(roomName) {
   if (!Memory.rooms[roomName]) {
     return false;

@@ -2,8 +2,6 @@
 
 var creepbuilder = require('creepbuilder');
 var helper = require('helper');
-var basebuilder = require('basebuilder');
-var config = require('config');
 
 Room.prototype.controller_level_tasks = function() {
 
@@ -12,7 +10,7 @@ Room.prototype.controller_level_tasks = function() {
   if (!this.memory.controllerLevel['setup_level_' + this.controller.level]) {
     if (this.controller.level == 1) {
       if (!this.memory.layout) {
-        require('costmatrix').setup(this.name);
+        this.setup();
       }
     }
     this.memory.basebuilderInterval = 0;
@@ -71,7 +69,7 @@ Room.prototype.controller_level_tasks = function() {
 
   if (this.memory.controllerLevel.buildStructuresInterval > 1 && (Game.time + this.controller.pos.x * 10 + this.controller.pos.y * 10) % config.room.buildBlockersInterval === 0) {
     if (this.controller.level >= 2) {
-      basebuilder.buildBlockers(this);
+      this.buildBlockers();
     }
   }
 
@@ -79,7 +77,7 @@ Room.prototype.controller_level_tasks = function() {
   if ((Game.time + this.controller.pos.x + this.controller.pos.y) % config.layout.checkInterval === 0) {
     // version: this.memory.position.version is maybe not the best idea
     if (!this.memory.position || this.memory.position.version != config.layout.version) {
-      require('costmatrix').setup(this.name);
+      this.setup();
     }
   }
 };

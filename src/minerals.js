@@ -9,7 +9,7 @@ function orderMinerals(room, mineralsBase) {
     }
   }
 
-  let roomsOther = _.sortBy(Memory.my_rooms, function(o) {
+  let roomsOther = _.sortBy(Memory.myRooms, function(o) {
     return Game.map.getRoomLinearDistance(room.name, o);
   });
 
@@ -103,7 +103,7 @@ module.exports = {
 
   checkMinerals: function() {
     let minerals = {};
-    for (let name of Memory.my_rooms) {
+    for (let name of Memory.myRooms) {
       let room = Game.rooms[name];
       if (room.terminal) {
         console.log(name, JSON.stringify(room.terminal.store));

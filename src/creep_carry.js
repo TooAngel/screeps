@@ -1,8 +1,6 @@
 'use strict';
 
 var helper = require('helper');
-var actions = require('actions');
-var config = require('config');
 
 module.exports.buildRoad = true;
 module.exports.flee = true;
@@ -10,6 +8,10 @@ module.exports.flee = true;
 module.exports.boostActions = ['capacity'];
 
 let pickup = function(creep, reverse) {
+  if (creep.room.name == creep.memory.base && creep.memory.routing.pathPos < 2) {
+    return false;
+  }
+
   if (_.sum(creep.carry) < creep.carryCapacity) {
 
     // TODO Extract to somewhere (also in creep_harvester, creep_carry, config_creep_resources)
@@ -45,7 +47,7 @@ let pickup = function(creep, reverse) {
 
 
 module.exports.preMove = function(creep, directions) {
-  if (!creep.memory.controller) {
+  if (!creep.room.controller) {
     var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
       filter: function(object) {
         if (object.owner.username == 'Source Keeper') {
@@ -85,6 +87,11 @@ module.exports.preMove = function(creep, directions) {
     reverse = true;
     if (creep.room.name == creep.memory.base) {
       if (creep.transferToStructures()) {
+        creep.say('transfer');
+        reverse = false;
+      } else if (!creep.room.storage && creep.memory.routing.pathPos === 0) {
+        creep.say('Drop');
+        creep.drop(RESOURCE_ENERGY);
         reverse = false;
       }
     }
@@ -106,8 +113,10 @@ module.exports.preMove = function(creep, directions) {
   reverse = pickup(creep, reverse);
 
   if (reverse) {
+    //     creep.log('reverse');
     directions.direction = directions.backwardDirection;
   } else {
+    //     creep.log('not reverse');
     directions.direction = directions.forwardDirection;
   }
   creep.memory.routing.reverse = reverse;
@@ -116,7 +125,8 @@ module.exports.preMove = function(creep, directions) {
 
 
 module.exports.action = function(creep) {
-  creep.log('ACTION');
+  // TODO log when this happens, carry is getting energy from the source
+  //   creep.log('ACTION');
   let source = Game.getObjectById(creep.memory.routing.targetId);
   if (source === null || (!creep.memory.targetId && creep.pos.getRangeTo(source.pos) > 1)) {
     creep.say('sfener');
@@ -165,11 +175,11 @@ module.exports.action = function(creep) {
 module.exports.get_part_config = function(room, energy, heal) {
   var parts = [MOVE, CARRY, CARRY];
 
-  let config = room.get_part_config(energy - 150, parts);
-  config.unshift(WORK);
-  config.unshift(MOVE);
+  let partConfig = room.get_part_config(energy - 150, parts);
+  partConfig.unshift(WORK);
+  partConfig.unshift(MOVE);
 
-  return config;
+  return partConfig;
 };
 
 module.exports.energyRequired = function(room) {

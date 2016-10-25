@@ -1,9 +1,7 @@
 'use strict';
 
-var actions = require('actions');
 var helper = require('helper');
 var players = require('enemyplayers');
-var config = require('config');
 
 module.exports.get_part_config = function(room, energy, heal) {
   var parts = [MOVE];
@@ -450,6 +448,11 @@ module.exports.execute = function(creep) {
       maxRooms: 1
     }
   );
+
+  if (search.incomplete) {
+    creep.moveTo(targetPosObject);
+    return true;
+  }
 
   creep.say(creep.pos.getDirectionTo(search.path[0]));
   let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));

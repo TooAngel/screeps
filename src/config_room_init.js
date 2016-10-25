@@ -1,11 +1,9 @@
 'use strict';
 
-let config = require('config');
+Room.prototype.setTowerFiller = function() {
+  let exits = _.map(Game.map.describeExits(this.name));
 
-function setTowerFiller(room) {
-  let exits = _.map(Game.map.describeExits(room.name));
-
-  room.memory.position.creep.towerfiller = [];
+  this.memory.position.creep.towerfiller = [];
 
   for (let index = 0; index < CONTROLLER_STRUCTURES.tower[8] - 1; index++) {
     let roomName = exits[index % exits.length];
@@ -16,7 +14,7 @@ function setTowerFiller(room) {
       let linkSet = false;
       let towerFillerSet = false;
       let positionsFound = false;
-      let path = Room.stringToPath(room.memory.routing['pathStart' + '-' + roomName].path);
+      let path = Room.stringToPath(this.memory.routing['pathStart' + '-' + roomName].path);
       for (let pathIndex = path.length - 1; pathIndex >= 1; pathIndex--) {
         let posPath = path[pathIndex];
         let posPathObject = new RoomPosition(posPath.x, posPath.y, posPath.roomName);
@@ -44,16 +42,16 @@ function setTowerFiller(room) {
         }
 
         if (!linkSet) {
-          room.memory.position.structure.link.push(pos);
+          this.memory.position.structure.link.push(pos);
           linkSet = true;
           continue;
         }
         if (!towerFillerSet) {
-          room.memory.position.creep.towerfiller.push(pos);
+          this.memory.position.creep.towerfiller.push(pos);
           towerFillerSet = true;
           continue;
         }
-        room.memory.position.structure.tower.push(pos);
+        this.memory.position.structure.tower.push(pos);
         positionsFound = true;
         break;
       }
@@ -63,11 +61,11 @@ function setTowerFiller(room) {
       }
     }
   }
-}
+};
 
 function setStructures(room, path, costMatrixBase) {
 
-  setTowerFiller(room);
+  room.setTowerFiller();
 
   let pathI;
   for (pathI in path) {
@@ -236,24 +234,13 @@ let buildCostMatrix = function(room) {
   return costMatrixBase;
 };
 
-let flags = function(room, index) {
-  let pathName = Object.keys(room.memory.routing)[index];
-  let path = Room.stringToPath(room.memory.routing[pathName].path);
-  console.log(pathName, JSON.stringify(path));
-  for (let posIndex in path) {
-    let pos = path[posIndex];
-    let returnCode = room.createFlag(pos.x, pos.y);
-  }
+Room.prototype.setup = function() {
+  delete this.memory.constants;
+  this.log('costmatrix.setup called');
+  this.memory.controllerLevel = {};
 
-};
-
-let setup = function(room) {
-  delete room.memory.constants;
-  room.log('costmatrix.setup called');
-  room.memory.controllerLevel = {};
-
-  let costMatrixBase = buildCostMatrix(room);
-  //  room.memory.position = {
+  let costMatrixBase = buildCostMatrix(this);
+  //  this.memory.position = {
   //    creep: {}
   //  };
 
@@ -293,46 +280,24 @@ let setup = function(room) {
     return value;
   };
 
-  let paths_controller = _.filter(room.memory.routing, function(object, key) {
+  let paths_controller = _.filter(this.memory.routing, function(object, key) {
     return key.startsWith('pathStart-');
   });
   let paths_sorted = _.sortBy(paths_controller, sorter);
   let path = JSON.parse(JSON.stringify(paths_sorted[paths_sorted.length - 1]));
   let pathList = Room.stringToPath(path.path);
-  let pathI = setStructures(room, pathList, costMatrixBase);
+  let pathI = setStructures(this, pathList, costMatrixBase);
   console.log('path: ' + path.name + ' pathI: ' + pathI + ' length: ' + pathList.length);
-  room.memory.routing['pathStart-harvester'] = path;
-  room.memory.routing['pathStart-harvester'].path = Room.pathToString(pathList.slice(0, pathI));
-  room.memory.position.version = config.layout.version;
+  this.memory.routing['pathStart-harvester'] = path;
+  this.memory.routing['pathStart-harvester'].path = Room.pathToString(pathList.slice(0, pathI));
+  this.memory.position.version = config.layout.version;
 
-  for (let structureId in room.memory.position.structure) {
-    let structures = room.memory.position.structure[structureId];
+  for (let structureId in this.memory.position.structure) {
+    let structures = this.memory.position.structure[structureId];
     for (let pos of structures) {
       costMatrixBase.set(pos.x, pos.y, config.layout.structureAvoid);
     }
   }
-  room.memory.costMatrix.base = costMatrixBase.serialize();
+  this.memory.costMatrix.base = costMatrixBase.serialize();
 
-};
-
-
-module.exports = {
-
-  setup: function(name) {
-    let room = Game.rooms[name];
-    return setup(room);
-  },
-
-  flags: function(name, index) {
-    let room = Game.rooms[name];
-    return flags(room, index);
-  },
-
-  clearFlags: function(name) {
-    let room = Game.rooms[name];
-    let flags = room.find(FIND_FLAGS);
-    for (let flag of flags) {
-      flag.remove();
-    }
-  }
 };

@@ -1,5 +1,3 @@
-let config = require('config');
-
 Room.prototype.handleMarket = function() {
   if (!this.terminal) {
     return false;
@@ -31,8 +29,13 @@ Room.prototype.handleMarket = function() {
   this.log('!!!!!!!!!!!!MARKET: ' + resource + ' ' + config.mineral.minAmountForMarket + ' ' + Memory.mineralSystemPrice[resource]);
 
 
-  // TODO order by distance
-  let orders = _.filter(Memory.ordersBuy, myMineralOrders);
+  let room = this;
+
+  let sortByEnergyCost = function(order) {
+    return Game.market.calcTransactionCost(amount, room.name, order.roomName);
+  };
+
+  let orders = _.sortBy(_.filter(Memory.ordersBuy, myMineralOrders), sortByEnergyCost);
   for (let order of orders) {
     //if (!Memory.mineralSystemPrice[order.resourceType] || order.price < Memory.mineralSystemPrice[order.resourceType]) {
     //  continue;

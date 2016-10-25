@@ -1,7 +1,5 @@
 'use strict';
 
-let config = require('config');
-
 function createCreep(room, role, target, source, heal, target_id, level, squad, routing) {
   var energy = room.energyAvailable;
 

@@ -1,8 +1,6 @@
 'use strict';
 
-var actions = require('actions');
 var helper = require('helper');
-let config = require('config');
 
 module.exports.killPrevious = true;
 // TODO should be true, but flee must be fixed before 2016-10-13

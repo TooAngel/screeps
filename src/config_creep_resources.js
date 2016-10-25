@@ -410,7 +410,7 @@ Creep.prototype.getEnergy = function() {
 
   if (range == 1) {
     this.harvest(item);
-    if (this.carry.energy >= 0) {
+    if (this.carry.energy >= this.carryCapacity) {
       var creep = this;
       var creep_without_energy = this.pos.findClosestByRange(FIND_MY_CREEPS, {
         filter: function(object) {
@@ -702,24 +702,19 @@ Creep.prototype.repairStructure = function() {
   }
   this.memory.step = (this.memory.step * 1.1) + 1;
 
-  this.log('Nothing found: ' + this.memory.step);
+  //   this.log('Nothing found: ' + this.memory.step);
   return false;
 
 };
 
 Creep.prototype.construct = function() {
-  // Build construction sites
-  // this.log('findClosestByPath - construct');
-  var target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
-    ignoreCreeps: true
-  });
+  var target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
 
   if (target === null) {
     return false;
   }
 
   var range = this.pos.getRangeTo(target);
-
   if (range <= 3) {
     let returnCode = this.build(target);
     if (returnCode == OK) {
@@ -734,6 +729,8 @@ Creep.prototype.construct = function() {
       return true;
     }
     if (returnCode == ERR_INVALID_TARGET) {
+      this.log('config_creep_resource construct: ' + returnCode + ' ' + JSON.stringify(target.pos));
+      this.moveRandom();
       let filterSpawns = function(object) {
         return object.structureType == STRUCTURE_SPAWN;
       };
@@ -753,19 +750,10 @@ Creep.prototype.construct = function() {
         this.log('Destroying: ' + structure.structureType);
         structure.destroy();
       }
-    }
-    if (returnCode == ERR_INVALID_TARGET) {
-      let direction = Math.floor(Math.random() * 8) + 1;
-      this.log('config_creep_resource construct: ' + returnCode + ' ' + JSON.stringify(target.pos) + ' move: ' + direction);
-      this.move(direction);
       return true;
     }
     this.log('config_creep_resource construct: ' + returnCode + ' ' + JSON.stringify(target.pos));
   } else {
-    this.build(target);
-    var last_pos = this.memory.lastPosition;
-    var ignoreCreepsSwitch = true;
-
     let callback = this.room.getMatrixCallback;
 
     if (this.room.memory.costMatrix && this.room.memory.costMatrix.base) {
@@ -796,7 +784,6 @@ Creep.prototype.construct = function() {
       return true;
     }
 
-    this.say('c:' + this.pos.getDirectionTo(search.path[0]));
     if (range > 5 && search.path.length == 1) {
       // TODO extract to a method and make sure, e.g. creep doesn't leave the room
       this.moveRandom();

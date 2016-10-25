@@ -1,7 +1,6 @@
 'use strict';
 
 var helper = require('helper');
-var config = require('config');
 
 module.exports.buildRoad = true;
 module.exports.killPrevious = true;
@@ -238,7 +237,7 @@ function work(creep) {
 
   checkContainer(creep);
 
-  if (!creep.room.controller || !creep.room.controller.my || creep.room.controller.level > 3) {
+  if (!creep.room.controller || !creep.room.controller.my || creep.room.controller.level >= 2) {
     creep.spawnCarry();
   }
 

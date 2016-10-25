@@ -247,16 +247,16 @@ Room.prototype.setupStructure = function(structure) {
 
 
 Room.prototype.buildStructures = function() {
-  this.log('buildStructures: ' + this.memory.controllerLevel.buildStructuresInterval);
+  // TODO reduce noise
+  //  this.log('buildStructures: ' + this.memory.controllerLevel.buildStructuresInterval);
   if (!this.memory.position) {
     this.log('No position buildStructures');
-    require('costmatrix').setup(this.name);
+    this.setup();
     return false;
   }
 
   if (!this.memory.position.structure) {
     this.log('No structure positions: ' + JSON.stringify(this.memory.position));
-    //    require('costmatrix').setup(this.name);
     return false;
   }
 

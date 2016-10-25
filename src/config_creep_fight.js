@@ -1,8 +1,6 @@
 'use strict';
 
 var helper = require('helper');
-var config = require('config');
-
 
 Creep.prototype.waitRampart = function() {
   this.say('waitRampart');

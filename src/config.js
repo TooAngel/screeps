@@ -1,22 +1,28 @@
 'use strict';
 
-let config = {
+global.brain = {};
+global.config = {
+  profiler: {
+    enabled: false
+  },
+
   stats: {
     enabled: false
   },
   autoattack: {
-    disabled: true // Currently disabled, have to make sure my ally doesn't get attacked
+    disabled: false // Currently disabled, have to make sure my ally doesn't get attacked
   },
   nextRoom: {
     scoutMinControllerLevel: 4,
     ttlPerRoomForScout: 500,
-    numberOfNextroomers: 5,
-    maxRooms: 30,
-    revive: true
+    numberOfNextroomers: 3,
+    maxRooms: 1,
+    revive: true,
+    maxDistance: 17
   },
 
   power: {
-    disabled: true,
+    disabled: false,
     energyForCreeps: 800000,
     energyForSpawn: 250000
   },
@@ -54,7 +60,7 @@ let config = {
     renewOffset: 20,
     queueTtl: 100,
     structurer: true,
-    reserverDefender: false,
+    reserverDefender: true,
     energyFromStorageThreshold: 2000
   },
 
@@ -69,7 +75,8 @@ let config = {
     nextroomerInterval: 354,
     scoutInterval: 1032,
     scout: true, // TODO somehow broken ?? Is it broken ??
-    builderMinStorage: 10000
+    builderMinStorage: 10000,
+    lastSeenThreshold: 10000
   },
 
   layout: {
@@ -85,11 +92,9 @@ let config = {
   },
 
   mineral: {
-    enabled: false,
+    enabled: true,
     storage: 100000,
     minAmount: 5000,
-    minAmountForMarket: 1000000
+    minAmountForMarket: 1000
   }
 };
-
-module.exports = config;

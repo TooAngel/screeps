@@ -1,8 +1,6 @@
 'use strict';
 
 var helper = require('helper');
-var config = require('config');
-
 
 Room.prototype.getNextReaction = function() {
   for (let mineralFirst in this.terminal.store) {
@@ -144,7 +142,7 @@ Room.prototype.orderMinerals = function() {
 
     for (let mineral of baseMinerals) {
       if (!this.terminal.store[mineral]) {
-        let roomsOther = _.sortBy(Memory.my_rooms, orderByDistance);
+        let roomsOther = _.sortBy(Memory.myRooms, orderByDistance);
 
         for (let roomOtherName of roomsOther) {
           if (roomOtherName == this.name) {
@@ -180,6 +178,9 @@ Room.prototype.orderMinerals = function() {
 
 Room.prototype.handleTerminal = function() {
   let minerals = this.find(FIND_MINERALS);
+  if (minerals.length === 0) {
+    return false;
+  }
   let resource = minerals[0].mineralType;
 
   if (!this.terminal) {

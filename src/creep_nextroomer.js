@@ -1,6 +1,5 @@
 'use strict';
 
-var actions = require('actions');
 var helper = require('helper');
 
 module.exports.get_part_config = function(room, energy, heal, target) {
@@ -223,9 +222,9 @@ function settle(creep) {
 
     // TODO adapt to room controller level
     if (creep.room.controller.ticksToDowngrade < 5000) {
-      let methods = [actions.getEnergy];
-      methods.push(actions.upgradeController);
-      return actions.execute(creep, methods);
+      let methods = [Creep.getEnergy];
+      methods.push(Creep.upgradeControllerTask);
+      return Creep.execute(creep, methods);
     }
 
   }
@@ -307,12 +306,12 @@ function settle(creep) {
   }
 
 
-  let methods = [actions.getEnergy];
+  let methods = [Creep.getEnergy];
   if (creep.room.controller && creep.room.controller.level >= 5 && creep.room.storage && creep.room.storage.store.energy > 100) {
-    methods = [actions.getEnergyFromStorage];
+    methods = [Creep.getEnergyFromStorage];
   }
   if (creep.room.controller.ticksToDowngrade < 1500) {
-    methods.push(actions.upgradeController);
+    methods.push(Creep.upgradeControllerTask);
   }
   let structures = creep.room.find(FIND_MY_CONSTRUCTION_SITES, {
     filter: function(object) {
@@ -327,13 +326,13 @@ function settle(creep) {
   });
 
   if (creep.room.controller.level >= 3 && structures.length > 0) {
-    methods.push(actions.construct);
+    methods.push(Creep.constructTask);
   }
   if (creep.room.controller.level < 8) {
-    methods.push(actions.upgradeController);
+    methods.push(Creep.upgradeController);
   }
-  methods.push(actions.transferEnergy);
-  return actions.execute(creep, methods);
+  methods.push(Creep.transferEnergy);
+  return Creep.execute(creep, methods);
 }
 
 module.exports.action = function(creep) {

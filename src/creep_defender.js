@@ -1,6 +1,5 @@
 'use strict';
 
-var actions = require('actions');
 var helper = require('helper');
 
 module.exports.boostActions = ['rangedAttack', 'heal'];
@@ -19,7 +18,7 @@ module.exports.energyRequired = function(room) {
 
 module.exports.energyBuild = function(room, energy) {
   if (room.controller.level == 8) {
-    return Math.min(room.energyCapacityAvailable, 6200);
+    return Math.max(2000, Math.min(room.energyCapacityAvailable, 6200));
   }
   return Math.min(room.energyCapacityAvailable, 1000);
 };
@@ -192,7 +191,7 @@ function attack(creep) {
 
 module.exports.action = function(creep) {
   if (creep.room.name == creep.memory.base && creep.memory.reverse) {
-    return actions.recycleCreep(creep);
+    return Creep.recycleCreep(creep);
   }
   // TODO Better in premove
   if (creep.room.name != creep.memory.base) {
@@ -227,6 +226,14 @@ module.exports.action = function(creep) {
 
 module.exports.preMove = function(creep, directions) {
   creep.heal(creep);
+  let target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
+    filter: helper.find_attack_creep
+  });
+  if (target !== null) {
+    attack(creep);
+    return true;
+  }
+
 };
 
 module.exports.execute = function(creep) {

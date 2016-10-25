@@ -1,7 +1,5 @@
 'use strict';
 
-var actions = require('actions');
-
 module.exports.stayInRoom = true;
 module.exports.buildRoad = true;
 module.exports.killPrevious = true;

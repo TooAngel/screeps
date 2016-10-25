@@ -1,6 +1,5 @@
 'use strict';
 
-var actions = require('actions');
 var helper = require('helper');
 
 module.exports.boostActions = ['dismantle'];
@@ -181,7 +180,7 @@ function setTargetId(creep) {
   }
   creep.say('hia');
   creep.memory.targetReached = true;
-  return actions.recycleCreep(creep);
+  return Creep.recycleCreep(creep);
 }
 
 function handle(creep) {

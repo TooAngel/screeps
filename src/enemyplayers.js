@@ -1,7 +1,5 @@
 'use strict';
 
-let config = require('config');
-
 function getPlayer(name) {
   if (!Memory.players) {
     Memory.players = {};

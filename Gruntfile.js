@@ -6,6 +6,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks("grunt-jscs");
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-sync');
+  grunt.loadNpmTasks('grunt-contrib-clean');
 
   grunt.initConfig({
     screeps: {
@@ -141,7 +144,11 @@ module.exports = function(grunt) {
           CONTROLLER_DOWNGRADE: false,
           ConstructionSite: false,
           OBSERVER_RANGE: false,
-          STRUCTURE_POWER_BANK: false
+          STRUCTURE_POWER_BANK: false,
+          MINIFIED: false,
+          global: false,
+          config: false,
+          brain: false
         },
         node: true,
         esnext: true
@@ -162,13 +169,85 @@ module.exports = function(grunt) {
       src: "src/*.js",
       config: '.jscsrc'
     },
+    clean: ['dist/'],
+    uglify: {
+      my_target: {
+        options: {
+          compress: {
+            global_defs: {
+              'MINIFIED': true
+            },
+            dead_code: true
+          }
+        },
+        files: {
+          'dist/main.js': [
+            'src/config.js',
+            'src/config_brain_memory.js',
+            'src/config_brain_nextroom.js',
+            'src/config_brain_squadmanager.js',
+            'src/config_creep.js',
+            'src/config_creep_resources.js',
+            'src/config_creep_fight.js',
+            'src/config_creep_harvest.js',
+            'src/config_creep_mineral.js',
+            //            'src/config_creep_move.js',
+            'src/config_creep_routing.js',
+            //            'src/config_creep_startup_tasks.js',
+            'src/config_roomPosition_structures.js',
+            'src/config_room.js',
+            'src/config_room_basebuilder.js',
+            'src/config_room_controller.js',
+            'src/config_room_defense.js',
+            'src/config_room_market.js',
+            'src/config_room_mineral.js',
+            'src/config_room_not_mine.js',
+            'src/config_room_external.js',
+            'src/config_room_flags.js',
+            'src/config_room_routing.js',
+            'src/config_room_wallsetter.js',
+            'src/config_string.js',
+            'src/main.js'
+          ]
+        }
+      }
+    },
     copy: {
       main: {
         files: [{
           expand: true,
           cwd: 'src/',
-          src: ['**'],
-          dest: 'dist/'
+          src: [
+            '**',
+            '!main.js',
+            '!require.js',
+            '!config.js',
+            '!config_brain_memory.js',
+            '!config_brain_nextroom.js',
+            '!config_brain_squadmanager.js',
+            '!config_creep.js',
+            '!config_creep_resources.js',
+            '!config_creep_fight.js',
+            '!config_creep_harvest.js',
+            '!config_creep_mineral.js',
+            //            '!config_creep_move.js',
+            '!config_creep_routing.js',
+            //            '!config_creep_startup_tasks.js',
+            '!config_roomPosition_structures.js',
+            '!config_room.js',
+            '!config_room_basebuilder.js',
+            '!config_room_controller.js',
+            '!config_room_defense.js',
+            '!config_room_market.js',
+            '!config_room_mineral.js',
+            '!config_room_not_mine.js',
+            '!config_room_external.js',
+            '!config_room_flags.js',
+            '!config_room_routing.js',
+            '!config_room_wallsetter.js',
+            '!config_string.js'
+          ],
+          dest: 'dist/',
         }, {
           expand: true,
           cwd: 'node_modules/screeps-profiler',
@@ -179,10 +258,61 @@ module.exports = function(grunt) {
           cwd: 'screeps-elk/js',
           src: ['utils.logger.js'],
           dest: 'dist/'
-        }, ],
+        }]
+      },
+      uglify: {
+        files: [{
+          expand: true,
+          cwd: 'src/',
+          src: [
+            'main.js',
+            'require.js',
+            'config.js',
+            'config_brain_memory.js',
+            'config_brain_nextroom.js',
+            'config_brain_squadmanager.js',
+            'config_creep.js',
+            'config_creep_resources.js',
+            'config_creep_fight.js',
+            'config_creep_harvest.js',
+            'config_creep_mineral.js',
+            //            'config_creep_move.js',
+            'config_creep_routing.js',
+            //            'config_creep_startup_tasks.js',
+            'config_roomPosition_structures.js',
+            'config_room.js',
+            'config_room_basebuilder.js',
+            'config_room_controller.js',
+            'config_room_defense.js',
+            'config_room_market.js',
+            'config_room_mineral.js',
+            'config_room_not_mine.js',
+            'config_room_external.js',
+            'config_room_flags.js',
+            'config_room_routing.js',
+            'config_room_wallsetter.js',
+            'config_string.js'
+          ],
+          dest: 'dist/',
+        }]
+      }
+    },
+
+    sync: {
+      main: {
+        files: [],
+        updateAndDelete: true,
+        verbose: true,
+        compareUsing: "md5"
       },
     }
   });
 
-  grunt.registerTask('default', ['jshint', 'jsbeautifier', 'copy', 'screeps']);
+  grunt.registerTask('default', ['jshint', 'jsbeautifier', 'clean', 'copy', 'screeps']);
+  grunt.registerTask('release', ['jshint', 'jsbeautifier', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
+  grunt.registerTask('local', ['jshint', 'jsbeautifier', 'clean', 'copy:uglify', 'copy:main', 'sync']);
+  grunt.registerTask('requireFile', 'Creates an empty file', function() {
+    grunt.file.write('dist/require.js', '');
+  });
+
 };

@@ -2,8 +2,6 @@
 
 var creepbuilder = require('creepbuilder');
 var helper = require('helper');
-var basebuilder = require('basebuilder');
-var config = require('config');
 
 Room.prototype.split_room_name = function() {
   var patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
@@ -64,8 +62,8 @@ Room.prototype.executeHighwayRoom = function() {
     var min_route = 6;
     var target = null;
     var route;
-    for (var room_id in Memory.my_rooms) {
-      var room = Game.rooms[Memory.my_rooms[room_id]];
+    for (var room_id in Memory.myRooms) {
+      var room = Game.rooms[Memory.myRooms[room_id]];
       if (!room || !room.storage || room.storage.store.energy < config.power.energyForCreeps) {
         continue;
       }

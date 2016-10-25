@@ -1,7 +1,5 @@
 'use strict';
 
-var config = require('config');
-
 Room.prototype.getCostMatrix = function() {
   let costMatrix = new PathFinder.CostMatrix();
   // Keep distance to walls

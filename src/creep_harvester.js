@@ -1,8 +1,6 @@
 'use strict';
 
-var actions = require('actions');
 var helper = require('helper');
-let config = require('config');
 
 module.exports.stayInRoom = true;
 module.exports.buildRoad = true;
@@ -12,17 +10,17 @@ module.exports.boostActions = ['capacity'];
 let beforeStorage = function(creep) {
   creep.say('beforeStorage');
   var methods = [
-    actions.getEnergy
+    Creep.getEnergy
   ];
   if (creep.room.storage && creep.room.storage.store.energy > config.creep.energyFromStorageThreshold) {
-    methods = [actions.getEnergyFromStorage];
+    methods = [Creep.getEnergyFromStorage];
   }
 
   if (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 || creep.room.controller.level == 1) {
-    methods.push(actions.upgradeController);
+    methods.push(Creep.upgradeControllerTask);
   }
 
-  methods.push(actions.transferEnergy);
+  methods.push(Creep.transferEnergy);
 
   let structures = creep.room.find(FIND_MY_CONSTRUCTION_SITES, {
     filter: function(object) {
@@ -40,17 +38,17 @@ let beforeStorage = function(creep) {
   });
 
   if (structures.length > 0) {
-    methods.push(actions.construct);
+    methods.push(Creep.constructTask);
   }
 
 
   if (creep.room.controller.level < 9) {
-    methods.push(actions.upgradeController);
+    methods.push(Creep.upgradeControllerTask);
   } else {
-    methods.push(actions.repairStructure);
+    methods.push(Creep.repairStructure);
   }
 
-  actions.execute(creep, methods);
+  Creep.execute(creep, methods);
   return true;
 };
 
@@ -115,7 +113,7 @@ module.exports.action = function(creep) {
 };
 
 module.exports.get_part_config = function(room, energy, heal) {
-  var parts = [MOVE, WORK, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY];
+  var parts = [MOVE, WORK, MOVE, CARRY];
   let partConfig = room.get_part_config(energy, parts);
   if (room.storage && room.storage.my && room.storage.store.energy > config.creep.energyFromStorageThreshold) {
     parts = [MOVE, CARRY, CARRY];

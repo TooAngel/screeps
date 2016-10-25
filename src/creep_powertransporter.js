@@ -1,6 +1,5 @@
 'use strict';
 
-var actions = require('actions');
 var helper = require('helper');
 
 var avoid_fields = [new RoomPosition(29, 27, 'E4S9'), new RoomPosition(29, 28, 'E4S9')];

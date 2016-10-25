@@ -9,7 +9,7 @@ module.exports = {
 
   terminals: function() {
     console.log('Terminals:');
-    for (let roomName of Memory.my_rooms) {
+    for (let roomName of Memory.myRooms) {
       let room = Game.rooms[roomName];
       if (room.terminal) {
         console.log(`${roomName} ${JSON.stringify(room.terminal.store)}`);
