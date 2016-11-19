@@ -124,7 +124,7 @@ brain.prepareMemory = function() {
     var diff = Game.gcl.progress - Memory.progress;
     Memory.progress = Game.gcl.progress;
 
-    console.log('Progress: ', diff / interval, '/', Memory.my_rooms.length * 15);
+    console.log('Progress: ', diff / interval, '/', Memory.myRooms.length * 15);
     console.log('ConstructionSites: ', Object.keys(Memory.constructionSites).length);
     console.log('-------------------------');
 
@@ -134,8 +134,8 @@ brain.prepareMemory = function() {
     var storage_high_string = '';
     var storage_power = '';
     var upgrade_less = '';
-    for (var id in Memory.my_rooms) {
-      let name = Memory.my_rooms[id];
+    for (var id in Memory.myRooms) {
+      let name = Memory.myRooms[id];
       let room = Game.rooms[name];
       if (!room || !room.storage) {
         storage_no_string += name + ' ';
