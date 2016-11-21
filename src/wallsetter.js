@@ -17,8 +17,7 @@ function checkRamparts(room_name) {
   if (!room.memory.walls) {
     return false;
   }
-  for (var rampart_i in room.memory.walls.ramparts) {
-    var rampart = room.memory.walls.ramparts[rampart_i];
+  for (var rampart of room.memory.walls.ramparts) {
     var pos = new RoomPosition(rampart.x, rampart.y, rampart.roomName);
     pos.createConstructionSite(STRUCTURE_RAMPART);
   }

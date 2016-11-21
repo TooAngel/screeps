@@ -95,12 +95,19 @@ Room.prototype.destroyStructure = function(structure) {
           structure.destroy();
           delete this.memory.misplacedSpawn;
           this.memory.controllerLevel.checkWrongStructureInterval = 1;
+          delete this.memory.walls;
           return true;
         }
       }
+      return true;
     }
     this.log('Set misplaced spawn');
     this.memory.misplacedSpawn = true;
+    for (let x = -1; x < 2; x++) {
+      for (let y = -1; y < 2; y++) {
+        this.memory.walls.ramparts.push(new RoomPosition(structure.pos.x + x, structure.pos.y + y, structure.pos.roomName));
+      }
+    }
   }
   return false;
 };
