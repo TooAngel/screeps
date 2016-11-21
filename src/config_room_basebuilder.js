@@ -103,11 +103,36 @@ Room.prototype.destroyStructure = function(structure) {
     }
     this.log('Set misplaced spawn');
     this.memory.misplacedSpawn = true;
-    for (let x = -1; x < 2; x++) {
-      for (let y = -1; y < 2; y++) {
-        this.memory.walls.ramparts.push(new RoomPosition(structure.pos.x + x, structure.pos.y + y, structure.pos.roomName));
+
+    let costMatrixBase = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
+    let spawns = this.find(FIND_MY_STRUCTURES, {
+      filter: function(object) {
+        return object.structureType == STRUCTURE_SPAWN;
+      }
+    });
+    console.log(JSON.stringify(spawns));
+
+    let getWalls = function(object) {
+      return object.structureType == STRUCTURE_WALL;
+    };
+
+    for (let spawn of spawns) {
+      console.log(spawn.pos);
+      for (let x = -1; x < 2; x++) {
+        for (let y = -1; y < 2; y++) {
+          let pos = new RoomPosition(spawn.pos.x + x, spawn.pos.y + y, spawn.pos.roomName);
+          this.memory.walls.ramparts.push(pos);
+          costMatrixBase.set(pos.x, pos.y, 0);
+          let walls = pos.findInRange(FIND_STRUCTURES, 0, {
+            filter: getWalls
+          });
+          for (let wall of walls) {
+            wall.destroy();
+          }
+        }
       }
     }
+    this.memory.costMatrix.base = costMatrixBase.serialize();
   }
   return false;
 };
