@@ -723,7 +723,7 @@ Room.prototype.executeRoom = function() {
     creepsConfig.push('storagefiller');
   }
 
-  if (this.storage && this.storage.store.energy > config.room.builderMinStorage) {
+  if (this.storage && this.storage.store.energy > config.room.builderMinStorage && !this.memory.misplacedSpawn) {
     creepsConfig.push('builder');
   }
 
@@ -750,6 +750,11 @@ Room.prototype.executeRoom = function() {
         creepsConfig.push('planer');
       }
     }
+  } else if (this.memory.misplacedSpawn && this.storage && this.storage.store.energy > 20000 && this.energyAvailable >= this.energyCapacityAvailable - 300) {
+    creepsConfig.push('planer');
+    creepsConfig.push('planer');
+    creepsConfig.push('planer');
+    creepsConfig.push('planer');
   }
 
   let extractors = this.find(FIND_STRUCTURES, {

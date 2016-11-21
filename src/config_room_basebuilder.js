@@ -81,6 +81,27 @@ Room.prototype.destroyStructure = function(structure) {
     return true;
   }
   this.log('Not destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos) + ' ' + structures.length + ' ' + structuresMin);
+  if (structure.structureType == STRUCTURE_SPAWN) {
+    if (this.memory.misplacedSpawn) {
+      if (this.storage && this.storage.store.energy > 20000) {
+        let planers = this.find(FIND_MY_CREEPS, {
+          filter: function(object) {
+            let creep = Game.getObjectById(object.id);
+            return creep.memory.role == 'planer';
+          }
+        });
+        if (planers.length > 3) {
+          this.log('Destroying to rebuild spawn: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
+          structure.destroy();
+          delete this.memory.misplacedSpawn;
+          this.memory.controllerLevel.checkWrongStructureInterval = 1;
+          return true;
+        }
+      }
+    }
+    this.log('Set misplaced spawn');
+    this.memory.misplacedSpawn = true;
+  }
   return false;
 };
 

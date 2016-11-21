@@ -69,8 +69,6 @@ module.exports.execute = function(creep) {
       }
     }
 
-    //  creep.log(JSON.stringify(creep.memory.search));
-
     let targetPosObject = new RoomPosition(25, 25, creep.memory.search.target);
 
     let search;
@@ -94,7 +92,6 @@ module.exports.execute = function(creep) {
     }
 
     if (search.incomplete) {
-      //    creep.log(JSON.stringify(search));
       creep.say('incompl');
       creep.moveTo(targetPosObject);
       return true;
@@ -106,8 +103,5 @@ module.exports.execute = function(creep) {
 
 
   creep.notifyWhenAttacked(false);
-  breadthFirstSearch(creep);
-  if (true) {
-    return true;
-  }
+  return breadthFirstSearch(creep);
 };

@@ -19,8 +19,12 @@ module.exports.action = function(creep) {
 
   methods.push(Creep.constructTask);
   methods.push(Creep.buildRoads);
-  methods.push(Creep.recycleCreep);
-  methods.push(Creep.transferEnergy);
+  if (creep.room.memory.misplacedSpawn) {
+    methods.push(Creep.transferEnergy);
+  } else {
+    methods.push(Creep.recycleCreep);
+  }
+  methods.push(Creep.upgradeControllerTask);
 
   return Creep.execute(creep, methods);
 };
@@ -34,8 +38,12 @@ module.exports.execute = function(creep) {
 
   methods.push(Creep.constructTask);
   methods.push(Creep.buildRoads);
-  methods.push(Creep.recycleCreep);
-  methods.push(Creep.transferEnergy);
+  if (creep.room.memory.misplacedSpawn) {
+    methods.push(Creep.transferEnergy);
+  } else {
+    methods.push(Creep.recycleCreep);
+  }
+  methods.push(Creep.upgradeControllerTask);
 
   return Creep.execute(creep, methods);
 };
