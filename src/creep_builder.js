@@ -44,7 +44,19 @@ module.exports.energyBuild = function(room, energy) {
   return energyNeeded;
 };
 
+function say(creep) {
+  let sentence = ['Don\'t', 'like'];
+  for (let player in Memory.players) {
+    sentence.push(player);
+    sentence.push(Memory.players[player].idiot);
+  }
+  let word = Game.time % sentence.length;
+  creep.say(sentence[word], true);
+
+}
+
 function work(creep) {
+  say(creep);
   creep.spawnReplacement(1);
   var room = Game.rooms[creep.room.name];
   if (room.memory.attack_timer > 50 && room.controller.level > 6) {
@@ -54,7 +66,6 @@ function work(creep) {
   }
 
   var returnCode = creep.upgradeController(creep.room.controller);
-  creep.say('uc: ' + returnCode);
   if (returnCode == OK) {
     if (!room.memory.builder_upgrade) {
       room.memory.builder_upgrade = 0;
