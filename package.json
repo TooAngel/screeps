@@ -30,5 +30,8 @@
   "license": "AGPL-3.0",
   "bugs": {
     "url": "https://github.com/TooAngel/screeps/issues"
+  },
+  "scripts": {
+    "test": "grunt test"
   }
 }
