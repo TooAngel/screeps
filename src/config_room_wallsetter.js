@@ -32,6 +32,64 @@ Room.prototype.checkRamparts = function() {
   }
 };
 
+
+Room.prototype.checkExitsAreReachable = function() {
+  // Make sure every exit is reachable
+
+  let inLayer = function(room, pos) {
+    for (let i = 0; i < room.memory.walls.layer_i; i++) {
+      for (let j in room.memory.walls.layer[i]) {
+        let position = room.memory.walls.layer[i][j];
+        if (pos.x == position.x && pos.y == position.y) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+  let costMatrixBase = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
+
+  let exits = this.find(FIND_EXIT);
+  let room = this;
+  var callbackNew = function(roomName) {
+    let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
+    return costMatrix;
+  };
+  for (let exit of exits) {
+    //     console.log(exit);
+    let room = this;
+
+    let targets = [{
+      pos: this.controller.pos,
+      range: 1
+    }];
+
+    let search = PathFinder.search(
+      exit,
+      targets, {
+        roomCallback: callbackNew,
+        maxRooms: 1
+      }
+    );
+
+    if (search.incomplete) {
+      search = PathFinder.search(
+        exit,
+        targets, {
+          maxRooms: 1
+        }
+      );
+      for (let pathPos of search.path) {
+        if (inLayer(this, pathPos)) {
+          this.memory.walls.ramparts.push(pathPos);
+          costMatrixBase.set(pathPos.x, pathPos.y, 0);
+          this.memory.costMatrix.base = costMatrixBase.serialize();
+        }
+      }
+    }
+  }
+};
+
 Room.prototype.closeExitsByPath = function() {
   let inLayer = function(room, pos) {
     for (var i = 0; i < room.memory.walls.layer_i; i++) {
@@ -79,6 +137,8 @@ Room.prototype.closeExitsByPath = function() {
     if (this.memory.walls.layer_i >= 3) {
       this.log('Wall setup finished');
       this.memory.walls.finished = true;
+
+      this.checkExitsAreReachable();
 
       return false;
     }
