@@ -223,15 +223,13 @@ Room.prototype.handle = function() {
       this.memory.state = 'Occupied';
       this.memory.player = this.controller.owner.username;
 
-
       // TODO Not if in safe mode
       // TODO trigger everytime?
       if (!this.controller.safeMode) {
         let myCreeps = this.find(FIND_MY_CREEPS);
-        if (myCreeps.length > 0) {
+        if (myCreeps.length > 1) {
           return false;
         }
-
 
         var spawns = this.find(FIND_HOSTILE_STRUCTURES, {
           filter: function(object) {
