@@ -237,7 +237,7 @@ Room.prototype.handle = function() {
           }
         });
         if (spawns.length > 0) {
-          players.attackRoom(this);
+          this.attackRoom();
         }
       }
 

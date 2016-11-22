@@ -11,6 +11,7 @@
   require('config_creep_routing');
   require('config_roomPosition_structures');
   require('config_room');
+  require('config_room_attack');
   require('config_room_basebuilder');
   require('config_room_controller');
   require('config_room_defense');
