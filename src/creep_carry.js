@@ -86,7 +86,6 @@ module.exports.preMove = function(creep, directions) {
     if (creep.room.name == creep.memory.base) {
       let transferred = creep.transferToStructures();
       if (transferred) {
-        creep.say('transfer');
         if (transferred.moreStructures) {
           return true;
         }

@@ -93,7 +93,7 @@ Room.prototype.getAvoids = function(target, inRoom) {
       return costMatrix;
     };
   } else {
-    this.log('No costmatrix.base?');
+    //    this.log('No costmatrix.base?');
     this.updatePosition();
   }
   if (true) return callback;

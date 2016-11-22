@@ -63,7 +63,7 @@ Room.prototype.setFillerArea = function(storagePos, costMatrixBase, route) {
 
 Room.prototype.updatePosition = function() {
   // Instead of doing the complete setup, this could also be done on request
-  this.log('Update position');
+  //  this.log('Update position');
 
   let costMatrixBase = this.getCostMatrix();
 

@@ -203,3 +203,262 @@ Creep.getEnergyFromStorage = function(creep) {
   }
   return true;
 };
+
+
+Creep.prototype.repairStructure = function() {
+  var structure = null;
+  var range = null;
+  var i = null;
+  var structures = null;
+
+  if (this.memory.target) {
+    var to_repair = Game.getObjectById(this.memory.target);
+    if (!to_repair || to_repair === null) {
+      delete this.memory.target;
+      return false;
+    }
+
+    if (to_repair instanceof ConstructionSite) {
+      this.build(to_repair);
+
+      let search = PathFinder.search(
+        this.pos, {
+          pos: to_repair.pos,
+          range: 3
+        }, {
+          roomCallback: this.room.getAvoids(this.room, {}, true),
+          maxRooms: 0
+        }
+      );
+
+      if (search.incomplete) {
+        this.moveTo(to_repair);
+        return true;
+      }
+
+      if (!this.pos.getDirectionTo(search.path[0])) {
+        this.moveRandom();
+        return true;
+      }
+
+      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+      return true;
+    } else if (to_repair.hits < 10000 || to_repair.hits < this.memory.step + 10000) {
+      this.repair(to_repair);
+      if (this.fatigue === 0) {
+        range = this.pos.getRangeTo(to_repair);
+        if (range <= 3) {
+          this.moveRandom();
+        } else {
+          let search = PathFinder.search(
+            this.pos, {
+              pos: to_repair.pos,
+              range: 3
+            }, {
+              roomCallback: this.room.getAvoids(this.room, {}, true),
+              maxRooms: 0
+            }
+          );
+
+          if (!this.pos.getDirectionTo(search.path[0])) {
+            this.moveRandom();
+            return true;
+          }
+
+          if (search.incomplete) {
+            this.moveTo(to_repair.pos);
+            return true;
+          }
+
+          let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+          this.memory.lastPosition = this.pos;
+          if (returnCode == OK) {
+            return true;
+          }
+          if (returnCode == ERR_NO_PATH) {
+            this.memory.move_wait = 0;
+            this.log(JSON.stringify(search));
+            this.log('No path : ' + JSON.stringify(search));
+            returnCode = this.moveTo(to_repair, {
+              ignoreCreeps: true,
+              costCallback: this.room.getAvoids(this.room, {
+                power: true
+              })
+            });
+          }
+          this.log('config_creep_resources.repairStructure moveByPath.returnCode: ' + returnCode + ' search: ' + JSON.stringify(search) + ' start: ' + JSON.stringify(this.pos) + ' end: ' + JSON.stringify(to_repair.pos));
+          return true;
+        }
+      }
+    } else {
+      delete this.memory.target;
+    }
+  }
+
+  let nukes = this.room.find(FIND_NUKES);
+  if (nukes.length > 0) {
+    let spawns = this.room.find(FIND_MY_STRUCTURES, {
+      filter: function(object) {
+        if (object.structureType != STRUCTURE_SPAWN) {
+          return false;
+        }
+        return true;
+      }
+    });
+    if (spawns.length > 0) {
+      for (let spawn of spawns) {
+        let found = false;
+        let rampart;
+        structures = spawn.pos.lookFor(LOOK_STRUCTURES);
+        for (structure of structures) {
+          if (structure.structureType == STRUCTURE_RAMPART) {
+            if (structure.hits < 1100000) {
+              found = true;
+              rampart = structure;
+              break;
+            }
+          }
+        }
+        if (found) {
+          this.memory.target = rampart.id;
+          this.memory.step = 1200000;
+          return true;
+        }
+      }
+    }
+  }
+
+  // Repair low ramparts
+  let lowRamparts = this.pos.findInRange(FIND_STRUCTURES, 4, {
+    filter: function(object) {
+      if (object.structureType == STRUCTURE_RAMPART && object.hits < 10000) {
+        return true;
+      }
+      return false;
+    }
+  });
+
+  if (lowRamparts.length > 0) {
+    let search = PathFinder.search(
+      this.pos, {
+        pos: lowRamparts[0].pos,
+        range: 3
+      }, {
+        roomCallback: this.room.getAvoids(this.room, {}, true),
+        maxRooms: 0
+      }
+    );
+    //     this.log('LowRampart: ' + lowRamparts[0].pos + ' search: ' + JSON.stringify(search));
+    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+    this.repair(lowRamparts[0]);
+    this.moveRandom();
+    return true;
+  }
+
+  // Build construction sites
+  var target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
+    filter: function(object) {
+      if (object.structureType == 'constructedWall') {
+        return true;
+      }
+      if (object.structureType == 'rampart') {
+        return true;
+      }
+      return false;
+    }
+  });
+
+  if (target !== null) {
+    range = this.pos.getRangeTo(target);
+
+    if (range <= 3) {
+      this.build(target);
+      this.memory.step = 0;
+      var targetNew = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
+        filter: function(object) {
+          if (object.id == target.id) {
+            return false;
+          }
+          if (object.structureType == 'constructedWall') {
+            return true;
+          }
+          if (object.structureType == 'rampart') {
+            return true;
+          }
+          return false;
+        }
+      });
+      if (targetNew !== null) {
+        target = targetNew;
+      }
+    }
+    let ignoreCreepsSwitch = true;
+    let last_pos = this.memory.lastPosition;
+    if (this.memory.lastPosition && this.pos.isEqualTo(new RoomPosition(last_pos.x, last_pos.y, this.room.name))) {
+      this.memory.move_wait++;
+      if (this.memory.move_wait > 5) {
+        ignoreCreepsSwitch = false;
+      }
+    } else {
+      this.memory.move_wait = 0;
+    }
+
+    let search = PathFinder.search(
+      this.pos, {
+        pos: target.pos,
+        range: 3
+      }, {
+        roomCallback: this.room.getAvoids(this.room, {}, true),
+        maxRooms: 0
+      }
+    );
+    this.log('ConstructionSite: ' + target.pos + ' search: ' + JSON.stringify(search));
+    // for (let x = 19; x < 31; x++) {
+    // for (let y = 2; y < 7; y++) {
+    // let costmatrix = this.room.getAvoids(this.room, {}, true)(this.room.name);
+    // this.log(x + ',' + y + ' ' + costmatrix.get(x, y));
+    // }
+    // }
+    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+    this.memory.lastPosition = this.pos;
+    this.memory.target = target.id;
+    return true;
+  }
+
+  var creep = this;
+  structure = this.pos.findClosestByRange(FIND_STRUCTURES, {
+    filter: function(object) {
+
+      // Newbie zone walls have no hits
+      if (!object.hits) {
+        return false;
+      }
+
+      if (object.hits >= Math.min(creep.memory.step, object.hitsMax)) {
+        return false;
+      }
+
+      if (object.structureType == 'constructedWall') {
+        return true;
+      }
+
+      if (object.structureType == 'rampart') {
+        return true;
+      }
+      return false;
+    }
+  });
+  if (structure && structure !== null) {
+    this.memory.target = structure.id;
+    return true;
+  }
+
+  if (this.memory.step === 0) {
+    this.memory.step = this.room.controller.level * 10000;
+  }
+  this.memory.step = (this.memory.step * 1.1) + 1;
+
+  //   this.log('Nothing found: ' + this.memory.step);
+  return false;
+
+};
