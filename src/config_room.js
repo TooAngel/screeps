@@ -1,7 +1,6 @@
 'use strict';
 
 var creepbuilder = require('creepbuilder');
-var players = require('enemyplayers');
 
 
 Room.pathToString = function(path) {
