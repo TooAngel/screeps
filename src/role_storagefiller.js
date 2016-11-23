@@ -1,5 +1,15 @@
 'use strict';
 
+/*
+ * storagefiller should be present on RCL > 4
+ * 
+ * Normal:
+ * Gets the energy from the link and transfers it to the tower of storage
+ * 
+ * Under attack:
+ * Gets the energy from the storage and transfers it to the link
+ */
+
 roles.storagefiller = {};
 roles.storagefiller.killPrevious = true;
 

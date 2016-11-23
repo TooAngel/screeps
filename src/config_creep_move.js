@@ -38,24 +38,24 @@ Creep.prototype.moveCreep = function(position, direction) {
       creeps[0].move(direction);
       return;
     }
-    if (this.memory.role == 'builder' &&
+    if (this.memory.role == 'upgrader' &&
       creeps[0].memory.role == 'storagefiller') {
       creeps[0].move(direction);
       return;
     }
-    if (this.memory.role == 'builder' &&
-      creeps[0].memory.role == 'builder') {
+    if (this.memory.role == 'upgrader' &&
+      creeps[0].memory.role == 'upgrader') {
       creeps[0].suicide();
       this.log('New killing');
       return;
     }
-    if (this.memory.role == 'builder' &&
+    if (this.memory.role == 'upgrader' &&
       creeps[0].memory.role == 'sourcer') {
       this.log('config_creep_move suicide sourcer');
       creeps[0].suicide();
       return;
     }
-    if (this.memory.role == 'builder' &&
+    if (this.memory.role == 'upgrader' &&
       creeps[0].memory.role == 'harvester') {
       this.log('config_creep_move suicide harvester');
       creeps[0].suicide();

@@ -9,6 +9,55 @@ function existInArray(array, item) {
   return false;
 }
 
+Creep.prototype.handleSourcer = function() {
+  this.setNextSpawn();
+  this.spawnReplacement();
+  let room = Game.rooms[this.room.name];
+
+  // TODO legacy stuff
+  let targetId = this.memory.target_id;
+  if (this.memory.routing) {
+    targetId = this.memory.routing.targetId;
+  } else {
+    console.log('No routing');
+  }
+
+  var source = Game.getObjectById(targetId);
+
+  let target = source;
+  let returnCode = this.harvest(source);
+  if (returnCode != OK && returnCode != ERR_NOT_ENOUGH_RESOURCES) {
+    this.log('harvest: ' + returnCode);
+    return false;
+  }
+
+  this.buildContainer();
+
+  if (!this.room.controller || !this.room.controller.my || this.room.controller.level >= 2) {
+    this.spawnCarry();
+  }
+
+  if (this.room.name == this.memory.base) {
+    if (!this.memory.link) {
+      let links = this.pos.findInRange(FIND_MY_STRUCTURES, 1, {
+        filter: function(object) {
+          if (object.structureType == STRUCTURE_LINK) {
+            return true;
+          }
+          return false;
+        }
+      });
+      if (links.length > 0) {
+        this.memory.link = links[0].id;
+      }
+    }
+
+    let link = Game.getObjectById(this.memory.link);
+    this.transfer(link, RESOURCE_ENERGY);
+  }
+
+};
+
 Creep.prototype.spawnCarry = function() {
   var energyThreshold = Game.rooms[this.memory.base].controller.level * config.sourcer.spawnCarryLevelMultiplier;
   var waitTime = config.sourcer.spawnCarryWaitTime;

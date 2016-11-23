@@ -1,57 +1,27 @@
 'use strict';
 
-module.exports.stayInRoom = true;
-module.exports.buildRoad = true;
-
-module.exports.boostActions = ['capacity'];
-
-let beforeStorage = function(creep) {
-  creep.say('beforeStorage', true);
-  var methods = [
-    Creep.getEnergy
-  ];
-  if (creep.room.storage && creep.room.storage.store.energy > config.creep.energyFromStorageThreshold) {
-    methods = [Creep.getEnergyFromStorage];
-  }
-
-  if (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 || creep.room.controller.level == 1) {
-    methods.push(Creep.upgradeControllerTask);
-  }
-
-  methods.push(Creep.transferEnergy);
-
-  let structures = creep.room.find(FIND_MY_CONSTRUCTION_SITES, {
-    filter: function(object) {
-      if (object.structureType == STRUCTURE_RAMPART) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_WALL) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_CONTROLLER) {
-        return false;
-      }
-      return true;
-    }
-  });
-
-  if (structures.length > 0) {
-    methods.push(Creep.constructTask);
-  }
+/*
+ * harvester makes sure that extensions are filled
+ *
+ * Before storage or certains store threshold:
+ *  - get dropped energy or from source
+ *  - fill extensions
+ *  - build constructionSites
+ *  - upgrade Controller
+ *
+ * Proper storage store level:
+ *  - Move along the harvester path
+ *  - pathPos == 0 get energy from storage
+ *  - transfer energy to extensions in range
+ */
 
 
-  if (creep.room.controller.level < 9) {
-    methods.push(Creep.upgradeControllerTask);
-  } else {
-    methods.push(Creep.repairStructure);
-  }
+roles.harvester = {};
+roles.harvester.stayInRoom = true;
+roles.harvester.buildRoad = true;
+roles.harvester.boostActions = ['capacity'];
 
-  Creep.execute(creep, methods);
-  return true;
-};
-
-
-module.exports.preMove = function(creep, directions) {
+roles.harvester.preMove = function(creep, directions) {
   let pickableResources = function(object) {
     return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
   };
@@ -68,7 +38,7 @@ module.exports.preMove = function(creep, directions) {
   creep.spawnReplacement(1);
 
   if (!creep.room.storage || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
-    return beforeStorage(creep);
+    return creep.harvesterBeforeStorage();
   }
 
   let reverse = creep.carry.energy === 0;
@@ -103,14 +73,14 @@ module.exports.preMove = function(creep, directions) {
   }
 };
 
-module.exports.action = function(creep) {
+roles.harvester.action = function(creep) {
   creep.memory.move_forward_direction = false;
   creep.memory.routing.reverse = true;
   delete creep.memory.routing.reached;
   return true;
 };
 
-module.exports.get_part_config = function(room, energy, heal) {
+roles.harvester.get_part_config = function(room, energy, heal) {
   var parts = [MOVE, WORK, MOVE, CARRY];
   let partConfig = room.get_part_config(energy, parts);
   if (room.storage && room.storage.my && room.storage.store.energy > config.creep.energyFromStorageThreshold) {
@@ -122,19 +92,19 @@ module.exports.get_part_config = function(room, energy, heal) {
   return partConfig;
 };
 
-module.exports.energyRequired = function(room) {
+roles.harvester.energyRequired = function(room) {
   return 250;
 };
 
-module.exports.energyBuild = function(room, energy) {
+roles.harvester.energyBuild = function(room, energy) {
   let build = Math.min(1500, Math.max(energy, 250));
   return build;
 };
 
-module.exports.execute = function(creep) {
+roles.harvester.execute = function(creep) {
   creep.log('execute');
   // TODO Something is broken
-  beforeStorage(creep);
+  creep.harvesterBeforeStorage();
   //   if (true) throw new Error();
   return false;
 };

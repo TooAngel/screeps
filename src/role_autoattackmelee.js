@@ -1,28 +1,38 @@
 'use strict';
 
-module.exports.get_part_config = function(room, energy, heal) {
+
+/*
+ * autoattackmelle is the first wave of autoattacks
+ * 
+ * Kills tower and spawn, hostile creeps and construction sites
+ */
+
+roles.autoattackmelee = {};
+
+roles.autoattackmelee.get_part_config = function(room, energy, heal) {
   var parts = [MOVE, ATTACK];
   return room.get_part_config(energy, parts).sort().reverse();
 };
+roles.autoattackmelee.get_part_config = roles.autoattackmelee.getPartConfig;
 
-module.exports.energyRequired = function(room) {
+roles.autoattackmelee.energyRequired = function(room) {
   return Math.min(room.energyCapacityAvailable - 300, 3250);
 };
 
-module.exports.energyBuild = function(room, energy) {
+roles.autoattackmelee.energyBuild = function(room, energy) {
   return Math.min(room.energyCapacityAvailable - 300, 3250);
 };
 
-module.exports.died = function(name, memory) {
+roles.autoattackmelee.died = function(name, memory) {
   console.log('--->', name, 'Died naturally?');
   delete Memory.creeps[name];
 };
 
-module.exports.preMove = function(creep) {
+roles.autoattackmelee.preMove = function(creep) {
   //  creep.log('!!!!!!!!!!!!!!!! Autoattacking');
 };
 
-function attack(creep) {
+roles.autoattackmelee.action = function(creep) {
   if (!creep.memory.notified) {
     creep.log('Attacking');
     Game.notify(Game.time + ' ' + creep.room.name + ' Attacking');
@@ -73,13 +83,8 @@ function attack(creep) {
   creep.move(creep.pos.getDirectionTo(search.path[0]));
   creep.attack(spawn);
   return true;
-}
-
-module.exports.action = function(creep) {
-  attack(creep);
-  return true;
 };
 
-module.exports.execute = function(creep) {
+roles.autoattackmelee.execute = function(creep) {
   creep.log('Execute!!!');
 };

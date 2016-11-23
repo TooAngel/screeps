@@ -1,19 +1,29 @@
 'use strict';
 
-module.exports.get_part_config = function(room, energy, heal) {
+/*
+ * powerdefender is called when hostile creeps show up on power harvesting
+ * 
+ * Kills hostile creeps
+ */
+
+roles.powerdefender = {};
+
+roles.powerdefender.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, RANGED_ATTACK];
   return room.get_part_config(energy, parts).sort().reverse();
 };
 
-module.exports.energyRequired = function(room) {
+roles.powerdefender.get_part_config = roles.powerdefender.getPartConfig;
+
+roles.powerdefender.energyRequired = function(room) {
   return Math.min(room.energyCapacityAvailable, 3250);
 };
 
-module.exports.energyBuild = function(room, energy) {
+roles.powerdefender.energyBuild = function(room, energy) {
   return Math.min(room.energyCapacityAvailable, 3250);
 };
 
-function attack(creep) {
+roles.powerdefender.action = function(creep) {
   if (creep.hits < 200) {
     return false;
   }
@@ -61,13 +71,8 @@ function attack(creep) {
   creep.moveTo(power_bank[0]);
   creep.rangedAttack(power_bank[0]);
   return true;
-}
-
-module.exports.action = function(creep) {
-  attack();
-  return true;
 };
 
-module.exports.execute = function(creep) {
+roles.powerdefender.execute = function(creep) {
   creep.log('Execute!!!');
 };

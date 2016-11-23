@@ -1,19 +1,28 @@
 'use strict';
 
-module.exports.get_part_config = function(room, energy, heal) {
+/*
+ * defendmelee is called after 'threshold' when a room is attacked
+ * 
+ * Tries to fight against the hostile creeps 
+ */
+
+roles.defendmelee = {};
+
+roles.defendmelee.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, ATTACK];
   return room.get_part_config(energy, parts);
 };
+roles.defendmelee.get_part_config = roles.defendmelee.getPartConfig;
 
-module.exports.energyRequired = function(room) {
+roles.defendmelee.energyRequired = function(room) {
   return Math.min(room.energyCapacityAvailable - 50, 3250);
 };
 
-module.exports.energyBuild = function(room, energy) {
+roles.defendmelee.energyBuild = function(room, energy) {
   return Math.min(room.energyCapacityAvailable - 50, 3250);
 };
 
-module.exports.execute = function(creep) {
+roles.defendmelee.execute = function(creep) {
   let hostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
   if (hostile === null) {
     return Creep.recycleCreep(creep);

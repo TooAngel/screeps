@@ -718,7 +718,7 @@ Room.prototype.executeRoom = function() {
   }
 
   if (this.storage && this.storage.store.energy > config.room.builderMinStorage && !this.memory.misplacedSpawn) {
-    creepsConfig.push('builder');
+    creepsConfig.push('upgrader');
   }
 
   var constructionSites = this.find(FIND_MY_CONSTRUCTION_SITES, {

@@ -1,100 +1,27 @@
 'use strict';
 
-module.exports.get_part_config = function(room, energy, heal) {
+/*
+ * scoutnextroom is called when the number of rooms is < possible rooms
+ * 
+ * Random walk to find a room with 'threshold' distance and two sources.
+ * Claims the controller and room revive will drop in.
+ */
+
+
+roles.scoutnextroom = {};
+
+roles.scoutnextroom.get_part_config = function(room, energy, heal) {
   var parts = [MOVE, CLAIM];
   return room.get_part_config(energy, parts);
 };
 
-module.exports.energyBuild = function(room, energy) {
+roles.scoutnextroom.get_part_config = roles.scoutnextroom.getPartConfig;
+
+roles.scoutnextroom.energyBuild = function(room, energy) {
   return 650;
 };
 
-function handle_target(creep, exits) {
-  var offset = Math.floor(Math.random() * 4);
-
-  if (!creep.memory.base) {
-    return false;
-  }
-
-  for (var i = 0; i < 4; i++) {
-    // Don't go back
-    var direction = (((offset + i) % 4) * 2) + 1;
-    if (direction == (creep.memory.dir + 4) % 8) {
-      continue;
-    }
-
-    var roomName = exits[direction];
-    if (typeof(roomName) == 'undefined') {
-      continue;
-    }
-
-    var exit = creep.room.findExitTo(roomName);
-    if (exit == -2) {
-      continue;
-    }
-
-    var exit_pos = creep.pos.findClosestByPath(exit, {
-      ignoreCreeps: true
-    });
-
-    if (!exit_pos) {
-      continue;
-    }
-
-    var route = Game.map.findRoute(creep.memory.base, roomName);
-    var max_route = 10;
-    if (route.length > max_route) {
-      continue;
-    }
-
-    // Way blocked
-    var path = creep.pos.findPathTo(exit_pos);
-    if (path.length === 0) {
-      continue;
-    }
-
-
-    creep.memory.target = exit_pos;
-    creep.memory.dir = direction;
-    return true;
-  }
-  return false;
-}
-
-function in_queue(creep, spawn) {
-  for (var queue_index in Game.rooms[creep.memory.base].memory.queue) {
-    var queue_item = Game.rooms[creep.memory.base].memory.queue[queue_index];
-    if (queue_item.role == spawn.role && queue_item.source.x == spawn.source.x && queue_item.source.y == spawn.source.y) {
-      creep.log(JSON.stringify(spawn) + ' alread in queue');
-      return true;
-    }
-  }
-  return false;
-}
-
-function check_new_room(creep, opponent_room) {
-  if (creep.room.name != creep.memory.base && !opponent_room) {
-    var targets = [];
-    var sources = creep.room.find(FIND_SOURCES);
-    if (creep.room.controller && sources.length == 2) {
-
-
-      for (let roomName of Memory.myRooms) {
-        let distance = Game.map.getRoomLinearDistance(creep.room.name, roomName);
-        if (distance < 3) {
-          return false;
-        }
-      }
-
-      creep.memory.claimRoom = true;
-      creep.moveTo(creep.room.controller.pos);
-      return true;
-    }
-  }
-  return false;
-}
-
-module.exports.execute = function(creep) {
+roles.scoutnextroom.execute = function(creep) {
   if (creep.memory.claimRoom) {
     creep.moveTo(creep.room.controller);
     let returnCode = creep.claimController(creep.room.controller);
@@ -136,16 +63,90 @@ module.exports.execute = function(creep) {
           }
         }
       }
-
     }
 
-    if (check_new_room(creep, opponent_room)) {
+    let checkNewRoom = function(creep, opponent_room) {
+      if (creep.room.name != creep.memory.base && !opponent_room) {
+        var targets = [];
+        var sources = creep.room.find(FIND_SOURCES);
+        if (creep.room.controller && sources.length == 2) {
+
+
+          for (let roomName of Memory.myRooms) {
+            let distance = Game.map.getRoomLinearDistance(creep.room.name, roomName);
+            if (distance < 3) {
+              return false;
+            }
+          }
+
+          creep.memory.claimRoom = true;
+          creep.moveTo(creep.room.controller.pos);
+          return true;
+        }
+      }
+      return false;
+    };
+
+    if (checkNewRoom(creep, opponent_room)) {
       return true;
     }
 
     var exits = Game.map.describeExits(creep.room.name);
 
-    if (opponent_room || !handle_target(creep, exits)) {
+    let handleTarget = function(creep, exits) {
+      var offset = Math.floor(Math.random() * 4);
+
+      if (!creep.memory.base) {
+        return false;
+      }
+
+      for (var i = 0; i < 4; i++) {
+        // Don't go back
+        var direction = (((offset + i) % 4) * 2) + 1;
+        if (direction == (creep.memory.dir + 4) % 8) {
+          continue;
+        }
+
+        var roomName = exits[direction];
+        if (typeof(roomName) == 'undefined') {
+          continue;
+        }
+
+        var exit = creep.room.findExitTo(roomName);
+        if (exit == -2) {
+          continue;
+        }
+
+        var exit_pos = creep.pos.findClosestByPath(exit, {
+          ignoreCreeps: true
+        });
+
+        if (!exit_pos) {
+          continue;
+        }
+
+        var route = Game.map.findRoute(creep.memory.base, roomName);
+        var max_route = 10;
+        if (route.length > max_route) {
+          continue;
+        }
+
+        // Way blocked
+        var path = creep.pos.findPathTo(exit_pos);
+        if (path.length === 0) {
+          continue;
+        }
+
+
+        creep.memory.target = exit_pos;
+        creep.memory.dir = direction;
+        return true;
+      }
+      return false;
+    };
+
+
+    if (opponent_room || !handleTarget(creep, exits)) {
       // Go back, no other way
       if (!creep.memory.dir) {
         creep.memory.dir = Math.floor(Math.random() * 8);

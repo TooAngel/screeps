@@ -1,5 +1,13 @@
 'use strict';
 
+/*
+ * structurer is called when there are structures in a reserved room
+ * 
+ * Checks the paths for blocking structures => dismantles them
+ * Searches for other structures => dismantles them
+ * If there is 'threshold' energy below structurer => call a carry
+ */
+
 roles.structurer = {};
 roles.structurer.boostActions = ['dismantle'];
 roles.structurer.energyRequired = function(room) {

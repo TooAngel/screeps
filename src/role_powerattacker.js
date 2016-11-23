@@ -1,25 +1,40 @@
 'use strict';
 
-module.exports.get_part_config = function(room, energy, heal) {
+/*
+ * powerattacker kills the powerbank
+ * 
+ * Moves to the power bank and attack, stop attacking if its hits is below 'threshold'
+ */
+
+roles.powerattacker = {};
+roles.powerattacker.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, ATTACK];
   return room.get_part_config(energy, parts).sort().reverse();
 };
 
-module.exports.energyRequired = function(room) {
+roles.powerattacker.get_part_config = roles.powerattacker.getPartConfig;
+
+roles.powerattacker.energyRequired = function(room) {
   return Math.min(room.energyCapacityAvailable - 50, 3250);
 };
 
-module.exports.energyBuild = function(room, energy) {
+roles.powerattacker.energyBuild = function(room, energy) {
   return Math.min(room.energyCapacityAvailable - 50, 3250);
 };
 
-function attack(creep) {
-  if (creep.hits < 200) {
-    return false;
-  }
+roles.powerattacker.action = function(creep) {
   var hostile_creep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
     filter: creep.room.findAttackCreeps
   });
+  if (hostile_creep !== null) {
+    creep.moveTo(hostile_creep);
+    creep.attack(hostile_creep);
+    return true;
+  }
+
+  if (creep.hits < 200) {
+    return false;
+  }
   if (hostile_creep !== null) {
     if (Memory.power_banks[creep.room.name] && !Memory.power_banks[creep.room.name].defender) {
       creep.log('Call powerdefender');
@@ -73,21 +88,8 @@ function attack(creep) {
   creep.moveTo(power_bank[0]);
   creep.attack(power_bank[0]);
   return true;
-}
-
-module.exports.action = function(creep) {
-  var hostile_creep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-    filter: creep.room.findAttackCreeps
-  });
-  if (hostile_creep !== null) {
-    creep.moveTo(hostile_creep);
-    creep.attack(hostile_creep);
-    return true;
-  }
-
-  attack();
 };
 
-module.exports.execute = function(creep) {
+roles.powerattacker.execute = function(creep) {
   creep.log('Execute!!!');
 };

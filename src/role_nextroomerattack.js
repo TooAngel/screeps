@@ -1,24 +1,35 @@
 'use strict';
 
-module.exports.get_part_config = function(room, energy, heal) {
+/*
+ * nextroomerattack is called if the route to the room to revive is blocked
+ * 
+ * Attacks hostile everything
+ */
+
+
+roles.nextroomerattack = {};
+
+roles.nextroomerattack.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, ATTACK];
   return room.get_part_config(energy, parts).sort().reverse();
 };
 
-module.exports.energyRequired = function(room) {
+roles.nextroomerattack.get_part_config = roles.nextroomerattack.getPartConfig;
+
+roles.nextroomerattack.energyRequired = function(room) {
   return Math.min(room.energyCapacityAvailable - 50, 3250);
 };
 
-module.exports.energyBuild = function(room, energy) {
+roles.nextroomerattack.energyBuild = function(room, energy) {
   return Math.min(room.energyCapacityAvailable - 50, 3250);
 };
 
-module.exports.died = function(name, memory) {
+roles.nextroomerattack.died = function(name, memory) {
   console.log('--->', name, 'Died naturally?');
   delete Memory.creeps[name];
 };
 
-function attack(creep) {
+roles.nextroomerattack.action = function(creep) {
   if (!creep.memory.notified) {
     creep.log('Attacking');
     Game.notify(Game.time + ' ' + creep.room.name + ' Attacking');
@@ -49,24 +60,9 @@ function attack(creep) {
   creep.attack(spawn);
   var return_code = creep.moveByPath(path);
   return true;
-}
 
-module.exports.action = function(creep) {
-  var hostile_creep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-    filter: creep.room.findAttackCreeps
-  });
-  if (hostile_creep !== null) {
-    return attack(creep);
-  }
-  var hostile_structure = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES);
-  if (hostile_structure !== null) {
-    return attack(creep);
-  }
-
-  attack();
-  return true;
 };
 
-module.exports.execute = function(creep) {
+roles.nextroomerattack.execute = function(creep) {
   creep.log('Execute!!!');
 };
