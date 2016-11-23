@@ -6,7 +6,7 @@ module.exports.buildRoad = true;
 module.exports.boostActions = ['capacity'];
 
 let beforeStorage = function(creep) {
-  creep.say('beforeStorage');
+  creep.say('beforeStorage', true);
   var methods = [
     Creep.getEnergy
   ];

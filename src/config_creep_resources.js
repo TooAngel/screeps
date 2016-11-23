@@ -394,7 +394,7 @@ Creep.prototype.getEnergy = function() {
       this.memory.routing = {};
     }
     this.memory.routing.reverse = false;
-    if (this.room.memory.misplacedSpawn || this.room.controller.level < 2) {
+    if (this.room.memory.misplacedSpawn || this.room.controller.level < 3) {
       this.moveTo(item.pos);
     } else {
       this.moveByPathMy([{
@@ -548,7 +548,7 @@ Creep.prototype.transferEnergyMy = function() {
     return false;
   }
 
-  this.say('transferEnergy');
+  this.say('transferEnergy', true);
   var range = this.pos.getRangeTo(target);
   // this.log('target: ' + target.pos + ' range: ' + range);
   if (range == 1) {

@@ -12,6 +12,25 @@ module.exports.get_part_config = function(room, energy, heal) {
 };
 
 module.exports.preMove = function(creep, directions) {
+  // Misplaced spawn
+  if (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3) {
+    creep.say('mis', true);
+    let targetId = creep.memory.target_id;
+    if (creep.memory.routing) {
+      targetId = creep.memory.routing.targetId;
+    } else {
+      console.log('No routing');
+    }
+
+    var source = Game.getObjectById(targetId);
+    // TODO better the position from the room memory
+    creep.moveTo(source.pos);
+    if (creep.pos.getRangeTo(source.pos) > 1) {
+      return true;
+    }
+  }
+
+
   if (!creep.room.controller) {
     var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
       filter: function(object) {
@@ -31,8 +50,6 @@ module.exports.preMove = function(creep, directions) {
       }
     }
   }
-
-
 
   // TODO Check if this is working
   if (directions) {
@@ -54,6 +71,9 @@ module.exports.preMove = function(creep, directions) {
         continue;
       }
       if (structure.structureType == STRUCTURE_RAMPART && structure.my) {
+        continue;
+      }
+      if (structure.structureType == STRUCTURE_SPAWN && structure.my) {
         continue;
       }
       creep.dismantle(structure);
