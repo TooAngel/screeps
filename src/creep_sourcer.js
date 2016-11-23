@@ -77,7 +77,7 @@ module.exports.preMove = function(creep, directions) {
         continue;
       }
       creep.dismantle(structure);
-      creep.say('dismantle');
+      creep.say('dismantle', true);
       break;
     }
   }
