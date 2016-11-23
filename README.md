@@ -1,5 +1,7 @@
 # Screeps script
 
+[![CircleCI](https://circleci.com/gh/TooAngel/screeps.svg?style=svg)](https://circleci.com/gh/TooAngel/screeps)
+
 https://screeps.com/
 
 This is the AI I'm using (2016-10-25) for screeps. I managed to reach Top 10
@@ -24,6 +26,18 @@ This is not a good example for code quality or structure, many LOC are written
 while fighting or other occasions which needed quick fixes or in the ingame
 editor. But I think there are a couple of funny ideas. Every contribution is
 welcome. 
+
+
+## Features
+
+ - Automatic base building 
+ - External room harvesting 
+ - Basic mineral handling 
+ - Power harvesting (if enough energy in storage, which doesn't happen currently ;-)) 
+ - New rooms claiming on GCL level up 
+ - Automatic attack 
+ - Rebuild of fallen rooms 
+
 
 ## Upload
 
