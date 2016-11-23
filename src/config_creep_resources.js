@@ -394,10 +394,13 @@ Creep.prototype.getEnergy = function() {
       this.memory.routing = {};
     }
     this.memory.routing.reverse = false;
-
-    this.moveByPathMy([{
-      'name': this.room.name
-    }], 0, 'pathStart', item.id, true, undefined);
+    if (this.room.memory.misplacedSpawn || this.room.controller.level < 2) {
+      this.moveTo(item.pos);
+    } else {
+      this.moveByPathMy([{
+        'name': this.room.name
+      }], 0, 'pathStart', item.id, true, undefined);
+    }
     return true;
   }
 };
