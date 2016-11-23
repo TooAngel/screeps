@@ -23,3 +23,5 @@
   require('config_room_routing');
   require('config_room_wallsetter');
   require('config_string');
+  require('role_towerfiller');
+  require('role_scout');

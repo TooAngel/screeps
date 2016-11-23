@@ -3,11 +3,14 @@
 function createCreep(room, role, target, source, heal, target_id, level, squad, routing) {
   var energy = room.energyAvailable;
 
-  try {
-    unit = require('creep_' + role);
-  } catch (err) {
-    room.log('Can not find role: ' + role + ' creep_' + role + ' ' + err);
-    return true;
+  let unit = roles[role];
+  if (!unit) {
+    try {
+      unit = require('creep_' + role);
+    } catch (err) {
+      room.log('Can not find role: ' + role + ' creep_' + role + ' ' + err);
+      return true;
+    }
   }
 
   var energyNeeded = 50;
@@ -37,7 +40,6 @@ function createCreep(room, role, target, source, heal, target_id, level, squad, 
     };
   }
 
-  var unit = require('creep_' + role);
   if (unit.energyBuild) {
     energy = unit.energyBuild(room, energy, source, heal, level);
   }

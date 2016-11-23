@@ -228,14 +228,15 @@ Room.prototype.closeExitsByPath = function() {
       this.log('pathPos: ' + pathPos);
 
       var structure = STRUCTURE_WALL;
+      let costMatrixBase = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
       if (pathPos.inPath() || pathPos.inPositions()) {
         structure = STRUCTURE_RAMPART;
+        costMatrixBase.set(pathPos.x, pathPos.y, 0);
         this.memory.walls.ramparts.push(pathPos);
       } else {
-        let costMatrixBase = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
         costMatrixBase.set(pathPos.x, pathPos.y, 0xff);
-        this.memory.costMatrix.base = costMatrixBase.serialize();
       }
+      this.memory.costMatrix.base = costMatrixBase.serialize();
       this.memory.walls.layer[this.memory.walls.layer_i].push(pathPos);
       var returnCode = pathPos.createConstructionSite(structure);
       if (returnCode == ERR_FULL) {

@@ -57,9 +57,11 @@ module.exports.preMove = function(creep, directions) {
 
     var source = Game.getObjectById(targetId);
     // TODO better the position from the room memory
-    creep.moveTo(source.pos);
-    if (creep.pos.getRangeTo(source.pos) > 1) {
-      return true;
+    if (targetId === null) {
+      creep.moveTo(source.pos);
+      if (creep.pos.getRangeTo(source.pos) > 1) {
+        return true;
+      }
     }
   }
 

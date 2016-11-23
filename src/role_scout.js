@@ -1,31 +1,18 @@
 'use strict';
 
-module.exports.get_part_config = function(room, energy, heal) {
-  var parts = [MOVE];
+roles.scout = {};
+roles.scout.getPartConfig = function(room, energy, heal) {
+  let parts = [MOVE];
   return room.get_part_config(energy, parts);
 };
+// TODO deprecated, can be removed as soon as all creeps are converted to roles
+roles.scout.get_part_config = roles.scout.getPartConfig;
 
-module.exports.died = function(name, memory) {
-  if (!Memory.enemy_rooms) {
-    Memory.enemy_rooms = {};
-  }
-
-  if (Memory.enemy_rooms[memory.last_room]) {
-    Memory.enemy_rooms[memory.last_room].last_visit = Game.time;
-  } else {
-    Memory.enemy_rooms[memory.last_room] = {
-      last_visit: Game.time
-    };
-  }
-
-  delete Memory.creeps[name];
+roles.scout.energyBuild = function(room, energy) {
+  return 50;
 };
 
-module.exports.energyBuild = function(room, energy) {
-  return Math.min(energy, 50);
-};
-
-module.exports.execute = function(creep) {
+roles.scout.execute = function(creep) {
   let breadthFirstSearch = function(creep) {
     let setNewTarget = function(creep) {
       for (let room of creep.memory.search.levels[creep.memory.search.level]) {

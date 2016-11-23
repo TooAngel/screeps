@@ -610,9 +610,6 @@ Room.prototype.executeRoom = function() {
       if (object.memory.role == 'nextroomer') {
         return object.memory.base != room.name;
       }
-      if (object.memory.role == 'worldplanner') {
-        return object.memory.base != room.name;
-      }
       return false;
     }
   });

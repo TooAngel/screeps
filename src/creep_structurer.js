@@ -16,7 +16,6 @@ module.exports.get_part_config = function(room, energy, heal) {
 };
 
 module.exports.preMove = function(creep, directions) {
-
   if (creep.room.name == creep.memory.routing.targetRoom) {
     creep.log('preMove: ' + creep.memory.routing.targetId);
     let target = Game.getObjectById(creep.memory.routing.targetId);
@@ -38,7 +37,6 @@ module.exports.preMove = function(creep, directions) {
       creep.memory.routing.reached = true;
     }
   }
-
 };
 
 function clean_controller(creep) {

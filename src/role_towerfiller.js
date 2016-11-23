@@ -1,19 +1,18 @@
 'use strict';
 
-module.exports.get_part_config = function(room, energy, heal) {
+roles.towerfiller = {};
+roles.towerfiller.energyBuild = function(room, energy) {
+  return 200;
+};
+
+roles.towerfiller.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CARRY, CARRY, CARRY, CARRY];
   return room.get_part_config(energy, parts);
 };
 
-module.exports.energyBuild = function(room, energy) {
-  return 200;
-};
+roles.towerfiller.get_part_config = roles.towerfiller.getPartConfig;
 
-function get_opposite_direction(direction) {
-  return ((direction + 3) % 8) + 1;
-}
-
-function execute(creep) {
+roles.towerfiller.execute = function(creep) {
   if (!creep.memory.target_id) {
     creep.log('Suiciding to target_id');
     creep.suicide();
@@ -61,11 +60,4 @@ function execute(creep) {
     creep.setNextSpawn();
   }
   return true;
-
-
-}
-
-
-module.exports.execute = function(creep) {
-  execute(creep);
 };
