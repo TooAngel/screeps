@@ -4,6 +4,7 @@
   require('config_brain_nextroom');
   require('config_brain_squadmanager');
   require('config_creep');
+  require('config_creep_clean');
   require('config_creep_fight');
   require('config_creep_resources');
   require('config_creep_harvest');
@@ -23,5 +24,7 @@
   require('config_room_routing');
   require('config_room_wallsetter');
   require('config_string');
+  require('role_storagefiller');
+  require('role_structurer');
   require('role_towerfiller');
   require('role_scout');

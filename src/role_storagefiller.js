@@ -1,17 +1,19 @@
 'use strict';
 
-module.exports.killPrevious = true;
+roles.storagefiller = {};
+roles.storagefiller.killPrevious = true;
 
-module.exports.get_part_config = function(room, energy, heal) {
+roles.storagefiller.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CARRY, CARRY, CARRY, CARRY];
   return room.get_part_config(energy, parts);
 };
+roles.storagefiller.get_part_config = roles.storagefiller.getPartConfig;
 
-module.exports.energyBuild = function(room, energy) {
+roles.storagefiller.energyBuild = function(room, energy) {
   return 200;
 };
 
-module.exports.action = function(creep) {
+roles.storagefiller.action = function(creep) {
   creep.setNextSpawn();
   creep.spawnReplacement(1);
 
@@ -72,7 +74,7 @@ module.exports.action = function(creep) {
 };
 
 
-module.exports.execute = function(creep) {
+roles.storagefiller.execute = function(creep) {
   //  creep.log('Execute called, why?');
   //  creep.log(new Error().stack);
 };
