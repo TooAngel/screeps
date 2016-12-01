@@ -1,8 +1,5 @@
 'use strict';
 
-var creepbuilder = require('creepbuilder');
-
-
 Room.pathToString = function(path) {
   if (!config.performance.serializePath) {
     return path;
@@ -617,7 +614,7 @@ Room.prototype.executeRoom = function() {
 
   var creepsInRoom = this.find(FIND_MY_CREEPS);
   if (!building && creepsInRoom.length <= 1 && this.energyAvailable >= 200) {
-    creepbuilder.createCreep(this, 'harvester');
+    this.spawnCreateCreep('harvester');
     Game.rooms[this.name].memory.queue = [];
     return true;
   }
@@ -819,7 +816,7 @@ Room.prototype.executeRoom = function() {
       creepsConfig.splice(creep_index, 1);
     }
   }
-  creepbuilder.checkForCreate(this, creepsConfig);
+  this.spawnCheckForCreate(creepsConfig);
 
   this.handleMarket();
   return true;

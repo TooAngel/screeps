@@ -547,7 +547,7 @@ Creep.prototype.boost = function() {
     return false;
   }
 
-  var unit = require('creep_' + this.memory.role);
+  let unit = roles[this.memory.role];
   if (!unit.boostActions) {
     return false;
   }

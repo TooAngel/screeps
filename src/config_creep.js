@@ -19,10 +19,6 @@ Creep.prototype.handle = function() {
 
   try {
     let unit = roles[role];
-    if (!unit) {
-      unit = require('creep_' + role);
-    }
-
     if (unit.stayInRoom) {
       if (this.stayInRoom()) {
         return;

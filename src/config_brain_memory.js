@@ -64,7 +64,10 @@ brain.prepareMemory = function() {
           continue;
         }
         try {
-          var unit = require('creep_' + creep_memory.role);
+          let unit = roles[creep_memory.role];
+          if (!unit) {
+            delete Memory.creeps[name];
+          }
           if (unit.died) {
             unit.died(name, creep_memory);
           } else {

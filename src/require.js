@@ -16,6 +16,7 @@
   require('config_room_attack');
   require('config_room_basebuilder');
   require('config_room_controller');
+  require('config_room_creepbuilder');
   require('config_room_defense');
   require('config_room_market');
   require('config_room_mineral');

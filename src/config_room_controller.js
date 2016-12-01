@@ -1,7 +1,5 @@
 'use strict';
 
-var creepbuilder = require('creepbuilder');
-
 Room.prototype.controller_level_tasks = function() {
 
   this.memory.controllerLevel = this.memory.controllerLevel || {};

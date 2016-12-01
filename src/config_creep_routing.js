@@ -249,9 +249,6 @@ Creep.prototype.followPath = function(action) {
   // }
 
   let unit = roles[this.memory.role];
-  if (!unit) {
-    unit = require('creep_' + this.memory.role);
-  }
   if (!this.memory.routing.targetId && routePos == route.length - 1) {
     if (unit.getTargetId) {
       this.memory.routing.targetId = unit.getTargetId(this);
@@ -267,9 +264,6 @@ Creep.prototype.followPath = function(action) {
 
 Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreMove, action) {
   let unit = roles[this.memory.role];
-  if (!unit) {
-    unit = require('creep_' + this.memory.role);
-  }
   // Somehow reset the pathPos if the path has changed?!
   let path = this.room.getPath(route, routePos, start, target);
   if (!path) {
