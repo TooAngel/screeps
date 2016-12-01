@@ -573,7 +573,7 @@ Room.prototype.reviveRoom = function() {
 };
 
 Room.prototype.executeRoom = function() {
-  this.controller_level_tasks();
+  this.buildBase();
 
   var spawns = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {

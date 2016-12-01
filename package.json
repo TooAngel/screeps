@@ -4,8 +4,7 @@
   "description": "",
   "main": "src/main.js",
   "screeps_bot": true,
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "chai": "~3.4.1",
     "grunt": "~0.4.5",
@@ -16,11 +15,11 @@
     "grunt-jsbeautifier": "~0.2.10",
     "grunt-jscs": "^2.7.0",
     "grunt-mocha-test": "~0.12.7",
-    "screeps-profiler": "^1.1.1",
-    "mocha": "~2.3.3",
-    "uglify-js-harmony": "^2.6.2",
     "grunt-screeps": "1.2.0",
-    "grunt-sync": "^0.6.2"
+    "grunt-sync": "^0.6.2",
+    "mocha": "~2.3.3",
+    "screeps-profiler": "^1.2.1",
+    "uglify-js-harmony": "^2.6.2"
   },
   "repository": {
     "type": "git",

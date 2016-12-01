@@ -1,7 +1,7 @@
 'use strict';
 
 Room.prototype.buildBlockers = function() {
-
+  this.log('buildBlockers: ' + this.memory.controllerLevel.buildBlockersInterval);
   // TODO Add check for costmatrix, layout is initialized
   //    if (!room.memory.layout) {
   //      return false;
@@ -16,9 +16,10 @@ Room.prototype.buildBlockers = function() {
     return false;
   }
 
-  this.closeExitsByPath();
-  this.checkRamparts();
-  return true;
+  if (this.closeExitsByPath()) {
+    return true;
+  }
+  return this.checkRamparts();
 };
 
 Room.prototype.checkRamparts = function() {
@@ -138,7 +139,8 @@ Room.prototype.closeExitsByPath = function() {
       this.log('Wall setup finished');
       this.memory.walls.finished = true;
 
-      this.checkExitsAreReachable();
+      // TODO disabled, too many ramparts
+      //       this.checkExitsAreReachable();
 
       return false;
     }
@@ -252,4 +254,5 @@ Room.prototype.closeExitsByPath = function() {
   // I guess when the position is near to the exit (e.g. source on x: 47
   // TODO I think this can break the setup, It will find the way to this source which is in the walls / ramparts and skip the others
   this.memory.walls.exit_i++;
+  return true;
 };

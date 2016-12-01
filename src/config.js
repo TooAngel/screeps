@@ -4,7 +4,7 @@ global.brain = {};
 global.roles = {};
 global.config = {
   profiler: {
-    enabled: false
+    enabled: true
   },
 
   performance: {
@@ -72,8 +72,6 @@ global.config = {
 
   room: {
     revive: true,
-    buildBlockersInterval: 1,
-    basebuilderInterval: 10, // Replaced by room.memory.basebuilderInterval
     rebuildLayout: 7654,
     handleNukeAttackInterval: 132,
     reviveEnergyAvailable: 1000,
