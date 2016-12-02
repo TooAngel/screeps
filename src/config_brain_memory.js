@@ -64,7 +64,10 @@ brain.prepareMemory = function() {
           continue;
         }
         try {
-          var unit = require('creep_' + creep_memory.role);
+          let unit = roles[creep_memory.role];
+          if (!unit) {
+            delete Memory.creeps[name];
+          }
           if (unit.died) {
             unit.died(name, creep_memory);
           } else {
@@ -165,10 +168,10 @@ brain.prepareMemory = function() {
           storage_power += name + ':' + room.storage.store.power + ' ';
         }
         // TODO 15 it should be
-        if (Math.ceil(room.memory.builder_upgrade / interval) < 15) {
-          upgrade_less += name + ':' + room.memory.builder_upgrade / interval + ' ';
+        if (Math.ceil(room.memory.upgrader_upgrade / interval) < 15) {
+          upgrade_less += name + ':' + room.memory.upgrader_upgrade / interval + ' ';
         }
-        room.memory.builder_upgrade = 0;
+        room.memory.upgrader_upgrade = 0;
       }
       console.log('No storage:', storage_no_string);
       console.log('Low storage:', storage_low_string);

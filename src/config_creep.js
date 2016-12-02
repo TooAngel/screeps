@@ -18,8 +18,7 @@ Creep.prototype.handle = function() {
   }
 
   try {
-    var unit = require('creep_' + role);
-
+    let unit = roles[role];
     if (unit.stayInRoom) {
       if (this.stayInRoom()) {
         return;
@@ -55,7 +54,7 @@ Creep.prototype.handle = function() {
       }
     }
 
-    //    if (this.memory.role != 'defendranged' && this.memory.role != 'repairer' && this.memory.role != 'scout' && this.memory.role != 'scoutnextroom' && this.memory.role != 'nextroomer' && this.memory.role != 'builder') {
+    //    if (this.memory.role != 'defendranged' && this.memory.role != 'repairer' && this.memory.role != 'scout' && this.memory.role != 'scoutnextroom' && this.memory.role != 'nextroomer' && this.memory.role != 'upgrader') {
     //      this.log('After followPath');
     //    }
 

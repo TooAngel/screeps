@@ -1,8 +1,5 @@
 'use strict';
 
-var creepbuilder = require('creepbuilder');
-
-
 Room.pathToString = function(path) {
   if (!config.performance.serializePath) {
     return path;
@@ -146,7 +143,7 @@ Room.prototype.handleMyRoom = function() {
     Memory.stats["room." + this.name + ".energyAvailable"] = this.energyAvailable;
     Memory.stats["room." + this.name + ".energyCapacityAvailable"] = this.energyCapacityAvailable;
     Memory.stats["room." + this.name + ".controllerProgress"] = this.controller.progress;
-    Memory.stats['room.' + this.name + '.progress'] = this.memory.builder_upgrade / (Game.time % 100);
+    Memory.stats['room.' + this.name + '.progress'] = this.memory.upgrader_upgrade / (Game.time % 100);
 
     let storage = this.storage || {
       store: {}
@@ -157,7 +154,6 @@ Room.prototype.handleMyRoom = function() {
     }
   }
 
-  //this.build();
   return this.executeRoom();
 };
 
@@ -483,7 +479,7 @@ Room.prototype.handleScout = function() {
 
 
 Room.prototype.reviveRoom = function() {
-  if (this.controller.ticksToDowngrade > CONTROLLER_DOWNGRADE[this.controller.level] * 0.9) {
+  if (this.controller.level > 1 && this.controller.ticksToDowngrade > CONTROLLER_DOWNGRADE[this.controller.level] * 0.9) {
     return false;
   }
 
@@ -576,7 +572,7 @@ Room.prototype.reviveRoom = function() {
 };
 
 Room.prototype.executeRoom = function() {
-  this.controller_level_tasks();
+  this.buildBase();
 
   var spawns = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {
@@ -610,9 +606,6 @@ Room.prototype.executeRoom = function() {
       if (object.memory.role == 'nextroomer') {
         return object.memory.base != room.name;
       }
-      if (object.memory.role == 'worldplanner') {
-        return object.memory.base != room.name;
-      }
       return false;
     }
   });
@@ -620,7 +613,7 @@ Room.prototype.executeRoom = function() {
 
   var creepsInRoom = this.find(FIND_MY_CREEPS);
   if (!building && creepsInRoom.length <= 1 && this.energyAvailable >= 200) {
-    creepbuilder.createCreep(this, 'harvester');
+    this.spawnCreateCreep('harvester');
     Game.rooms[this.name].memory.queue = [];
     return true;
   }
@@ -720,8 +713,8 @@ Room.prototype.executeRoom = function() {
     creepsConfig.push('storagefiller');
   }
 
-  if (this.storage && this.storage.store.energy > config.room.builderMinStorage && !this.memory.misplacedSpawn) {
-    creepsConfig.push('builder');
+  if (this.storage && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
+    creepsConfig.push('upgrader');
   }
 
   var constructionSites = this.find(FIND_MY_CONSTRUCTION_SITES, {
@@ -822,7 +815,7 @@ Room.prototype.executeRoom = function() {
       creepsConfig.splice(creep_index, 1);
     }
   }
-  creepbuilder.checkForCreate(this, creepsConfig);
+  this.spawnCheckForCreate(creepsConfig);
 
   this.handleMarket();
   return true;

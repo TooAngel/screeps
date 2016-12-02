@@ -1,32 +1,29 @@
 'use strict';
 
-var creepbuilder = require('creepbuilder');
+Room.prototype.buildBase = function() {
 
-Room.prototype.controller_level_tasks = function() {
+  let resetCounters = function(room) {
+    room.memory.controllerLevel.checkPathInterval = 1;
+    room.memory.controllerLevel.checkWrongStructureInterval = 1;
+    room.memory.controllerLevel.buildStructuresInterval = 1;
+    room.memory.controllerLevel.buildBlockersInterval = 1;
+  };
 
   this.memory.controllerLevel = this.memory.controllerLevel || {};
 
   if (!this.memory.controllerLevel['setup_level_' + this.controller.level]) {
     if (this.controller.level == 1) {
-      if (!this.memory.layout) {
+      if (!this.memory.position) {
         this.setup();
       }
     }
-    this.memory.basebuilderInterval = 0;
-    this.memory.controllerLevel.checkPathInterval = 1;
-    this.memory.controllerLevel.checkWrongStructureInterval = 1;
-    this.memory.controllerLevel.buildStructuresInterval = 1;
+    resetCounters(this);
     this.memory.controllerLevel['setup_level_' + this.controller.level] = Game.time;
   }
 
-  if (!this.memory.controllerLevel.checkPathInterval) {
-    this.memory.controllerLevel.checkPathInterval = 1;
-  }
   if ((Game.time + this.controller.pos.x * 10 + this.controller.pos.y * 10) % this.memory.controllerLevel.checkPathInterval === 0) {
     if (this.checkPath(this)) {
-      this.memory.controllerLevel.checkPathInterval = 1;
-      this.memory.controllerLevel.checkWrongStructureInterval = 1;
-      this.memory.controllerLevel.buildStructuresInterval = 1;
+      resetCounters(this);
     } else {
       this.memory.controllerLevel.checkPathInterval++;
     }
@@ -37,9 +34,7 @@ Room.prototype.controller_level_tasks = function() {
   }
   if (this.memory.walls && this.memory.walls.finished && (Game.time + this.controller.pos.x * 10 + this.controller.pos.y * 10) % this.memory.controllerLevel.checkWrongStructureInterval === 0) {
     if (this.checkWrongStructure(this)) {
-      this.memory.controllerLevel.checkPathInterval = 1;
-      this.memory.controllerLevel.checkWrongStructureInterval = 1;
-      this.memory.controllerLevel.buildStructuresInterval = 1;
+      resetCounters(this);
     } else {
       this.memory.controllerLevel.checkWrongStructureInterval++;
     }
@@ -69,12 +64,15 @@ Room.prototype.controller_level_tasks = function() {
     }
   }
 
-  if (this.memory.controllerLevel.buildStructuresInterval > 1 && (Game.time + this.controller.pos.x * 10 + this.controller.pos.y * 10) % config.room.buildBlockersInterval === 0) {
+  if (this.memory.controllerLevel.buildStructuresInterval > 1 && (Game.time + this.controller.pos.x * 10 + this.controller.pos.y * 10) % this.memory.controllerLevel.buildBlockersInterval === 0) {
     if (this.controller.level >= 2) {
-      this.buildBlockers();
+      if (this.buildBlockers()) {
+        this.memory.controllerLevel.buildBlockersInterval = 1;
+      } else {
+        this.memory.controllerLevel.buildBlockersInterval++;
+      }
     }
   }
-
 
   if ((Game.time + this.controller.pos.x + this.controller.pos.y) % config.layout.checkInterval === 0) {
     // version: this.memory.position.version is maybe not the best idea

@@ -148,7 +148,8 @@ module.exports = function(grunt) {
           MINIFIED: false,
           global: false,
           config: false,
-          brain: false
+          brain: false,
+          roles: false
         },
         node: true,
         esnext: true

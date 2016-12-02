@@ -1,11 +1,7 @@
 'use strict';
 
 Room.prototype.buildBlockers = function() {
-
-  // TODO Add check for costmatrix, layout is initialized
-  //    if (!room.memory.layout) {
-  //      return false;
-  //    }
+  this.log('buildBlockers: ' + this.memory.controllerLevel.buildBlockersInterval);
 
   var spawns = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {
@@ -16,9 +12,10 @@ Room.prototype.buildBlockers = function() {
     return false;
   }
 
-  this.closeExitsByPath();
-  this.checkRamparts();
-  return true;
+  if (this.closeExitsByPath()) {
+    return true;
+  }
+  return this.checkRamparts();
 };
 
 Room.prototype.checkRamparts = function() {
@@ -138,7 +135,8 @@ Room.prototype.closeExitsByPath = function() {
       this.log('Wall setup finished');
       this.memory.walls.finished = true;
 
-      this.checkExitsAreReachable();
+      // TODO disabled, too many ramparts
+      //       this.checkExitsAreReachable();
 
       return false;
     }
@@ -228,14 +226,15 @@ Room.prototype.closeExitsByPath = function() {
       this.log('pathPos: ' + pathPos);
 
       var structure = STRUCTURE_WALL;
+      let costMatrixBase = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
       if (pathPos.inPath() || pathPos.inPositions()) {
         structure = STRUCTURE_RAMPART;
+        costMatrixBase.set(pathPos.x, pathPos.y, 0);
         this.memory.walls.ramparts.push(pathPos);
       } else {
-        let costMatrixBase = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
         costMatrixBase.set(pathPos.x, pathPos.y, 0xff);
-        this.memory.costMatrix.base = costMatrixBase.serialize();
       }
+      this.memory.costMatrix.base = costMatrixBase.serialize();
       this.memory.walls.layer[this.memory.walls.layer_i].push(pathPos);
       var returnCode = pathPos.createConstructionSite(structure);
       if (returnCode == ERR_FULL) {
@@ -251,4 +250,5 @@ Room.prototype.closeExitsByPath = function() {
   // I guess when the position is near to the exit (e.g. source on x: 47
   // TODO I think this can break the setup, It will find the way to this source which is in the walls / ramparts and skip the others
   this.memory.walls.exit_i++;
+  return true;
 };
