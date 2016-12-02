@@ -22,7 +22,6 @@
   require('config_room_mineral');
   require('config_room_not_mine');
   require('config_room_external');
-  require('config_room_flags');
   require('config_room_routing');
   require('config_room_wallsetter');
   require('config_string');

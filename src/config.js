@@ -24,7 +24,8 @@ global.config = {
     numberOfNextroomers: 3,
     maxRooms: 30,
     revive: true,
-    maxDistance: 17
+    maxDistance: 17,
+    minNewRoomDistance: 3
   },
 
   power: {
@@ -79,7 +80,7 @@ global.config = {
     nextroomerInterval: 354,
     scoutInterval: 1032,
     scout: true, // TODO somehow broken ?? Is it broken ??
-    builderMinStorage: 10000,
+    upgraderMinStorage: 10000,
     lastSeenThreshold: 10000
   },
 
@@ -96,7 +97,7 @@ global.config = {
   },
 
   mineral: {
-    enabled: true,
+    enabled: false,
     storage: 100000,
     minAmount: 5000,
     minAmountForMarket: 1000

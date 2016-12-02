@@ -6,7 +6,7 @@ https://screeps.com/
 
 This is the AI I'm using (2016-10-25) for screeps. I managed to reach Top 10
 from November 2015 - March 2016. Main Goal is to automated everything, no
-manual interaction needed. Some attacking creeps can be steared via flags.
+manual interaction needed.
 
 The AI automatically generated a layout for the room and builds the structures
 for the current RCL. With a `scout` creep external harvest rooms are explored
@@ -14,7 +14,7 @@ and used. (SK rooms somwhow implemented, not enabled right now)
 If the number of rooms are less than the GCL a new room
 is acquired and build up. Also fallen rooms will be survived and basically
 defended.
-Some basic autoattacking is implemented, currently not enabled. Minerals
+Some basic autoattacking is implemented. Minerals
 are fetched from the extractor and transported to the terminal. Reactions
 are implemented (one reaction at a time, currently disabled). Depending on
 a threshold minerals are sold on the market.
@@ -62,8 +62,8 @@ welcome.
 #### Setup
 
 Positions:
- - `builder` creep next to the `controller`
- - `storage` structure next to the `builder`
+ - `upgrader` creep next to the `controller`
+ - `storage` structure next to the `upgrader`
  - `filler` creep next to the `storage`
  - `pathStart` position next to the `storage`
 
@@ -79,7 +79,7 @@ within the precalculated paths are replaced by ramparts.
 
 The number of structures are checked and if applicable new constructionSites
 are places. Links are triggered to transfer energy to link near the storage.
-Tower attack incoming creeps or heal my creeps. If no spawn is available
+Towers attack incoming creeps or heal my creeps. If no spawn is available
 `nextroomer` from other rooms are called, to build up the room.
 
 The basic creep is the `harvester` which can make sure, that enought energy
@@ -88,9 +88,9 @@ a `harvester` is within the room, otherwise spawn it. For the rest a simple
 queue is used.
 
  
-### Creep
+### Role
 
- - `builder` get energy from the storage, puts it into the controller
+ - `upgrader` get energy from the storage, puts it into the controller
  - `filler` get energy from a link and transfers it to the tower or storage
  - `sourcer` get energy from source.
    - Controlled room: Transfers the energy to the link

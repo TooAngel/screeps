@@ -9,18 +9,26 @@
 
 roles.autoattackmelee = {};
 
-roles.autoattackmelee.get_part_config = function(room, energy, heal) {
+roles.autoattackmelee.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, ATTACK];
   return room.get_part_config(energy, parts).sort().reverse();
 };
 roles.autoattackmelee.get_part_config = roles.autoattackmelee.getPartConfig;
 
 roles.autoattackmelee.energyRequired = function(room) {
-  return Math.min(room.energyCapacityAvailable - 300, 3250);
+  let offset = 300;
+  if (!room.misplacedSpawn || room.controller.level <= 2) {
+    offset = 0;
+  }
+  return Math.min(room.energyCapacityAvailable - offset, 3250);
 };
 
 roles.autoattackmelee.energyBuild = function(room, energy) {
-  return Math.min(room.energyCapacityAvailable - 300, 3250);
+  let offset = 300;
+  if (!room.misplacedSpawn || room.controller.level <= 2) {
+    offset = 0;
+  }
+  return Math.min(room.energyCapacityAvailable - offset, 3250);
 };
 
 roles.autoattackmelee.died = function(name, memory) {

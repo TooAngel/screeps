@@ -10,7 +10,7 @@
 
 roles.scoutnextroom = {};
 
-roles.scoutnextroom.get_part_config = function(room, energy, heal) {
+roles.scoutnextroom.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CLAIM];
   return room.get_part_config(energy, parts);
 };
@@ -36,61 +36,68 @@ roles.scoutnextroom.execute = function(creep) {
 
   if (!creep.memory.target || creep.memory.target === null || creep.memory.target.roomName != creep.room.name) {
     var hostile_creeps = creep.room.find(FIND_HOSTILE_CREEPS, {
-      filter: function(object) {
-        if (object.owner.username == 'Source Keeper') {
-          // Disable Source keeper harvesting
-          return true;
-        }
-        return true;
-      }
+      filter: creep.room.findAttackCreeps
     });
 
     var opponent_room = hostile_creeps.length > 0;
     if (creep.room.name != creep.memory.base) {
       opponent_room = opponent_room || (creep.room.controller && creep.room.controller.my);
 
-      if (creep.room.controller) {
-        var path = creep.pos.findPathTo(creep.room.controller.pos);
-        if (path.length === 0) {
-          creep.log('Can not find way to controller');
-          opponent_room = true;
-        } else {
-
-          last_pos = path[path.length - 1];
-          if (!creep.room.controller.pos.isEqualTo(last_pos.x, last_pos.y)) {
-            creep.log('Can not find way to controller');
-            opponent_room = true;
-          }
-        }
-      }
+      // TODO No way to controller doesn't mean it is an opponent_room
+      //      if (creep.room.controller) {
+      //        var path = creep.pos.findPathTo(creep.room.controller.pos);
+      //        if (path.length === 0) {
+      //          creep.log('Can not find way to controller');
+      //          opponent_room = true;
+      //        } else {
+      //
+      //          last_pos = path[path.length - 1];
+      //          if (!creep.room.controller.pos.isEqualTo(last_pos.x, last_pos.y)) {
+      //            creep.log('Can not find way to controller');
+      //            opponent_room = true;
+      //          }
+      //        }
+      //      }
     }
 
     let checkNewRoom = function(creep, opponent_room) {
-      if (creep.room.name != creep.memory.base && !opponent_room) {
-        var targets = [];
-        var sources = creep.room.find(FIND_SOURCES);
-        if (creep.room.controller && sources.length == 2) {
+      if (creep.room.name == creep.memory.base) {
+        return false;
+      }
 
+      if (opponent_room) {
+        return false;
+      }
 
-          for (let roomName of Memory.myRooms) {
-            let distance = Game.map.getRoomLinearDistance(creep.room.name, roomName);
-            if (distance < 3) {
-              return false;
-            }
-          }
+      var targets = [];
+      if (!creep.room.controller) {
+        creep.log('No controller');
+        return false;
+      }
+      var sources = creep.room.find(FIND_SOURCES);
+      if (sources.length < 2) {
+        creep.log('Not enought sources');
+        return false;
+      }
 
-          creep.memory.claimRoom = true;
-          creep.moveTo(creep.room.controller.pos);
-          return true;
+      for (let roomName of Memory.myRooms) {
+        let distance = Game.map.getRoomLinearDistance(creep.room.name, roomName);
+        if (distance < config.nextRoom.minNewRoomDistance) {
+          creep.log('To close to: ' + roomName + ' ' + distance);
+          return false;
         }
       }
-      return false;
+
+      creep.memory.claimRoom = true;
+      creep.moveTo(creep.room.controller.pos);
+      creep.log('claim');
+      return true;
     };
 
     if (checkNewRoom(creep, opponent_room)) {
       return true;
     }
-
+    creep.log('move');
     var exits = Game.map.describeExits(creep.room.name);
 
     let handleTarget = function(creep, exits) {
@@ -132,11 +139,14 @@ roles.scoutnextroom.execute = function(creep) {
         }
 
         // Way blocked
-        var path = creep.pos.findPathTo(exit_pos);
-        if (path.length === 0) {
+        let search = PathFinder.search(
+          creep.pos,
+          exit_pos, {
+            maxRooms: 1
+          });
+        if (search.incomplete) {
           continue;
         }
-
 
         creep.memory.target = exit_pos;
         creep.memory.dir = direction;
@@ -153,7 +163,6 @@ roles.scoutnextroom.execute = function(creep) {
       }
       var roomName = exits[(creep.memory.dir + 4) % 8];
       if (!roomName) {
-        // Room E12N3 has a full storage in there (so opponent), which breaks the scout otherwise
         creep.memory.dir = Math.floor(Math.random() * 8);
       }
       var exit_to = creep.room.findExitTo(roomName);
@@ -167,16 +176,22 @@ roles.scoutnextroom.execute = function(creep) {
   let search = PathFinder.search(
     creep.pos, {
       pos: targetPosObject,
-      range: 0
+      range: 1
     }, {
+      // TODO Can prevent the creep move through the room (base: W1N7, room: W2N7, private server)
       roomCallback: creep.room.getAvoids(creep.room, {
-        pos: targetPosObject,
+        //        pos: targetPosObject,
         scout: true
       }),
       maxRooms: 1
     }
   );
 
+  if (search.incomplete || search.path.length === 0) {
+    creep.say('incomplete');
+    creep.moveTo(targetPosObject);
+    return true;
+  }
   creep.say(creep.pos.getDirectionTo(search.path[0]));
   let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
 };

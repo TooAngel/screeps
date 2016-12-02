@@ -190,8 +190,8 @@ Creep.prototype.handleUpgrader = function() {
 
   var returnCode = this.upgradeController(this.room.controller);
   if (returnCode == OK) {
-    if (!room.memory.builder_upgrade) {
-      room.memory.builder_upgrade = 0;
+    if (!room.memory.upgrader_upgrade) {
+      room.memory.upgrader_upgrade = 0;
     }
     var work_parts = 0;
     for (var part_i in this.body) {
@@ -199,7 +199,7 @@ Creep.prototype.handleUpgrader = function() {
         work_parts++;
       }
     }
-    room.memory.builder_upgrade += Math.min(work_parts, this.carry.energy);
+    room.memory.upgrader_upgrade += Math.min(work_parts, this.carry.energy);
   }
 
   returnCode = this.withdraw(this.room.storage, RESOURCE_ENERGY);

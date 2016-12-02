@@ -29,11 +29,11 @@ Room.prototype.destroyStructure = function(structure) {
       this.log('Wall setup not yet finished:' + structure.structureType + ' ' + JSON.stringify(structure.pos));
       return false;
     }
-    for (let layerId in this.memory.walls.layer) {
-      let layer = this.memory.walls.layer[layerId];
-      for (let pos of layer) {
-        if (structure.pos.isEqualTo(pos.x, pos.y)) {
-          if (!structure.pos.inRamparts()) {
+    if (!structure.pos.inRamparts()) {
+      for (let layerId in this.memory.walls.layer) {
+        let layer = this.memory.walls.layer[layerId];
+        for (let pos of layer) {
+          if (structure.pos.isEqualTo(pos.x, pos.y)) {
             return false;
           }
         }
@@ -177,6 +177,13 @@ Room.prototype.checkWrongStructure = function() {
     this.log('checkWrongStructure: underSiege');
     return false;
   }
+
+  // destroyStructure resets misplacedSpawn, so make sure we reach that point with the storage check
+  if (this.memory.misplacedSpawn && (!this.storage || this.storage.store.energy < 20000)) {
+    this.log('checkWrongStructures skipped - misplacedSpawn');
+    return false;
+  }
+
   // TODO Building up underSiege, maybe check for underSiege
   //if (this.controller.level < 6) {
   //  this.log('checkWrongStructure: controller.level < 6');

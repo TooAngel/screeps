@@ -143,7 +143,7 @@ Room.prototype.handleMyRoom = function() {
     Memory.stats["room." + this.name + ".energyAvailable"] = this.energyAvailable;
     Memory.stats["room." + this.name + ".energyCapacityAvailable"] = this.energyCapacityAvailable;
     Memory.stats["room." + this.name + ".controllerProgress"] = this.controller.progress;
-    Memory.stats['room.' + this.name + '.progress'] = this.memory.builder_upgrade / (Game.time % 100);
+    Memory.stats['room.' + this.name + '.progress'] = this.memory.upgrader_upgrade / (Game.time % 100);
 
     let storage = this.storage || {
       store: {}
@@ -154,7 +154,6 @@ Room.prototype.handleMyRoom = function() {
     }
   }
 
-  //this.build();
   return this.executeRoom();
 };
 
@@ -714,7 +713,7 @@ Room.prototype.executeRoom = function() {
     creepsConfig.push('storagefiller');
   }
 
-  if (this.storage && this.storage.store.energy > config.room.builderMinStorage && !this.memory.misplacedSpawn) {
+  if (this.storage && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
     creepsConfig.push('upgrader');
   }
 
