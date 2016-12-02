@@ -330,9 +330,6 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
         level: this.memory.level,
         routing: routing
       };
-      if (spawn.role == 'sourcer') {
-        this.log('Spawn replacement from ' + this.memory.base + ' ' + JSON.stringify(spawn));
-      }
       Game.rooms[this.memory.base].memory.queue.push(spawn);
     }
   }
