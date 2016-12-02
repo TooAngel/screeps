@@ -479,7 +479,7 @@ Room.prototype.handleScout = function() {
 
 
 Room.prototype.reviveRoom = function() {
-  if (this.controller.ticksToDowngrade > CONTROLLER_DOWNGRADE[this.controller.level] * 0.9) {
+  if (this.controller.level > 1 && this.controller.ticksToDowngrade > CONTROLLER_DOWNGRADE[this.controller.level] * 0.9) {
     return false;
   }
 

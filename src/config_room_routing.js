@@ -112,9 +112,9 @@ Room.prototype.updatePosition = function() {
       this.memory.position.structure.extractor.push(mineral.pos);
     }
 
-    let builderPos = this.controller.pos.findNearPosition().next().value;
-    this.memory.position.creep[this.controller.id] = builderPos;
-    costMatrixBase.set(builderPos.x, builderPos.y, config.layout.creepAvoid);
+    let upgraderPos = this.controller.pos.findNearPosition().next().value;
+    this.memory.position.creep[this.controller.id] = upgraderPos;
+    costMatrixBase.set(upgraderPos.x, upgraderPos.y, config.layout.creepAvoid);
     this.memory.costMatrix.base = costMatrixBase.serialize();
 
     let storagePos = this.memory.position.creep[this.controller.id].findNearPosition().next().value;
@@ -128,10 +128,10 @@ Room.prototype.updatePosition = function() {
     let route = [{
       room: this.name
     }];
-    let pathBuilder = this.getPath(route, 0, 'pathStart', this.controller.id, true);
+    let pathUpgrader = this.getPath(route, 0, 'pathStart', this.controller.id, true);
     // TODO exclude the last position (creepAvoid) in all paths, 
-    for (let pos of pathBuilder) {
-      if (builderPos.isEqualTo(pos.x, pos.y)) {
+    for (let pos of pathUpgrader) {
+      if (upgraderPos.isEqualTo(pos.x, pos.y)) {
         continue;
       }
       costMatrixBase.set(pos.x, pos.y, config.layout.pathAvoid);

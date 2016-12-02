@@ -97,7 +97,6 @@ roles.scoutnextroom.execute = function(creep) {
     if (checkNewRoom(creep, opponent_room)) {
       return true;
     }
-    creep.log('move');
     var exits = Game.map.describeExits(creep.room.name);
 
     let handleTarget = function(creep, exits) {

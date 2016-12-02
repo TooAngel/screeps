@@ -13,7 +13,7 @@ Room.prototype.buildBase = function() {
 
   if (!this.memory.controllerLevel['setup_level_' + this.controller.level]) {
     if (this.controller.level == 1) {
-      if (!this.memory.layout) {
+      if (!this.memory.position) {
         this.setup();
       }
     }

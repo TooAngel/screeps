@@ -39,7 +39,7 @@ roles.upgrader.energyBuild = function(room, energy) {
     energyNeeded = Math.min(1950, room.energyCapacityAvailable - 300);
   }
   if (room.controller.level == 7) {
-    // TODO Better calculation for the builder size
+    // TODO Better calculation for the upgrader size
     //    energyNeeded = Math.min(3900, energy);
   }
   if (room.storage) {

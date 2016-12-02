@@ -2,10 +2,6 @@
 
 Room.prototype.buildBlockers = function() {
   this.log('buildBlockers: ' + this.memory.controllerLevel.buildBlockersInterval);
-  // TODO Add check for costmatrix, layout is initialized
-  //    if (!room.memory.layout) {
-  //      return false;
-  //    }
 
   var spawns = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {
