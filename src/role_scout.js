@@ -3,10 +3,8 @@
 roles.scout = {};
 roles.scout.getPartConfig = function(room, energy, heal) {
   let parts = [MOVE];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-// TODO deprecated, can be removed as soon as all creeps are converted to roles
-roles.scout.get_part_config = roles.scout.getPartConfig;
 
 roles.scout.energyBuild = function(room, energy) {
   return 50;

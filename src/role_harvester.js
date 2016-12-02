@@ -25,7 +25,7 @@ roles.harvester.preMove = function(creep, directions) {
   let pickableResources = function(object) {
     return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
   };
-  let resources = _.filter(creep.room.memory.droppedResources, pickableResources);
+  let resources = _.filter(creep.room.getDroppedResources(), pickableResources);
   if (resources.length > 0) {
     creep.pickup(resources[0]);
   }
@@ -80,12 +80,12 @@ roles.harvester.action = function(creep) {
   return true;
 };
 
-roles.harvester.get_part_config = function(room, energy, heal) {
+roles.harvester.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, WORK, MOVE, CARRY];
-  let partConfig = room.get_part_config(energy, parts);
+  let partConfig = room.getPartConfig(energy, parts);
   if (room.storage && room.storage.my && room.storage.store.energy > config.creep.energyFromStorageThreshold) {
     parts = [MOVE, CARRY, CARRY];
-    partConfig = room.get_part_config(energy - 150, parts);
+    partConfig = room.getPartConfig(energy - 150, parts);
     partConfig.unshift(WORK);
     partConfig.unshift(MOVE);
   }

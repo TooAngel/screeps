@@ -13,10 +13,8 @@ roles.extractor.boostActions = ['harvest', 'capacity'];
 
 roles.extractor.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CARRY, MOVE, WORK];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-
-roles.extractor.get_part_config = roles.extractor.getPartConfig;
 
 roles.extractor.energyBuild = function(room, energy, source, heal) {
   var max = 2000;

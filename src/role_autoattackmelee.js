@@ -11,9 +11,8 @@ roles.autoattackmelee = {};
 
 roles.autoattackmelee.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, ATTACK];
-  return room.get_part_config(energy, parts).sort().reverse();
+  return room.getPartConfig(energy, parts).sort().reverse();
 };
-roles.autoattackmelee.get_part_config = roles.autoattackmelee.getPartConfig;
 
 roles.autoattackmelee.energyRequired = function(room) {
   let offset = 300;

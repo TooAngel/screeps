@@ -12,10 +12,8 @@ roles.scoutnextroom = {};
 
 roles.scoutnextroom.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CLAIM];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-
-roles.scoutnextroom.get_part_config = roles.scoutnextroom.getPartConfig;
 
 roles.scoutnextroom.energyBuild = function(room, energy) {
   return 650;

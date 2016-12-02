@@ -14,10 +14,9 @@ roles.nextroomer = {};
 
 roles.nextroomer.getPartConfig = function(room, energy, heal, target) {
   var parts = [MOVE, WORK, MOVE, CARRY];
-  var config = room.get_part_config(energy, parts);
+  var config = room.getPartConfig(energy, parts);
   return config;
 };
-roles.nextroomer.get_part_config = roles.nextroomer.getPartConfig;
 
 roles.nextroomer.energyRequired = function(room) {
   return Math.min(700, room.energyCapacityAvailable - 50);

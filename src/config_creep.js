@@ -162,7 +162,7 @@ Creep.prototype.buildRoad = function() {
     return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 4;
   };
 
-  let constructionSites = _.filter(this.room.memory.constructionSites, buildableRoads);
+  let constructionSites = _.filter(this.room.getConstructionSites(), buildableRoads);
 
   if (constructionSites.length > 0) {
     this.build(constructionSites[0]);

@@ -9,10 +9,8 @@
 roles.powerattacker = {};
 roles.powerattacker.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, ATTACK];
-  return room.get_part_config(energy, parts).sort().reverse();
+  return room.getPartConfig(energy, parts).sort().reverse();
 };
-
-roles.powerattacker.get_part_config = roles.powerattacker.getPartConfig;
 
 roles.powerattacker.energyRequired = function(room) {
   return Math.min(room.energyCapacityAvailable - 50, 3250);

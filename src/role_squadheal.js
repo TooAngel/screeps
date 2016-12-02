@@ -11,10 +11,8 @@ roles.squadheal = {};
 
 roles.squadheal.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, HEAL];
-  return room.get_part_config(energy, parts).sort().reverse();
+  return room.getPartConfig(energy, parts).sort().reverse();
 };
-
-roles.squadheal.get_part_config = roles.squadheal.getPartConfig;
 
 roles.squadheal.energyRequired = function(room) {
   return Math.min(room.energyCapacityAvailable - 50, 5100);

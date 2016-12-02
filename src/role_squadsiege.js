@@ -14,10 +14,8 @@ roles.squadsiege.energyRequired = function(room) {
 
 roles.squadsiege.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, WORK];
-  return room.get_part_config(energy, parts).sort().reverse();
+  return room.getPartConfig(energy, parts).sort().reverse();
 };
-
-roles.squadsiege.get_part_config = roles.squadsiege.getPartConfig;
 
 roles.squadsiege.energyBuild = function(room, energy) {
   return Math.min(room.energyCapacityAvailable - 50, 3250);

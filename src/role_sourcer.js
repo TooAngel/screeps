@@ -21,10 +21,8 @@ roles.sourcer.flee = false;
 
 roles.sourcer.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CARRY, WORK, WORK, WORK, WORK, MOVE, MOVE, WORK, HEAL, MOVE, HEAL, MOVE, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-
-roles.sourcer.get_part_config = roles.sourcer.getPartConfig;
 
 roles.sourcer.preMove = function(creep, directions) {
   // Misplaced spawn

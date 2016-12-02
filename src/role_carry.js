@@ -170,13 +170,12 @@ roles.carry.action = function(creep) {
 roles.carry.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CARRY, CARRY];
 
-  let partConfig = room.get_part_config(energy - 150, parts);
+  let partConfig = room.getPartConfig(energy - 150, parts);
   partConfig.unshift(WORK);
   partConfig.unshift(MOVE);
 
   return partConfig;
 };
-roles.carry.get_part_config = roles.carry.getPartConfig;
 
 roles.carry.energyRequired = function(room) {
   // TODO make the factor dependent on e.g. room.storage or waiting duration in queue

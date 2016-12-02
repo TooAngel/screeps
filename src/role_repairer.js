@@ -16,9 +16,8 @@ roles.repairer.stayInRoom = true;
 
 roles.repairer.getPartConfig = function(room, energy, heal) {
   var parts = [CARRY, MOVE, WORK, MOVE];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-roles.repairer.get_part_config = roles.repairer.getPartConfig;
 
 roles.repairer.energyBuild = function(room, energy) {
   if (room.storage) {

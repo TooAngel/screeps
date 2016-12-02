@@ -17,9 +17,8 @@ roles.upgrader.boostActions = ['upgradeController'];
 
 roles.upgrader.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CARRY, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-roles.upgrader.get_part_config = roles.upgrader.getPartConfig;
 
 roles.upgrader.energyRequired = function(room) {
   var energyNeeded = 200;

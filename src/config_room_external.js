@@ -1,3 +1,113 @@
+Room.prototype.checkBlocked = function() {
+  let exits = Game.map.describeExits(this.name);
+  let room = this;
+  let roomCallback = function(roomName) {
+    let costMatrix = new PathFinder.CostMatrix();
+    let structures = room.find(FIND_STRUCTURES);
+    for (let structure of structures) {
+      costMatrix.set(structure.pos.x, structure.pos.y, 0xFF);
+    }
+    return costMatrix;
+  };
+  for (let fromDirection in exits) {
+    let fromExitDirection = this.findExitTo(exits[fromDirection]);
+    let fromExitPoss = this.find(fromExitDirection);
+    let fromNextExit = fromExitPoss[Math.floor(fromExitPoss.length / 2)];
+    for (let toDirection in exits) {
+      if (fromDirection == toDirection) {
+        continue;
+      }
+
+      let toExitDirection = this.findExitTo(exits[toDirection]);
+      let toExitPoss = this.find(toExitDirection);
+      let toNextExit = toExitPoss[Math.floor(toExitPoss.length / 2)];
+
+      let search = PathFinder.search(fromNextExit, toNextExit, {
+        maxRooms: 0,
+        roomCallback: roomCallback
+      });
+      if (search.incomplete) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
+
+Room.prototype.externalHandleRoom = function() {
+
+  var name_split = this.split_room_name();
+  if (name_split[2] % 10 === 0 || name_split[4] % 10 === 0) {
+    return this.executeHighwayRoom();
+  }
+
+  if (this.controller && this.controller.reservation && this.controller.reservation.username == Memory.username) {
+    this.memory.lastSeen = Game.time;
+    return false;
+  }
+
+  if (this.controller && this.controller.owner) {
+    this.memory.lastSeen = Game.time;
+    var hostiles = this.find(FIND_HOSTILE_CREEPS);
+    if (hostiles.length > 0) {
+      // TODO replace with enum
+      this.memory.state = 'Occupied';
+      this.memory.player = this.controller.owner.username;
+
+      // TODO Not if in safe mode
+      // TODO trigger everytime?
+      if (!this.controller.safeMode) {
+        let myCreeps = this.find(FIND_MY_CREEPS);
+        if (myCreeps.length > 1) {
+          return false;
+        }
+
+        var spawns = this.find(FIND_HOSTILE_STRUCTURES, {
+          filter: function(object) {
+            return object.structureType == 'spawn';
+          }
+        });
+        if (spawns.length > 0) {
+          this.attackRoom();
+        }
+      }
+
+      return false;
+    }
+  }
+
+  let blocked = this.checkBlocked();
+  if (blocked) {
+    this.memory.lastSeen = Game.time;
+    this.memory.state = 'Blocked';
+  }
+
+  if (this.controller && !this.controller.reservation) {
+    if (this.handleUnreservedRoom()) {
+      return false;
+    }
+  }
+
+  if (!this.controller) {
+    var sourceKeeper = this.find(FIND_HOSTILE_STRUCTURES, {
+      filter: function(object) {
+        return object.owner.username == 'Source Keeper';
+      }
+    });
+
+    if (sourceKeeper.length > 0) {
+      this.memory.lastSeen = Game.time;
+      this.handleSourceKeeperRoom();
+      return false;
+    }
+  }
+
+  delete Memory.rooms[this.roomName];
+  return false;
+
+};
+
 Room.prototype.handleUnreservedRoom = function() {
   this.memory.state = 'Unreserved';
   this.memory.lastSeen = Game.time;

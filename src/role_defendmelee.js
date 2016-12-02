@@ -10,9 +10,8 @@ roles.defendmelee = {};
 
 roles.defendmelee.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, ATTACK];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-roles.defendmelee.get_part_config = roles.defendmelee.getPartConfig;
 
 roles.defendmelee.energyRequired = function(room) {
   return Math.min(room.energyCapacityAvailable - 50, 3250);

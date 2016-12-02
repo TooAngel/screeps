@@ -11,10 +11,8 @@ roles.atkeeper = {};
 
 roles.atkeeper.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, RANGED_ATTACK, MOVE, HEAL];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-
-roles.atkeeper.get_part_config = roles.atkeeper.getPartConfig;
 
 roles.atkeeper.energyRequired = function(room) {
   return Math.min(room.energyCapacityAvailable, 3430);

@@ -99,7 +99,7 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
       return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
     };
 
-    let resources = _.filter(this.room.memory.droppedResources, pickableResources);
+    let resources = _.filter(this.room.getDroppedResources(), pickableResources);
 
     if (resources.length > 0) {
       this.pickup(resources[0]);
@@ -278,7 +278,7 @@ Creep.prototype.pickupEnergy = function() {
     return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
   };
 
-  let resources = _.filter(this.room.memory.droppedResources, pickableResources);
+  let resources = _.filter(this.room.getDroppedResources(), pickableResources);
 
   if (resources.length > 0) {
     let returnCode = this.pickup(resources[0]);
@@ -388,14 +388,14 @@ Creep.prototype.transferToStructures = function() {
       return false;
     }
 
-    return creep.pos.getRangeTo(object.pos) < 2;
+    return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
   };
 
-  let structures = _.filter(creep.room.memory.transferableStructures, filterTransferrables);
-
+  let structures = _.filter(creep.room.getTransferableStructures(), filterTransferrables);
   if (structures.length > 0) {
     let returnCode = -1;
-    for (let structure of structures) {
+    for (let structureFromCache of structures) {
+      let structure = Game.getObjectById(structureFromCache.id);
       //       let resource = 'energy';
       for (let resource in this.carry) {
         returnCode = this.transfer(structure, resource);
