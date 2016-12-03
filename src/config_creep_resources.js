@@ -204,12 +204,12 @@ Creep.prototype.handleUpgrader = function() {
   returnCode = this.withdraw(this.room.storage, RESOURCE_ENERGY);
 
   if (returnCode == ERR_FULL) {
-    return;
+    return true;
   }
   if (returnCode === OK) {
-    return;
+    return true;
   }
-  return;
+  return true;
 };
 
 Creep.prototype.buildContainer = function() {

@@ -77,7 +77,7 @@ roles.scout.execute = function(creep) {
         }
       );
     } catch (e) {
-      creep.log(`search: ${targetPosObject} %{e}`);
+      //      creep.log(`search: ${targetPosObject} %{e}`);
       return false;
 
     }
