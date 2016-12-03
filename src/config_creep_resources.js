@@ -99,11 +99,12 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
       return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
     };
 
-    let resources = _.filter(this.room.memory.droppedResources, pickableResources);
+    let resources = _.filter(this.room.getDroppedResources(), pickableResources);
 
     if (resources.length > 0) {
-      this.pickup(resources[0]);
-      return _.sum(this.carry) + resources[0].amount > 0.5 * this.carryCapacity;
+      let resource = Game.getObjectById(resources[0].id);
+      this.pickup(resource);
+      return _.sum(this.carry) + resource.amount > 0.5 * this.carryCapacity;
     }
 
     if (this.room.name == this.memory.routing.targetRoom) {
@@ -278,10 +279,10 @@ Creep.prototype.pickupEnergy = function() {
     return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
   };
 
-  let resources = _.filter(this.room.memory.droppedResources, pickableResources);
-
+  let resources = _.filter(this.room.getDroppedResources(), pickableResources);
   if (resources.length > 0) {
-    let returnCode = this.pickup(resources[0]);
+    let resource = Game.getObjectById(resources[0].id);
+    let returnCode = this.pickup(resource);
     return returnCode == OK;
   }
 
@@ -388,14 +389,14 @@ Creep.prototype.transferToStructures = function() {
       return false;
     }
 
-    return creep.pos.getRangeTo(object.pos) < 2;
+    return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
   };
 
-  let structures = _.filter(creep.room.memory.transferableStructures, filterTransferrables);
-
+  let structures = _.filter(creep.room.getTransferableStructures(), filterTransferrables);
   if (structures.length > 0) {
     let returnCode = -1;
-    for (let structure of structures) {
+    for (let structureFromCache of structures) {
+      let structure = Game.getObjectById(structureFromCache.id);
       //       let resource = 'energy';
       for (let resource in this.carry) {
         returnCode = this.transfer(structure, resource);
@@ -956,8 +957,8 @@ Creep.prototype.handleReserver = function() {
         }
         return false;
       };
-      var sources = this.room.find(FIND_SOURCES);
-      var sourcer = this.room.find(FIND_MY_CREEPS, {
+      var sources = creep.room.find(FIND_SOURCES);
+      var sourcer = creep.room.find(FIND_MY_CREEPS, {
         filter: function(object) {
           return object.memory.role == 'sourcer';
         }
@@ -966,7 +967,7 @@ Creep.prototype.handleReserver = function() {
       if (sourcer.length < sources.length) {
         for (var sources_id in sources) {
           if (checkSourcerMatch(sourcer, sources[sources_id].pos)) {
-            this.log('Matching sourcer found');
+            creep.log('Matching sourcer found');
             continue;
           }
 
@@ -977,7 +978,7 @@ Creep.prototype.handleReserver = function() {
             target_id: sources[sources_id].id
           };
 
-          Game.rooms[this.memory.base].memory.queue.push(sourcer_spawn);
+          Game.rooms[creep.memory.base].memory.queue.push(sourcer_spawn);
         }
       }
 

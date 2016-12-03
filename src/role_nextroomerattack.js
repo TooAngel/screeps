@@ -11,10 +11,8 @@ roles.nextroomerattack = {};
 
 roles.nextroomerattack.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, ATTACK];
-  return room.get_part_config(energy, parts).sort().reverse();
+  return room.getPartConfig(energy, parts).sort().reverse();
 };
-
-roles.nextroomerattack.get_part_config = roles.nextroomerattack.getPartConfig;
 
 roles.nextroomerattack.energyRequired = function(room) {
   return Math.min(room.energyCapacityAvailable - 50, 3250);

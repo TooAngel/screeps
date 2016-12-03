@@ -20,10 +20,8 @@ roles.structurer.energyBuild = function(room, energy) {
 
 roles.structurer.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, WORK];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-
-roles.structurer.get_part_config = roles.structurer.getPartConfig;
 
 roles.structurer.preMove = function(creep, directions) {
   if (creep.room.name == creep.memory.routing.targetRoom) {

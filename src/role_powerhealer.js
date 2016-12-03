@@ -10,10 +10,8 @@ roles.powerhealer = {};
 
 roles.powerhealer.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, HEAL];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-
-roles.powerhealer.get_part_config = roles.powerhealer.getPartConfig;
 
 roles.powerhealer.energyRequired = function(room) {
   return Math.min(6500, room.energyCapacityAvailable - 50);

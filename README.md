@@ -1,6 +1,7 @@
-# Screeps script
+# screeps-bot-tooangel
 
 [![CircleCI](https://circleci.com/gh/TooAngel/screeps.svg?style=svg)](https://circleci.com/gh/TooAngel/screeps)
+[![npm version](https://badge.fury.io/js/screeps-bot-tooangel.svg)](https://badge.fury.io/js/screeps-bot-tooangel)
 
 https://screeps.com/
 

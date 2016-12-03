@@ -10,9 +10,8 @@
 roles.powertransporter = {};
 roles.powertransporter.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CARRY];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-roles.powertransporter.get_part_config = roles.powertransporter.getPartConfig;
 
 roles.powertransporter.energyRequired = function(room) {
   return Math.min(room.energyCapacityAvailable, 2000);

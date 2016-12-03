@@ -12,9 +12,8 @@ roles.defender.boostActions = ['rangedAttack', 'heal'];
 
 roles.defender.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, RANGED_ATTACK, MOVE, HEAL];
-  return room.get_part_config(energy, parts).sort().reverse();
+  return room.getPartConfig(energy, parts).sort().reverse();
 };
-roles.defender.get_part_config = roles.defender.getPartConfig;
 
 roles.defender.energyRequired = function(room) {
   if (room.controller.level == 8) {

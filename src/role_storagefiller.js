@@ -15,9 +15,8 @@ roles.storagefiller.killPrevious = true;
 
 roles.storagefiller.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CARRY, CARRY, CARRY, CARRY];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-roles.storagefiller.get_part_config = roles.storagefiller.getPartConfig;
 
 roles.storagefiller.energyBuild = function(room, energy) {
   return 200;

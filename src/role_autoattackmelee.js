@@ -11,9 +11,8 @@ roles.autoattackmelee = {};
 
 roles.autoattackmelee.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, ATTACK];
-  return room.get_part_config(energy, parts).sort().reverse();
+  return room.getPartConfig(energy, parts).sort().reverse();
 };
-roles.autoattackmelee.get_part_config = roles.autoattackmelee.getPartConfig;
 
 roles.autoattackmelee.energyRequired = function(room) {
   let offset = 300;
@@ -48,7 +47,7 @@ roles.autoattackmelee.action = function(creep) {
   }
   var spawn = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
     filter: function(object) {
-      if (object.structureType == 'spawn') {
+      if (object.structureType == STRUCTURE_SPAWN) {
         return true;
       }
       return false;
@@ -60,7 +59,14 @@ roles.autoattackmelee.action = function(creep) {
       filter: creep.room.findAttackCreeps
     });
     if (hostile_creep === null) {
-      var structures = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES);
+      var structures = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
+        filter: function(object) {
+          if (object.structureType == STRUCTURE_CONTROLLER) {
+            return false;
+          }
+          return true;
+        }
+      });
 
       if (structures === null) {
         var constructionSites = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);

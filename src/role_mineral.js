@@ -11,9 +11,8 @@
 roles.mineral = {};
 roles.mineral.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CARRY];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-roles.mineral.get_part_config = roles.mineral.getPartConfig;
 
 roles.mineral.energyBuild = function(room, energy, source, heal) {
   var max = 1000;

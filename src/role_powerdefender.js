@@ -10,10 +10,8 @@ roles.powerdefender = {};
 
 roles.powerdefender.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, RANGED_ATTACK];
-  return room.get_part_config(energy, parts).sort().reverse();
+  return room.getPartConfig(energy, parts).sort().reverse();
 };
-
-roles.powerdefender.get_part_config = roles.powerdefender.getPartConfig;
 
 roles.powerdefender.energyRequired = function(room) {
   return Math.min(room.energyCapacityAvailable, 3250);

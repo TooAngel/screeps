@@ -18,21 +18,35 @@ roles.carry.boostActions = ['capacity'];
 
 roles.carry.preMove = function(creep, directions) {
   // Misplaced spawn
+  // TODO Somehow ugly and maybe better somewhere else
   if (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3) {
-    creep.say('mis', true);
-    let targetId = creep.memory.target_id;
-    if (creep.memory.routing) {
-      targetId = creep.memory.routing.targetId;
+    creep.say('cmis', true);
+    if (creep.carry.energy > 0) {
+      let structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
+        filter: function(object) {
+          if (object.energy == object.energyCapacity) {
+            return false;
+          }
+          return true;
+        }
+      });
+      creep.moveTo(structure);
+      creep.transfer(structure, RESOURCE_ENERGY);
     } else {
-      console.log('No routing');
-    }
+      let targetId = creep.memory.target_id;
+      if (creep.memory.routing) {
+        targetId = creep.memory.routing.targetId;
+      } else {
+        console.log('No routing');
+      }
 
-    var source = Game.getObjectById(targetId);
-    // TODO better the position from the room memory
-    if (source !== null) {
-      let returnCode = creep.moveTo(source.pos);
-      if (creep.pos.getRangeTo(source.pos) > 1) {
-        return true;
+      var source = Game.getObjectById(targetId);
+      // TODO better the position from the room memory
+      if (source !== null) {
+        let returnCode = creep.moveTo(source.pos);
+        if (creep.pos.getRangeTo(source.pos) > 1) {
+          return true;
+        }
       }
     }
   }
@@ -170,13 +184,12 @@ roles.carry.action = function(creep) {
 roles.carry.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CARRY, CARRY];
 
-  let partConfig = room.get_part_config(energy - 150, parts);
+  let partConfig = room.getPartConfig(energy - 150, parts);
   partConfig.unshift(WORK);
   partConfig.unshift(MOVE);
 
   return partConfig;
 };
-roles.carry.get_part_config = roles.carry.getPartConfig;
 
 roles.carry.energyRequired = function(room) {
   // TODO make the factor dependent on e.g. room.storage or waiting duration in queue

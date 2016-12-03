@@ -412,7 +412,7 @@ Creep.prototype.repairStructure = function() {
         maxRooms: 0
       }
     );
-    this.log('ConstructionSite: ' + target.pos + ' search: ' + JSON.stringify(search));
+    //    this.log('ConstructionSite: ' + target.pos + ' search: ' + JSON.stringify(search));
     // for (let x = 19; x < 31; x++) {
     // for (let y = 2; y < 7; y++) {
     // let costmatrix = this.room.getAvoids(this.room, {}, true)(this.room.name);

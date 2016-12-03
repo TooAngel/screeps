@@ -162,7 +162,7 @@ Creep.prototype.buildRoad = function() {
     return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 4;
   };
 
-  let constructionSites = _.filter(this.room.memory.constructionSites, buildableRoads);
+  let constructionSites = _.filter(this.room.getConstructionSites(), buildableRoads);
 
   if (constructionSites.length > 0) {
     this.build(constructionSites[0]);
@@ -294,8 +294,6 @@ Creep.prototype.killPrevious = function() {
 
 Creep.prototype.spawnReplacement = function(maxOfRole) {
   if (this.memory.nextSpawn) {
-
-
     //    this.say('sr: ' + (this.ticksToLive - this.memory.nextSpawn));
     if (this.ticksToLive == this.memory.nextSpawn) {
       if (maxOfRole) {
@@ -311,7 +309,6 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
         if (maxOfRole.length > maxOfRole) {
           return false;
         }
-
       }
 
       let routing = {};
@@ -330,10 +327,10 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
         level: this.memory.level,
         routing: routing
       };
-      if (spawn.role == 'sourcer') {
-        this.log('Spawn replacement from ' + this.memory.base + ' ' + JSON.stringify(spawn));
-      }
       Game.rooms[this.memory.base].memory.queue.push(spawn);
+      if (spawn.role == 'reserver') {
+        console.log('Spawning reserver: ' + JSON.stringify(spawn));
+      }
     }
   }
 };

@@ -23,10 +23,8 @@ roles.atkeepermelee.getPartConfig = function(room, energy, heal) {
   for (let i = 0; i < 6; i++) {
     parts.push(HEAL);
   }
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-
-roles.atkeepermelee.get_part_config = roles.atkeepermelee.getPartConfig;
 
 roles.atkeepermelee.energyRequired = function(room) {
   let parts = [];

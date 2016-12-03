@@ -14,10 +14,8 @@ roles.reserver.flee = false;
 
 roles.reserver.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CLAIM];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-
-roles.reserver.get_part_config = roles.reserver.getPartConfig;
 
 roles.reserver.energyRequired = function(room) {
   return BODYPART_COST[CLAIM] + BODYPART_COST[MOVE];

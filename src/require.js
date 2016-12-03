@@ -15,14 +15,16 @@
   require('config_room');
   require('config_room_attack');
   require('config_room_basebuilder');
+  require('config_room_cached');
   require('config_room_controller');
   require('config_room_creepbuilder');
   require('config_room_defense');
   require('config_room_market');
   require('config_room_mineral');
-  require('config_room_not_mine');
+  require('config_room_my');
   require('config_room_external');
   require('config_room_routing');
+  require('config_room_utils');
   require('config_room_wallsetter');
   require('config_string');
   require('role_atkeeper');

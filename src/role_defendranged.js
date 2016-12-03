@@ -10,10 +10,8 @@ roles.defendranged = {};
 
 roles.defendranged.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-
-roles.defendranged.get_part_config = roles.defendranged.getPartConfig;
 
 roles.defendranged.energyRequired = function(room) {
   return Math.max(200, room.energyAvailable);

@@ -13,10 +13,8 @@ roles.towerfiller.energyBuild = function(room, energy) {
 
 roles.towerfiller.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CARRY, CARRY, CARRY, CARRY];
-  return room.get_part_config(energy, parts);
+  return room.getPartConfig(energy, parts);
 };
-
-roles.towerfiller.get_part_config = roles.towerfiller.getPartConfig;
 
 roles.towerfiller.execute = function(creep) {
   if (!creep.memory.target_id) {
