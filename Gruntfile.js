@@ -167,8 +167,7 @@ module.exports = function(grunt) {
       src: ['test/**/*.js']
     },
     jscs: {
-      src: "src/*.js",
-      config: '.jscsrc'
+      src: "src/*.js"
     },
     clean: ['dist/'],
     uglify: {
@@ -312,10 +311,10 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('default', ['jshint', 'jsbeautifier', 'clean', 'copy:uglify', 'copy:main', 'screeps']);
-  grunt.registerTask('release', ['jshint', 'jsbeautifier', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
-  grunt.registerTask('local', ['jshint', 'jsbeautifier', 'clean', 'copy:uglify', 'copy:main', 'sync']);
-  grunt.registerTask('test', ['jshint']);
+  grunt.registerTask('default', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'screeps']);
+  grunt.registerTask('release', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
+  grunt.registerTask('local', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'sync']);
+  grunt.registerTask('test', ['jshint', 'jscs']);
   grunt.registerTask('requireFile', 'Creates an empty file', function() {
     grunt.file.write('dist/require.js', '');
   });
