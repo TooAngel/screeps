@@ -34,7 +34,6 @@ Room.prototype.checkBlocked = function() {
   return false;
 };
 
-
 Room.prototype.externalHandleRoom = function() {
   if (!this.controller) {
     var nameSplit = this.splitRoomName();
@@ -52,8 +51,6 @@ Room.prototype.externalHandleRoom = function() {
     }
 
   }
-
-
 
   let blocked = this.checkBlocked();
   if (blocked) {
@@ -280,7 +277,7 @@ Room.prototype.handleUnreservedRoom = function() {
           }
           return object.reservation.base == roomName;
         });
-        if (reservedRooms < room.controller.level - 1) {
+        if (reservedRooms.length < room.controller.level - 1) {
           this.log('Would start to spawn');
 
           // TODO Check paths to decide for structurer
