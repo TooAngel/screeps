@@ -2,9 +2,8 @@
 
 /*
  * squadsiege is part of a squad to attack a room
- * 
+ *
  * Heals creeps
- * 
  */
 
 roles.squadheal = {};

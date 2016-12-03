@@ -2,7 +2,7 @@
 
 /*
  * upgrader upgrades the controller
- * 
+ *
  * Gets the energy from the storage
  * Shouts out the player idiot values
  */

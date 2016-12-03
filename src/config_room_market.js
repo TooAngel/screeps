@@ -6,11 +6,9 @@ Room.prototype.handleMarket = function() {
   let minerals = this.find(FIND_MINERALS);
   let resource = minerals[0].mineralType;
 
-
   if (!this.terminal.store[resource]) {
     return false;
   }
-
 
   if (this.terminal.store[resource] < config.mineral.minAmountForMarket) {
     return false;
@@ -27,7 +25,6 @@ Room.prototype.handleMarket = function() {
   };
 
   this.log('!!!!!!!!!!!!MARKET: ' + resource + ' ' + config.mineral.minAmountForMarket + ' ' + Memory.mineralSystemPrice[resource]);
-
 
   let room = this;
 

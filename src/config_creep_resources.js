@@ -34,7 +34,6 @@ Creep.prototype.harvesterBeforeStorage = function() {
     methods.push(Creep.constructTask);
   }
 
-
   if (this.room.controller.level < 9) {
     methods.push(Creep.upgradeControllerTask);
   } else {
@@ -85,7 +84,6 @@ Creep.prototype.checkForTransfer = function(direction) {
   //  }
   return false;
 };
-
 
 Creep.prototype.pickupWhileMoving = function(reverse) {
   if (this.room.name == this.memory.base && this.memory.routing.pathPos < 2) {
@@ -191,8 +189,8 @@ Creep.prototype.handleUpgrader = function() {
 
   var returnCode = this.upgradeController(this.room.controller);
   if (returnCode == OK) {
-    if (!room.memory.upgrader_upgrade) {
-      room.memory.upgrader_upgrade = 0;
+    if (!room.memory.upgraderUpgrade) {
+      room.memory.upgraderUpgrade = 0;
     }
     var work_parts = 0;
     for (var part_i in this.body) {
@@ -200,7 +198,7 @@ Creep.prototype.handleUpgrader = function() {
         work_parts++;
       }
     }
-    room.memory.upgrader_upgrade += Math.min(work_parts, this.carry.energy);
+    room.memory.upgraderUpgrade += Math.min(work_parts, this.carry.energy);
   }
 
   returnCode = this.withdraw(this.room.storage, RESOURCE_ENERGY);
@@ -270,7 +268,6 @@ Creep.prototype.buildContainer = function() {
     }
   }
 };
-
 
 Creep.prototype.pickupEnergy = function() {
   // TODO Extract to somewhere (also in creep_harvester, creep_carry, config_creep_resources)
@@ -414,7 +411,6 @@ Creep.prototype.transferToStructures = function() {
   return false;
 };
 
-
 function get_structure(creep) {
   // creep.log('findClosestByPath - now range');
 
@@ -530,7 +526,6 @@ Creep.prototype.getEnergy = function() {
         this.memory.routing.cache[target.id] = search;
       }
 
-
       let path = this.memory.routing.cache[target.id].path;
       let pos = _.findIndex(path, i => i.x == this.pos.x && i.y == this.pos.y);
       // if (pos < 0) {
@@ -591,9 +586,7 @@ Creep.prototype.getEnergy = function() {
       this.moveTo(structure);
       this.withdraw(structure, RESOURCE_ENERGY);
       return true;
-
     }
-
   }
 
   var range = null;

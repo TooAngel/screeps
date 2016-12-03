@@ -2,9 +2,8 @@
 
 /*
  * squadsiege is part of a squad to attack a room
- * 
+ *
  * Attacks structures, runs away if I will be destroyed (hopefully)
- * 
  */
 
 roles.squadsiege = {};

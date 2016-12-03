@@ -2,7 +2,7 @@
 
 /*
  * atkeeper is used to kill Source Keeper (ranged version)
- * 
+ *
  * Attacks source keeper, move away when hits below 'threshold'
  * If no source keeper is available move to position where the next will spawn
  */
@@ -140,7 +140,6 @@ roles.atkeeper.action = function(creep) {
     }
     return true;
   };
-
 
   if (heal(creep)) {
     return true;

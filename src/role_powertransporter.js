@@ -2,10 +2,9 @@
 
 /*
  * powertransporter is used to get power from the destroyed power bank
- * 
+ *
  * Moves to the power and brings it back to the storage and destroys itself.
  */
-
 
 roles.powertransporter = {};
 roles.powertransporter.getPartConfig = function(room, energy, heal) {

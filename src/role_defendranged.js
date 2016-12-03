@@ -2,7 +2,7 @@
 
 /*
  * defendranged is called after 'threshold' when a room is attacked
- * 
+ *
  * Tries to fight against the hostile creeps from ramparts if possible
  */
 

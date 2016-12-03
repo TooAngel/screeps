@@ -1,6 +1,5 @@
 'use strict';
 
-
 Room.prototype.findAttackCreeps = function(object) {
   let friends = [];
   try {

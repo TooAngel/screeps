@@ -2,7 +2,7 @@
 
 /*
  * atkeeper is used to kill Source Keeper (melee version)
- * 
+ *
  * Attacks source keeper, move away when hits below 'threshold'
  * If no source keeper is available move to position where the next will spawn
  */
@@ -85,7 +85,6 @@ roles.atkeepermelee.action = function(creep) {
     });
     return sourceKeeperNext[0];
   };
-
 
   let heal = function(creep) {
     creep.say('heal');

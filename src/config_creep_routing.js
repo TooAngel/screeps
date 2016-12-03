@@ -128,7 +128,6 @@ Creep.prototype.getPathPos = function(route, routePos, path) {
   return pathPos;
 };
 
-
 Creep.prototype.initRouting = function() {
   if (this.memory.routing) {
     return;
@@ -159,7 +158,7 @@ Creep.prototype.initRouting = function() {
       if (sources[0]) {
         targetId = sources[0].id;
       } else {
-        this.log("!!! config_creep_routing sourcer No sources at source: " + this.memory.source + ' targetId: ' + this.memory.targetId);
+        this.log('!!! config_creep_routing sourcer No sources at source: ' + this.memory.source + ' targetId: ' + this.memory.targetId);
       }
     }
   }
@@ -327,7 +326,6 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
           for (let structure of structures) {
             costMatrix.set(structure.pos.x, structure.pos.y, config.layout.structureAvoid);
           }
-
 
           return costMatrix;
         };

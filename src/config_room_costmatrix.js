@@ -36,7 +36,6 @@ Room.prototype.getCostMatrix = function() {
   return costMatrix;
 };
 
-
 Room.prototype.getAvoids = function(target, inRoom) {
   // TODO Only the matrix is enough?
   let callback = this.getMatrixCallback();

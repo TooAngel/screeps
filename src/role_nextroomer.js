@@ -2,10 +2,10 @@
 
 /*
  * nextroomer is used to build up rooms
- * 
+ *
  * Bring the controller to level 3 after that build constructionSites
  * and continue upgrading.
- * 
+ *
  * If the room is 'underSiege', build a tower next to a source, build ramparts
  * and fill the tower.
  */

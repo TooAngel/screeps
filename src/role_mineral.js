@@ -2,7 +2,7 @@
 
 /*
  * mineral manages the mineral distributions
- * 
+ *
  * Checks for room reactions and transfers mineral to the associated labs
  * Checks for boost request and transfers mineral to the associated labs
  * Fills the labs with energy

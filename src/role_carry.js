@@ -8,7 +8,6 @@
  * energy is transferred to other structures, too.
  */
 
-
 roles.carry = {};
 
 roles.carry.buildRoad = true;
@@ -50,7 +49,6 @@ roles.carry.preMove = function(creep, directions) {
       }
     }
   }
-
 
   if (!creep.room.controller) {
     var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
@@ -128,8 +126,6 @@ roles.carry.preMove = function(creep, directions) {
   }
   creep.memory.routing.reverse = reverse;
 };
-
-
 
 roles.carry.action = function(creep) {
   // TODO log when this happens, carry is getting energy from the source

@@ -19,7 +19,6 @@ function posIsIn(pos, array) {
   return false;
 }
 
-
 Room.prototype.destroyStructure = function(structure) {
   if (structure.structureType == STRUCTURE_WALL) {
     if (!this.memory.walls) {
@@ -137,7 +136,6 @@ Room.prototype.destroyStructure = function(structure) {
   return false;
 };
 
-
 Room.prototype.checkPath = function() {
   this.log('checkPath: ' + this.memory.controllerLevel.checkPathInterval);
 
@@ -207,7 +205,6 @@ Room.prototype.checkWrongStructure = function() {
   return false;
 };
 
-
 Room.prototype.clearPosition = function(pos, structure) {
   let posStructures = pos.lookFor('structure');
   let returnValue = false;
@@ -229,7 +226,6 @@ Room.prototype.clearPosition = function(pos, structure) {
   }
   return returnValue;
 };
-
 
 Room.prototype.setupStructure = function(structure) {
   var structures = this.find(FIND_MY_STRUCTURES, {
@@ -302,9 +298,7 @@ Room.prototype.setupStructure = function(structure) {
     this.log('setup createConstrustionSite returnCode: ' + returnCode + ' structure: ' + structure);
   }
   return false;
-
 };
-
 
 Room.prototype.buildStructures = function() {
   // TODO reduce noise
@@ -320,12 +314,10 @@ Room.prototype.buildStructures = function() {
     return false;
   }
 
-
   if (this.controller === null || !this.controller.my) {
     this.log('No controller');
     return false;
   }
-
 
   if (Object.keys(Game.constructionSites).length >= 100) {
     return false;

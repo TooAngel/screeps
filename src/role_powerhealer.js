@@ -2,7 +2,7 @@
 
 /*
  * powerhealer is used to heal powerattackers
- * 
+ *
  * Moves to the room where the powerbank is and heals surrounding creeps
  */
 

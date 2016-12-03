@@ -2,7 +2,7 @@
 
 /*
  * powerattacker kills the powerbank
- * 
+ *
  * Moves to the power bank and attack, stop attacking if its hits is below 'threshold'
  */
 
@@ -50,7 +50,6 @@ roles.powerattacker.action = function(creep) {
       return true;
     }
   }
-
 
   var power_bank = creep.room.find(FIND_STRUCTURES, {
     filter: function(object) {

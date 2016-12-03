@@ -2,11 +2,11 @@
 
 /*
  * Harvesting sources is done by sourcer
- * 
- * Moves to the source and gets energy 
+ *
+ * Moves to the source and gets energy
  * In external rooms builds a container
  * In internal rooms transfers to the link
- * 
+ *
  * If 'threshold' energy is in the container or on the ground
  * a carry is called
  */
@@ -128,10 +128,9 @@ roles.sourcer.action = function(creep) {
       creep.memory.routing.reached = false;
       creep.memory.routing.targetId = sources[0].id;
     } else {
-      creep.log("!!! config_creep_routing sourcer No sources at source: " + creep.memory.source + ' targetId: ' + creep.memory.targetId);
+      creep.log('!!! config_creep_routing sourcer No sources at source: ' + creep.memory.source + ' targetId: ' + creep.memory.targetId);
     }
   }
-
 
   // TODO check source keeper structure for ticksToSpawn
   if (!creep.room.controller) {

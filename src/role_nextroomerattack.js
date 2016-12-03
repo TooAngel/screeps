@@ -2,10 +2,9 @@
 
 /*
  * nextroomerattack is called if the route to the room to revive is blocked
- * 
+ *
  * Attacks hostile everything
  */
-
 
 roles.nextroomerattack = {};
 

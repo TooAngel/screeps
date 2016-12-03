@@ -29,7 +29,6 @@ Room.prototype.checkRamparts = function() {
   }
 };
 
-
 Room.prototype.checkExitsAreReachable = function() {
   // Make sure every exit is reachable
 
@@ -213,7 +212,6 @@ Room.prototype.closeExitsByPath = function() {
     let range = pos.getRangeTo(exit);
     return range > 1;
   };
-
 
   for (let pathPosPlain of path) {
     var pathPos = new RoomPosition(pathPosPlain.x, pathPosPlain.y, this.name);

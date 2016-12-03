@@ -2,7 +2,7 @@
 
 /*
  * reserver is used to reserve controller in external harvesting rooms
- * 
+ *
  * Moves to the controller and reserves
  * Currently checks if there are enough sourcer and maybe trigger a defender.
  */

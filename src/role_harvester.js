@@ -15,7 +15,6 @@
  *  - transfer energy to extensions in range
  */
 
-
 roles.harvester = {};
 roles.harvester.stayInRoom = true;
 roles.harvester.buildRoad = true;

@@ -34,10 +34,9 @@ Creep.prototype.handleStructurer = function() {
   if (returnCode != OK && returnCode != ERR_TIRED) {
     //this.log('move returnCode: ' + returnCode);
   }
-  //  this.moveByPathMy();
 
-  var return_code = this.dismantle(structure);
-  if (return_code == OK) {
+  returnCode = this.dismantle(structure);
+  if (returnCode == OK) {
     this.setNextSpawn();
     this.spawnCarry();
   }
@@ -80,7 +79,6 @@ Creep.prototype.cleanController = function() {
 };
 
 Creep.prototype.cleanExits = function() {
-  var pos_last;
   let findStructuresToDismantle = function(object) {
     if (object.ticksToDecay === null) {
       return false;
@@ -93,20 +91,24 @@ Creep.prototype.cleanExits = function() {
     }
     return true;
   };
-  var exit_dirs = [FIND_EXIT_TOP, FIND_EXIT_RIGHT, FIND_EXIT_BOTTOM, FIND_EXIT_LEFT];
-  for (var exit_dirs_i in exit_dirs) {
-    var exits = this.room.find(exit_dirs[exit_dirs_i]);
+  var exitDirs = [FIND_EXIT_TOP,
+    FIND_EXIT_RIGHT,
+    FIND_EXIT_BOTTOM,
+    FIND_EXIT_LEFT
+  ];
+  for (var exitDir of exitDirs) {
+    let exits = this.room.find(exitDir);
     if (exits.length === 0) {
       continue;
     }
-    var exit = exits[Math.floor(exits.length / 2)];
-    var path = this.pos.findPathTo(exit);
-    pos_last = path[path.length - 1];
+    let exit = exits[Math.floor(exits.length / 2)];
+    let path = this.pos.findPathTo(exit);
+    let posLast = path[path.length - 1];
     if (path.length === 0) {
       continue;
     }
-    if (!exit.isEqualTo(pos_last.x, pos_last.y)) {
-      var pos = new RoomPosition(pos_last.x, pos_last.y, this.room.name);
+    if (!exit.isEqualTo(posLast.x, posLast.y)) {
+      var pos = new RoomPosition(posLast.x, posLast.y, this.room.name);
       var structure = pos.findClosestByRange(FIND_STRUCTURES, {
         filter: findStructuresToDismantle
       });
@@ -152,9 +154,9 @@ Creep.prototype.cleanSetTargetId = function() {
       var structures = structure.pos.lookFor('structure');
 
       if (structures.length > 0) {
-        for (var structures_i = 0; structures_i < structures.length; structures_i++) {
-          if (structures[structures_i].structureType == 'rampart') {
-            structure = structures[structures_i];
+        for (let structureLook of structures) {
+          if (structure.structureType == STRUCTURE_RAMPART) {
+            structure = structureLook;
             break;
           }
         }

@@ -119,7 +119,6 @@ function setStructures(room, path, costMatrixBase) {
         continue;
       }
 
-
       if (room.memory.position.structure.spawn.length < CONTROLLER_STRUCTURES.spawn[8] ||
         room.memory.position.structure.extension.length < CONTROLLER_STRUCTURES.extension[8] ||
         room.memory.position.structure.tower.length < CONTROLLER_STRUCTURES.tower[8] ||
@@ -208,7 +207,6 @@ let buildCostMatrix = function(room) {
     }
     return costMatrixBase;
   }
-
 
   for (let startDir in exits) {
     let start = exits[startDir];

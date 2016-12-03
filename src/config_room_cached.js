@@ -44,7 +44,6 @@ Room.prototype.getTransferableStructures = function() {
           return false;
         }
 
-
         if (object.structureType == STRUCTURE_LINK) {
           if (object.pos.isEqualTo(room.memory.position.structure.link[0].x, room.memory.position.structure.link[0].y)) {
             return false;

@@ -2,9 +2,8 @@
 
 /*
  * repairer should be always present
- * 
+ *
  * Repairs walls and ramparts
- * 
  */
 
 // TODO get energy from links

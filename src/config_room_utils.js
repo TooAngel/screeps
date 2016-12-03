@@ -33,7 +33,6 @@ Room.prototype.getPartConfig = function(energy, parts) {
   return partConfig;
 };
 
-
 Room.pathToString = function(path) {
   if (!config.performance.serializePath) {
     return path;

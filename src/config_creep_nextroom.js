@@ -167,7 +167,6 @@ Creep.prototype.handleNextroomer = function() {
       return true;
     }
 
-
     return false;
   }
 
@@ -183,7 +182,6 @@ Creep.prototype.handleNextroomer = function() {
         methods.push(Creep.upgradeControllerTask);
         return Creep.execute(creep, methods);
       }
-
     }
 
     room.memory.wayBlocked = false;
@@ -212,7 +210,6 @@ Creep.prototype.handleNextroomer = function() {
         return true;
       }
     }
-
 
     if (_.sum(creep.carry) === 0) {
       let hostileStructures = creep.room.find(FIND_HOSTILE_STRUCTURES);
@@ -261,7 +258,6 @@ Creep.prototype.handleNextroomer = function() {
         cs.remove();
       }
     }
-
 
     let methods = [Creep.getEnergy];
     if (creep.room.controller && creep.room.controller.level >= 5 && creep.room.storage && creep.room.storage.store.energy > 100) {

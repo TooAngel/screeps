@@ -40,7 +40,7 @@ Creep.prototype.handleDefender = function() {
     filter: this.room.findAttackCreeps
   });
   if (hostile === null) {
-    var my_creeps = this.room.find(FIND_MY_CREEPS, {
+    var myCreeps = this.room.find(FIND_MY_CREEPS, {
       filter: function(object) {
         if (object.hits < object.hitsMax) {
           return true;
@@ -48,17 +48,16 @@ Creep.prototype.handleDefender = function() {
         return false;
       }
     });
-    if (my_creeps.length > 0) {
-      this.moveTo(my_creeps[0]);
-      range = this.pos.getRangeTo(my_creeps[0]);
+    if (myCreeps.length > 0) {
+      this.moveTo(myCreeps[0]);
+      range = this.pos.getRangeTo(myCreeps[0]);
       if (range <= 1) {
-        this.heal(my_creeps[0]);
+        this.heal(myCreeps[0]);
       } else {
-        this.rangedHeal(my_creeps[0]);
+        this.rangedHeal(myCreeps[0]);
       }
       return true;
     }
-
 
     let friends = [];
     try {
@@ -81,7 +80,7 @@ Creep.prototype.handleDefender = function() {
     if (allyCreeps.length > 0) {
       this.say('heal', true);
       this.moveTo(allyCreeps[0]);
-      range = this.pos.getRangeTo(my_creeps[0]);
+      range = this.pos.getRangeTo(myCreeps[0]);
       if (range <= 1) {
         this.heal(allyCreeps[0]);
       } else {
@@ -89,7 +88,6 @@ Creep.prototype.handleDefender = function() {
       }
       return true;
     }
-
 
     // TODO disabled for nextroom defender
     //    creep.say('reverse');
@@ -291,7 +289,6 @@ Creep.prototype.fightRanged = function(target) {
     return true;
   }
 
-
   let creep = this;
   let callbackFunction = function(roomName) {
     let callback = creep.room.getAvoids(creep.room);
@@ -334,9 +331,7 @@ Creep.prototype.fightRanged = function(target) {
   }
 
   this.log('creep_ranged.attack_without_rampart returnCode: ' + returnCode);
-
 };
-
 
 Creep.prototype.siege = function() {
   this.memory.hitsLost = this.memory.hitsLast - this.hits;
@@ -385,7 +380,7 @@ Creep.prototype.siege = function() {
     ignoreDestructibleStructures: false,
     ignoreCreeps: true
   });
-  var return_code;
+  let returnCode;
 
   var posLast = path[path.length - 1];
   if (path.length === 0 || !target.pos.isEqualTo(posLast.x, posLast.y)) {
@@ -394,11 +389,11 @@ Creep.prototype.siege = function() {
         return object.structureType == STRUCTURE_RAMPART;
       }
     });
-    return_code = this.moveTo(structure);
+    returnCode = this.moveTo(structure);
     target = structure;
   } else {
     if (this.hits > this.hitsMax - 2000) {
-      return_code = this.moveByPath(path);
+      returnCode = this.moveByPath(path);
     }
   }
 
@@ -413,7 +408,6 @@ Creep.prototype.siege = function() {
   this.dismantle(target);
   return true;
 };
-
 
 Creep.prototype.squadHeal = function() {
   var range;
@@ -433,7 +427,6 @@ Creep.prototype.squadHeal = function() {
     }
     return true;
   }
-
 
   creepToHeal = this.pos.findClosestByRange(FIND_MY_CREEPS, {
     filter: function(object) {

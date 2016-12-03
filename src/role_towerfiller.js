@@ -2,7 +2,7 @@
 
 /*
  * towerfiller is called when the room is under attack
- * 
+ *
  * Moves to the associated tower and transfers the energy from the link to the tower
  */
 

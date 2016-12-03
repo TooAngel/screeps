@@ -315,7 +315,6 @@ Room.prototype.handleUnreservedRoom = function() {
   return true;
 };
 
-
 Room.prototype.handleSourceKeeperRoom = function() {
   if (!this.memory.base) {
     return false;
@@ -326,7 +325,9 @@ Room.prototype.handleSourceKeeperRoom = function() {
   }
   this.log('handle source keeper room');
   this.log('DISABLED - Routing keep distance to Source keeper structure, sourcer/carry check for next spawn, move await ~10 ticksToSpawn');
-  if (true) return false;
+  if (true) {
+    return false;
+  }
 
   let myCreeps = this.find(FIND_MY_CREEPS);
   let sourcer = 0;

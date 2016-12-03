@@ -1,6 +1,5 @@
 'use strict';
 
-
 RoomPosition.prototype.setSpawn = function(posPath, posNext) {
   // TODO Check distance to other spawns
   let room = Game.rooms[this.roomName];

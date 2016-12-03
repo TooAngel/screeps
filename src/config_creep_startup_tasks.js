@@ -52,7 +52,6 @@ Creep.buildRoads = function(creep) {
     return false;
   }
 
-
   // TODO Redo for all path in room
   var path = room.memory.position.path;
   for (let pathIndex in path) {
@@ -203,7 +202,6 @@ Creep.getEnergyFromStorage = function(creep) {
   }
   return true;
 };
-
 
 Creep.prototype.repairStructure = function() {
   var structure = null;

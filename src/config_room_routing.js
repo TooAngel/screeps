@@ -24,7 +24,6 @@ Room.isRoomUnderAttack = function(roomName) {
   return true;
 };
 
-
 Room.prototype.setFillerArea = function(storagePos, costMatrixBase, route) {
   let fillerPosIterator = storagePos.findNearPosition();
   for (let fillerPos of fillerPosIterator) {
@@ -129,7 +128,7 @@ Room.prototype.updatePosition = function() {
       room: this.name
     }];
     let pathUpgrader = this.getPath(route, 0, 'pathStart', this.controller.id, true);
-    // TODO exclude the last position (creepAvoid) in all paths, 
+    // TODO exclude the last position (creepAvoid) in all paths
     for (let pos of pathUpgrader) {
       if (upgraderPos.isEqualTo(pos.x, pos.y)) {
         continue;
@@ -284,7 +283,6 @@ Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
   return this.cache[cacheName];
 };
 
-
 Room.prototype.getMyExitTo = function(room) {
   // Handle rooms with newbie zone walls
   let exitDirection = this.findExitTo(room);
@@ -328,7 +326,6 @@ Room.prototype.getMatrixCallback = function(end) {
         }
       }
     }
-
 
     // Ignore walls?
     //    let structures = room.find(FIND_STRUCTURES, {

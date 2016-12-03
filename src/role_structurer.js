@@ -2,7 +2,7 @@
 
 /*
  * structurer is called when there are structures in a reserved room
- * 
+ *
  * Checks the paths for blocking structures => dismantles them
  * Searches for other structures => dismantles them
  * If there is 'threshold' energy below structurer => call a carry
@@ -59,7 +59,6 @@ roles.structurer.getTargetId = function(creep) {
   return creep.memory.routing.targetId;
 };
 
-
 roles.structurer.action = function(creep) {
   if (!creep.room.controller || !creep.room.controller.my) {
     var structure;
@@ -88,7 +87,6 @@ roles.structurer.action = function(creep) {
   creep.handleStructurer();
   return true;
 };
-
 
 roles.structurer.execute = function(creep) {
   creep.log('Execute!!!');

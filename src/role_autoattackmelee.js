@@ -1,9 +1,8 @@
 'use strict';
 
-
 /*
  * autoattackmelle is the first wave of autoattacks
- * 
+ *
  * Kills tower and spawn, hostile creeps and construction sites
  */
 
@@ -85,7 +84,6 @@ roles.autoattackmelee.action = function(creep) {
   //  var path = creep.pos.findPathTo(spawn, {
   //    ignoreDestructibleStructures: true
   //  });
-  //  
   let search = PathFinder.search(
     creep.pos, {
       pos: spawn.pos,
