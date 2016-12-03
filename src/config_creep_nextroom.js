@@ -188,7 +188,7 @@ Creep.prototype.handleNextroomer = function() {
 
     room.memory.wayBlocked = false;
     if (room.memory.underSiege && room.controller && room.controller.level >= 3) {
-      creep.log('underSiege');
+      creep.log('underSiege: ' + room.memory.attack_timer);
       if (underSiege(creep)) {
         return true;
       }

@@ -294,8 +294,6 @@ Creep.prototype.killPrevious = function() {
 
 Creep.prototype.spawnReplacement = function(maxOfRole) {
   if (this.memory.nextSpawn) {
-
-
     //    this.say('sr: ' + (this.ticksToLive - this.memory.nextSpawn));
     if (this.ticksToLive == this.memory.nextSpawn) {
       if (maxOfRole) {
@@ -311,7 +309,6 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
         if (maxOfRole.length > maxOfRole) {
           return false;
         }
-
       }
 
       let routing = {};
@@ -331,6 +328,9 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
         routing: routing
       };
       Game.rooms[this.memory.base].memory.queue.push(spawn);
+      if (spawn.role == 'reserver') {
+        console.log('Spawning reserver: ' + JSON.stringify(spawn));
+      }
     }
   }
 };

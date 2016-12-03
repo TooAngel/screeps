@@ -1,5 +1,11 @@
 'use strict';
 
+Room.prototype.splitRoomName = function() {
+  var patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
+  var result = patt.exec(this.name);
+  return result;
+};
+
 Room.prototype.inQueue = function(spawn) {
   for (var item of this.memory.queue) {
     if (item.role == spawn.role) {

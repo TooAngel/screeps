@@ -70,6 +70,10 @@ Room.prototype.getLinkStorage = function() {
 };
 
 Room.prototype.handleLinks = function() {
+  if (this.memory.attack_timer <= 0) {
+    this.memory.underSiege = false;
+  }
+
   let linkStorage = this.getLinkStorage();
   if (!linkStorage) {
     return;
@@ -86,11 +90,6 @@ Room.prototype.handleLinks = function() {
       return true;
     }
   });
-
-  if (this.memory.attack_timer <= 0) {
-    this.memory.underSiege = false;
-  }
-
 
   if (links.length > 0) {
     var number_of_links = CONTROLLER_STRUCTURES.link[this.controller.level];
@@ -144,29 +143,29 @@ Room.prototype.handleObserver = function() {
     if (!this.memory.observe_rooms) {
       // TODO manage switch from E to W and S to N
       this.memory.observe_rooms = [];
-      let name_split = this.split_room_name();
-      for (var x = +name_split[2] - 5; x <= +name_split[2] + 5; x++) {
-        for (var y = +name_split[4] - 5; y <= +name_split[4] + 5; y++) {
+      let nameSplit = this.splitRoomName();
+      for (var x = +nameSplit[2] - 5; x <= +nameSplit[2] + 5; x++) {
+        for (var y = +nameSplit[4] - 5; y <= +nameSplit[4] + 5; y++) {
           if (x % 10 === 0 || y % 10 === 0) {
-            this.memory.observe_rooms.push(name_split[1] + x + name_split[3] + y);
+            this.memory.observe_rooms.push(nameSplit[1] + x + nameSplit[3] + y);
           }
         }
       }
     }
 
     // TODO scan full range, first implementation
-    let name_split = this.split_room_name();
+    let nameSplit = this.splitRoomName();
     let fullLength = 2 * OBSERVER_RANGE + 1;
     let numberOfFields = fullLength * fullLength;
     let offset = Game.time % numberOfFields;
     let xOffset = Math.floor(offset / fullLength) - OBSERVER_RANGE;
     let yOffset = Math.floor(offset % fullLength) - OBSERVER_RANGE;
-    let xPos = +name_split[2] + xOffset;
+    let xPos = +nameSplit[2] + xOffset;
 
 
-    let yPos = +name_split[4] + yOffset;
-    let xDir = name_split[1];
-    let yDir = name_split[3];
+    let yPos = +nameSplit[4] + yOffset;
+    let xDir = nameSplit[1];
+    let yDir = nameSplit[3];
 
     if (xPos < 0) {
       xDir = xDir == 'E' ? 'W' : 'E';

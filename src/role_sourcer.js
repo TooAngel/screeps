@@ -26,7 +26,7 @@ roles.sourcer.getPartConfig = function(room, energy, heal) {
 
 roles.sourcer.preMove = function(creep, directions) {
   // Misplaced spawn
-  if (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3) {
+  if (creep.room.name == creep.memory.base && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
     creep.say('mis', true);
     let targetId = creep.memory.target_id;
     if (creep.memory.routing) {

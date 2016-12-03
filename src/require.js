@@ -22,7 +22,6 @@
   require('config_room_market');
   require('config_room_mineral');
   require('config_room_my');
-  require('config_room_not_mine');
   require('config_room_external');
   require('config_room_routing');
   require('config_room_utils');

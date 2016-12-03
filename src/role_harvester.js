@@ -27,7 +27,8 @@ roles.harvester.preMove = function(creep, directions) {
   };
   let resources = _.filter(creep.room.getDroppedResources(), pickableResources);
   if (resources.length > 0) {
-    creep.pickup(resources[0]);
+    let resource = Game.getObjectById(resources[0].id);
+    creep.pickup(resource);
   }
 
   if (typeof(creep.memory.move_forward_direction) == 'undefined') {

@@ -24,6 +24,24 @@ module.exports = {
     };
     let resultReduce = _.reduce(Game.constructionSites, aggregate, {});
     console.log(JSON.stringify(resultReduce));
+  },
+
+  memory: function() {
+    for (let keys in Memory) {
+      console.log(keys, JSON.stringify(Memory[keys]).length);
+    }
+  },
+
+  memoryRooms: function() {
+    for (let keys in Memory.rooms) {
+      console.log(keys, JSON.stringify(Memory.rooms[keys]).length);
+    }
+  },
+
+  memoryRoom: function(roomName) {
+    for (let keys in Memory.rooms[roomName]) {
+      console.log(keys, JSON.stringify(Memory.rooms[roomName][keys]).length);
+    }
   }
 
 };

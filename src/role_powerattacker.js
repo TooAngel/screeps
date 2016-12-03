@@ -34,13 +34,13 @@ roles.powerattacker.action = function(creep) {
     return false;
   }
   if (hostile_creep !== null) {
-    if (Memory.power_banks[creep.room.name] && !Memory.power_banks[creep.room.name].defender) {
+    if (Memory.powerBanks[creep.room.name] && !Memory.powerBanks[creep.room.name].defender) {
       creep.log('Call powerdefender');
       Game.rooms[creep.memory.base].memory.queue.push({
         role: 'powerdefender',
         target: creep.room.name
       });
-      Memory.power_banks[creep.room.name].defender = true;
+      Memory.powerBanks[creep.room.name].defender = true;
     }
     var range = creep.pos.getRangeTo(hostile_creep);
     if (range < 10) {

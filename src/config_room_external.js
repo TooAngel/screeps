@@ -36,46 +36,24 @@ Room.prototype.checkBlocked = function() {
 
 
 Room.prototype.externalHandleRoom = function() {
+  if (!this.controller) {
+    var nameSplit = this.splitRoomName();
+    if (nameSplit[2] % 10 === 0 || nameSplit[4] % 10 === 0) {
+      return this.externalHandleHighwayRoom();
+    }
+  } else {
+    if (this.controller.owner) {
+      return this.handleOccupiedRoom();
+    }
 
-  var name_split = this.split_room_name();
-  if (name_split[2] % 10 === 0 || name_split[4] % 10 === 0) {
-    return this.executeHighwayRoom();
-  }
-
-  if (this.controller && this.controller.reservation && this.controller.reservation.username == Memory.username) {
-    this.memory.lastSeen = Game.time;
-    return false;
-  }
-
-  if (this.controller && this.controller.owner) {
-    this.memory.lastSeen = Game.time;
-    var hostiles = this.find(FIND_HOSTILE_CREEPS);
-    if (hostiles.length > 0) {
-      // TODO replace with enum
-      this.memory.state = 'Occupied';
-      this.memory.player = this.controller.owner.username;
-
-      // TODO Not if in safe mode
-      // TODO trigger everytime?
-      if (!this.controller.safeMode) {
-        let myCreeps = this.find(FIND_MY_CREEPS);
-        if (myCreeps.length > 1) {
-          return false;
-        }
-
-        var spawns = this.find(FIND_HOSTILE_STRUCTURES, {
-          filter: function(object) {
-            return object.structureType == 'spawn';
-          }
-        });
-        if (spawns.length > 0) {
-          this.attackRoom();
-        }
-      }
-
+    if (this.controller.reservation && this.controller.reservation.username == Memory.username) {
+      this.memory.lastSeen = Game.time;
       return false;
     }
+
   }
+
+
 
   let blocked = this.checkBlocked();
   if (blocked) {
@@ -105,7 +83,152 @@ Room.prototype.externalHandleRoom = function() {
 
   delete Memory.rooms[this.roomName];
   return false;
+};
 
+Room.prototype.externalHandleHighwayRoom = function() {
+  if (config.power.disabled) {
+    return false;
+  }
+
+  var structures = this.find(FIND_STRUCTURES, {
+    filter: {
+      structureType: STRUCTURE_POWER_BANK
+    }
+  });
+  if (structures.length === 0) {
+    if (Memory.powerBanks) {
+      delete Memory.powerBanks[this.name];
+    }
+    return false;
+  }
+
+  if (Memory.powerBanks && Memory.powerBanks[this.name]) {
+    if (Memory.powerBanks[this.name].target && Memory.powerBanks[this.name] !== null) {
+      if (Memory.powerBanks[this.name].transporter_called) {
+        return;
+      }
+      if (structures[0].hits < 300000) {
+        for (var i = 0; i < Math.ceil(structures[0].power / 1000); i++) {
+          this.log('Adding powertransporter at ' + Memory.powerBanks[this.name].target);
+          Game.rooms[Memory.powerBanks[this.name].target].memory.queue.push({
+            role: 'powertransporter',
+            target: this.name
+          });
+        }
+
+        Memory.powerBanks[this.name].transporter_called = true;
+      }
+    }
+    return;
+  }
+
+  // Fix for W8S9
+  var walls = this.find(FIND_STRUCTURES, {
+    filter: function(object) {
+      return object.structureType == 'constructedWall';
+    }
+  });
+
+  if (structures[0].ticksToDecay < 3000) {
+    Memory.powerBanks[this.name] = {
+      target: null
+    };
+    return true;
+  } else {
+    var min_route = 6;
+    var target = null;
+    var route;
+    for (var room_id in Memory.myRooms) {
+      var room = Game.rooms[Memory.myRooms[room_id]];
+      if (!room || !room.storage || room.storage.store.energy < config.power.energyForCreeps) {
+        continue;
+      }
+      var route_to_test = Game.map.findRoute(this.name, room.name);
+      if (route_to_test.length < min_route) {
+        min_route = route_to_test.length;
+        target = room;
+        route = route_to_test;
+      }
+    }
+
+    if (!Memory.powerBanks) {
+      Memory.powerBanks = {};
+    }
+    if (target !== null) {
+      if (walls.length > 0) {
+        var exits = this.find(route[0].exit);
+        var exit = exits[exits.length - 1];
+        var path = this.findPath(exit, structures[0].pos);
+        var last_pos = path[path.length - 1];
+        if (!structures[0].pos.isEqualTo(last_pos.x, last_pos.y)) {
+          this.log('No route due to wall');
+          Memory.powerBanks[this.name] = {
+            target: null
+          };
+          return true;
+        }
+      }
+
+      Memory.powerBanks[this.name] = {
+        target: target.name,
+        min_route: min_route
+      };
+      this.log('--------------> Start power harvesting in: ' + target.name + ' <----------------');
+      Game.rooms[target.name].memory.queue.push({
+        role: 'powerattacker',
+        target: this.name
+      });
+      Game.rooms[target.name].memory.queue.push({
+        role: 'powerhealer',
+        target: this.name
+      });
+      Game.rooms[target.name].memory.queue.push({
+        role: 'powerhealer',
+        target: this.name
+      });
+    } else {
+      Memory.powerBanks[this.name] = {
+        target: null
+      };
+    }
+  }
+};
+
+Room.prototype.handleOccupiedRoom = function() {
+  this.memory.lastSeen = Game.time;
+  var hostiles = this.find(FIND_HOSTILE_CREEPS);
+  if (hostiles.length > 0) {
+    // TODO replace with enum
+    this.memory.state = 'Occupied';
+    this.memory.player = this.controller.owner.username;
+
+    // TODO trigger everytime?
+    if (!this.controller.safeMode) {
+      let myCreeps = this.find(FIND_MY_CREEPS, {
+        filter: function(object) {
+          let creep = Game.getObjectById(object.id);
+          if (creep.memory.role == 'scout') {
+            return false;
+          }
+          return true;
+        }
+      });
+      if (myCreeps.length > 0) {
+        return false;
+      }
+
+      var spawns = this.find(FIND_HOSTILE_STRUCTURES, {
+        filter: function(object) {
+          return object.structureType == STRUCTURE_SPAWN;
+        }
+      });
+      if (spawns.length > 0) {
+        this.attackRoom();
+      }
+    }
+
+    return false;
+  }
 };
 
 Room.prototype.handleUnreservedRoom = function() {

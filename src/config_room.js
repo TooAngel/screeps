@@ -5,6 +5,9 @@ Room.prototype.execute = function() {
   for (var creep of this.find(FIND_MY_CREEPS)) {
     creep.handle();
   }
+  delete this.transferableStructures;
+  delete this.droppedResources;
+  delete this.constructionSites;
   return returnCode;
 };
 
@@ -12,5 +15,6 @@ Room.prototype.handle = function() {
   if (this.controller && this.controller.my) {
     return this.myHandleRoom();
   }
-  return this.externalHandleRoom();
+  this.externalHandleRoom();
+  return false;
 };
