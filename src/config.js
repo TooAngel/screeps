@@ -4,7 +4,7 @@ global.brain = {};
 global.roles = {};
 global.config = {
   profiler: {
-    enabled: true
+    enabled: false
   },
 
   performance: {
