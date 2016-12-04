@@ -72,7 +72,7 @@ Creep.prototype.getRoutePos = function(route) {
 
     // TODO if we can't find the room in the array
     if (routePos < 0) {
-      this.log('newmove: No routepos found');
+      this.log('newmove: No routepos found: ' + JSON.stringify(route));
     }
   }
   this.memory.routing.routePos = routePos;
@@ -420,7 +420,8 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
   }
   //this.say(directions.direction);
   if (!directions.direction) {
-    this.log('config_creep_routing no directions.direction: ' + JSON.stringify(directions) + ' ' + JSON.stringify(this.memory.routing));
+    // TODO E.g. carry creeps run into this, if the sourcer is missing
+    //     this.log('config_creep_routing no directions.direction: ' + JSON.stringify(directions) + ' ' + JSON.stringify(this.memory.routing));
   }
 
   this.move(directions.direction);

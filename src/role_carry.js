@@ -18,7 +18,7 @@ roles.carry.boostActions = ['capacity'];
 roles.carry.preMove = function(creep, directions) {
   // Misplaced spawn
   // TODO Somehow ugly and maybe better somewhere else
-  if (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3) {
+  if (creep.room.name == creep.memory.base && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
     creep.say('cmis', true);
     if (creep.carry.energy > 0) {
       let structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
