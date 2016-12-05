@@ -72,7 +72,7 @@ Creep.prototype.getRoutePos = function(route) {
 
     // TODO if we can't find the room in the array
     if (routePos < 0) {
-      this.log('newmove: No routepos found');
+      this.log('newmove: No routepos found: ' + JSON.stringify(route));
     }
   }
   this.memory.routing.routePos = routePos;
@@ -128,7 +128,6 @@ Creep.prototype.getPathPos = function(route, routePos, path) {
   return pathPos;
 };
 
-
 Creep.prototype.initRouting = function() {
   if (this.memory.routing) {
     return;
@@ -159,7 +158,7 @@ Creep.prototype.initRouting = function() {
       if (sources[0]) {
         targetId = sources[0].id;
       } else {
-        this.log("!!! config_creep_routing sourcer No sources at source: " + this.memory.source + ' targetId: ' + this.memory.targetId);
+        this.log('!!! config_creep_routing sourcer No sources at source: ' + this.memory.source + ' targetId: ' + this.memory.targetId);
       }
     }
   }
@@ -328,7 +327,6 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
             costMatrix.set(structure.pos.x, structure.pos.y, config.layout.structureAvoid);
           }
 
-
           return costMatrix;
         };
         return callbackInner;
@@ -422,7 +420,8 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
   }
   //this.say(directions.direction);
   if (!directions.direction) {
-    this.log('config_creep_routing no directions.direction: ' + JSON.stringify(directions) + ' ' + JSON.stringify(this.memory.routing));
+    // TODO E.g. carry creeps run into this, if the sourcer is missing
+    //     this.log('config_creep_routing no directions.direction: ' + JSON.stringify(directions) + ' ' + JSON.stringify(this.memory.routing));
   }
 
   this.move(directions.direction);

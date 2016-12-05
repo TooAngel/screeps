@@ -2,10 +2,9 @@
 
 /*
  * extractor gets minerals from the extractor
- * 
+ *
  * Moves, harvest, brings to the terminal
  */
-
 
 roles.extractor = {};
 

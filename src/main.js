@@ -8,7 +8,6 @@ require('config_roomPosition');
 require('config_room_init');
 require('config_room_costmatrix');
 
-
 if (config.profiler.enabled) {
   var profiler = require('screeps-profiler');
   profiler.enable();
@@ -27,8 +26,8 @@ var main = function() {
         myRooms.push(roomName);
       }
     } catch (err) {
-      room.log("Executing room failed: " + room.name + ' ' + err + ' ' + err.stack);
-      Game.notify("Executing room failed: " + room.name + " " + err + " " + err.stack, 30);
+      room.log('Executing room failed: ' + room.name + ' ' + err + ' ' + err.stack);
+      Game.notify('Executing room failed: ' + room.name + ' ' + err + ' ' + err.stack, 30);
     }
   }
 

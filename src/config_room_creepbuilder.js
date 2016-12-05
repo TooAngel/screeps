@@ -64,9 +64,9 @@ Room.prototype.spawnCreateCreep = function(role, target, source, heal, target_id
       buildRoad: unit.buildRoad,
       routing: routing
     };
-    if (memory.role == 'reserver') {
-      console.log('Spawning reserver: ' + JSON.stringify(memory));
-    }
+    //     if (memory.role == 'reserver') {
+    //       console.log('Spawning reserver: ' + JSON.stringify(memory));
+    //     }
     var returnCode = spawn.createCreep(partConfig, name, memory);
 
     if (returnCode != name) {

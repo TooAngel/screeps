@@ -2,11 +2,11 @@
 
 /*
  * Harvesting sources is done by sourcer
- * 
- * Moves to the source and gets energy 
+ *
+ * Moves to the source and gets energy
  * In external rooms builds a container
  * In internal rooms transfers to the link
- * 
+ *
  * If 'threshold' energy is in the container or on the ground
  * a carry is called
  */
@@ -27,7 +27,7 @@ roles.sourcer.getPartConfig = function(room, energy, heal) {
 roles.sourcer.preMove = function(creep, directions) {
   // Misplaced spawn
   if (creep.room.name == creep.memory.base && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
-    creep.say('mis', true);
+    creep.say('smis', true);
     let targetId = creep.memory.target_id;
     if (creep.memory.routing) {
       targetId = creep.memory.routing.targetId;
@@ -35,10 +35,10 @@ roles.sourcer.preMove = function(creep, directions) {
       console.log('No routing');
     }
 
-    var source = Game.getObjectById(targetId);
+    var source = creep.room.memory.position.creep[targetId];
     // TODO better the position from the room memory
-    creep.moveTo(source.pos);
-    if (creep.pos.getRangeTo(source.pos) > 1) {
+    creep.moveTo(source.x, source.y);
+    if (creep.pos.getRangeTo(source.x, source.y) > 0) {
       return true;
     }
   }
@@ -128,10 +128,9 @@ roles.sourcer.action = function(creep) {
       creep.memory.routing.reached = false;
       creep.memory.routing.targetId = sources[0].id;
     } else {
-      creep.log("!!! config_creep_routing sourcer No sources at source: " + creep.memory.source + ' targetId: ' + creep.memory.targetId);
+      creep.log('!!! config_creep_routing sourcer No sources at source: ' + creep.memory.source + ' targetId: ' + creep.memory.targetId);
     }
   }
-
 
   // TODO check source keeper structure for ticksToSpawn
   if (!creep.room.controller) {

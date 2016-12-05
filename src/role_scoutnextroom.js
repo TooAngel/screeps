@@ -2,11 +2,10 @@
 
 /*
  * scoutnextroom is called when the number of rooms is < possible rooms
- * 
+ *
  * Random walk to find a room with 'threshold' distance and two sources.
  * Claims the controller and room revive will drop in.
  */
-
 
 roles.scoutnextroom = {};
 
@@ -151,7 +150,6 @@ roles.scoutnextroom.execute = function(creep) {
       }
       return false;
     };
-
 
     if (opponent_room || !handleTarget(creep, exits)) {
       // Go back, no other way

@@ -8,7 +8,6 @@
  * energy is transferred to other structures, too.
  */
 
-
 roles.carry = {};
 
 roles.carry.buildRoad = true;
@@ -19,7 +18,7 @@ roles.carry.boostActions = ['capacity'];
 roles.carry.preMove = function(creep, directions) {
   // Misplaced spawn
   // TODO Somehow ugly and maybe better somewhere else
-  if (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3) {
+  if (creep.room.name == creep.memory.base && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
     creep.say('cmis', true);
     if (creep.carry.energy > 0) {
       let structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
@@ -40,7 +39,7 @@ roles.carry.preMove = function(creep, directions) {
         console.log('No routing');
       }
 
-      var source = Game.getObjectById(targetId);
+      var source = creep.room.memory.position.creep[targetId];
       // TODO better the position from the room memory
       if (source !== null) {
         let returnCode = creep.moveTo(source.pos);
@@ -50,7 +49,6 @@ roles.carry.preMove = function(creep, directions) {
       }
     }
   }
-
 
   if (!creep.room.controller) {
     var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
@@ -128,8 +126,6 @@ roles.carry.preMove = function(creep, directions) {
   }
   creep.memory.routing.reverse = reverse;
 };
-
-
 
 roles.carry.action = function(creep) {
   // TODO log when this happens, carry is getting energy from the source

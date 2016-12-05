@@ -9,7 +9,6 @@ Room.prototype.myHandleRoom = function() {
   this.memory.droppedResources = this.find(FIND_DROPPED_RESOURCES);
   let room = this;
 
-
   // TODO Fix for after `delete Memory.rooms`
   if (!room.memory.position || !room.memory.position.structure) {
     this.setup();
@@ -33,17 +32,17 @@ Room.prototype.myHandleRoom = function() {
     }
   }
   if (config.stats.enabled) {
-    Memory.stats["room." + this.name + ".energyAvailable"] = this.energyAvailable;
-    Memory.stats["room." + this.name + ".energyCapacityAvailable"] = this.energyCapacityAvailable;
-    Memory.stats["room." + this.name + ".controllerProgress"] = this.controller.progress;
-    Memory.stats['room.' + this.name + '.progress'] = this.memory.upgrader_upgrade / (Game.time % 100);
+    Memory.stats['room.' + this.name + '.energyAvailable'] = this.energyAvailable;
+    Memory.stats['room.' + this.name + '.energyCapacityAvailable'] = this.energyCapacityAvailable;
+    Memory.stats['room.' + this.name + '.controllerProgress'] = this.controller.progress;
+    Memory.stats['room.' + this.name + '.progress'] = this.memory.upgraderUpgrade / (Game.time % 100);
 
     let storage = this.storage || {
       store: {}
     };
     if (this.storage) {
-      Memory.stats["room." + this.name + ".storage.store.energy"] = storage.store.energy || 0;
-      Memory.stats["room." + this.name + ".storage.store.power"] = storage.store.power || 0;
+      Memory.stats['room.' + this.name + '.storage.store.energy'] = storage.store.energy || 0;
+      Memory.stats['room.' + this.name + '.storage.store.power'] = storage.store.power || 0;
     }
   }
 
@@ -162,7 +161,6 @@ Room.prototype.handleObserver = function() {
     let yOffset = Math.floor(offset % fullLength) - OBSERVER_RANGE;
     let xPos = +nameSplit[2] + xOffset;
 
-
     let yPos = +nameSplit[4] + yOffset;
     let xDir = nameSplit[1];
     let yDir = nameSplit[3];
@@ -179,9 +177,6 @@ Room.prototype.handleObserver = function() {
 
     let roomObserve = xDir + xPos + yDir + yPos;
 
-
-
-
     var observe_room = this.memory.observe_rooms[Game.time % this.memory.observe_rooms.length];
     //this.log(observe_room);
     //     observers[0].observeRoom(observe_room);
@@ -189,7 +184,6 @@ Room.prototype.handleObserver = function() {
     if (returnCode != OK) {
       this.log('observer returnCode: ' + returnCode + ' ' + roomObserve + ' ' + fullLength + ' ' + numberOfFields + ' ' + offset + ' ' + xOffset + ' ' + yOffset);
     }
-
   }
 };
 
@@ -319,7 +313,6 @@ Room.prototype.executeRoom = function() {
 
       Memory.players[hostiles[0].owner.username].idiot++;
     }
-
 
     if (this.memory.attack_timer > 15) {
       var defender = {
@@ -462,8 +455,6 @@ Room.prototype.executeRoom = function() {
   return true;
 };
 
-
-
 Room.prototype.reviveRoom = function() {
   if (this.controller.level > 1 && this.controller.ticksToDowngrade > CONTROLLER_DOWNGRADE[this.controller.level] * 0.9) {
     return false;
@@ -527,7 +518,6 @@ Room.prototype.reviveRoom = function() {
         roomOther.log('Too Small');
         continue;
       }
-
 
       let distance = Game.map.getRoomLinearDistance(this.name, roomName);
       if (distance < config.nextRoom.maxDistance) {

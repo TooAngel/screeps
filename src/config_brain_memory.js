@@ -49,27 +49,27 @@ brain.prepareMemory = function() {
       if ((name.startsWith('reserver') && Memory.creeps[name].born < (Game.time - CREEP_CLAIM_LIFE_TIME)) || Memory.creeps[name].born < (Game.time - CREEP_LIFE_TIME)) {
         delete Memory.creeps[name];
       } else {
-        var creep_memory = Memory.creeps[name];
-        if (creep_memory.killed) {
+        var creepMemory = Memory.creeps[name];
+        if (creepMemory.killed) {
           delete Memory.creeps[name];
           continue;
         }
 
-        console.log(name, 'Not in Game.creeps', Game.time - creep_memory.born, Memory.creeps[name].base);
-        if (Game.time - creep_memory.born < 20) {
+        console.log(name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
+        if (Game.time - creepMemory.born < 20) {
           continue;
         }
-        if (!creep_memory.role) {
+        if (!creepMemory.role) {
           delete Memory.creeps[name];
           continue;
         }
         try {
-          let unit = roles[creep_memory.role];
+          let unit = roles[creepMemory.role];
           if (!unit) {
             delete Memory.creeps[name];
           }
           if (unit.died) {
-            unit.died(name, creep_memory);
+            unit.died(name, creepMemory);
           } else {
             delete Memory.creeps[name];
           }
@@ -144,45 +144,44 @@ brain.prepareMemory = function() {
       console.log('ConstructionSites: ', Object.keys(Memory.constructionSites).length);
       console.log('-------------------------');
 
-      var storage_no_string = '';
-      var storage_low_string = '';
-      var storage_middle_string = '';
-      var storage_high_string = '';
-      var storage_power = '';
-      var upgrade_less = '';
+      var storageNoString = '';
+      var storageLowString = '';
+      var storageMiddleString = '';
+      var storageHighString = '';
+      var storagePower = '';
+      var upgradeLess = '';
       for (var id in Memory.myRooms) {
         let name = Memory.myRooms[id];
         let room = Game.rooms[name];
         if (!room || !room.storage) {
-          storage_no_string += name + ' ';
+          storageNoString += name + ' ';
           continue;
         }
         if (room.storage.store.energy < 200000) {
-          storage_low_string += name + ':' + room.storage.store.energy + ' ';
+          storageLowString += name + ':' + room.storage.store.energy + ' ';
         } else if (room.storage.store.energy > 800000) {
-          storage_high_string += name + ':' + room.storage.store.energy + ' ';
+          storageHighString += name + ':' + room.storage.store.energy + ' ';
         } else {
-          storage_middle_string += name + ':' + room.storage.store.energy + ' ';
+          storageMiddleString += name + ':' + room.storage.store.energy + ' ';
         }
         if (room.storage.store.power && room.storage.store.power > 0) {
-          storage_power += name + ':' + room.storage.store.power + ' ';
+          storagePower += name + ':' + room.storage.store.power + ' ';
         }
         // TODO 15 it should be
-        if (Math.ceil(room.memory.upgrader_upgrade / interval) < 15) {
-          upgrade_less += name + ':' + room.memory.upgrader_upgrade / interval + ' ';
+        if (Math.ceil(room.memory.upgraderUpgrade / interval) < 15) {
+          upgradeLess += name + ':' + room.memory.upgraderUpgrade / interval + ' ';
         }
-        room.memory.upgrader_upgrade = 0;
+        room.memory.upgraderUpgrade = 0;
       }
-      console.log('No storage:', storage_no_string);
-      console.log('Low storage:', storage_low_string);
-      console.log('Middle storage:', storage_middle_string);
-      console.log('High storage:', storage_high_string);
+      console.log('No storage:', storageNoString);
+      console.log('Low storage:', storageLowString);
+      console.log('Middle storage:', storageMiddleString);
+      console.log('High storage:', storageHighString);
       console.log('-------------------------');
-      console.log('Power storage:', storage_power);
+      console.log('Power storage:', storagePower);
       console.log('-------------------------');
-      console.log('Upgrade less:', upgrade_less);
+      console.log('Upgrade less:', upgradeLess);
       console.log('=========================');
     }
   }
-
 };

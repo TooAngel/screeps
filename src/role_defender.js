@@ -2,10 +2,9 @@
 
 /*
  * Called to defend external rooms
- * 
+ *
  * Fights against hostile creeps
  */
-
 
 roles.defender = {};
 roles.defender.boostActions = ['rangedAttack', 'heal'];

@@ -2,11 +2,10 @@
 
 /*
  * planer builds up construction sites
- * 
+ *
  * Moves to the construction sites, does random walk to prevent traffic jam
  * builds up the structure
  */
-
 
 roles.planer = {};
 roles.planer.stayInRoom = true;
@@ -37,7 +36,6 @@ roles.planer.action = function(creep) {
 
   return Creep.execute(creep, methods);
 };
-
 
 roles.planer.execute = function(creep) {
   var methods = [Creep.getEnergy];

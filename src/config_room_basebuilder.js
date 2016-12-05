@@ -19,7 +19,6 @@ function posIsIn(pos, array) {
   return false;
 }
 
-
 Room.prototype.destroyStructure = function(structure) {
   if (structure.structureType == STRUCTURE_WALL) {
     if (!this.memory.walls) {
@@ -104,39 +103,39 @@ Room.prototype.destroyStructure = function(structure) {
     this.log('Set misplaced spawn');
     this.memory.misplacedSpawn = true;
 
-    let costMatrixBase = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
-    let spawns = this.find(FIND_MY_STRUCTURES, {
-      filter: function(object) {
-        return object.structureType == STRUCTURE_SPAWN;
-      }
-    });
-    console.log(JSON.stringify(spawns));
+    // Build ramparts around the spawn if wallThickness > 1
+    if (config.layout.wallThickness > 1) {
+      let costMatrixBase = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
+      let spawns = this.find(FIND_MY_STRUCTURES, {
+        filter: function(object) {
+          return object.structureType == STRUCTURE_SPAWN;
+        }
+      });
 
-    let getWalls = function(object) {
-      return object.structureType == STRUCTURE_WALL;
-    };
+      let getWalls = function(object) {
+        return object.structureType == STRUCTURE_WALL;
+      };
 
-    for (let spawn of spawns) {
-      console.log(spawn.pos);
-      for (let x = -1; x < 2; x++) {
-        for (let y = -1; y < 2; y++) {
-          let pos = new RoomPosition(spawn.pos.x + x, spawn.pos.y + y, spawn.pos.roomName);
-          this.memory.walls.ramparts.push(pos);
-          costMatrixBase.set(pos.x, pos.y, 0);
-          let walls = pos.findInRange(FIND_STRUCTURES, 0, {
-            filter: getWalls
-          });
-          for (let wall of walls) {
-            wall.destroy();
+      for (let spawn of spawns) {
+        for (let x = -1; x < 2; x++) {
+          for (let y = -1; y < 2; y++) {
+            let pos = new RoomPosition(spawn.pos.x + x, spawn.pos.y + y, spawn.pos.roomName);
+            this.memory.walls.ramparts.push(pos);
+            costMatrixBase.set(pos.x, pos.y, 0);
+            let walls = pos.findInRange(FIND_STRUCTURES, 0, {
+              filter: getWalls
+            });
+            for (let wall of walls) {
+              wall.destroy();
+            }
           }
         }
       }
+      this.memory.costMatrix.base = costMatrixBase.serialize();
     }
-    this.memory.costMatrix.base = costMatrixBase.serialize();
   }
   return false;
 };
-
 
 Room.prototype.checkPath = function() {
   this.log('checkPath: ' + this.memory.controllerLevel.checkPathInterval);
@@ -207,7 +206,6 @@ Room.prototype.checkWrongStructure = function() {
   return false;
 };
 
-
 Room.prototype.clearPosition = function(pos, structure) {
   let posStructures = pos.lookFor('structure');
   let returnValue = false;
@@ -229,7 +227,6 @@ Room.prototype.clearPosition = function(pos, structure) {
   }
   return returnValue;
 };
-
 
 Room.prototype.setupStructure = function(structure) {
   var structures = this.find(FIND_MY_STRUCTURES, {
@@ -302,9 +299,7 @@ Room.prototype.setupStructure = function(structure) {
     this.log('setup createConstrustionSite returnCode: ' + returnCode + ' structure: ' + structure);
   }
   return false;
-
 };
-
 
 Room.prototype.buildStructures = function() {
   // TODO reduce noise
@@ -320,12 +315,10 @@ Room.prototype.buildStructures = function() {
     return false;
   }
 
-
   if (this.controller === null || !this.controller.my) {
     this.log('No controller');
     return false;
   }
-
 
   if (Object.keys(Game.constructionSites).length >= 100) {
     return false;

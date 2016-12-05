@@ -29,7 +29,6 @@ Room.prototype.checkRamparts = function() {
   }
 };
 
-
 Room.prototype.checkExitsAreReachable = function() {
   // Make sure every exit is reachable
 
@@ -131,7 +130,7 @@ Room.prototype.closeExitsByPath = function() {
     this.memory.walls.exit_i = 0;
     this.memory.walls.layer_i++;
     this.log('Increase layer');
-    if (this.memory.walls.layer_i >= 3) {
+    if (this.memory.walls.layer_i >= config.layout.wallThickness) {
       this.log('Wall setup finished');
       this.memory.walls.finished = true;
 
@@ -213,7 +212,6 @@ Room.prototype.closeExitsByPath = function() {
     let range = pos.getRangeTo(exit);
     return range > 1;
   };
-
 
   for (let pathPosPlain of path) {
     var pathPos = new RoomPosition(pathPosPlain.x, pathPosPlain.y, this.name);

@@ -1,6 +1,5 @@
 'use strict';
 
-
 function orderMinerals(room, mineralsBase) {
   for (let mineral in room.terminal.store) {
     let index = mineralsBase.indexOf(mineral);
@@ -82,7 +81,6 @@ function buildNuke(roomName) {
   room.memory.mineralBuilds[RESOURCE_ZYNTHIUM_KEANITE] = 1000;
   room.memory.mineralBuilds[RESOURCE_UTRIUM_LEMERGITE] = 1000;
   room.memory.mineralBuilds[RESOURCE_GHODIUM] = 1000;
-
 
   room.log(mineralsBase);
   return true;

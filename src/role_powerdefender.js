@@ -2,7 +2,7 @@
 
 /*
  * powerdefender is called when hostile creeps show up on power harvesting
- * 
+ *
  * Kills hostile creeps
  */
 
@@ -33,7 +33,6 @@ roles.powerdefender.action = function(creep) {
     creep.rangedAttack(hostile_creeps[0]);
     return true;
   }
-
 
   var power_bank = creep.room.find(FIND_STRUCTURES, {
     filter: function(object) {

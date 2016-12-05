@@ -199,7 +199,6 @@ Creep.prototype.handleMineralCreep = function() {
       return;
     }
 
-
     let returnCode = creep.transfer(target, resource);
     if (returnCode == OK) {
       nextState(creep);
@@ -505,7 +504,6 @@ Creep.prototype.handleMineralCreep = function() {
       return true;
     }
 
-
     creep.say(creep.memory.state);
 
     creep.memory.state = creep.memory.state || 0;
@@ -574,7 +572,9 @@ Creep.prototype.boost = function() {
     return false;
   };
   // TODO boosting disabled, too many room.finds
-  if (true) return false;
+  if (true) {
+    return false;
+  }
   //this.log(JSON.stringify(parts));
   for (let part in parts) {
     for (boost in BOOSTS[part]) {
@@ -590,7 +590,6 @@ Creep.prototype.boost = function() {
             room.memory.boosting = room.memory.boosting || {};
             room.memory.boosting[boost] = room.memory.boosting[boost] || {};
             room.memory.boosting[boost][this.id] = true;
-
 
             if (labs.length > 0) {
               let search = PathFinder.search(

@@ -34,7 +34,6 @@ Room.prototype.checkBlocked = function() {
   return false;
 };
 
-
 Room.prototype.externalHandleRoom = function() {
   if (!this.controller) {
     var nameSplit = this.splitRoomName();
@@ -52,8 +51,6 @@ Room.prototype.externalHandleRoom = function() {
     }
 
   }
-
-
 
   let blocked = this.checkBlocked();
   if (blocked) {
@@ -280,7 +277,7 @@ Room.prototype.handleUnreservedRoom = function() {
           }
           return object.reservation.base == roomName;
         });
-        if (reservedRooms < room.controller.level - 1) {
+        if (reservedRooms.length < room.controller.level - 1) {
           this.log('Would start to spawn');
 
           // TODO Check paths to decide for structurer
@@ -315,7 +312,6 @@ Room.prototype.handleUnreservedRoom = function() {
   return true;
 };
 
-
 Room.prototype.handleSourceKeeperRoom = function() {
   if (!this.memory.base) {
     return false;
@@ -326,7 +322,9 @@ Room.prototype.handleSourceKeeperRoom = function() {
   }
   this.log('handle source keeper room');
   this.log('DISABLED - Routing keep distance to Source keeper structure, sourcer/carry check for next spawn, move await ~10 ticksToSpawn');
-  if (true) return false;
+  if (true) {
+    return false;
+  }
 
   let myCreeps = this.find(FIND_MY_CREEPS);
   let sourcer = 0;

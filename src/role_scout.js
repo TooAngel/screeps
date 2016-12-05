@@ -1,5 +1,11 @@
 'use strict';
 
+/*
+ * scout moves around to provide visibility
+ *
+ * Pre observer the scout moves through surrounding rooms
+ */
+
 roles.scout = {};
 roles.scout.getPartConfig = function(room, energy, heal) {
   let parts = [MOVE];
@@ -71,7 +77,7 @@ roles.scout.execute = function(creep) {
         }
       );
     } catch (e) {
-      creep.log(`search: ${targetPosObject} %{e}`);
+      //      creep.log(`search: ${targetPosObject} %{e}`);
       return false;
 
     }
@@ -85,7 +91,6 @@ roles.scout.execute = function(creep) {
     creep.say(creep.pos.getDirectionTo(search.path[0]));
     let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
   };
-
 
   creep.notifyWhenAttacked(false);
   return breadthFirstSearch(creep);
