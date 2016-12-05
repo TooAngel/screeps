@@ -267,7 +267,7 @@ Room.prototype.handleUnreservedRoom = function() {
 
     let distance = Game.map.getRoomLinearDistance(this.name, roomName);
     if (distance <= config.external.distance) {
-      if (room.memory.queue.length === 0) {
+      if (room.memory.queue && room.memory.queue.length === 0) {
         let reservedRooms = _.filter(Memory.rooms, function(object) {
           if (!object.reservation) {
             return false;
