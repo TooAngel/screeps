@@ -165,7 +165,7 @@ Creep.prototype.buildRoad = function() {
   let constructionSites = _.filter(this.room.getConstructionSites(), buildableRoads);
 
   if (constructionSites.length > 0) {
-    this.build(constructionSites[0]);
+    this.build(Game.getObjectById(constructionSites[0].id));
     return true;
   }
 

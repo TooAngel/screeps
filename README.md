@@ -5,7 +5,7 @@
 
 https://screeps.com/
 
-This is the AI I'm using (2016-10-25) for screeps. I managed to reach Top 10
+This is the AI I'm using for screeps. I managed to reach Top 10
 from November 2015 - March 2016. Main Goal is to automated everything, no
 manual interaction needed.
 
