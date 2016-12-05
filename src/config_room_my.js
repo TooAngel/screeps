@@ -416,7 +416,7 @@ Room.prototype.executeRoom = function() {
   });
 
   this.handleTower();
-  if (this.controller.level > 1) {
+  if (this.controller.level > 1 && this.memory.walls && this.memory.walls.finished) {
     creepsConfig.push('repairer');
   }
 
