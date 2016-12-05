@@ -212,7 +212,14 @@ Creep.prototype.handleNextroomer = function() {
     }
 
     if (_.sum(creep.carry) === 0) {
-      let hostileStructures = creep.room.find(FIND_HOSTILE_STRUCTURES);
+      let hostileStructures = creep.room.find(FIND_HOSTILE_STRUCTURES, {
+        filter: function(object) {
+          if (object.structureType == STRUCTURE_RAMPART) {
+            return false;
+          }
+          return true;
+        }
+      });
       hostileStructures = _.sortBy(hostileStructures, function(object) {
         if (object.structureType == STRUCTURE_STORAGE) {
           return 2;
