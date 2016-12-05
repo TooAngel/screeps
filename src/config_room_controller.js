@@ -74,11 +74,9 @@ Room.prototype.buildBase = function() {
     }
   }
 
-  if ((Game.time + this.controller.pos.x + this.controller.pos.y) % config.layout.checkInterval === 0) {
-    // version: this.memory.position.version is maybe not the best idea
-    if (!this.memory.position || this.memory.position.version != config.layout.version) {
-      this.setup();
-    }
+  // version: this.memory.position.version is maybe not the best idea
+  if (!this.memory.position || this.memory.position.version != config.layout.version) {
+    this.setup();
   }
 };
 

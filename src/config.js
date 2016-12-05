@@ -92,7 +92,7 @@ global.config = {
     pathAvoid: 1,
     structureAvoid: 0xFF,
     creepAvoid: 0xFF,
-    checkInterval: 10, // Should be higher
+    wallThickness: 1,
     version: 16
   },
 

@@ -130,7 +130,7 @@ Room.prototype.closeExitsByPath = function() {
     this.memory.walls.exit_i = 0;
     this.memory.walls.layer_i++;
     this.log('Increase layer');
-    if (this.memory.walls.layer_i >= 3) {
+    if (this.memory.walls.layer_i >= config.layout.wallThickness) {
       this.log('Wall setup finished');
       this.memory.walls.finished = true;
 
