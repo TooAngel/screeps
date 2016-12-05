@@ -39,7 +39,7 @@ roles.carry.preMove = function(creep, directions) {
         console.log('No routing');
       }
 
-      var source = Game.getObjectById(targetId);
+      var source = creep.room.memory.position.creep[targetId];
       // TODO better the position from the room memory
       if (source !== null) {
         let returnCode = creep.moveTo(source.pos);
