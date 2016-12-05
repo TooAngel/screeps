@@ -360,13 +360,6 @@ Creep.prototype.transferToStructures = function() {
     if (object.structureType == STRUCTURE_TERMINAL && (object.store.energy || 0) > 10000) {
       return false;
     }
-    let factor = 0.9;
-    if (creep.memory.role == 'harvester') {
-      factor = 0.4;
-    }
-    if (object.structureType == STRUCTURE_TOWER && object.energy > factor * object.energyCapacity) {
-      return false;
-    }
 
     if (creep.memory.role == 'harvester' && object.structureType == STRUCTURE_STORAGE) {
       return false;
@@ -381,6 +374,7 @@ Creep.prototype.transferToStructures = function() {
         object.structureType == STRUCTURE_SPAWN ||
         object.structureType == STRUCTURE_NUKER ||
         object.structureType == STRUCTURE_POWER_SPAWN ||
+        object.structureType == STRUCTURE_TOWER ||
         object.structureType == STRUCTURE_LINK) &&
       object.energy == object.energyCapacity) {
       return false;
@@ -430,19 +424,14 @@ function get_structure(creep) {
       if (!object.my) {
         return false;
       }
-      if (object.structureType == 'extension') {
+      if (object.structureType == STRUCTURE_EXTENSION) {
         return true;
       }
-      if (object.structureType == 'spawn') {
+      if (object.structureType == STRUCTURE_SPAWN) {
         return true;
       }
       if (object.structureType == STRUCTURE_TOWER) {
-        // TODO: If the room has to less energy, should be adapted some how
-        if (creep.room.energyAvailable < 1000) {
-          // if (creep.memory.role == 'harvester') {
-          return false;
-        }
-        return object.energy < 10;
+        return true;
       }
       return false;
     }
