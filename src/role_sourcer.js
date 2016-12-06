@@ -102,7 +102,13 @@ roles.sourcer.energyBuild = function(room, energy, source, heal) {
   if (heal) {
     max = 1450;
   }
-  energy = Math.max(200, Math.min(max, room.energyCapacityAvailable));
+
+  let offset = 0;
+  if (room.memory.misplacedSpawn) {
+    offset = 300;
+  }
+
+  energy = Math.max(200, Math.min(max, room.energyCapacityAvailable - offset));
   return energy;
 };
 

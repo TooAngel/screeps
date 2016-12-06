@@ -120,7 +120,7 @@ brain.prepareMemory = function() {
       //      }
 
       if (!Memory.rooms[name].lastSeen) {
-        console.log('Deleting ' + name + ' from memory no `last_seen` value');
+        //        console.log('Deleting ' + name + ' from memory no `last_seen` value');
         delete Memory.rooms[name];
         continue;
       }
