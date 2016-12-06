@@ -138,7 +138,7 @@ Room.prototype.destroyStructure = function(structure) {
 };
 
 Room.prototype.checkPath = function() {
-  this.log('checkPath: ' + this.memory.controllerLevel.checkPathInterval);
+  //  this.log('checkPath: ' + this.memory.controllerLevel.checkPathInterval);
 
   // TODO this shouldn't happen if the base setup is proper
   if (!this.memory.routing || !this.memory.routing['pathStart-harvester'] || !this.memory.routing['pathStart-harvester'].path) {
@@ -171,7 +171,7 @@ Room.prototype.checkPath = function() {
 };
 
 Room.prototype.checkWrongStructure = function() {
-  this.log('checkWrongStructure: ' + this.memory.controllerLevel.checkWrongStructureInterval);
+  //  this.log('checkWrongStructure: ' + this.memory.controllerLevel.checkWrongStructureInterval);
   if (this.memory.underSiege && this.controller.level >= 3) {
     this.log('checkWrongStructure: underSiege');
     return false;

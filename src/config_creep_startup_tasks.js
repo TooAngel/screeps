@@ -9,7 +9,7 @@ Creep.execute = function(creep, methods) {
 };
 
 Creep.upgradeControllerTask = function(creep) {
-  creep.say('upgradeController', true);
+  //  creep.say('upgradeController', true);
   if (creep.carry.energy === 0) {
     return false;
   }
@@ -34,7 +34,7 @@ Creep.constructTask = function(creep) {
 };
 
 Creep.transferEnergy = function(creep) {
-  creep.say('transferEnergy', true);
+  //  creep.say('transferEnergy', true);
   return creep.transferEnergyMy();
 };
 

@@ -1,7 +1,7 @@
 'use strict';
 
 Room.prototype.buildBlockers = function() {
-  this.log('buildBlockers: ' + this.memory.controllerLevel.buildBlockersInterval);
+  //   this.log('buildBlockers: ' + this.memory.controllerLevel.buildBlockersInterval);
 
   var spawns = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {

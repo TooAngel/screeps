@@ -217,6 +217,15 @@ Creep.prototype.handleNextroomer = function() {
           if (object.structureType == STRUCTURE_RAMPART) {
             return false;
           }
+          if (object.structureType == STRUCTURE_EXTRACTOR) {
+            return false;
+          }
+          if (object.structureType == STRUCTURE_WALL) {
+            return false;
+          }
+          if (object.structureType == STRUCTURE_CONTROLLER) {
+            return false;
+          }
           return true;
         }
       });
@@ -239,7 +248,8 @@ Creep.prototype.handleNextroomer = function() {
             return true;
           }
         }
-        creep.say('hostile');
+        creep.say('ho: ' + structure.pos);
+        creep.log(structure.structureType);
         creep.moveTo(structure);
         creep.withdraw(structure, RESOURCE_ENERGY);
         return true;
