@@ -248,11 +248,6 @@ Creep.prototype.followPath = function(action) {
   // }
 
   let unit = roles[this.memory.role];
-  if (!this.memory.routing.targetId && routePos == route.length - 1) {
-    if (unit.getTargetId) {
-      this.memory.routing.targetId = unit.getTargetId(this);
-    }
-  }
 
   if (!this.memory.routing.targetId && this.room.name == this.memory.routing.targetRoom) {
     this.memory.routing.reached = true;

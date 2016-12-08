@@ -61,6 +61,9 @@ Creep.prototype.cleanController = function() {
     if (object.structureType == STRUCTURE_ROAD) {
       return false;
     }
+    if (object.structureType == STRUCTURE_CONTAINER) {
+      return false;
+    }
     return true;
   };
   for (let pos of search.path) {
@@ -87,6 +90,9 @@ Creep.prototype.cleanExits = function() {
       return false;
     }
     if (object.structureType == STRUCTURE_ROAD) {
+      return false;
+    }
+    if (object.structureType == STRUCTURE_CONTAINER) {
       return false;
     }
     return true;

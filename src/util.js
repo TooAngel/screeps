@@ -48,7 +48,7 @@ module.exports = {
     for (let roomName in Memory.rooms) {
       let room = Memory.rooms[roomName];
       if (room.state == 'Reserved') {
-        console.log(room.name, JSON.stringify(room.reservation));
+        console.log(roomName, JSON.stringify(room.reservation));
       }
     }
   }

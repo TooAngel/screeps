@@ -228,31 +228,81 @@ Room.prototype.handleOccupiedRoom = function() {
   }
 };
 
+Room.prototype.checkBlockedPath = function() {
+  for (let pathName in this.memory.routing) {
+    let path = Room.stringToPath(this.memory.routing[pathName].path);
+    for (let pos of path) {
+      let roomPos = new RoomPosition(pos.x, pos.y, this.name);
+      let structures = roomPos.lookFor('structure');
+
+      for (let structure of structures) {
+        if (structure.structureType == STRUCTURE_ROAD) {
+          continue;
+        }
+        if (structure.structureType == STRUCTURE_RAMPART) {
+          continue;
+        }
+        if (structure.structureType == STRUCTURE_CONTAINER) {
+          continue;
+        }
+        this.log(`Path ${pathName} blocked on ${pos} due to ${structure.structureType}`);
+        return true;
+      }
+    }
+  }
+};
+
 Room.prototype.handleUnreservedRoom = function() {
   this.memory.state = 'Unreserved';
   this.memory.lastSeen = Game.time;
+  this.memory.lastChecked = this.memory.lastChecked || Game.time;
 
   if (this.memory.reservation) {
     if (this.name == this.memory.reservation.base) {
       this.log('Want to spawn reserver for the base room, why?');
       return false;
     }
+
     this.memory.state = 'Reserved';
-    if (Game.time % 500 === 0) {
-      let reserverSpawn = {
-        role: 'reserver',
-        target: this.name,
-        target_id: this.controller.id,
-        level: 2
-      };
-      // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
-      let energyThreshold = 1300;
-      if (Game.rooms[this.memory.reservation.base].misplacedSpawn) {
-        energyThreshold = 1600;
-      }
-      if (Game.rooms[this.memory.reservation.base].controller.level > 3 && Game.rooms[this.memory.reservation.base].energyCapacityAvailable > energyThreshold) {
-        this.log('Queuing reserver ' + this.memory.reservation.base + ' ' + JSON.stringify(reserverSpawn));
-        Game.rooms[this.memory.reservation.base].memory.queue.push(reserverSpawn);
+    //     this.log(Game.time + ' ' + this.memory.lastChecked + ' ' + (Game.time - this.memory.lastChecked));
+    if (Game.time - this.memory.lastChecked > 500) {
+      this.memory.lastChecked = Game.time;
+      if (this.checkBlockedPath()) {
+        this.log('Call structurer from ' + this.memory.reservation.base);
+        Game.rooms[this.memory.reservation.base].memory.queue.push({
+          role: 'structurer',
+          target: this.name,
+          routing: {
+            targetRoom: this.name,
+            reached: false,
+            routePos: 0,
+            pathPos: 0
+          }
+        });
+      } else {
+        let reserverSpawn = {
+          role: 'reserver',
+          target: this.name,
+          target_id: this.controller.id,
+          level: 2,
+          routing: {
+            targetRoom: this.name,
+            targetId: this.controller.id,
+            reached: false,
+            routePos: 0,
+            pathPos: 0
+          }
+        };
+        // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
+        let energyThreshold = 1300;
+        if (Game.rooms[this.memory.reservation.base].misplacedSpawn) {
+          energyThreshold = 1600;
+        }
+        this.log('Would like to spawn reserver' + Game.rooms[this.memory.reservation.base].energyCapacityAvailable + ' ' + energyThreshold);
+        if (Game.rooms[this.memory.reservation.base].controller.level > 3 && Game.rooms[this.memory.reservation.base].energyCapacityAvailable > energyThreshold) {
+          this.log('Queuing reserver ' + this.memory.reservation.base + ' ' + JSON.stringify(reserverSpawn));
+          Game.rooms[this.memory.reservation.base].memory.queue.push(reserverSpawn);
+        }
       }
     }
     return true;

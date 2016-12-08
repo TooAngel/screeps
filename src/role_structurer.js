@@ -47,18 +47,6 @@ roles.structurer.preMove = function(creep, directions) {
   }
 };
 
-roles.structurer.getTargetId = function(creep) {
-  creep.handleStructurer();
-  if (!creep.memory.routing.targetId) {
-    // No more to remove, move back and recycle (move back for now)
-    creep.log('Move back / suicide');
-    creep.memory.routing.reverse = true;
-    // Doesn't work, so suicide
-    creep.suicide();
-  }
-  return creep.memory.routing.targetId;
-};
-
 roles.structurer.action = function(creep) {
   if (!creep.room.controller || !creep.room.controller.my) {
     var structure;
@@ -79,10 +67,6 @@ roles.structurer.action = function(creep) {
     creep.dismantle(structure);
   }
 
-  if (!creep.memory.target) {
-    creep.log('Suiciding no target');
-    creep.suicide();
-  }
   creep.spawnReplacement();
   creep.handleStructurer();
   return true;
