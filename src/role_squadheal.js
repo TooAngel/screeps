@@ -23,11 +23,11 @@ roles.squadheal.energyBuild = function(room, energy) {
 
 // TODO need to check if it works
 roles.squadheal.action = function(creep) {
+  var squad = Memory.squads[creep.memory.squad];
   if (!creep.memory.initialized) {
-    Memory.squads[creep.memory.squad].heal[creep.id] = {};
+    squad.heal[creep.id] = {};
     creep.memory.initialized = true;
   }
-  var squad = Memory.squads[creep.memory.squad];
   let reverse = false;
   if (squad.action == 'move') {
     if (creep.room.name == squad.moveTarget) {
@@ -36,16 +36,16 @@ roles.squadheal.action = function(creep) {
       let range = creep.pos.getRangeTo(nextExit.x, nextExit.y);
       if (range < 4) {
         Memory.squads[creep.memory.squad].heal[creep.id].waiting = true;
-        if (Math.random() > 0.5 * (range - 2)) {
-          reverse = true;
-        }
+        //        if (Math.random() > 0.5 * (range - 2)) {
+        //          reverse = true;
+        //        }
       }
     }
   }
-  this.squadHeal();
+  creep.squadHeal();
   return true;
 };
 
 roles.squadheal.execute = function(creep) {
-  creep.log('Execute!!!');
+  //  creep.log('Execute!!!');
 };

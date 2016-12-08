@@ -104,7 +104,7 @@ roles.sourcer.energyBuild = function(room, energy, source, heal) {
   }
 
   let offset = 0;
-  if (room.memory.misplacedSpawn) {
+  if (room.memory.misplacedSpawn && room.controller.level == 4) {
     offset = 300;
   }
 
