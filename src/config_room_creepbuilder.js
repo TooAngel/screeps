@@ -79,9 +79,9 @@ Room.prototype.spawnCreateCreep = function(role, target, source, heal, target_id
       this.memory.sources_index = this.memory.sources_index + 1;
     }
 
-    //if (memory.role == 'reserver') {
-    //	this.log('Spawning ' + name.rpad(' ', 20) + ' ' + JSON.stringify(memory));
-    //}
+    if (memory.role == 'reserver') {
+      this.log('Spawning ' + name.rpad(' ', 20) + ' ' + JSON.stringify(memory));
+    }
     return true;
   }
   return false;
@@ -98,8 +98,31 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig, target) {
   }
 
   if (this.memory.queue.length > 0 && (creepsConfig.length === 0 || creepsConfig[0] != 'harvester')) {
-    var creep = this.memory.queue[0];
+    let room = this;
+    let priorityQueue = function(object) {
+
+      if (object.target == room.name || object.routing && object.routing.targetRoom == room.name) {
+        if (object.role == 'harvester') {
+          return 1;
+        }
+        if (object.role == 'sourcer') {
+          return 2;
+        }
+        if (object.role == 'storagefiller') {
+          return 3;
+        }
+        return 4;
+      }
+      return 100;
+    };
+
+    let queue = _.sortBy(this.memory.queue, priorityQueue);
+    //     this.log(JSON.stringify(queue));
+
+    var creep = queue[0];
     energyNeeded = 50;
+
+    //     this.log(JSON.stringify(creep));
 
     if (this.spawnCreateCreep(creep.role, creep.target, creep.source, creep.heal, creep.target_id, creep.level, creep.squad, creep.routing)) {
       this.memory.queue.shift();

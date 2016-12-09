@@ -352,6 +352,9 @@ Creep.prototype.transferToCreep = function(direction) {
 };
 
 Creep.prototype.transferToStructures = function() {
+  if (this.carry.energy === 0) {
+    return false;
+  }
   let transferred = false;
 
   let creep = this;
