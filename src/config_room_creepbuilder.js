@@ -101,7 +101,9 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig, target) {
     let room = this;
     let priorityQueue = function(object) {
 
-      if (object.target == room.name || object.routing && object.routing.targetRoom == room.name) {
+      let target = object.routing && object.routing.targetRoom || object.target;
+
+      if (target == room.name) {
         if (object.role == 'harvester') {
           return 1;
         }
@@ -113,7 +115,20 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig, target) {
         }
         return 4;
       }
-      return 100;
+
+      if (object.role == 'nextroomer') {
+        return 11;
+      }
+
+      // TODO added because target was misused as a pos object
+      if (object.role == 'defendranged') {
+        return 3;
+      }
+
+      if (!target) {
+        return 110;
+      }
+      return 100 + Game.map.getRoomLinearDistance(room.name, target);
     };
 
     let queue = _.sortBy(this.memory.queue, priorityQueue);

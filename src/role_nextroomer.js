@@ -73,4 +73,5 @@ roles.nextroomer.action = function(creep) {
 
 roles.nextroomer.execute = function(creep) {
   creep.log('Execute!!!');
+  creep.moveTo(25, 25);
 };

@@ -316,8 +316,7 @@ Room.prototype.executeRoom = function() {
 
     if (this.memory.attack_timer > 15) {
       var defender = {
-        role: 'defendranged',
-        target: hostiles[0].pos
+        role: 'defendranged'
       };
       creepsConfig.push('defendranged');
       if (this.memory.attack_timer > 300) {
