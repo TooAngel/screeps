@@ -9,8 +9,13 @@ require('config_room_init');
 require('config_room_costmatrix');
 
 if (config.profiler.enabled) {
-  var profiler = require('screeps-profiler');
-  profiler.enable();
+  try {
+    var profiler = require('screeps-profiler');
+    profiler.enable();
+  } catch (e) {
+    console.log('screeps-profiler not found');
+    config.profiler.enabled = false;
+  }
 }
 
 var main = function() {
