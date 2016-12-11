@@ -302,7 +302,6 @@ Creep.prototype.handleNextroomer = function() {
       methods.push(Creep.upgradeControllerTask);
     }
     methods.push(Creep.transferEnergy);
-    creep.log('Execute usual tasks');
     return Creep.execute(creep, methods);
   }
   settle(this);

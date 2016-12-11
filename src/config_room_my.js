@@ -228,8 +228,7 @@ Room.prototype.executeRoom = function() {
 
   if (spawns.length === 0) {
     this.reviveRoom();
-  }
-  if (this.energyCapacityAvailable < 1000) {
+  } else if (this.energyCapacityAvailable < 1000) {
     this.reviveRoom();
   }
   this.memory.active = true;
@@ -507,7 +506,8 @@ Room.prototype.reviveRoom = function() {
         roomOther.log('No storage');
         continue;
       }
-      if (roomOther.memory.queue.length > 0) {
+      // TODO find a proper value
+      if (roomOther.memory.queue.length > 4) {
         roomOther.log('No queue');
         continue;
       }

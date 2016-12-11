@@ -126,15 +126,15 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig, target) {
       }
 
       if (!target) {
-        return 110;
+        return 12;
       }
       return 100 + Game.map.getRoomLinearDistance(room.name, target);
     };
 
-    let queue = _.sortBy(this.memory.queue, priorityQueue);
+    this.memory.queue = _.sortBy(this.memory.queue, priorityQueue);
     //     this.log(JSON.stringify(queue));
 
-    var creep = queue[0];
+    var creep = this.memory.queue[0];
     energyNeeded = 50;
 
     //     this.log(JSON.stringify(creep));

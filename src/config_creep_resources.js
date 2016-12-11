@@ -117,7 +117,7 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
       for (let container of containers) {
         let returnCode = this.withdraw(container, RESOURCE_ENERGY);
         if (returnCode == OK) {}
-        return container.store.energy > 10;
+        return container.store.energy > 9;
       }
     }
   }
