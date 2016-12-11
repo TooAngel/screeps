@@ -86,7 +86,7 @@ Creep.prototype.checkForTransfer = function(direction) {
         carryPercentage = 0.0;
       }
 
-      return other_creep.carry.energy + _.sum(this.carry) >= carryPercentage * this.carryCapacity;
+      return other_creep.carry.energy + _.sum(this.carry) > carryPercentage * this.carryCapacity;
     }
     continue;
   }

@@ -46,7 +46,7 @@ Room.prototype.externalHandleRoom = function() {
     }
 
     if (this.controller.reservation && this.controller.reservation.username == Memory.username) {
-      this.memory.lastSeen = Game.time;
+      this.handleReservedRoom();
       return false;
     }
 
@@ -247,6 +247,48 @@ Room.prototype.checkBlockedPath = function() {
         }
         this.log(`Path ${pathName} blocked on ${pos} due to ${structure.structureType}`);
         return true;
+      }
+    }
+  }
+};
+
+Room.prototype.handleReservedRoom = function() {
+  this.memory.state = 'Reserved';
+  this.memory.lastSeen = Game.time;
+  this.memory.lastChecked = this.memory.lastChecked || Game.time;
+
+  if (Game.time - this.memory.lastChecked > 500) {
+    let reservers = this.find(FIND_MY_CREEPS, {
+      filter: function(object) {
+        return object.memory.role == 'reserver';
+      }
+    });
+
+    if (reservers.length === 0) {
+
+      this.memory.lastChecked = Game.time;
+      let reserverSpawn = {
+        role: 'reserver',
+        target: this.name,
+        target_id: this.controller.id,
+        level: 2,
+        routing: {
+          targetRoom: this.name,
+          targetId: this.controller.id,
+          reached: false,
+          routePos: 0,
+          pathPos: 0
+        }
+      };
+      // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
+      let energyThreshold = 1300;
+      if (Game.rooms[this.memory.reservation.base].misplacedSpawn) {
+        energyThreshold = 1600;
+      }
+      this.log('Would like to spawn reserver' + Game.rooms[this.memory.reservation.base].energyCapacityAvailable + ' ' + energyThreshold);
+      if (Game.rooms[this.memory.reservation.base].controller.level > 3 && Game.rooms[this.memory.reservation.base].energyCapacityAvailable > energyThreshold) {
+        this.log('Queuing reserver ' + this.memory.reservation.base + ' ' + JSON.stringify(reserverSpawn));
+        Game.rooms[this.memory.reservation.base].memory.queue.push(reserverSpawn);
       }
     }
   }

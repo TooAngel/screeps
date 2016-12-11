@@ -76,7 +76,7 @@ roles.carry.preMove = function(creep, directions) {
     return false;
   }
 
-  let reverse = creep.memory.routing.reverse;
+  let reverse = false;
   if (!creep.memory.routing.reverse) {
     reverse = creep.checkForTransfer(directions.forwardDirection);
   }

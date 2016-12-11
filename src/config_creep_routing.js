@@ -51,7 +51,7 @@ Creep.prototype.getRoute = function() {
     route = Game.map.findRoute(this.memory.base, this.memory.routing.targetRoom, {
       routeCallback: routeCallback
     });
-    this.log('getRoute: ' + this.memory.base + ' target: ' + this.memory.routing.targetRoom + ' route: ' + route);
+    //     this.log('getRoute: ' + this.memory.base + ' target: ' + this.memory.routing.targetRoom + ' route: ' + route);
     // TODO I guess some bug while transitionen to memory.routing
     if (route == -2) {
       route = [];
