@@ -212,7 +212,23 @@ Creep.prototype.handleNextroomer = function() {
     }
 
     if (_.sum(creep.carry) === 0) {
-      let hostileStructures = creep.room.find(FIND_HOSTILE_STRUCTURES);
+      let hostileStructures = creep.room.find(FIND_HOSTILE_STRUCTURES, {
+        filter: function(object) {
+          if (object.structureType == STRUCTURE_RAMPART) {
+            return false;
+          }
+          if (object.structureType == STRUCTURE_EXTRACTOR) {
+            return false;
+          }
+          if (object.structureType == STRUCTURE_WALL) {
+            return false;
+          }
+          if (object.structureType == STRUCTURE_CONTROLLER) {
+            return false;
+          }
+          return true;
+        }
+      });
       hostileStructures = _.sortBy(hostileStructures, function(object) {
         if (object.structureType == STRUCTURE_STORAGE) {
           return 2;
@@ -232,7 +248,8 @@ Creep.prototype.handleNextroomer = function() {
             return true;
           }
         }
-        creep.say('hostile');
+        creep.say('ho: ' + structure.pos);
+        creep.log(structure.structureType);
         creep.moveTo(structure);
         creep.withdraw(structure, RESOURCE_ENERGY);
         return true;

@@ -27,7 +27,7 @@ roles.sourcer.getPartConfig = function(room, energy, heal) {
 roles.sourcer.preMove = function(creep, directions) {
   // Misplaced spawn
   if (creep.room.name == creep.memory.base && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
-    creep.say('smis', true);
+    //    creep.say('smis', true);
     let targetId = creep.memory.target_id;
     if (creep.memory.routing) {
       targetId = creep.memory.routing.targetId;
@@ -102,7 +102,13 @@ roles.sourcer.energyBuild = function(room, energy, source, heal) {
   if (heal) {
     max = 1450;
   }
-  energy = Math.max(200, Math.min(max, room.energyCapacityAvailable));
+
+  let offset = 0;
+  if (room.memory.misplacedSpawn && room.controller.level == 4) {
+    offset = 300;
+  }
+
+  energy = Math.max(200, Math.min(max, room.energyCapacityAvailable - offset));
   return energy;
 };
 

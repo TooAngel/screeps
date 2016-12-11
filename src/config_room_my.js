@@ -228,8 +228,7 @@ Room.prototype.executeRoom = function() {
 
   if (spawns.length === 0) {
     this.reviveRoom();
-  }
-  if (this.energyCapacityAvailable < 1000) {
+  } else if (this.energyCapacityAvailable < 1000) {
     this.reviveRoom();
   }
   this.memory.active = true;
@@ -316,8 +315,7 @@ Room.prototype.executeRoom = function() {
 
     if (this.memory.attack_timer > 15) {
       var defender = {
-        role: 'defendranged',
-        target: hostiles[0].pos
+        role: 'defendranged'
       };
       creepsConfig.push('defendranged');
       if (this.memory.attack_timer > 300) {
@@ -416,7 +414,7 @@ Room.prototype.executeRoom = function() {
   });
 
   this.handleTower();
-  if (this.controller.level > 1) {
+  if (this.controller.level > 1 && this.memory.walls && this.memory.walls.finished) {
     creepsConfig.push('repairer');
   }
 
@@ -508,7 +506,8 @@ Room.prototype.reviveRoom = function() {
         roomOther.log('No storage');
         continue;
       }
-      if (roomOther.memory.queue.length > 0) {
+      // TODO find a proper value
+      if (roomOther.memory.queue.length > 4) {
         roomOther.log('No queue');
         continue;
       }

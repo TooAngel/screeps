@@ -298,6 +298,16 @@ module.exports = function(grunt) {
           ],
           dest: 'dist/',
         }]
+      },
+      profiler: {
+        files: [{
+          expand: true,
+          cwd: 'node_modules/screeps-profiler/',
+          src: [
+            'screeps-profiler.js'
+          ],
+          dest: 'dist/',
+        }]
       }
     },
 
@@ -311,9 +321,9 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('default', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'screeps']);
+  grunt.registerTask('default', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
   grunt.registerTask('release', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
-  grunt.registerTask('local', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'sync']);
+  grunt.registerTask('local', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
   grunt.registerTask('test', ['jshint', 'jscs']);
   grunt.registerTask('requireFile', 'Creates an empty file', function() {
     grunt.file.write('dist/require.js', '');

@@ -19,7 +19,7 @@ roles.carry.preMove = function(creep, directions) {
   // Misplaced spawn
   // TODO Somehow ugly and maybe better somewhere else
   if (creep.room.name == creep.memory.base && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
-    creep.say('cmis', true);
+    //     creep.say('cmis', true);
     if (creep.carry.energy > 0) {
       let structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
         filter: function(object) {
@@ -76,7 +76,10 @@ roles.carry.preMove = function(creep, directions) {
     return false;
   }
 
-  let reverse = creep.checkForTransfer(directions.forwardDirection);
+  let reverse = false;
+  if (!creep.memory.routing.reverse) {
+    reverse = creep.checkForTransfer(directions.forwardDirection);
+  }
 
   let carryPercentage = 0.1;
   if (creep.room.name == creep.memory.routing.targetRoom) {

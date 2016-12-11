@@ -67,6 +67,9 @@ Room.prototype.attackRoom = function() {
   var player = getPlayer(name);
 
   let addRoom = function(player, room) {
+    if (!player.rooms) {
+      player.rooms = {};
+    }
     if (!player.rooms[room.name]) {
       player.rooms[room.name] = {
         visited: Game.time

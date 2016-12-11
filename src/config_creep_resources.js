@@ -1,7 +1,7 @@
 'use strict';
 
 Creep.prototype.harvesterBeforeStorage = function() {
-  this.say('beforeStorage', true);
+  //   this.say('beforeStorage', true);
   var methods = [
     Creep.getEnergy
   ];
@@ -77,7 +77,16 @@ Creep.prototype.checkForTransfer = function(direction) {
       continue;
     }
     if (Game.creeps[other_creep.name].memory.role == 'carry') {
-      return other_creep.carry.energy + this.carry.energy >= this.carryCapacity;
+      // TODO duplicate from role_carry, extract to method
+      let carryPercentage = 0.1;
+      if (this.room.name == this.memory.routing.targetRoom) {
+        carryPercentage = 0.8;
+      }
+      if (this.room.name == this.memory.base) {
+        carryPercentage = 0.0;
+      }
+
+      return other_creep.carry.energy + _.sum(this.carry) > carryPercentage * this.carryCapacity;
     }
     continue;
   }
@@ -117,7 +126,7 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
       for (let container of containers) {
         let returnCode = this.withdraw(container, RESOURCE_ENERGY);
         if (returnCode == OK) {}
-        return container.store.energy > 10;
+        return container.store.energy > 9;
       }
     }
   }
@@ -352,6 +361,9 @@ Creep.prototype.transferToCreep = function(direction) {
 };
 
 Creep.prototype.transferToStructures = function() {
+  if (this.carry.energy === 0) {
+    return false;
+  }
   let transferred = false;
 
   let creep = this;
@@ -535,7 +547,7 @@ Creep.prototype.getEnergy = function() {
         delete this.memory.routing.cache[target.id];
         return true;
       }
-      this.say('de:' + this.pos.getDirectionTo(path[pos + 1].x, path[pos + 1].y), true);
+      //       this.say('de:' + this.pos.getDirectionTo(path[pos + 1].x, path[pos + 1].y), true);
       if (!this.pos.getDirectionTo(path[pos + 1].x, path[pos + 1].y)) {
         this.log(pos + ' ' + this.pos.getDirectionTo(path[pos + 1].x, path[pos + 1].y) + ' ' + JSON.stringify(path));
         this.say('no path pos');
@@ -550,6 +562,12 @@ Creep.prototype.getEnergy = function() {
   let hostileStructures = this.room.find(FIND_HOSTILE_STRUCTURES, {
     filter: function(object) {
       if (object.structureType == STRUCTURE_CONTROLLER) {
+        return false;
+      }
+      if (object.structureType == STRUCTURE_RAMPART) {
+        return false;
+      }
+      if (object.structureType == STRUCTURE_EXTRACTOR) {
         return false;
       }
       if (object.structureType == STRUCTURE_STORAGE && object.store.energy === 0) {
@@ -802,7 +820,7 @@ Creep.prototype.transferEnergyMy = function() {
     return false;
   }
 
-  this.say('transferEnergy', true);
+  //   this.say('transferEnergy', true);
   var range = this.pos.getRangeTo(target);
   // this.log('target: ' + target.pos + ' range: ' + range);
   if (range == 1) {
@@ -840,7 +858,7 @@ Creep.prototype.transferEnergyMy = function() {
         });
       let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
     } else {
-      this.say('tr:' + this.pos.getDirectionTo(search.path[0]), true);
+      //       this.say('tr:' + this.pos.getDirectionTo(search.path[0]), true);
       let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
     }
   }

@@ -79,9 +79,9 @@ Room.prototype.spawnCreateCreep = function(role, target, source, heal, target_id
       this.memory.sources_index = this.memory.sources_index + 1;
     }
 
-    //if (memory.role == 'reserver') {
-    //	this.log('Spawning ' + name.rpad(' ', 20) + ' ' + JSON.stringify(memory));
-    //}
+    if (memory.role == 'reserver') {
+      this.log('Spawning ' + name.rpad(' ', 20) + ' ' + JSON.stringify(memory));
+    }
     return true;
   }
   return false;
@@ -98,8 +98,46 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig, target) {
   }
 
   if (this.memory.queue.length > 0 && (creepsConfig.length === 0 || creepsConfig[0] != 'harvester')) {
+    let room = this;
+    let priorityQueue = function(object) {
+
+      let target = object.routing && object.routing.targetRoom || object.target;
+
+      if (target == room.name) {
+        if (object.role == 'harvester') {
+          return 1;
+        }
+        if (object.role == 'sourcer') {
+          return 2;
+        }
+        if (object.role == 'storagefiller') {
+          return 3;
+        }
+        return 4;
+      }
+
+      if (object.role == 'nextroomer') {
+        return 11;
+      }
+
+      // TODO added because target was misused as a pos object
+      if (object.role == 'defendranged') {
+        return 3;
+      }
+
+      if (!target) {
+        return 12;
+      }
+      return 100 + Game.map.getRoomLinearDistance(room.name, target);
+    };
+
+    this.memory.queue = _.sortBy(this.memory.queue, priorityQueue);
+    //     this.log(JSON.stringify(queue));
+
     var creep = this.memory.queue[0];
     energyNeeded = 50;
+
+    //     this.log(JSON.stringify(creep));
 
     if (this.spawnCreateCreep(creep.role, creep.target, creep.source, creep.heal, creep.target_id, creep.level, creep.squad, creep.routing)) {
       this.memory.queue.shift();

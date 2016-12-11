@@ -51,7 +51,7 @@ Creep.prototype.getRoute = function() {
     route = Game.map.findRoute(this.memory.base, this.memory.routing.targetRoom, {
       routeCallback: routeCallback
     });
-    this.log('getRoute: ' + this.memory.base + ' target: ' + this.memory.routing.targetRoom + ' route: ' + route);
+    //     this.log('getRoute: ' + this.memory.base + ' target: ' + this.memory.routing.targetRoom + ' route: ' + route);
     // TODO I guess some bug while transitionen to memory.routing
     if (route == -2) {
       route = [];
@@ -248,11 +248,6 @@ Creep.prototype.followPath = function(action) {
   // }
 
   let unit = roles[this.memory.role];
-  if (!this.memory.routing.targetId && routePos == route.length - 1) {
-    if (unit.getTargetId) {
-      this.memory.routing.targetId = unit.getTargetId(this);
-    }
-  }
 
   if (!this.memory.routing.targetId && this.room.name == this.memory.routing.targetRoom) {
     this.memory.routing.reached = true;
@@ -343,7 +338,15 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
       return false;
     }
 
-    let posFirst = new RoomPosition(path[0].x, path[0].y, path[0].roomName);
+    let posFirst;
+    try {
+      posFirst = new RoomPosition(path[0].x, path[0].y, path[0].roomName);
+    } catch (e) {
+      // TODO config.serializePath mismatch with memory is the only case I know of
+      this.log('Can not parse path in cache will delete Memory');
+      delete Memory.rooms[this.room.name];
+      return false;
+    }
 
     let search = PathFinder.search(
       this.pos, {
@@ -398,6 +401,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
   let directions = this.getDirections(path, pathPos);
 
   if (!directions) {
+    // TODO Better true? On stuck on the border, execute is executed in the previous room
     return false;
   }
   if (!directions.forwardDirection && !directions.backwardDirection) {

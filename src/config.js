@@ -51,7 +51,7 @@ global.config = {
   },
 
   external: {
-    distance: 4
+    distance: 3
   },
 
   sourcer: {

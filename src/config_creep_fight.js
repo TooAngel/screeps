@@ -112,7 +112,21 @@ Creep.prototype.handleDefender = function() {
     if (constructionSite !== null) {
       this.say('kcs');
       this.log('Kill constructionSite: ' + JSON.stringify(constructionSite));
-      this.moveTo(constructionSite);
+      let search = PathFinder.search(
+        this.pos, {
+          pos: constructionSite.pos,
+          range: 0
+        }, {
+          roomCallback: this.room.getAvoids(this.room, {}, true),
+          maxRooms: 0
+        }
+      );
+
+      if (search.incomplete) {
+        this.moveRandom();
+        return true;
+      }
+      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
       return true;
     }
 

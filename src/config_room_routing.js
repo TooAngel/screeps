@@ -277,7 +277,12 @@ Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
 
   let cacheName = this.name + ':' + pathName;
   if (!this.cache[cacheName]) {
-    this.cache[cacheName] = Room.stringToPath(this.memory.routing[pathName].path);
+    try {
+      this.cache[cacheName] = Room.stringToPath(this.memory.routing[pathName].path);
+    } catch (e) {
+      this.log('Can not parse path in cache will delete Memory');
+      delete Memory.rooms[this.name];
+    }
   }
 
   return this.cache[cacheName];

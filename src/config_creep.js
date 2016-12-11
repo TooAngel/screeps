@@ -165,7 +165,7 @@ Creep.prototype.buildRoad = function() {
   let constructionSites = _.filter(this.room.getConstructionSites(), buildableRoads);
 
   if (constructionSites.length > 0) {
-    this.build(constructionSites[0]);
+    this.build(Game.getObjectById(constructionSites[0].id));
     return true;
   }
 
@@ -329,7 +329,7 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
       };
       Game.rooms[this.memory.base].memory.queue.push(spawn);
       if (spawn.role == 'reserver') {
-        console.log('Spawning reserver: ' + JSON.stringify(spawn));
+        console.log('Add reserver to queue: ' + JSON.stringify(spawn));
       }
     }
   }
