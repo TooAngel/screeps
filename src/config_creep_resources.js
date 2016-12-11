@@ -77,7 +77,16 @@ Creep.prototype.checkForTransfer = function(direction) {
       continue;
     }
     if (Game.creeps[other_creep.name].memory.role == 'carry') {
-      return other_creep.carry.energy + this.carry.energy >= this.carryCapacity;
+      // TODO duplicate from role_carry, extract to method
+      let carryPercentage = 0.1;
+      if (this.room.name == this.memory.routing.targetRoom) {
+        carryPercentage = 0.8;
+      }
+      if (this.room.name == this.memory.base) {
+        carryPercentage = 0.0;
+      }
+
+      return other_creep.carry.energy + _.sum(this.carry) >= carryPercentage * this.carryCapacity;
     }
     continue;
   }
