@@ -1,6 +1,12 @@
 'use strict';
 
 Creep.prototype.handleDefender = function() {
+  let friends = [];
+  try {
+    friends = require('friends');
+  } catch (error) {
+
+  }
   let fightRampart = function(creep) {
     let hostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
       filter: creep.room.findAttackCreeps
@@ -9,7 +15,14 @@ Creep.prototype.handleDefender = function() {
       return false;
     }
 
-    let hostiles = creep.pos.findInRange(FIND_HOSTILE_CREEPS);
+    let hostiles = creep.pos.findInRange(FIND_HOSTILE_CREEPS, {
+      filter: function(object) {
+        if (friends.indexOf(object.owner.username) > -1) {
+          return false;
+        }
+        return true;
+      }
+    });
     if (hostiles.length > 1) {
       creep.rangedMassAttack();
 
@@ -57,13 +70,6 @@ Creep.prototype.handleDefender = function() {
         this.rangedHeal(myCreeps[0]);
       }
       return true;
-    }
-
-    let friends = [];
-    try {
-      friends = require('friends');
-    } catch (error) {
-
     }
 
     var allyCreeps = this.room.find(FIND_HOSTILE_CREEPS, {
