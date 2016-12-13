@@ -306,7 +306,7 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
             return false;
           }
         });
-        if (maxOfRole.length > maxOfRole) {
+        if (creepOfRole.length > maxOfRole) {
           return false;
         }
       }
