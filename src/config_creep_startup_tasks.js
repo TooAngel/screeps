@@ -9,7 +9,7 @@ Creep.execute = function(creep, methods) {
 };
 
 Creep.upgradeControllerTask = function(creep) {
-  //  creep.say('upgradeController', true);
+  creep.say('upgradeController', true);
   if (creep.carry.energy === 0) {
     return false;
   }
@@ -26,7 +26,7 @@ Creep.upgradeControllerTask = function(creep) {
     let search = PathFinder.search(
       creep.pos, {
         pos: creep.room.controller.pos,
-        range: 1
+        range: 3
       }, {
         roomCallback: creep.room.getAvoids(creep.room, {}, true),
         maxRooms: 0
@@ -34,6 +34,7 @@ Creep.upgradeControllerTask = function(creep) {
     );
 
     if (search.incomplete) {
+      creep.say('incomplete');
       creep.moveTo(creep.room.controller.pos);
       return true;
     }
