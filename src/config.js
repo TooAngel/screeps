@@ -8,7 +8,7 @@ global.config = {
   },
 
   performance: {
-    serializePath: true
+    serializePath: false
   },
 
   stats: {

@@ -62,7 +62,7 @@ roles.upgrader.action = function(creep) {
     creep.memory.routing.reached = false;
     creep.memory.routing.targetId = creep.room.controller.id;
   }
-  if (creep.memory.routing.reached && creep.memory.routing.routePos === 0) {
+  if (creep.memory.routing.reached && creep.memory.routing.pathPos === 0) {
     creep.memory.routing.reached = false;
   }
   return creep.handleUpgrader();
