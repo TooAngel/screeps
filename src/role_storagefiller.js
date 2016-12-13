@@ -23,6 +23,14 @@ roles.storagefiller.energyBuild = function(room, energy) {
 };
 
 roles.storagefiller.action = function(creep) {
+  if (!creep.memory.routing.targetId && creep.memory.routing.reached) {
+    creep.memory.routing.reached = false;
+    creep.memory.routing.targetId = 'filler';
+  }
+  if (creep.memory.routing.reached && creep.memory.routing.routePos === 0) {
+    creep.memory.routing.reached = false;
+  }
+
   creep.setNextSpawn();
   creep.spawnReplacement(1);
 

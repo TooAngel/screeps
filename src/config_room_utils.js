@@ -7,13 +7,120 @@ Room.prototype.splitRoomName = function() {
 };
 
 Room.prototype.inQueue = function(spawn) {
+  if (!this.memory.queue) {
+    this.memory.queue = [];
+  }
   for (var item of this.memory.queue) {
-    if (item.role == spawn.role) {
-      this.log(JSON.stringify(spawn) + ' alread in queue');
-      return true;
+    if (item.role != spawn.role) {
+      continue;
     }
+    if (spawn.routing && spawn.routing.targetId && item.routing) {
+      if (item.routing.targetId != spawn.routing.targetId) {
+        continue;
+      }
+    }
+    if (spawn.routing && spawn.routing.targetRoom && item.routing) {
+      if (item.routing.targetRoom != spawn.routing.targetRoom) {
+        continue;
+      }
+    }
+    return true;
   }
   return false;
+};
+
+Room.prototype.checkAndSpawnSourcer = function() {
+  var sources = this.find(FIND_SOURCES);
+
+  for (let source of sources) {
+    let sourcers = this.find(FIND_MY_CREEPS, {
+      filter: function(object) {
+        if (object.memory.role != 'sourcer') {
+          return false;
+        }
+        if (object.memory.routing && object.memory.routing.targetId != source.id) {
+          return false;
+        }
+        if (object.memory.routing && object.memory.routing.targetRoom != source.pos.roomName) {
+          return false;
+        }
+        return true;
+      }
+    });
+    if (sourcers.length === 0) {
+      //      this.log(source.id);
+      this.checkRoleToSpawn('sourcer', 1, source.id, this.name);
+    }
+  }
+};
+
+Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
+  if (!targetRoom) {
+    targetRoom = this.name;
+  }
+  if (!amount) {
+    amount = 1;
+  }
+
+  let creepMemory = {
+    role: role,
+    target: targetRoom,
+    target_id: targetId,
+    routing: {
+      targetRoom: targetRoom,
+      targetId: targetId
+    }
+  };
+
+  if (this.inQueue(creepMemory)) {
+    return false;
+  }
+
+  let creeps = this.find(FIND_MY_CREEPS, {
+    filter: function(object) {
+      if (targetId) {
+        if (!object.memory.routing || targetId != object.memory.routing.targetId) {
+          return false;
+        }
+      }
+      if (!object.memory.routing || targetRoom != object.memory.routing.targetRoom) {
+        return false;
+      }
+      return object.memory.role == role;
+    }
+  });
+
+  if (creeps.length >= amount) {
+    return false;
+  }
+
+  let spawns = this.find(FIND_MY_STRUCTURES, {
+    filter: function(object) {
+      return object.structureType == STRUCTURE_SPAWN;
+    }
+  });
+
+  for (var spawn of spawns) {
+    if (!spawn.spawning || spawn.spawning === null) {
+      continue;
+    }
+
+    let creep = Game.creeps[spawn.spawning.name];
+    if (creep.memory.role == role) {
+      return false;
+    }
+    if (targetId && creep.memory.routing) {
+      if (targetId != creep.memory.routing.targetId) {
+        return false;
+      }
+    }
+    if (creep.memory.routing) {
+      if (targetRoom != creep.memory.routing.targetRoom) {
+        return false;
+      }
+    }
+  }
+  this.memory.queue.push(creepMemory);
 };
 
 Room.prototype.getPartConfig = function(energy, parts) {

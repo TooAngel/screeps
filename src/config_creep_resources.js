@@ -882,17 +882,7 @@ Creep.prototype.handleReserver = function() {
   if (!this.room.controller.my && (!this.room.controller.reservation || this.room.controller.reservation.username != Memory.username)) {
     this.memory.level = 5;
   }
-  let repairers = this.room.find(FIND_MY_CREEPS, {
-    filter: function(object) {
-      if (object.memory.role == 'repairer') {
-        return true;
-      }
-      return false;
-    }
-  });
-  if (repairers.length < 2) {
-    this.spawnReplacement();
-  }
+  this.spawnReplacement(1);
 
   let callCleaner = function(creep) {
     if (creep.memory.base == creep.room.name) {

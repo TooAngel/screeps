@@ -77,6 +77,10 @@ roles.harvester.preMove = function(creep, directions) {
 };
 
 roles.harvester.action = function(creep) {
+  if (!creep.memory.routing.targetId) {
+    creep.memory.routing.targetId = 'harvester';
+  }
+
   creep.memory.move_forward_direction = false;
   creep.memory.routing.reverse = true;
   delete creep.memory.routing.reached;

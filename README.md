@@ -6,7 +6,7 @@
 https://screeps.com/
 
 This is the AI I'm using for screeps. I managed to reach Top 10
-from November 2015 - March 2016. Main Goal is to automated everything, no
+from November 2015 - March 2016. Main Goal is to automate everything, no
 manual interaction needed.
 
 The AI automatically generated a layout for the room and builds the structures

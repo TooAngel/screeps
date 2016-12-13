@@ -256,16 +256,15 @@ Room.prototype.executeRoom = function() {
 
   var creepsConfig = [];
   if (!building) {
-    creepsConfig.push('harvester');
+    let amount = 1;
     if (!room.storage) {
-      creepsConfig.push('harvester');
+      amount = 2;
       // TODO maybe better spawn harvester when a carry recognize that the dropped energy > threshold
       if (room.controller.level == 2 || room.controller.level == 3) {
-        creepsConfig.push('harvester');
-        creepsConfig.push('harvester');
-        creepsConfig.push('harvester');
+        amount = 5;
       }
     }
+    this.checkRoleToSpawn('harvester', amount);
   }
 
   if (this.memory.attack_timer > 100) {
@@ -334,19 +333,14 @@ Room.prototype.executeRoom = function() {
     }
   }
 
-  if (nextroomers.length === 0) {
-    var sources = this.find(FIND_SOURCES);
-    for (var sources_index = 0; sources_index < sources.length; sources_index++) {
-      creepsConfig.push('sourcer');
-    }
-  }
+  this.checkAndSpawnSourcer();
 
-  if (this.controller.level >= 5 && this.storage) {
-    creepsConfig.push('storagefiller');
+  if (this.controller.level >= 4 && this.storage) {
+    this.checkRoleToSpawn('storagefiller');
   }
 
   if (this.storage && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
-    creepsConfig.push('upgrader');
+    this.checkRoleToSpawn('upgrader');
   }
 
   var constructionSites = this.find(FIND_MY_CONSTRUCTION_SITES, {
@@ -365,18 +359,16 @@ Room.prototype.executeRoom = function() {
     }
   });
   if (constructionSites.length > 0) {
+    let amount = 1;
     creepsConfig.push('planer');
     for (let cs of constructionSites) {
       if (cs.structureType == STRUCTURE_STORAGE) {
-        creepsConfig.push('planer');
-        creepsConfig.push('planer');
+        amount = 3;
       }
     }
+    this.checkRoleToSpawn('planer', amount);
   } else if (this.memory.misplacedSpawn && this.storage && this.storage.store.energy > 20000 && this.energyAvailable >= this.energyCapacityAvailable - 300) {
-    creepsConfig.push('planer');
-    creepsConfig.push('planer');
-    creepsConfig.push('planer');
-    creepsConfig.push('planer');
+    this.checkRoleToSpawn('planer', 4);
   }
 
   let extractors = this.find(FIND_STRUCTURES, {
@@ -389,12 +381,12 @@ Room.prototype.executeRoom = function() {
     if (minerals.length > 0 && minerals[0].mineralAmount > 0) {
       let amount = this.terminal.store[minerals[0].mineralType] || 0;
       if (amount < config.mineral.storage) {
-        creepsConfig.push('extractor');
+        this.checkRoleToSpawn('extractor');
       }
     }
   }
   if (config.mineral.enabled && this.terminal && ((this.memory.mineralBuilds && Object.keys(this.memory.mineralBuilds).length > 0) || this.memory.reaction || this.memory.mineralOrder)) {
-    creepsConfig.push('mineral');
+    this.checkRoleToSpawn('mineral');
   }
 
   if (!building && nextroomers.length === 0) {
@@ -415,7 +407,7 @@ Room.prototype.executeRoom = function() {
 
   this.handleTower();
   if (this.controller.level > 1 && this.memory.walls && this.memory.walls.finished) {
-    creepsConfig.push('repairer');
+    this.checkRoleToSpawn('repairer');
   }
 
   this.handleLinks();
