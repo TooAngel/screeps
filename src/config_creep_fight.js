@@ -303,9 +303,6 @@ Creep.prototype.fightRanged = function(target) {
   }
   if (range <= 3) {
     let returnCode = this.rangedAttack(target);
-    if (returnCode == OK) {
-      this.pos.createConstructionSite(STRUCTURE_RAMPART);
-    }
     return true;
   }
 
