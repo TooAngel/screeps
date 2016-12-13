@@ -80,6 +80,12 @@ function setStructures(room, path, costMatrixBase) {
       if (structurePos.setExtension()) {
         room.memory.position.structure.extension.push(structurePos);
         costMatrixBase.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
+        if (!room.memory.position.pathEndLevel) {
+          room.memory.position.pathEndLevel = [0];
+        }
+        if (CONTROLLER_STRUCTURES.extension[room.memory.position.pathEndLevel.length] <= room.memory.position.structure.extension.length) {
+          room.memory.position.pathEndLevel.push(pathI);
+        }
         continue;
       }
       if (room.memory.position.structure.spawn.length < CONTROLLER_STRUCTURES.spawn[8] && room.memory.position.structure.extension.length < CONTROLLER_STRUCTURES.extension[8]) {
@@ -286,8 +292,11 @@ Room.prototype.setup = function() {
   let pathList = Room.stringToPath(path.path);
   let pathI = setStructures(this, pathList, costMatrixBase);
   console.log('path: ' + path.name + ' pathI: ' + pathI + ' length: ' + pathList.length);
+  if (pathI == -1) {
+    pathI = pathList.length - 1;
+  }
   this.memory.routing['pathStart-harvester'] = path;
-  this.memory.routing['pathStart-harvester'].path = Room.pathToString(pathList.slice(0, pathI));
+  this.memory.routing['pathStart-harvester'].path = Room.pathToString(pathList.slice(0, pathI + 1));
   this.memory.position.version = config.layout.version;
 
   for (let structureId in this.memory.position.structure) {

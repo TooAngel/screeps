@@ -145,7 +145,6 @@ Room.pathToString = function(path) {
     return path;
   }
 
-  //   console.log(path);
   let result = path[0].roomName + ':';
   result += path[0].x.toString().lpad('0', 2) + path[0].y.toString().lpad('0', 2);
   let last;

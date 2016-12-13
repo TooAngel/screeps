@@ -211,7 +211,6 @@ Creep.prototype.handleUpgrader = function() {
   }
 
   returnCode = this.withdraw(this.room.storage, RESOURCE_ENERGY);
-
   if (returnCode == ERR_FULL) {
     return true;
   }
@@ -366,7 +365,36 @@ Creep.prototype.transferToStructures = function() {
   }
 
   let creep = this;
+  let room = creep.room;
   let filterTransferrables = function(object) {
+    if (object.structureType == STRUCTURE_CONTROLLER) {
+      return false;
+    }
+    if (object.structureType == STRUCTURE_ROAD) {
+      return false;
+    }
+    if (object.structureType == STRUCTURE_WALL) {
+      return false;
+    }
+    if (object.structureType == STRUCTURE_RAMPART) {
+      return false;
+    }
+    if (object.structureType == STRUCTURE_OBSERVER) {
+      return false;
+    }
+
+    if (object.structureType == STRUCTURE_LINK) {
+      if (object.pos.isEqualTo(room.memory.position.structure.link[0].x, room.memory.position.structure.link[0].y)) {
+        return false;
+      }
+      if (object.pos.isEqualTo(room.memory.position.structure.link[1].x, room.memory.position.structure.link[1].y)) {
+        return false;
+      }
+      if (object.pos.isEqualTo(room.memory.position.structure.link[2].x, room.memory.position.structure.link[2].y)) {
+        return false;
+      }
+    }
+
     if (object.structureType == STRUCTURE_TERMINAL && (object.store.energy || 0) > 10000) {
       return false;
     }
