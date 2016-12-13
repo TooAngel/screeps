@@ -23,7 +23,21 @@ Creep.upgradeControllerTask = function(creep) {
   }
 
   if (range > 1) {
-    let returnCode = creep.moveTo(creep.room.controller);
+    let search = PathFinder.search(
+      creep.pos, {
+        pos: creep.room.controller.pos,
+        range: 1
+      }, {
+        roomCallback: creep.room.getAvoids(creep.room, {}, true),
+        maxRooms: 0
+      }
+    );
+
+    if (search.incomplete) {
+      creep.moveTo(creep.room.controller.pos);
+      return true;
+    }
+    creep.move(creep.pos.getDirectionTo(search.path[0]));
   }
   return true;
 };

@@ -364,10 +364,8 @@ Creep.prototype.transferToStructures = function() {
   if (this.carry.energy === 0) {
     return false;
   }
-  let transferred = false;
 
   let creep = this;
-
   let filterTransferrables = function(object) {
     if (object.structureType == STRUCTURE_TERMINAL && (object.store.energy || 0) > 10000) {
       return false;
@@ -392,29 +390,37 @@ Creep.prototype.transferToStructures = function() {
       return false;
     }
 
-    return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
+    return true;
   };
 
-  let structures = _.filter(creep.room.getTransferableStructures(), filterTransferrables);
-  if (structures.length > 0) {
-    let returnCode = -1;
-    for (let structureFromCache of structures) {
-      let structure = Game.getObjectById(structureFromCache.id);
-      //       let resource = 'energy';
+  let transferred = false;
+  var look = this.room.lookForAtArea(
+    LOOK_STRUCTURES,
+    Math.max(1, Math.min(48, this.pos.y - 1)),
+    Math.max(1, Math.min(48, this.pos.x - 1)),
+    Math.max(1, Math.min(48, this.pos.y + 1)),
+    Math.max(1, Math.min(48, this.pos.x + 1)),
+    true);
+  for (let item of look) {
+    if (filterTransferrables(item.structure)) {
+      if (transferred) {
+        return {
+          moreStructures: true,
+          // TODO handle different type of resources on the structure side
+          transferred: transferred
+        };
+      }
       for (let resource in this.carry) {
-        returnCode = this.transfer(structure, resource);
+        let returnCode = this.transfer(item.structure, resource);
         if (returnCode == OK) {
-          return {
-            moreStructures: structures.length > 1,
-            // TODO handle different type of resources on the structure side
-            transferred: Math.min(this.carry[resource], structure.energyCapacity - structure.energy)
-          };
+          transferred = Math.min(this.carry[resource], item.structure.energyCapacity - item.structure.energy);
         }
-        this.log('TransferToStructure: ' + returnCode + ' pos: ' + structure.pos + ' resource: ' + resource);
       }
     }
   }
+
   return false;
+
 };
 
 function get_structure(creep) {
