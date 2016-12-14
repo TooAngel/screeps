@@ -21,33 +21,7 @@ Creep.prototype.handleDefender = function() {
     }
   });
 
-  let fightRampart = function(creep) {
-    creep.say('rampart');
-    if (hostile === null) {
-      return false;
-    }
-
-    if (hostiles.length > 1) {
-      creep.rangedMassAttack();
-    } else {
-      creep.rangedAttack(hostile);
-    }
-
-    let rampart = hostile.pos.findInRange(FIND_MY_STRUCTURES, 3, {
-      filter: function(object) {
-        if (object.structureType == STRUCTURE_RAMPART) {
-          return true;
-        }
-      }
-    });
-    if (rampart.length === 0) {
-      return false;
-    }
-    creep.moveTo(rampart[0]);
-    return true;
-  };
-
-  if (fightRampart(this)) {
+  if (this.fightRampart(hostile)) {
     return true;
   }
 
@@ -118,7 +92,7 @@ Creep.prototype.handleDefender = function() {
     }
   });
   if (myCreeps.length > 0) {
-    this.say(JSON.stringify(myCreeps[0]));
+    this.say('heal', true);
     this.moveTo(myCreeps[0]);
     range = this.pos.getRangeTo(myCreeps[0]);
     if (range <= 1) {
@@ -141,7 +115,7 @@ Creep.prototype.handleDefender = function() {
     }
   });
   if (allyCreeps.length > 0) {
-    this.say('heal', true);
+    this.say('heal ally', true);
     this.moveTo(allyCreeps[0]);
     range = this.pos.getRangeTo(myCreeps[0]);
     if (range <= 1) {
@@ -151,15 +125,6 @@ Creep.prototype.handleDefender = function() {
     }
     return true;
   }
-
-  // TODO disabled for nextroom defender
-  //    creep.say('reverse');
-  //    creep.memory.reverse = true;
-  //    let exitDir = creep.room.findExitTo(creep.memory.base);
-  //    let returnCode = creep.moveTo(new RoomPosition(25, 25, creep.memory.base));
-  //    if (returnCode != OK) {
-  //      creep.log('No target, reverse: ' + returnCode);
-  //    }
 
   let constructionSite = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
     filter: function(object) {
@@ -230,6 +195,10 @@ Creep.prototype.waitRampart = function() {
 };
 
 Creep.prototype.fightRampart = function(target) {
+  if (!target) {
+    return false;
+  }
+
   let position = target.pos.findClosestByRange(FIND_MY_STRUCTURES, {
     filter: function(object) {
       return object.structureType == STRUCTURE_RAMPART;
