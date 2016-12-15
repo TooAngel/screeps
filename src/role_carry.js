@@ -51,14 +51,7 @@ roles.carry.preMove = function(creep, directions) {
   }
 
   if (!creep.room.controller) {
-    var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-      filter: function(object) {
-        if (object.owner.username == 'Source Keeper') {
-          return true;
-        }
-        return false;
-      }
-    });
+    var target = creep.findClosestSourceKeeper();
     if (target !== null) {
       let range = creep.pos.getRangeTo(target);
       if (range > 6) {
@@ -155,14 +148,7 @@ roles.carry.action = function(creep) {
   }
 
   if (!creep.room.controller) {
-    var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-      filter: function(object) {
-        if (object.owner.username == 'Source Keeper') {
-          return true;
-        }
-        return false;
-      }
-    });
+    var target = creep.pos.findClosestSourceKeeper();
     if (target !== null) {
       let range = creep.pos.getRangeTo(target);
       if (range < 5) {

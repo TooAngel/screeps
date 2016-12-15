@@ -1,23 +1,30 @@
 'use strict';
 
-Creep.prototype.handleDefender = function() {
-  let friends = [];
-  try {
-    friends = require('friends');
-  } catch (error) {
-
-  }
-
-  let hostile = this.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-    filter: this.room.findAttackCreeps
+Creep.prototype.findClosestSourceKeeper = function() {
+  return this.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
+    filter: function(object) {
+      if (object.owner.username == 'Source Keeper') {
+        return true;
+      }
+      return false;
+    }
   });
+};
+
+Creep.prototype.findClosestEnemy = function() {
+  return this.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
+    filter: function(object) {
+      return !brain.isFriend(object.owner.username);
+    }
+  });
+};
+
+Creep.prototype.handleDefender = function() {
+  let hostile = this.findClosestEnemy();
 
   let hostiles = this.pos.findInRange(FIND_HOSTILE_CREEPS, 3, {
     filter: function(object) {
-      if (friends.indexOf(object.owner.username) > -1) {
-        return false;
-      }
-      return true;
+      return !brain.isFriend(object.owner.username);
     }
   });
 
@@ -108,7 +115,7 @@ Creep.prototype.handleDefender = function() {
       if (object.hits == object.hitsMax) {
         return false;
       }
-      if (friends.indexOf(object.owner.username) > -1) {
+      if (brain.isFriend(object.owner.username)) {
         return true;
       }
       return false;

@@ -44,14 +44,7 @@ roles.sourcer.preMove = function(creep, directions) {
   }
 
   if (!creep.room.controller) {
-    var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-      filter: function(object) {
-        if (object.owner.username == 'Source Keeper') {
-          return true;
-        }
-        return false;
-      }
-    });
+    var target = creep.findClosestSourceKeeper();
     if (target !== null) {
       let range = creep.pos.getRangeTo(target);
       if (range > 6) {
@@ -140,14 +133,7 @@ roles.sourcer.action = function(creep) {
 
   // TODO check source keeper structure for ticksToSpawn
   if (!creep.room.controller) {
-    var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-      filter: function(object) {
-        if (object.owner.username == 'Source Keeper') {
-          return true;
-        }
-        return false;
-      }
-    });
+    var target = creep.pos.findClosestSourceKeeper();
     if (target !== null) {
       let range = creep.pos.getRangeTo(target);
       if (range < 5) {

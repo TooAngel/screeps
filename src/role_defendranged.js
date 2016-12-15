@@ -25,7 +25,7 @@ roles.defendranged.energyBuild = function(room) {
 //module.exports.action = function(creep) {
 //  creep.memory.countdown = creep.memory.countdown || 100;
 //
-//  let hostiles = creep.room.find(FIND_HOSTILE_CREEPS);
+//  let hostiles = creep.room.getEnemys();
 //  if (hostiles.length === 0) {
 //    if (recycleCreep(creep)) {
 //      return true;
@@ -71,9 +71,7 @@ roles.defendranged.execute = function(creep) {
     return Creep.recycleCreep(creep);
   };
 
-  let hostiles = creep.room.find(FIND_HOSTILE_CREEPS, {
-    filter: creep.room.findAttackCreeps
-  });
+  let hostiles = creep.room.getEnemys();
   if (hostiles.length === 0) {
     if (recycleCreep(creep)) {
       return true;

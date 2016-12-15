@@ -1012,9 +1012,7 @@ Creep.prototype.handleReserver = function() {
   }
 
   if (config.creep.reserverDefender) {
-    var hostiles = this.room.find(FIND_HOSTILE_CREEPS, {
-      filter: this.room.findAttackCreeps
-    });
+    var hostiles = this.room.getEnemys();
     if (hostiles.length > 0) {
       //this.log('Reserver under attack');
       if (!this.memory.defender_called) {

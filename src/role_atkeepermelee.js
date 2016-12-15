@@ -88,14 +88,7 @@ roles.atkeepermelee.action = function(creep) {
 
   let heal = function(creep) {
     creep.say('heal');
-    var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-      filter: function(object) {
-        if (object.owner.username == 'Source Keeper') {
-          return true;
-        }
-        return false;
-      }
-    });
+    var target = creep.pos.findClosestSourceKeeper();
     if (target === null) {
       target = getNextSourceKeeper(creep);
       creep.log('heal: ' + JSON.stringify(target));
@@ -133,14 +126,7 @@ roles.atkeepermelee.action = function(creep) {
 
   let attack = function(creep) {
     creep.say('attack');
-    var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-      filter: function(object) {
-        if (object.owner.username == 'Source Keeper') {
-          return true;
-        }
-        return false;
-      }
-    });
+    var target = creep.pos.findClosestSourceKeeper();
     if (target === null) {
       target = getNextSourceKeeper(creep);
     }

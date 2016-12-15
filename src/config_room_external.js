@@ -257,6 +257,15 @@ Room.prototype.handleReservedRoom = function() {
   this.memory.lastSeen = Game.time;
   this.memory.lastChecked = this.memory.lastChecked || Game.time;
 
+  let idiotCreeps = this.find(FIND_HOSTILE_CREEPS, {
+    filter: this.findAttackCreeps
+  });
+  if (idiotCreeps.length > 0) {
+    for (let idiotCreep of idiotCreeps) {
+      brain.increaseIdiot(idiotCreep.owner.username);
+    }
+  }
+
   if (Game.time - this.memory.lastChecked > 500) {
     let reservers = this.find(FIND_MY_CREEPS, {
       filter: function(object) {

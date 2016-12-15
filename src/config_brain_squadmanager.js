@@ -1,5 +1,45 @@
 'use strict';
 
+brain.increaseIdiot = function(name, value) {
+  if (!value) {
+    value = 1;
+  }
+  if (!Memory.players[name]) {
+    Memory.players[name] = {
+      idiot: 0
+    };
+  }
+
+  if (!Memory.players[name].idiot) {
+    Memory.players[name].idiot = 0;
+  }
+
+  Memory.players[name].idiot += value;
+};
+
+brain.isFriend = function(name) {
+  if (!Memory.players) {
+    Memory.players = {};
+  }
+
+  if (friends.indexOf(name) > -1) {
+    return true;
+  }
+  if (!Memory.players[name]) {
+    return true;
+  }
+  if (Memory.players[name].idiot) {
+    return true;
+  }
+  if (Memory.players[name].idiot <= 0) {
+    return true;
+  }
+  if (name == 'Source Keeper') {
+    return true;
+  }
+  return false;
+};
+
 brain.handleSquadmanager = function() {
   for (let squadIndex in Memory.squads) {
     let squad = Memory.squads[squadIndex];

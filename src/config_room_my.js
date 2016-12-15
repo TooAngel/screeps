@@ -14,9 +14,7 @@ Room.prototype.myHandleRoom = function() {
     this.setup();
   }
 
-  var hostiles = this.find(FIND_HOSTILE_CREEPS, {
-    filter: this.findAttackCreeps
-  });
+  var hostiles = this.getEnemys();
   if (hostiles.length === 0) {
     delete this.memory.hostile;
   } else {
@@ -233,8 +231,9 @@ Room.prototype.executeRoom = function() {
     if (hostiles.length > 0) {
       this.controller.activateSafeMode();
     }
+  } else {
+    this.memory.active = true;
   }
-  this.memory.active = true;
 
   var room = this;
 
@@ -302,18 +301,19 @@ Room.prototype.executeRoom = function() {
     }
   }
 
+  let idiotCreeps = this.find(FIND_HOSTILE_CREEPS, {
+    filter: function(object) {
+      return object.owner.username != 'Invader';
+    }
+  });
+  if (idiotCreeps.length > 0) {
+    for (let idiotCreep of idiotCreeps) {
+      brain.increaseIdiot(idiotCreep.owner.username);
+    }
+  }
+
   if (hostiles.length > 0) {
     this.memory.attack_timer++;
-
-    if (hostiles[0].owner.username != 'Invader') {
-      if (!Memory.players[hostiles[0].owner.username]) {
-        Memory.players[hostiles[0].owner.username] = {
-          idiot: 0
-        };
-      }
-
-      Memory.players[hostiles[0].owner.username].idiot++;
-    }
 
     if (this.memory.attack_timer > 15) {
       var defender = {
@@ -454,8 +454,30 @@ Room.prototype.reviveRoom = function() {
   }
 
   if (this.memory.active) {
-    //this.log('Setting room to underSiege');
+    this.log('Setting room to underSiege');
     //this.memory.underSiege = true;
+    let tokens = Game.market.getAllOrders({
+      type: ORDER_SELL,
+      resourceType: SUBSCRIPTION_TOKEN
+    });
+    let addToIdiot = 3000000;
+    if (tokens.length > 0) {
+      tokens = _.sortBy(tokens, function(object) {
+        return -object.price;
+      });
+      addToIdiot = Math.max(addToIdiot, tokens[0].price);
+    }
+    this.log('Increase idiot by subscription token');
+    let idiotCreeps = this.find(FIND_HOSTILE_CREEPS, {
+      filter: function(object) {
+        return object.owner.username != 'Invader';
+      }
+    });
+    if (idiotCreeps.length > 0) {
+      for (let idiotCreep of idiotCreeps) {
+        brain.increaseIdiot(idiotCreep.owner.username, addToIdiot);
+      }
+    }
   }
 
   this.handleTower();
@@ -522,8 +544,8 @@ Room.prototype.reviveRoom = function() {
         if (this.memory.wayBlocked) {
           creepToSpawn.role = 'nextroomerattack';
         }
-        let hostile_creeps = this.find(FIND_HOSTILE_CREEPS);
-        if (hostile_creeps.length > 0) {
+        let hostileCreep = this.find(FIND_HOSTILE_CREEPS);
+        if (hostileCreep.length > 0) {
           roomOther.log('Queuing defender for ' + this.name);
           roomOther.memory.queue.push({
             role: 'defender',

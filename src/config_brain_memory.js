@@ -70,6 +70,7 @@ brain.prepareMemory = function() {
           }
           if (unit.died) {
             unit.died(name, creepMemory);
+            //            delete Memory.creeps[name];
           } else {
             delete Memory.creeps[name];
           }
