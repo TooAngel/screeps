@@ -12,6 +12,12 @@
 
 roles.nextroomer = {};
 
+roles.nextroomer.died = function(name, creepMemory) {
+  let message = `${name} ${JSON.stringify(creepMemory)}`;
+  Game.notify(message);
+  console.log('DIED:', message);
+};
+
 roles.nextroomer.getPartConfig = function(room, energy, heal, target) {
   var parts = [MOVE, WORK, MOVE, CARRY];
   var config = room.getPartConfig(energy, parts);
