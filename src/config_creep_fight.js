@@ -175,6 +175,10 @@ Creep.prototype.waitRampart = function() {
     }
   });
 
+  if (!structure) {
+    this.moveRandom();
+    return true;
+  }
   let search = PathFinder.search(
     this.pos, {
       pos: structure.pos,
