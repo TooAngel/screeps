@@ -32,7 +32,6 @@ roles.squadheal.preMove = function(creep, directions) {
     return false;
   } else {
     creep.memory.routing.reverse = false;
-    return false;
   }
 
   var myCreeps = this.room.find(FIND_MY_CREEPS, {
