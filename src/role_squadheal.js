@@ -34,26 +34,26 @@ roles.squadheal.preMove = function(creep, directions) {
     creep.memory.routing.reverse = false;
     return false;
   }
-  
+
   var myCreeps = this.room.find(FIND_MY_CREEPS, {
-	    filter: function(object) {
-	      if (object.hits < object.hitsMax) {
-	        return true;
-	      }
-	      return false;
-	    }
-	  });
-	  if (myCreeps.length > 0) {
-	    this.say('heal', true);
-	    this.moveTo(myCreeps[0]);
-	    range = this.pos.getRangeTo(myCreeps[0]);
-	    if (range <= 1) {
-	      this.heal(myCreeps[0]);
-	    } else {
-	      this.rangedHeal(myCreeps[0]);
-	    }
-	    return true;
-	  }
+    filter: function(object) {
+      if (object.hits < object.hitsMax) {
+        return true;
+      }
+      return false;
+    }
+  });
+  if (myCreeps.length > 0) {
+    this.say('heal', true);
+    this.moveTo(myCreeps[0]);
+    let range = this.pos.getRangeTo(myCreeps[0]);
+    if (range <= 1) {
+      this.heal(myCreeps[0]);
+    } else {
+      this.rangedHeal(myCreeps[0]);
+    }
+    return true;
+  }
 
   if (creep.memory.squad) {
     var squad = Memory.squads[creep.memory.squad];

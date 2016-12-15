@@ -230,6 +230,9 @@ Room.prototype.executeRoom = function() {
     this.reviveRoom();
   } else if (this.energyCapacityAvailable < 1000) {
     this.reviveRoom();
+    if (hostiles.length > 0) {
+      this.controller.activateSafeMode();
+    }
   }
   this.memory.active = true;
 
