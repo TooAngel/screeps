@@ -442,7 +442,14 @@ Creep.prototype.squadHeal = function() {
     } else {
       this.heal(creepToHeal);
     }
-    this.moveTo(creepToHeal);
+    if (creepToHeal.id == this.id) {
+      this.say('exit');
+      let exit = this.pos.findClosestByRange(FIND_EXIT);
+      this.moveTo(exit);
+    } else {
+      this.say(JSON.stringify(creepToHeal));
+      this.moveTo(creepToHeal);
+    }
     return true;
   }
 

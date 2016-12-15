@@ -60,6 +60,11 @@ roles.scout.execute = function(creep) {
       }
     }
 
+    if (!creep.memory.search.target) {
+      creep.log('Suiciding: ' + JSON.stringify(creep.memory.search));
+      creep.suicide();
+      return true;
+    }
     let targetPosObject = new RoomPosition(25, 25, creep.memory.search.target);
 
     let search;
@@ -82,8 +87,9 @@ roles.scout.execute = function(creep) {
 
     }
 
-    if (search.incomplete) {
+    if (search.path.length === 0 || (creep.room.name == creep.memory.base && creep.room.memory.misplacedSpawn)) {
       creep.say('incompl');
+      creep.log(creep.pos + ' ' + targetPosObject + ' ' + JSON.stringify(search));
       creep.moveTo(targetPosObject);
       return true;
     }

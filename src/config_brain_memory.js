@@ -80,6 +80,16 @@ brain.prepareMemory = function() {
     }
   }
 
+  if (Game.time % 1500 === 0) {
+    for (let squadId in Memory.squads) {
+      let squad = Memory.squads[squadId];
+      if (Game.time - squad.born > 3000) {
+        console.log(`Delete squad ${squadId}`);
+        delete Memory.squads[squadId];
+      }
+    }
+  }
+
   if (Game.time % 300 === 0) {
     for (let name in Memory.rooms) {
       // Check for reserved rooms

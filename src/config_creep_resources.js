@@ -360,7 +360,7 @@ Creep.prototype.transferToCreep = function(direction) {
 };
 
 Creep.prototype.transferToStructures = function() {
-  if (this.carry.energy === 0) {
+  if (_.sum(this.carry) === 0) {
     return false;
   }
 
@@ -677,7 +677,7 @@ Creep.prototype.getEnergy = function() {
   }
 
   if (range == 1) {
-    this.harvest(item);
+    let returnCode = this.harvest(item);
     if (this.carry.energy >= this.carryCapacity) {
       var creep = this;
       var creep_without_energy = this.pos.findClosestByRange(FIND_MY_CREEPS, {
