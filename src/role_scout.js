@@ -87,13 +87,12 @@ roles.scout.execute = function(creep) {
 
     }
 
-    if (search.path.length === 0 || (creep.room.name == creep.memory.base && creep.room.memory.misplacedSpawn)) {
-      creep.say('incompl');
-      creep.log(creep.pos + ' ' + targetPosObject + ' ' + JSON.stringify(search));
+    if (search.incomplete || search.path.length === 0 || (creep.room.name == creep.memory.base && creep.room.memory.misplacedSpawn)) {
+      creep.say('incompl', true);
+      //       creep.log(creep.pos + ' ' + targetPosObject + ' ' + JSON.stringify(search));
       creep.moveTo(targetPosObject);
       return true;
     }
-
     creep.say(creep.pos.getDirectionTo(search.path[0]));
     let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
   };
