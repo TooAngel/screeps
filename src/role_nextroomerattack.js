@@ -42,12 +42,10 @@ roles.nextroomerattack.action = function(creep) {
   });
 
   if (spawn === null) {
-    var hostile_creep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-      filter: creep.room.findAttackCreeps
-    });
-    if (hostile_creep !== null) {
-      creep.moveTo(hostile_creep);
-      creep.attack(hostile_creep);
+    var hostileCreep = creep.pos.findClosestEnemy();
+    if (hostileCreep !== null) {
+      creep.moveTo(hostileCreep);
+      creep.attack(hostileCreep);
     }
     return true;
   }

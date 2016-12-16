@@ -88,10 +88,8 @@ roles.powerhealer.action = function(creep) {
         creep.moveTo(attacker);
         return false;
       }
-      var hostile_creeps = creep.room.find(FIND_HOSTILE_CREEPS, {
-        filter: creep.room.findAttackCreeps
-      });
-      if (hostile_creeps.length > 0) {
+      var hostileCreeps = creep.room.getEnemys();
+      if (hostileCreeps.length > 0) {
         attacker = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
           filter: function(object) {
             return object.memory.role == 'powerattacker';

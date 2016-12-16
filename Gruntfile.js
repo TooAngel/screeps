@@ -149,7 +149,10 @@ module.exports = function(grunt) {
           global: false,
           config: false,
           brain: false,
-          roles: false
+          roles: false,
+          friends: false,
+          ORDER_SELL: false,
+          SUBSCRIPTION_TOKEN: false
         },
         node: true,
         esnext: true

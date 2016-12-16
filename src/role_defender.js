@@ -65,9 +65,7 @@ roles.defender.action = function(creep) {
 
 roles.defender.preMove = function(creep, directions) {
   creep.heal(creep);
-  let target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-    filter: creep.room.findAttackCreeps
-  });
+  let target = creep.findClosestEnemy();
   if (target !== null) {
     creep.handleDefender();
     return true;

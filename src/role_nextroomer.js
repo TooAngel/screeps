@@ -12,6 +12,15 @@
 
 roles.nextroomer = {};
 
+roles.nextroomer.died = function(name, creepMemory) {
+  let roomName = creepMemory.routing.route[creepMemory.routing.route].room;
+  let message = `${name} ${roomName} ${JSON.stringify(creepMemory)}`;
+  if (roomName == creepMemory.routing.targetRoom) {
+    // TODO make underSiege to a counter
+  }
+  console.log('DIED:', message);
+};
+
 roles.nextroomer.getPartConfig = function(room, energy, heal, target) {
   var parts = [MOVE, WORK, MOVE, CARRY];
   var config = room.getPartConfig(energy, parts);

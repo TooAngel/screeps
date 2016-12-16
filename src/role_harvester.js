@@ -38,7 +38,9 @@ roles.harvester.preMove = function(creep, directions) {
   creep.spawnReplacement(1);
 
   if (!creep.room.storage || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
-    return creep.harvesterBeforeStorage();
+    creep.harvesterBeforeStorage();
+    creep.memory.routing.reached = true;
+    return true;
   }
 
   let reverse = creep.carry.energy === 0;
@@ -74,9 +76,27 @@ roles.harvester.preMove = function(creep, directions) {
   if (directions && creep.memory.routing.reverse) {
     directions.direction = directions.backwardDirection;
   }
+
+  if (creep.room.memory.position.pathEndLevel) {
+    if (creep.memory.routing.pathPos >= creep.room.memory.position.pathEndLevel[creep.room.controller.level]) {
+      creep.memory.move_forward_direction = false;
+      creep.memory.routing.reverse = true;
+      delete creep.memory.routing.reached;
+    }
+  }
 };
 
 roles.harvester.action = function(creep) {
+  if (!creep.memory.routing.targetId) {
+    creep.memory.routing.targetId = 'harvester';
+  }
+
+  if (!creep.room.storage || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
+    creep.harvesterBeforeStorage();
+    creep.memory.routing.reached = true;
+    return true;
+  }
+
   creep.memory.move_forward_direction = false;
   creep.memory.routing.reverse = true;
   delete creep.memory.routing.reached;

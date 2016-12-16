@@ -29,40 +29,36 @@ roles.scoutnextroom.execute = function(creep) {
     return true;
   }
 
-  var last_pos;
-
   if (!creep.memory.target || creep.memory.target === null || creep.memory.target.roomName != creep.room.name) {
-    var hostile_creeps = creep.room.find(FIND_HOSTILE_CREEPS, {
-      filter: creep.room.findAttackCreeps
-    });
+    let hostileCreeps = creep.room.getEnemys();
 
-    var opponent_room = hostile_creeps.length > 0;
+    let opponentRoom = hostileCreeps.length > 0;
     if (creep.room.name != creep.memory.base) {
-      opponent_room = opponent_room || (creep.room.controller && creep.room.controller.my);
+      opponentRoom = opponentRoom || (creep.room.controller && creep.room.controller.my);
 
-      // TODO No way to controller doesn't mean it is an opponent_room
+      // TODO No way to controller doesn't mean it is an opponentRoom
       //      if (creep.room.controller) {
       //        var path = creep.pos.findPathTo(creep.room.controller.pos);
       //        if (path.length === 0) {
       //          creep.log('Can not find way to controller');
-      //          opponent_room = true;
+      //          opponentRoom = true;
       //        } else {
       //
-      //          last_pos = path[path.length - 1];
-      //          if (!creep.room.controller.pos.isEqualTo(last_pos.x, last_pos.y)) {
+      //          let lastPos = path[path.length - 1];
+      //          if (!creep.room.controller.pos.isEqualTo(lastPos.x, lastPos.y)) {
       //            creep.log('Can not find way to controller');
-      //            opponent_room = true;
+      //            opponentRoom = true;
       //          }
       //        }
       //      }
     }
 
-    let checkNewRoom = function(creep, opponent_room) {
+    let checkNewRoom = function(creep, opponentRoom) {
       if (creep.room.name == creep.memory.base) {
         return false;
       }
 
-      if (opponent_room) {
+      if (opponentRoom) {
         return false;
       }
 
@@ -91,7 +87,7 @@ roles.scoutnextroom.execute = function(creep) {
       return true;
     };
 
-    if (checkNewRoom(creep, opponent_room)) {
+    if (checkNewRoom(creep, opponentRoom)) {
       return true;
     }
     var exits = Game.map.describeExits(creep.room.name);
@@ -151,7 +147,7 @@ roles.scoutnextroom.execute = function(creep) {
       return false;
     };
 
-    if (opponent_room || !handleTarget(creep, exits)) {
+    if (opponentRoom || !handleTarget(creep, exits)) {
       // Go back, no other way
       if (!creep.memory.dir) {
         creep.memory.dir = Math.floor(Math.random() * 8);

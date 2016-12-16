@@ -1,19 +1,7 @@
 'use strict';
 
 Room.prototype.findAttackCreeps = function(object) {
-  let friends = [];
-  try {
-    friends = require('friends');
-  } catch (error) {
-
-  }
-
   if (object.owner.username == 'Source Keeper') {
-    return false;
-  }
-
-  if (friends.indexOf(object.owner.username) >= 0) {
-    console.log('friend found');
     return false;
   }
 

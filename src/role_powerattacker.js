@@ -21,19 +21,17 @@ roles.powerattacker.energyBuild = function(room, energy) {
 };
 
 roles.powerattacker.action = function(creep) {
-  var hostile_creep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-    filter: creep.room.findAttackCreeps
-  });
-  if (hostile_creep !== null) {
-    creep.moveTo(hostile_creep);
-    creep.attack(hostile_creep);
+  let hostileCreep = creep.pos.findClosestEnemy();
+  if (hostileCreep !== null) {
+    creep.moveTo(hostileCreep);
+    creep.attack(hostileCreep);
     return true;
   }
 
   if (creep.hits < 200) {
     return false;
   }
-  if (hostile_creep !== null) {
+  if (hostileCreep !== null) {
     if (Memory.powerBanks[creep.room.name] && !Memory.powerBanks[creep.room.name].defender) {
       creep.log('Call powerdefender');
       Game.rooms[creep.memory.base].memory.queue.push({
@@ -42,11 +40,11 @@ roles.powerattacker.action = function(creep) {
       });
       Memory.powerBanks[creep.room.name].defender = true;
     }
-    var range = creep.pos.getRangeTo(hostile_creep);
+    var range = creep.pos.getRangeTo(hostileCreep);
     if (range < 10) {
 
-      creep.moveTo(hostile_creep);
-      creep.attack(hostile_creep);
+      creep.moveTo(hostileCreep);
+      creep.attack(hostileCreep);
       return true;
     }
   }
@@ -58,18 +56,9 @@ roles.powerattacker.action = function(creep) {
   });
 
   if (power_bank.length === 0) {
-    hostile_creep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-      filter: function(object) {
-        if (object.owner.username == 'Source Keeper') {
-          return false;
-        }
-        return true;
-      }
-
-    });
-    if (hostile_creep !== null) {
-      creep.moveTo(hostile_creep);
-      creep.attack(hostile_creep);
+    if (hostileCreep !== null) {
+      creep.moveTo(hostileCreep);
+      creep.attack(hostileCreep);
       return true;
     }
     creep.move((Math.random() * 8) + 1);

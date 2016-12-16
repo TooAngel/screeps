@@ -24,8 +24,6 @@ Room.prototype.handleMarket = function() {
     return false;
   };
 
-  this.log('!!!!!!!!!!!!MARKET: ' + resource + ' ' + config.mineral.minAmountForMarket + ' ' + Memory.mineralSystemPrice[resource]);
-
   let room = this;
 
   let sortByEnergyCost = function(order) {
@@ -39,7 +37,7 @@ Room.prototype.handleMarket = function() {
     //}
 
     if (Game.market.calcTransactionCost(amount, this.name, order.roomName) > this.terminal.store.energy) {
-      this.log('Market: No energy');
+      //      this.log('Market: No energy');
       break;
     }
     this.log(order.id + ' ' + this.name + ' ' + amount);

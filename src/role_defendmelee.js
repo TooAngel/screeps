@@ -22,7 +22,7 @@ roles.defendmelee.energyBuild = function(room, energy) {
 };
 
 roles.defendmelee.execute = function(creep) {
-  let hostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+  let hostile = creep.pos.findClosestEnemy();
   if (hostile === null) {
     return Creep.recycleCreep(creep);
   }

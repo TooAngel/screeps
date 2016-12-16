@@ -14,9 +14,7 @@ Room.prototype.myHandleRoom = function() {
     this.setup();
   }
 
-  var hostiles = this.find(FIND_HOSTILE_CREEPS, {
-    filter: this.findAttackCreeps
-  });
+  var hostiles = this.getEnemys();
   if (hostiles.length === 0) {
     delete this.memory.hostile;
   } else {
@@ -230,8 +228,12 @@ Room.prototype.executeRoom = function() {
     this.reviveRoom();
   } else if (this.energyCapacityAvailable < 1000) {
     this.reviveRoom();
+    if (hostiles.length > 0) {
+      this.controller.activateSafeMode();
+    }
+  } else {
+    this.memory.active = true;
   }
-  this.memory.active = true;
 
   var room = this;
 
@@ -256,16 +258,15 @@ Room.prototype.executeRoom = function() {
 
   var creepsConfig = [];
   if (!building) {
-    creepsConfig.push('harvester');
+    let amount = 1;
     if (!room.storage) {
-      creepsConfig.push('harvester');
+      amount = 2;
       // TODO maybe better spawn harvester when a carry recognize that the dropped energy > threshold
       if (room.controller.level == 2 || room.controller.level == 3) {
-        creepsConfig.push('harvester');
-        creepsConfig.push('harvester');
-        creepsConfig.push('harvester');
+        amount = 5;
       }
     }
+    this.checkRoleToSpawn('harvester', amount);
   }
 
   if (this.memory.attack_timer > 100) {
@@ -300,18 +301,19 @@ Room.prototype.executeRoom = function() {
     }
   }
 
+  let idiotCreeps = this.find(FIND_HOSTILE_CREEPS, {
+    filter: function(object) {
+      return object.owner.username != 'Invader';
+    }
+  });
+  if (idiotCreeps.length > 0) {
+    for (let idiotCreep of idiotCreeps) {
+      brain.increaseIdiot(idiotCreep.owner.username);
+    }
+  }
+
   if (hostiles.length > 0) {
     this.memory.attack_timer++;
-
-    if (hostiles[0].owner.username != 'Invader') {
-      if (!Memory.players[hostiles[0].owner.username]) {
-        Memory.players[hostiles[0].owner.username] = {
-          idiot: 0
-        };
-      }
-
-      Memory.players[hostiles[0].owner.username].idiot++;
-    }
 
     if (this.memory.attack_timer > 15) {
       var defender = {
@@ -334,19 +336,14 @@ Room.prototype.executeRoom = function() {
     }
   }
 
-  if (nextroomers.length === 0) {
-    var sources = this.find(FIND_SOURCES);
-    for (var sources_index = 0; sources_index < sources.length; sources_index++) {
-      creepsConfig.push('sourcer');
-    }
-  }
+  this.checkAndSpawnSourcer();
 
-  if (this.controller.level >= 5 && this.storage) {
-    creepsConfig.push('storagefiller');
+  if (this.controller.level >= 4 && this.storage) {
+    this.checkRoleToSpawn('storagefiller');
   }
 
   if (this.storage && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
-    creepsConfig.push('upgrader');
+    this.checkRoleToSpawn('upgrader');
   }
 
   var constructionSites = this.find(FIND_MY_CONSTRUCTION_SITES, {
@@ -365,18 +362,16 @@ Room.prototype.executeRoom = function() {
     }
   });
   if (constructionSites.length > 0) {
+    let amount = 1;
     creepsConfig.push('planer');
     for (let cs of constructionSites) {
       if (cs.structureType == STRUCTURE_STORAGE) {
-        creepsConfig.push('planer');
-        creepsConfig.push('planer');
+        amount = 3;
       }
     }
+    this.checkRoleToSpawn('planer', amount);
   } else if (this.memory.misplacedSpawn && this.storage && this.storage.store.energy > 20000 && this.energyAvailable >= this.energyCapacityAvailable - 300) {
-    creepsConfig.push('planer');
-    creepsConfig.push('planer');
-    creepsConfig.push('planer');
-    creepsConfig.push('planer');
+    this.checkRoleToSpawn('planer', 4);
   }
 
   let extractors = this.find(FIND_STRUCTURES, {
@@ -389,12 +384,12 @@ Room.prototype.executeRoom = function() {
     if (minerals.length > 0 && minerals[0].mineralAmount > 0) {
       let amount = this.terminal.store[minerals[0].mineralType] || 0;
       if (amount < config.mineral.storage) {
-        creepsConfig.push('extractor');
+        this.checkRoleToSpawn('extractor');
       }
     }
   }
   if (config.mineral.enabled && this.terminal && ((this.memory.mineralBuilds && Object.keys(this.memory.mineralBuilds).length > 0) || this.memory.reaction || this.memory.mineralOrder)) {
-    creepsConfig.push('mineral');
+    this.checkRoleToSpawn('mineral');
   }
 
   if (!building && nextroomers.length === 0) {
@@ -415,7 +410,7 @@ Room.prototype.executeRoom = function() {
 
   this.handleTower();
   if (this.controller.level > 1 && this.memory.walls && this.memory.walls.finished) {
-    creepsConfig.push('repairer');
+    this.checkRoleToSpawn('repairer');
   }
 
   this.handleLinks();
@@ -459,8 +454,30 @@ Room.prototype.reviveRoom = function() {
   }
 
   if (this.memory.active) {
-    //this.log('Setting room to underSiege');
+    this.log('Setting room to underSiege');
     //this.memory.underSiege = true;
+    let tokens = Game.market.getAllOrders({
+      type: ORDER_SELL,
+      resourceType: SUBSCRIPTION_TOKEN
+    });
+    let addToIdiot = 3000000;
+    if (tokens.length > 0) {
+      tokens = _.sortBy(tokens, function(object) {
+        return -object.price;
+      });
+      addToIdiot = Math.max(addToIdiot, tokens[0].price);
+    }
+    this.log('Increase idiot by subscription token');
+    let idiotCreeps = this.find(FIND_HOSTILE_CREEPS, {
+      filter: function(object) {
+        return object.owner.username != 'Invader';
+      }
+    });
+    if (idiotCreeps.length > 0) {
+      for (let idiotCreep of idiotCreeps) {
+        brain.increaseIdiot(idiotCreep.owner.username, addToIdiot);
+      }
+    }
   }
 
   this.handleTower();
@@ -527,8 +544,8 @@ Room.prototype.reviveRoom = function() {
         if (this.memory.wayBlocked) {
           creepToSpawn.role = 'nextroomerattack';
         }
-        let hostile_creeps = this.find(FIND_HOSTILE_CREEPS);
-        if (hostile_creeps.length > 0) {
+        let hostileCreep = this.find(FIND_HOSTILE_CREEPS);
+        if (hostileCreep.length > 0) {
           roomOther.log('Queuing defender for ' + this.name);
           roomOther.memory.queue.push({
             role: 'defender',

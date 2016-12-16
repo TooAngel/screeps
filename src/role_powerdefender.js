@@ -25,48 +25,38 @@ roles.powerdefender.action = function(creep) {
   if (creep.hits < 200) {
     return false;
   }
-  var hostile_creeps = creep.room.find(FIND_HOSTILE_CREEPS, {
-    filter: creep.room.findAttackCreeps
-  });
-  if (hostile_creeps.length > 0) {
-    creep.moveTo(hostile_creeps[0]);
-    creep.rangedAttack(hostile_creeps[0]);
+  let hostileCreeps = creep.room.getEnemys();
+  if (hostileCreeps.length > 0) {
+    creep.moveTo(hostileCreeps[0]);
+    creep.rangedAttack(hostileCreeps[0]);
     return true;
   }
 
-  var power_bank = creep.room.find(FIND_STRUCTURES, {
+  var powerBank = creep.room.find(FIND_STRUCTURES, {
     filter: function(object) {
-      return object.structureType == 'powerBank';
+      return object.structureType == STRUCTURE_POWER_BANK;
     }
   });
 
-  if (power_bank.length === 0) {
-    var hostile_creep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-      filter: function(object) {
-        if (object.owner.username == 'Source Keeper') {
-          return false;
-        }
-        return true;
-      }
-
-    });
-    if (hostile_creep !== null) {
-      creep.moveTo(hostile_creep);
-      creep.rangedAttack(hostile_creep);
+  if (powerBank.length === 0) {
+    let hostileCreep = creep.findClosestEnemy();
+    if (hostileCreep !== null) {
+      creep.moveTo(hostileCreep);
+      creep.rangedAttack(hostileCreep);
       return true;
     }
     creep.moveTo(25, 25);
     return false;
   }
 
-  if (power_bank[0].hits > 100000) {
+  if (powerBank[0].hits > 100000) {
     creep.spawnReplacement();
   }
 
   creep.setNextSpawn();
 
-  creep.moveTo(power_bank[0]);
-  creep.rangedAttack(power_bank[0]);
+  creep.moveTo(powerBank[0]);
+  creep.rangedAttack(powerBank[0]);
   return true;
 };
 

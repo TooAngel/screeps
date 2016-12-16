@@ -51,14 +51,7 @@ roles.carry.preMove = function(creep, directions) {
   }
 
   if (!creep.room.controller) {
-    var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-      filter: function(object) {
-        if (object.owner.username == 'Source Keeper') {
-          return true;
-        }
-        return false;
-      }
-    });
+    var target = creep.findClosestSourceKeeper();
     if (target !== null) {
       let range = creep.pos.getRangeTo(target);
       if (range > 6) {
@@ -104,12 +97,11 @@ roles.carry.preMove = function(creep, directions) {
         reverse = false;
       }
     }
-    if (reverse) {
-      // Have to invert the direction
-      let directionTransferInvert = (+directions.backwardDirection + 7) % 8 + 1;
-      if (directionTransferInvert && directionTransferInvert !== null) {
-        reverse = !creep.transferToCreep(directionTransferInvert);
-      }
+    // Have to invert the direction
+    let directionTransferInvert = (+directions.backwardDirection + 7) % 8 + 1;
+    if (directionTransferInvert && directionTransferInvert !== null) {
+      let transferred = creep.transferToCreep(directionTransferInvert);
+      reverse = !transferred;
     }
   }
 
@@ -157,14 +149,7 @@ roles.carry.action = function(creep) {
   }
 
   if (!creep.room.controller) {
-    var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-      filter: function(object) {
-        if (object.owner.username == 'Source Keeper') {
-          return true;
-        }
-        return false;
-      }
-    });
+    var target = creep.pos.findClosestSourceKeeper();
     if (target !== null) {
       let range = creep.pos.getRangeTo(target);
       if (range < 5) {

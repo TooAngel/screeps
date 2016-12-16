@@ -23,20 +23,16 @@ roles.storagefiller.energyBuild = function(room, energy) {
 };
 
 roles.storagefiller.action = function(creep) {
+  if (!creep.memory.routing.targetId && creep.memory.routing.reached) {
+    creep.memory.routing.reached = false;
+    creep.memory.routing.targetId = 'filler';
+  }
+  if (creep.memory.routing.reached && creep.memory.routing.pathPos === 0) {
+    creep.memory.routing.reached = false;
+  }
+
   creep.setNextSpawn();
   creep.spawnReplacement(1);
-
-  if (!creep.memory.link) {
-    var links = creep.pos.findInRange(FIND_MY_STRUCTURES, 1, {
-      filter: {
-        structureType: STRUCTURE_LINK
-      }
-    });
-    if (links.length === 0) {
-      return true;
-    }
-    creep.memory.link = links[0].id;
-  }
 
   let towers = creep.pos.findInRange(FIND_MY_STRUCTURES, 1, {
     filter: function(object) {
@@ -49,6 +45,28 @@ roles.storagefiller.action = function(creep) {
       return true;
     }
   });
+
+  if (creep.room.controller.level == 4) {
+    if (towers.length > 0) {
+      if (creep.carry.energy === 0) {
+        creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
+      } else {
+        creep.transfer(towers[0], RESOURCE_ENERGY);
+      }
+    }
+  }
+
+  if (!creep.memory.link) {
+    var links = creep.pos.findInRange(FIND_MY_STRUCTURES, 1, {
+      filter: {
+        structureType: STRUCTURE_LINK
+      }
+    });
+    if (links.length === 0) {
+      return true;
+    }
+    creep.memory.link = links[0].id;
+  }
 
   var storage = creep.room.storage;
   var link = Game.getObjectById(creep.memory.link);

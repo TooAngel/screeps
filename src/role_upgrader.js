@@ -10,7 +10,8 @@
 roles.upgrader = {};
 
 roles.upgrader.stayInRoom = true;
-roles.upgrader.buildRoad = true;
+// TODO disabled because the upgrader took energy from the extension
+roles.upgrader.buildRoad = false;
 roles.upgrader.killPrevious = true;
 
 roles.upgrader.boostActions = ['upgradeController'];
@@ -57,6 +58,13 @@ roles.upgrader.work = function(creep) {
 };
 
 roles.upgrader.action = function(creep) {
+  if (!creep.memory.routing.targetId && creep.memory.routing.reached) {
+    creep.memory.routing.reached = false;
+    creep.memory.routing.targetId = creep.room.controller.id;
+  }
+  if (creep.memory.routing.reached && creep.memory.routing.pathPos === 0) {
+    creep.memory.routing.reached = false;
+  }
   return creep.handleUpgrader();
 };
 

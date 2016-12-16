@@ -27,7 +27,7 @@ Creep.prototype.handle = function() {
 
     // TODO this happens when the creep is not on the path (maybe pathPos check will solve)
     if (unit.buildRoad) {
-      if (this.memory.routing && !this.memory.routing.reached && this.memory.routing.pathPos >= 0) {
+      if (this.memory.routing && !this.memory.routing.reached) {
         this.buildRoad();
       }
     }
@@ -306,7 +306,7 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
             return false;
           }
         });
-        if (maxOfRole.length > maxOfRole) {
+        if (creepOfRole.length > maxOfRole) {
           return false;
         }
       }

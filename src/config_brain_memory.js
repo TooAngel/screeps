@@ -70,12 +70,23 @@ brain.prepareMemory = function() {
           }
           if (unit.died) {
             unit.died(name, creepMemory);
+            //            delete Memory.creeps[name];
           } else {
             delete Memory.creeps[name];
           }
         } catch (e) {
           delete Memory.creeps[name];
         }
+      }
+    }
+  }
+
+  if (Game.time % 1500 === 0) {
+    for (let squadId in Memory.squads) {
+      let squad = Memory.squads[squadId];
+      if (Game.time - squad.born > 3000) {
+        console.log(`Delete squad ${squadId}`);
+        delete Memory.squads[squadId];
       }
     }
   }

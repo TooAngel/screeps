@@ -36,12 +36,8 @@ Room.prototype.attackRoom = function() {
       return;
     }
   }
-  let friends = [];
-  try {
-    friends = require('friends');
-  } catch (error) {
 
-  }
+  // We only exclude players in the friends.js
   if (friends.indexOf(name) > -1) {
     return true;
   }
@@ -57,7 +53,8 @@ Room.prototype.attackRoom = function() {
         name: name,
         rooms: {},
         level: 0,
-        counter: 0
+        counter: 0,
+        idiot: 0
       };
       Memory.players[name] = player;
     }

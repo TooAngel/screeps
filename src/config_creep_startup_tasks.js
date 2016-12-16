@@ -9,7 +9,6 @@ Creep.execute = function(creep, methods) {
 };
 
 Creep.upgradeControllerTask = function(creep) {
-  //  creep.say('upgradeController', true);
   if (creep.carry.energy === 0) {
     return false;
   }
@@ -20,10 +19,27 @@ Creep.upgradeControllerTask = function(creep) {
     if (returnCode != OK) {
       creep.log('upgradeController: ' + returnCode);
     }
+    creep.moveRandom();
+    return true;
   }
 
   if (range > 1) {
-    let returnCode = creep.moveTo(creep.room.controller);
+    let search = PathFinder.search(
+      creep.pos, {
+        pos: creep.room.controller.pos,
+        range: 3
+      }, {
+        roomCallback: creep.room.getAvoids(creep.room, {}, true),
+        maxRooms: 0
+      }
+    );
+
+    if (search.incomplete) {
+      creep.say('incomplete');
+      creep.moveTo(creep.room.controller.pos);
+      return true;
+    }
+    creep.move(creep.pos.getDirectionTo(search.path[0]));
   }
   return true;
 };
@@ -111,6 +127,7 @@ Creep.repairStructure = function(creep) {
 };
 
 Creep.getEnergyFromStorage = function(creep) {
+  creep.say('FromStorage', true);
   if (0 < creep.carry.energy) {
     return false;
   }
@@ -121,6 +138,7 @@ Creep.getEnergyFromStorage = function(creep) {
     }
   });
   if (target !== null) {
+    creep.say('dropped', true);
     var energyRange = creep.pos.getRangeTo(target);
     if (energyRange <= 1) {
       creep.pickup(target);
@@ -180,22 +198,26 @@ Creep.getEnergyFromStorage = function(creep) {
 
   var range = creep.pos.getRangeTo(storage);
 
-  var returnCode;
   if (range == 1) {
-    returnCode = creep.withdraw(storage, RESOURCE_ENERGY);
+    let returnCode = creep.withdraw(storage, RESOURCE_ENERGY);
   } else {
-    returnCode = creep.moveTo(storage, {
-      reusePath: 15,
-      ignoreCreeps: true,
-      costCallback: creep.room.getAvoids(creep.room, {}, true)
-    });
-    if (returnCode == ERR_NO_PATH) {
-      creep.moveRandom();
+    let search = PathFinder.search(
+      creep.pos, {
+        pos: storage.pos,
+        range: 1
+      }, {
+        roomCallback: creep.room.getAvoids(creep.room, {}, true),
+      }
+    );
+    if (search.incomplete) {
+      creep.say('incomplete', true);
+      creep.log(JSON.stringify(search));
+      creep.moveTo(storage.pos, {
+        ignoreCreeps: true
+      });
       return true;
     }
-    if (returnCode == ERR_TIRED) {
-      return true;
-    }
+    let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
     if (returnCode != OK) {
       creep.log(`getEnergyFromStorage: ${returnCode}`);
     }

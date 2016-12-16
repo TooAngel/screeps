@@ -27,6 +27,9 @@ Creep.prototype.getRoute = function() {
 
       if (Memory.rooms[roomName] && Memory.rooms[roomName].state == 'Occupied') {
         console.log(`Creep.prototype.getRoute: Do not route throug occupied rooms ${roomName}`);
+        if (config.allowRoutingThroughFriendRooms && friends.indexOf(Memory.rooms[roomName].player) > -1) {
+          return 1;
+        }
         return Infinity;
       }
 
