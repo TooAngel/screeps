@@ -100,7 +100,8 @@ roles.carry.preMove = function(creep, directions) {
     // Have to invert the direction
     let directionTransferInvert = (+directions.backwardDirection + 7) % 8 + 1;
     if (directionTransferInvert && directionTransferInvert !== null) {
-      reverse = reverse || !creep.transferToCreep(directionTransferInvert);
+      let transferred = creep.transferToCreep(directionTransferInvert);
+      reverse = !transferred;
     }
   }
 

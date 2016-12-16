@@ -51,7 +51,6 @@ Creep.prototype.checkForTransfer = function(direction) {
 
   var pos;
   var creeps;
-  var other_creep;
   var index_calc;
   var offset;
   var new_path;
@@ -69,14 +68,14 @@ Creep.prototype.checkForTransfer = function(direction) {
   creeps = adjacentPos.lookFor('creep');
 
   for (var name in creeps) {
-    other_creep = creeps[name];
-    if (!Game.creeps[other_creep.name]) {
+    let otherCreep = creeps[name];
+    if (!Game.creeps[otherCreep.name]) {
       continue;
     }
-    if (other_creep.carry.energy < 50) {
+    if (otherCreep.carry.energy < 50) {
       continue;
     }
-    if (Game.creeps[other_creep.name].memory.role == 'carry') {
+    if (Game.creeps[otherCreep.name].memory.role == 'carry') {
       // TODO duplicate from role_carry, extract to method
       let carryPercentage = 0.1;
       if (this.room.name == this.memory.routing.targetRoom) {
@@ -85,8 +84,7 @@ Creep.prototype.checkForTransfer = function(direction) {
       if (this.room.name == this.memory.base) {
         carryPercentage = 0.0;
       }
-
-      return other_creep.carry.energy + _.sum(this.carry) > carryPercentage * this.carryCapacity;
+      return otherCreep.carry.energy + _.sum(this.carry) > carryPercentage * this.carryCapacity;
     }
     continue;
   }
@@ -336,23 +334,24 @@ Creep.prototype.transferToCreep = function(direction) {
     if (adjacentPos.x > 49 || adjacentPos.y > 49) {
       continue;
     }
+
     var creeps = adjacentPos.lookFor('creep');
     for (var name in creeps) {
-      var other_creep = creeps[name];
-      if (!Game.creeps[other_creep.name]) {
+      let otherCreep = creeps[name];
+      if (!Game.creeps[otherCreep.name]) {
         continue;
       }
       // Do we want this?
-      if (Game.creeps[other_creep.name].memory.role == 'powertransporter') {
+      if (Game.creeps[otherCreep.name].memory.role == 'powertransporter') {
         continue;
       }
-      if (other_creep.carry.energy == other_creep.carryCapacity) {
+      if (otherCreep.carry.energy == otherCreep.carryCapacity) {
         continue;
       }
-      var return_code = this.transfer(other_creep, RESOURCE_ENERGY);
+      var return_code = this.transfer(otherCreep, RESOURCE_ENERGY);
       if (return_code == OK) {
         // return true;
-        return this.carry.energy * 0.5 <= other_creep.carryCapacity - other_creep.carry.energy;
+        return this.carry.energy * 0.5 <= otherCreep.carryCapacity - otherCreep.carry.energy;
       }
     }
   }
@@ -490,7 +489,7 @@ Creep.prototype.transferMy = function() {
   var structures;
   var structure;
   var creeps;
-  var other_creep;
+  let otherCreep;
   var offset;
   var index;
   var return_code;
@@ -506,14 +505,14 @@ Creep.prototype.transferMy = function() {
     }
     creeps = adjacentPos.lookFor('creep');
     for (name in creeps) {
-      other_creep = creeps[name];
-      if (!other_creep.my) {
+      otherCreep = creeps[name];
+      if (!otherCreep.my) {
         continue;
       }
-      if (other_creep.carry.energy == other_creep.carryCapacity) {
+      if (otherCreep.carry.energy == otherCreep.carryCapacity) {
         continue;
       }
-      return_code = this.transfer(other_creep, RESOURCE_ENERGY);
+      return_code = this.transfer(otherCreep, RESOURCE_ENERGY);
       return return_code === 0;
     }
   }

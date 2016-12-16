@@ -91,6 +91,12 @@ roles.harvester.action = function(creep) {
     creep.memory.routing.targetId = 'harvester';
   }
 
+  if (!creep.room.storage || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
+    creep.harvesterBeforeStorage();
+    creep.memory.routing.reached = true;
+    return true;
+  }
+
   creep.memory.move_forward_direction = false;
   creep.memory.routing.reverse = true;
   delete creep.memory.routing.reached;

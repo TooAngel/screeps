@@ -6,6 +6,10 @@ brain.increaseIdiot = function(name, value) {
   }
   if (!Memory.players[name]) {
     Memory.players[name] = {
+      name: name,
+      rooms: {},
+      level: 0,
+      counter: 0,
       idiot: 0
     };
   }
