@@ -9,7 +9,6 @@ Creep.execute = function(creep, methods) {
 };
 
 Creep.upgradeControllerTask = function(creep) {
-  creep.say('upgradeController', true);
   if (creep.carry.energy === 0) {
     return false;
   }
