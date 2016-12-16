@@ -20,6 +20,8 @@ Creep.upgradeControllerTask = function(creep) {
     if (returnCode != OK) {
       creep.log('upgradeController: ' + returnCode);
     }
+    creep.moveRandom();
+    return true;
   }
 
   if (range > 1) {
