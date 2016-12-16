@@ -34,7 +34,7 @@ roles.squadheal.preMove = function(creep, directions) {
     creep.memory.routing.reverse = false;
   }
 
-  var myCreeps = this.room.find(FIND_MY_CREEPS, {
+  var myCreeps = creep.room.find(FIND_MY_CREEPS, {
     filter: function(object) {
       if (object.hits < object.hitsMax) {
         return true;
@@ -43,13 +43,13 @@ roles.squadheal.preMove = function(creep, directions) {
     }
   });
   if (myCreeps.length > 0) {
-    this.say('heal', true);
-    this.moveTo(myCreeps[0]);
-    let range = this.pos.getRangeTo(myCreeps[0]);
+    creep.say('heal', true);
+    creep.moveTo(myCreeps[0]);
+    let range = creep.pos.getRangeTo(myCreeps[0]);
     if (range <= 1) {
-      this.heal(myCreeps[0]);
+      creep.heal(myCreeps[0]);
     } else {
-      this.rangedHeal(myCreeps[0]);
+      creep.rangedHeal(myCreeps[0]);
     }
     return true;
   }
