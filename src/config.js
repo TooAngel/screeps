@@ -22,9 +22,11 @@ global.config = {
     enabled: false,
     summary: false
   },
+
   autoattack: {
     disabled: false // Currently disabled, have to make sure my ally doesn't get attacked
   },
+
   nextRoom: {
     scoutMinControllerLevel: 4,
     ttlPerRoomForScout: 500,
@@ -54,7 +56,8 @@ global.config = {
   },
 
   path: {
-    refresh: 20000
+    refresh: 20000,
+    allowRoutingThroughFriendRooms: false
   },
 
   external: {
