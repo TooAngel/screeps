@@ -43,8 +43,15 @@ Room.prototype.getMemoryPath = function(name) {
 
   if (this.memory.routing[name] && isValid(this.memory.routing[name])) {
     this.log(`getPath ${name} missing in cache`);
+    let path;
+    try {
+      path = Room.stringToPath(this.memory.routing[name].path);
+    } catch (e) {
+      path = this.memory.routing[name].path;
+      this.memory.routing[name].path = Room.pathToString(path);
+    }
     cache.rooms[this.name].routing[name] = {
-      path: Room.stringToPath(this.memory.routing[name].path),
+      path: path,
       created: this.memory.routing[name].created,
       fixed: this.memory.routing[name].fixed,
       name: this.memory.routing[name].name
