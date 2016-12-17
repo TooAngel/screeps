@@ -21,8 +21,8 @@ RoomPosition.prototype.checkForWall = function() {
 
 RoomPosition.prototype.inPath = function() {
   let room = Game.rooms[this.roomName];
-  for (let pathName in room.memory.routing) {
-    let path = Room.stringToPath(room.memory.routing[pathName].path);
+  for (let pathName in room.getMemoryPaths()) {
+    let path = room.getMemoryPath(pathName);
     for (let pos of path) {
       if (this.isEqualTo(pos.x, pos.y)) {
         return true;

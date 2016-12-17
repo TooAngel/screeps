@@ -2,6 +2,9 @@
 
 global.brain = {};
 global.roles = {};
+global.cache = {
+  rooms: {}
+};
 
 try {
   global.friends = require('friends');
@@ -11,11 +14,12 @@ try {
 
 global.config = {
   profiler: {
-    enabled: false
+    enabled: true
   },
 
+  // Due to newly introduces via global variable caching this can be removed
   performance: {
-    serializePath: false
+    serializePath: true
   },
 
   stats: {

@@ -30,7 +30,7 @@ Room.prototype.setFillerArea = function(storagePos, costMatrixBase, route) {
     this.memory.position.creep.filler = fillerPos;
 
     // TODO Bug in E37N35 path was different compared to the fillerPos. costMatrix should be resetted, too
-    delete this.memory.routing['pathStart-filler'];
+    this.deleteMemoryPath('pathStart-filler');
 
     let pathFiller = this.getPath(route, 0, 'pathStart', 'filler', true);
     for (let pos of pathFiller) {
@@ -142,6 +142,7 @@ Room.prototype.updatePosition = function() {
         room: this.name
       }];
       let path = this.getPath(route, 0, 'pathStart', source.id, true);
+      this.log(JSON.stringify(path));
       for (let pos of path) {
         let posObject = new RoomPosition(pos.x, pos.y, this.name);
         let sourcer = this.memory.position.creep[source.id];
@@ -241,8 +242,6 @@ Room.prototype.buildPath = function(route, routePos, from, to) {
 
 // Providing the targetId is a bit odd
 Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
-  this.memory.routing = this.memory.routing || {};
-
   if (!this.memory.position) {
     this.updatePosition();
   }
@@ -257,20 +256,16 @@ Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
   }
 
   let pathName = from + '-' + to;
-  if (!this.memory.routing[pathName] || !this.memory.routing[pathName].path || (!this.memory.routing[pathName].fixed && this.memory.routing[pathName].created < Game.time - config.path.refresh)) {
+  if (!this.getMemoryPath(pathName)) {
     let path = this.buildPath(route, routePos, from, to);
     if (!path) {
       this.log('getPath: No path');
       return;
     }
-    this.memory.routing[pathName] = {
-      path: Room.pathToString(path),
-      created: Game.time,
-      fixed: fixed,
-      name: pathName
-    };
+    this.setMemoryPath(pathName, path, fixed);
   }
 
+  // TODO When switch to global cache is done, this can be removed
   if (!this.cache) {
     this.cache = {};
   }
@@ -278,7 +273,7 @@ Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
   let cacheName = this.name + ':' + pathName;
   if (!this.cache[cacheName]) {
     try {
-      this.cache[cacheName] = Room.stringToPath(this.memory.routing[pathName].path);
+      this.cache[cacheName] = this.getMemoryPath(pathName);
     } catch (e) {
       this.log('Can not parse path in cache will delete Memory');
       delete Memory.rooms[this.name];

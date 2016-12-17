@@ -229,8 +229,8 @@ Room.prototype.handleOccupiedRoom = function() {
 };
 
 Room.prototype.checkBlockedPath = function() {
-  for (let pathName in this.memory.routing) {
-    let path = Room.stringToPath(this.memory.routing[pathName].path);
+  for (let pathName in this.getMemoryPaths()) {
+    let path = this.getMemoryPath(pathName);
     for (let pos of path) {
       let roomPos = new RoomPosition(pos.x, pos.y, this.name);
       let structures = roomPos.lookFor('structure');

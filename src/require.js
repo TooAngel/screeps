@@ -21,6 +21,7 @@ require('config_room_creepbuilder');
 require('config_room_defense');
 require('config_room_fight');
 require('config_room_market');
+require('config_room_memory');
 require('config_room_mineral');
 require('config_room_my');
 require('config_room_external');

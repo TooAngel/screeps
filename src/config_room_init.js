@@ -14,7 +14,7 @@ Room.prototype.setTowerFiller = function() {
       let linkSet = false;
       let towerFillerSet = false;
       let positionsFound = false;
-      let path = Room.stringToPath(this.memory.routing['pathStart' + '-' + roomName].path);
+      let path = this.getMemoryPath('pathStart' + '-' + roomName);
       for (let pathIndex = path.length - 1; pathIndex >= 1; pathIndex--) {
         let posPath = path[pathIndex];
         let posPathObject = new RoomPosition(posPath.x, posPath.y, posPath.roomName);
@@ -161,7 +161,8 @@ function setStructures(room, path, costMatrixBase) {
 }
 
 let buildCostMatrix = function(room) {
-  delete room.memory.routing;
+  room.deleteMemoryPaths();
+
   room.memory.costMatrix = {};
 
   // TODO adapt updatePosition => init Position and set the costmatrix
@@ -253,7 +254,7 @@ Room.prototype.setup = function() {
   let sorter = function(object) {
     let last_pos;
     let value = 0;
-    for (let pos of Room.stringToPath(object.path)) {
+    for (let pos of object.path) {
       let valueAdd = 0;
       if (!last_pos) {
         last_pos = new RoomPosition(pos.x, pos.y, pos.roomName);
@@ -275,28 +276,25 @@ Room.prototype.setup = function() {
           }
         }
       }
-
       value += valueAdd;
-
       last_pos = new RoomPosition(pos.x, pos.y, pos.roomName);
 
     }
     return value;
   };
 
-  let paths_controller = _.filter(this.memory.routing, function(object, key) {
+  let paths_controller = _.filter(this.getMemoryPaths(), function(object, key) {
     return key.startsWith('pathStart-');
   });
   let paths_sorted = _.sortBy(paths_controller, sorter);
-  let path = JSON.parse(JSON.stringify(paths_sorted[paths_sorted.length - 1]));
-  let pathList = Room.stringToPath(path.path);
-  let pathI = setStructures(this, pathList, costMatrixBase);
-  console.log('path: ' + path.name + ' pathI: ' + pathI + ' length: ' + pathList.length);
+  let path = this.getMemoryPath(paths_sorted[paths_sorted.length - 1].name);
+  let pathI = setStructures(this, path, costMatrixBase);
+  console.log('path: ' + path.name + ' pathI: ' + pathI + ' length: ' + path.length);
   if (pathI == -1) {
-    pathI = pathList.length - 1;
+    pathI = path.length - 1;
   }
-  this.memory.routing['pathStart-harvester'] = path;
-  this.memory.routing['pathStart-harvester'].path = Room.pathToString(pathList.slice(0, pathI + 1));
+
+  this.setMemoryPath('pathStart-harvester', path.slice(0, pathI + 1), true);
   this.memory.position.version = config.layout.version;
 
   for (let structureId in this.memory.position.structure) {

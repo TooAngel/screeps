@@ -152,7 +152,8 @@ module.exports = function(grunt) {
           roles: false,
           friends: false,
           ORDER_SELL: false,
-          SUBSCRIPTION_TOKEN: false
+          SUBSCRIPTION_TOKEN: false,
+          cache: false
         },
         node: true,
         esnext: true
