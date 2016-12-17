@@ -176,10 +176,16 @@ Creep.prototype.handleExractor = function() {
 
 Creep.prototype.handleUpgrader = function() {
   let say = function(creep) {
+    let players = _.filter(Memory.players, function(object) {
+      return object.idiot && object.idiot > 0;
+    });
+    if (players.length === 0) {
+      return;
+    }
     let sentence = ['Don\'t', 'like'];
-    for (let player in Memory.players) {
-      sentence.push(player);
-      sentence.push(Memory.players[player].idiot);
+    for (let player of players) {
+      sentence.push(player.name);
+      sentence.push(player.idiot);
     }
     let word = Game.time % sentence.length;
     creep.say(sentence[word], true);
