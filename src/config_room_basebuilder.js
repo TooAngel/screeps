@@ -43,9 +43,8 @@ Room.prototype.destroyStructure = function(structure) {
     return true;
   }
   if (structure.structureType == STRUCTURE_ROAD) {
-    for (let pathName in this.memory.routing) {
-      let path = this.memory.routing[pathName];
-      for (let pos of Room.stringToPath(path.path)) {
+    for (let pathName in this.getMemoryPaths()) {
+      for (let pos of this.getMemoryPath(pathName)) {
         if (structure.pos.isEqualTo(pos.x, pos.y)) {
           return false;
         }
@@ -140,13 +139,11 @@ Room.prototype.destroyStructure = function(structure) {
 Room.prototype.checkPath = function() {
   //  this.log('checkPath: ' + this.memory.controllerLevel.checkPathInterval);
 
-  // TODO this shouldn't happen if the base setup is proper
-  if (!this.memory.routing || !this.memory.routing['pathStart-harvester'] || !this.memory.routing['pathStart-harvester'].path) {
-    this.log('checkPath skipped, no memory: ' + JSON.stringify(this.memory.routing));
+  let path = this.getMemoryPath('pathStart-harvester');
+  if (!path) {
+    this.log('Skipping checkPath, routing not initialized');
     return false;
   }
-
-  let path = Room.stringToPath(this.memory.routing['pathStart-harvester'].path);
   let filterSpawns = function(object) {
     return object.structureType == STRUCTURE_SPAWN;
   };

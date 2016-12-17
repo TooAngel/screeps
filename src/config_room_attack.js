@@ -43,22 +43,8 @@ Room.prototype.attackRoom = function() {
   }
 
   let getPlayer = function(name) {
-    if (!Memory.players) {
-      Memory.players = {};
-    }
-
-    var player = Memory.players[name];
-    if (!player) {
-      player = {
-        name: name,
-        rooms: {},
-        level: 0,
-        counter: 0,
-        idiot: 0
-      };
-      Memory.players[name] = player;
-    }
-    return player;
+    brain.increaseIdiot(name, 0);
+    return Memory.players[name];
   };
 
   var player = getPlayer(name);

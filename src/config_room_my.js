@@ -131,6 +131,11 @@ Room.prototype.handleObserver = function() {
   if (this.name == 'sim') {
     return false;
   }
+
+  if (CONTROLLER_STRUCTURES.observer[this.controller.level] === 0) {
+    return false;
+  }
+
   var observers = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {
       return object.structureType == 'observer';
