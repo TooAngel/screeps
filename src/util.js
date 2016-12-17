@@ -1,4 +1,30 @@
 module.exports = {
+  checkPlayers: function() {
+    for (let name in Memory.players) {
+      let player = Memory.players[name];
+      if (player.name === undefined) {
+        player.name = name;
+        console.log(`Missing name: ${name}`);
+      }
+      if (player.counter === undefined) {
+        player.counter = 0;
+        console.log(`Missing counter: ${name}`);
+      }
+      if (name == 'ags131') {
+        console.log(JSON.stringify(player));
+        console.log(player.level === undefined);
+      }
+      if (player.level === undefined) {
+        player.level = 0;
+        console.log(`Missing level: ${name}`);
+      }
+      if (player.idiot === undefined) {
+        player.idiot = 0;
+        console.log(`Missing idiot: ${name}`);
+      }
+    }
+  },
+
   roomCheck: function() {
     for (let roomName in Memory.rooms) {
       if (Memory.rooms[roomName].state == 'Occupied') {
