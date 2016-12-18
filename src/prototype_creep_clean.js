@@ -74,7 +74,7 @@ Creep.prototype.cleanController = function() {
 
     if (structures.length > 0) {
       this.memory.target_id = structures[0].id;
-      this.log('found on way to controller to dismantle: ' + structures[0].pos);
+      //      this.log('found on way to controller to dismantle: ' + structures[0].pos);
       this.moveTo(structures[0].pos);
       return true;
     }
@@ -132,13 +132,13 @@ Creep.prototype.cleanExits = function() {
 
 Creep.prototype.cleanSetTargetId = function() {
   if (this.room.controller && !this.room.controller.my) {
-    this.log('no targetId');
+    //    this.log('no targetId');
     if (this.cleanController()) {
-      this.log('clean controller');
+      //      this.log('clean controller');
       return true;
     }
     if (this.cleanExits()) {
-      this.log('clean exits');
+      //      this.log('clean exits');
       return true;
     }
     let structure = this.pos.findClosestByRange(FIND_STRUCTURES, {

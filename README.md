@@ -6,13 +6,9 @@
 
 https://screeps.com/
 
-## For room visitors:
+## For in game room visitors:
 
-Happy to see you visiting one of my rooms. The controller creep spits out the
-friendly "Don't like" list. If you are on the list the AI considers you as
-unfriendly und will you treat like this.
-Currently there is nothing you can do in a programmatic way, I'm working on it.
-If you like, just contact me, a friendly chat sometimes helps. 
+Happy to see you visiting one of my rooms. [Visit FAQ to find answers](FAQ.md)
 
 ## Info
 

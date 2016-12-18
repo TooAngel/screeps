@@ -1,6 +1,32 @@
 'use strict';
 
+brain.handleIncomingTransactions = function() {
+  let transactions = Game.market.incomingTransactions;
+  let current = _.filter(transactions, function(object) {
+    return object.time >= Game.time - 1;
+  });
+
+  for (let transaction of current) {
+    let sender = transaction.sender.username;
+    let orders = Game.market.getAllOrders({
+      type: ORDER_SELL,
+      resourceType: transaction.resourceType
+    });
+    let prices = _.sortBy(orders, function(object) {
+      return object.price;
+    });
+    let price = prices[0].price;
+    let value = -1 * transaction.amount * price;
+    console.log(`Incoming transaction from ${sender} with ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
+    brain.increaseIdiot(sender, value);
+  }
+};
+
 brain.increaseIdiot = function(name, value) {
+  if (name == 'Invader') {
+    return false;
+  }
+
   if (!value) {
     value = 1;
   }
@@ -32,7 +58,7 @@ brain.isFriend = function(name) {
   if (!Memory.players[name]) {
     return true;
   }
-  if (Memory.players[name].idiot) {
+  if (!Memory.players[name].idiot) {
     return true;
   }
   if (Memory.players[name].idiot <= 0) {
