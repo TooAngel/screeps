@@ -45,7 +45,7 @@ Creep.upgradeControllerTask = function(creep) {
 };
 
 Creep.constructTask = function(creep) {
-  creep.say('construct', true);
+  //  creep.say('construct', true);
   return creep.construct();
 };
 
@@ -127,7 +127,7 @@ Creep.repairStructure = function(creep) {
 };
 
 Creep.getEnergyFromStorage = function(creep) {
-  creep.say('FromStorage', true);
+  //  creep.say('FromStorage', true);
   if (0 < creep.carry.energy) {
     return false;
   }
