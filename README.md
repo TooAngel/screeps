@@ -6,6 +6,16 @@
 
 https://screeps.com/
 
+## For room visitors:
+
+Happy to see you visiting one of my rooms. The controller creep spits out the
+friendly "Don't like" list. If you are on the list the AI considers you as
+unfriendly und will you treat like this.
+Currently there is nothing you can do in a programmatic way, I'm working on it.
+If you like, just contact me, a friendly chat sometimes helps. 
+
+## Info
+
 This is the AI I'm using for screeps. I managed to reach Top 10
 from November 2015 - March 2016. Main Goal is to automate everything, no
 manual interaction needed.
@@ -20,7 +30,6 @@ Some basic autoattacking is implemented. Minerals
 are fetched from the extractor and transported to the terminal. Reactions
 are implemented (one reaction at a time, currently disabled). Depending on
 a threshold minerals are sold on the market.
-
 
 ## Note
 
