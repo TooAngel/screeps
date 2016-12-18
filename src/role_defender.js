@@ -16,16 +16,16 @@ roles.defender.getPartConfig = function(room, energy, heal) {
 
 roles.defender.energyRequired = function(room) {
   if (room.controller.level == 8) {
-    return Math.min(room.energyCapacityAvailable, 6200);
+    return Math.min(room.getEnergyCapacityAvailable(), 6200);
   }
-  return Math.min(room.energyCapacityAvailable, 1000);
+  return Math.min(room.getEnergyCapacityAvailable(), 1000);
 };
 
 roles.defender.energyBuild = function(room, energy) {
   if (room.controller.level == 8) {
-    return Math.max(2000, Math.min(room.energyCapacityAvailable, 6200));
+    return Math.max(2000, Math.min(room.getEnergyCapacityAvailable(), 6200));
   }
-  return Math.min(room.energyCapacityAvailable, 1000);
+  return Math.min(room.getEnergyCapacityAvailable(), 1000);
 };
 
 roles.defender.action = function(creep) {

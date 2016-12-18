@@ -17,7 +17,7 @@ roles.extractor.getPartConfig = function(room, energy, heal) {
 
 roles.extractor.energyBuild = function(room, energy, source, heal) {
   var max = 2000;
-  energy = Math.max(250, Math.min(max, room.energyCapacityAvailable));
+  energy = Math.max(250, Math.min(max, room.getEnergyCapacityAvailable()));
   return energy;
 };
 

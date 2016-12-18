@@ -16,7 +16,7 @@ roles.mineral.getPartConfig = function(room, energy, heal) {
 
 roles.mineral.energyBuild = function(room, energy, source, heal) {
   var max = 1000;
-  energy = Math.max(250, Math.min(max, room.energyCapacityAvailable));
+  energy = Math.max(250, Math.min(max, room.getEnergyCapacityAvailable()));
   return energy;
 };
 

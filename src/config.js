@@ -28,7 +28,7 @@ global.config = {
   },
 
   autoattack: {
-    disabled: false // Currently disabled, have to make sure my ally doesn't get attacked
+    disabled: false
   },
 
   nextRoom: {
@@ -51,6 +51,7 @@ global.config = {
     maxConstructionSitesTotal: 80,
     maxConstructionSitesRoom: 3
   },
+
   constructionSite: {
     maxIdleTime: 5000
   },

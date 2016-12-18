@@ -28,7 +28,7 @@ roles.nextroomer.getPartConfig = function(room, energy, heal, target) {
 };
 
 roles.nextroomer.energyRequired = function(room) {
-  return Math.min(700, room.energyCapacityAvailable - 50);
+  return Math.min(700, room.getEnergyCapacityAvailable());
 };
 
 roles.nextroomer.energyBuild = function(room, energy) {

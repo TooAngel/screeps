@@ -14,11 +14,11 @@ roles.powerdefender.getPartConfig = function(room, energy, heal) {
 };
 
 roles.powerdefender.energyRequired = function(room) {
-  return Math.min(room.energyCapacityAvailable, 3250);
+  return Math.min(room.getEnergyCapacityAvailable(), 3250);
 };
 
 roles.powerdefender.energyBuild = function(room, energy) {
-  return Math.min(room.energyCapacityAvailable, 3250);
+  return Math.min(room.getEnergyCapacityAvailable(), 3250);
 };
 
 roles.powerdefender.action = function(creep) {

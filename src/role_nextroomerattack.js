@@ -14,11 +14,11 @@ roles.nextroomerattack.getPartConfig = function(room, energy, heal) {
 };
 
 roles.nextroomerattack.energyRequired = function(room) {
-  return Math.min(room.energyCapacityAvailable - 50, 3250);
+  return Math.min(room.getEnergyCapacityAvailable(), 3250);
 };
 
 roles.nextroomerattack.energyBuild = function(room, energy) {
-  return Math.min(room.energyCapacityAvailable - 50, 3250);
+  return Math.min(room.getEnergyCapacityAvailable(), 3250);
 };
 
 roles.nextroomerattack.died = function(name, memory) {

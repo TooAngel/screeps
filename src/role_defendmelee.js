@@ -14,11 +14,11 @@ roles.defendmelee.getPartConfig = function(room, energy, heal) {
 };
 
 roles.defendmelee.energyRequired = function(room) {
-  return Math.min(room.energyCapacityAvailable - 50, 3250);
+  return Math.min(room.getEnergyCapacityAvailable(), 3250);
 };
 
 roles.defendmelee.energyBuild = function(room, energy) {
-  return Math.min(room.energyCapacityAvailable - 50, 3250);
+  return Math.min(room.getEnergyCapacityAvailable(), 3250);
 };
 
 roles.defendmelee.execute = function(creep) {

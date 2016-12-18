@@ -44,7 +44,7 @@ roles.atkeepermelee.energyRequired = function(room) {
   for (let part of parts) {
     costs += BODYPART_COST[part];
   }
-  return Math.min(room.energyCapacityAvailable, costs);
+  return Math.min(room.getEnergyCapacityAvailable(), costs);
 };
 
 roles.atkeepermelee.energyBuild = function(room) {
@@ -65,7 +65,7 @@ roles.atkeepermelee.energyBuild = function(room) {
   for (let part of parts) {
     costs += BODYPART_COST[part];
   }
-  return Math.min(room.energyCapacityAvailable, costs);
+  return Math.min(room.getEnergyCapacityAvailable(), costs);
 };
 
 roles.atkeepermelee.action = function(creep) {

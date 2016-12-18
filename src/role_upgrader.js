@@ -17,13 +17,15 @@ roles.upgrader.killPrevious = true;
 roles.upgrader.boostActions = ['upgradeController'];
 
 roles.upgrader.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK];
+  let parts = [MOVE, CARRY, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK];
+  if (room.controller.level == 4) {
+    parts = [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK];
+  }
   return room.getPartConfig(energy, parts);
 };
 
 roles.upgrader.energyRequired = function(room) {
-  var energyNeeded = 200;
-  return energyNeeded;
+  return 200;
 };
 
 roles.upgrader.energyBuild = function(room, energy) {
@@ -31,12 +33,11 @@ roles.upgrader.energyBuild = function(room, energy) {
     if (room.storage && room.storage.store.energy < 50000) {
       return 350;
     }
-    // TODO extract room.energyCapacityAvailable to a new method, which takes into account if the spawn is at the wrong place (-300) or the base is setup (-0)
-    return Math.min(1950, room.energyCapacityAvailable - 300);
+    return Math.min(1950, room.getEnergyCapacityAvailable());
   }
   var energyNeeded = 200;
   if (room.controller.level < 7) {
-    energyNeeded = Math.min(1950, room.energyCapacityAvailable - 300);
+    energyNeeded = Math.min(1950, room.getEnergyCapacityAvailable());
   }
   if (room.controller.level == 7) {
     // TODO Better calculation for the upgrader size
@@ -44,7 +45,7 @@ roles.upgrader.energyBuild = function(room, energy) {
   }
   if (room.storage) {
     if (room.storage.store.energy > 800000) {
-      return Math.min(3900, room.energyCapacityAvailable - 300);
+      return Math.min(3900, room.getEnergyCapacityAvailable());
     }
     if (room.storage.store.energy < 10000) {
       return 350;

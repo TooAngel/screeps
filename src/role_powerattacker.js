@@ -13,11 +13,11 @@ roles.powerattacker.getPartConfig = function(room, energy, heal) {
 };
 
 roles.powerattacker.energyRequired = function(room) {
-  return Math.min(room.energyCapacityAvailable - 50, 3250);
+  return Math.min(room.getEnergyCapacityAvailable(), 3250);
 };
 
 roles.powerattacker.energyBuild = function(room, energy) {
-  return Math.min(room.energyCapacityAvailable - 50, 3250);
+  return Math.min(room.getEnergyCapacityAvailable(), 3250);
 };
 
 roles.powerattacker.action = function(creep) {
