@@ -404,7 +404,7 @@ Room.prototype.checkBlockers = function() {
   if (this.controller.level == 1) {
     return false;
   }
-  //  this.log('checkBlockers: ' + this.memory.controllerLevel.checkBlockersInterval + ' ' + this.controller.level + ' ' + this.memory.walls);
+  this.log('checkBlockers: ' + this.memory.controllerLevel.checkBlockersInterval + ' ' + this.controller.level + ' ' + this.memory.walls);
   if (this.controller.level >= 2 && (!this.memory.walls || !this.memory.walls.layer)) {
     this.log('checkBlockers: reset walls');
     this.memory.walls = {
@@ -432,7 +432,7 @@ Room.prototype.checkBlockers = function() {
       }
       let returnCode = pos.createConstructionSite(structureType);
       if (returnCode != OK && returnCode != ERR_FULL) {
-        //        this.log('Build ' + structureType + ' at ' + pos + ' with ' + returnCode);
+        this.log('Build ' + structureType + ' at ' + pos + ' with ' + returnCode);
         return true;
       }
     }

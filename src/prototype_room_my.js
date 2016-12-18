@@ -255,7 +255,6 @@ Room.prototype.executeRoom = function() {
   var creepsInRoom = this.find(FIND_MY_CREEPS);
   if (!building && creepsInRoom.length <= 1 && this.energyAvailable >= 200) {
     this.spawnCreateCreep('harvester');
-    Game.rooms[this.name].memory.queue = [];
     return true;
   }
 
@@ -468,7 +467,7 @@ Room.prototype.reviveRoom = function() {
     let addToIdiot = 3000000;
     if (tokens.length > 0) {
       tokens = _.sortBy(tokens, function(object) {
-        return -object.price;
+        return -1 * object.price;
       });
       addToIdiot = Math.max(addToIdiot, tokens[0].price);
     }

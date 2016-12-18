@@ -17,6 +17,10 @@ global.config = {
     enabled: true
   },
 
+  info: {
+    signController: true
+  },
+
   // Due to newly introduces via global variable caching this can be removed
   performance: {
     serializePath: true
