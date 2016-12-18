@@ -29,6 +29,7 @@ roles.planer.action = function(creep) {
   methods.push(Creep.buildRoads);
   if (creep.room.memory.misplacedSpawn) {
     methods.push(Creep.transferEnergy);
+    methods.push(Creep.repairStructure);
   } else {
     methods.push(Creep.recycleCreep);
   }
@@ -38,7 +39,8 @@ roles.planer.action = function(creep) {
 };
 
 roles.planer.execute = function(creep) {
-  var methods = [Creep.getEnergy];
+  creep.log('!!!! Execute !!!');
+  let methods = [Creep.getEnergy];
   if (creep.room.storage && creep.room.storage.store.energy > config.creep.energyFromStorageThreshold) {
     methods = [Creep.getEnergyFromStorage];
   }
@@ -47,6 +49,7 @@ roles.planer.execute = function(creep) {
   methods.push(Creep.buildRoads);
   if (creep.room.memory.misplacedSpawn) {
     methods.push(Creep.transferEnergy);
+    methods.push(Creep.repairStructure);
   } else {
     methods.push(Creep.recycleCreep);
   }

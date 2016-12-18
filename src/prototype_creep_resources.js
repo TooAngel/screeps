@@ -456,40 +456,6 @@ Creep.prototype.transferToStructures = function() {
 
 };
 
-function get_structure(creep) {
-  // creep.log('findClosestByPath - now range');
-
-  // var stack = new Error().stack;
-  // console.log(stack);
-
-  // var structure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-  var structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-    filter: function(object) {
-      if (object.energy == object.energyCapacity) {
-        return false;
-      }
-      // TODO disabled high cpu
-      // if (!object.isActive()) {
-      // return false;
-      // }
-      if (!object.my) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_EXTENSION) {
-        return true;
-      }
-      if (object.structureType == STRUCTURE_SPAWN) {
-        return true;
-      }
-      if (object.structureType == STRUCTURE_TOWER) {
-        return true;
-      }
-      return false;
-    }
-  });
-  return structure;
-}
-
 Creep.prototype.transferMy = function() {
   var pos;
   var structures;
@@ -717,7 +683,7 @@ Creep.prototype.getEnergy = function() {
 };
 
 Creep.prototype.construct = function() {
-  this.say('construct', true);
+  //   this.say('construct', true);
   var target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
 
   if (target === null) {
@@ -838,11 +804,45 @@ Creep.prototype.construct = function() {
 Creep.prototype.transferEnergyMy = function() {
   var exitDir;
 
+  let getStructure = function(creep) {
+    // creep.log('findClosestByPath - now range');
+
+    // var stack = new Error().stack;
+    // console.log(stack);
+
+    // var structure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+    var structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
+      filter: function(object) {
+        if (object.energy == object.energyCapacity) {
+          return false;
+        }
+        // TODO disabled high cpu
+        // if (!object.isActive()) {
+        // return false;
+        // }
+        if (!object.my) {
+          return false;
+        }
+        if (object.structureType == STRUCTURE_EXTENSION) {
+          return true;
+        }
+        if (object.structureType == STRUCTURE_SPAWN) {
+          return true;
+        }
+        if (object.structureType == STRUCTURE_TOWER) {
+          return true;
+        }
+        return false;
+      }
+    });
+    return structure;
+  };
+
   if (!this.memory.target) {
-    var structure = get_structure(this);
+    var structure = getStructure(this);
     if (structure === null) {
       // this.log('transferEnergyMy: no structure');
-      if (this.room.storage && this.room.storage.my) {
+      if (this.room.storage && this.room.storage.my && this.memory.role != 'planer') {
         this.memory.target = this.room.storage.id;
       } else {
         return false;
