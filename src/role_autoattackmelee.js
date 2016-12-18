@@ -14,19 +14,11 @@ roles.autoattackmelee.getPartConfig = function(room, energy, heal) {
 };
 
 roles.autoattackmelee.energyRequired = function(room) {
-  let offset = 300;
-  if (!room.misplacedSpawn || room.controller.level <= 2) {
-    offset = 0;
-  }
-  return Math.min(room.energyCapacityAvailable - offset, 3250);
+  return Math.min(room.getEnergyCapacityAvailable(), 3250);
 };
 
 roles.autoattackmelee.energyBuild = function(room, energy) {
-  let offset = 300;
-  if (!room.misplacedSpawn || room.controller.level <= 2) {
-    offset = 0;
-  }
-  return Math.min(room.energyCapacityAvailable - offset, 3250);
+  return Math.min(room.getEnergyCapacityAvailable(), 3250);
 };
 
 roles.autoattackmelee.died = function(name, memory) {

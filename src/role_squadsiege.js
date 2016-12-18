@@ -8,7 +8,7 @@
 
 roles.squadsiege = {};
 roles.squadsiege.energyRequired = function(room) {
-  return Math.min(room.energyCapacityAvailable - 50, 3250);
+  return Math.min(room.getEnergyCapacityAvailable(), 3250);
 };
 
 roles.squadsiege.getPartConfig = function(room, energy, heal) {
@@ -17,7 +17,7 @@ roles.squadsiege.getPartConfig = function(room, energy, heal) {
 };
 
 roles.squadsiege.energyBuild = function(room, energy) {
-  return Math.min(room.energyCapacityAvailable - 50, 3250);
+  return Math.min(room.getEnergyCapacityAvailable(), 3250);
 };
 
 roles.squadsiege.preMove = function(creep, directions) {

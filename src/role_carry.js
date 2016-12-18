@@ -177,11 +177,11 @@ roles.carry.getPartConfig = function(room, energy, heal) {
 
 roles.carry.energyRequired = function(room) {
   // TODO make the factor dependent on e.g. room.storage or waiting duration in queue
-  return Math.max(250, Math.min(room.controller.level * config.carry.size, room.energyCapacityAvailable - 300));
+  return Math.max(250, Math.min(room.controller.level * config.carry.size, room.getEnergyCapacityAvailable()));
 };
 
 roles.carry.energyBuild = function(room, energy) {
-  return Math.max(250, Math.min(room.controller.level * config.carry.size, room.energyCapacityAvailable - 300));
+  return Math.max(250, Math.min(room.controller.level * config.carry.size, room.getEnergyCapacityAvailable()));
 };
 
 roles.carry.execute = function(creep) {

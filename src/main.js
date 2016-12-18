@@ -1,12 +1,11 @@
 'use strict';
 
 require('require');
-
-require('config_creep_startup_tasks');
-require('config_creep_move');
-require('config_roomPosition');
-require('config_room_init');
-require('config_room_costmatrix');
+require('prototype_creep_startup_tasks');
+require('prototype_creep_move');
+require('prototype_roomPosition');
+require('prototype_room_init');
+require('prototype_room_costmatrix');
 
 if (config.profiler.enabled) {
   try {

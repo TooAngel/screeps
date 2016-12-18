@@ -1,5 +1,13 @@
 'use strict';
 
+Room.prototype.getEnergyCapacityAvailable = function() {
+  let offset = 0;
+  if (this.memory.misplacedSpawn && this.controller.level == 4) {
+    offset = 300;
+  }
+  return this.energyCapacityAvailable - offset;
+};
+
 Room.prototype.splitRoomName = function() {
   var patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
   var result = patt.exec(this.name);

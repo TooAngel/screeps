@@ -14,11 +14,11 @@ roles.powerhealer.getPartConfig = function(room, energy, heal) {
 };
 
 roles.powerhealer.energyRequired = function(room) {
-  return Math.min(6500, room.energyCapacityAvailable - 50);
+  return Math.min(6500, room.getEnergyCapacityAvailable());
 };
 
 roles.powerhealer.energyBuild = function(room, energy) {
-  return Math.min(6500, room.energyCapacityAvailable - 50);
+  return Math.min(6500, room.getEnergyCapacityAvailable());
 };
 
 roles.powerhealer.action = function(creep) {
