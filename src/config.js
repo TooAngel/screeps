@@ -115,6 +115,6 @@ global.config = {
     enabled: false,
     storage: 100000,
     minAmount: 5000,
-    minAmountForMarket: 1000
+    minAmountForMarket: 50000
   }
 };

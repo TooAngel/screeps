@@ -64,8 +64,6 @@ welcome.
     grunt jshint
     grunt jsbeautifier
 
-
-
 ## Design
  
 ### Room
