@@ -6,13 +6,9 @@
 
 https://screeps.com/
 
-## For room visitors:
+## For in game room visitors:
 
-Happy to see you visiting one of my rooms. The controller creep spits out the
-friendly "Don't like" list. If you are on the list the AI considers you as
-unfriendly und will you treat like this.
-Currently there is nothing you can do in a programmatic way, I'm working on it.
-If you like, just contact me, a friendly chat sometimes helps. 
+Happy to see you visiting one of my rooms. [Visit FAQ to find answers](FAQ.md)
 
 ## Info
 
@@ -20,16 +16,17 @@ This is the AI I'm using for screeps. I managed to reach Top 10
 from November 2015 - March 2016. Main Goal is to automate everything, no
 manual interaction needed.
 
+The AI can be deployed on a private screeps server, follow the information on
+[Steam](http://steamcommunity.com/sharedfiles/filedetails/?id=800902233).
+
 The AI automatically generated a layout for the room and builds the structures
-for the current RCL. With a `scout` creep external harvest rooms are explored
-and used. (SK rooms somwhow implemented, not enabled right now)
-If the number of rooms are less than the GCL a new room
+for the current RCL. With a `scout` creep or observer external harvest rooms
+are explored and used. If the number of rooms are less than the GCL a new room
 is acquired and build up. Also fallen rooms will be survived and basically
-defended.
-Some basic autoattacking is implemented. Minerals
+defended. Some basic autoattacking is implemented. Minerals
 are fetched from the extractor and transported to the terminal. Reactions
-are implemented (one reaction at a time, currently disabled). Depending on
-a threshold minerals are sold on the market.
+are basically implemented. Depending on a threshold minerals are sold on the
+market.
 
 ## Note
 
@@ -38,13 +35,12 @@ while fighting or other occasions which needed quick fixes or in the ingame
 editor. But I think there are a couple of funny ideas. Every contribution is
 welcome. 
 
-
 ## Features
 
  - Automatic base building 
  - External room harvesting 
  - Basic mineral handling 
- - Power harvesting (if enough energy in storage, which doesn't happen currently ;-)) 
+ - Power harvesting
  - New rooms claiming on GCL level up 
  - Automatic attack 
  - Rebuild of fallen rooms 
@@ -63,6 +59,7 @@ welcome.
 
     grunt jshint
     grunt jsbeautifier
+    grunt jscs
 
 ## Design
  
@@ -81,7 +78,7 @@ From `pathStart` all (sources, controller, mineral, mid of each exit) paths
 are calculated and saved. The longest path is used to place structures (spawn,
 extension, lab, observer, terminal, tower) next to it. Next to `filler` a link,
 tower and power_spawn is located. `Link`s are placed next to the sources and at
-the paths to the exits. Three layers of walls are placed at the exits, positions
+the paths to the exits. Layers of walls are placed at the exits, positions
 within the precalculated paths are replaced by ramparts.
 
 #### Logic
@@ -93,28 +90,27 @@ Towers attack incoming creeps or heal my creeps. If no spawn is available
 
 The basic creep is the `harvester` which can make sure, that enought energy
 will be available to build the rest of the creeps. For this we check if
-a `harvester` is within the room, otherwise spawn it. For the rest a simple
+a `harvester` is within the room, otherwise spawn it. For the rest a priority
 queue is used.
 
  
 ### Role
 
- - `upgrader` get energy from the storage, puts it into the controller
- - `filler` get energy from a link and transfers it to the tower or storage
+ - `upgrader` get energy from the storage, puts it into the controller.
+ - `filler` get energy from a link and transfers it to the tower or storage.
  - `sourcer` get energy from source.
-   - Controlled room: Transfers the energy to the link
+   - Controlled room: Transfers the energy to the link.
    - External room: Builds container, fills container, calls `carry` to get
-   the energy
- - `reserver` reservs an external controller and calls `sourcer`
+   the energy.
+ - `reserver` reservs an external controller and calls `sourcer`.
  - `carry` gets energy from the target container and fills structures and
  storage on the way back. If there is a creep in front the energy is transfered.
- - `scout` randomly walk in some room range and tries to find an unreserved room.
+ - `scout` Breadth-first search based room exploring.
  - `harvester` moves on the harvester path, and transfers energy to free structures
-   on the path. On low energy in storage, the `harvester` gets energy from the sources
-   builds structures and fills structures, ignoring precalculated paths. This
-   is the fallback especially for the first room
- - `nextroomer` moves to target room, gets energy from source, build structures
- - `repairer` build walls and ramparts
+   on the path. On low energy in storage, the `harvester` falls back to the
+   start up phase without relying on anything (storage, links, other creeps).
+ - `nextroomer` moves to target room and builds up that room.
+ - `repairer` build walls and ramparts.
 
 
 ### Routing
@@ -134,5 +130,5 @@ The routing from `start` to `end` is first done on room level:
    - Rooms on the path: The previous room is the first part of the path name,
      the next room is the second part of the path name.
    The path is cached in the memory of the room with a `created` attributes
-   to be invalidate the cache.
+   to allow invalidation.
  

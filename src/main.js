@@ -21,6 +21,7 @@ var main = function() {
   brain.prepareMemory();
   brain.handleNextroom();
   brain.handleSquadmanager();
+  brain.handleIncomingTransactions();
 
   var myRooms = [];
   for (var roomName in Game.rooms) {

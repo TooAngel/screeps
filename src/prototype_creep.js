@@ -277,15 +277,15 @@ Creep.prototype.killPrevious = function() {
   var range = this.pos.getRangeTo(previous);
   if (range == 1) {
     if (this.ticksToLive < previous.ticksToLive) {
-      this.log('kill me');
+      this.log('kill me: ' + JSON.stringify(this));
       this.suicide();
     } else {
-      this.log('kill other');
+      this.log('kill other' + JSON.stringify(this));
       previous.suicide();
     }
     this.log(
-      'Kill previous',
-      this.memory.role, range,
+      'Kill previous' + ' ' +
+      this.memory.role + ' ' + range + ' ' +
       JSON.stringify(previous)
     );
     //    throw Error();

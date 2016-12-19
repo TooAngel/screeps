@@ -17,6 +17,10 @@ global.config = {
     enabled: true
   },
 
+  info: {
+    signController: true
+  },
+
   // Due to newly introduces via global variable caching this can be removed
   performance: {
     serializePath: true
@@ -115,6 +119,6 @@ global.config = {
     enabled: false,
     storage: 100000,
     minAmount: 5000,
-    minAmountForMarket: 50000
+    minAmountForMarket: 100000
   }
 };

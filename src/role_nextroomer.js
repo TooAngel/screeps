@@ -49,16 +49,6 @@ roles.nextroomer.preMove = function(creep, directions) {
       continue;
     }
 
-    var crl = creep.room.controller;
-    if (crl) {
-      var own = crl.owner ? crl.owner.username : '';
-      var rsv = crl.reservation ? crl.reservation.username : '';
-      if (own + rsv == 'AzuraStar') {
-        creep.say('Not dismantle', true);
-        break;
-      }
-    }
-
     creep.dismantle(structure);
     creep.say('dismantle');
     break;
