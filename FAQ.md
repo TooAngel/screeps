@@ -27,7 +27,41 @@ tension between these bots start.
 
 Or it is a bug.
 
+## Why am I on the "Don't like" list / How can I get on the list?
 
-Any other question? Contact me on
+There are rules.
+
+Think of what you consider as aggresion, this will raise your value. In case
+you are doing something which you would consider as aggression but your value
+doesn't increase, contact me.
+
+## Why am I being attacked, while on the list?
+
+You deserve it.
+
+## Are you, TooAngel, active playing this game?
+
+This depends on how you define 'active playing'.
+
+I see it as having multiple development environments (a couple of my private
+server, some other private server, live, ptr). Depending on the current
+topic I'm using the environment which fits best.
+
+To test different scenarios I trigger actions manually, like injecting some
+creeps into the queue, to develop the behavior and afterwards the trigger
+for injecting.
+
+If your questions is if I triggered the attack against you:
+The answer is usually no.
+
+## Why are you rooms on live behaving so shitty?
+
+My code, my bot is shit. The last time I was mainly working on the bot
+and on private servers, to make sure the first RCLs work out somehow.
+Having a GCL 20+ is in many regards different to a GCL 1.
+
+
+# Any other question?
+Contact me on
 [slack](https://screeps.slack.com/messages/tooangelbot/) or
-[gitter](https://gitter.im/screeps-bot-tooangel/Lobby). 
+[gitter](https://gitter.im/screeps-bot-tooangel/Lobby).
