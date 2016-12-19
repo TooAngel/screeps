@@ -46,7 +46,7 @@ roles.autoattackmelee.action = function(creep) {
   });
 
   if (spawn === null) {
-    var hostileCreep = creep.pos.findClosestEnemy();
+    var hostileCreep = creep.findClosestEnemy();
     if (hostileCreep === null) {
       var structures = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
         filter: function(object) {
