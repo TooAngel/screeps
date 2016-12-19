@@ -132,12 +132,9 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig, target) {
     };
 
     this.memory.queue = _.sortBy(this.memory.queue, priorityQueue);
-    //     this.log(JSON.stringify(queue));
 
     var creep = this.memory.queue[0];
     energyNeeded = 50;
-
-    //     this.log(JSON.stringify(creep));
 
     if (this.spawnCreateCreep(creep.role, creep.target, creep.source, creep.heal, creep.target_id, creep.level, creep.squad, creep.routing)) {
       this.memory.queue.shift();

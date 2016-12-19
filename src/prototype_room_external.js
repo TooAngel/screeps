@@ -291,6 +291,13 @@ Room.prototype.handleReservedRoom = function() {
       };
       // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
       let energyThreshold = 1300;
+
+      // TODO Not sure when this happens, Check the closest room and set reservation
+      if (!this.memory.reservation) {
+        this.log('No reservation');
+        return;
+      }
+
       if (Game.rooms[this.memory.reservation.base].misplacedSpawn) {
         energyThreshold = 1600;
       }

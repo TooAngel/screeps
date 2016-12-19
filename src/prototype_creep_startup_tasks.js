@@ -132,24 +132,8 @@ Creep.getEnergyFromStorage = function(creep) {
     return false;
   }
 
-  var target = creep.pos.findClosestByRange(FIND_DROPPED_ENERGY, {
-    filter: function(object) {
-      return 0 < object.energy;
-    }
-  });
-  if (target !== null) {
-    creep.say('dropped', true);
-    var energyRange = creep.pos.getRangeTo(target);
-    if (energyRange <= 1) {
-      creep.pickup(target);
-      return false;
-    }
-    if (300 < target.energy && energyRange < 4) {
-      return creep.moveTo(target, {
-        reusePath: 5,
-        costCallback: creep.room.getAvoids(creep.room)
-      }) === 0;
-    }
+  if (creep.getDroppedEnergy()) {
+    return true;
   }
 
   var storage = creep.room.storage;
@@ -211,7 +195,6 @@ Creep.getEnergyFromStorage = function(creep) {
     );
     if (search.incomplete) {
       creep.say('incomplete', true);
-      creep.log(JSON.stringify(search));
       creep.moveTo(storage.pos, {
         ignoreCreeps: true
       });
@@ -297,7 +280,6 @@ Creep.prototype.repairStructure = function() {
           }
           if (returnCode == ERR_NO_PATH) {
             this.memory.move_wait = 0;
-            this.log(JSON.stringify(search));
             this.log('No path : ' + JSON.stringify(search));
             returnCode = this.moveTo(to_repair, {
               ignoreCreeps: true,

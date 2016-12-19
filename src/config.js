@@ -97,7 +97,7 @@ global.config = {
     reviveEnergyAvailable: 1000,
     reviveStorageAvailable: 3000,
     nextroomerInterval: 354,
-    scoutInterval: 1032,
+    scoutInterval: 1499,
     scout: true, // TODO somehow broken ?? Is it broken ??
     upgraderMinStorage: 10000,
     lastSeenThreshold: 10000

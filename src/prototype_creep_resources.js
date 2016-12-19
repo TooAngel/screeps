@@ -1,7 +1,6 @@
 'use strict';
 
 Creep.prototype.harvesterBeforeStorage = function() {
-  //   this.say('beforeStorage', true);
   var methods = [
     Creep.getEnergy
   ];
@@ -491,77 +490,47 @@ Creep.prototype.transferMy = function() {
   return false;
 };
 
+Creep.prototype.getDroppedEnergy = function() {
+  let target = this.pos.findClosestByRange(FIND_DROPPED_ENERGY, {
+    filter: function(object) {
+      return 0 < object.energy;
+    }
+  });
+  if (target !== null) {
+    var energyRange = this.pos.getRangeTo(target.pos);
+    if (energyRange <= 1) {
+      this.pickup(target);
+      return true;
+    }
+    if (300 < target.energy && energyRange < 4) {
+      let search = PathFinder.search(
+        this.pos, {
+          pos: target.pos,
+          range: 1
+        }, {
+          roomCallback: this.room.getAvoids(this.room, {}, true),
+          maxRooms: 0
+        }
+      );
+      if (search.path.length === 0 || search.incomplete) {
+        this.say('deir');
+        this.moveRandom();
+        return true;
+      }
+      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+      return true;
+    }
+  }
+  return false;
+};
+
 Creep.prototype.getEnergy = function() {
   if (this.carry.energy == this.carryCapacity) {
     return false;
   }
 
-  var target = this.pos.findClosestByRange(FIND_DROPPED_ENERGY, {
-    filter: function(object) {
-      return object.energy > 12;
-    }
-  });
-  if (target !== null) {
-    var energy_range = this.pos.getRangeTo(target);
-    if (energy_range <= 1) {
-      this.pickup(target);
-      return false;
-    }
-    if (target.energy > 20 && energy_range < 18 && this.carry.energy === 0) {
-      if (!this.memory.routing) {
-        this.memory.routing = {};
-      }
-      if (!this.memory.routing.cache) {
-        this.memory.routing.cache = {};
-      }
-      if (!this.memory.routing.cache[target.id]) {
-        let search = PathFinder.search(
-          this.pos, {
-            pos: target.pos,
-            range: 1
-          }, {
-            roomCallback: this.room.getAvoids(this.room, {}, true),
-            maxRooms: 0
-          }
-        );
-        if (search.path.length === 0 || search.incomplete) {
-          this.say('deir');
-          this.moveRandom();
-          return true;
-        }
-        this.memory.routing.cache[target.id] = search;
-      }
-
-      let path = this.memory.routing.cache[target.id].path;
-      let pos = _.findIndex(path, i => i.x == this.pos.x && i.y == this.pos.y);
-      // if (pos < 0) {
-      // this.log(JSON.stringify(path));
-      // this.say('no path pos');
-      // delete this.memory.routing.cache[target.id];
-      // return true;
-      // }
-      // this.log(pos);
-      if (!path[pos + 1]) {
-        this.log('config_creep_resources.getEnergy EOP pos: ' + pos + ' path: ' + JSON.stringify(path) + ' target: ' + target.pos + ' pos: ' + this.pos);
-        this.say('EOP');
-        delete this.memory.routing.cache[target.id];
-        this.moveRandom();
-        return true;
-      }
-      if (this.pos.getRangeTo(path[pos + 1].x, path[pos + 1].y) > 1) {
-        delete this.memory.routing.cache[target.id];
-        return true;
-      }
-      //       this.say('de:' + this.pos.getDirectionTo(path[pos + 1].x, path[pos + 1].y), true);
-      if (!this.pos.getDirectionTo(path[pos + 1].x, path[pos + 1].y)) {
-        this.log(pos + ' ' + this.pos.getDirectionTo(path[pos + 1].x, path[pos + 1].y) + ' ' + JSON.stringify(path));
-        this.say('no path pos');
-        delete this.memory.routing.cache[target.id];
-        return true;
-      }
-      let returnCode = this.move(this.pos.getDirectionTo(path[pos + 1].x, path[pos + 1].y));
-      return true;
-    }
+  if (this.getDroppedEnergy()) {
+    return true;
   }
 
   let hostileStructures = this.room.find(FIND_HOSTILE_STRUCTURES, {

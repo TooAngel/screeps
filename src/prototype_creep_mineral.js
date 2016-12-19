@@ -136,7 +136,6 @@ Creep.prototype.handleMineralCreep = function() {
     }
     creep.log('get: ' + returnCode + ' target: ' + target + ' resource: ' + resource + ' amount: ' + amount);
     creep.log(target.mineralAmount + ' ' + (creep.carryCapacity - _.sum(creep.carry)));
-    creep.log(JSON.stringify(target.pos));
   }
 
   function cleanUpLabs(creep) {
@@ -575,7 +574,6 @@ Creep.prototype.boost = function() {
   if (true) {
     return false;
   }
-  //this.log(JSON.stringify(parts));
   for (let part in parts) {
     for (boost in BOOSTS[part]) {
       for (let action in BOOSTS[part][boost]) {

@@ -142,7 +142,6 @@ Room.prototype.updatePosition = function() {
         room: this.name
       }];
       let path = this.getPath(route, 0, 'pathStart', source.id, true);
-      this.log(JSON.stringify(path));
       for (let pos of path) {
         let posObject = new RoomPosition(pos.x, pos.y, this.name);
         let sourcer = this.memory.position.creep[source.id];

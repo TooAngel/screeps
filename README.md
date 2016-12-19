@@ -45,6 +45,15 @@ welcome.
  - Automatic attack 
  - Rebuild of fallen rooms 
 
+## Tweaking
+
+A `src/friends.js` can be used to add players which are ignored (hopefully) in
+and `FIND_HOSTILE` finds.
+
+E.g.: 
+`module.exports = ['TooAngel'];`
+
+In `src/config.js` multiple config variables are available for tweaking.
 
 ## Upload
 
