@@ -28,12 +28,7 @@ roles.sourcer.preMove = function(creep, directions) {
   // Misplaced spawn
   if (creep.room.name == creep.memory.base && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
     //    creep.say('smis', true);
-    let targetId = creep.memory.target_id;
-    if (creep.memory.routing) {
-      targetId = creep.memory.routing.targetId;
-    } else {
-      console.log('No routing');
-    }
+    let targetId = creep.memory.routing.targetId;
 
     var source = creep.room.memory.position.creep[targetId];
     // TODO better the position from the room memory

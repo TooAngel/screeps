@@ -111,41 +111,6 @@ Creep.prototype.getPathPos = function(route, routePos, path) {
   return pathPos;
 };
 
-Creep.prototype.initRouting = function() {
-  if (this.memory.routing) {
-    return;
-  }
-
-  let targetId = this.memory.targetId || this.memory.target_id;
-  // TODO special case for storagefiller, handle better
-  // TODO rename storagefiller to e.g. filler
-  if (this.memory.role == 'storagefiller') {
-    targetId = 'filler';
-  }
-  // TODO rename harvester? => Distributor?
-  if (this.memory.role == 'harvester') {
-    targetId = 'harvester';
-  }
-  if (this.memory.role == 'upgrader') {
-    targetId = this.room.controller.id;
-  }
-
-  if (this.memory.role == 'repairer') {
-    targetId = undefined;
-  }
-
-  this.memory.routing = this.memory.routing || {
-    // Some legacy values
-    targetRoom: this.memory.target || this.memory.base,
-    targetId: targetId
-  };
-
-  if (!this.memory.routing.targetId) {
-    // Special case, sourcer somehow broke
-    this.memory.routing.targetId = this.memory.target_id;
-  }
-};
-
 Creep.prototype.getDirections = function(path, pathPos) {
   let flee = false;
   if (this.room.name != this.memory.base && Room.isRoomUnderAttack(this.room.name)) {

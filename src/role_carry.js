@@ -32,12 +32,7 @@ roles.carry.preMove = function(creep, directions) {
       creep.moveTo(structure);
       creep.transfer(structure, RESOURCE_ENERGY);
     } else {
-      let targetId = creep.memory.target_id;
-      if (creep.memory.routing) {
-        targetId = creep.memory.routing.targetId;
-      } else {
-        console.log('No routing');
-      }
+      let targetId = creep.memory.routing.targetId;
 
       var source = creep.room.memory.position.creep[targetId];
       // TODO better the position from the room memory

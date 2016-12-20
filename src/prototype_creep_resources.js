@@ -903,8 +903,6 @@ Creep.prototype.handleReserver = function() {
 
           var sourcer_spawn = {
             role: 'sourcer',
-            target: sources[sources_id].pos.roomName,
-            target_id: sources[sources_id].id,
             routing: {
               targetRoom: sources[sources_id].pos.roomName,
               targetId: sources[sources_id].id

@@ -39,8 +39,6 @@ Creep.prototype.handle = function() {
     }
 
     if (unit.action) {
-      this.initRouting();
-
       if (this.memory.routing && this.memory.routing.reached) {
         if (this.room.name == this.memory.base || !Room.isRoomUnderAttack(this.room.name)) {
           // TODO maybe rename action to ... something better
