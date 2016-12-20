@@ -4,9 +4,6 @@ Creep.prototype.harvesterBeforeStorage = function() {
   var methods = [
     Creep.getEnergy
   ];
-  if (this.room.storage && this.room.storage.store.energy > config.creep.energyFromStorageThreshold) {
-    methods = [Creep.getEnergyFromStorage];
-  }
 
   if (this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / 10 || this.room.controller.level == 1) {
     methods.push(Creep.upgradeControllerTask);
@@ -490,40 +487,6 @@ Creep.prototype.transferMy = function() {
   return false;
 };
 
-Creep.prototype.getDroppedEnergy = function() {
-  let target = this.pos.findClosestByRange(FIND_DROPPED_ENERGY, {
-    filter: function(object) {
-      return 0 < object.energy;
-    }
-  });
-  if (target !== null) {
-    var energyRange = this.pos.getRangeTo(target.pos);
-    if (energyRange <= 1) {
-      this.pickup(target);
-      return true;
-    }
-    if (300 < target.energy && energyRange < 4) {
-      let search = PathFinder.search(
-        this.pos, {
-          pos: target.pos,
-          range: 1
-        }, {
-          roomCallback: this.room.getAvoids(this.room, {}, true),
-          maxRooms: 0
-        }
-      );
-      if (search.path.length === 0 || search.incomplete) {
-        this.say('deir');
-        this.moveRandom();
-        return true;
-      }
-      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
-      return true;
-    }
-  }
-  return false;
-};
-
 Creep.prototype.getEnergy = function() {
   if (this.carry.energy == this.carryCapacity) {
     return false;
@@ -533,41 +496,12 @@ Creep.prototype.getEnergy = function() {
     return true;
   }
 
-  let hostileStructures = this.room.find(FIND_HOSTILE_STRUCTURES, {
-    filter: function(object) {
-      if (object.structureType == STRUCTURE_CONTROLLER) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_RAMPART) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_EXTRACTOR) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_STORAGE && object.store.energy === 0) {
-        return false;
-      }
-      if (object.energy === 0) {
-        return false;
-      }
-      return true;
-    }
-  });
-  hostileStructures = _.sortBy(hostileStructures, function(object) {
-    if (object.structureType == STRUCTURE_STORAGE) {
-      return 1;
-    }
-    return 2;
-  });
-  if (hostileStructures.length > 0 && !this.carry.energy) {
-    let structure = hostileStructures[0];
-    let range = this.pos.getRangeTo(structure);
-    if (this.carry.energy === 0 || range < 5) {
-      this.say('hostile');
-      this.moveTo(structure);
-      this.withdraw(structure, RESOURCE_ENERGY);
-      return true;
-    }
+  if (this.getEnergyFromStorage()) {
+    return true;
+  }
+
+  if (this.getEnergyFromHostileStructures()) {
+    return true;
   }
 
   var range = null;

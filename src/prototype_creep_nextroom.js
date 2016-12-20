@@ -250,9 +250,7 @@ Creep.prototype.handleNextroomer = function() {
       }
     }
 
-    let methods = (creep.room.controller && creep.room.controller.level >= 5 &&
-      creep.room.storage && creep.room.storage.store.energy > 100) ? [Creep.getEnergyFromStorage] : [Creep.getEnergy];
-
+    let methods = [Creep.getEnergy];
     if (creep.room.controller.ticksToDowngrade < 1500) {
       methods.push(Creep.upgradeControllerTask);
     }

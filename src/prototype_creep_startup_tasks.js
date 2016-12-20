@@ -126,83 +126,78 @@ Creep.repairStructure = function(creep) {
   return creep.repairStructure();
 };
 
-Creep.getEnergyFromStorage = function(creep) {
-  //  creep.say('FromStorage', true);
-  if (0 < creep.carry.energy) {
-    return false;
-  }
-
-  if (creep.getDroppedEnergy()) {
-    return true;
-  }
-
-  var storage = creep.room.storage;
-  if (!storage) {
-    creep.log('No storage');
-
-    let transferablesFull = function(object) {
-      if (object.structureType == STRUCTURE_RAMPART) {
-        return false;
-      }
+Creep.prototype.getEnergyFromHostileStructures = function() {
+  let hostileStructures = this.room.find(FIND_HOSTILE_STRUCTURES, {
+    filter: function(object) {
       if (object.structureType == STRUCTURE_CONTROLLER) {
         return false;
       }
-      if (object.structureType == STRUCTURE_EXTENSION) {
-        return object.energy > 0;
-      }
-      if (object.structureType == STRUCTURE_LINK) {
-        return object.energy > 0;
-      }
-      if (object.structureType == STRUCTURE_SPAWN) {
-        return object.energy > 0;
-      }
-      if (object.structureType == STRUCTURE_STORAGE) {
-        return object.store.energy > 0;
-      }
-      if (object.structureType == STRUCTURE_TOWER) {
+      if (object.structureType == STRUCTURE_RAMPART) {
         return false;
       }
-      if (object.structureType == STRUCTURE_POWER_SPAWN) {
+      if (object.structureType == STRUCTURE_EXTRACTOR) {
         return false;
       }
-      if (object.structureType == STRUCTURE_OBSERVER) {
+      if (object.structureType == STRUCTURE_STORAGE && object.store.energy === 0) {
         return false;
       }
-      console.log('config_creep_startup_tasks.transferablesFull', object.structureType, JSON.stringify(object));
-    };
-
-    storage = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-      filter: transferablesFull
-    });
-  } else {
-    if (storage.store.energy === 0) {
-      return false;
+      if (object.energy === 0) {
+        return false;
+      }
+      return true;
     }
+  });
+  hostileStructures = _.sortBy(hostileStructures, function(object) {
+    if (object.structureType == STRUCTURE_STORAGE) {
+      return 1;
+    }
+    return 2;
+  });
+
+  if (hostileStructures.length === 0 || this.carry.energy) {
+    return false;
   }
 
-  var range = creep.pos.getRangeTo(storage);
+  let structure = hostileStructures[0];
+  let range = this.pos.getRangeTo(structure);
+  if (this.carry.energy === 0 || range < 5) {
+    this.say('hostile');
+    this.moveTo(structure);
+    this.withdraw(structure, RESOURCE_ENERGY);
+    return true;
+  }
+  return false;
+};
+
+Creep.prototype.getEnergyFromStorage = function() {
+  if (!this.room.storage || this.room.storage.store.energy > config.creep.energyFromStorageThreshold) {
+    return false;
+  }
+
+  let storage = this.room.storage;
+  var range = this.pos.getRangeTo(storage);
 
   if (range == 1) {
-    let returnCode = creep.withdraw(storage, RESOURCE_ENERGY);
+    let returnCode = this.withdraw(storage, RESOURCE_ENERGY);
   } else {
     let search = PathFinder.search(
-      creep.pos, {
+      this.pos, {
         pos: storage.pos,
         range: 1
       }, {
-        roomCallback: creep.room.getAvoids(creep.room, {}, true),
+        roomCallback: this.room.getAvoids(this.room, {}, true),
       }
     );
     if (search.incomplete) {
-      creep.say('incomplete', true);
-      creep.moveTo(storage.pos, {
+      this.say('incomplete', true);
+      this.moveTo(storage.pos, {
         ignoreCreeps: true
       });
       return true;
     }
-    let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
+    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
     if (returnCode != OK) {
-      creep.log(`getEnergyFromStorage: ${returnCode}`);
+      this.log(`getEnergyFromStorage: ${returnCode}`);
     }
   }
   return true;
@@ -462,5 +457,38 @@ Creep.prototype.repairStructure = function() {
 
   //   this.log('Nothing found: ' + this.memory.step);
   return false;
+};
 
+Creep.prototype.getDroppedEnergy = function() {
+  let target = this.pos.findClosestByRange(FIND_DROPPED_ENERGY, {
+    filter: function(object) {
+      return 0 < object.energy;
+    }
+  });
+  if (target !== null) {
+    var energyRange = this.pos.getRangeTo(target.pos);
+    if (energyRange <= 1) {
+      this.pickup(target);
+      return true;
+    }
+    if (target.energy > (energyRange * 10) * (this.carry.energy + 1)) {
+      let search = PathFinder.search(
+        this.pos, {
+          pos: target.pos,
+          range: 1
+        }, {
+          roomCallback: this.room.getAvoids(this.room, {}, true),
+          maxRooms: 0
+        }
+      );
+      if (search.path.length === 0 || search.incomplete) {
+        this.say('deir');
+        this.moveRandom();
+        return true;
+      }
+      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+      return true;
+    }
+  }
+  return false;
 };

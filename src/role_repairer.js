@@ -70,10 +70,6 @@ roles.repairer.execute = function(creep) {
     }
 
     var methods = [Creep.getEnergy];
-    if (creep.room.controller.level >= 5 && creep.room.storage && creep.room.storage.store.energy > config.creep.energyFromStorageThreshold) {
-      methods = [Creep.getEnergyFromStorage];
-    }
-
     methods.push(Creep.repairStructure);
     methods.push(Creep.constructTask);
 
