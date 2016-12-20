@@ -481,7 +481,6 @@ Room.prototype.handleSourceKeeperRoom = function() {
       }
       let spawn = {
         role: 'sourcer',
-        source: source.pos,
         target: source.pos.roomName,
         target_id: source.id,
         routing: {

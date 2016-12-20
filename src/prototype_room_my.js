@@ -253,11 +253,6 @@ Room.prototype.executeRoom = function() {
   var building = nextroomers.length > 0 && this.controller.level < 5;
 
   var creepsInRoom = this.find(FIND_MY_CREEPS);
-  if (!building && creepsInRoom.length <= 1 && this.energyAvailable >= 200) {
-    this.spawnCreateCreep('harvester');
-    return true;
-  }
-
   var spawn;
 
   var creepsConfig = [];

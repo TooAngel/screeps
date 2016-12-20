@@ -905,9 +905,12 @@ Creep.prototype.handleReserver = function() {
 
           var sourcer_spawn = {
             role: 'sourcer',
-            source: sources[sources_id].pos,
             target: sources[sources_id].pos.roomName,
-            target_id: sources[sources_id].id
+            target_id: sources[sources_id].id,
+            routing: {
+              targetRoom: sources[sources_id].pos.roomName,
+              targetId: sources[sources_id].id
+            }
           };
 
           Game.rooms[creep.memory.base].memory.queue.push(sourcer_spawn);

@@ -134,18 +134,6 @@ Creep.prototype.initRouting = function() {
     targetId = undefined;
   }
 
-  if (this.memory.role == 'sourcer') {
-    if (!this.memory.target_id) {
-      let sourcePos = new RoomPosition(this.memory.source.x, this.memory.source.y, this.memory.source.roomName);
-      let sources = sourcePos.lookFor(LOOK_SOURCES);
-      if (sources[0]) {
-        targetId = sources[0].id;
-      } else {
-        this.log('!!! config_creep_routing sourcer No sources at source: ' + this.memory.source + ' targetId: ' + this.memory.targetId);
-      }
-    }
-  }
-
   this.memory.routing = this.memory.routing || {
     // Some legacy values
     targetRoom: this.memory.target || this.memory.base,

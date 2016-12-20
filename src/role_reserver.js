@@ -21,7 +21,7 @@ roles.reserver.energyRequired = function(room) {
   return BODYPART_COST[CLAIM] + BODYPART_COST[MOVE];
 };
 
-roles.reserver.energyBuild = function(room, energy, source, heal, level) {
+roles.reserver.energyBuild = function(room, energy, heal, level) {
   if (!level) {
     level = 1;
   }
