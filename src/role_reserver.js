@@ -47,12 +47,6 @@ roles.reserver.action = function(creep) {
 
   // TODO this should be enabled, because the reserver should flee without being attacked
   creep.notifyWhenAttacked(false);
-  if (!creep.memory.target) {
-    creep.log('No target suiciding: ' + JSON.stringify(creep.memory));
-    creep.memory.killed = true;
-    creep.suicide();
-    return true;
-  }
 
   creep.handleReserver();
   return true;

@@ -447,9 +447,7 @@ Creep.prototype.transferToStructures = function() {
       }
     }
   }
-
   return false;
-
 };
 
 Creep.prototype.transferMy = function() {

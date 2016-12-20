@@ -170,7 +170,11 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
 };
 
 Creep.prototype.getEnergyFromStorage = function() {
-  if (!this.room.storage || this.room.storage.store.energy > config.creep.energyFromStorageThreshold) {
+  if (!this.room.storage || this.room.storage.store.energy < config.creep.energyFromStorageThreshold) {
+    return false;
+  }
+
+  if (this.carry.energy > 0) {
     return false;
   }
 

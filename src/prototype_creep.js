@@ -320,7 +320,6 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
       routing.pathPos = 0;
       var spawn = {
         role: this.memory.role,
-        source: this.memory.source,
         target: this.memory.target,
         target_id: this.memory.target_id,
         heal: this.memory.heal,
@@ -342,8 +341,7 @@ Creep.prototype.setNextSpawn = function() {
 
     if (this.ticksToLive < this.memory.nextSpawn) {
       var spawn = {
-        role: this.memory.role,
-        source: this.memory.source
+        role: this.memory.role
       };
       Game.rooms[this.memory.base].memory.queue.push(spawn);
     }
