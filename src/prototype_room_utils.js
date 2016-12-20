@@ -72,8 +72,6 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
 
   let creepMemory = {
     role: role,
-    target: targetRoom,
-    target_id: targetId,
     routing: {
       targetRoom: targetRoom,
       targetId: targetId

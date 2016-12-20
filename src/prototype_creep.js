@@ -311,17 +311,13 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
         }
       }
 
-      let routing = {};
-      if (this.memory.routing) {
-        routing = JSON.parse(JSON.stringify(this.memory.routing));
-      }
-      routing.reached = false;
-      routing.routePos = 0;
-      routing.pathPos = 0;
+      let routing = {
+        targetRoom: this.memory.routing.targetRoom,
+        targetId: this.memory.routing.targetId,
+        route: this.memory.routing.route,
+      };
       var spawn = {
         role: this.memory.role,
-        target: this.memory.target,
-        target_id: this.memory.target_id,
         heal: this.memory.heal,
         level: this.memory.level,
         routing: routing

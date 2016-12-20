@@ -83,7 +83,7 @@ global.config = {
   },
 
   creep: {
-    renewOffset: 20,
+    renewOffset: 0,
     queueTtl: 100,
     structurer: true,
     reserverDefender: true,

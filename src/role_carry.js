@@ -105,12 +105,6 @@ roles.carry.preMove = function(creep, directions) {
     }
   }
 
-  creep.memory.routing = creep.memory.routing || {
-    // Some legacy values
-    targetRoom: creep.memory.target,
-    targetId: creep.memory.targetId || creep.memory.target_id
-  };
-
   reverse = creep.pickupWhileMoving(reverse);
   if (reverse) {
     //     creep.log('reverse');
@@ -126,10 +120,16 @@ roles.carry.action = function(creep) {
   // TODO log when this happens, carry is getting energy from the source
   //   creep.log('ACTION');
   let source = Game.getObjectById(creep.memory.routing.targetId);
-  if (source === null || (!creep.memory.targetId && creep.pos.getRangeTo(source.pos) > 1)) {
+  if (source === null) {
     creep.say('sfener');
     creep.memory.routing.reached = false;
     creep.memory.routing.reverse = true;
+
+    let sources = creep.pos.findInRange(FIND_SOURCES, 3);
+    if (sources.length > 0) {
+      creep.memory.routing.targetId = sources[0].id;
+      return true;
+    }
 
     let resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
     if (resource !== null) {
