@@ -1,6 +1,16 @@
 'use strict';
 
+Room.prototype.handle = function() {
+  if (this.controller && this.controller.my) {
+    return this.myHandleRoom();
+  }
+  this.externalHandleRoom();
+  return false;
+};
+
 Room.prototype.execute = function() {
+
+
 
   try {
     let returnCode = this.handle();
@@ -18,12 +28,4 @@ Room.prototype.execute = function() {
     return false;
 
   }
-};
-
-Room.prototype.handle = function() {
-  if (this.controller && this.controller.my) {
-    return this.myHandleRoom();
-  }
-  this.externalHandleRoom();
-  return false;
 };
