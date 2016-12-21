@@ -159,6 +159,14 @@ module.exports = function(grunt) {
         esnext: true
       }
     },
+    jsbeautifier: {
+      files: ["Gruntfile.js", "src/*.js"],
+      options: {
+        js: {
+          indentSize: 2
+        }
+      }
+    },
     mochaTest: {
       src: ['test/**/*.js']
     },
