@@ -21,7 +21,7 @@ var main = function() {
   brain.prepareMemory();
   brain.handleNextroom();
   brain.handleSquadmanager();
-  Memory.myRooms = _.invoke(_.filter(Game.rooms, (r) => r.execute()), 'name');
+  Memory.myRooms = _.invoke(_.filter(Game.rooms, (r) => r.execute()), Room.prototype.name);
 };
 
 module.exports.loop = function() {
