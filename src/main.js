@@ -22,7 +22,7 @@ var main = function() {
   brain.handleNextroom();
   brain.handleSquadmanager();
 
-  Memory.myRooms = _.map(_.filter(Game.rooms, (r) => r.execute()), r => r.name)
+  Memory.myRooms = _.map(_.filter(Game.rooms, (r) => r.execute()), r => r.name);
 
 };
 
