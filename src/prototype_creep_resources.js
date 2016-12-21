@@ -815,7 +815,7 @@ Creep.prototype.handleReserver = function() {
   if (this.room.controller.reservation && this.room.controller.reservation.ticksToEnd > 4500) {
     this.memory.level = 1;
   }
-  if (!this.room.controller.my && (!this.room.controller.reservation || this.room.controller.reservation.username != Memory.username)) {
+  if (!this.room.controller.my && this.room.controller.reservation && this.room.controller.reservation.username != Memory.username) {
     this.memory.level = 5;
   }
   this.spawnReplacement(1);
@@ -863,7 +863,12 @@ Creep.prototype.handleReserver = function() {
         creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resource_structures[0].structureType);
         Game.rooms[creep.memory.base].memory.queue.push({
           role: 'structurer',
-          target: creep.room.name
+          routing: {
+            targetRoom: this.name,
+            reached: false,
+            routePos: 0,
+            pathPos: 0
+          }
         });
         return true;
       }
@@ -921,7 +926,9 @@ Creep.prototype.handleReserver = function() {
       if (!this.memory.defender_called) {
         Game.rooms[this.memory.base].memory.queue.push({
           role: 'defender',
-          target: this.room.name
+          routing: {
+            targetRoom: this.room.name
+          },
         });
         this.memory.defender_called = true;
       }

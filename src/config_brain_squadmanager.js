@@ -110,22 +110,30 @@ brain.startSquad = function(roomNameFrom, roomNameAttack) {
 
   Game.rooms[roomNameFrom].memory.queue.push({
     role: 'squadsiege',
-    target: roomNameAttack,
+    routing: {
+      targetRoom: roomNameAttack
+    },
     squad: name
   });
   Game.rooms[roomNameFrom].memory.queue.push({
     role: 'squadheal',
-    target: roomNameAttack,
+    routing: {
+      targetRoom: roomNameAttack
+    },
     squad: name
   });
   Game.rooms[roomNameFrom].memory.queue.push({
     role: 'squadheal',
-    target: roomNameAttack,
+    routing: {
+      targetRoom: roomNameAttack
+    },
     squad: name
   });
   Game.rooms[roomNameFrom].memory.queue.push({
     role: 'squadheal',
-    target: roomNameAttack,
+    routing: {
+      targetRoom: roomNameAttack
+    },
     squad: name
   });
   let squad = {

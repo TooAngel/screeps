@@ -538,7 +538,9 @@ Room.prototype.reviveRoom = function() {
       if (distance < config.nextRoom.maxDistance) {
         let creepToSpawn = {
           role: 'nextroomer',
-          target: this.name
+          routing: {
+            targetRoom: this.name
+          }
         };
         if (this.memory.wayBlocked) {
           creepToSpawn.role = 'nextroomerattack';
@@ -548,7 +550,9 @@ Room.prototype.reviveRoom = function() {
           roomOther.log('Queuing defender for ' + this.name);
           roomOther.memory.queue.push({
             role: 'defender',
-            target: this.name
+            routing: {
+              targetRoom: this.name
+            }
           });
         }
         roomOther.log('Queuing ' + creepToSpawn.role + ' for ' + this.name);

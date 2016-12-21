@@ -79,13 +79,13 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
   if (this.memory.queue.length > 0 && (creepsConfig.length === 0 || creepsConfig[0] != 'harvester')) {
     let room = this;
     let priorityQueue = function(object) {
+      if (object.role == 'harvester') {
+        return 1;
+      }
 
-      let target = object.routing && object.routing.targetRoom || object.target;
+      let target = object.routing && object.routing.targetRoom;
 
       if (target == room.name) {
-        if (object.role == 'harvester') {
-          return 1;
-        }
         if (object.role == 'sourcer') {
           return 2;
         }
