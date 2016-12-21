@@ -361,6 +361,9 @@ Room.prototype.handleUnreservedRoom = function() {
 
   for (let roomName of Memory.myRooms) {
     let room = Game.rooms[roomName];
+    if (!room) {
+      return false;
+    }
     // TODO mark as reserved earlier, but only send sourcer
     if (room.controller.level < 4) {
       continue;
