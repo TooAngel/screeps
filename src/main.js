@@ -23,20 +23,8 @@ var main = function() {
   brain.handleSquadmanager();
   brain.handleIncomingTransactions();
 
-  var myRooms = [];
-  for (var roomName in Game.rooms) {
-    let room = Game.rooms[roomName];
-    try {
-      if (room.execute()) {
-        myRooms.push(roomName);
-      }
-    } catch (err) {
-      room.log('Executing room failed: ' + room.name + ' ' + err + ' ' + err.stack);
-      Game.notify('Executing room failed: ' + room.name + ' ' + err + ' ' + err.stack, 30);
-    }
-  }
+  Memory.myRooms = _.map(_.filter(Game.rooms, (r) => r.execute()), r => r.name);
 
-  Memory.myRooms = myRooms;
 };
 
 module.exports.loop = function() {
