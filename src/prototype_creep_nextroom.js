@@ -67,7 +67,9 @@ Creep.prototype.handleNextroomer = function() {
     });
 
     if (towers.length > 0) {
-      if (buildRamparts(creep)) return true;
+      if (buildRamparts(creep)) {
+        return true
+      }
 
       for (let towerId in towers) {
         let tower = towers[towerId];
@@ -76,7 +78,9 @@ Creep.prototype.handleNextroomer = function() {
           return false;
         } else {
           let returnCode = creep.transfer(tower, RESOURCE_ENERGY);
-          if (returnCode === OK) return true;
+          if (returnCode === OK) {
+            return true
+          }
 
           //if (returnCode === ERR_FULL) {}
           // Don't know what to do
@@ -85,7 +89,9 @@ Creep.prototype.handleNextroomer = function() {
         }
       }
       return buildRamparts(creep);
-    } else if (buildRamparts(creep)) return true;
+    } else if (buildRamparts(creep)) {
+      return true
+    }
 
     let linkPosMem = room.memory.position.structure.link[0];
 
@@ -94,7 +100,9 @@ Creep.prototype.handleNextroomer = function() {
     }
     let linkPos = new RoomPosition(linkPosMem.x, linkPosMem.y, linkPosMem.roomName);
     let returnCode = linkPos.createConstructionSite(STRUCTURE_TOWER);
-    if (returnCode === ERR_RCL_NOT_ENOUGH) delete room.memory.underSiege;
+    if (returnCode === ERR_RCL_NOT_ENOUGH) {
+      delete room.memory.underSiege
+    }
 
     creep.log('Build tower: ' + returnCode);
 
@@ -112,7 +120,9 @@ Creep.prototype.handleNextroomer = function() {
           });
           let range = creep.pos.getRangeTo(creep_without_energy);
 
-          if (range === 1) creep.transfer(creep_without_energy, RESOURCE_ENERGY);
+          if (range === 1) {
+            creep.transfer(creep_without_energy, RESOURCE_ENERGY)
+          }
 
         }
         return true;
@@ -127,8 +137,10 @@ Creep.prototype.handleNextroomer = function() {
       let sourcerPosMem = room.memory.position.creep[creep.memory.targetId];
       let source = Game.getObjectById(creep.memory.targetId);
       if (creep.pos.isEqualTo(sourcerPosMem.x, sourcerPosMem.y)) {
-        return stayAtSource(creep, source);
-      } else delete creep.memory.targetId;
+        return stayAtSource(creep, source)
+      } else {
+        delete creep.memory.targetId
+      }
 
 
     }
@@ -236,7 +248,9 @@ Creep.prototype.handleNextroomer = function() {
         }
 
       });
-      for (let cs of constructionSites) cs.remove();
+      for (let cs of constructionSites) {
+        cs.remove();
+      }
 
     }
 
