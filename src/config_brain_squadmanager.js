@@ -30,6 +30,10 @@ brain.increaseIdiot = function(name, value) {
   if (!value) {
     value = 1;
   }
+  if (!Memory.players) {
+    Memory.players = {};
+  }
+
   if (!Memory.players[name]) {
     Memory.players[name] = {
       name: name,

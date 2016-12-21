@@ -1,6 +1,12 @@
 'use strict';
 
 Creep.prototype.getRoute = function() {
+  if (!this.memory.routing) {
+    this.log('No routing why?');
+    this.suicide();
+    throw new Error();
+  }
+
   if (this.memory.routing.route) {
     return this.memory.routing.route;
   }
