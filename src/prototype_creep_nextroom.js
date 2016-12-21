@@ -6,7 +6,7 @@ Creep.prototype.handleNextroomer = function() {
   function checkForRampart(coords) {
     let pos = new RoomPosition(coords.x, coords.y, coords.roomName);
     let structures = pos.lookFor('structure');
-    return _.find(structures, (s) => s.structureType === STRUCTURE_RAMPART)
+    return _.find(structures, (s) => s.structureType === STRUCTURE_RAMPART);
   }
 
   function buildRamparts(creep) {
@@ -74,7 +74,7 @@ Creep.prototype.handleNextroomer = function() {
           let returnCode = creep.transfer(tower, RESOURCE_ENERGY);
           if (returnCode === OK) return true;
 
-          if (returnCode === ERR_FULL) {};
+          //if (returnCode === ERR_FULL) {}
           // Don't know what to do
           creep.say(returnCode);
           return true;
@@ -124,7 +124,7 @@ Creep.prototype.handleNextroomer = function() {
       let sourcerPosMem = room.memory.position.creep[creep.memory.targetId];
       let source = Game.getObjectById(creep.memory.targetId);
       if(creep.pos.isEqualTo(sourcerPosMem.x, sourcerPosMem.y) ){
-        return stayAtSource(creep, source)
+        return stayAtSource(creep, source);
       } else delete creep.memory.targetId;
 
 
@@ -174,8 +174,8 @@ Creep.prototype.handleNextroomer = function() {
     if (creep.carry.energy > 0) {
       var towers = creep.room.find(FIND_STRUCTURES, {
         filter: function(object) {
-          return ( object.structureType === STRUCTURE_TOWER
-              && object.energy < 10 );
+          return ( object.structureType === STRUCTURE_TOWER &&
+             object.energy < 10 );
 
         }
       });
@@ -194,14 +194,14 @@ Creep.prototype.handleNextroomer = function() {
              [STRUCTURE_EXTRACTOR]: false,
              [STRUCTURE_WALL]: false,
              [STRUCTURE_CONTROLLER]: false
-          }
+          };
           return table[object.structureType] || true;
         }
       });
 
       if (hostileStructures.length) {
 
-        structure = _.max(hostileStructures, s => s.structureType === STRUCTURE_STORAGE)
+        let structure = _.max(hostileStructures, s => s.structureType === STRUCTURE_STORAGE);
 
         if (structure.structureType === STRUCTURE_STORAGE) {
           if (structure.store.energy === 0) {
@@ -237,8 +237,8 @@ Creep.prototype.handleNextroomer = function() {
 
     }
 
-    let methods = (creep.room.controller && creep.room.controller.level >= 5
-          && creep.room.storage && creep.room.storage.store.energy > 100) ?
+    let methods = (creep.room.controller && creep.room.controller.level >= 5 &&
+       creep.room.storage && creep.room.storage.store.energy > 100) ?
            [Creep.getEnergyFromStorage] : [Creep.getEnergy];
 
     if (creep.room.controller.ticksToDowngrade < 1500) {
