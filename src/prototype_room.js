@@ -9,9 +9,6 @@ Room.prototype.handle = function() {
 };
 
 Room.prototype.execute = function() {
-
-
-
   try {
     let returnCode = this.handle();
     for (var creep of this.find(FIND_MY_CREEPS)) {
