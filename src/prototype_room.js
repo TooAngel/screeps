@@ -1,14 +1,24 @@
 'use strict';
 
 Room.prototype.execute = function() {
-  let returnCode = this.handle();
-  for (var creep of this.find(FIND_MY_CREEPS)) {
-    creep.handle();
+  var Try = function() {
+    let returnCode = this.handle();
+    for (var creep of this.find(FIND_MY_CREEPS)) {
+      creep.handle();
+    }
+    delete this.transferableStructures;
+    delete this.droppedResources;
+    delete this.constructionSites;
+    return returnCode;
+  };
+
+  try {
+    return Try();
+  } catch (err) {
+    this.log('Executing room failed: ' + this.name + ' ' + err + ' ' + err.stack);
+    Game.notify('Executing room failed: ' + this.name + ' ' + err + ' ' + err.stack, 30);
+    return false;
   }
-  delete this.transferableStructures;
-  delete this.droppedResources;
-  delete this.constructionSites;
-  return returnCode;
 };
 
 Room.prototype.handle = function() {
