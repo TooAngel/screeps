@@ -103,9 +103,7 @@ Creep.prototype.handleNextroomer = function() {
     if (returnCode === ERR_RCL_NOT_ENOUGH) {
       delete room.memory.underSiege;
     }
-
     creep.log('Build tower: ' + returnCode);
-
   }
 
   function stayAtSource(creep, source) {
@@ -140,9 +138,8 @@ Creep.prototype.handleNextroomer = function() {
         return stayAtSource(creep, source);
       } else {
         delete creep.memory.targetId;
+
       }
-
-
     }
 
     let sources = room.find(FIND_SOURCES);
@@ -251,7 +248,6 @@ Creep.prototype.handleNextroomer = function() {
       for (let cs of constructionSites) {
         cs.remove();
       }
-
     }
 
     let methods = (creep.room.controller && creep.room.controller.level >= 5 &&
@@ -260,6 +256,7 @@ Creep.prototype.handleNextroomer = function() {
     if (creep.room.controller.ticksToDowngrade < 1500) {
       methods.push(Creep.upgradeControllerTask);
     }
+
     let structures = creep.room.find(FIND_MY_CONSTRUCTION_SITES, {
       filter: function(object) {
         let table = {
@@ -273,9 +270,11 @@ Creep.prototype.handleNextroomer = function() {
     if (creep.room.controller.level >= 3 && structures.length > 0) {
       methods.push(Creep.constructTask);
     }
+
     if (creep.room.controller.level < 8) {
       methods.push(Creep.upgradeControllerTask);
     }
+
     methods.push(Creep.transferEnergy);
     return Creep.execute(creep, methods);
   }
