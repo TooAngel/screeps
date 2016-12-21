@@ -84,15 +84,14 @@ Creep.prototype.handleNextroomer = function() {
     }
     else if (buildRamparts(creep)) return true;
 
-
-
     let linkPosMem = room.memory.position.structure.link[0];
+
     if (creep.pos.getRangeTo(linkPosMem.x, linkPosMem.y) > 1) {
       linkPosMem = room.memory.position.structure.link[1];
     }
     let linkPos = new RoomPosition(linkPosMem.x, linkPosMem.y, linkPosMem.roomName);
     let returnCode = linkPos.createConstructionSite(STRUCTURE_TOWER);
-    if (returnCode == ERR_RCL_NOT_ENOUGH) delete room.memory.underSiege;
+    if (returnCode === ERR_RCL_NOT_ENOUGH) delete room.memory.underSiege;
 
     creep.log('Build tower: ' + returnCode);
 
@@ -199,12 +198,11 @@ Creep.prototype.handleNextroomer = function() {
           return table[object.structureType] || true;
         }
       });
-      hostileStructures = _.sortBy(hostileStructures, function(object) {
-        return (object.structureType === STRUCTURE_STORAGE) ? 2 : 1 ;
 
-      });
       if (hostileStructures.length) {
-        let structure = hostileStructures[0];
+
+        structure = _.max(hostileStructures, s => s.structureType === STRUCTURE_STORAGE)
+
         if (structure.structureType === STRUCTURE_STORAGE) {
           if (structure.store.energy === 0) {
             structure.destroy();
