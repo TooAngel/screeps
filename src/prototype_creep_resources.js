@@ -806,10 +806,6 @@ Creep.prototype.transferEnergyMy = function() {
 };
 
 Creep.prototype.handleReserver = function() {
-  if (!this.memory.target_id) {
-    this.memory.target_id = this.room.controller.id;
-  }
-
   if (this.room.name != this.memory.routing.targetRoom) {
     this.memory.routing.reached = false;
     return false;
@@ -881,7 +877,7 @@ Creep.prototype.handleReserver = function() {
       let checkSourcerMatch = function(sourcers, source_id) {
         for (var sourcer_i in sourcers) {
           var sourcer = sourcers[sourcer_i];
-          if (sourcer.memory.target_id == source_id) {
+          if (sourcer.memory.routing.targetId == source_id) {
             return true;
           }
         }

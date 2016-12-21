@@ -265,7 +265,7 @@ Room.prototype.executeRoom = function() {
         amount = 5;
       }
     }
-    this.checkRoleToSpawn('harvester', amount);
+    this.checkRoleToSpawn('harvester', amount, 'harvester');
   }
 
   if (this.memory.attack_timer > 100) {
@@ -338,11 +338,11 @@ Room.prototype.executeRoom = function() {
   this.checkAndSpawnSourcer();
 
   if (this.controller.level >= 4 && this.storage) {
-    this.checkRoleToSpawn('storagefiller');
+    this.checkRoleToSpawn('storagefiller', 1, 'filler');
   }
 
   if (this.storage && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
-    this.checkRoleToSpawn('upgrader');
+    this.checkRoleToSpawn('upgrader', 1, this.controller.id);
   }
 
   var constructionSites = this.find(FIND_MY_CONSTRUCTION_SITES, {

@@ -290,6 +290,24 @@ Creep.prototype.killPrevious = function() {
   }
 };
 
+Creep.prototype.respawnMe = function() {
+  let routing = {
+    targetRoom: this.memory.routing.targetRoom,
+    targetId: this.memory.routing.targetId,
+    route: this.memory.routing.route,
+  };
+  var spawn = {
+    role: this.memory.role,
+    heal: this.memory.heal,
+    level: this.memory.level,
+    routing: routing
+  };
+  Game.rooms[this.memory.base].memory.queue.push(spawn);
+  if (spawn.role == 'reserver') {
+    console.log('Add reserver to queue: ' + JSON.stringify(spawn));
+  }
+};
+
 Creep.prototype.spawnReplacement = function(maxOfRole) {
   if (this.memory.nextSpawn) {
     //    this.say('sr: ' + (this.ticksToLive - this.memory.nextSpawn));
@@ -308,22 +326,7 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
           return false;
         }
       }
-
-      let routing = {
-        targetRoom: this.memory.routing.targetRoom,
-        targetId: this.memory.routing.targetId,
-        route: this.memory.routing.route,
-      };
-      var spawn = {
-        role: this.memory.role,
-        heal: this.memory.heal,
-        level: this.memory.level,
-        routing: routing
-      };
-      Game.rooms[this.memory.base].memory.queue.push(spawn);
-      if (spawn.role == 'reserver') {
-        console.log('Add reserver to queue: ' + JSON.stringify(spawn));
-      }
+      this.respawnMe();
     }
   }
 };
@@ -334,10 +337,7 @@ Creep.prototype.setNextSpawn = function() {
     //    this.killPrevious();
 
     if (this.ticksToLive < this.memory.nextSpawn) {
-      var spawn = {
-        role: this.memory.role
-      };
-      Game.rooms[this.memory.base].memory.queue.push(spawn);
+      this.respawnMe();
     }
   }
 };

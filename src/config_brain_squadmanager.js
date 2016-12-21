@@ -27,12 +27,8 @@ brain.increaseIdiot = function(name, value) {
     return false;
   }
 
-  if (!value) {
-    value = 1;
-  }
-  if (!Memory.players) {
-    Memory.players = {};
-  }
+  value = value || 1;
+  Memory.players = Memory.players || {};
 
   if (!Memory.players[name]) {
     Memory.players[name] = {

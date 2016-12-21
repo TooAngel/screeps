@@ -223,9 +223,8 @@ Creep.prototype.handleNextroomer = function() {
         } else if (!structure.energy) {
           structure.destroy();
           return true;
-
         }
-        creep.say('ho: ' + structure.pos);
+        creep.say('ho: ' + structure.pos, true);
         creep.log(structure.structureType);
         creep.moveTo(structure);
         creep.withdraw(structure, RESOURCE_ENERGY);
