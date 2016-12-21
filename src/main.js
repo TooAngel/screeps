@@ -21,7 +21,11 @@ var main = function() {
   brain.prepareMemory();
   brain.handleNextroom();
   brain.handleSquadmanager();
-  Memory.myRooms = _.invoke(_.filter(Game.rooms, (r) => r.execute()), Room.prototype.name);
+
+  let mine = _.filter(Game.rooms, (r) => r.execute());
+  Memory.myRooms = [];
+  mine.forEach(r => Memory.myRooms.push(r.name));
+
 };
 
 module.exports.loop = function() {
