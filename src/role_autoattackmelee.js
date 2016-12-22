@@ -36,6 +36,18 @@ roles.autoattackmelee.action = function(creep) {
     Game.notify(Game.time + ' ' + creep.room.name + ' Attacking');
     creep.memory.notified = true;
   }
+
+  if (creep.room.name != creep.memory.routing.targetRoom) {
+    creep.memory.routing.reached = false;
+    return true;
+  }
+
+  if (creep.room.controller.safeMode) {
+    let constructionSites = creep.room.find(FIND_CONSTRUCTION_SITES);
+    creep.moveTo(constructionSites[0]);
+    return true;
+  }
+
   var spawn = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
     filter: function(object) {
       if (object.structureType == STRUCTURE_SPAWN) {
@@ -87,14 +99,8 @@ roles.autoattackmelee.action = function(creep) {
     creep.attack(spawn);
   } else {
     let structures = creep.pos.findInRange(FIND_STRUCTURES, 1);
-    if (creep.room.name == 'W7S65') {
-      creep.log(JSON.stringify(structures));
-    }
     creep.cancelOrder('attack');
     let returnCode = creep.attack(structures[0]);
-    if (creep.room.name == 'W7S65') {
-      creep.log('returnCode: ' + returnCode);
-    }
   }
   return true;
 };
