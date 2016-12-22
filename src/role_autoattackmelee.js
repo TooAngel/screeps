@@ -48,7 +48,7 @@ roles.autoattackmelee.action = function(creep) {
   if (spawn === null) {
     var hostileCreep = creep.findClosestEnemy();
     if (hostileCreep === null) {
-      var structures = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
+      let structures = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
         filter: function(object) {
           if (object.structureType == STRUCTURE_CONTROLLER) {
             return false;
@@ -83,7 +83,15 @@ roles.autoattackmelee.action = function(creep) {
     }
   );
   creep.move(creep.pos.getDirectionTo(search.path[0]));
-  creep.attack(spawn);
+  if (creep.pos.getRangeTo(spawn.pos) <= 1) {
+    creep.attack(spawn);
+  } else {
+    let structures = creep.pos.findInRange(FIND_STRUCTURES, 1);
+    if (creep.room.name == 'W7S65') {
+    	creep.log(JSON.stringify(structures));
+    }
+    creep.attack(structures[0]);
+  }
   return true;
 };
 
