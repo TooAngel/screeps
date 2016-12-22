@@ -88,9 +88,13 @@ roles.autoattackmelee.action = function(creep) {
   } else {
     let structures = creep.pos.findInRange(FIND_STRUCTURES, 1);
     if (creep.room.name == 'W7S65') {
-    	creep.log(JSON.stringify(structures));
+      creep.log(JSON.stringify(structures));
     }
-    creep.attack(structures[0]);
+    creep.cancelOrder('attack');
+    let returnCode = creep.attack(structures[0]);
+    if (creep.room.name == 'W7S65') {
+      creep.log('returnCode: ' + returnCode);
+    }
   }
   return true;
 };
