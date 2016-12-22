@@ -108,10 +108,10 @@ Creep.prototype.handleNextroomer = function() {
       return true;
     }
 
-    let linkPosMem = room.memory.position.structure.link[0];
+    let linkPosMem = room.memory.position.structure.link[1];
 
-    if (creep.pos.getRangeTo(linkPosMem.x, linkPosMem.y) > 1) {
-      linkPosMem = room.memory.position.structure.link[1];
+    if (creep.pos.getRangeTo(linkPosMem.x, linkPosMem.y) > 2) {
+      linkPosMem = room.memory.position.structure.link[2];
     }
     let linkPos = new RoomPosition(linkPosMem.x, linkPosMem.y, linkPosMem.roomName);
     let returnCode = linkPos.createConstructionSite(STRUCTURE_TOWER);
