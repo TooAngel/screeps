@@ -335,7 +335,6 @@ Room.prototype.handleUnreservedRoom = function() {
         this.log('Call structurer from ' + this.memory.reservation.base);
         Game.rooms[this.memory.reservation.base].memory.queue.push({
           role: 'structurer',
-          target: this.name,
           routing: {
             targetRoom: this.name,
             reached: false,
