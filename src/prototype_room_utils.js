@@ -40,20 +40,24 @@ Room.prototype.inQueue = function(spawn) {
 Room.prototype.checkAndSpawnSourcer = function() {
   var sources = this.find(FIND_SOURCES);
 
-  for (let source of sources) {
+  let source;
+
+  let isSourcer = function(object) {
+    if (object.memory.role != 'sourcer') {
+      return false;
+    }
+    if (object.memory.routing && object.memory.routing.targetId != source.id) {
+      return false;
+    }
+    if (object.memory.routing && object.memory.routing.targetRoom != source.pos.roomName) {
+      return false;
+    }
+    return true;
+  };
+
+  for (source of sources) {
     let sourcers = this.find(FIND_MY_CREEPS, {
-      filter: function(object) {
-        if (object.memory.role != 'sourcer') {
-          return false;
-        }
-        if (object.memory.routing && object.memory.routing.targetId != source.id) {
-          return false;
-        }
-        if (object.memory.routing && object.memory.routing.targetRoom != source.pos.roomName) {
-          return false;
-        }
-        return true;
-      }
+      filter: isSourcer
     });
     if (sourcers.length === 0) {
       //      this.log(source.id);

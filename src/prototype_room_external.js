@@ -369,7 +369,18 @@ Room.prototype.handleUnreservedRoom = function() {
     return true;
   }
 
-  for (let roomName of Memory.myRooms) {
+  let roomName;
+  let isReserved = function(object) {
+    if (!object.reservation) {
+      return false;
+    }
+    if (object.state != 'Reserved') {
+      return false;
+    }
+    return object.reservation.base == roomName;
+  };
+
+  for (roomName of Memory.myRooms) {
     let room = Game.rooms[roomName];
     if (!room) {
       return false;
@@ -391,15 +402,7 @@ Room.prototype.handleUnreservedRoom = function() {
     }
 
     if (room.memory.queue && room.memory.queue.length === 0) {
-      let reservedRooms = _.filter(Memory.rooms, function(object) {
-        if (!object.reservation) {
-          return false;
-        }
-        if (object.state != 'Reserved') {
-          return false;
-        }
-        return object.reservation.base == roomName;
-      });
+      let reservedRooms = _.filter(Memory.rooms, isReserved);
       if (reservedRooms.length < room.controller.level - 1) {
         this.log('Would start to spawn');
 

@@ -99,7 +99,7 @@ global.config = {
     nextroomerInterval: 354,
     scoutInterval: 1499,
     scout: true, // TODO somehow broken ?? Is it broken ??
-    upgraderMinStorage: 10000,
+    upgraderMinStorage: 0,
     lastSeenThreshold: 10000
   },
 

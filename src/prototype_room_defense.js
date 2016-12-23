@@ -61,6 +61,10 @@ Room.prototype.handleNukeAttack = function() {
     return true;
   };
 
+  let isRampart = function(object) {
+    return object.structureType == STRUCTURE_RAMPART;
+  };
+
   for (let nuke of nukes) {
     var structures = nuke.pos.findInRange(FIND_MY_STRUCTURES, 4, {
       filter: findSaveableStructures
@@ -72,7 +76,7 @@ Room.prototype.handleNukeAttack = function() {
         continue;
       }
       let lookStructures = structure.pos.lookFor(LOOK_STRUCTURES);
-      let lookRampart = _.findIndex(lookStructures, i => i.structureType == STRUCTURE_RAMPART);
+      let lookRampart = _.findIndex(lookStructures, isRampart);
       if (lookRampart > -1) {
         continue;
       }

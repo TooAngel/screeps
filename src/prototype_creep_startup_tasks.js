@@ -130,14 +130,15 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
   if (this.carry.energy) {
     return false;
   }
+  this.say('hostile');
   let hostileStructures = this.room.find(FIND_HOSTILE_STRUCTURES, {
     filter: function(object) {
       let table = {
-        [STRUCTURE_CONTROLLER]: false,
-        [STRUCTURE_RAMPART]: false,
-        [STRUCTURE_EXTRACTOR]: false
+        [STRUCTURE_CONTROLLER]: true,
+        [STRUCTURE_RAMPART]: true,
+        [STRUCTURE_EXTRACTOR]: true
       };
-      return table[object.structureType] || true;
+      return !table[object.structureType];
     }
   });
   if (!hostileStructures.length) {
@@ -152,6 +153,7 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
   });
 
   let structure = _.max(hostileStructures, s => s.structureType === STRUCTURE_STORAGE);
+  this.log(JSON.stringify(structure));
   if (structure.structureType === STRUCTURE_STORAGE) {
     if (structure.store.energy === 0) {
       structure.destroy();

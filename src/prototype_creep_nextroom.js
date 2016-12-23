@@ -212,12 +212,12 @@ Creep.prototype.handleNextroomer = function() {
       let hostileStructures = creep.room.find(FIND_HOSTILE_STRUCTURES, {
         filter: function(object) {
           let table = {
-            [STRUCTURE_RAMPART]: false,
-            [STRUCTURE_EXTRACTOR]: false,
-            [STRUCTURE_WALL]: false,
-            [STRUCTURE_CONTROLLER]: false
+            [STRUCTURE_RAMPART]: true,
+            [STRUCTURE_EXTRACTOR]: true,
+            [STRUCTURE_WALL]: true,
+            [STRUCTURE_CONTROLLER]: true
           };
-          return table[object.structureType] || true;
+          return !table[object.structureType];
         }
       });
 
