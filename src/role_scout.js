@@ -27,7 +27,9 @@ function haveNotSeen(creep, room) {
 }
 
 roles.scout.execute = function(creep) {
-  if (creep.memory.skip === undefined) creep.memory.skip = [];
+  if (creep.memory.skip === undefined) {
+    creep.memory.skip = [];
+  }
   let breadthFirstSearch = function(creep) {
     let setNewTarget = function(creep) {
       for (let room of creep.memory.search.levels[creep.memory.search.level]) {
