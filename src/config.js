@@ -14,7 +14,7 @@ try {
 
 global.config = {
   profiler: {
-    enabled: true
+    enabled: true,
   },
 
   info: {
@@ -98,6 +98,7 @@ global.config = {
     reviveStorageAvailable: 3000,
     nextroomerInterval: 354,
     scoutInterval: 1499,
+    scoutSkipWhenStuck: true, // Useful for novice areas.
     scout: true, // TODO somehow broken ?? Is it broken ??
     upgraderMinStorage: 0,
     lastSeenThreshold: 10000
