@@ -14,7 +14,7 @@ try {
 
 global.config = {
   profiler: {
-    enabled: false
+    enabled: true,
   },
 
   info: {
@@ -27,8 +27,8 @@ global.config = {
   },
 
   stats: {
-    enabled: true,
-    summary: true
+    enabled: false,
+    summary: false
   },
 
   autoattack: {

@@ -195,7 +195,7 @@ Room.prototype.handleScout = function() {
     return false;
   }
   if (
-    ((Game.time + this.controller.pos.x + this.controller.pos.y) % config.room.scoutInterval) === 265 &&
+    ((Game.time + this.controller.pos.x + this.controller.pos.y) % config.room.scoutInterval) === 0 &&
     this.controller.level >= 2 &&
     this.memory.queue.length === 0 &&
     config.room.scout
