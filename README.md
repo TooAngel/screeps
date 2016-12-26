@@ -33,7 +33,11 @@ market.
 This is not a good example for code quality or structure, many LOC are written
 while fighting or other occasions which needed quick fixes or in the ingame
 editor. But I think there are a couple of funny ideas. Every contribution is
-welcome. 
+welcome.
+
+Copy `src/config_local.js.example` to `src/config_local.js` and use it to
+modify configs for your own bot rather than directly modifying `src/config*.js`
+defaults.
 
 ## Features
 
@@ -131,4 +135,4 @@ The routing from `start` to `end` is first done on room level:
      the next room is the second part of the path name.
    The path is cached in the memory of the room with a `created` attributes
    to allow invalidation.
- 
+
