@@ -35,10 +35,6 @@ while fighting or other occasions which needed quick fixes or in the ingame
 editor. But I think there are a couple of funny ideas. Every contribution is
 welcome.
 
-Copy `src/config_local.js.example` to `src/config_local.js` and use it to
-modify configs for your own bot rather than directly modifying `src/config*.js`
-defaults.
-
 ## Features
 
  - Automatic base building 
@@ -57,7 +53,9 @@ and `FIND_HOSTILE` finds.
 E.g.: 
 `module.exports = ['TooAngel'];`
 
-In `src/config.js` multiple config variables are available for tweaking.
+In `src/config.js` multiple config variables are available for tweaking. Copy
+`config_local.js.example` to `src/config_local.js` and use it to modify configs
+for your own bot rather than directly modifying `src/config.js` defaults.
 
 ## Upload
 

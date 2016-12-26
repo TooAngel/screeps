@@ -14,7 +14,7 @@ try {
 
 global.config = {
   profiler: {
-    enabled: true,
+    enabled: false,
   },
 
   info: {
@@ -28,7 +28,7 @@ global.config = {
 
   stats: {
     enabled: false,
-    summary: false
+    summary: false,
   },
 
   autoattack: {
@@ -123,3 +123,7 @@ global.config = {
     minAmountForMarket: 100000
   }
 };
+
+try {
+  require('config_local');
+} catch (e) {}
