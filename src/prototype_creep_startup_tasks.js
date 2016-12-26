@@ -130,7 +130,6 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
   if (this.carry.energy) {
     return false;
   }
-  this.say('hostile');
   let hostileStructures = this.room.find(FIND_HOSTILE_STRUCTURES, {
     filter: function(object) {
       let table = {
@@ -145,6 +144,7 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
     return false;
   }
 
+  this.say('hostile');
   hostileStructures = _.sortBy(hostileStructures, function(object) {
     if (object.structureType == STRUCTURE_STORAGE) {
       return 1;
@@ -165,7 +165,6 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
   }
 
   let range = this.pos.getRangeTo(structure);
-  this.say('hostile');
   this.moveTo(structure);
   this.withdraw(structure, RESOURCE_ENERGY);
   return true;
