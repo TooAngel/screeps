@@ -1,5 +1,5 @@
 // Local overrides to config, modify this instead of global config.
 
 config.profiler.enabled = false;
-config.status.enabled = true;
-config.status.summary = true;
+config.stats.enabled = true;
+config.stats.summary = true;
