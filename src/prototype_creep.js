@@ -65,7 +65,6 @@ Creep.prototype.handle = function() {
       this.log('Old module execution !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1');
       unit(this);
     }
-
   } catch (err) {
     let message = 'Executing creep role failed: ' +
       this.room.name + ' ' +
@@ -79,7 +78,21 @@ Creep.prototype.handle = function() {
 
     this.log(message);
     Game.notify(message, 30);
+  } finally {
+    if (this.memory.last === undefined) this.memory.last = {};
+    let last = this.memory.last;
+    this.memory.last = {
+      pos1: this.pos,
+      pos2: last.pos1,
+      pos3: last.pos2,
+    };
   }
+};
+
+Creep.prototype.isStuck = function() {
+  return this.memory.last !== undefined &&
+    this.memory.last.pos3 !== undefined &&
+    this.pos.isEqualTo(this.memory.last.pos3.x, this.memory.last.pos3.y);
 };
 
 Creep.prototype.getEnergyFromStructure = function() {

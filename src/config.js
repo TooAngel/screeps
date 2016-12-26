@@ -14,7 +14,7 @@ try {
 
 global.config = {
   profiler: {
-    enabled: true
+    enabled: false
   },
 
   info: {
@@ -27,8 +27,8 @@ global.config = {
   },
 
   stats: {
-    enabled: false,
-    summary: false
+    enabled: true,
+    summary: true
   },
 
   autoattack: {
@@ -97,6 +97,7 @@ global.config = {
     reviveEnergyAvailable: 1000,
     reviveStorageAvailable: 3000,
     nextroomerInterval: 354,
+    scoutSkipWhenStuck: true, // Useful for novice areas.
     scoutInterval: 1032,
     scout: true, // TODO somehow broken ?? Is it broken ??
     upgraderMinStorage: 10000,

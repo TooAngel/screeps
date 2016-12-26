@@ -507,7 +507,7 @@ Creep.prototype.getEnergy = function() {
       this.pickup(target);
       return false;
     }
-    if (target.energy > 20 && energy_range < 18 && this.carry.energy === 0) {
+    if (this.carry.energy === 0) {
       if (!this.memory.routing) {
         this.memory.routing = {};
       }
