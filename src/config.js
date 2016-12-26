@@ -14,7 +14,7 @@ try {
 
 global.config = {
   profiler: {
-    enabled: true
+    enabled: false,
   },
 
   info: {
@@ -28,7 +28,7 @@ global.config = {
 
   stats: {
     enabled: false,
-    summary: false
+    summary: false,
   },
 
   autoattack: {
@@ -98,6 +98,7 @@ global.config = {
     reviveStorageAvailable: 3000,
     nextroomerInterval: 354,
     scoutInterval: 1499,
+    scoutSkipWhenStuck: true, // Useful for novice areas.
     scout: true, // TODO somehow broken ?? Is it broken ??
     upgraderMinStorage: 0,
     lastSeenThreshold: 10000
@@ -122,3 +123,7 @@ global.config = {
     minAmountForMarket: 100000
   }
 };
+
+try {
+  require('config_local');
+} catch (e) {}
