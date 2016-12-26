@@ -18,12 +18,12 @@ roles.scout.energyBuild = function(room, energy) {
 
 function onBorder(creep) {
   return creep.pos.x === 49 || creep.pos.x === 0 ||
-      creep.pos.y === 49 || creep.pos.y === 0;
+    creep.pos.y === 49 || creep.pos.y === 0;
 }
 
 function haveNotSeen(creep, room) {
   return creep.memory.search.seen.indexOf(room) == -1 &&
-      creep.memory.skip.indexOf(room) == -1;
+    creep.memory.skip.indexOf(room) == -1;
 }
 
 roles.scout.execute = function(creep) {
@@ -113,7 +113,7 @@ roles.scout.execute = function(creep) {
         if (config.room.scoutSkipWhenStuck) {
           creep.say('skipping', true);
           creep.memory.scoutSkip = true;
-          delete creep.memory.last;  // Delete to reset stuckness.
+          delete creep.memory.last; // Delete to reset stuckness.
         }
       }
       creep.moveTo(targetPosObject);
