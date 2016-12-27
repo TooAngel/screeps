@@ -31,7 +31,7 @@ roles.autoattackmelee.preMove = function(creep) {
 };
 
 roles.autoattackmelee.action = function(creep) {
-  if (!creep.memory.notified) {
+  if (config.autoattack.notify && !creep.memory.notified) {
     creep.log('Attacking');
     Game.notify(Game.time + ' ' + creep.room.name + ' Attacking');
     creep.memory.notified = true;

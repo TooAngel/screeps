@@ -19,18 +19,3 @@ Object.defineProperty(Structure.prototype, "memory", {
   configurable: true,
   enumerable: false
 });
-
-Structure.prototype.getFutureEnergy = function() {
-  if (this.memory.futureEnergy === undefined) {
-    return 0;
-  }
-  return this.memory.futureEnergy;
-};
-
-Structure.prototype.changeFutureEnergy = function(amount) {
-  let total = this.getFutureEnergy() + amount;
-  if (total < 0) {
-    total = 0;
-  }
-  this.memory.futureEnergy = total;
-};

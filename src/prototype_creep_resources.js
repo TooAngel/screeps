@@ -702,7 +702,7 @@ Creep.prototype.transferEnergyMy = function() {
   if (!this.memory.target) {
     let structure = this.pos.findClosestByRange(FIND_MY_STRUCTURES, {
       filter: (s) => {
-        if (s.energy + s.getFutureEnergy() >= s.energyCapacity) {
+        if (s.energy >= s.energyCapacity) {
           return false;
         }
         if (s.structureType == STRUCTURE_EXTENSION) {
@@ -725,7 +725,6 @@ Creep.prototype.transferEnergyMy = function() {
       }
     } else {
       this.memory.target = structure.id;
-      structure.changeFutureEnergy(this.carry.energy);
     }
   }
 
@@ -745,8 +744,6 @@ Creep.prototype.transferEnergyMy = function() {
       // TODO Enable and check again
       this.log('transferEnergyMy: ' + returnCode + ' ' +
           target.structureType + ' ' + target.pos);
-    } else {
-      target.changeFutureEnergy(-this.carry.energy);
     }
     delete this.memory.target;
   } else {

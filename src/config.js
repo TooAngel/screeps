@@ -32,7 +32,8 @@ global.config = {
   },
 
   autoattack: {
-    disabled: false
+    notify: false,
+    disabled: false,
   },
 
   nextRoom: {
