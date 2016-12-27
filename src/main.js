@@ -21,6 +21,7 @@ var main = function() {
   brain.prepareMemory();
   brain.handleNextroom();
   brain.handleSquadmanager();
+  brain.handleIncomingTransactions();
 
   Memory.myRooms = _.map(_.filter(Game.rooms, (r) => r.execute()), r => r.name);
 

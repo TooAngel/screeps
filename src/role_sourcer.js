@@ -28,12 +28,7 @@ roles.sourcer.preMove = function(creep, directions) {
   // Misplaced spawn
   if (creep.room.name == creep.memory.base && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
     //    creep.say('smis', true);
-    let targetId = creep.memory.target_id;
-    if (creep.memory.routing) {
-      targetId = creep.memory.routing.targetId;
-    } else {
-      console.log('No routing');
-    }
+    let targetId = creep.memory.routing.targetId;
 
     var source = creep.room.memory.position.creep[targetId];
     // TODO better the position from the room memory
@@ -88,7 +83,7 @@ roles.sourcer.preMove = function(creep, directions) {
   }
 };
 
-roles.sourcer.energyBuild = function(room, energy, source, heal) {
+roles.sourcer.energyBuild = function(room, energy, heal) {
   var max = 700;
   // TODO Only three parts for external sourcer (Double check how many parts)
   //  room.log('creep_sourcer.energyBuild source: ' + JSON.stringify(source));
@@ -101,31 +96,11 @@ roles.sourcer.energyBuild = function(room, energy, source, heal) {
 };
 
 roles.sourcer.died = function(name, memory) {
-  console.log(name, 'died', memory.base, memory.source.roomName);
+  console.log(name, 'died', JSON.stringify(memory));
   delete Memory.creeps[name];
 };
 
 roles.sourcer.action = function(creep) {
-  // TODO Fix for sourcers without routing.targetId
-  if (!creep.memory.routing.targetId) {
-    if (!Game.rooms[creep.memory.source.roomName]) {
-      creep.memory.routing.targetRoom = creep.memory.source.roomName;
-      creep.memory.routing.reached = false;
-      delete creep.memory.routing.route;
-      return true;
-    }
-
-    let sourcePos = new RoomPosition(creep.memory.source.x, creep.memory.source.y, creep.memory.source.roomName);
-    let sources = sourcePos.lookFor(LOOK_SOURCES);
-    if (sources[0]) {
-      creep.log('Reached, but not near source !!!!');
-      creep.memory.routing.reached = false;
-      creep.memory.routing.targetId = sources[0].id;
-    } else {
-      creep.log('!!! config_creep_routing sourcer No sources at source: ' + creep.memory.source + ' targetId: ' + creep.memory.targetId);
-    }
-  }
-
   // TODO check source keeper structure for ticksToSpawn
   if (!creep.room.controller) {
     var target = creep.pos.findClosestSourceKeeper();

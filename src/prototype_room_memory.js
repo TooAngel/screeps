@@ -17,9 +17,17 @@ Room.prototype.getMemoryPaths = function() {
   let cacheKeys = Object.keys(cache.rooms[this.name].routing).sort();
   let diff = _.difference(memoryKeys, cacheKeys);
   for (let item of diff) {
-    this.log(`getPaths ${item} missing in cache`);
+    //    this.log(`getPaths ${item} missing in cache`);
+    let path;
+    try {
+      path = Room.stringToPath(this.memory.routing[item].path);
+    } catch (e) {
+      path = this.memory.routing[item].path;
+      this.memory.routing[item].path = Room.pathToString(path);
+    }
+
     cache.rooms[this.name].routing[item] = {
-      path: Room.stringToPath(this.memory.routing[item].path),
+      path: path,
       created: this.memory.routing[item].created,
       fixed: this.memory.routing[item].fixed,
       name: this.memory.routing[item].name
@@ -42,7 +50,7 @@ Room.prototype.getMemoryPath = function(name) {
   }
 
   if (this.memory.routing[name] && isValid(this.memory.routing[name])) {
-    this.log(`getPath ${name} missing in cache`);
+    //    this.log(`getPath ${name} missing in cache`);
     let path;
     try {
       path = Room.stringToPath(this.memory.routing[name].path);

@@ -181,8 +181,6 @@ Room.prototype.closeExitsByPath = function() {
     }
   );
 
-  //  this.log(JSON.stringify(search));
-
   if (search.incomplete) {
     this.memory.walls.exit_i++;
     return true;

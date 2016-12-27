@@ -13,15 +13,7 @@ Creep.prototype.handleSourcer = function() {
   this.setNextSpawn();
   this.spawnReplacement();
   let room = Game.rooms[this.room.name];
-
-  // TODO legacy stuff
-  let targetId = this.memory.target_id;
-  if (this.memory.routing) {
-    targetId = this.memory.routing.targetId;
-  } else {
-    console.log('No routing');
-  }
-
+  let targetId = this.memory.routing.targetId;
   var source = Game.getObjectById(targetId);
 
   let target = source;
@@ -64,9 +56,10 @@ Creep.prototype.spawnCarry = function() {
 
   var spawn = {
     role: 'carry',
-    source: this.pos,
-    target: this.memory.target,
-    target_id: this.memory.target_id
+    routing: {
+      targetRoom: this.memory.routing.targetRoom,
+      targetId: this.memory.routing.targetId,
+    }
   };
 
   // Spawn carry

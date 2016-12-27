@@ -14,7 +14,11 @@ try {
 
 global.config = {
   profiler: {
-    enabled: true
+    enabled: false,
+  },
+
+  info: {
+    signController: true
   },
 
   // Due to newly introduces via global variable caching this can be removed
@@ -24,7 +28,7 @@ global.config = {
 
   stats: {
     enabled: false,
-    summary: false
+    summary: false,
   },
 
   autoattack: {
@@ -79,7 +83,7 @@ global.config = {
   },
 
   creep: {
-    renewOffset: 20,
+    renewOffset: 0,
     queueTtl: 100,
     structurer: true,
     reserverDefender: true,
@@ -93,9 +97,10 @@ global.config = {
     reviveEnergyAvailable: 1000,
     reviveStorageAvailable: 3000,
     nextroomerInterval: 354,
-    scoutInterval: 1032,
+    scoutInterval: 1499,
+    scoutSkipWhenStuck: true, // Useful for novice areas.
     scout: true, // TODO somehow broken ?? Is it broken ??
-    upgraderMinStorage: 10000,
+    upgraderMinStorage: 0,
     lastSeenThreshold: 10000
   },
 
@@ -115,6 +120,10 @@ global.config = {
     enabled: false,
     storage: 100000,
     minAmount: 5000,
-    minAmountForMarket: 50000
+    minAmountForMarket: 100000
   }
 };
+
+try {
+  require('config_local');
+} catch (e) {}

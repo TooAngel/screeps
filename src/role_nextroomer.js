@@ -21,7 +21,7 @@ roles.nextroomer.died = function(name, creepMemory) {
   console.log('DIED:', message);
 };
 
-roles.nextroomer.getPartConfig = function(room, energy, heal, target) {
+roles.nextroomer.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, WORK, MOVE, CARRY];
   var config = room.getPartConfig(energy, parts);
   return config;
@@ -47,16 +47,6 @@ roles.nextroomer.preMove = function(creep, directions) {
     }
     if (structure.structureType == STRUCTURE_RAMPART && structure.my) {
       continue;
-    }
-
-    var crl = creep.room.controller;
-    if (crl) {
-      var own = crl.owner ? crl.owner.username : '';
-      var rsv = crl.reservation ? crl.reservation.username : '';
-      if (own + rsv == 'AzuraStar') {
-        creep.say('Not dismantle', true);
-        break;
-      }
     }
 
     creep.dismantle(structure);

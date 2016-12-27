@@ -95,41 +95,6 @@ brain.prepareMemory = function() {
     for (let name in Memory.rooms) {
       // Check for reserved rooms
       let memory = Memory.rooms[name];
-      // TODO Disabled, needs to be fixed, somehow too many reserveres where queued
-      //      if (memory.reservation) {
-      //        let diff = Game.time - memory.reservation.tick;
-      //        if (diff > 11) {
-      //          let reservation = memory.reservation.reservation || (diff + 1);
-      //          let reserved = memory.reservation.reservation - diff;
-      //          if (!reserved) {
-      //            reserved = 0;
-      //          }
-      //          console.log(`${name} reservation reserved: ${reserved}`);
-      //          //          if (0 < reserved && reserved < 3000) {
-      //          if (reserved < 3000) {
-      //            let room = Game.rooms[name];
-      //            if (room && room !== null) {
-      //              let reservers = room.find(FIND_MY_CREEPS, {
-      //                filter: function(object) {
-      //                  return object.memory.role == 'reserver';
-      //                }
-      //              });
-      //              if (reservers.length > 0) {
-      //                continue;
-      //              }
-      //            }
-      //            console.log(name + ' ' + Game.time + ' ' + name + ' ' + JSON.stringify(memory.reservation) + ' hostiles: ' + memory.hostile + ' diff: ' + diff + ' reserverd: ' + reserved);
-      //            let base = Game.rooms[memory.reservation.base];
-      //            base.memory.queue.push({
-      //              role: 'reserver',
-      //              target: name,
-      //              level: 2
-      //            });
-      //            base.log('Queuing reserver for ' + name);
-      //          }
-      //        }
-      //      }
-
       if (!Memory.rooms[name].lastSeen) {
         //        console.log('Deleting ' + name + ' from memory no `last_seen` value');
         delete Memory.rooms[name];

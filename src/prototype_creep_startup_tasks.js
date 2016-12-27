@@ -45,7 +45,7 @@ Creep.upgradeControllerTask = function(creep) {
 };
 
 Creep.constructTask = function(creep) {
-  creep.say('construct', true);
+  //  creep.say('construct', true);
   return creep.construct();
 };
 
@@ -126,100 +126,81 @@ Creep.repairStructure = function(creep) {
   return creep.repairStructure();
 };
 
-Creep.getEnergyFromStorage = function(creep) {
-  creep.say('FromStorage', true);
-  if (0 < creep.carry.energy) {
+Creep.prototype.getEnergyFromHostileStructures = function() {
+  if (this.carry.energy) {
+    return false;
+  }
+  let hostileStructures = this.room.find(FIND_HOSTILE_STRUCTURES, {
+    filter: function(object) {
+      let table = {
+        [STRUCTURE_CONTROLLER]: true,
+        [STRUCTURE_RAMPART]: true,
+        [STRUCTURE_EXTRACTOR]: true
+      };
+      return !table[object.structureType];
+    }
+  });
+  if (!hostileStructures.length) {
     return false;
   }
 
-  var target = creep.pos.findClosestByRange(FIND_DROPPED_ENERGY, {
-    filter: function(object) {
-      return 0 < object.energy;
+  this.say('hostile');
+  hostileStructures = _.sortBy(hostileStructures, function(object) {
+    if (object.structureType == STRUCTURE_STORAGE) {
+      return 1;
     }
+    return 2;
   });
-  if (target !== null) {
-    creep.say('dropped', true);
-    var energyRange = creep.pos.getRangeTo(target);
-    if (energyRange <= 1) {
-      creep.pickup(target);
-      return false;
+
+  let structure = _.max(hostileStructures, s => s.structureType === STRUCTURE_STORAGE);
+  this.log(JSON.stringify(structure));
+  if (structure.structureType === STRUCTURE_STORAGE) {
+    if (structure.store.energy === 0) {
+      structure.destroy();
+      return true;
     }
-    if (300 < target.energy && energyRange < 4) {
-      return creep.moveTo(target, {
-        reusePath: 5,
-        costCallback: creep.room.getAvoids(creep.room)
-      }) === 0;
-    }
+  } else if (!structure.energy) {
+    structure.destroy();
+    return true;
   }
 
-  var storage = creep.room.storage;
-  if (!storage) {
-    creep.log('No storage');
+  let range = this.pos.getRangeTo(structure);
+  this.moveTo(structure);
+  this.withdraw(structure, RESOURCE_ENERGY);
+  return true;
+};
 
-    let transferablesFull = function(object) {
-      if (object.structureType == STRUCTURE_RAMPART) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_CONTROLLER) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_EXTENSION) {
-        return object.energy > 0;
-      }
-      if (object.structureType == STRUCTURE_LINK) {
-        return object.energy > 0;
-      }
-      if (object.structureType == STRUCTURE_SPAWN) {
-        return object.energy > 0;
-      }
-      if (object.structureType == STRUCTURE_STORAGE) {
-        return object.store.energy > 0;
-      }
-      if (object.structureType == STRUCTURE_TOWER) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_POWER_SPAWN) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_OBSERVER) {
-        return false;
-      }
-      console.log('config_creep_startup_tasks.transferablesFull', object.structureType, JSON.stringify(object));
-    };
-
-    storage = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-      filter: transferablesFull
-    });
-  } else {
-    if (storage.store.energy === 0) {
-      return false;
-    }
+Creep.prototype.getEnergyFromStorage = function() {
+  if (!this.room.storage || this.room.storage.store.energy < config.creep.energyFromStorageThreshold) {
+    return false;
   }
 
-  var range = creep.pos.getRangeTo(storage);
+  if (this.carry.energy) {
+    return false;
+  }
 
+  var range = this.pos.getRangeTo(this.room.storage);
   if (range == 1) {
-    let returnCode = creep.withdraw(storage, RESOURCE_ENERGY);
+    this.withdraw(this.room.storage, RESOURCE_ENERGY);
   } else {
     let search = PathFinder.search(
-      creep.pos, {
-        pos: storage.pos,
+      this.pos, {
+        pos: this.room.storage.pos,
         range: 1
       }, {
-        roomCallback: creep.room.getAvoids(creep.room, {}, true),
+        roomCallback: this.room.getAvoids(this.room, {}, true),
       }
     );
     if (search.incomplete) {
-      creep.say('incomplete', true);
-      creep.log(JSON.stringify(search));
-      creep.moveTo(storage.pos, {
+      this.say('incomplete', true);
+      this.moveTo(this.room.storage.pos, {
         ignoreCreeps: true
       });
       return true;
     }
-    let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
+    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
     if (returnCode != OK) {
-      creep.log(`getEnergyFromStorage: ${returnCode}`);
+      this.log(`getEnergyFromStorage: ${returnCode}`);
     }
   }
   return true;
@@ -297,7 +278,6 @@ Creep.prototype.repairStructure = function() {
           }
           if (returnCode == ERR_NO_PATH) {
             this.memory.move_wait = 0;
-            this.log(JSON.stringify(search));
             this.log('No path : ' + JSON.stringify(search));
             returnCode = this.moveTo(to_repair, {
               ignoreCreeps: true,
@@ -480,5 +460,38 @@ Creep.prototype.repairStructure = function() {
 
   //   this.log('Nothing found: ' + this.memory.step);
   return false;
+};
 
+Creep.prototype.getDroppedEnergy = function() {
+  let target = this.pos.findClosestByRange(FIND_DROPPED_ENERGY, {
+    filter: function(object) {
+      return 0 < object.energy;
+    }
+  });
+  if (target !== null) {
+    var energyRange = this.pos.getRangeTo(target.pos);
+    if (energyRange <= 1) {
+      this.pickup(target);
+      return true;
+    }
+    if (target.energy > (energyRange * 10) * (this.carry.energy + 1)) {
+      let search = PathFinder.search(
+        this.pos, {
+          pos: target.pos,
+          range: 1
+        }, {
+          roomCallback: this.room.getAvoids(this.room, {}, true),
+          maxRooms: 0
+        }
+      );
+      if (search.path.length === 0 || search.incomplete) {
+        this.say('deir');
+        this.moveRandom();
+        return true;
+      }
+      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+      return true;
+    }
+  }
+  return false;
 };

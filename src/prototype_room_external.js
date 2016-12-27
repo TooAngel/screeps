@@ -109,7 +109,9 @@ Room.prototype.externalHandleHighwayRoom = function() {
           this.log('Adding powertransporter at ' + Memory.powerBanks[this.name].target);
           Game.rooms[Memory.powerBanks[this.name].target].memory.queue.push({
             role: 'powertransporter',
-            target: this.name
+            routing: {
+              targetRoom: this.name
+            }
           });
         }
 
@@ -173,15 +175,21 @@ Room.prototype.externalHandleHighwayRoom = function() {
       this.log('--------------> Start power harvesting in: ' + target.name + ' <----------------');
       Game.rooms[target.name].memory.queue.push({
         role: 'powerattacker',
-        target: this.name
+        routing: {
+          targetRoom: this.name
+        }
       });
       Game.rooms[target.name].memory.queue.push({
         role: 'powerhealer',
-        target: this.name
+        routing: {
+          targetRoom: this.name
+        }
       });
       Game.rooms[target.name].memory.queue.push({
         role: 'powerhealer',
-        target: this.name
+        routing: {
+          targetRoom: this.name
+        }
       });
     } else {
       Memory.powerBanks[this.name] = {
@@ -278,8 +286,6 @@ Room.prototype.handleReservedRoom = function() {
       this.memory.lastChecked = Game.time;
       let reserverSpawn = {
         role: 'reserver',
-        target: this.name,
-        target_id: this.controller.id,
         level: 2,
         routing: {
           targetRoom: this.name,
@@ -291,6 +297,13 @@ Room.prototype.handleReservedRoom = function() {
       };
       // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
       let energyThreshold = 1300;
+
+      // TODO Not sure when this happens, Check the closest room and set reservation
+      if (!this.memory.reservation) {
+        this.log('No reservation');
+        return;
+      }
+
       if (Game.rooms[this.memory.reservation.base].misplacedSpawn) {
         energyThreshold = 1600;
       }
@@ -322,7 +335,6 @@ Room.prototype.handleUnreservedRoom = function() {
         this.log('Call structurer from ' + this.memory.reservation.base);
         Game.rooms[this.memory.reservation.base].memory.queue.push({
           role: 'structurer',
-          target: this.name,
           routing: {
             targetRoom: this.name,
             reached: false,
@@ -333,8 +345,6 @@ Room.prototype.handleUnreservedRoom = function() {
       } else {
         let reserverSpawn = {
           role: 'reserver',
-          target: this.name,
-          target_id: this.controller.id,
           level: 2,
           routing: {
             targetRoom: this.name,
@@ -359,7 +369,18 @@ Room.prototype.handleUnreservedRoom = function() {
     return true;
   }
 
-  for (let roomName of Memory.myRooms) {
+  let roomName;
+  let isReserved = function(object) {
+    if (!object.reservation) {
+      return false;
+    }
+    if (object.state != 'Reserved') {
+      return false;
+    }
+    return object.reservation.base == roomName;
+  };
+
+  for (roomName of Memory.myRooms) {
     let room = Game.rooms[roomName];
     if (!room) {
       return false;
@@ -381,15 +402,7 @@ Room.prototype.handleUnreservedRoom = function() {
     }
 
     if (room.memory.queue && room.memory.queue.length === 0) {
-      let reservedRooms = _.filter(Memory.rooms, function(object) {
-        if (!object.reservation) {
-          return false;
-        }
-        if (object.state != 'Reserved') {
-          return false;
-        }
-        return object.reservation.base == roomName;
-      });
+      let reservedRooms = _.filter(Memory.rooms, isReserved);
       if (reservedRooms.length < room.controller.level - 1) {
         this.log('Would start to spawn');
 
@@ -402,8 +415,10 @@ Room.prototype.handleUnreservedRoom = function() {
         this.memory.state = 'Reserved';
         let reserverSpawn = {
           role: 'reserver',
-          target: this.name,
-          target_id: this.controller.id,
+          routing: {
+            targetRoom: this.name,
+            targetId: this.controller.id
+          },
           level: 2
         };
         // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
@@ -474,9 +489,6 @@ Room.prototype.handleSourceKeeperRoom = function() {
       }
       let spawn = {
         role: 'sourcer',
-        source: source.pos,
-        target: source.pos.roomName,
-        target_id: source.id,
         routing: {
           targetId: source.id,
           targetRoom: source.pos.roomName
@@ -490,7 +502,9 @@ Room.prototype.handleSourceKeeperRoom = function() {
   if (melee === 0) {
     var spawn = {
       role: 'atkeepermelee',
-      target: this.name
+      routing: {
+        targetRoom: this.name
+      }
     };
     this.log(`!!!!!!!!!!!! ${JSON.stringify(spawn)}`);
     Game.rooms[this.memory.base].memory.queue.push(spawn);

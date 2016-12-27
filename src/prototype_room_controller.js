@@ -69,6 +69,9 @@ Room.prototype.buildBase = function() {
     }
   }
 
+  if (!this.memory.controllerLevel.buildBlockersInterval) {
+    this.memory.controllerLevel.buildBlockersInterval = 1;
+  }
   if (this.memory.controllerLevel.buildStructuresInterval > 1 && (Game.time + this.controller.pos.x * 10 + this.controller.pos.y * 10) % this.memory.controllerLevel.buildBlockersInterval === 0) {
     if (this.controller.level >= 2) {
       if (this.buildBlockers()) {

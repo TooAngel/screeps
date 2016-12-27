@@ -47,7 +47,6 @@ roles.powertransporter.action = function(creep) {
       creep.log(creep.memory.route[creep.memory.route.length - 2].room);
       let exitDirection = creep.room.findExitTo(creep.memory.route[creep.memory.route.length - 2].room);
       let nextExits = creep.room.find(exitDirection);
-      creep.log(JSON.stringify(nextExits));
       let nextExit = nextExits[Math.floor(nextExits.length / 2)];
       creep.moveTo(nextExit);
       return true;

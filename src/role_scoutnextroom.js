@@ -163,7 +163,13 @@ roles.scoutnextroom.execute = function(creep) {
     }
   }
 
-  let targetPosObject = new RoomPosition(creep.memory.target.x, creep.memory.target.y, creep.room.name);
+  let targetPosObject;
+  try {
+    targetPosObject = new RoomPosition(creep.memory.target.x, creep.memory.target.y, creep.room.name);
+  } catch (e) {
+    creep.log(JSON.stringify(creep.memory));
+    throw e;
+  }
   let search = PathFinder.search(
     creep.pos, {
       pos: targetPosObject,

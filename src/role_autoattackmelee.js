@@ -36,6 +36,18 @@ roles.autoattackmelee.action = function(creep) {
     Game.notify(Game.time + ' ' + creep.room.name + ' Attacking');
     creep.memory.notified = true;
   }
+
+  if (creep.room.name != creep.memory.routing.targetRoom) {
+    creep.memory.routing.reached = false;
+    return true;
+  }
+
+  if (creep.room.controller.safeMode) {
+    let constructionSites = creep.room.find(FIND_CONSTRUCTION_SITES);
+    creep.moveTo(constructionSites[0]);
+    return true;
+  }
+
   var spawn = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
     filter: function(object) {
       if (object.structureType == STRUCTURE_SPAWN) {
@@ -46,9 +58,9 @@ roles.autoattackmelee.action = function(creep) {
   });
 
   if (spawn === null) {
-    var hostileCreep = creep.pos.findClosestEnemy();
+    var hostileCreep = creep.findClosestEnemy();
     if (hostileCreep === null) {
-      var structures = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
+      let structures = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
         filter: function(object) {
           if (object.structureType == STRUCTURE_CONTROLLER) {
             return false;
@@ -83,7 +95,13 @@ roles.autoattackmelee.action = function(creep) {
     }
   );
   creep.move(creep.pos.getDirectionTo(search.path[0]));
-  creep.attack(spawn);
+  if (creep.pos.getRangeTo(spawn.pos) <= 1) {
+    creep.attack(spawn);
+  } else {
+    let structures = creep.pos.findInRange(FIND_STRUCTURES, 1);
+    creep.cancelOrder('attack');
+    let returnCode = creep.attack(structures[0]);
+  }
   return true;
 };
 

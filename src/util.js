@@ -100,6 +100,32 @@ module.exports = {
 
     console.log(JSON.stringify(minerals));
     console.log(minerals.U);
+  },
+
+  findRoomsWithMineralsToTransfer: function() {
+    let minerals = {};
+    for (let name of Memory.myRooms) {
+      let room = Game.rooms[name];
+      if (room.terminal) {
+        if (room.terminal.store.energy < 10000) {
+          continue;
+        }
+        console.log(name, JSON.stringify(room.terminal.store));
+        for (let mineral in room.terminal.store) {
+          if (mineral == 'U') {
+            console.log(room.name, room.terminal.store[mineral]);
+          }
+          if (!minerals[mineral]) {
+            minerals[mineral] = room.terminal.store[mineral];
+          } else {
+            minerals[mineral] += room.terminal.store[mineral];
+          }
+        }
+      }
+    }
+
+    console.log(JSON.stringify(minerals));
+    console.log(minerals.U);
   }
 
 };

@@ -1,6 +1,6 @@
 'use strict';
 
-Room.prototype.spawnCreateCreep = function(role, target, source, heal, target_id, level, squad, routing) {
+Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing) {
   var energy = this.energyAvailable;
 
   let unit = roles[role];
@@ -22,25 +22,11 @@ Room.prototype.spawnCreateCreep = function(role, target, source, heal, target_id
   var id = Math.floor((Math.random() * 1000) + 1);
   var name = role + '-' + id;
 
-  if (role == 'sourcer' && !source) {
-    if (!this.memory.sources_index) {
-      this.memory.sources_index = 0;
-    }
-    var sources = this.find(FIND_SOURCES);
-    source = sources[this.memory.sources_index % sources.length].pos;
-    target_id = sources[this.memory.sources_index % sources.length].id;
-    target = sources[this.memory.sources_index % sources.length].pos.roomName;
-    routing = {
-      targetRoom: this.name,
-      targetId: sources[this.memory.sources_index % sources.length].id
-    };
-  }
-
   if (unit.energyBuild) {
-    energy = unit.energyBuild(this, energy, source, heal, level);
+    energy = unit.energyBuild(this, energy, heal, level);
   }
 
-  var partConfig = unit.getPartConfig(this, energy, heal, target);
+  var partConfig = unit.getPartConfig(this, energy, heal);
   partConfig = partConfig.slice(0, MAX_CREEP_SIZE);
   var spawns = this.find(FIND_MY_SPAWNS);
 
@@ -50,10 +36,7 @@ Room.prototype.spawnCreateCreep = function(role, target, source, heal, target_id
       role: role,
       number: id,
       step: 0,
-      target: target,
       base: this.name,
-      source: source,
-      target_id: target_id,
       born: Game.time,
       heal: heal,
       level: level,
@@ -75,10 +58,6 @@ Room.prototype.spawnCreateCreep = function(role, target, source, heal, target_id
 
     //    this.log('Spawned ' + name);
 
-    if (role == 'sourcer') {
-      this.memory.sources_index = this.memory.sources_index + 1;
-    }
-
     if (memory.role == 'reserver') {
       this.log('Spawning ' + name.rpad(' ', 20) + ' ' + JSON.stringify(memory));
     }
@@ -88,7 +67,7 @@ Room.prototype.spawnCreateCreep = function(role, target, source, heal, target_id
 
 };
 
-Room.prototype.spawnCheckForCreate = function(creepsConfig, target) {
+Room.prototype.spawnCheckForCreate = function(creepsConfig) {
   var storages;
   var energyNeeded;
   var unit;
@@ -100,13 +79,13 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig, target) {
   if (this.memory.queue.length > 0 && (creepsConfig.length === 0 || creepsConfig[0] != 'harvester')) {
     let room = this;
     let priorityQueue = function(object) {
+      if (object.role == 'harvester') {
+        return 1;
+      }
 
-      let target = object.routing && object.routing.targetRoom || object.target;
+      let target = object.routing && object.routing.targetRoom;
 
       if (target == room.name) {
-        if (object.role == 'harvester') {
-          return 1;
-        }
         if (object.role == 'sourcer') {
           return 2;
         }
@@ -132,14 +111,11 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig, target) {
     };
 
     this.memory.queue = _.sortBy(this.memory.queue, priorityQueue);
-    //     this.log(JSON.stringify(queue));
 
     var creep = this.memory.queue[0];
     energyNeeded = 50;
 
-    //     this.log(JSON.stringify(creep));
-
-    if (this.spawnCreateCreep(creep.role, creep.target, creep.source, creep.heal, creep.target_id, creep.level, creep.squad, creep.routing)) {
+    if (this.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing)) {
       this.memory.queue.shift();
     } else {
       if (creep.ttl === 0) {
@@ -162,7 +138,8 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig, target) {
   }
 
   if (creepsConfig.length > 0) {
-    return this.spawnCreateCreep(creepsConfig[0], target);
+    this.log('Spawn from creepsConfig: ' + creepsConfig[0]);
+    return this.spawnCreateCreep(creepsConfig[0]);
   }
 
   return false;
