@@ -486,7 +486,7 @@ Creep.prototype.transferMy = function() {
 };
 
 Creep.prototype.getEnergy = function() {
-  if (this.carry.energy == this.carryCapacity) {
+  if (this.carry.energy > 0) {
     return false;
   }
 

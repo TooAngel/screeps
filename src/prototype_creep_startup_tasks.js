@@ -19,7 +19,7 @@ Creep.upgradeControllerTask = function(creep) {
     if (returnCode != OK) {
       creep.log('upgradeController: ' + returnCode);
     }
-    creep.moveRandom();
+    creep.moveRandomTowards(creep.room.controller.pos, 3);
     return true;
   }
 
