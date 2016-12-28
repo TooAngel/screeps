@@ -463,9 +463,6 @@ Creep.prototype.repairStructure = function() {
 };
 
 Creep.prototype.getDroppedEnergy = function() {
-  if (this.carry.energy > 0.9 * this.carryCapacity) {
-    return false;
-  }
   let target = this.pos.findClosestByRange(FIND_DROPPED_ENERGY, {
     filter: function(object) {
       return 0 < object.energy;
