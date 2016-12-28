@@ -1,9 +1,20 @@
 'use strict';
 
 Creep.prototype.harvesterBeforeStorage = function() {
-  var methods = [
-    Creep.getEnergy
-  ];
+  let methods = [];
+
+  if (this.memory.hasEnergy === undefined) {
+    this.memory.hasEnergy = (this.carry.energy == this.carryCapacity);
+  } else if (this.memory.hasEnergy && this.carry.energy == 0) {
+    this.memory.hasEnergy = false;
+  } else if (!this.memory.hasEnergy &&
+      this.carry.energy == this.carryCapacity) {
+    this.memory.hasEnergy = true;
+  }
+
+  if (!this.memory.hasEnergy) {
+    methods.push(Creep.getEnergy);
+  }
 
   if (this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / 10 || this.room.controller.level == 1) {
     methods.push(Creep.upgradeControllerTask);
@@ -12,17 +23,10 @@ Creep.prototype.harvesterBeforeStorage = function() {
   methods.push(Creep.transferEnergy);
 
   let structures = this.room.find(FIND_MY_CONSTRUCTION_SITES, {
-    filter: function(object) {
-      if (object.structureType == STRUCTURE_RAMPART) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_WALL) {
-        return false;
-      }
-      if (object.structureType == STRUCTURE_CONTROLLER) {
-        return false;
-      }
-      return true;
+    filter: (s) => {
+      return !(s.structureType == STRUCTURE_RAMPART ||
+        s.structureType == STRUCTURE_WALL ||
+        s.structureType == STRUCTURE_CONTROLLER);
     }
   });
 
@@ -486,7 +490,7 @@ Creep.prototype.transferMy = function() {
 };
 
 Creep.prototype.getEnergy = function() {
-  if (this.carry.energy > 0) {
+  if (this.carry.energy == this.carryCapacity) {
     return false;
   }
 

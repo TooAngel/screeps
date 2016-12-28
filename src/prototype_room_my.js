@@ -262,7 +262,7 @@ Room.prototype.executeRoom = function() {
       amount = 2;
       // TODO maybe better spawn harvester when a carry recognize that the dropped energy > threshold
       if (room.controller.level == 2 || room.controller.level == 3) {
-        amount = 6;
+        amount = 5;
       }
     }
     this.checkRoleToSpawn('harvester', amount, 'harvester');
