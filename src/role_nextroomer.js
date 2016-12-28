@@ -48,11 +48,11 @@ roles.nextroomer.buildRamparts = function(creep) {
     }
   });
 
-  // TODO Guess this should be higher
+  // TODO Guess roles.nextroomer should be higher
   let rampartMinHits = 10000;
 
   creep.say('checkRamparts');
-  let posRampart = this.checkForRampart(creep.pos);
+  let posRampart = roles.nextroomer.checkForRampart(creep.pos);
   if (posRampart) {
     if (posRampart.hits < rampartMinHits) {
       creep.repair(posRampart);
@@ -82,7 +82,7 @@ roles.nextroomer.buildRamparts = function(creep) {
   }
 
   creep.say('cr');
-  let towerRampart = this.checkForRampart(linkPosMem);
+  let towerRampart = roles.nextroomer.checkForRampart(linkPosMem);
   if (towerRampart) {
     creep.say('tr');
     if (towerRampart.hits < rampartMinHits) {
@@ -114,7 +114,7 @@ roles.nextroomer.defendTower = function(creep, source) {
   });
 
   if (towers.length > 0) {
-    if (this.buildRamparts(creep)) {
+    if (roles.nextroomer.buildRamparts(creep)) {
       return true;
     }
 
@@ -135,8 +135,8 @@ roles.nextroomer.defendTower = function(creep, source) {
         return true;
       }
     }
-    return this.buildRamparts(creep);
-  } else if (this.buildRamparts(creep)) {
+    return roles.nextroomer.buildRamparts(creep);
+  } else if (roles.nextroomer.buildRamparts(creep)) {
     return true;
   }
 
@@ -172,7 +172,7 @@ roles.nextroomer.stayAtSource = function(creep, source) {
       return true;
     }
   }
-  return this.defendTower(creep, source);
+  return roles.nextroomer.defendTower(creep, source);
 };
 
 roles.nextroomer.underSiege = function(creep) {
@@ -181,7 +181,7 @@ roles.nextroomer.underSiege = function(creep) {
     let sourcerPosMem = room.memory.position.creep[creep.memory.targetId];
     let source = Game.getObjectById(creep.memory.targetId);
     if (creep.pos.isEqualTo(sourcerPosMem.x, sourcerPosMem.y)) {
-      return this.stayAtSource(creep, source);
+      return roles.nextroomer.stayAtSource(creep, source);
     } else {
       delete creep.memory.targetId;
     }
@@ -194,7 +194,7 @@ roles.nextroomer.underSiege = function(creep) {
 
     if (creep.pos.isEqualTo(sourcerPos.x, sourcerPos.y)) {
       creep.memory.targetId = source.id;
-      return this.stayAtSource(creep, source);
+      return roles.nextroomer.stayAtSource(creep, source);
     }
 
     let creeps = sourcerPos.lookFor('creep');
@@ -219,7 +219,7 @@ roles.nextroomer.settle = function(creep) {
   room.memory.wayBlocked = false;
   if (room.memory.underSiege && room.controller && room.controller.level >= 3) {
     creep.log('underSiege: ' + room.memory.attack_timer);
-    return this.underSiege(creep);
+    return roles.nextroomer.underSiege(creep);
 
   }
 
@@ -337,7 +337,7 @@ roles.nextroomer.preMove = function(creep, directions) {
 };
 
 roles.nextroomer.action = function(creep) {
-  // TODO when does this happen?
+  // TODO when does roles.nextroomer happen?
   if (creep.room.name != creep.memory.routing.targetRoom) {
     delete creep.memory.routing.reached;
     return false;
@@ -346,9 +346,9 @@ roles.nextroomer.action = function(creep) {
   // TODO ugly fix cause, target gets deleted
   creep.memory.targetBackup = creep.memory.targetBackup || creep.memory.target;
   if (creep.room.name == creep.memory.targetBackup) {
-    return this.settle(creep);
+    return roles.nextroomer.settle(creep);
   }
-  return this.settle(creep);
+  return roles.nextroomer.settle(creep);
 };
 
 roles.nextroomer.execute = function(creep) {
