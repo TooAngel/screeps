@@ -24,9 +24,9 @@ Creep.prototype.harvesterBeforeStorage = function() {
 
   let structures = this.room.find(FIND_MY_CONSTRUCTION_SITES, {
     filter: (s) => {
-      return !(s.structureType == STRUCTURE_RAMPART ||
-        s.structureType == STRUCTURE_WALL ||
-        s.structureType == STRUCTURE_CONTROLLER);
+      return (s.structureType != STRUCTURE_RAMPART &&
+        s.structureType != STRUCTURE_WALL &&
+        s.structureType != STRUCTURE_CONTROLLER);
     }
   });
 
