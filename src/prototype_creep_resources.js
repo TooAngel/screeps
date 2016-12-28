@@ -599,7 +599,7 @@ Creep.prototype.construct = function() {
   if (range <= 3) {
     let returnCode = this.build(target);
     if (returnCode == OK) {
-      this.moveRandomTowards(target.pos, 3);
+      this.moveRandomWithin(target.pos);
       return true;
     } else if (returnCode == ERR_NOT_ENOUGH_RESOURCES) {
       return true;
@@ -706,19 +706,12 @@ Creep.prototype.transferEnergyMy = function() {
   if (!this.memory.target) {
     let structure = this.pos.findClosestByRange(FIND_MY_STRUCTURES, {
       filter: (s) => {
-        if (s.energy >= s.energyCapacity) {
+        if (s.energy == s.energyCapacity) {
           return false;
         }
-        if (s.structureType == STRUCTURE_EXTENSION) {
-          return true;
-        }
-        if (s.structureType == STRUCTURE_SPAWN) {
-          return true;
-        }
-        if (s.structureType == STRUCTURE_TOWER) {
-          return true;
-        }
-        return false;
+        return (s.structureType == STRUCTURE_EXTENSION ||
+            s.structureType == STRUCTURE_SPAWN ||
+            s.structureType == STRUCTURE_TOWER);
       }
     });
     if (structure === null) {
@@ -744,8 +737,7 @@ Creep.prototype.transferEnergyMy = function() {
   // this.log('target: ' + target.pos + ' range: ' + range);
   if (range == 1) {
     let returnCode = this.transfer(target, RESOURCE_ENERGY);
-    if (returnCode != OK) {
-      // TODO Enable and check again
+    if (returnCode != OK && returnCode != ERR_FULL) {
       this.log('transferEnergyMy: ' + returnCode + ' ' +
           target.structureType + ' ' + target.pos);
     }

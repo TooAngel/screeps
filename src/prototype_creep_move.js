@@ -18,7 +18,7 @@ Creep.prototype.moveRandom = function(onPath) {
   this.move(direction);
 };
 
-Creep.prototype.moveRandomTowards = function(goal, dist) {
+Creep.prototype.moveRandomWithin = function(goal, dist = 3) {
   let start = Math.ceil(Math.random() * 8);
   let direction = 0;
   for (let i = start; i < start + 8; i++) {
