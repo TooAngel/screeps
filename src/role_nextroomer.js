@@ -21,7 +21,7 @@ roles.nextroomer.died = function(name, creepMemory) {
   console.log('DIED:', message);
 };
 
-roles.nextroomer.getPartConfig = function(room, energy, heal, target) {
+roles.nextroomer.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, WORK, MOVE, CARRY];
   var config = room.getPartConfig(energy, parts);
   return config;

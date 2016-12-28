@@ -39,8 +39,6 @@ Creep.prototype.handle = function() {
     }
 
     if (unit.action) {
-      this.initRouting();
-
       if (this.memory.routing && this.memory.routing.reached) {
         if (this.room.name == this.memory.base || !Room.isRoomUnderAttack(this.room.name)) {
           // TODO maybe rename action to ... something better
@@ -65,7 +63,6 @@ Creep.prototype.handle = function() {
       this.log('Old module execution !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1');
       unit(this);
     }
-
   } catch (err) {
     let message = 'Executing creep role failed: ' +
       this.room.name + ' ' +
@@ -79,7 +76,23 @@ Creep.prototype.handle = function() {
 
     this.log(message);
     Game.notify(message, 30);
+  } finally {
+    if (this.memory.last === undefined) {
+      this.memory.last = {};
+    }
+    let last = this.memory.last;
+    this.memory.last = {
+      pos1: this.pos,
+      pos2: last.pos1,
+      pos3: last.pos2,
+    };
   }
+};
+
+Creep.prototype.isStuck = function() {
+  return this.memory.last !== undefined &&
+    this.memory.last.pos3 !== undefined &&
+    this.pos.isEqualTo(this.memory.last.pos3.x, this.memory.last.pos3.y);
 };
 
 Creep.prototype.getEnergyFromStructure = function() {
@@ -292,6 +305,24 @@ Creep.prototype.killPrevious = function() {
   }
 };
 
+Creep.prototype.respawnMe = function() {
+  let routing = {
+    targetRoom: this.memory.routing.targetRoom,
+    targetId: this.memory.routing.targetId,
+    route: this.memory.routing.route,
+  };
+  var spawn = {
+    role: this.memory.role,
+    heal: this.memory.heal,
+    level: this.memory.level,
+    routing: routing
+  };
+  Game.rooms[this.memory.base].memory.queue.push(spawn);
+  if (spawn.role == 'reserver') {
+    console.log('Add reserver to queue: ' + JSON.stringify(spawn));
+  }
+};
+
 Creep.prototype.spawnReplacement = function(maxOfRole) {
   if (this.memory.nextSpawn) {
     //    this.say('sr: ' + (this.ticksToLive - this.memory.nextSpawn));
@@ -310,27 +341,7 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
           return false;
         }
       }
-
-      let routing = {};
-      if (this.memory.routing) {
-        routing = JSON.parse(JSON.stringify(this.memory.routing));
-      }
-      routing.reached = false;
-      routing.routePos = 0;
-      routing.pathPos = 0;
-      var spawn = {
-        role: this.memory.role,
-        source: this.memory.source,
-        target: this.memory.target,
-        target_id: this.memory.target_id,
-        heal: this.memory.heal,
-        level: this.memory.level,
-        routing: routing
-      };
-      Game.rooms[this.memory.base].memory.queue.push(spawn);
-      if (spawn.role == 'reserver') {
-        console.log('Add reserver to queue: ' + JSON.stringify(spawn));
-      }
+      this.respawnMe();
     }
   }
 };
@@ -341,11 +352,7 @@ Creep.prototype.setNextSpawn = function() {
     //    this.killPrevious();
 
     if (this.ticksToLive < this.memory.nextSpawn) {
-      var spawn = {
-        role: this.memory.role,
-        source: this.memory.source
-      };
-      Game.rooms[this.memory.base].memory.queue.push(spawn);
+      this.respawnMe();
     }
   }
 };

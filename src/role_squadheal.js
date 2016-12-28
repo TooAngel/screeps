@@ -84,7 +84,6 @@ roles.squadheal.action = function(creep) {
     creep.heal(creep);
     creep.say('exit');
     let exit = creep.pos.findClosestByRange(FIND_EXIT);
-    creep.log(JSON.stringify(exit));
     creep.cancelOrder('move');
     creep.cancelOrder('moveTo');
 
@@ -102,7 +101,6 @@ roles.squadheal.action = function(creep) {
       }
     );
 
-    creep.log(JSON.stringify(search));
     if (search.incomplete) {
       creep.say('incomplete');
       creep.log(creep.pos.getDirectionTo(exit.x, exit.y));

@@ -14,7 +14,7 @@ try {
 
 global.config = {
   profiler: {
-    enabled: true
+    enabled: false,
   },
 
   info: {
@@ -28,11 +28,12 @@ global.config = {
 
   stats: {
     enabled: false,
-    summary: false
+    summary: false,
   },
 
   autoattack: {
-    disabled: false
+    disabled: false,
+    notify: false,
   },
 
   nextRoom: {
@@ -83,7 +84,7 @@ global.config = {
   },
 
   creep: {
-    renewOffset: 20,
+    renewOffset: 0,
     queueTtl: 100,
     structurer: true,
     reserverDefender: true,
@@ -97,9 +98,10 @@ global.config = {
     reviveEnergyAvailable: 1000,
     reviveStorageAvailable: 3000,
     nextroomerInterval: 354,
-    scoutInterval: 1032,
+    scoutInterval: 1499,
+    scoutSkipWhenStuck: true, // Useful for novice areas.
     scout: true, // TODO somehow broken ?? Is it broken ??
-    upgraderMinStorage: 10000,
+    upgraderMinStorage: 0,
     lastSeenThreshold: 10000
   },
 
@@ -122,3 +124,7 @@ global.config = {
     minAmountForMarket: 100000
   }
 };
+
+try {
+  require('config_local');
+} catch (e) {}

@@ -8,7 +8,6 @@ Creep.prototype.handleStructurer = function() {
   }
 
   structure = Game.getObjectById(this.memory.routing.targetId);
-  //  this.log(JSON.stringify(structure));
   if (structure === null) {
     delete this.memory.routing.targetId;
     return;
@@ -73,7 +72,8 @@ Creep.prototype.cleanController = function() {
     });
 
     if (structures.length > 0) {
-      this.memory.target_id = structures[0].id;
+      this.memory.routing.targetId = structures[0].id;
+      this.memory.routing.reached = false;
       //      this.log('found on way to controller to dismantle: ' + structures[0].pos);
       this.moveTo(structures[0].pos);
       return true;

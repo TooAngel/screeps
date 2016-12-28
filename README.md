@@ -33,18 +33,29 @@ market.
 This is not a good example for code quality or structure, many LOC are written
 while fighting or other occasions which needed quick fixes or in the ingame
 editor. But I think there are a couple of funny ideas. Every contribution is
-welcome. 
+welcome.
 
 ## Features
 
- - Automatic base building 
- - External room harvesting 
- - Basic mineral handling 
+ - Automatic base building
+ - External room harvesting
+ - Basic mineral handling
  - Power harvesting
- - New rooms claiming on GCL level up 
- - Automatic attack 
- - Rebuild of fallen rooms 
+ - New rooms claiming on GCL level up
+ - Automatic attack
+ - Rebuild of fallen rooms
 
+## Tweaking
+
+A `src/friends.js` can be used to add players which are ignored (hopefully) in
+and `FIND_HOSTILE` finds.
+
+E.g.:
+`module.exports = ['TooAngel'];`
+
+In `src/config.js` multiple config variables are available for tweaking. Copy
+`config_local.js.example` to `src/config_local.js` and use it to modify configs
+for your own bot rather than directly modifying `src/config.js` defaults.
 
 ## Upload
 
@@ -62,7 +73,7 @@ welcome.
     grunt jscs
 
 ## Design
- 
+
 ### Room
 
 #### Setup
@@ -73,7 +84,7 @@ Positions:
  - `filler` creep next to the `storage`
  - `pathStart` position next to the `storage`
 
- 
+
 From `pathStart` all (sources, controller, mineral, mid of each exit) paths
 are calculated and saved. The longest path is used to place structures (spawn,
 extension, lab, observer, terminal, tower) next to it. Next to `filler` a link,
@@ -93,7 +104,7 @@ will be available to build the rest of the creeps. For this we check if
 a `harvester` is within the room, otherwise spawn it. For the rest a priority
 queue is used.
 
- 
+
 ### Role
 
  - `upgrader` get energy from the storage, puts it into the controller.
@@ -131,4 +142,10 @@ The routing from `start` to `end` is first done on room level:
      the next room is the second part of the path name.
    The path is cached in the memory of the room with a `created` attributes
    to allow invalidation.
- 
+
+## Alliance
+
+If you manage to read this far it is likely that you started to test the AI, too.
+So if you are playing on the live server with the TooAngel AI you are welcome
+to join the [The Angels](Alliance.md) Alliance. Ping one of the members, you
+can recognize us, because our rooms look like yours.

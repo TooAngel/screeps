@@ -3,7 +3,9 @@
 Room.prototype.attackRoom = function() {
   function attack0(room) {
     room.log('Queuing level 0 attack');
-    Game.notify(Game.time + ' ' + room.name + ' Queuing autoattacker');
+    if (config.autoattack.notify) {
+      Game.notify(Game.time + ' ' + room.name + ' Queuing autoattacker');
+    }
 
     let sortByDistance = function(object) {
       return Game.map.getRoomLinearDistance(room.name, object);
@@ -13,7 +15,9 @@ Room.prototype.attackRoom = function() {
 
     Game.rooms[roomsMy[0]].memory.queue.push({
       role: 'autoattackmelee',
-      target: room.name
+      routing: {
+        targetRoom: room.name
+      }
     });
 
     return true;

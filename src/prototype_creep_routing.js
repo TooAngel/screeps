@@ -1,6 +1,12 @@
 'use strict';
 
 Creep.prototype.getRoute = function() {
+  if (!this.memory.routing) {
+    this.log('No routing why?');
+    this.suicide();
+    throw new Error();
+  }
+
   if (this.memory.routing.route) {
     return this.memory.routing.route;
   }
@@ -109,53 +115,6 @@ Creep.prototype.getPathPos = function(route, routePos, path) {
     }
   }
   return pathPos;
-};
-
-Creep.prototype.initRouting = function() {
-  if (this.memory.routing) {
-    return;
-  }
-
-  let targetId = this.memory.targetId || this.memory.target_id;
-  // TODO special case for storagefiller, handle better
-  // TODO rename storagefiller to e.g. filler
-  if (this.memory.role == 'storagefiller') {
-    targetId = 'filler';
-  }
-  // TODO rename harvester? => Distributor?
-  if (this.memory.role == 'harvester') {
-    targetId = 'harvester';
-  }
-  if (this.memory.role == 'upgrader') {
-    targetId = this.room.controller.id;
-  }
-
-  if (this.memory.role == 'repairer') {
-    targetId = undefined;
-  }
-
-  if (this.memory.role == 'sourcer') {
-    if (!this.memory.target_id) {
-      let sourcePos = new RoomPosition(this.memory.source.x, this.memory.source.y, this.memory.source.roomName);
-      let sources = sourcePos.lookFor(LOOK_SOURCES);
-      if (sources[0]) {
-        targetId = sources[0].id;
-      } else {
-        this.log('!!! config_creep_routing sourcer No sources at source: ' + this.memory.source + ' targetId: ' + this.memory.targetId);
-      }
-    }
-  }
-
-  this.memory.routing = this.memory.routing || {
-    // Some legacy values
-    targetRoom: this.memory.target || this.memory.base,
-    targetId: targetId
-  };
-
-  if (!this.memory.routing.targetId) {
-    // Special case, sourcer somehow broke
-    this.memory.routing.targetId = this.memory.target_id;
-  }
 };
 
 Creep.prototype.getDirections = function(path, pathPos) {
@@ -385,6 +344,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
 
   if (!directions) {
     // TODO Better true? On stuck on the border, execute is executed in the previous room
+    this.log('no directions');
     return false;
   }
   if (!directions.forwardDirection && !directions.backwardDirection) {
