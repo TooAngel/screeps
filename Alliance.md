@@ -2,6 +2,8 @@
 
 http://www.leagueofautomatednations.com/a/Too
 
+<img src="theangels.png" width="100">
+
 # Charter
 
 Fully automated TooAngel AIs
