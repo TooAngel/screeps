@@ -18,6 +18,10 @@ if (config.profiler.enabled) {
 }
 
 var main = function() {
+  if (Game.cpu.bucket < Game.cpu.tickLimit * 2) {
+    console.log('Skipping tick ' + Game.time + ' due to lack of CPU.');
+    return;
+  }
   brain.prepareMemory();
   brain.handleNextroom();
   brain.handleSquadmanager();
