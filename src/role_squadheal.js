@@ -23,11 +23,12 @@ roles.squadheal.energyBuild = function(room, energy) {
 
 roles.squadheal.preMove = function(creep, directions) {
   if (creep.hits < creep.hitsMax) {
-    console.log('preMove heal');
+    creep.log('preMove heal');
     creep.heal(creep);
     creep.memory.routing.reverse = true;
     if (directions) {
       directions.direction = directions.backwardDirection;
+
     }
     return false;
   } else {
@@ -79,6 +80,23 @@ roles.squadheal.preMove = function(creep, directions) {
 
 // TODO need to check if it works
 roles.squadheal.action = function(creep) {
+  creep.heal(creep);
+
+  if (creep.room.name != creep.memory.routing.targetRoom) {
+    creep.log('Not in room');
+    if (creep.hits < creep.hitsMax) {
+      creep.moveRandom();
+    } else {
+      creep.log('delete?');
+      delete creep.memory.routing.reached;
+    }
+  } else {
+    creep.log('In room');
+  }
+
+  if (true) {
+    return true;
+  }
   if (creep.hits < creep.hitsMax) {
     creep.log('action heal');
     creep.heal(creep);
@@ -118,5 +136,7 @@ roles.squadheal.action = function(creep) {
 };
 
 roles.squadheal.execute = function(creep) {
-  //  creep.log('Execute!!!');
+  creep.log('Execute!!!');
+  creep.heal(creep);
+  creep.moveRandom();
 };
