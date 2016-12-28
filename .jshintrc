@@ -8,6 +8,7 @@
     "require": false,
     "Creep": false,
     "RoomPosition": false,
+    "Structure": false,
     "FIND_MY_CREEPS": false,
     "FIND_MY_CONSTRUCTION_SITES": false,
     "OK": false,

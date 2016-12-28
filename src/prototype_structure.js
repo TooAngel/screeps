@@ -3,12 +3,12 @@
 /**
  * Provides structure memory.
  */
-Object.defineProperty(Structure.prototype, "memory", {
-  get: function () {
-    if(Memory.structures === undefined) {
+Object.defineProperty(Structure.prototype, 'memory', {
+  get: function() {
+    if (Memory.structures === undefined) {
       Memory.structures = {};
     }
-    if(Memory.structures[this.id] === undefined) {
+    if (Memory.structures[this.id] === undefined) {
       Memory.structures[this.id] = {};
     }
     return Memory.structures[this.id];

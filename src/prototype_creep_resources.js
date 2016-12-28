@@ -5,7 +5,7 @@ Creep.prototype.harvesterBeforeStorage = function() {
 
   if (this.memory.hasEnergy === undefined) {
     this.memory.hasEnergy = (this.carry.energy == this.carryCapacity);
-  } else if (this.memory.hasEnergy && this.carry.energy == 0) {
+  } else if (this.memory.hasEnergy && this.carry.energy === 0) {
     this.memory.hasEnergy = false;
   } else if (!this.memory.hasEnergy &&
       this.carry.energy == this.carryCapacity) {
