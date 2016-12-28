@@ -17,11 +17,14 @@ roles.upgrader.killPrevious = true;
 roles.upgrader.boostActions = ['upgradeController'];
 
 roles.upgrader.getPartConfig = function(room, energy, heal) {
-  let parts = [MOVE, CARRY, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK];
+  let datas = {layout: [MOVE, CARRY, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK,
+     MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE,
+      WORK, WORK]};
   if (room.controller.level == 4) {
-    parts = [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK];
+    datas.layout = [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK,
+       WORK, WORK, WORK, WORK, WORK, WORK];
   }
-  return room.getPartConfig(energy, parts);
+  return room.getPartConfig(energy, datas);
 };
 
 roles.upgrader.energyRequired = function(room) {

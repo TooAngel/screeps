@@ -10,9 +10,8 @@
 roles.scoutnextroom = {};
 
 roles.scoutnextroom.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CLAIM];
-  return room.getPartConfig(energy, parts);
-};
+  let datas = {layout: [MOVE, CLAIM]};
+  return room.getPartConfig(energy, datas);};
 
 roles.scoutnextroom.energyBuild = function(room, energy) {
   return 650;

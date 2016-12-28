@@ -10,8 +10,8 @@
 
 roles.mineral = {};
 roles.mineral.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY];
-  return room.getPartConfig(energy, parts);
+  let datas = {layout: [MOVE, CARRY]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.mineral.energyBuild = function(room, energy, heal) {

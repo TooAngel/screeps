@@ -20,6 +20,21 @@ roles.harvester.stayInRoom = true;
 roles.harvester.buildRoad = true;
 roles.harvester.boostActions = ['capacity'];
 
+roles.harvester.getPartConfig = function(room, energy, heal) {
+  let datas = {layout: [MOVE, MOVE, WORK, CARRY]};
+  let check = (room.storage && room.storage.my && room.storage.store.energy > config.creep.energyFromStorageThreshold);
+  return room.getPartConfig(energy - 150 * check, datas).concat([WORK,MOVE] * check);
+};
+
+roles.harvester.energyRequired = function(room) {
+  return 250;
+};
+
+roles.harvester.energyBuild = function(room, energy) {
+  let build = Math.min(1500, Math.max(energy, 250));
+  return build;
+};
+
 roles.harvester.preMove = function(creep, directions) {
   let pickableResources = function(object) {
     return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
@@ -103,27 +118,6 @@ roles.harvester.action = function(creep) {
   creep.memory.routing.reverse = true;
   delete creep.memory.routing.reached;
   return true;
-};
-
-roles.harvester.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, WORK, MOVE, CARRY];
-  let partConfig = room.getPartConfig(energy, parts);
-  if (room.storage && room.storage.my && room.storage.store.energy > config.creep.energyFromStorageThreshold) {
-    parts = [MOVE, CARRY, CARRY];
-    partConfig = room.getPartConfig(energy - 150, parts);
-    partConfig.unshift(WORK);
-    partConfig.unshift(MOVE);
-  }
-  return partConfig;
-};
-
-roles.harvester.energyRequired = function(room) {
-  return 250;
-};
-
-roles.harvester.energyBuild = function(room, energy) {
-  let build = Math.min(1500, Math.max(energy, 250));
-  return build;
 };
 
 roles.harvester.execute = function(creep) {

@@ -11,8 +11,8 @@ roles.planer = {};
 roles.planer.stayInRoom = true;
 
 roles.planer.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, MOVE, WORK];
-  return room.getPartConfig(energy, parts);
+  let datas = {layout: [MOVE, MOVE, CARRY, WORK]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.planer.energyBuild = function(room, energy) {

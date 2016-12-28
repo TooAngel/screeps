@@ -11,8 +11,8 @@ roles.extractor = {};
 roles.extractor.boostActions = ['harvest', 'capacity'];
 
 roles.extractor.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, MOVE, WORK];
-  return room.getPartConfig(energy, parts);
+  let datas = {layout: [MOVE, MOVE, CARRY, WORK]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.extractor.energyBuild = function(room, energy, heal) {

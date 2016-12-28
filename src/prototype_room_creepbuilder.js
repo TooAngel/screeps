@@ -27,6 +27,9 @@ Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing) {
   }
 
   var partConfig = unit.getPartConfig(this, energy, heal);
+  if (!partConfig) {
+    return false;
+  }
   partConfig = partConfig.slice(0, MAX_CREEP_SIZE);
   var spawns = this.find(FIND_MY_SPAWNS);
 

@@ -9,8 +9,8 @@
 roles.squadheal = {};
 
 roles.squadheal.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, HEAL];
-  return room.getPartConfig(energy, parts).sort();
+  let datas = {layout: [MOVE, HEAL]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.squadheal.energyRequired = function(room) {

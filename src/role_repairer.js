@@ -14,8 +14,8 @@ roles.repairer = {};
 roles.repairer.stayInRoom = true;
 
 roles.repairer.getPartConfig = function(room, energy, heal) {
-  var parts = [CARRY, MOVE, WORK, MOVE];
-  return room.getPartConfig(energy, parts);
+  let datas = {layout: [MOVE, MOVE, WORK, CARRY]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.repairer.energyBuild = function(room, energy) {

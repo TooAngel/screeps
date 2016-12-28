@@ -22,9 +22,8 @@ roles.nextroomer.died = function(name, creepMemory) {
 };
 
 roles.nextroomer.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, WORK, MOVE, CARRY];
-  var config = room.getPartConfig(energy, parts);
-  return config;
+  let datas = {layout: [MOVE, MOVE, WORK, CARRY]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.nextroomer.energyRequired = function(room) {

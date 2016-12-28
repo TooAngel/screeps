@@ -9,8 +9,8 @@
 roles.defendmelee = {};
 
 roles.defendmelee.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, ATTACK];
-  return room.getPartConfig(energy, parts);
+  let datas = {layout: [MOVE, ATTACK]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.defendmelee.energyRequired = function(room) {

@@ -13,8 +13,8 @@ roles.reserver.killPrevious = true;
 roles.reserver.flee = false;
 
 roles.reserver.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CLAIM];
-  return room.getPartConfig(energy, parts);
+  let datas = {layout: [MOVE, CLAIM]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.reserver.energyRequired = function(room) {

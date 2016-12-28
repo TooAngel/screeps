@@ -133,21 +133,41 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
   this.memory.queue.push(creepMemory);
 };
 
-Room.prototype.getPartConfig = function(energy, parts) {
+Room.prototype.getPartConfig = function(energy, datas) {
+
+  let layout = datas.layout;
+  let amount = datas.amount;
+  let parts = [];
+
+  if (amount) { // if size is defined
+    let pushAll = function(element, index, array) {
+      for (let i = 0; i < element; i++) {
+        parts.push(layout[index]);
+      }
+    };
+    amount.foreach(pushAll);
+    layout = parts;
+  }
+
   var sum = 0;
   var i = 0;
-  var partConfig = [];
-  while (sum < energy && partConfig.length < 50) {
-    var part = parts[i % parts.length];
+  while (sum < energy && parts.length < 50) {
+    var part = layout[i % layout.length];
     if (sum + BODYPART_COST[part] <= energy) {
-      partConfig.push(part);
+      parts.push(part);
       sum += BODYPART_COST[part];
-      i += 1;
+      i++;
+    } else if (amount) {
+      return;
     } else {
       break;
     }
   }
-  return partConfig;
+  parts = _.sortBy(parts, function(p) {
+    return _.indexOf(layout, p) + 1;
+  });
+
+  return parts;
 };
 
 Room.pathToString = function(path) {

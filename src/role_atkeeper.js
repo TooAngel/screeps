@@ -10,8 +10,8 @@
 roles.atkeeper = {};
 
 roles.atkeeper.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, RANGED_ATTACK, MOVE, HEAL];
-  return room.getPartConfig(energy, parts);
+  let datas = {layout: [MOVE, MOVE, RANGED_ATTACK, HEAL]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.atkeeper.energyRequired = function(room) {

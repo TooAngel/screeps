@@ -10,20 +10,11 @@
 roles.atkeepermelee = {};
 
 roles.atkeepermelee.getPartConfig = function(room, energy, heal) {
-  let parts = [];
-  for (let i = 0; i < 22; i++) {
-    parts.push(MOVE);
-  }
-  for (let i = 0; i < 3; i++) {
-    parts.push(MOVE);
-  }
-  for (let i = 0; i < 19; i++) {
-    parts.push(ATTACK);
-  }
-  for (let i = 0; i < 6; i++) {
-    parts.push(HEAL);
-  }
-  return room.getPartConfig(energy, parts);
+  let datas = {
+    layout: [MOVE,ATTACK,HEAL],
+    amount: [25,19,6]
+  };
+  return room.getPartConfig(energy, datas);
 };
 
 roles.atkeepermelee.energyRequired = function(room) {

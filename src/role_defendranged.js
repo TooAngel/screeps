@@ -9,8 +9,8 @@
 roles.defendranged = {};
 
 roles.defendranged.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK];
-  return room.getPartConfig(energy, parts);
+  let datas = {layout: [MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.defendranged.energyRequired = function(room) {

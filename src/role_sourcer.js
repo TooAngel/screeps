@@ -20,8 +20,9 @@ roles.sourcer.killPrevious = true;
 roles.sourcer.flee = false;
 
 roles.sourcer.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, WORK, WORK, WORK, WORK, MOVE, MOVE, WORK, HEAL, MOVE, HEAL, MOVE, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE];
-  return room.getPartConfig(energy, parts);
+  let datas = {layout: [MOVE, CARRY, WORK, WORK, WORK, WORK, MOVE, MOVE, WORK, HEAL,
+     MOVE, HEAL, MOVE, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.sourcer.preMove = function(creep, directions) {

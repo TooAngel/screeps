@@ -8,8 +8,8 @@
 
 roles.scout = {};
 roles.scout.getPartConfig = function(room, energy, heal) {
-  let parts = [MOVE];
-  return room.getPartConfig(energy, parts);
+  let datas = {layout: [MOVE]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.scout.energyBuild = function(room, energy) {

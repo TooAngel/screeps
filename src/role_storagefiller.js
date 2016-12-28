@@ -14,8 +14,8 @@ roles.storagefiller = {};
 roles.storagefiller.killPrevious = true;
 
 roles.storagefiller.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, CARRY, CARRY, CARRY];
-  return room.getPartConfig(energy, parts);
+  let datas = {layout: [MOVE, CARRY, CARRY, CARRY, CARRY]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.storagefiller.energyBuild = function(room, energy) {

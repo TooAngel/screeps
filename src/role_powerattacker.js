@@ -8,8 +8,8 @@
 
 roles.powerattacker = {};
 roles.powerattacker.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, ATTACK];
-  return room.getPartConfig(energy, parts).sort().reverse();
+  let datas = {layout: [MOVE, ATTACK]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.powerattacker.energyRequired = function(room) {

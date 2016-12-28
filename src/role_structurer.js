@@ -19,8 +19,8 @@ roles.structurer.energyBuild = function(room, energy) {
 };
 
 roles.structurer.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, WORK];
-  return room.getPartConfig(energy, parts);
+  let datas = {layout: [MOVE, WORK]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.structurer.preMove = function(creep, directions) {

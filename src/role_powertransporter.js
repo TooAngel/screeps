@@ -8,8 +8,8 @@
 
 roles.powertransporter = {};
 roles.powertransporter.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY];
-  return room.getPartConfig(energy, parts);
+  let datas = {layout: [MOVE, CARRY]};
+  return room.getPartConfig(energy, datas);
 };
 
 roles.powertransporter.energyRequired = function(room) {
