@@ -36,7 +36,9 @@ roles.powerattacker.action = function(creep) {
       creep.log('Call powerdefender');
       Game.rooms[creep.memory.base].memory.queue.push({
         role: 'powerdefender',
-        target: creep.room.name
+        routing: {
+          targetRoom: creep.room.name
+        }
       });
       Memory.powerBanks[creep.room.name].defender = true;
     }

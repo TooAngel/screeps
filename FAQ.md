@@ -54,9 +54,9 @@ for injecting.
 If your questions is if I triggered the attack against you:
 The answer is usually no.
 
-## Why are you rooms on live behaving so shitty?
+## Why are your rooms on live behaving so shitty?
 
-My code, my bot is shit. The last time I was mainly working on the bot
+My code and my AI are shit. The last time I were mainly working on the bot
 and on private servers, to make sure the first RCLs work out somehow.
 Having a GCL 20+ is in many regards different to a GCL 1.
 

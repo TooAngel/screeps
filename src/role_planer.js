@@ -21,9 +21,6 @@ roles.planer.energyBuild = function(room, energy) {
 
 roles.planer.action = function(creep) {
   var methods = [Creep.getEnergy];
-  if (creep.room.storage && creep.room.storage.store.energy > config.creep.energyFromStorageThreshold) {
-    methods = [Creep.getEnergyFromStorage];
-  }
 
   methods.push(Creep.constructTask);
   methods.push(Creep.buildRoads);
@@ -41,9 +38,6 @@ roles.planer.action = function(creep) {
 roles.planer.execute = function(creep) {
   creep.log('!!!! Execute !!!');
   let methods = [Creep.getEnergy];
-  if (creep.room.storage && creep.room.storage.store.energy > config.creep.energyFromStorageThreshold) {
-    methods = [Creep.getEnergyFromStorage];
-  }
 
   methods.push(Creep.constructTask);
   methods.push(Creep.buildRoads);

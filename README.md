@@ -33,7 +33,7 @@ market.
 This is not a good example for code quality or structure, many LOC are written
 while fighting or other occasions which needed quick fixes or in the ingame
 editor. But I think there are a couple of funny ideas. Every contribution is
-welcome. 
+welcome.
 
 ## Features
 
@@ -45,6 +45,17 @@ welcome.
  - Automatic attack 
  - Rebuild of fallen rooms 
 
+## Tweaking
+
+A `src/friends.js` can be used to add players which are ignored (hopefully) in
+and `FIND_HOSTILE` finds.
+
+E.g.: 
+`module.exports = ['TooAngel'];`
+
+In `src/config.js` multiple config variables are available for tweaking. Copy
+`config_local.js.example` to `src/config_local.js` and use it to modify configs
+for your own bot rather than directly modifying `src/config.js` defaults.
 
 ## Upload
 
@@ -131,4 +142,4 @@ The routing from `start` to `end` is first done on room level:
      the next room is the second part of the path name.
    The path is cached in the memory of the room with a `created` attributes
    to allow invalidation.
- 
+

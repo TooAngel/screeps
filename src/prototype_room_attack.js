@@ -13,7 +13,9 @@ Room.prototype.attackRoom = function() {
 
     Game.rooms[roomsMy[0]].memory.queue.push({
       role: 'autoattackmelee',
-      target: room.name
+      routing: {
+        targetRoom: room.name
+      }
     });
 
     return true;
