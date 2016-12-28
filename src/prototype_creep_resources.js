@@ -3,18 +3,7 @@
 Creep.prototype.harvesterBeforeStorage = function() {
   let methods = [];
 
-  if (this.memory.hasEnergy === undefined) {
-    this.memory.hasEnergy = (this.carry.energy == this.carryCapacity);
-  } else if (this.memory.hasEnergy && this.carry.energy === 0) {
-    this.memory.hasEnergy = false;
-  } else if (!this.memory.hasEnergy &&
-      this.carry.energy == this.carryCapacity) {
-    this.memory.hasEnergy = true;
-  }
-
-  if (!this.memory.hasEnergy) {
-    methods.push(Creep.getEnergy);
-  }
+  methods.push(Creep.getEnergy);
 
   if (this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / 10 || this.room.controller.level == 1) {
     methods.push(Creep.upgradeControllerTask);
@@ -490,7 +479,20 @@ Creep.prototype.transferMy = function() {
 };
 
 Creep.prototype.getEnergy = function() {
-  if (this.carry.energy == this.carryCapacity) {
+  /* State machine:
+   * No energy, goes to collect energy until full.
+   * Full energy, uses energy until empty.
+   */
+  if (this.memory.hasEnergy === undefined) {
+    this.memory.hasEnergy = (this.carry.energy == this.carryCapacity);
+  } else if (this.memory.hasEnergy && this.carry.energy === 0) {
+    this.memory.hasEnergy = false;
+  } else if (!this.memory.hasEnergy &&
+      this.carry.energy == this.carryCapacity) {
+    this.memory.hasEnergy = true;
+  }
+
+  if (this.memory.hasEnergy) {
     return false;
   }
 
@@ -520,12 +522,14 @@ Creep.prototype.getEnergy = function() {
       });
       return true;
     } else {
+      this.memory.hasEnergy = true; // Stop looking and spend the energy.
       return false;
     }
   }
 
   range = this.pos.getRangeTo(item);
   if (this.carry.energy > 0 && range > 1) {
+    this.memory.hasEnergy = true; // Stop looking and spend the energy.
     return false;
   }
 
