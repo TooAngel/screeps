@@ -3,7 +3,10 @@ module.exports = function(grunt) {
   try {
     account = require('account.screeps.com');
   } catch (e) {
-    account = {email: false, password: false};
+    account = {
+      email: false,
+      password: false
+    };
   }
 
 

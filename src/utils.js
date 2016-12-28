@@ -138,6 +138,12 @@ global.utils = {
 
     console.log(JSON.stringify(minerals));
     console.log(minerals.U);
+  },
+
+  queueCheck: function(roomName) {
+    console.log(JSON.stringify(_.countBy(Game.rooms[roomName].memory.queue), function(object) {
+      return object.role;
+    }));
   }
 
 };

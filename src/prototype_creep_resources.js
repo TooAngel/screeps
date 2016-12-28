@@ -874,26 +874,14 @@ Creep.prototype.handleReserver = function() {
       });
 
       if (sourcer.length < sources.length) {
-        for (var sources_id in sources) {
-          if (checkSourcerMatch(sourcer, sources[sources_id].pos)) {
-            creep.log('Matching sourcer found');
-            continue;
+        let sourceParse = function(source) {
+          if (!checkSourcerMatch(sourcer, source.pos)) {
+            Game.rooms[creep.memory.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
           }
-
-          var sourcer_spawn = {
-            role: 'sourcer',
-            routing: {
-              targetRoom: sources[sources_id].pos.roomName,
-              targetId: sources[sources_id].id
-            }
-          };
-
-          Game.rooms[creep.memory.base].memory.queue.push(sourcer_spawn);
-        }
+        };
+        sources.foreach(sourceParse);
       }
-
     };
-
     checkSourcer(this);
   }
 
