@@ -18,6 +18,23 @@ Creep.prototype.moveRandom = function(onPath) {
   this.move(direction);
 };
 
+Creep.prototype.moveRandomWithin = function(goal, dist = 3) {
+  let start = Math.ceil(Math.random() * 8);
+  let direction = 0;
+  for (let i = start; i < start + 8; i++) {
+    direction = ((i - 1) % 8) + 1;
+    let pos = this.pos.getAdjacentPosition(direction);
+    if (pos.isExit()) {
+      continue;
+    }
+    if (pos.getRangeTo(goal) > dist) {
+      continue;
+    }
+    break;
+  }
+  this.move(direction);
+};
+
 Creep.prototype.moveCreep = function(position, direction) {
   if (position.x <= 0 || position.x >= 49 || position.y <= 0 || position.y >= 49) {
     return false;

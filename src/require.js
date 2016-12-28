@@ -29,6 +29,7 @@ require('prototype_room_routing');
 require('prototype_room_utils');
 require('prototype_room_wallsetter');
 require('prototype_string');
+require('prototype_structure');
 require('role_atkeeper');
 require('role_atkeepermelee');
 require('role_autoattackmelee');
