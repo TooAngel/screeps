@@ -40,7 +40,7 @@ global.config = {
     scoutMinControllerLevel: 4,
     ttlPerRoomForScout: 500,
     numberOfNextroomers: 10,
-    nextroomerInterval: _.ceil(1500 / config.nextRoom.numberOfNextroomers),
+    nextroomerInterval: _.ceil(1500 / 10),
     maxRooms: 30,
     revive: true,
     maxDistance: 17,
