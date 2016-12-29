@@ -71,10 +71,10 @@ roles.carry.preMove = function(creep, directions) {
 
   let carryPercentage = 0.1;
   if (creep.room.name == creep.memory.routing.targetRoom) {
-    carryPercentage = 0.8;
+    carryPercentage = 0.5;
   }
   if (creep.room.name == creep.memory.base) {
-    carryPercentage = 0.0;
+    carryPercentage = 0.2;
   }
 
   if (_.sum(creep.carry) > carryPercentage * creep.carryCapacity) {
