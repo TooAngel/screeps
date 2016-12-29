@@ -31,7 +31,7 @@ Room.prototype.myHandleRoom = function() {
   }
   if (config.stats.enabled) {
     let Name = Memory.username;
-    let pathBegin = 'room.' + Name + '.' + this.name;
+    let pathBegin = Name + '.room.' + this.name;
     Memory.stats[pathBegin + '.energyAvailable'] = this.energyAvailable;
     Memory.stats[pathBegin + '.energyCapacityAvailable'] = this.energyCapacityAvailable;
     Memory.stats[pathBegin + '.controllerProgress'] = this.controller.progress;
