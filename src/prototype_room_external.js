@@ -310,9 +310,8 @@ Room.prototype.handleReservedRoom = function() {
       this.log('Would like to spawn reserver ' +
           Game.rooms[reservation.base].energyCapacityAvailable + '/' +
           energyNeeded);
-      if (Game.rooms[reservation.base].controller.level > 3 &&
-          Game.rooms[reservation.base].energyCapacityAvailable >=
-            energyNeeded) {
+      if (Game.rooms[reservation.base].energyCapacityAvailable >=
+          energyNeeded) {
         this.log('Queuing reserver ' + reservation.base + ' ' +
             JSON.stringify(reserverSpawn));
         Game.rooms[reservation.base].memory.queue.push(reserverSpawn);
@@ -350,6 +349,7 @@ Room.prototype.handleUnreservedRoom = function() {
           }
         });
       } else {
+        // TODO: make sure no reserver is in the spawn queue.
         let reserverSpawn = {
           role: 'reserver',
           level: 2,
@@ -369,10 +369,10 @@ Room.prototype.handleUnreservedRoom = function() {
         this.log('Would like to spawn reserver ' +
             Game.rooms[reservation.base].energyCapacityAvailable + '/' +
             energyNeeded);
-        if (Game.rooms[reservation.base].controller.level > 3 &&
-            Game.rooms[reservation.base].energyCapacityAvailable >=
-              energyNeeded) {
-          this.log('Queuing reserver ' + reservation.base + ' ' + JSON.stringify(reserverSpawn));
+        if (Game.rooms[reservation.base].energyCapacityAvailable >=
+            energyNeeded) {
+          this.log('Queuing reserver ' + reservation.base + ' ' +
+              JSON.stringify(reserverSpawn));
           Game.rooms[reservation.base].memory.queue.push(reserverSpawn);
         }
       }
@@ -414,7 +414,15 @@ Room.prototype.handleUnreservedRoom = function() {
 
     if (room.memory.queue && room.memory.queue.length === 0) {
       let reservedRooms = _.filter(Memory.rooms, isReserved);
-      if (reservedRooms.length < room.controller.level - 1) {
+      /* RCL: target reserved rooms
+       * 4: 1
+       * 5: 3
+       * 6: 5
+       * 7: 7
+       * 8: 9
+       */
+      let numRoomsToReserve = (room.controller.level - 3) * 2 - 1;
+      if (reservedRooms.length < numRoomsToReserve) {
         this.log('Would start to spawn');
 
         // TODO Check paths to decide for structurer
@@ -437,8 +445,7 @@ Room.prototype.handleUnreservedRoom = function() {
         if (Game.rooms[baseRoomName].misplacedSpawn) {
           energyNeeded = 1600;
         }
-        if (Game.rooms[baseRoomName].controller.level > 3 &&
-            Game.rooms[baseRoomName].energyCapacityAvailable >= energyNeeded) {
+        if (Game.rooms[baseRoomName].energyCapacityAvailable >= energyNeeded) {
           this.log('Queuing reserver ' + baseRoomName + ' ' +
               JSON.stringify(reserverSpawn));
           Game.rooms[baseRoomName].memory.queue.push(reserverSpawn);
