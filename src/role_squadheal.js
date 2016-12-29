@@ -10,7 +10,18 @@ roles.squadheal = {};
 
 roles.squadheal.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, HEAL];
-  return room.getPartConfig(energy, parts).sort();
+
+  let config = room.getPartConfig(energy, parts).sort();
+  let costs = 0;
+  for (let a of config) {
+    costs += BODYPART_COST[a];
+  }
+  let rest = energy - costs;
+  for (let i = 0; i < Math.floor(rest / (BODYPART_COST[MOVE] + BODYPART_COST[TOUGH])); i++) {
+    config.unshift(TOUGH);
+    config.unshift(MOVE);
+  }
+  return config;
 };
 
 roles.squadheal.energyRequired = function(room) {
@@ -83,15 +94,15 @@ roles.squadheal.action = function(creep) {
   creep.heal(creep);
 
   if (creep.room.name != creep.memory.routing.targetRoom) {
-    creep.log('Not in room');
+    // creep.log('Not in room');
     if (creep.hits < creep.hitsMax) {
       creep.moveRandom();
     } else {
-      creep.log('delete?');
+      // creep.log('delete?');
       delete creep.memory.routing.reached;
     }
   } else {
-    creep.log('In room');
+    // creep.log('In room');
   }
 
   if (true) {

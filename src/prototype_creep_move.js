@@ -12,13 +12,7 @@ Creep.prototype.moveRandom = function(onPath) {
     if (onPath && !pos.inPath()) {
       continue;
     }
-    if (this.memory.role == 'squadheal') {
-      this.log(pos);
-    }
     break;
-  }
-  if (this.memory.role == 'squadheal') {
-    this.log(direction);
   }
   this.move(direction);
 };

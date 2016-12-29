@@ -130,6 +130,7 @@
     "friends": false,
     "ORDER_SELL": false,
     "SUBSCRIPTION_TOKEN": false,
-    "cache": false
+    "cache": false,
+    "TOUGH": false
   }
 }
