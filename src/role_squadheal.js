@@ -8,17 +8,11 @@
 
 roles.squadheal = {};
 
-roles.squadheal.getPartConfig = function(room, energy, heal) {
-  let datas = {layout: [MOVE, HEAL]};
-  return room.getPartConfig(energy, datas);
-};
-
-roles.squadheal.energyRequired = function(room) {
-  return Math.min(room.getEnergyCapacityAvailable(), 5100);
-};
-
-roles.squadheal.energyBuild = function(room, energy) {
-  return Math.min(room.getEnergyCapacityAvailable(), 5100);
+roles.squadheal.getPartConfig = function(room) {
+  let datas = {layout: [MOVE, HEAL],
+    maxEnergyUsed: 5100,
+    minEnergyStored: 5100};
+  return room.getPartConfig(datas);
 };
 
 roles.squadheal.preMove = function(creep, directions) {

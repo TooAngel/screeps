@@ -8,17 +8,11 @@
 
 roles.defendranged = {};
 
-roles.defendranged.getPartConfig = function(room, energy, heal) {
-  let datas = {layout: [MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK]};
-  return room.getPartConfig(energy, datas);
-};
-
-roles.defendranged.energyRequired = function(room) {
-  return Math.max(200, room.energyAvailable);
-};
-
-roles.defendranged.energyBuild = function(room) {
-  return Math.max(200, room.energyAvailable);
+roles.defendranged.getPartConfig = function(room) {
+  let datas = {layout: [MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK],
+    maxEnergyUsed: 600,
+    minEnergyStored: 200};
+  return room.getPartConfig(datas);
 };
 
 // TODO This overwrites the target so redo and enable again

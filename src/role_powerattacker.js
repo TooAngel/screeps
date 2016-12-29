@@ -7,17 +7,11 @@
  */
 
 roles.powerattacker = {};
-roles.powerattacker.getPartConfig = function(room, energy, heal) {
-  let datas = {layout: [MOVE, ATTACK]};
-  return room.getPartConfig(energy, datas);
-};
-
-roles.powerattacker.energyRequired = function(room) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
-};
-
-roles.powerattacker.energyBuild = function(room, energy) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
+roles.powerattacker.getPartConfig = function(room) {
+  let datas = {layout: [MOVE, ATTACK],
+    maxEnergyUsed: 3250,
+    minEnergyStored: 1000};
+  return room.getPartConfig(datas);
 };
 
 roles.powerattacker.action = function(creep) {

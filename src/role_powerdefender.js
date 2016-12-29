@@ -8,17 +8,10 @@
 
 roles.powerdefender = {};
 
-roles.powerdefender.getPartConfig = function(room, energy, heal) {
-  let datas = {layout: [MOVE, RANGED_ATTACK]};
-  return room.getPartConfig(energy, datas);
-};
-
-roles.powerdefender.energyRequired = function(room) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
-};
-
-roles.powerdefender.energyBuild = function(room, energy) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
+roles.powerdefender.getPartConfig = function(room) {
+  let datas = {layout: [MOVE, RANGED_ATTACK],
+    maxEnergyUsed: 3250};
+  return room.getPartConfig(datas);
 };
 
 roles.powerdefender.action = function(creep) {

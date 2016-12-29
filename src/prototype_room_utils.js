@@ -133,44 +133,67 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
   this.memory.queue.push(creepMemory);
 };
 
-Room.prototype.getPartConfig = function(energy, datas) {
+Room.prototype.getPartConfig = function(datas) {
 
   let layout = datas.layout;
   let amount = datas.amount;
-  let parts = [];
+  let minEnergyStored = datas.minEnergyStored;
+  let maxEnergyUsed = datas.maxEnergyUsed;
+  let bonusParts = datas.bonusParts;
+  let energyAvailable = this.energyAvailable;
+  let parts = []; let cost = 0;
 
+  if (minEnergyStored < energyAvailable) {return;}
+  if (maxEnergyUsed < energyAvailable) {energyAvailable = maxEnergyUsed;}
+
+  if (bonusParts) {
+    bonusParts.foreach(
+      function(p) {
+        cost += BODYPART_COST[bonusParts[p]];
+        if (cost < energyAvailable) {
+          parts.push(bonusParts[p]);
+        } else {return;}
+      }
+    );
+  }
   if (amount) { // if size is defined
     let pushAll = function(element, index, array) {
       for (let i = 0; i < element; i++) {
         parts.push(layout[index]);
+        cost += BODYPART_COST[layout[index]];
       }
     };
     amount.foreach(pushAll);
     layout = parts;
+    parts = [];
   }
-
-  var sum = 0;
-  var i = 0;
-  while (sum < energy && parts.length < 50) {
-    var part = layout[i % layout.length];
-    if (sum + BODYPART_COST[part] <= energy) {
-      parts.push(part);
-      sum += BODYPART_COST[part];
-      i++;
-    } else if (amount) {
-      return;
-    } else {
-      break;
+  let i = 1; let j = 1;
+  let halt = false;
+  let layoutCost; let layoutParts; let part;
+  while (!halt && parts.length + j <= 50) {
+    layoutCost = 0; layoutParts = [];
+    while (!halt && j <= layout.length && parts.length + j < 50) {
+      part = layout[j - 1];
+      layoutCost += BODYPART_COST[part];
+      if (cost + layoutCost <= energyAvailable) {
+        layoutParts.push(part);
+      } else if (i > 1) {
+        halt = true;
+      } else { return; }
+    }
+    if (!halt) {
+      cost += layoutCost;
+      parts = parts.concat(layoutParts);
+      j = 1; i++;
     }
   }
   parts = _.sortBy(parts, function(p) {
     return _.indexOf(layout, p) + 1;
   });
-
   return parts;
 };
 
-Room.pathToString = function(path) {
+Room.prototype.pathToString = function(path) {
   if (!config.performance.serializePath) {
     return path;
   }

@@ -13,16 +13,14 @@ roles.repairer = {};
 
 roles.repairer.stayInRoom = true;
 
-roles.repairer.getPartConfig = function(room, energy, heal) {
-  let datas = {layout: [MOVE, MOVE, WORK, CARRY]};
-  return room.getPartConfig(energy, datas);
-};
-
-roles.repairer.energyBuild = function(room, energy) {
+roles.repairer.getPartConfig = function(room) {
+  let datas = {layout: [MOVE, MOVE, WORK, CARRY],
+    minEnergyStored: 250
+  };
   if (room.storage) {
-    return Math.max(250, Math.min(energy, Math.ceil(room.storage.store.energy / 10000) * 250));
+    datas.maxEnergyUsed = (room.storage.store.energy / 10000) * 250;
   }
-  return Math.max(250, energy);
+  return room.getPartConfig(datas);
 };
 
 roles.repairer.boostActions = ['repair'];

@@ -15,18 +15,12 @@ roles.carry.flee = true;
 
 roles.carry.boostActions = ['capacity'];
 
-roles.carry.getPartConfig = function(room, energy, heal) {
-  let datas = {layout: [MOVE, CARRY, CARRY]};
-  return room.getPartConfig(energy - 150, datas).concat([WORK,MOVE]);
-};
-
-roles.carry.energyRequired = function(room) {
-  // TODO make the factor dependent on e.g. room.storage or waiting duration in queue
-  return Math.max(250, Math.min(room.controller.level * config.carry.size, room.getEnergyCapacityAvailable()));
-};
-
-roles.carry.energyBuild = function(room, energy) {
-  return Math.max(250, Math.min(room.controller.level * config.carry.size, room.getEnergyCapacityAvailable()));
+roles.carry.getPartConfig = function(room) {
+  let datas = {layout: [MOVE, CARRY, CARRY],
+    bonusParts: [WORK,MOVE],
+    maxEnergyUsed: room.controller.level * config.carry.size,
+    minEnergyStored: 250};
+  return room.getPartConfig(datas);
 };
 
 roles.carry.preMove = function(creep, directions) {

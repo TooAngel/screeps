@@ -7,17 +7,11 @@
  */
 
 roles.squadsiege = {};
-roles.squadsiege.energyRequired = function(room) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
-};
 
-roles.squadsiege.getPartConfig = function(room, energy, heal) {
-  let datas = {layout: [MOVE, WORK]};
-  return room.getPartConfig(energy, datas);
-};
-
-roles.squadsiege.energyBuild = function(room, energy) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
+roles.squadsiege.getPartConfig = function(room) {
+  let datas = {layout: [MOVE, WORK],
+    maxEnergyUsed: 3250};
+  return room.getPartConfig(datas);
 };
 
 roles.squadsiege.preMove = function(creep, directions) {
