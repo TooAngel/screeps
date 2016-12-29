@@ -337,7 +337,7 @@ roles.nextroomer.preMove = function(creep, directions) {
 };
 
 roles.nextroomer.action = function(creep) {
-  // TODO when does roles.nextroomer happen?
+  // TODO when does this happen?
   if (creep.room.name != creep.memory.routing.targetRoom) {
     delete creep.memory.routing.reached;
     return false;
