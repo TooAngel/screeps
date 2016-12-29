@@ -30,17 +30,22 @@ Room.prototype.myHandleRoom = function() {
     }
   }
   if (config.stats.enabled) {
-    Memory.stats['room.' + this.name + '.energyAvailable'] = this.energyAvailable;
-    Memory.stats['room.' + this.name + '.energyCapacityAvailable'] = this.energyCapacityAvailable;
-    Memory.stats['room.' + this.name + '.controllerProgress'] = this.controller.progress;
-    Memory.stats['room.' + this.name + '.progress'] = this.memory.upgraderUpgrade / (Game.time % 100);
+    let Name = Memory.username;
+    let pathBegin = Name + '.room.' + this.name;
+    Memory.stats[pathBegin + '.energyAvailable'] = this.energyAvailable;
+    Memory.stats[pathBegin + '.energyCapacityAvailable'] = this.energyCapacityAvailable;
+    Memory.stats[pathBegin + '.controllerProgress'] = this.controller.progress;
+    Memory.stats[pathBegin + '.progress'] = this.memory.upgraderUpgrade / (Game.time % 100);
+    Memory.stats[pathBegin + '.queueLength'] = this.memory.queue.length;
+    Memory.stats[pathBegin + '.creepsIn'] = this.find(FIND_CREEPS).length;
+    Memory.stats[pathBegin + '.sourcesEnergy'] = _.sum(_.map(this.find(FIND_SOURCES), 'energy'));
 
     let storage = this.storage || {
       store: {}
     };
     if (this.storage) {
-      Memory.stats['room.' + this.name + '.storage.store.energy'] = storage.store.energy || 0;
-      Memory.stats['room.' + this.name + '.storage.store.power'] = storage.store.power || 0;
+      Memory.stats[pathBegin + '.storage.store.energy'] = storage.store.energy || 0;
+      Memory.stats[pathBegin + '.storage.store.power'] = storage.store.power || 0;
     }
   }
 
@@ -448,7 +453,14 @@ Room.prototype.executeRoom = function() {
 };
 
 Room.prototype.reviveRoom = function() {
-  if (this.controller.level > 1 && this.controller.ticksToDowngrade > CONTROLLER_DOWNGRADE[this.controller.level] * 0.9) {
+  let nextRoomers = _.filter(Game.creeps, c => c.memory.role === 'nextroomer' &&
+  c.memory.routing.targetRoom === this.name).length;
+  if (this.controller.level >= 4 &&
+      this.controller.ticksToDowngrade > CONTROLLER_DOWNGRADE[this.controller.level] * 0.9) {
+    this.memory.active = true;
+    return false;
+  } else if (this.controller.level > 1 && nextRoomers >= config.nextRoom.numberOfNextroomers) {
+    console.log('Enough nextroomers');
     return false;
   }
 
@@ -491,7 +503,9 @@ Room.prototype.reviveRoom = function() {
     return false;
   }
 
-  if (config.nextRoom.revive && this.controller.level >= 1 && (Game.time + this.controller.pos.x + this.controller.pos.y) % config.room.nextroomerInterval === 0) {
+  if (config.nextRoom.revive && this.controller.level >= 1 &&
+     (Game.time + this.controller.pos.x + this.controller.pos.y) %
+      config.nextRoom.nextroomerInterval === 0) {
     this.log('revive me now');
 
     let nextroomerCalled = 0;
