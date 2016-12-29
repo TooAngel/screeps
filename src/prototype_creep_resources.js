@@ -593,7 +593,14 @@ Creep.prototype.getEnergy = function() {
 
 Creep.prototype.construct = function() {
   //   this.say('construct', true);
-  var target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+  var target;
+  if (this.memory.role === 'nextroomer') {
+    target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
+      filter: s => s.structureType !== STRUCTURE_RAMPART
+    });
+  } else {
+    target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+  }
 
   if (target === null) {
     return false;
