@@ -455,7 +455,7 @@ Room.prototype.reviveRoom = function() {
     this.memory.active = true;
     return false;
   } else if (this.controller.level > 1 && nextRoomers >= config.nextRoom.numberOfNextroomers) {
-    console.log('Enouth nextroomers');
+    console.log('Enough nextroomers');
     return false;
   }
 
@@ -500,7 +500,7 @@ Room.prototype.reviveRoom = function() {
 
   if (config.nextRoom.revive && this.controller.level >= 1 &&
      (Game.time + this.controller.pos.x + this.controller.pos.y) %
-      config.room.nextroomerInterval === 0) {
+      config.nextRoom.nextroomerInterval === 0) {
     this.log('revive me now');
 
     let nextroomerCalled = 0;
