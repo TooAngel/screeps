@@ -391,7 +391,7 @@ Room.prototype.handleUnreservedRoom = function() {
     return object.reservation.base == roomName;
   };
 
-  for (baseRoomName of Memory.myRooms) {
+  for (let baseRoomName of Memory.myRooms) {
     let room = Game.rooms[baseRoomName];
     if (!room) {
       return false;
