@@ -7,17 +7,9 @@
  */
 
 roles.powerattacker = {};
-roles.powerattacker.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, ATTACK];
-  return room.getPartConfig(energy, parts).sort().reverse();
-};
-
-roles.powerattacker.energyRequired = function(room) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
-};
-
-roles.powerattacker.energyBuild = function(room, energy) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
+roles.powerattacker.settings = {
+  layoutString: 'MA',
+  amount: [5, 5],
 };
 
 roles.powerattacker.action = function(creep) {

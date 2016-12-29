@@ -13,13 +13,9 @@
 roles.storagefiller = {};
 roles.storagefiller.killPrevious = true;
 
-roles.storagefiller.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, CARRY, CARRY, CARRY];
-  return room.getPartConfig(energy, parts);
-};
-
-roles.storagefiller.energyBuild = function(room, energy) {
-  return 200;
+roles.storagefiller.settings = {
+  layoutString: 'MC',
+  amount: [1, 4],
 };
 
 roles.storagefiller.action = function(creep) {

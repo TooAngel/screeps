@@ -12,28 +12,16 @@ roles.reserver.killPrevious = true;
 // TODO should be true, but flee must be fixed  (2016-10-13)
 roles.reserver.flee = false;
 
-roles.reserver.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CLAIM];
-  return room.getPartConfig(energy, parts);
+roles.reserver.settings = {
+  layoutString: 'MK',
+  maxLayoutAmout: 1,
 };
-
-roles.reserver.energyRequired = function(room) {
-  return BODYPART_COST[CLAIM] + BODYPART_COST[MOVE];
-};
-
-roles.reserver.energyBuild = function(room, energy, heal, level) {
-  if (!level) {
-    level = 1;
-  }
-
+roles.reserver.updateSettings = function(room, creep) {
+  let level = creep.level ? creep.level : 1;
   if (level === 5) {
-    let value = Math.max((BODYPART_COST[CLAIM] + BODYPART_COST[MOVE]) * level, energy);
-    let energyLevel = level * (BODYPART_COST[CLAIM] + BODYPART_COST[MOVE]);
-    let multiplier = Math.floor(value / energyLevel);
     room.log('Build super reserver');
-    return multiplier * energyLevel;
+    return {amount: [5, 5]};
   }
-  return (BODYPART_COST[CLAIM] + BODYPART_COST[MOVE]) * level;
 };
 
 roles.reserver.action = function(creep) {

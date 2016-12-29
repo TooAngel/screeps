@@ -51,7 +51,7 @@ brain.prepareMemory = function() {
         let roleStat = Memory.stats[userName].roles[role];
         let previousAmount = roleStat ? roleStat : 0;
         let amount = previousAmount > 0 ? previousAmount - 1 : 0;
-        Memory.stats[userName].roles[role] = amount;
+        brain.stats.add(['roles', role], amount);
       }
 
       if ((name.startsWith('reserver') && Memory.creeps[name].born < (Game.time - CREEP_CLAIM_LIFE_TIME)) || Memory.creeps[name].born < (Game.time - CREEP_LIFE_TIME)) {

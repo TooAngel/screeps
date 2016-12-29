@@ -8,17 +8,10 @@
 
 roles.autoattackmelee = {};
 
-roles.autoattackmelee.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, ATTACK];
-  return room.getPartConfig(energy, parts).sort().reverse();
-};
+roles.autoattackmelee.settings = {
+  layoutString: 'MA',
+  amount: [5, 5],
 
-roles.autoattackmelee.energyRequired = function(room) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
-};
-
-roles.autoattackmelee.energyBuild = function(room, energy) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
 };
 
 roles.autoattackmelee.died = function(name, memory) {

@@ -8,64 +8,9 @@
  */
 
 roles.atkeepermelee = {};
-
-roles.atkeepermelee.getPartConfig = function(room, energy, heal) {
-  let parts = [];
-  for (let i = 0; i < 22; i++) {
-    parts.push(MOVE);
-  }
-  for (let i = 0; i < 3; i++) {
-    parts.push(MOVE);
-  }
-  for (let i = 0; i < 19; i++) {
-    parts.push(ATTACK);
-  }
-  for (let i = 0; i < 6; i++) {
-    parts.push(HEAL);
-  }
-  return room.getPartConfig(energy, parts);
-};
-
-roles.atkeepermelee.energyRequired = function(room) {
-  let parts = [];
-  for (let i = 0; i < 22; i++) {
-    parts.push(MOVE);
-  }
-  for (let i = 0; i < 3; i++) {
-    parts.push(MOVE);
-  }
-  for (let i = 0; i < 19; i++) {
-    parts.push(ATTACK);
-  }
-  for (let i = 0; i < 6; i++) {
-    parts.push(HEAL);
-  }
-  let costs = 0;
-  for (let part of parts) {
-    costs += BODYPART_COST[part];
-  }
-  return Math.min(room.getEnergyCapacityAvailable(), costs);
-};
-
-roles.atkeepermelee.energyBuild = function(room) {
-  let parts = [];
-  for (let i = 0; i < 22; i++) {
-    parts.push(MOVE);
-  }
-  for (let i = 0; i < 3; i++) {
-    parts.push(MOVE);
-  }
-  for (let i = 0; i < 19; i++) {
-    parts.push(ATTACK);
-  }
-  for (let i = 0; i < 6; i++) {
-    parts.push(HEAL);
-  }
-  let costs = 0;
-  for (let part of parts) {
-    costs += BODYPART_COST[part];
-  }
-  return Math.min(room.getEnergyCapacityAvailable(), costs);
+roles.atkeepermelee.settings = {
+  layoutString: 'MAH',
+  amount: [25, 19, 6]
 };
 
 roles.atkeepermelee.action = function(creep) {

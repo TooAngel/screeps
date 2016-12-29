@@ -7,17 +7,9 @@
  */
 
 roles.powertransporter = {};
-roles.powertransporter.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY];
-  return room.getPartConfig(energy, parts);
-};
-
-roles.powertransporter.energyRequired = function(room) {
-  return Math.min(room.getEnergyCapacityAvailable(), 2000);
-};
-
-roles.powertransporter.energyBuild = function(room, energy) {
-  return Math.min(room.getEnergyCapacityAvailable(), 2000);
+roles.powertransporter.settings = {
+  layoutString: 'MC',
+  maxLayoutAmount: 20,
 };
 
 roles.powertransporter.action = function(creep) {

@@ -152,4 +152,25 @@ global.utils = {
     console.log(JSON.stringify(found));
     return found;
   },
+
+  stringToParts: function(stringParts) {
+    if (!stringParts || typeof(stringParts) !== 'string') {
+      return;
+    }
+    let partsConversion = {
+      M: MOVE,
+      C: CARRY,
+      A: ATTACK,
+      W: WORK,
+      R: RANGED_ATTACK,
+      T: TOUGH,
+      H: HEAL,
+      K: CLAIM,
+    };
+    let arrayParts = [];
+    for (let i = 0; i < stringParts.length; i++) {
+      arrayParts.push(partsConversion[stringParts.charAt(i)]);
+    }
+    return arrayParts;
+  },
 };
