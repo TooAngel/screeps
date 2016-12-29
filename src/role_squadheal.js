@@ -101,8 +101,19 @@ roles.squadheal.action = function(creep) {
       // creep.log('delete?');
       delete creep.memory.routing.reached;
     }
+    return true;
   } else {
-    // creep.log('In room');
+    creep.log('In room');
+    if (creep.hits < creep.hitsMax) {
+      creep.log('action heal');
+      creep.heal(creep);
+      creep.say('exit');
+      let exit = creep.pos.findClosestByRange(FIND_EXIT);
+      creep.moveTo(exit);
+    } else {
+      creep.log('mrandom');
+      creep.moveRandom();
+    }
   }
 
   if (true) {

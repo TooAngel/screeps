@@ -40,20 +40,22 @@ roles.squadsiege.preMove = function(creep, directions) {
 
   }
 
-  if (!creep.memory.initialized) {
-    Memory.squads[creep.memory.squad].siege[creep.id] = {};
-    creep.memory.initialized = true;
-  }
-  var squad = Memory.squads[creep.memory.squad];
-  if (squad.action == 'move') {
-    if (creep.room.name == squad.moveTarget) {
-      let nextExits = creep.room.find(creep.memory.routing.route[creep.memory.routing.routePos].exit);
-      let nextExit = nextExits[Math.floor(nextExits.length / 2)];
-      let range = creep.pos.getRangeTo(nextExit.x, nextExit.y);
-      if (range < 2) {
-        Memory.squads[creep.memory.squad].siege[creep.id].waiting = true;
-        creep.moveRandom();
-        return true;
+  if (creep.memory.squad) {
+    if (!creep.memory.initialized) {
+      Memory.squads[creep.memory.squad].siege[creep.id] = {};
+      creep.memory.initialized = true;
+    }
+    var squad = Memory.squads[creep.memory.squad];
+    if (squad.action == 'move') {
+      if (creep.room.name == squad.moveTarget) {
+        let nextExits = creep.room.find(creep.memory.routing.route[creep.memory.routing.routePos].exit);
+        let nextExit = nextExits[Math.floor(nextExits.length / 2)];
+        let range = creep.pos.getRangeTo(nextExit.x, nextExit.y);
+        if (range < 2) {
+          Memory.squads[creep.memory.squad].siege[creep.id].waiting = true;
+          creep.moveRandom();
+          return true;
+        }
       }
     }
   }
@@ -62,6 +64,13 @@ roles.squadsiege.preMove = function(creep, directions) {
 
 //TODO need to check if it works
 roles.squadsiege.action = function(creep) {
+  if (creep.room.name !== creep.memory.routing.targetRoom) {
+    if (creep.hits < creep.hitsMax) {
+      creep.moveRanom();
+    } else {
+      delete creep.memory.routing.reached;
+    }
+  }
   creep.siege();
 };
 
