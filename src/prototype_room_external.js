@@ -380,18 +380,18 @@ Room.prototype.handleUnreservedRoom = function() {
     return true;
   }
 
-  let roomName;
+  let baseRoomName;
   let isReserved = function(object) {
-    if (!object.reservation) {
+    if (object.reservation === undefined) {
       return false;
     }
-    if (object.state != 'Reserved') {
+    if (object.state !== 'Reserved') {
       return false;
     }
-    return object.reservation.base == roomName;
+    return object.reservation.base == baseRoomName;
   };
 
-  for (let baseRoomName of Memory.myRooms) {
+  for (baseRoomName of Memory.myRooms) {
     let room = Game.rooms[baseRoomName];
     if (!room) {
       return false;
@@ -412,7 +412,8 @@ Room.prototype.handleUnreservedRoom = function() {
       continue;
     }
 
-    if (room.memory.queue && room.memory.queue.length === 0) {
+    if (room.memory.queue && room.memory.queue.length === 0 &&
+        room.energyAvailable == room.energyCapacityAvailable) {
       let reservedRooms = _.filter(Memory.rooms, isReserved);
       /* RCL: target reserved rooms
        * 4: 1
