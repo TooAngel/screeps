@@ -30,17 +30,22 @@ Room.prototype.myHandleRoom = function() {
     }
   }
   if (config.stats.enabled) {
-    Memory.stats['room.' + this.name + '.energyAvailable'] = this.energyAvailable;
-    Memory.stats['room.' + this.name + '.energyCapacityAvailable'] = this.energyCapacityAvailable;
-    Memory.stats['room.' + this.name + '.controllerProgress'] = this.controller.progress;
-    Memory.stats['room.' + this.name + '.progress'] = this.memory.upgraderUpgrade / (Game.time % 100);
+    let Name = Memory.username;
+    let pathBegin = 'room.' + Name + '.' + this.name;
+    Memory.stats[pathBegin + '.energyAvailable'] = this.energyAvailable;
+    Memory.stats[pathBegin + '.energyCapacityAvailable'] = this.energyCapacityAvailable;
+    Memory.stats[pathBegin + '.controllerProgress'] = this.controller.progress;
+    Memory.stats[pathBegin + '.progress'] = this.memory.upgraderUpgrade / (Game.time % 100);
+    Memory.stats[pathBegin + '.queueLength'] = this.memory.queue.length;
+    Memory.stats[pathBegin + '.creepsIn'] = this.find(FIND_CREEPS).length;
+    Memory.stats[pathBegin + '.sourcesEnergy'] = _.sum(_.map(this.find(FIND_SOURCES), 'energy'));
 
     let storage = this.storage || {
       store: {}
     };
     if (this.storage) {
-      Memory.stats['room.' + this.name + '.storage.store.energy'] = storage.store.energy || 0;
-      Memory.stats['room.' + this.name + '.storage.store.power'] = storage.store.power || 0;
+      Memory.stats[pathBegin + '.storage.store.energy'] = storage.store.energy || 0;
+      Memory.stats[pathBegin + '.storage.store.power'] = storage.store.power || 0;
     }
   }
 
