@@ -9,7 +9,6 @@ require('prototype_creep_fight');
 require('prototype_creep_resources');
 require('prototype_creep_harvest');
 require('prototype_creep_mineral');
-require('prototype_creep_nextroom');
 require('prototype_creep_routing');
 require('prototype_roomPosition_structures');
 require('prototype_room');

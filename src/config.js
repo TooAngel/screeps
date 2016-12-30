@@ -39,7 +39,8 @@ global.config = {
   nextRoom: {
     scoutMinControllerLevel: 4,
     ttlPerRoomForScout: 500,
-    numberOfNextroomers: 3,
+    numberOfNextroomers: 10,
+    nextroomerInterval: _.ceil(1500 / 10),
     maxRooms: 30,
     revive: true,
     maxDistance: 17,
@@ -80,7 +81,9 @@ global.config = {
   },
 
   carry: {
-    size: 200
+    size: 200,
+    carryPercentageBase: 0.2,
+    carryPercentageExtern: 0.5
   },
 
   creep: {
@@ -97,7 +100,6 @@ global.config = {
     handleNukeAttackInterval: 132,
     reviveEnergyAvailable: 1000,
     reviveStorageAvailable: 3000,
-    nextroomerInterval: 354,
     scoutInterval: 1499,
     scoutSkipWhenStuck: true, // Useful for novice areas.
     scout: true, // TODO somehow broken ?? Is it broken ??
