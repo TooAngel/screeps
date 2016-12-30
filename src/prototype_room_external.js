@@ -302,9 +302,9 @@ Room.prototype.checkAndSpawnReserver = function() {
   if (baseRoom.misplacedSpawn) {
     energyNeeded += 300;
   }
-  this.log('Would like to spawn reserver ' + baseRoom.energyCapacityAvailable +
-      '/' + energyNeeded);
-  if (baseRoom.energyCapacityAvailable >= energyNeeded) {
+  this.log('Would like to spawn reserver ' +
+      baseRoom.getEnergyCapacityAvailable() + '/' + energyNeeded);
+  if (baseRoom.getEnergyCapacityAvailable() >= energyNeeded) {
     if (!baseRoom.inQueue(reserverSpawn)) {
       this.log('Queuing reserver ' + baseRoom.name + ' ' +
           JSON.stringify(reserverSpawn));
@@ -360,7 +360,7 @@ Room.prototype.handleUnreservedRoom = function() {
         continue;
       }
       if (room.memory.queue && room.memory.queue.length === 0 &&
-          room.energyAvailable === room.energyCapacityAvailable) {
+          room.energyAvailable === room.getEnergyCapacityAvailable()) {
         let reservedRooms = _.filter(Memory.rooms, (roomMemory) => {
           return roomMemory.reservation !== undefined &&
               roomMemory.state === 'Reserved' &&
