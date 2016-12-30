@@ -81,7 +81,9 @@ global.config = {
   },
 
   carry: {
-    size: 200
+    size: 200,
+    carryPercentageBase: 0.2,
+    carryPercentageExtern: 0.5
   },
 
   creep: {

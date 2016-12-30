@@ -94,7 +94,18 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
         }
         return 4;
       }
-
+      // spawn reserver after external supply line
+      if (target !== room.name) {
+        if (object.role == 'carry') {
+          return 5;
+        }
+        if (object.role == 'sourcer') {
+          return 6;
+        }
+        if (object.role == 'reserver') {
+          return 7;
+        }
+      }
       if (object.role == 'nextroomer') {
         return 11;
       }
