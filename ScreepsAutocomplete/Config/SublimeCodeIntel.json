@@ -1,0 +1,14 @@
+{
+    /*
+       Defines a configuration for each language.
+    */
+    "codeintel_language_settings": {
+        "JavaScript": {
+            "codeintel_scan_extra_dir": [],
+            "codeintel_scan_exclude_dir":["/build/", "/min/"],
+            "codeintel_scan_files_in_project": true,
+            "codeintel_max_recursive_dir_depth": 2,
+            "codeintel_selected_catalogs": ["jQuery"]
+        }
+    }
+}
