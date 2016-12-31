@@ -14,6 +14,10 @@ Room.prototype.myHandleRoom = function() {
     this.setup();
   }
 
+  if (!this.memory.queue) {
+    this.memory.queue = [];
+  }
+
   var hostiles = this.getEnemys();
   if (hostiles.length === 0) {
     delete this.memory.hostile;
