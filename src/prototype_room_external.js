@@ -340,15 +340,17 @@ Room.prototype.handleReservedRoom = function() {
 Room.prototype.handleUnreservedRoom = function() {
   this.memory.state = 'Unreserved';
   this.memory.lastSeen = Game.time;
-  if (this.memory.lastChecked === undefined) {
-    this.memory.lastChecked = 0;
+  if (this.memory.lastChecked !== undefined &&
+      Game.time - this.memory.lastChecked < 500) {
+    return true;
   }
+  this.memory.lastChecked = Game.time;
 
   if (this.memory.reservation === undefined) {
     for (let roomName of Memory.myRooms) {
       let room = Game.rooms[roomName];
       if (!room) {
-        return false;
+        continue;
       }
       let distance = Game.map.getRoomLinearDistance(this.name, room.name);
       if (distance > config.external.distance) {
@@ -360,21 +362,25 @@ Room.prototype.handleUnreservedRoom = function() {
         continue;
       }
       if (room.memory.queue && room.memory.queue.length === 0 &&
-          room.energyAvailable === room.getEnergyCapacityAvailable()) {
+          room.energyAvailable >= room.getEnergyCapacityAvailable()) {
         let reservedRooms = _.filter(Memory.rooms, (roomMemory) => {
           return roomMemory.reservation !== undefined &&
               roomMemory.state === 'Reserved' &&
               roomMemory.reservation.base == room.name;
         });
-        /* RCL: target reserved rooms
-         * 4: 1
-         * 5: 3
-         * 6: 5
-         * 7: 7
-         * 8: 9
-         */
-        let numRoomsToReserve = (room.controller.level - 3) * 2 - 1;
-        if (reservedRooms.length < numRoomsToReserve) {
+        // RCL: target reserved rooms
+        let numRooms = {
+          0: 0,
+          1: 0,
+          2: 0,
+          3: 0,
+          4: 1,
+          5: 2,
+          6: 3,
+          7: 6,
+          8: 9,
+        };
+        if (reservedRooms.length < numRooms[room.controller.level]) {
           this.log('Would start to spawn');
           this.memory.reservation = {
             base: room.name,
@@ -394,10 +400,7 @@ Room.prototype.handleUnreservedRoom = function() {
       return false;
     }
     this.memory.state = 'Reserved';
-    if (Game.time - this.memory.lastChecked > 500) {
-      this.memory.lastChecked = Game.time;
-      this.checkAndSpawnReserver();
-    }
+    this.checkAndSpawnReserver();
   }
   return true;
 };
