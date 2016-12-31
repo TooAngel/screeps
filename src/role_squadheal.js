@@ -46,7 +46,7 @@ roles.squadheal.preMove = function(creep, directions) {
     creep.memory.routing.reverse = false;
   }
 
-  var myCreeps = creep.room.find(FIND_MY_CREEPS, {
+  var myCreep = creep.room.findClosestByRange(FIND_MY_CREEPS, {
     filter: function(object) {
       if (object.hits < object.hitsMax) {
         return true;
@@ -54,14 +54,14 @@ roles.squadheal.preMove = function(creep, directions) {
       return false;
     }
   });
-  if (myCreeps.length > 0) {
+  if (myCreep !== null) {
     creep.say('heal', true);
-    creep.moveTo(myCreeps[0]);
-    let range = creep.pos.getRangeTo(myCreeps[0]);
+    let range = creep.pos.getRangeTo(myCreep);
     if (range <= 1) {
-      creep.heal(myCreeps[0]);
+      creep.heal(myCreep);
     } else {
-      creep.rangedHeal(myCreeps[0]);
+      creep.moveTo(myCreep);
+      creep.rangedHeal(myCreep);
     }
     return true;
   }
@@ -113,6 +113,7 @@ roles.squadheal.action = function(creep) {
     } else {
       creep.log('mrandom');
       creep.moveRandom();
+      creep.squadHeal();
     }
   }
 
