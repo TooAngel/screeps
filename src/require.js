@@ -1,5 +1,6 @@
 require('config');
 require('logging');
+require('utils');
 require('config_brain_memory');
 require('config_brain_nextroom');
 require('config_brain_squadmanager');
