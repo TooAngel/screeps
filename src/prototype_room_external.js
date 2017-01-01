@@ -347,7 +347,7 @@ Room.prototype.handleUnreservedRoom = function() {
   this.memory.lastChecked = Game.time;
 
   if (this.memory.reservation === undefined) {
-    for (let roomName of Memory.myRooms) {
+    checkRoomsLabel: for (let roomName of Memory.myRooms) {
       let room = Game.rooms[roomName];
       if (!room) {
         continue;
@@ -360,6 +360,20 @@ Room.prototype.handleUnreservedRoom = function() {
       distance = route.length;
       if (distance > config.external.distance) {
         continue;
+      }
+      // Only allow pathing through owned rooms or already reserved rooms.
+      for (let routeEntry of route) {
+        let routeRoomName = routeEntry.room;
+        if (Game.rooms[routeRoomName] === undefined) {
+          continue checkRoomsLabel;
+        }
+        let routeRoom = Game.rooms[routeRoomName];
+        if (routeRoom.controller === undefined) {
+          continue checkRoomsLabel;
+        }
+        if (!routeRoom.controller.my && routeRoom.memory.state !== 'Reserved') {
+          continue checkRoomsLabel;
+        }
       }
       if (room.memory.queue && room.memory.queue.length === 0 &&
           room.energyAvailable >= room.getEnergyCapacityAvailable()) {
