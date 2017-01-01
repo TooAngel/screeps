@@ -107,29 +107,28 @@ brain.handleSquadmanager = function () {
  */
 brain.addToQueue = function (spawns, roomNameFrom, roomNameTarget, squadName, queueLimit) {
   queueLimit = queueLimit || false;
-  function _addToQueue(time) {
-    if (queueLimit == false) {
-      Game.rooms[roomNameFrom].memory.queue.push({
-        role: spawn.role,
-        routing: {
-          targetRoom: roomNameTarget
-        },
-        squad: squadName
-      });
-    }
-    else if (Game.rooms[roomNameFrom].memory.queue.length < queueLimit) {
-      Game.rooms[roomNameFrom].memory.queue.push({
-        role: spawn.type,
-        routing: {
-          targetRoom: roomNameTarget
-        },
-        squad: squadName
-      });
-    }
-  }
 
   for (let spawn of spawns) {
-    _.times(spawn.creeps, _addToQueue);
+    _.times(spawn.creeps, function (time) {
+      if (queueLimit === false) {
+        Game.rooms[roomNameFrom].memory.queue.push({
+          role: spawn.role,
+          routing: {
+            targetRoom: roomNameTarget
+          },
+          squad: squadName
+        });
+      }
+      else if (Game.rooms[roomNameFrom].memory.queue.length < queueLimit) {
+        Game.rooms[roomNameFrom].memory.queue.push({
+          role: spawn.type,
+          routing: {
+            targetRoom: roomNameTarget
+          },
+          squad: squadName
+        });
+      }
+    });
   }
 };
 /**
