@@ -10,18 +10,18 @@ roles.extractor = {};
 
 roles.extractor.boostActions = ['harvest', 'capacity'];
 
-roles.extractor.getPartConfig = function (room, energy, heal) {
+roles.extractor.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CARRY, MOVE, WORK];
   return room.getPartConfig(energy, parts);
 };
 
-roles.extractor.energyBuild = function (room, energy, heal) {
+roles.extractor.energyBuild = function(room, energy, heal) {
   var max = 2000;
   energy = Math.max(250, Math.min(max, room.getEnergyCapacityAvailable()));
   return energy;
 };
 
-roles.extractor.terminalStorageExchange = function (creep) {
+roles.extractor.terminalStorageExchange = function(creep) {
   var terminal = creep.room.terminal;
   if (!terminal || !terminal.isActive()) {
     // TODO kill creep?
@@ -65,7 +65,7 @@ roles.extractor.terminalStorageExchange = function (creep) {
 };
 
 function executeExtractor(creep) {
-  let returnValue = this.terminalStorageExchange(creep);
+  let returnValue = roles.extractor.terminalStorageExchange(creep);
   if (returnValue == OK) {
     return true;
   } else {
