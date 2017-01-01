@@ -454,9 +454,9 @@ Room.prototype.executeRoom = function() {
 
 Room.prototype.reviveRoom = function() {
   let nextRoomers = _.filter(Game.creeps, c => c.memory.role === 'nextroomer' &&
-  c.memory.routing.targetRoom === this.name).length;
+    c.memory.routing.targetRoom === this.name).length;
   if (this.controller.level >= 4 &&
-      this.controller.ticksToDowngrade > CONTROLLER_DOWNGRADE[this.controller.level] * 0.9) {
+    this.controller.ticksToDowngrade > CONTROLLER_DOWNGRADE[this.controller.level] * 0.9) {
     this.memory.active = true;
     return false;
   } else if (this.controller.level > 1 && nextRoomers >= config.nextRoom.numberOfNextroomers) {
@@ -504,8 +504,8 @@ Room.prototype.reviveRoom = function() {
   }
 
   if (config.nextRoom.revive && this.controller.level >= 1 &&
-     (Game.time + this.controller.pos.x + this.controller.pos.y) %
-      config.nextRoom.nextroomerInterval === 0) {
+    (Game.time + this.controller.pos.x + this.controller.pos.y) %
+    config.nextRoom.nextroomerInterval === 0) {
     this.log('revive me now');
 
     let nextroomerCalled = 0;

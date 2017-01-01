@@ -488,7 +488,7 @@ Creep.prototype.getEnergy = function() {
   } else if (this.memory.hasEnergy && this.carry.energy === 0) {
     this.memory.hasEnergy = false;
   } else if (!this.memory.hasEnergy &&
-      this.carry.energy == this.carryCapacity) {
+    this.carry.energy == this.carryCapacity) {
     this.memory.hasEnergy = true;
   }
 
@@ -721,8 +721,8 @@ Creep.prototype.transferEnergyMy = function() {
           return false;
         }
         return (s.structureType == STRUCTURE_EXTENSION ||
-            s.structureType == STRUCTURE_SPAWN ||
-            s.structureType == STRUCTURE_TOWER);
+          s.structureType == STRUCTURE_SPAWN ||
+          s.structureType == STRUCTURE_TOWER);
       }
     });
     if (structure === null) {
@@ -750,7 +750,7 @@ Creep.prototype.transferEnergyMy = function() {
     let returnCode = this.transfer(target, RESOURCE_ENERGY);
     if (returnCode != OK && returnCode != ERR_FULL) {
       this.log('transferEnergyMy: ' + returnCode + ' ' +
-          target.structureType + ' ' + target.pos);
+        target.structureType + ' ' + target.pos);
     }
     delete this.memory.target;
   } else {

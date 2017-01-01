@@ -3,16 +3,18 @@
  * they should be as general as they can be, so we can use them as often as possible
  **/
 global.utils = {
+
   /**
-   * returns length if object is Array else returns _.size
-   * @param object
+   * return object.length if exist else return _.size
+   *
+   * @param {Array} object
    * @returns {*}
    */
   returnLength: function returnLength(object) {
     return (object && object.length) ? object.length : _.size(object);
   },
 
-  checkPlayers: function () {
+  checkPlayers: function() {
     for (let name in Memory.players) {
       let player = Memory.players[name];
       if (player.name === undefined) {
@@ -35,7 +37,7 @@ global.utils = {
     }
   },
 
-  roomCheck: function () {
+  roomCheck: function() {
     for (let roomName in Memory.rooms) {
       if (Memory.rooms[roomName].state == 'Occupied') {
         console.log(`${roomName} ${Memory.rooms[roomName].player}`);
@@ -43,7 +45,7 @@ global.utils = {
     }
   },
 
-  terminals: function () {
+  terminals: function() {
     console.log('Terminals:');
     for (let roomName of Memory.myRooms) {
       let room = Game.rooms[roomName];
@@ -53,8 +55,8 @@ global.utils = {
     }
   },
 
-  csstats: function () {
-    let aggregate = function (result, value, key) {
+  csstats: function() {
+    let aggregate = function(result, value, key) {
       result[value.pos.roomName] = (result[value.pos.roomName] || (result[value.pos.roomName] = 0)) + 1;
       return result;
     };
@@ -62,25 +64,25 @@ global.utils = {
     console.log(JSON.stringify(resultReduce));
   },
 
-  memory: function () {
+  memory: function() {
     for (let keys in Memory) {
       console.log(keys, JSON.stringify(Memory[keys]).length);
     }
   },
 
-  memoryRooms: function () {
+  memoryRooms: function() {
     for (let keys in Memory.rooms) {
       console.log(keys, JSON.stringify(Memory.rooms[keys]).length);
     }
   },
 
-  memoryRoom: function (roomName) {
+  memoryRoom: function(roomName) {
     for (let keys in Memory.rooms[roomName]) {
       console.log(keys, JSON.stringify(Memory.rooms[roomName][keys]).length);
     }
   },
 
-  showReserveredRooms: function () {
+  showReserveredRooms: function() {
     for (let roomName in Memory.rooms) {
       let room = Memory.rooms[roomName];
       if (room.state == 'Reserved') {
@@ -89,7 +91,7 @@ global.utils = {
     }
   },
 
-  checkMinerals: function () {
+  checkMinerals: function() {
     let minerals = {};
     for (let name of Memory.myRooms) {
       let room = Game.rooms[name];
@@ -112,7 +114,7 @@ global.utils = {
     console.log(minerals.U);
   },
 
-  findRoomsWithMineralsToTransfer: function () {
+  findRoomsWithMineralsToTransfer: function() {
     let minerals = {};
     for (let name of Memory.myRooms) {
       let room = Game.rooms[name];

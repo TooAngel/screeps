@@ -1,8 +1,8 @@
 'use strict';
 
-brain.handleIncomingTransactions = function () {
+brain.handleIncomingTransactions = function() {
   let transactions = Game.market.incomingTransactions;
-  let current = _.filter(transactions, function (object) {
+  let current = _.filter(transactions, function(object) {
     return object.time >= Game.time - 1;
   });
 
@@ -12,7 +12,7 @@ brain.handleIncomingTransactions = function () {
       type: ORDER_SELL,
       resourceType: transaction.resourceType
     });
-    let prices = _.sortBy(orders, function (object) {
+    let prices = _.sortBy(orders, function(object) {
       return object.price;
     });
     let price = prices[0].price;
@@ -22,7 +22,7 @@ brain.handleIncomingTransactions = function () {
   }
 };
 
-brain.increaseIdiot = function (name, value) {
+brain.increaseIdiot = function(name, value) {
   if (name == 'Invader') {
     return false;
   }
@@ -47,7 +47,7 @@ brain.increaseIdiot = function (name, value) {
   Memory.players[name].idiot += value;
 };
 
-brain.isFriend = function (name) {
+brain.isFriend = function(name) {
   if (!Memory.players) {
     Memory.players = {};
   }
@@ -70,7 +70,7 @@ brain.isFriend = function (name) {
   return false;
 };
 
-brain.handleSquadmanager = function () {
+brain.handleSquadmanager = function() {
   for (let squadIndex in Memory.squads) {
     let squad = Memory.squads[squadIndex];
     if (Object.keys(squad.siege).length === 0) {
@@ -105,9 +105,9 @@ brain.handleSquadmanager = function () {
  * @param {String} squadName
  * @param {Number} [queueLimit] don't push if queueLimit is reached
  */
-brain.addToQueue = function (spawns, roomNameFrom, roomNameTarget, squadName, queueLimit) {
+brain.addToQueue = function(spawns, roomNameFrom, roomNameTarget, squadName, queueLimit) {
   queueLimit = queueLimit || false;
-  var outer = function (spawn) {
+  var outer = function(spawn) {
     return function _addToQueue(time) {
       if (queueLimit === false) {
         Game.rooms[roomNameFrom].memory.queue.push({
@@ -117,8 +117,7 @@ brain.addToQueue = function (spawns, roomNameFrom, roomNameTarget, squadName, qu
           },
           squad: squadName
         });
-      }
-      else if (Game.rooms[roomNameFrom].memory.queue.length < queueLimit) {
+      } else if (Game.rooms[roomNameFrom].memory.queue.length < queueLimit) {
         Game.rooms[roomNameFrom].memory.queue.push({
           role: spawn.role,
           routing: {
@@ -137,10 +136,10 @@ brain.addToQueue = function (spawns, roomNameFrom, roomNameTarget, squadName, qu
 /**
  * brain.startSquad used to attack player.rooms
  *
- * @param roomNameFrom
- * @param roomNameAttack
+ * @param {String} roomNameFrom
+ * @param {String} roomNameAttack
  */
-brain.startSquad = function (roomNameFrom, roomNameAttack) {
+brain.startSquad = function(roomNameFrom, roomNameAttack) {
   let name = 'siegesquad-' + Math.random();
   let route = Game.map.findRoute(roomNameFrom, roomNameAttack);
   let target = roomNameFrom;
@@ -149,7 +148,13 @@ brain.startSquad = function (roomNameFrom, roomNameAttack) {
   }
   Memory.squads = Memory.squads || {};
 
-  var siegeSpawns = [{creeps: 1, role: 'squadsiege'}, {creeps: 3, role: 'squadheal'}];
+  var siegeSpawns = [{
+    creeps: 1,
+    role: 'squadsiege'
+  }, {
+    creeps: 3,
+    role: 'squadheal'
+  }];
   this.addToQueue(siegeSpawns, roomNameFrom, roomNameAttack, name);
 
   Memory.squads[name] = {
@@ -167,11 +172,11 @@ brain.startSquad = function (roomNameFrom, roomNameAttack) {
 /**
  * brain.startMeleeSquad use to clean rooms from invaders and players
  *
- * @param roomNameFrom
- * @param roomNameAttack
+ * @param {String} roomNameFrom
+ * @param {String} roomNameAttack
  * @param {Array} [spawns]
  */
-brain.startMeleeSquad = function (roomNameFrom, roomNameAttack, spawns) {
+brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
   let name = 'meleesquad-' + Math.random();
   let route = Game.map.findRoute(roomNameFrom, roomNameAttack);
   let target = roomNameFrom;
@@ -180,12 +185,19 @@ brain.startMeleeSquad = function (roomNameFrom, roomNameAttack, spawns) {
   }
   Memory.squads = Memory.squads || {};
   // TODO check for queue length
-  let meleeSpawn = [
-    {creeps: 1, role: 'autoattackmelee'},
-    {creeps: 1, role: 'squadheal'},
-    {creeps: 2, role: 'autoattackmelee'},
-    {creeps: 2, role: 'squadheal'}
-  ];
+  let meleeSpawn = [{
+    creeps: 1,
+    role: 'autoattackmelee'
+  }, {
+    creeps: 1,
+    role: 'squadheal'
+  }, {
+    creeps: 2,
+    role: 'autoattackmelee'
+  }, {
+    creeps: 2,
+    role: 'squadheal'
+  }];
 
   spawns = spawns || meleeSpawn;
   this.addToQueue(spawns, roomNameFrom, roomNameAttack, name);

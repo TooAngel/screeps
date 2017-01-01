@@ -1,7 +1,7 @@
 'use strict';
 //TODO move to prototype_room_utils or prototype_room_routing ?
-Room.prototype.sortMyRoomsByLinearDistance = function (target) {
-  let sortByLinearDistance = function (object) {
+Room.prototype.sortMyRoomsByLinearDistance = function(target) {
+  let sortByLinearDistance = function(object) {
     return Game.map.getRoomLinearDistance(target, object);
   };
 
@@ -10,7 +10,7 @@ Room.prototype.sortMyRoomsByLinearDistance = function (target) {
 
 //TODO move to prototype_room_utils or prototype_room_routing ?
 //TODO find shortest way from closest Spawn to target
-Room.prototype.closestSpawn = function (target) {
+Room.prototype.closestSpawn = function(target) {
   let pathLength = {};
   let roomsMy = this.sortMyRoomsByLinearDistance(target);
 
@@ -51,16 +51,29 @@ Room.prototype.closestSpawn = function (target) {
  * @param {String} roomName should be your targetRoomName
  * @param {Array} [spawn] yourCustomSpawn Array of {creeps: creepsToAdd, role: 'rolesToAdd'}
  */
-Room.prototype.attack42 = function (roomName, spawn) {
-  spawn = spawn || [
-      {creep: 1, role: 'autoattackmelee'},
-      {creep: 1, role: 'defender'},
-      {creep: 1, role: 'squadheal'},
+Room.prototype.attack42 = function(roomName, spawn) {
+  spawn = spawn || [{
+      creep: 1,
+      role: 'autoattackmelee'
+    }, {
+      creep: 1,
+      role: 'defender'
+    }, {
+      creep: 1,
+      role: 'squadheal'
+    },
 
-      {creep: 2, role: 'autoattackmelee'},
-      {creep: 2, role: 'defender'},
-      {creep: 2, role: 'squadheal'}
-    ];
+    {
+      creep: 2,
+      role: 'autoattackmelee'
+    }, {
+      creep: 2,
+      role: 'defender'
+    }, {
+      creep: 2,
+      role: 'squadheal'
+    }
+  ];
 
   let closestSpawn = this.closestSpawn(roomName);
   // this.log('closestSpawn ' + JSON.stringify(closestSpawn, null, 2));
@@ -72,14 +85,14 @@ Room.prototype.attack42 = function (roomName, spawn) {
   }
 };
 
-Room.prototype.attackRoom = function () {
+Room.prototype.attackRoom = function() {
   function attack0(room) {
     room.log('Queuing level 0 attack');
     if (config.autoattack.notify) {
       Game.notify(Game.time + ' ' + room.name + ' Queuing autoattacker');
     }
 
-    let sortByDistance = function (object) {
+    let sortByDistance = function(object) {
       return Game.map.getRoomLinearDistance(room.name, object);
     };
 
@@ -118,14 +131,14 @@ Room.prototype.attackRoom = function () {
     return true;
   }
 
-  let getPlayer = function (name) {
+  let getPlayer = function(name) {
     brain.increaseIdiot(name, 0);
     return Memory.players[name];
   };
 
   var player = getPlayer(name);
 
-  let addRoom = function (player, room) {
+  let addRoom = function(player, room) {
     if (!player.rooms) {
       player.rooms = {};
     }
