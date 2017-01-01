@@ -146,26 +146,6 @@ Room.prototype.externalHandleHighwayRoom = function() {
       Memory.powerBanks = {};
     }
     if (target !== null) {
-      // Fix for W8S9
-      var walls = this.find(FIND_STRUCTURES, {
-        filter: function(object) {
-          return object.structureType == 'constructedWall';
-        }
-      });
-      if (walls.length > 0) {
-        var exits = this.find(route[0].exit);
-        var exit = exits[exits.length - 1];
-        var path = this.findPath(exit, structures[0].pos);
-        var last_pos = path[path.length - 1];
-        if (!structures[0].pos.isEqualTo(last_pos.x, last_pos.y)) {
-          this.log('No route due to wall');
-          Memory.powerBanks[this.name] = {
-            target: null
-          };
-          return true;
-        }
-      }
-
       Memory.powerBanks[this.name] = {
         target: target.name,
         min_route: min_route
@@ -316,7 +296,11 @@ Room.prototype.checkAndSpawnReserver = function() {
 Room.prototype.handleReservedRoom = function() {
   this.memory.state = 'Reserved';
   this.memory.lastSeen = Game.time;
-  this.memory.lastChecked = this.memory.lastChecked || Game.time;
+  if (this.memory.lastChecked !== undefined &&
+      Game.time - this.memory.lastChecked < 500) {
+    return false;
+  }
+  this.memory.lastChecked = Game.time;
 
   let idiotCreeps = this.find(FIND_HOSTILE_CREEPS, {
     filter: this.findAttackCreeps
@@ -325,14 +309,11 @@ Room.prototype.handleReservedRoom = function() {
     brain.increaseIdiot(idiotCreep.owner.username);
   }
 
-  if (Game.time - this.memory.lastChecked > 500) {
-    let reservers = this.find(FIND_MY_CREEPS, {
-      filter: (c) => c.memory.role == 'reserver',
-    });
-    if (reservers.length === 0) {
-      this.memory.lastChecked = Game.time;
-      this.checkAndSpawnReserver();
-    }
+  let reservers = this.find(FIND_MY_CREEPS, {
+    filter: (c) => c.memory.role == 'reserver',
+  });
+  if (reservers.length === 0) {
+    this.checkAndSpawnReserver();
   }
   return false;
 };
@@ -344,8 +325,8 @@ Room.prototype.handleUnreservedRoom = function() {
       Game.time - this.memory.lastChecked < 500) {
     return true;
   }
-  this.memory.lastChecked = Game.time;
 
+  // TODO: Don't check every tick.
   if (this.memory.reservation === undefined) {
     checkRoomsLabel: for (let roomName of Memory.myRooms) {
       let room = Game.rooms[roomName];
@@ -407,6 +388,7 @@ Room.prototype.handleUnreservedRoom = function() {
   }
 
   if (this.memory.reservation !== undefined) {
+    this.memory.lastChecked = Game.time;
     let reservation = this.memory.reservation;
     if (this.name == reservation.base) {
       this.log('Want to spawn reserver for the base room, why?');
