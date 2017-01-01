@@ -1,3 +1,15 @@
 .env
 node_modules/
 dist/
+
+## used for some private servers, dist/**.js concated into build
+build/
+
+## favorite idea
+.idea
+
+## steam sync file
+.sync
+
+## screeps.com account.email and account.password
+account.screeps.com.js
