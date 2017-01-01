@@ -68,7 +68,8 @@ global.config = {
 
   path: {
     refresh: 20000,
-    allowRoutingThroughFriendRooms: false
+    allowRoutingThroughFriendRooms: false,
+    pathfindIncomplete: false
   },
 
   external: {
