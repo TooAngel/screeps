@@ -328,6 +328,13 @@ Room.prototype.handleUnreservedRoom = function() {
 
   // TODO: Don't check every tick.
   if (this.memory.reservation === undefined) {
+    let isReservedBy = (roomName) => {
+      return (roomMemory) => {
+        return roomMemory.reservation !== undefined &&
+            roomMemory.state === 'Reserved' &&
+            roomMemory.reservation.base == roomName;
+      };
+    };
     checkRoomsLabel: for (let roomName of Memory.myRooms) {
       let room = Game.rooms[roomName];
       if (!room) {
@@ -358,11 +365,7 @@ Room.prototype.handleUnreservedRoom = function() {
       }
       if (room.memory.queue && room.memory.queue.length === 0 &&
           room.energyAvailable >= room.getEnergyCapacityAvailable()) {
-        let reservedRooms = _.filter(Memory.rooms, function(roomMemory) {
-          return roomMemory.reservation !== undefined &&
-              roomMemory.state === 'Reserved' &&
-              roomMemory.reservation.base == room.name;
-        });
+        let reservedRooms = _.filter(Memory.rooms, isReservedBy(room.name));
         // RCL: target reserved rooms
         let numRooms = {
           0: 0,
