@@ -34,8 +34,8 @@ Room.prototype.myHandleRoom = function() {
     }
   }
   if (config.stats.enabled) {
-    let Name = Memory.username;
-    let pathBegin = Name + '.room.' + this.name;
+    let name = Memory.username;
+    let pathBegin = name + '.room.' + this.name;
     Memory.stats[pathBegin + '.energyAvailable'] = this.energyAvailable;
     Memory.stats[pathBegin + '.energyCapacityAvailable'] = this.energyCapacityAvailable;
     Memory.stats[pathBegin + '.controllerProgress'] = this.controller.progress;
@@ -203,17 +203,19 @@ Room.prototype.handleScout = function() {
   if (this.name == 'sim') {
     return false;
   }
-  if (
-    ((Game.time + this.controller.pos.x + this.controller.pos.y) % config.room.scoutInterval) === 0 &&
+  let shouldSpawn = (
+    ((Game.time + this.controller.pos.x + this.controller.pos.y) %
+        config.room.scoutInterval) === 0 &&
     this.controller.level >= 2 &&
     this.memory.queue.length === 0 &&
     config.room.scout
-  ) {
-    var scout_spawn = {
+  );
+  if (shouldSpawn) {
+    let scout_spawn = {
       role: 'scout'
     };
     if (!this.inQueue(scout_spawn)) {
-      Game.rooms[this.name].memory.queue.push(scout_spawn);
+      this.memory.queue.push(scout_spawn);
     }
   }
 };

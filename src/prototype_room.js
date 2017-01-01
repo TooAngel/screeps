@@ -4,8 +4,7 @@ Room.prototype.handle = function() {
   if (this.controller && this.controller.my) {
     return this.myHandleRoom();
   }
-  this.externalHandleRoom();
-  return false;
+  return this.externalHandleRoom();
 };
 
 Room.prototype.execute = function() {
@@ -18,7 +17,6 @@ Room.prototype.execute = function() {
     delete this.droppedResources;
     delete this.constructionSites;
     return returnCode;
-
   } catch (err) {
     this.log('Executing room failed: ' + this.name + ' ' + err + ' ' + err.stack);
     Game.notify('Executing room failed: ' + this.name + ' ' + err + ' ' + err.stack, 30);

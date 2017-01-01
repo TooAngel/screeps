@@ -103,16 +103,10 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
 
     if (this.room.name == this.memory.routing.targetRoom) {
       let containers = this.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: function(object) {
-          if (object.structureType == STRUCTURE_CONTAINER) {
-            return true;
-          }
-          return false;
-        }
+        filter: (s) => s.structureType == STRUCTURE_CONTAINER,
       });
       for (let container of containers) {
-        let returnCode = this.withdraw(container, RESOURCE_ENERGY);
-        if (returnCode == OK) {}
+        this.withdraw(container, RESOURCE_ENERGY);
         return container.store.energy > 9;
       }
     }
