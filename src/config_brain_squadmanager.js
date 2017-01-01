@@ -107,9 +107,8 @@ brain.handleSquadmanager = function () {
  */
 brain.addToQueue = function (spawns, roomNameFrom, roomNameTarget, squadName, queueLimit) {
   queueLimit = queueLimit || false;
-
-  for (let spawn of spawns) {
-    _.times(spawn.creeps, function (time) {
+  var outer = function (spawn) {
+    return function _addToQueue(time) {
       if (queueLimit === false) {
         Game.rooms[roomNameFrom].memory.queue.push({
           role: spawn.role,
@@ -128,7 +127,11 @@ brain.addToQueue = function (spawns, roomNameFrom, roomNameTarget, squadName, qu
           squad: squadName
         });
       }
-    });
+    }
+  };
+
+  for (let spawn of spawns) {
+    _.times(spawn.creeps, outer(spawn));
   }
 };
 /**
