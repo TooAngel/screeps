@@ -3,6 +3,7 @@ node_modules/
 dist/
 
 ## used for some private servers, dist/**.js concated into build
+# make shure requrie.js is not concated and main.js is concated at last
 build/
 
 ## favorite idea
