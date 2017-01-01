@@ -358,7 +358,7 @@ Room.prototype.handleUnreservedRoom = function() {
       }
       if (room.memory.queue && room.memory.queue.length === 0 &&
           room.energyAvailable >= room.getEnergyCapacityAvailable()) {
-        let reservedRooms = _.filter(Memory.rooms, (roomMemory) => {
+        let reservedRooms = _.filter(Memory.rooms, function(roomMemory) {
           return roomMemory.reservation !== undefined &&
               roomMemory.state === 'Reserved' &&
               roomMemory.reservation.base == room.name;
