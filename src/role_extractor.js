@@ -7,11 +7,15 @@
  */
 
 roles.extractor = {};
-
+roles.extractor.stayInRoom = true;
+roles.extractor.buildRoad = true;
 roles.extractor.boostActions = ['harvest', 'capacity'];
 
 roles.extractor.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, MOVE, WORK];
+  // default was:
+  //var parts = [MOVE, CARRY, MOVE, WORK];
+  // but move less, work harder!
+  var parts = [MOVE, CARRY, WORK, WORK];
   return room.getPartConfig(energy, parts);
 };
 
@@ -21,7 +25,7 @@ roles.extractor.energyBuild = function(room, energy, heal) {
   return energy;
 };
 
-roles.extractor.terminalStorageExchange = function(creep) {
+roles.extractor.terminalToStorageExchange = function(creep) {
   var terminal = creep.room.terminal;
   /**
    * The isActive() method is somehow expensive, could be fine for just the mineral roles
@@ -46,6 +50,8 @@ roles.extractor.terminalStorageExchange = function(creep) {
   }
   // transferToStructures then decide go to terminal or storage
   creep.transferToStructures();
+  creep.construct();
+  // creep.pickupEnergy();
 
   var action = {
     withdraw: _.sum(creep.carry) / creep.carryCapacity < 0.8,
@@ -81,10 +87,17 @@ roles.extractor.terminalStorageExchange = function(creep) {
 };
 
 function executeExtractor(creep) {
-  let returnValue = roles.extractor.terminalStorageExchange(creep);
-  if (returnValue == OK) {
+  let energyInStorage = creep.room.terminal.store.energy / creep.room.terminal.storeCapacity;
+  let returnValue = null;
+  // TODO FIXME this is real ugly
+  var limit = (Game.time % 10000 === 0) ? 0.6 : 0.5;
+  if (energyInStorage > limit) {
+    returnValue = roles.extractor.terminalToStorageExchange(creep);
+  }
+  if (returnValue === OK) {
     return true;
   } else {
+    //creep.log('terminalToStorageExchange ' + returnValue);
     return creep.handleExractor();
   }
 }
