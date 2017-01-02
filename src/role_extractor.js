@@ -23,8 +23,16 @@ roles.extractor.energyBuild = function(room, energy, heal) {
 
 roles.extractor.terminalStorageExchange = function(creep) {
   var terminal = creep.room.terminal;
-  if (!terminal || !terminal.isActive()) {
-    // TODO kill creep?
+  /**
+   * The isActive() method is somehow expensive, could be fine for just the mineral roles
+   * see https://github.com/TooAngel/screeps/pull/69
+   * !terminal.isActive() is added if you loose RCL (Room Controller Level) somehow
+   * :-) should not happen !
+   */
+  if (!terminal
+  //|| !terminal.isActive()
+  ) {
+    creep.suicide();
     return ERR_INVALID_TARGET;
   }
   var energyInTerminal = terminal.store.energy / terminal.storeCapacity;
@@ -44,17 +52,22 @@ roles.extractor.terminalStorageExchange = function(creep) {
     transfer: _.sum(creep.carry) / creep.carryCapacity > 0.3
   };
 
-  // TODO replace creep.moveTo by moving on path ?
-
+  // TODO create new shortest path and use it
+  // TODO replace creep.moveTo by creep.moveByPath
+  // @see @link http://support.screeps.com/hc/en-us/articles/203013212-Creep#moveByPath
   if (action.withdraw) {
     if (creep.withdraw(terminal, RESOURCE_ENERGY) !== OK) {
-      creep.moveTo(terminal);
+      if (creep.moveTo(terminal, {/*noPathFinding: true,*/ reusePath: 1500}) === ERR_NOT_FOUND) {
+        console.log('create new path for the terminalStorageExchange feature');
+      }
     }
   }
 
   if (!action.withdraw || action.transfer) {
     if (creep.transfer(creep.room.storage, RESOURCE_ENERGY) !== OK) {
-      creep.moveTo(creep.room.storage);
+      if (creep.moveTo(creep.room.storage, {/*noPathFinding: true,*/ reusePath: 1500}) === ERR_NOT_FOUND) {
+        console.log('create new path for the terminalStorageExchange feature');
+      }
     }
   }
   if (!action.withdraw && !action.transfer) {
