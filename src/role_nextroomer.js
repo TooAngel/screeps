@@ -304,12 +304,13 @@ roles.nextroomer.settle = function(creep) {
     }
   });
 
+  methods.push(Creep.transferEnergy);
   if (creep.room.controller.level >= 3 && structures.length > 0) {
     methods.push(Creep.constructTask);
   }
 
   if (creep.room.controller.level < 8) {
-    methods.push(Creep.transferEnergy);
+
     methods.push(Creep.upgradeControllerTask);
   }
 
