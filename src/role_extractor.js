@@ -10,18 +10,18 @@ roles.extractor = {};
 
 roles.extractor.boostActions = ['harvest', 'capacity'];
 
-roles.extractor.getPartConfig = function (room, energy, heal) {
+roles.extractor.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CARRY, MOVE, WORK];
   return room.getPartConfig(energy, parts);
 };
 
-roles.extractor.energyBuild = function (room, energy, heal) {
+roles.extractor.energyBuild = function(room, energy, heal) {
   var max = 2000;
   energy = Math.max(250, Math.min(max, room.getEnergyCapacityAvailable()));
   return energy;
 };
 
-roles.extractor.terminalStorageExchange = function (creep) {
+roles.extractor.terminalStorageExchange = function(creep) {
   var terminal = creep.room.terminal;
   /**
    * The isActive() method is somehow expensive, could be fine for just the mineral roles
