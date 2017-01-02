@@ -57,7 +57,7 @@ roles.extractor.terminalStorageExchange = function(creep) {
   // @see @link http://support.screeps.com/hc/en-us/articles/203013212-Creep#moveByPath
   if (action.withdraw) {
     if (creep.withdraw(terminal, RESOURCE_ENERGY) !== OK) {
-      if (creep.moveTo(terminal, {/*noPathFinding: true,*/ reusePath: 1500}) === ERR_NOT_FOUND) {
+      if (creep.moveTo(terminal, {/*noPathFinding: true, */reusePath: 1500}) === ERR_NOT_FOUND) {
         console.log('create new path for the terminalStorageExchange feature');
       }
     }
@@ -65,7 +65,7 @@ roles.extractor.terminalStorageExchange = function(creep) {
 
   if (!action.withdraw || action.transfer) {
     if (creep.transfer(creep.room.storage, RESOURCE_ENERGY) !== OK) {
-      if (creep.moveTo(creep.room.storage, {/*noPathFinding: true,*/ reusePath: 1500}) === ERR_NOT_FOUND) {
+      if (creep.moveTo(creep.room.storage, {/*noPathFinding: true, */reusePath: 1500}) === ERR_NOT_FOUND) {
         console.log('create new path for the terminalStorageExchange feature');
       }
     }
