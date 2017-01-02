@@ -10,18 +10,18 @@ roles.extractor = {};
 
 roles.extractor.boostActions = ['harvest', 'capacity'];
 
-roles.extractor.getPartConfig = function(room, energy, heal) {
+roles.extractor.getPartConfig = function (room, energy, heal) {
   var parts = [MOVE, CARRY, MOVE, WORK];
   return room.getPartConfig(energy, parts);
 };
 
-roles.extractor.energyBuild = function(room, energy, heal) {
+roles.extractor.energyBuild = function (room, energy, heal) {
   var max = 2000;
   energy = Math.max(250, Math.min(max, room.getEnergyCapacityAvailable()));
   return energy;
 };
 
-roles.extractor.terminalStorageExchange = function(creep) {
+roles.extractor.terminalStorageExchange = function (creep) {
   var terminal = creep.room.terminal;
   /**
    * The isActive() method is somehow expensive, could be fine for just the mineral roles
@@ -51,13 +51,16 @@ roles.extractor.terminalStorageExchange = function(creep) {
     withdraw: _.sum(creep.carry) / creep.carryCapacity < 0.8,
     transfer: _.sum(creep.carry) / creep.carryCapacity > 0.3
   };
-
+  var movingOptions = {
+    //noPathFinding: true,
+    reusePath: 1500
+  };
   // TODO create new shortest path and use it
   // TODO replace creep.moveTo by creep.moveByPath
   // @see @link http://support.screeps.com/hc/en-us/articles/203013212-Creep#moveByPath
   if (action.withdraw) {
     if (creep.withdraw(terminal, RESOURCE_ENERGY) !== OK) {
-      if (creep.moveTo(terminal, {/*noPathFinding: true, */reusePath: 1500}) === ERR_NOT_FOUND) {
+      if (creep.moveTo(terminal, movingOptions) === ERR_NOT_FOUND) {
         console.log('create new path for the terminalStorageExchange feature');
       }
     }
@@ -65,7 +68,7 @@ roles.extractor.terminalStorageExchange = function(creep) {
 
   if (!action.withdraw || action.transfer) {
     if (creep.transfer(creep.room.storage, RESOURCE_ENERGY) !== OK) {
-      if (creep.moveTo(creep.room.storage, {/*noPathFinding: true, */reusePath: 1500}) === ERR_NOT_FOUND) {
+      if (creep.moveTo(creep.room.storage, movingOptions) === ERR_NOT_FOUND) {
         console.log('create new path for the terminalStorageExchange feature');
       }
     }
