@@ -64,10 +64,10 @@ Room.prototype.checkAndSpawnSourcer = function() {
 };
 
 Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
-  if (!targetRoom) {
+  if (targetRoom === undefined) {
     targetRoom = this.name;
   }
-  if (!amount) {
+  if (amount === undefined) {
     amount = 1;
   }
 
@@ -84,16 +84,19 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
   }
 
   let creeps = this.find(FIND_MY_CREEPS, {
-    filter: function(object) {
-      if (targetId) {
-        if (!object.memory.routing || targetId != object.memory.routing.targetId) {
-          return false;
-        }
-      }
-      if (!object.memory.routing || targetRoom != object.memory.routing.targetRoom) {
+    filter: (creep) => {
+      if (creep.memory.routing === undefined) {
         return false;
       }
-      return object.memory.role == role;
+      if (targetId !== undefined &&
+          targetId !== creep.memory.routing.targetId) {
+        return false;
+      }
+      if (targetRoom !== undefined &&
+          targetRoom !== creep.memory.routing.targetRoom) {
+        return false;
+      }
+      return creep.memory.role == role;
     }
   });
 
