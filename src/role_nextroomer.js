@@ -309,10 +309,10 @@ roles.nextroomer.settle = function(creep) {
   }
 
   if (creep.room.controller.level < 8) {
+    methods.push(Creep.transferEnergy);    
     methods.push(Creep.upgradeControllerTask);
   }
 
-  methods.push(Creep.transferEnergy);
   return Creep.execute(creep, methods);
 };
 
