@@ -21,9 +21,7 @@ Creep.upgradeControllerTask = function(creep) {
     }
     creep.moveRandomWithin(creep.room.controller.pos);
     return true;
-  }
-
-  if (range > 1) {
+  } else {
     let search = PathFinder.search(
       creep.pos, {
         pos: creep.room.controller.pos,

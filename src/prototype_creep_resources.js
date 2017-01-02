@@ -103,16 +103,10 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
 
     if (this.room.name == this.memory.routing.targetRoom) {
       let containers = this.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: function(object) {
-          if (object.structureType == STRUCTURE_CONTAINER) {
-            return true;
-          }
-          return false;
-        }
+        filter: (s) => s.structureType == STRUCTURE_CONTAINER,
       });
       for (let container of containers) {
-        let returnCode = this.withdraw(container, RESOURCE_ENERGY);
-        if (returnCode == OK) {}
+        this.withdraw(container, RESOURCE_ENERGY);
         return container.store.energy > 9;
       }
     }
@@ -593,7 +587,14 @@ Creep.prototype.getEnergy = function() {
 
 Creep.prototype.construct = function() {
   //   this.say('construct', true);
-  var target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+  var target;
+  if (this.memory.role === 'nextroomer') {
+    target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
+      filter: s => s.structureType !== STRUCTURE_RAMPART
+    });
+  } else {
+    target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+  }
 
   if (target === null) {
     return false;
@@ -764,13 +765,15 @@ Creep.prototype.transferEnergyMy = function() {
     }
     if (search.incomplete) {
       this.say('tr:incompl', true);
-      let search = PathFinder.search(
-        this.pos, {
-          pos: target.pos,
-          range: 1
-        }, {
-          maxRooms: 1
-        });
+      if (config.path.pathfindIncomplete) {
+        let search = PathFinder.search(
+          this.pos, {
+            pos: target.pos,
+            range: 1
+          }, {
+            maxRooms: 1
+          });
+      }
       let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
     } else {
       //       this.say('tr:' + this.pos.getDirectionTo(search.path[0]), true);
