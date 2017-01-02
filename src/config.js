@@ -6,12 +6,6 @@ global.cache = {
   rooms: {}
 };
 
-try {
-  global.friends = require('friends');
-} catch (e) {
-  global.friends = [];
-}
-
 global.config = {
   profiler: {
     enabled: false,

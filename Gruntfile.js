@@ -92,7 +92,7 @@ module.exports = function(grunt) {
           src: [
             '**',
             '!main.js',
-            '!require.js',
+            '!autoload.js',
             '!config.js',
             '!config_logging.js',
             '!config_brain_memory.js',
@@ -198,7 +198,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test', ['jshint', 'jscs']);
   grunt.registerTask('dev', ['jshint', 'jsbeautifier', 'jscs']);
   grunt.registerTask('requireFile', 'Creates an empty file', function() {
-    grunt.file.write('dist/require.js', '');
+    grunt.file.write('dist/autoload.js', '');
   });
 
 };

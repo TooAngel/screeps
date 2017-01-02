@@ -1,0 +1,9 @@
+### config
+friends.js
+
+### friends of mine
+config.js
+
+### no ignore for sample and autoload_*
+!autoload_*.js
+!*.sample

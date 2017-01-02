@@ -1,0 +1,8 @@
+'use strict';
+
+module.exports = [
+  // todo add maintainer of this project to your friends: 'TooAngel'
+  // 'TooAngel',
+  // todo add contributors of this project to your friends
+  // 'contributor',
+];

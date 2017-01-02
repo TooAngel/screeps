@@ -1,6 +1,6 @@
 'use strict';
 
-require('require');
+require('autoload');
 require('prototype_creep_startup_tasks');
 require('prototype_creep_move');
 require('prototype_roomPosition');

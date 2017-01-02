@@ -1,4 +1,6 @@
 require('config');
+// TODO FILXME
+require('local/autoload_config');
 require('logging');
 require('utils');
 require('config_brain_memory');
@@ -58,3 +60,5 @@ require('role_storagefiller');
 require('role_structurer');
 require('role_towerfiller');
 require('role_upgrader');
+// TODO FILXME
+require('local/autoload_post');
