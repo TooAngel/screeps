@@ -89,8 +89,9 @@ roles.extractor.terminalToStorageExchange = function(creep) {
 function executeExtractor(creep) {
   let energyInStorage = creep.room.terminal.store.energy / creep.room.terminal.storeCapacity;
   let returnValue = null;
-  // TODO FIXME this is real ugly
-  var limit = (Game.time % 10000 === 0) ? 0.6 : 0.5;
+  // TODO FIXME this is real ugly, but works move energy to storage for 5000 ticks, then extracts
+  // TODO result of FIXME carry creeps from neighbour rooms transfer to extractor
+  var limit = (Math.round(Game.time / 1000) % 10000 < 5) ? 0.6 : 0.5;
   if (energyInStorage > limit) {
     returnValue = roles.extractor.terminalToStorageExchange(creep);
   }
