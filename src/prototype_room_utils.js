@@ -1,5 +1,44 @@
 'use strict';
 
+Room.prototype.sortMyRoomsByLinearDistance = function(target) {
+  let sortByLinearDistance = function(object) {
+    return Game.map.getRoomLinearDistance(target, object);
+  };
+
+  return _.sortBy(Memory.myRooms, sortByLinearDistance);
+};
+
+Room.prototype.closestSpawn = function(target) {
+  let pathLength = {};
+  let roomsMy = this.sortMyRoomsByLinearDistance(target);
+
+  for (let room of roomsMy) {
+    let route = Game.map.findRoute(room, target);
+    let routeLength = global.utils.returnLength(route);
+
+    if (route && routeLength) {
+      //TODO @TooAngel please review: save found route from target to myRoom Spawn by shortest route!
+      //Memory.rooms[room].routing = Memory.rooms[room].routing || {};
+      //Memory.rooms[room].routing[room + '-' + target] = Memory.rooms[room].routing[room + '-' + target] || {
+      //    path: room + '-' + route,
+      //    created: Game.time,
+      //    fixed: false,
+      //    name: room + '-' + target,
+      //    category: 'moveToByClosestSpawn'
+      //  };
+
+      pathLength[room] = {
+        room: room,
+        route: route,
+        length: routeLength
+      };
+    }
+  }
+
+  let shortest = _.sortBy(pathLength, global.utils.returnLength);
+  return _.first(shortest).room;
+};
+
 Room.prototype.getEnergyCapacityAvailable = function() {
   let offset = 0;
   if (this.memory.misplacedSpawn && this.controller.level == 4) {
