@@ -1,32 +1,20 @@
 'use strict';
 
-Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing) {
-  var energy = this.energyAvailable;
-
+Room.prototype.spawnCreateCreep = function(creep) {
+  let role = creep.role;
   let unit = roles[role];
   if (!unit) {
     this.log('Can not find role: ' + role + ' creep_' + role);
     return true;
   }
 
-  var energyNeeded = 50;
-
-  if (unit.energyRequired) {
-    energyNeeded = unit.energyRequired(this);
-  }
-
-  if (this.energyAvailable < energyNeeded) {
-    return false;
-  }
-
   var id = Math.floor((Math.random() * 1000) + 1);
   var name = role + '-' + id;
 
-  if (unit.energyBuild) {
-    energy = unit.energyBuild(this, energy, heal, level);
+  var partConfig = unit.getPartConfig(this, creep);
+  if (!partConfig) {
+    return;
   }
-
-  var partConfig = unit.getPartConfig(this, energy, heal);
   partConfig = partConfig.slice(0, MAX_CREEP_SIZE);
   var spawns = this.find(FIND_MY_SPAWNS);
 
@@ -38,14 +26,14 @@ Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing) {
       step: 0,
       base: this.name,
       born: Game.time,
-      heal: heal,
-      level: level,
-      squad: squad,
+      heal: creep.heal,
+      level: creep.level,
+      squad: creep.squad,
       // Values from the creep configuration
       killPrevious: unit.killPrevious,
       flee: unit.flee,
       buildRoad: unit.buildRoad,
-      routing: routing
+      routing: creep.routing
     };
     //     if (memory.role == 'reserver') {
     //       console.log('Spawning reserver: ' + JSON.stringify(memory));
@@ -67,7 +55,7 @@ Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing) {
 
 };
 
-Room.prototype.spawnCheckForCreate = function(creepsConfig) {
+Room.prototype.spawnCheckForCreate = function({role: creepsConfig}) {
   var storages;
   var energyNeeded;
   var unit;
@@ -122,7 +110,7 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
     var creep = this.memory.queue[0];
     energyNeeded = 50;
 
-    if (this.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing)) {
+    if (this.spawnCreateCreep(creep)) {
       this.memory.queue.shift();
     } else {
       if (creep.ttl === 0) {
