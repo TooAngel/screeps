@@ -192,13 +192,13 @@ roles.nextroomer.underSiege = function(creep) {
     let sourcerPosMem = room.memory.position.creep[source.id];
     let sourcerPos = new RoomPosition(sourcerPosMem.x, sourcerPosMem.y, sourcerPosMem.roomName);
 
-    if (creep.pos.isEqualTo(sourcerPos.x, sourcerPos.y)) {
+    if (creep.pos.isEqualTo(sourcerPos)) {
       creep.memory.targetId = source.id;
       return roles.nextroomer.stayAtSource(creep, source);
     }
 
     let creeps = sourcerPos.lookFor('creep');
-    if (!creeps.length) {
+    if (creeps.length === 0) {
       creep.moveTo(sourcerPos.x, sourcerPos.y);
       return true;
     }

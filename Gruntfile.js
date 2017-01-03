@@ -1,4 +1,11 @@
 module.exports = function(grunt) {
+  var account;
+  try {
+    account = require('account.screeps.com');
+  } catch (e) {
+    account = {email: false, password: false};
+  }
+
 
   grunt.loadNpmTasks('grunt-screeps');
   grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -13,8 +20,8 @@ module.exports = function(grunt) {
   grunt.initConfig({
     screeps: {
       options: {
-        email: process.env.email,
-        password: process.env.password,
+        email: process.env.email || account.email,
+        password: process.env.password || account.password,
         branch: 'default',
         ptr: false
       },
