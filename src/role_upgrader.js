@@ -18,42 +18,23 @@ roles.upgrader.boostActions = ['upgradeController'];
 
 roles.upgrader.getPartConfig = function(room) {
   let datas = {layout: [MOVE, WORK, WORK],
-    prefixParts: [MOVE, CARRY, WORK]
+    prefixParts: [MOVE, CARRY, WORK],
+    minEnergyStored: 200,
+    maxEnergyUsed: 350
   };
-  if (room.controller.level == 4) {
+  if (room.controller.level >= 4) {
     datas.layout = [WORK];
+    if (room.controller.level >= 7) {
+      if (room.storage) {
+        if (room.storage.store.energy > 50000) {
+          datas.maxEnergyUsed = 1950;
+        }else if (room.storage.store.energy > 800000) {
+          datas.maxEnergyUsed = 3900;
+        }
+      }
+    }
   }
   return room.getPartConfig(datas);
-};
-
-roles.upgrader.energyRequired = function(room) {
-  return 200;
-};
-
-roles.upgrader.energyBuild = function(room, energy) {
-  if (room.controller.level >= 7) {
-    if (room.storage && room.storage.store.energy < 50000) {
-      return 350;
-    }
-    return Math.min(1950, room.getEnergyCapacityAvailable());
-  }
-  var energyNeeded = 200;
-  if (room.controller.level < 7) {
-    energyNeeded = Math.min(1950, room.getEnergyCapacityAvailable());
-  }
-  if (room.controller.level == 7) {
-    // TODO Better calculation for the upgrader size
-    //    energyNeeded = Math.min(3900, energy);
-  }
-  if (room.storage) {
-    if (room.storage.store.energy > 800000) {
-      return Math.min(3900, room.getEnergyCapacityAvailable());
-    }
-    if (room.storage.store.energy < 10000) {
-      return 350;
-    }
-  }
-  return energyNeeded;
 };
 
 roles.upgrader.work = function(creep) {
