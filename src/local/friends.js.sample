@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = [
+global.friends = [
   // todo add maintainer of this project to your friends: 'TooAngel'
   // 'TooAngel',
   // todo add contributors of this project to your friends

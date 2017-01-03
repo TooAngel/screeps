@@ -3,7 +3,10 @@ module.exports = function(grunt) {
   try {
     account = require('account.screeps.com');
   } catch (e) {
-    account = {email: false, password: false};
+    account = {
+      email: false,
+      password: false
+    };
   }
 
   require('load-grunt-tasks')(grunt);
@@ -188,7 +191,7 @@ module.exports = function(grunt) {
     },
     clean: ['dist/', 'build/'],
     uglify: {
-      my_target: {
+      build: {
         options: {
           compress: {
             global_defs: {
@@ -240,18 +243,35 @@ module.exports = function(grunt) {
     },
     concat: {
       options: {
-        separator: ';\n',
+        separator: '\n// ================================== \n',
         banner: '\'use strict\';\n',
-        process: function (src, filepath) {
+        process: function(src, filepath) {
           return '// Source: ' + filepath + '\n' +
             src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1');
         },
         stripBanners: true
       },
       version: {
-        src: ['build/prepare.js', 'dist/main.js'],
+        src: ['build/core.js', 'build/local.js', 'dist/main.js'],
         dest: 'build/version-<%= pkg.name %>-<%= pkg.version %>.js',
         nonull: true
+      },
+      latest: {
+        src: ['build/core.js', 'build/local.js', 'dist/main.js'],
+        dest: 'build/latest.<%= pkg.name %>.js',
+        nonull: true
+      },
+      dist: {
+        src: [
+          'dist/config.js', 'dist/friends.js', 'dist/logging.js', 'dist/utils.js',
+          'dist/config_*.js', 'dist/prototype_*.js', 'dist/role_*.js',
+          '!dist/local_config.js', '!dist/local_*.js'
+        ],
+        dest: 'build/core.js'
+      },
+      local: {
+        src: ['dist/local_config.js', 'dist/local_*.js', '!dist/local_autoload.js'],
+        dest: 'build/local.js'
       },
       build: {
         src: ['build/*.js', '!build/main.js', '!build/screeps-profiler.js'],
@@ -266,22 +286,46 @@ module.exports = function(grunt) {
     copy: {
       main: {
         files: [{
-          expand: true,
-          cwd: 'src/',
-          // TODO add private files later
-          src: ['**'],
-          dest: 'dist/'
-        }, {
-          expand: true,
-          cwd: 'node_modules/screeps-profiler',
-          src: ['screeps-profiler.js'],
-          dest: 'dist/'
-        }, {
-          expand: true,
-          cwd: 'screeps-elk/js',
-          src: ['utils.logger.js'],
-          dest: 'dist/'
-        }]
+            expand: true,
+            cwd: 'src/',
+            // TODO add private files later
+            src: ['*.js'],
+            dest: 'dist/'
+          }, {
+            expand: true,
+            cwd: 'src/local/',
+            // TODO add private files later
+            src: ['*.js', '!*.sample'],
+            dest: 'dist/'
+          }, {
+            expand: true,
+            cwd: 'node_modules/screeps-profiler',
+            src: ['screeps-profiler.js'],
+            dest: 'dist/'
+          }, {
+            expand: true,
+            cwd: 'node_modules/screeps-profiler/',
+            src: [
+              'screeps-profiler.js'
+            ],
+            dest: 'dist/'
+          }, {
+            expand: true,
+            cwd: 'node_modules/screeps-profiler/',
+            src: [
+              'screeps-profiler.js'
+            ],
+            dest: 'build/'
+          }
+          // TODO add docs for screeps-elk!
+          // TODO elk eq. elasticsearch+logstash+kibana, the 'elk stack'
+          //, {
+          //  expand: true,
+          //  cwd: 'screeps-elk/js',
+          //  src: ['utils.logger.js'],
+          //  dest: 'dist/'
+          //}
+        ]
       },
       uglify: {
         files: [{
@@ -354,15 +398,17 @@ module.exports = function(grunt) {
   });
 
   // FOR PRIVATE (old or not updated servers) SERVERS
-  //grunt.registerTask('private', ['requireFiles', 'jsbeautifier', 'jscs', 'clean', 'copy:build', 'concat:build', 'concat:main']);
+  grunt.registerTask('private', ['jsbeautifier', 'jscs', 'clean', 'copy:main', 'autoloadFile', 'concat:dist', 'concat:local', 'concat:version', 'concat:latest', 'newAutoLoadFile']); // 'uglify:build'
 
   grunt.registerTask('default', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
   grunt.registerTask('release', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
   grunt.registerTask('local', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
   grunt.registerTask('test', ['jshint', 'jscs']);
   grunt.registerTask('dev', ['jshint', 'jsbeautifier', 'jscs']);
-  grunt.registerTask('requireFile', 'Creates an empty file', function() {
-    grunt.file.write('dist/autoload.js', '');
+  grunt.registerTask('autoloadFile', 'Creates an empty file', function() {
+    grunt.file.write('dist/autoload.js', 'require(\'local\');\n');
   });
-
+  grunt.registerTask('newAutoLoadFile', 'Creates an empty file', function() {
+    grunt.file.write('build/autoload.js', '');
+  });
 };

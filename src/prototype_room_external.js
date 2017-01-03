@@ -283,11 +283,11 @@ Room.prototype.checkAndSpawnReserver = function() {
     energyNeeded += 300;
   }
   this.log('Would like to spawn reserver ' +
-      baseRoom.getEnergyCapacityAvailable() + '/' + energyNeeded);
+    baseRoom.getEnergyCapacityAvailable() + '/' + energyNeeded);
   if (baseRoom.getEnergyCapacityAvailable() >= energyNeeded) {
     if (!baseRoom.inQueue(reserverSpawn)) {
       this.log('Queuing reserver ' + baseRoom.name + ' ' +
-          JSON.stringify(reserverSpawn));
+        JSON.stringify(reserverSpawn));
       baseRoom.memory.queue.push(reserverSpawn);
     }
   }
@@ -297,7 +297,7 @@ Room.prototype.handleReservedRoom = function() {
   this.memory.state = 'Reserved';
   this.memory.lastSeen = Game.time;
   if (this.memory.lastChecked !== undefined &&
-      Game.time - this.memory.lastChecked < 500) {
+    Game.time - this.memory.lastChecked < 500) {
     return false;
   }
   this.memory.lastChecked = Game.time;
@@ -322,7 +322,7 @@ Room.prototype.handleUnreservedRoom = function() {
   this.memory.state = 'Unreserved';
   this.memory.lastSeen = Game.time;
   if (this.memory.lastChecked !== undefined &&
-      Game.time - this.memory.lastChecked < 500) {
+    Game.time - this.memory.lastChecked < 500) {
     return true;
   }
 
@@ -331,8 +331,8 @@ Room.prototype.handleUnreservedRoom = function() {
     let isReservedBy = (roomName) => {
       return (roomMemory) => {
         return roomMemory.reservation !== undefined &&
-            roomMemory.state === 'Reserved' &&
-            roomMemory.reservation.base == roomName;
+          roomMemory.state === 'Reserved' &&
+          roomMemory.reservation.base == roomName;
       };
     };
     checkRoomsLabel: for (let roomName of Memory.myRooms) {
@@ -364,7 +364,7 @@ Room.prototype.handleUnreservedRoom = function() {
         }
       }
       if (room.memory.queue && room.memory.queue.length === 0 &&
-          room.energyAvailable >= room.getEnergyCapacityAvailable()) {
+        room.energyAvailable >= room.getEnergyCapacityAvailable()) {
         let reservedRooms = _.filter(Memory.rooms, isReservedBy(room.name));
         // RCL: target reserved rooms
         let numRooms = {

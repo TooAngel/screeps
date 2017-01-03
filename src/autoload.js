@@ -1,6 +1,17 @@
+'use strict';
+
 require('config');
-// TODO FILXME
-require('local/autoload_config');
+// load local config
+try {
+  require('local_config');
+} catch (e) {}
+// load friends
+try {
+  global.friends = require('friends');
+} catch (e) {
+  global.friends = [];
+}
+
 require('logging');
 require('utils');
 require('config_brain_memory');
@@ -12,9 +23,14 @@ require('prototype_creep_fight');
 require('prototype_creep_resources');
 require('prototype_creep_harvest');
 require('prototype_creep_mineral');
+require('prototype_creep_move');
 require('prototype_creep_routing');
+require('prototype_creep_startup_tasks');
 require('prototype_roomPosition_structures');
 require('prototype_room');
+require('prototype_roomPosition');
+require('prototype_room_init');
+require('prototype_room_costmatrix');
 require('prototype_room_attack');
 require('prototype_room_basebuilder');
 require('prototype_room_cached');
@@ -60,5 +76,9 @@ require('role_storagefiller');
 require('role_structurer');
 require('role_towerfiller');
 require('role_upgrader');
-// TODO FILXME
-require('local/autoload_post');
+
+try {
+  require('local_autoload');
+} catch (err) {
+  //console.log('local_autoload not found');
+}
