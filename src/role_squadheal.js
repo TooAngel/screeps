@@ -46,7 +46,7 @@ roles.squadheal.preMove = function(creep, directions) {
     creep.memory.routing.reverse = false;
   }
 
-  var myCreep = creep.room.findClosestByRange(FIND_MY_CREEPS, {
+  var myCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
     filter: function(object) {
       if (object.hits < object.hitsMax) {
         return true;
