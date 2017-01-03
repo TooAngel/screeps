@@ -1,11 +1,6 @@
 'use strict';
 
-require('require');
-require('prototype_creep_startup_tasks');
-require('prototype_creep_move');
-require('prototype_roomPosition');
-require('prototype_room_init');
-require('prototype_room_costmatrix');
+require('autoload');
 
 if (config.profiler.enabled) {
   try {

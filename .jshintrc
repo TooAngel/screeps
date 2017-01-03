@@ -1,6 +1,7 @@
 {
   "node": true,
   "esnext": true,
+  "indent": 2,
   "globals": {
     "Memory": false,
     "Game": false,
@@ -130,6 +131,8 @@
     "friends": false,
     "ORDER_SELL": false,
     "SUBSCRIPTION_TOKEN": false,
-    "cache": false
+    "cache": false,
+    "RoomObject": false,
+    "utils": false
   }
 }

@@ -1,0 +1,19 @@
+'use strict';
+
+//TODO create a other myHandleRoom function if needed
+//Room.prototype.myHandleRoom = function() { /** an other handle here */ };
+
+//TODO create a other handleLinks function if needed
+//Room.prototype.handleLinks = function() { /** an other handle here */ };
+
+//TODO create a other handle_powerspawn function if needed
+//Room.prototype.handle_powerspawn = function() { /** an other handle here */ };
+
+//TODO create a other handleObserver function if needed
+//Room.prototype.handleObserver = function() { /** an other handle here */ };
+
+//TODO create a other handleScout function if needed
+//Room.prototype.handleScout = function() { /** an other handle here */ };
+
+//TODO create a other reviveRoom function if needed
+//Room.prototype.reviveRoom = function() { /** an other handle here */ };

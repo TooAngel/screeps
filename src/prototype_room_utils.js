@@ -128,11 +128,11 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
         return false;
       }
       if (targetId !== undefined &&
-          targetId !== creep.memory.routing.targetId) {
+        targetId !== creep.memory.routing.targetId) {
         return false;
       }
       if (targetRoom !== undefined &&
-          targetRoom !== creep.memory.routing.targetRoom) {
+        targetRoom !== creep.memory.routing.targetRoom) {
         return false;
       }
       return creep.memory.role == role;

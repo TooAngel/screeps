@@ -1,0 +1,11 @@
+### docs
+!*.md
+
+### config
+friends.js
+
+### friends of mine
+local_config.js
+
+### no ignore for sample and autoload_*
+!*.sample

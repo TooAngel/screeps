@@ -1,2 +1,5 @@
-config_local.js
-friends.js
+### local dir
+local/*
+!local/.gitignore
+!local/autoload_config.js
+

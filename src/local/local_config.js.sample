@@ -1,0 +1,13 @@
+'use strict';
+
+// Local overrides to config, modify this instead of global config.
+
+//config.profiler.enabled = false;
+//config.stats.enabled = true;
+//config.stats.summary = true;
+//config.layout.plainCost = 4;
+//config.layout.swampCost = 7;
+//config.info.signController = false;
+
+// TODO: need to add config.layout.roadCost
+//config.layout.roadCost = 3;

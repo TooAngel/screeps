@@ -205,7 +205,7 @@ Room.prototype.handleScout = function() {
   }
   let shouldSpawn = (
     ((Game.time + this.controller.pos.x + this.controller.pos.y) %
-        config.room.scoutInterval) === 0 &&
+      config.room.scoutInterval) === 0 &&
     this.controller.level >= 2 &&
     this.memory.queue.length === 0 &&
     config.room.scout
@@ -462,9 +462,9 @@ Room.prototype.reviveRoom = function() {
   let nextRoomers = _.filter(Game.creeps, c => c.memory.role === 'nextroomer' &&
     c.memory.routing.targetRoom === this.name).length;
   if (this.controller.level >= 4 &&
-      this.controller.ticksToDowngrade >
-       (CONTROLLER_DOWNGRADE[this.controller.level] * config.nextRoom.minDowngradPercent / 100) &&
-      this.energyCapacityAvailable > config.nextRoom.minEnergyForActive) {
+    this.controller.ticksToDowngrade >
+    (CONTROLLER_DOWNGRADE[this.controller.level] * config.nextRoom.minDowngradPercent / 100) &&
+    this.energyCapacityAvailable > config.nextRoom.minEnergyForActive) {
 
     this.memory.active = true;
     return false;
