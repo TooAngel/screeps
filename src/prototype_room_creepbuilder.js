@@ -72,10 +72,6 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
   var energyNeeded;
   var unit;
 
-  if (!this.memory.queue) {
-    this.memory.queue = [];
-  }
-
   if (this.memory.queue.length > 0 && (creepsConfig.length === 0 || creepsConfig[0] != 'harvester')) {
     let room = this;
     let priorityQueue = function(object) {
@@ -94,7 +90,18 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
         }
         return 4;
       }
-
+      // spawn reserver after external supply line
+      if (target !== room.name) {
+        if (object.role == 'carry') {
+          return 5;
+        }
+        if (object.role == 'sourcer') {
+          return 6;
+        }
+        if (object.role == 'reserver') {
+          return 7;
+        }
+      }
       if (object.role == 'nextroomer') {
         return 11;
       }

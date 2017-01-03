@@ -1,4 +1,19 @@
-module.exports = {
+/**
+ * this should be a collection of useful functions,
+ * they should be as general as they can be, so we can use them as often as possible
+ **/
+global.utils = {
+
+  /**
+   * return object.length if exist else return _.size
+   *
+   * @param {Array} object
+   * @returns {*}
+   */
+  returnLength: function returnLength(object) {
+    return (object && object.length) ? object.length : _.size(object);
+  },
+
   checkPlayers: function() {
     for (let name in Memory.players) {
       let player = Memory.players[name];
@@ -10,10 +25,7 @@ module.exports = {
         player.counter = 0;
         console.log(`Missing counter: ${name}`);
       }
-      if (name == 'ags131') {
-        console.log(JSON.stringify(player));
-        console.log(player.level === undefined);
-      }
+
       if (player.level === undefined) {
         player.level = 0;
         console.log(`Missing level: ${name}`);

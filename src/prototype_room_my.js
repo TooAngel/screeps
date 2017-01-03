@@ -14,6 +14,10 @@ Room.prototype.myHandleRoom = function() {
     this.setup();
   }
 
+  if (!this.memory.queue) {
+    this.memory.queue = [];
+  }
+
   var hostiles = this.getEnemys();
   if (hostiles.length === 0) {
     delete this.memory.hostile;
@@ -30,17 +34,22 @@ Room.prototype.myHandleRoom = function() {
     }
   }
   if (config.stats.enabled) {
-    Memory.stats['room.' + this.name + '.energyAvailable'] = this.energyAvailable;
-    Memory.stats['room.' + this.name + '.energyCapacityAvailable'] = this.energyCapacityAvailable;
-    Memory.stats['room.' + this.name + '.controllerProgress'] = this.controller.progress;
-    Memory.stats['room.' + this.name + '.progress'] = this.memory.upgraderUpgrade / (Game.time % 100);
+    let name = Memory.username;
+    let pathBegin = name + '.room.' + this.name;
+    Memory.stats[pathBegin + '.energyAvailable'] = this.energyAvailable;
+    Memory.stats[pathBegin + '.energyCapacityAvailable'] = this.energyCapacityAvailable;
+    Memory.stats[pathBegin + '.controllerProgress'] = this.controller.progress;
+    Memory.stats[pathBegin + '.progress'] = this.memory.upgraderUpgrade / (Game.time % 100);
+    Memory.stats[pathBegin + '.queueLength'] = this.memory.queue.length;
+    Memory.stats[pathBegin + '.creepsIn'] = this.find(FIND_CREEPS).length;
+    Memory.stats[pathBegin + '.sourcesEnergy'] = _.sum(_.map(this.find(FIND_SOURCES), 'energy'));
 
     let storage = this.storage || {
       store: {}
     };
     if (this.storage) {
-      Memory.stats['room.' + this.name + '.storage.store.energy'] = storage.store.energy || 0;
-      Memory.stats['room.' + this.name + '.storage.store.power'] = storage.store.power || 0;
+      Memory.stats[pathBegin + '.storage.store.energy'] = storage.store.energy || 0;
+      Memory.stats[pathBegin + '.storage.store.power'] = storage.store.power || 0;
     }
   }
 
@@ -194,17 +203,19 @@ Room.prototype.handleScout = function() {
   if (this.name == 'sim') {
     return false;
   }
-  if (
-    ((Game.time + this.controller.pos.x + this.controller.pos.y) % config.room.scoutInterval) === 0 &&
+  let shouldSpawn = (
+    ((Game.time + this.controller.pos.x + this.controller.pos.y) %
+        config.room.scoutInterval) === 0 &&
     this.controller.level >= 2 &&
     this.memory.queue.length === 0 &&
     config.room.scout
-  ) {
-    var scout_spawn = {
+  );
+  if (shouldSpawn) {
+    let scout_spawn = {
       role: 'scout'
     };
     if (!this.inQueue(scout_spawn)) {
-      Game.rooms[this.name].memory.queue.push(scout_spawn);
+      this.memory.queue.push(scout_spawn);
     }
   }
 };
@@ -449,11 +460,12 @@ Room.prototype.executeRoom = function() {
 
 Room.prototype.reviveRoom = function() {
   let nextRoomers = _.filter(Game.creeps, c => c.memory.role === 'nextroomer' &&
-  c.memory.routing.targetRoom === this.name).length;
+    c.memory.routing.targetRoom === this.name).length;
   if (this.controller.level >= 4 &&
       this.controller.ticksToDowngrade >
        (CONTROLLER_DOWNGRADE[this.controller.level] * config.nextRoom.minDowngradPercent / 100) &&
       this.energyCapacityAvailable > config.nextRoom.minEnergyForActive) {
+
     this.memory.active = true;
     return false;
   } else if (this.controller.level > 1 && nextRoomers >= config.nextRoom.numberOfNextroomers) {
@@ -501,8 +513,8 @@ Room.prototype.reviveRoom = function() {
   }
 
   if (config.nextRoom.revive && this.controller.level >= 1 &&
-     (Game.time + this.controller.pos.x + this.controller.pos.y) %
-      config.nextRoom.nextroomerInterval === 0) {
+    (Game.time + this.controller.pos.x + this.controller.pos.y) %
+    config.nextRoom.nextroomerInterval === 0) {
     this.log('revive me now');
 
     let nextroomerCalled = 0;

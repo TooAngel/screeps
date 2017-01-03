@@ -103,16 +103,10 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
 
     if (this.room.name == this.memory.routing.targetRoom) {
       let containers = this.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: function(object) {
-          if (object.structureType == STRUCTURE_CONTAINER) {
-            return true;
-          }
-          return false;
-        }
+        filter: (s) => s.structureType == STRUCTURE_CONTAINER,
       });
       for (let container of containers) {
-        let returnCode = this.withdraw(container, RESOURCE_ENERGY);
-        if (returnCode == OK) {}
+        this.withdraw(container, RESOURCE_ENERGY);
         return container.store.energy > 9;
       }
     }
@@ -488,7 +482,7 @@ Creep.prototype.getEnergy = function() {
   } else if (this.memory.hasEnergy && this.carry.energy === 0) {
     this.memory.hasEnergy = false;
   } else if (!this.memory.hasEnergy &&
-      this.carry.energy == this.carryCapacity) {
+    this.carry.energy == this.carryCapacity) {
     this.memory.hasEnergy = true;
   }
 
@@ -721,8 +715,8 @@ Creep.prototype.transferEnergyMy = function() {
           return false;
         }
         return (s.structureType == STRUCTURE_EXTENSION ||
-            s.structureType == STRUCTURE_SPAWN ||
-            s.structureType == STRUCTURE_TOWER);
+          s.structureType == STRUCTURE_SPAWN ||
+          s.structureType == STRUCTURE_TOWER);
       }
     });
     if (structure === null) {
@@ -750,7 +744,7 @@ Creep.prototype.transferEnergyMy = function() {
     let returnCode = this.transfer(target, RESOURCE_ENERGY);
     if (returnCode != OK && returnCode != ERR_FULL) {
       this.log('transferEnergyMy: ' + returnCode + ' ' +
-          target.structureType + ' ' + target.pos);
+        target.structureType + ' ' + target.pos);
     }
     delete this.memory.target;
   } else {
@@ -771,13 +765,15 @@ Creep.prototype.transferEnergyMy = function() {
     }
     if (search.incomplete) {
       this.say('tr:incompl', true);
-      let search = PathFinder.search(
-        this.pos, {
-          pos: target.pos,
-          range: 1
-        }, {
-          maxRooms: 1
-        });
+      if (config.path.pathfindIncomplete) {
+        let search = PathFinder.search(
+          this.pos, {
+            pos: target.pos,
+            range: 1
+          }, {
+            maxRooms: 1
+          });
+      }
       let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
     } else {
       //       this.say('tr:' + this.pos.getDirectionTo(search.path[0]), true);

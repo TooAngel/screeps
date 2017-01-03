@@ -68,13 +68,13 @@ roles.carry.preMove = function(creep, directions) {
   if (!creep.memory.routing.reverse) {
     reverse = creep.checkForTransfer(directions.forwardDirection);
   }
-
+  // define minimum carryPercentage to move back to storage
   let carryPercentage = 0.1;
   if (creep.room.name == creep.memory.routing.targetRoom) {
-    carryPercentage = 0.8;
+    carryPercentage = config.carry.carryPercentageExtern;
   }
   if (creep.room.name == creep.memory.base) {
-    carryPercentage = 0.0;
+    carryPercentage = config.carry.carryPercentageBase;
   }
 
   if (_.sum(creep.carry) > carryPercentage * creep.carryCapacity) {
