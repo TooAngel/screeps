@@ -462,7 +462,10 @@ Room.prototype.reviveRoom = function() {
   let nextRoomers = _.filter(Game.creeps, c => c.memory.role === 'nextroomer' &&
     c.memory.routing.targetRoom === this.name).length;
   if (this.controller.level >= 4 &&
-    this.controller.ticksToDowngrade > CONTROLLER_DOWNGRADE[this.controller.level] * 0.9) {
+      this.controller.ticksToDowngrade >
+       (CONTROLLER_DOWNGRADE[this.controller.level] * config.nextRoom.minDowngradPercent / 100) &&
+      this.energyCapacityAvailable > config.nextRoom.minEnergyForActive) {
+
     this.memory.active = true;
     return false;
   } else if (this.controller.level > 1 && nextRoomers >= config.nextRoom.numberOfNextroomers) {
