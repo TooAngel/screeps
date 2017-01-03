@@ -304,13 +304,12 @@ roles.nextroomer.settle = function(creep) {
     }
   });
 
-
   if (creep.room.controller.level >= 3 && structures.length > 0) {
     methods.push(Creep.constructTask);
   }
 
   // Fill energy after building is done
-  if (creep.room.controller.level >= 4){
+  if (creep.room.controller.level >= 4) {
     methods.push(Creep.transferEnergy);
   }
 
