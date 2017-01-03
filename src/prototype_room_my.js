@@ -244,7 +244,7 @@ Room.prototype.executeRoom = function() {
     this.reviveRoom();
   }
   // Revive Room if energycapacity or storage don't met minimum
-  else if (this.energyCapacityAvailable < 1000 ||
+  else if (this.energyCapacityAvailable < config.nextRoom.minEnergyForActive ||
   this.storage.store.energy < config.nextRoom.minStorage) {
     this.reviveRoom();
     if (hostiles.length > 0) {
