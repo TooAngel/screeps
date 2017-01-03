@@ -95,48 +95,69 @@ brain.handleSquadmanager = function() {
   }
 };
 
-brain.startSquad = function(roomNameFrom, roomNameAttack) {
+/**
+ * TODO atm addToQueue is only for squad creation usable
+ * TODO check for queue.length split queue creation to all unused (or less than closestSpawn.memory.queue.length) spawns in range (e.g. under 6 rooms, move '6' to config or room.memory)
+ *
+ * @param {Array} spawns  Array of Objects like {creeps: 1, role: 'squadsiege'}
+ * @param {String} roomNameFrom  pushing to Game.rooms[roomNameFrom].memory.queue
+ * @param {String} roomNameTarget routing target
+ * @param {String} squadName
+ * @param {Number} [queueLimit] don't push if queueLimit is reached
+ */
+brain.addToQueue = function(spawns, roomNameFrom, roomNameTarget, squadName, queueLimit) {
+  queueLimit = queueLimit || false;
+  var outer = function(spawn) {
+    return function _addToQueue(time) {
+      if (queueLimit === false) {
+        Game.rooms[roomNameFrom].memory.queue.push({
+          role: spawn.role,
+          routing: {
+            targetRoom: roomNameTarget
+          },
+          squad: squadName
+        });
+      } else if (Game.rooms[roomNameFrom].memory.queue.length < queueLimit) {
+        Game.rooms[roomNameFrom].memory.queue.push({
+          role: spawn.role,
+          routing: {
+            targetRoom: roomNameTarget
+          },
+          squad: squadName
+        });
+      }
+    };
+  };
 
+  for (let spawn of spawns) {
+    _.times(spawn.creeps, outer(spawn));
+  }
+};
+/**
+ * brain.startSquad used to attack player.rooms
+ *
+ * @param {String} roomNameFrom
+ * @param {String} roomNameAttack
+ */
+brain.startSquad = function(roomNameFrom, roomNameAttack) {
+  let name = 'siegesquad-' + Math.random();
   let route = Game.map.findRoute(roomNameFrom, roomNameAttack);
   let target = roomNameFrom;
   if (route.length > 1) {
     target = route[route.length - 2].room;
   }
+  Memory.squads = Memory.squads || {};
 
-  if (!Memory.squads) {
-    Memory.squads = {};
-  }
-  let name = Math.random();
+  var siegeSpawns = [{
+    creeps: 1,
+    role: 'squadsiege'
+  }, {
+    creeps: 3,
+    role: 'squadheal'
+  }];
+  this.addToQueue(siegeSpawns, roomNameFrom, roomNameAttack, name);
 
-  Game.rooms[roomNameFrom].memory.queue.push({
-    role: 'squadsiege',
-    routing: {
-      targetRoom: roomNameAttack
-    },
-    squad: name
-  });
-  Game.rooms[roomNameFrom].memory.queue.push({
-    role: 'squadheal',
-    routing: {
-      targetRoom: roomNameAttack
-    },
-    squad: name
-  });
-  Game.rooms[roomNameFrom].memory.queue.push({
-    role: 'squadheal',
-    routing: {
-      targetRoom: roomNameAttack
-    },
-    squad: name
-  });
-  Game.rooms[roomNameFrom].memory.queue.push({
-    role: 'squadheal',
-    routing: {
-      targetRoom: roomNameAttack
-    },
-    squad: name
-  });
-  let squad = {
+  Memory.squads[name] = {
     born: Game.time,
     target: roomNameAttack,
     from: roomNameFrom,
@@ -146,5 +167,49 @@ brain.startSquad = function(roomNameFrom, roomNameAttack) {
     action: 'move',
     moveTarget: target
   };
-  Memory.squads[name] = squad;
+};
+
+/**
+ * brain.startMeleeSquad use to clean rooms from invaders and players
+ *
+ * @param {String} roomNameFrom
+ * @param {String} roomNameAttack
+ * @param {Array} [spawns]
+ */
+brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
+  let name = 'meleesquad-' + Math.random();
+  let route = Game.map.findRoute(roomNameFrom, roomNameAttack);
+  let target = roomNameFrom;
+  if (route.length > 1) {
+    target = route[route.length - 2].room;
+  }
+  Memory.squads = Memory.squads || {};
+  // TODO check for queue length
+  let meleeSpawn = [{
+    creeps: 1,
+    role: 'autoattackmelee'
+  }, {
+    creeps: 1,
+    role: 'squadheal'
+  }, {
+    creeps: 2,
+    role: 'autoattackmelee'
+  }, {
+    creeps: 2,
+    role: 'squadheal'
+  }];
+
+  spawns = spawns || meleeSpawn;
+  this.addToQueue(spawns, roomNameFrom, roomNameAttack, name);
+
+  Memory.squads[name] = {
+    born: Game.time,
+    target: roomNameAttack,
+    from: roomNameFrom,
+    autoattackmelee: {},
+    heal: {},
+    route: route,
+    action: 'move',
+    moveTarget: target
+  };
 };

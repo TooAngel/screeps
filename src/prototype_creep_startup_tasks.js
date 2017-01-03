@@ -247,7 +247,7 @@ Creep.prototype.repairStructure = function() {
       if (this.fatigue === 0) {
         range = this.pos.getRangeTo(to_repair);
         if (range <= 3) {
-          this.moveRandom();
+          this.moveRandomWithin(to_repair);
         } else {
           let search = PathFinder.search(
             this.pos, {
@@ -337,19 +337,24 @@ Creep.prototype.repairStructure = function() {
   });
 
   if (lowRamparts.length > 0) {
-    let search = PathFinder.search(
-      this.pos, {
-        pos: lowRamparts[0].pos,
-        range: 3
-      }, {
-        roomCallback: this.room.getAvoids(this.room, {}, true),
-        maxRooms: 0
-      }
-    );
-    //     this.log('LowRampart: ' + lowRamparts[0].pos + ' search: ' + JSON.stringify(search));
-    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
-    this.repair(lowRamparts[0]);
-    this.moveRandom();
+    let lowRampart = lowRamparts[0];
+    let range = this.pos.getRangeTo(lowRampart);
+    if (range <= 3) {
+      this.repair(lowRampart);
+      this.moveRandomWithin(lowRampart);
+    } else {
+      let search = PathFinder.search(
+        this.pos, {
+          pos: lowRampart.pos,
+          range: 3
+        }, {
+          roomCallback: this.room.getAvoids(this.room, {}, true),
+          maxRooms: 0
+        }
+      );
+      //     this.log('LowRampart: ' + lowRamparts[0].pos + ' search: ' + JSON.stringify(search));
+      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+    }
     return true;
   }
 
