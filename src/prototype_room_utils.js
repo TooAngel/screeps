@@ -1,5 +1,44 @@
 'use strict';
 
+Room.prototype.sortMyRoomsByLinearDistance = function(target) {
+  let sortByLinearDistance = function(object) {
+    return Game.map.getRoomLinearDistance(target, object);
+  };
+
+  return _.sortBy(Memory.myRooms, sortByLinearDistance);
+};
+
+Room.prototype.closestSpawn = function(target) {
+  let pathLength = {};
+  let roomsMy = this.sortMyRoomsByLinearDistance(target);
+
+  for (let room of roomsMy) {
+    let route = Game.map.findRoute(room, target);
+    let routeLength = global.utils.returnLength(route);
+
+    if (route && routeLength) {
+      //TODO @TooAngel please review: save found route from target to myRoom Spawn by shortest route!
+      //Memory.rooms[room].routing = Memory.rooms[room].routing || {};
+      //Memory.rooms[room].routing[room + '-' + target] = Memory.rooms[room].routing[room + '-' + target] || {
+      //    path: room + '-' + route,
+      //    created: Game.time,
+      //    fixed: false,
+      //    name: room + '-' + target,
+      //    category: 'moveToByClosestSpawn'
+      //  };
+
+      pathLength[room] = {
+        room: room,
+        route: route,
+        length: routeLength
+      };
+    }
+  }
+
+  let shortest = _.sortBy(pathLength, global.utils.returnLength);
+  return _.first(shortest).room;
+};
+
 Room.prototype.getEnergyCapacityAvailable = function() {
   let offset = 0;
   if (this.memory.misplacedSpawn && this.controller.level == 4) {
@@ -64,10 +103,10 @@ Room.prototype.checkAndSpawnSourcer = function() {
 };
 
 Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
-  if (!targetRoom) {
+  if (targetRoom === undefined) {
     targetRoom = this.name;
   }
-  if (!amount) {
+  if (amount === undefined) {
     amount = 1;
   }
 
@@ -84,16 +123,19 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
   }
 
   let creeps = this.find(FIND_MY_CREEPS, {
-    filter: function(object) {
-      if (targetId) {
-        if (!object.memory.routing || targetId != object.memory.routing.targetId) {
-          return false;
-        }
-      }
-      if (!object.memory.routing || targetRoom != object.memory.routing.targetRoom) {
+    filter: (creep) => {
+      if (creep.memory.routing === undefined) {
         return false;
       }
-      return object.memory.role == role;
+      if (targetId !== undefined &&
+          targetId !== creep.memory.routing.targetId) {
+        return false;
+      }
+      if (targetRoom !== undefined &&
+          targetRoom !== creep.memory.routing.targetRoom) {
+        return false;
+      }
+      return creep.memory.role == role;
     }
   });
 

@@ -1,4 +1,10 @@
-module.exports = function (grunt) {
+module.exports = function(grunt) {
+  var account;
+  try {
+    account = require('account.screeps.com');
+  } catch (e) {
+    account = {email: false, password: false};
+  }
 
   require('load-grunt-tasks')(grunt);
 
@@ -322,7 +328,7 @@ module.exports = function (grunt) {
   grunt.registerTask('local', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
   grunt.registerTask('test', ['jshint', 'jscs']);
   grunt.registerTask('dev', ['jshint', 'jsbeautifier', 'jscs']);
-  grunt.registerTask('requireFile', 'Creates an empty file', function () {
+  grunt.registerTask('requireFile', 'Creates an empty file', function() {
     grunt.file.write('dist/autoload.js', '');
   });
 
