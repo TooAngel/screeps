@@ -1,14 +1,6 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
-  grunt.loadNpmTasks('grunt-screeps');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks("grunt-jsbeautifier");
-  grunt.loadNpmTasks('grunt-mocha-test');
-  grunt.loadNpmTasks("grunt-jscs");
-  grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-sync');
-  grunt.loadNpmTasks('grunt-contrib-clean');
+  require('load-grunt-tasks')(grunt);
 
   grunt.initConfig({
     screeps: {
@@ -120,7 +112,7 @@ module.exports = function(grunt) {
             '!config_room_wallsetter.js',
             '!config_string.js'
           ],
-          dest: 'dist/',
+          dest: 'dist/'
         }, {
           expand: true,
           cwd: 'node_modules/screeps-profiler',
@@ -167,7 +159,7 @@ module.exports = function(grunt) {
             'config_room_wallsetter.js',
             'config_string.js'
           ],
-          dest: 'dist/',
+          dest: 'dist/'
         }]
       },
       profiler: {
@@ -177,7 +169,7 @@ module.exports = function(grunt) {
           src: [
             'screeps-profiler.js'
           ],
-          dest: 'dist/',
+          dest: 'dist/'
         }]
       }
     },
@@ -188,7 +180,7 @@ module.exports = function(grunt) {
         updateAndDelete: true,
         verbose: true,
         compareUsing: "md5"
-      },
+      }
     }
   });
 
@@ -197,7 +189,7 @@ module.exports = function(grunt) {
   grunt.registerTask('local', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
   grunt.registerTask('test', ['jshint', 'jscs']);
   grunt.registerTask('dev', ['jshint', 'jsbeautifier', 'jscs']);
-  grunt.registerTask('requireFile', 'Creates an empty file', function() {
+  grunt.registerTask('requireFile', 'Creates an empty file', function () {
     grunt.file.write('dist/autoload.js', '');
   });
 
