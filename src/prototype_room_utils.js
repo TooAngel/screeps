@@ -204,7 +204,7 @@ Room.prototype.getPartConfig = function(datas) {
   return parts;
 };
 
-Room.prototype.pathToString = function(path) {
+Room.pathToString = function(path) {
   if (!config.performance.serializePath) {
     return path;
   }
@@ -225,7 +225,7 @@ Room.prototype.pathToString = function(path) {
   return result;
 };
 
-Room.prototype.stringToPath = function(string) {
+Room.stringToPath = function(string) {
   if (!config.performance.serializePath) {
     return string;
   }
