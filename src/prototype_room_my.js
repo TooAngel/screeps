@@ -452,7 +452,10 @@ Room.prototype.executeRoom = function() {
       creepsConfig.splice(creep_index, 1);
     }
   }
-  this.spawnCheckForCreate(creepsConfig);
+  if (creepsConfig) {
+    this.spawnCheckForCreate(creepsConfig);
+  }
+
 
   this.handleMarket();
   return true;

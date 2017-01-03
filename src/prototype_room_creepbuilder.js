@@ -60,7 +60,7 @@ Room.prototype.spawnCheckForCreate = function({role: creepsConfig}) {
   var energyNeeded;
   var unit;
 
-  if (this.memory.queue && (creepsConfig.length === 0 || creepsConfig[0] != 'harvester')) {
+  if (this.memory.queue.length > 0 && (creepsConfig.length === 0 || creepsConfig[0] != 'harvester')) {
     let room = this;
     let priorityQueue = function(object) {
       if (object.role == 'harvester') {
