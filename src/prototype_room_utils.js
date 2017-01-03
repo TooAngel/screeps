@@ -133,28 +133,39 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
   this.memory.queue.push(creepMemory);
 };
 
+Room.prototype.checkParts = function(parts, actualCost, energy) {
+  if (!parts) { return; }
+  parts.foreach(
+    function(p) {
+      actualCost += BODYPART_COST[parts[p]];
+      if (actualCost > energy) { return; }
+    }
+  );
+  return actualCost;
+};
+
 Room.prototype.getPartConfig = function(datas) {
 
   let layout = datas.layout;
   let amount = datas.amount;
   let minEnergyStored = datas.minEnergyStored;
   let maxEnergyUsed = datas.maxEnergyUsed;
-  let bonusParts = datas.bonusParts;
+  let prefixParts = datas.prefixParts;
+  let sufixParts = datas.sufixParts;
   let energyAvailable = this.energyAvailable;
   let parts = []; let cost = 0;
 
   if (minEnergyStored < energyAvailable) {return;}
   if (maxEnergyUsed < energyAvailable) {energyAvailable = maxEnergyUsed;}
 
-  if (bonusParts) {
-    bonusParts.foreach(
-      function(p) {
-        cost += BODYPART_COST[bonusParts[p]];
-        if (cost < energyAvailable) {
-          parts.push(bonusParts[p]);
-        } else {return;}
-      }
-    );
+  if (prefixParts) {
+    let newCost = this.checkParts(prefixParts, 0, energyAvailable);
+    if (newCost) {
+      cost = newCost;
+      parts.concat(prefixParts);
+    } else {
+      return;
+    }
   }
   if (amount) { // if size is defined
     let pushAll = function(element, index, array) {

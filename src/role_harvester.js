@@ -26,7 +26,7 @@ roles.harvester.getPartConfig = function(room) {
     minEnergyStored: 250};
   let check = (room.storage && room.storage.my &&
     room.storage.store.energy > config.creep.energyFromStorageThreshold);
-  if (check) { datas.bonusParts = [WORK, MOVE]; }
+  if (check) { datas.prefixParts = [WORK, MOVE]; }
   return room.getPartConfig(datas);
 };
 
