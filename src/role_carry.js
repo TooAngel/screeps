@@ -17,7 +17,7 @@ roles.carry.boostActions = ['capacity'];
 
 roles.carry.getPartConfig = function(room) {
   let datas = {layout: [MOVE, CARRY, CARRY],
-    prefixParts: [WORK,MOVE],
+    sufixParts: [WORK,MOVE],
     maxEnergyUsed: room.controller.level * config.carry.size,
     minEnergyStored: 250};
   return room.getPartConfig(datas);
