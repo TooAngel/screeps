@@ -225,7 +225,7 @@ Room.prototype.pathToString = function(path) {
   return result;
 };
 
-Room.stringToPath = function(string) {
+Room.prototype.stringToPath = function(string) {
   if (!config.performance.serializePath) {
     return string;
   }
