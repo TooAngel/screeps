@@ -228,6 +228,39 @@ module.exports = function(grunt) {
             'src/main.js'
           ]
         }
+      },
+      main: {
+        files: {
+          'default/main.js': 'build/latest.es5.js'
+        },
+        options: {
+          preserveComments: false
+        }
+      }
+    },
+    concat: {
+      options: {
+        separator: ';\n',
+        banner: '\'use strict\';\n',
+        process: function (src, filepath) {
+          return '// Source: ' + filepath + '\n' +
+            src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1');
+        },
+        stripBanners: true
+      },
+      version: {
+        src: ['build/prepare.js', 'dist/main.js'],
+        dest: 'build/version-<%= pkg.name %>-<%= pkg.version %>.js',
+        nonull: true
+      },
+      build: {
+        src: ['build/*.js', '!build/main.js', '!build/screeps-profiler.js'],
+        dest: 'build/prepare.js'
+      },
+      main: {
+        src: ['build/prepare.js', 'build/main.js'],
+        dest: 'default/main.js',
+        nonull: true
       }
     },
     copy: {
@@ -321,7 +354,7 @@ module.exports = function(grunt) {
   });
 
   // FOR PRIVATE (old or not updated servers) SERVERS
-
+  //grunt.registerTask('private', ['requireFiles', 'jsbeautifier', 'jscs', 'clean', 'copy:build', 'concat:build', 'concat:main']);
 
   grunt.registerTask('default', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
   grunt.registerTask('release', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
