@@ -57,6 +57,12 @@ Pull Request rule:
 Prefix `[WIP]` in the PR title means, have a look if you like, but not ready to
 merge.
 
+[Issues](https://github.com/TooAngel/screeps/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
+with label 'enhancement' exist, which are open for discussion
+and implementation. The description will reflect the latest status of the
+discussion and should end up in the documentation, when finishing the
+implementation.
+
 ## Upload
 ### install dependencies
 
