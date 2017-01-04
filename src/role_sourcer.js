@@ -20,27 +20,17 @@ roles.sourcer.killPrevious = true;
 roles.sourcer.flee = false;
 
 roles.sourcer.getPartConfig = function(room, creep) {
-  let datasTest = {};
+  let datas = {};
   let i = 0;
   let remplace = function(data, name) {
-    if (data[i]) { datasTest[name] = data[i]; }
+    if (data[i]) { datas[name] = data[i]; }
   };
   let configs = config[creep.role];
   while (i < _.get(room, configs.param, 1)) {
     i += configs.step || 1;
     _.forEach(configs.setup, remplace);
   }
-  //console.log(JSON.stringify(datasTest));
-  let datas = {prefixParts: [MOVE,CARRY,WORK],
-    layout: [WORK, HEAL],
-    amount: [4,1],
-    minEnergyStored: 200};
-  if (room.controller.level > 4) {
-    datas.layout = [WORK,MOVE];
-    datas.sufixParts = [HEAL];
-    datas.maxEnergyUsed = 1000;
-    delete datas.amount;
-  }
+  //console.log(JSON.stringify(datas));
   return room.getPartConfig(datas);
 };
 
