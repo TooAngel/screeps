@@ -25,12 +25,12 @@ roles.sourcer.getPartConfig = function(room, creep) {
   let remplace = function(data, name) {
     if (data[i]) { datasTest[name] = data[i]; }
   };
-  while (i < _.get(room, global.config.sourcer.param, 1)) {
-    i += global.config.sourcer.step || 1;
-    _.forEach(global.config.sourcer.setup, remplace);
+  let configs = config[creep.role];
+  while (i < _.get(room, configs.param, 1)) {
+    i += configs.step || 1;
+    _.forEach(configs.setup, remplace);
   }
   //console.log(JSON.stringify(datasTest));
-
   let datas = {prefixParts: [MOVE,CARRY,WORK],
     layout: [WORK, HEAL],
     amount: [4,1],
