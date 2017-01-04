@@ -252,9 +252,11 @@ Room.prototype.checkAndSpawnReserver = function() {
   }
 
   if (this.checkBlockedPath()) {
-    this.log('Call structurer from ' + baseRoom.name);
-    Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, this.name);
-    return;
+    if (Game.time % config.creep.structurerInterval === 0) {
+      this.log('Call structurer from ' + baseRoom.name);
+      Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, this.name);
+      return;
+    }
   }
 
   let reserverSpawn = {
