@@ -206,7 +206,7 @@ Room.prototype.getPartConfig = function(datas) {
   if (amount) { // if size is defined
     let pushAll = function(element, index, array) {
       for (let i = 0; i < element; i++) {
-        parts = parts.push(layout[index]);
+        parts.push(layout[index]);
         cost += BODYPART_COST[layout[index]];
       }
     };
@@ -224,7 +224,7 @@ Room.prototype.getPartConfig = function(datas) {
       part = layout[j - 1];
       layoutCost += BODYPART_COST[part];
       if (cost + layoutCost <= energyAvailable) {
-        layoutParts = layoutParts.push(part);
+        layoutParts.push(part);
       } else {
         halt = true;
       }
