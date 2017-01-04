@@ -32,16 +32,24 @@ global.config.sourcer = {
 };
 global.config.upgrader = {
   //TODO found how to mix that with storage check
-  //sameRoomPriority: 2,
-  //otherRoomPriority: 8,
   param: 'controller.level',
   step: 1,
   setup: {
     prefixParts: {1: [MOVE,CARRY,WORK]},
     layout: {1: [MOVE,WORK,WORK], 4: [WORK]},
-    amount: {},
-    sufixParts: {},
     minEnergyStored: {1: 200, 4: 1000},
     maxEnergyUsed: {1: 350}
+  }
+};
+global.config.harvester = {
+  param: 'storage.store.energy',
+  step: config.creep.energyFromStorageThreshold,
+  sameRoomPriority: 1,
+  otherRoomPriority: 1,
+  setup: {
+    layout: {1: [MOVE,MOVE,WORK,CARRY]},
+    sufixParts: {2: [WORK, MOVE]},
+    minEnergyStored: {1: 250},
+    maxEnergyUsed: {1: 1500}
   }
 };
