@@ -1,4 +1,5 @@
 require('config');
+require('config_roles');
 require('logging');
 require('utils');
 require('config_brain_memory');
