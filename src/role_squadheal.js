@@ -75,7 +75,7 @@ roles.squadheal.preMove = function(creep, directions) {
     let reverse = false;
     if (squad.action == 'move') {
       if (creep.room.name == squad.moveTarget) {
-        let nextExits = creep.room.find(creep.memory.route[creep.memory.routePos].exit);
+        let nextExits = creep.room.find(creep.memory.routing.route[creep.memory.routing.routePos].exit);
         let nextExit = nextExits[Math.floor(nextExits.length / 2)];
         let range = creep.pos.getRangeTo(nextExit.x, nextExit.y);
         if (range < 4) {
