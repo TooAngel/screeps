@@ -195,6 +195,10 @@ Room.prototype.getPartConfig = function(datas) {
   //console.log('prefix : ', prefixParts, '--layout : ', layout, '--minEnergy : ',
   // minEnergyStored, '--maxEnergy : ', maxEnergyUsed);
 
+  let maxBodyLength = 50;
+  if (prefixParts) { maxBodyLength -= prefixParts.length; }
+  if (sufixParts) { maxBodyLength -= sufixParts.length; }
+
   if (minEnergyStored && minEnergyStored > energyAvailable) {return;}
   if (maxEnergyUsed && maxEnergyUsed < energyAvailable) {energyAvailable = maxEnergyUsed;}
 
@@ -217,9 +221,9 @@ Room.prototype.getPartConfig = function(datas) {
     let i = 1; let j = 1;
     let layoutCost; let layoutParts; let part;
 
-    while (!halt && parts.length + j <= 50) {
+    while (!halt && parts.length + j <= maxBodyLength) {
       layoutCost = 0; layoutParts = [];
-      while (!halt && j <= layout.length && parts.length + j < 50) {
+      while (!halt && j <= layout.length && parts.length + j < maxBodyLength) {
         part = layout[j - 1];
         layoutCost += BODYPART_COST[part];
         if (cost + layoutCost <= energyAvailable) {
@@ -241,9 +245,10 @@ Room.prototype.getPartConfig = function(datas) {
     let newCost = this.checkParts(sufixParts, cost, energyAvailable);
     if (newCost) {
       cost = newCost;
-      parts = parts.concat(prefixParts);
+      parts = parts.concat(sufixParts);
     }
   }
+  //console.log('cost: ', cost,'- - -length: ', parts.length, '- - -', parts, '- - -last: ', parts[parts.length - 1]);
   parts = _.sortBy(parts, function(p) {
     let order = _.indexOf(layout, p) + 1;
     if (order) {
