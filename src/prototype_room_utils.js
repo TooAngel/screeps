@@ -249,7 +249,12 @@ Room.prototype.getPartConfig = function(datas) {
     }
   }
   parts = _.sortBy(parts, function(p) {
-    return _.indexOf(layout, p) + 1;
+    let order = _.indexOf(layout, p) + 1;
+    if (order) {
+      return order;
+    } else {
+      return layout.length;
+    }
   });
   return parts;
 };
