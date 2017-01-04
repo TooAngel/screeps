@@ -20,6 +20,17 @@ roles.sourcer.killPrevious = true;
 roles.sourcer.flee = false;
 
 roles.sourcer.getPartConfig = function(room, creep) {
+  let datasTest = {};
+  let remplace = function(data, name) {
+    if (data.i) {
+      datasTest.name = data.i;
+    }
+  };
+  for (let i = 1; i <= room.controller.level; i++) {
+    _.forEach(global.config.sourcer.setup, remplace);
+  }
+  //console.log(datasTest);
+
   let datas = {prefixParts: [MOVE,CARRY,WORK],
     layout: [WORK, HEAL],
     amount: [4,1],
