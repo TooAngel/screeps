@@ -197,8 +197,8 @@ Creep.prototype.getEnergyFromStorage = function() {
       return true;
     }
     let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
-    if (returnCode != OK) {
-      this.log(`getEnergyFromStorage: ${returnCode}`);
+    if (returnCode != OK && returnCode != ERR_TIRED) {
+      // this.log(`getEnergyFromStorage: ${returnCode}`);
     }
   }
   return true;

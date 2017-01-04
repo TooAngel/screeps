@@ -69,7 +69,7 @@ roles.scoutnextroom.execute = function(creep) {
       }
       var sources = creep.room.find(FIND_SOURCES);
       if (sources.length < 2) {
-        creep.log('Not enought sources');
+        creep.log('Not enough sources');
         return false;
       }
 

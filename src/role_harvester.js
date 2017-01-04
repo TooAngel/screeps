@@ -97,8 +97,6 @@ roles.harvester.action = function(creep) {
     return true;
   }
 
-  creep.log((creep.room.storage.store.energy + creep.carry.energy) + ' ' + config.creep.energyFromStorageThreshold);
-
   creep.memory.move_forward_direction = false;
   creep.memory.routing.reverse = true;
   delete creep.memory.routing.reached;
