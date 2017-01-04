@@ -1,6 +1,13 @@
 'use strict';
 
 Room.prototype.spawnCreateCreep = function(creep) {
+  var spawns = this.find(FIND_MY_SPAWNS);
+  spawns.forEach(s => {
+    if (s.spawning) {
+      spawns.shift();
+    }
+  });
+  if (spawns.length === 0) {return;}
   let role = creep.role;
   let unit = roles[role];
   if (!unit) {
