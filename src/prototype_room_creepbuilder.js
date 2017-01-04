@@ -18,7 +18,7 @@ Room.prototype.spawnCreateCreep = function(creep) {
   var id = Math.floor((Math.random() * 1000) + 1);
   var name = role + '-' + id;
   //console.log(this.name,'--->',role);
-  var partConfig = unit.getPartConfig(this, creep);
+  var partConfig = this.getPartConfig(creep);
   if (!partConfig) {
     return;
   }
