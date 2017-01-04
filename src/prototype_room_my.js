@@ -471,7 +471,6 @@ Room.prototype.reviveRoom = function() {
     return false;
   } else if (this.controller.level > 1 && nextRoomers >= config.nextRoom.numberOfNextroomers) {
     console.log('Enough nextroomers');
-    this.memory.active = false;
     return false;
   }
 
