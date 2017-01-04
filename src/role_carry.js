@@ -180,7 +180,7 @@ roles.carry.energyBuild = function(room, energy) {
 };
 
 roles.carry.execute = function(creep) {
-  creep.log('Execute!!!');
+  // creep.log('Execute!!!');
   let target = Game.getObjectById(creep.memory.routing.targetId);
   if (target === null) {
     delete creep.memory.routing.targetId;
