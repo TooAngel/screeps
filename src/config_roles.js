@@ -17,11 +17,12 @@ global.config.priorityQueue = {
 };
 // Work On Progress
 global.config.sourcer.setup = {
-  prefixParts: [MOVE,CARRY,WORK],
-  layout: [WORK,HEAL],
-  amount: [4,1],
-  sufixParts: undefined,
-  minEnergyStored: 200,
+  prefixParts: {1: [MOVE,CARRY,WORK]},
+  layout: {1: [WORK,HEAL], 4: [WORK,MOVE]},
+  amount: {1: [4,1], 4: []},
+  sufixParts: {4: [HEAL]},
+  minEnergyStored: {1: 200},
+  maxEnergyUsed: {4: 1000},
   sameRoomPriority: 2,
   otherRoomPriority: 8
 };
