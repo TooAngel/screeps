@@ -201,7 +201,8 @@ Room.prototype.getSettings = function(creep) {
       previousKey = k;
     });
   };
-  let Settings = parts.concat(energy);
+  let Settings = parts;
+  energy.forEach(e=>Settings.push(e));
   Settings.forEach((element,settingName) => {
       let i = 0; let key;
       while (!element.isArray() && !element.isNumber() && i < settings.param.length) {
@@ -211,9 +212,8 @@ Room.prototype.getSettings = function(creep) {
 
       datas[settingName] = element;
     });
+  console.log(JSON.stringify(datas));
   return datas;
-
-  //console.log(JSON.stringify(datas));
 };
 
 Room.prototype.getPartConfig = function(creep) {
