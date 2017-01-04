@@ -17,7 +17,7 @@ global.config = {
     enabled: false,
   },
   visualizer: {
-    enabled: true,
+    enabled: false,
     showRoomPaths: true,
     showCreepPaths: true,
     refresh: true,

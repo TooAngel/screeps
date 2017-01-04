@@ -1,6 +1,8 @@
 'use strict';
 
-var visualizer = {};
+var visualizer = {
+  render: function() { }
+};
 
 require('require');
 require('prototype_creep_startup_tasks');
@@ -20,9 +22,7 @@ if (config.profiler.enabled) {
   }
 }
 
-
-
-var main = function () {
+var main = function() {
   if (Game.cpu.bucket < Game.cpu.tickLimit * 2) {
     console.log('Skipping tick ' + Game.time + ' due to lack of CPU.');
     return;
@@ -38,9 +38,9 @@ var main = function () {
   }
 };
 
-module.exports.loop = function () {
+module.exports.loop = function() {
   if (config.profiler.enabled) {
-    profiler.wrap(function () {
+    profiler.wrap(function() {
       main();
     });
   } else {
