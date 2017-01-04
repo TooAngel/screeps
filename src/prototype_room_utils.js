@@ -198,19 +198,15 @@ Room.prototype.getPartConfig = function(datas) {
   if (minEnergyStored && minEnergyStored > energyAvailable) {return;}
   if (maxEnergyUsed && maxEnergyUsed < energyAvailable) {energyAvailable = maxEnergyUsed;}
 
-  if (prefixParts) {
-    let newCost = this.checkParts(prefixParts, 0, energyAvailable);
-    if (newCost) {
-      cost = newCost;
-      parts.concat(prefixParts);
-    } else {
-      return;
-    }
+  let prefixCost = this.checkParts(prefixParts, 0, energyAvailable);
+  if (prefixCost) {
+    cost = prefixCost;
+    parts = prefixParts;
   }
   if (amount) { // if size is defined
     let pushAll = function(element, index, array) {
       for (let i = 0; i < element; i++) {
-        parts.push(layout[index]);
+        parts = parts.push(layout[index]);
         cost += BODYPART_COST[layout[index]];
       }
     };
@@ -228,7 +224,7 @@ Room.prototype.getPartConfig = function(datas) {
       part = layout[j - 1];
       layoutCost += BODYPART_COST[part];
       if (cost + layoutCost <= energyAvailable) {
-        layoutParts.push(part);
+        layoutParts = layoutParts.push(part);
       } else {
         halt = true;
       }
@@ -245,7 +241,7 @@ Room.prototype.getPartConfig = function(datas) {
     let newCost = this.checkParts(sufixParts, cost, energyAvailable);
     if (newCost) {
       cost = newCost;
-      parts.concat(prefixParts);
+      parts = parts.concat(prefixParts);
     }
   }
   parts = _.sortBy(parts, function(p) {
