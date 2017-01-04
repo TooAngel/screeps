@@ -102,7 +102,7 @@ Room.prototype.checkAndSpawnSourcer = function() {
   }
 };
 
-Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
+Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, level) {
   if (targetRoom === undefined) {
     targetRoom = this.name;
   }
@@ -112,6 +112,7 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
 
   let creepMemory = {
     role: role,
+    level: level,
     routing: {
       targetRoom: targetRoom,
       targetId: targetId
@@ -122,25 +123,26 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
     return false;
   }
 
-  let creeps = this.find(FIND_MY_CREEPS, {
-    filter: (creep) => {
-      if (creep.memory.routing === undefined) {
-        return false;
-      }
-      if (targetId !== undefined &&
+  if (targetRoom === this.name) {
+    let creeps = this.find(FIND_MY_CREEPS, {
+      filter: (creep) => {
+        if (creep.memory.routing === undefined) {
+          return false;
+        }
+        if (targetId !== undefined &&
           targetId !== creep.memory.routing.targetId) {
-        return false;
-      }
-      if (targetRoom !== undefined &&
+          return false;
+        }
+        if (targetRoom !== undefined &&
           targetRoom !== creep.memory.routing.targetRoom) {
-        return false;
+          return false;
+        }
+        return creep.memory.role == role;
       }
-      return creep.memory.role == role;
+    });
+    if (creeps.length >= amount) {
+      return false;
     }
-  });
-
-  if (creeps.length >= amount) {
-    return false;
   }
 
   let spawns = this.find(FIND_MY_STRUCTURES, {

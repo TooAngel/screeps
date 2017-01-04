@@ -3,7 +3,10 @@ module.exports = function(grunt) {
   try {
     account = require('account.screeps.com');
   } catch (e) {
-    account = {email: false, password: false};
+    account = {
+      email: false,
+      password: false
+    };
   }
 
 
@@ -61,6 +64,7 @@ module.exports = function(grunt) {
         files: {
           'dist/main.js': [
             'src/config.js',
+            'src/config_local.js',
             'src/config_logging.js',
             'src/config_brain_memory.js',
             'src/config_brain_nextroom.js',
