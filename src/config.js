@@ -26,7 +26,8 @@ global.config = {
   },
 
   info: {
-    signController: true
+    signController: true,
+    signText: 'Fully automated TooAngel bot: https://github.com/TooAngel/screeps',
   },
 
   // Due to newly introduces via global variable caching this can be removed

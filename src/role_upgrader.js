@@ -60,8 +60,7 @@ roles.upgrader.work = function(creep) {
 
 roles.upgrader.action = function(creep) {
   if (config.info.signController && !creep.room.controller.sign) {
-    let text = 'Fully automated TooAngel bot: https://github.com/TooAngel/screeps';
-    let returnCode = creep.signController(creep.room.controller, text);
+    let returnCode = creep.signController(creep.room.controller, config.info.signText);
     creep.log(returnCode);
   }
 
