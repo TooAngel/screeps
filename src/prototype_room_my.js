@@ -455,8 +455,6 @@ Room.prototype.executeRoom = function() {
   if (creepsConfig) {
     this.spawnCheckForCreate(creepsConfig);
   }
-
-
   this.handleMarket();
   return true;
 };
