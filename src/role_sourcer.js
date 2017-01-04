@@ -21,15 +21,14 @@ roles.sourcer.flee = false;
 
 roles.sourcer.getPartConfig = function(room, creep) {
   let datasTest = {};
+  let i = 1;
   let remplace = function(data, name) {
-    if (data.i) {
-      datasTest.name = data.i;
-    }
+    if (data[i]) { datasTest[name] = data[i]; }
   };
-  for (let i = 1; i <= room.controller.level; i++) {
-    _.forEach(global.config.sourcer.setup, remplace);
+  while (i <= room.controller.level) {
+    _.forEach(global.config.sourcer.setup, remplace); i++;
   }
-  //console.log(datasTest);
+  //console.log(JSON.stringify(datasTest));
 
   let datas = {prefixParts: [MOVE,CARRY,WORK],
     layout: [WORK, HEAL],
