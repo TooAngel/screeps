@@ -211,7 +211,7 @@ Room.prototype.getPartConfig = function(datas) {
         cost += BODYPART_COST[layout[index]];
       }
     };
-    amount.foreach(pushAll);
+    amount.forEach(pushAll);
   } else {
     let halt = false;
     let i = 1; let j = 1;
