@@ -15,7 +15,7 @@ global.config.priorityQueue = {
     sourcer:       8
   }
 };
-// Work On Progress
+//Sourcer work----------------
 global.config.sourcer = {
   sameRoomPriority: 2,
   otherRoomPriority: 8,
@@ -30,6 +30,8 @@ global.config.sourcer = {
     maxEnergyUsed: {4: 1000}
   }
 };
+
+// Work On Progress--------------
 global.config.upgrader = {
   //TODO found how to mix that with storage check
   param: 'controller.level',
