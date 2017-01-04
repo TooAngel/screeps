@@ -202,7 +202,9 @@ Room.prototype.getSettings = function(creep) {
     });
   };
   let Settings = parts;
-  energy.forEach(e=>Settings.push(e));
+  if (energy) {
+    Settings = Settings.concat(energy);
+  }
   Settings.forEach((element,settingName) => {
       let i = 0; let key;
       while (!element.isArray() && !element.isNumber() && i < settings.param.length) {
