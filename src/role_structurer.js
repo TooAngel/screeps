@@ -25,12 +25,25 @@ roles.structurer.getPartConfig = function(room, energy, heal) {
 
 roles.structurer.preMove = function(creep, directions) {
   if (creep.room.name == creep.memory.routing.targetRoom) {
-    creep.log('preMove: ' + creep.memory.routing.targetId);
     let target = Game.getObjectById(creep.memory.routing.targetId);
-    creep.log(target);
     if (target === null) {
       creep.log('Invalid target');
       delete creep.memory.routing.targetId;
+    }
+
+    let posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
+    let structures = posForward.lookFor(LOOK_STRUCTURES);
+    for (let structure of structures) {
+      if (structure.structureType == STRUCTURE_ROAD) {
+        continue;
+      }
+      if (structure.structureType == STRUCTURE_RAMPART && structure.my) {
+        continue;
+      }
+
+      creep.dismantle(structure);
+      creep.say('dismantle');
+      break;
     }
   }
 
