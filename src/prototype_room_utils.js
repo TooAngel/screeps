@@ -171,12 +171,11 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
   }
   this.memory.queue.push(creepMemory);
 };
-
 Room.prototype.checkParts = function(parts, actualCost, energy) {
   if (!parts) { return; }
-  parts.foreach(
+  parts.forEach(
     function(p) {
-      actualCost += BODYPART_COST[parts[p]];
+      actualCost += BODYPART_COST[p];
       if (actualCost > energy) { return; }
     }
   );
@@ -193,9 +192,11 @@ Room.prototype.getPartConfig = function(datas) {
   let sufixParts = datas.sufixParts;
   let energyAvailable = this.energyAvailable;
   let parts = []; let cost = 0;
+  console.log('prefix : ', prefixParts, '--layout : ', layout, '--minEnergy : ',
+   minEnergyStored, '--maxEnergy : ', maxEnergyUsed);
 
-  if (minEnergyStored < energyAvailable) {return;}
-  if (maxEnergyUsed < energyAvailable) {energyAvailable = maxEnergyUsed;}
+  if (minEnergyStored && minEnergyStored > energyAvailable) {return;}
+  if (maxEnergyUsed && maxEnergyUsed < energyAvailable) {energyAvailable = maxEnergyUsed;}
 
   if (prefixParts) {
     let newCost = this.checkParts(prefixParts, 0, energyAvailable);
@@ -220,6 +221,7 @@ Room.prototype.getPartConfig = function(datas) {
   let i = 1; let j = 1;
   let halt = false;
   let layoutCost; let layoutParts; let part;
+
   while (!halt && parts.length + j <= 50) {
     layoutCost = 0; layoutParts = [];
     while (!halt && j <= layout.length && parts.length + j < 50) {
@@ -227,14 +229,23 @@ Room.prototype.getPartConfig = function(datas) {
       layoutCost += BODYPART_COST[part];
       if (cost + layoutCost <= energyAvailable) {
         layoutParts.push(part);
-      } else if (i > 1) {
+      } else {
         halt = true;
-      } else { return; }
+      }
+      j++;
     }
+
     if (!halt) {
       cost += layoutCost;
       parts = parts.concat(layoutParts);
       j = 1; i++;
+    }
+  }
+  if (sufixParts & !halt) {
+    let newCost = this.checkParts(sufixParts, cost, energyAvailable);
+    if (newCost) {
+      cost = newCost;
+      parts.concat(prefixParts);
     }
   }
   parts = _.sortBy(parts, function(p) {
