@@ -16,6 +16,20 @@
  */
 
 roles.harvester = {};
+
+roles.harvester.settings = {
+  param: 'storage.store.energy',
+  step: config.creep.energyFromStorageThreshold,
+  parts: {
+    layout: {1: [MOVE,MOVE,WORK,CARRY]},
+    sufixParts: {2: [WORK, MOVE]}
+  },
+  energy: {
+    minEnergyStored: {1: 250},
+    maxEnergyUsed: {1: 1500}
+  }
+};
+
 roles.harvester.stayInRoom = true;
 roles.harvester.buildRoad = true;
 roles.harvester.boostActions = ['capacity'];

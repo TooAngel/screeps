@@ -13,42 +13,31 @@
 
 roles.sourcer = {};
 
+roles.sourcer.settings = {
+  param: 'controller.level',
+  step: 1,
+  parts: {
+    prefixParts: {1: [MOVE,CARRY,WORK]},
+    layout: {1: [WORK,HEAL], 4: [WORK,MOVE]},
+    amount: {1: [4,1], 4: []},
+    sufixParts: {4: [HEAL]}
+  },
+  energy: {
+    minEnergyStored: {1: 200},
+    maxEnergyUsed: {4: 1000}
+  }
+};
+
 roles.sourcer.buildRoad = true;
 roles.sourcer.killPrevious = true;
 
 // TODO should be true, but flee must be fixed before 2016-10-13
 roles.sourcer.flee = false;
 
-roles.sourcer.getPartConfig = function(room, creep) {
-  let datas = {};
-  let i = 0;
-  let configs = config[creep.role];
-
-  let iterate = function(id, dir) {
-    while (i < _.get(room, configs.param[id], 1)) {
-      i += configs.step[id] || 1;
-      //Must use 'configs.setup'+dir
-      remplace(id, dir);
-    }
-  };
-  let remplace = function(id, dir) {
-    _.forEach(configs.setup, function(data, name) {
-      if (!data[i].isArray()) {
-        datas[name] = data[i];
-      } else {
-        iterate(id + 1, dir + name);
-      }
-    });
-  };
-  iterate(0, '');
-  //console.log(JSON.stringify(datas));
-  return room.getPartConfig(datas);
-};
-
 roles.sourcer.preMove = function(creep, directions) {
   // Misplaced spawn
   if (creep.room.name == creep.memory.base && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
-    //    creep.say('smis', true);
+    //creep.say('smis', true);
     let targetId = creep.memory.routing.targetId;
 
     var source = creep.room.memory.position.creep[targetId];

@@ -181,8 +181,43 @@ Room.prototype.checkParts = function(parts, actualCost, energy) {
   );
   return actualCost;
 };
+Room.prototype.getSettings = function(creep) {
+  let datas = {};
+  let i = 0;
+  let settings = roles[creep.role].settings;
+  let parts = settings.parts;
+  let energy = settings.energy;
 
-Room.prototype.getPartConfig = function(datas) {
+  let getKey = function(part) {
+    let keys = Object.keys(part);
+    let value = _.get(this, settings.param[i], 1);
+    let previousKey = 0;
+    _.forEach(keys, function(k) {
+      if (value < k) {
+        return previousKey;
+      }
+      previousKey = k;
+    });
+  };
+
+  parts.forEach((part,name) => {
+      let i = 0;
+      let key;
+      while (i < settings.parm.length) {
+        key = getKey(part);
+        part = part[key];
+        i++;
+      }
+      datas[name] = part;
+    });
+  return datas;
+
+  //console.log(JSON.stringify(datas));
+};
+
+Room.prototype.getPartConfig = function(creep) {
+
+  let datas = this.getSettings(creep);
 
   let layout = datas.layout;
   let amount = datas.amount;
@@ -190,6 +225,7 @@ Room.prototype.getPartConfig = function(datas) {
   let maxEnergyUsed = datas.maxEnergyUsed;
   let prefixParts = datas.prefixParts;
   let sufixParts = datas.sufixParts;
+
   let energyAvailable = this.energyAvailable;
   let parts = []; let cost = 0;
   //console.log('prefix : ', prefixParts, '--layout : ', layout, '--minEnergy : ',

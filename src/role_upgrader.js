@@ -8,35 +8,26 @@
  */
 
 roles.upgrader = {};
-
+roles.upgrader.settings = {
+  //TODO found how to mix that with storage check
+  param: ['controller.level','storage.store.energy','memory.enemies.length'],
+  step: [1,50000],
+  parts: {
+    prefixParts: {1: [MOVE,CARRY,WORK]},
+    layout: {1: [MOVE,WORK,WORK], 4: [WORK]},
+    sufixParts: {4: {0: {1: [HEAL]}}}
+  },
+  energy: {
+    minEnergyStored: {1: 200, 4: 1000},
+    maxEnergyUsed: {1: 350, 7: {1: 350, 50000: 1950, 800000: 3900}}
+  }
+};
 roles.upgrader.stayInRoom = true;
 // TODO disabled because the upgrader took energy from the extension
 roles.upgrader.buildRoad = false;
 roles.upgrader.killPrevious = true;
 
 roles.upgrader.boostActions = ['upgradeController'];
-
-roles.upgrader.getPartConfig = function(room) {
-  let datas = {layout: [MOVE, WORK, WORK],
-    prefixParts: [MOVE, CARRY, WORK],
-    minEnergyStored: 200,
-    maxEnergyUsed: 350
-  };
-  if (room.controller.level >= 4) {
-    datas.layout = [WORK];
-    datas.minEnergyStored = 1000;
-    if (room.controller.level >= 7) {
-      if (room.storage) {
-        if (room.storage.store.energy > 50000) {
-          datas.maxEnergyUsed = 1950;
-        }else if (room.storage.store.energy > 800000) {
-          datas.maxEnergyUsed = 3900;
-        }
-      }
-    }
-  }
-  return room.getPartConfig(datas);
-};
 
 roles.upgrader.work = function(creep) {
   return creep.handleUpgrader();
