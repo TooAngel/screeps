@@ -10,7 +10,7 @@ Room.prototype.spawnCreateCreep = function(creep) {
 
   var id = Math.floor((Math.random() * 1000) + 1);
   var name = role + '-' + id;
-  console.log(role);
+  //console.log(role);
   var partConfig = unit.getPartConfig(this, creep);
   if (!partConfig) {
     return;
@@ -68,27 +68,39 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
   if (this.memory.queue.length > 0) {
     let room = this;
     let priorityQueue = function(object) {
-      if (object.role == 'harvester') { return 1; }
-      if (object.role == 'defendranged') { return 3; }
+      let priority = {
+        sameRoom: {
+          harvester:     1,
+          sourcer:       2,
+          storagefiller: 3,
+          defendranged:  3
+        },
+        otherRoom: {
+          harvester:     1,
+          defender:      2,
+          defendranged:  3,
+          nextroomer:    5,
+          reserver:      6,
+          carry:         7,
+          sourcer:       8
+        }
+      };
+      let ret = 0;
       let target = object.routing && object.routing.targetRoom;
+
       if (target === room.name) {
-        switch (object.role) {
-          case 'sourcer':       return 2;
-          case 'storagefiller': return 3;
-          default:              return 4;
-        }
-      } else {
-        switch (object.role) {
-          case 'carry':         return 5;
-          case 'sourcer':       return 6;
-          case 'reserver':      return 7;
-        }
-      }
-      if (object.role == 'nextroomer') { return 11; }
+        ret = priority.sameRoom[object.role];
+        if (!ret) { ret = 4;}
+
+      } else if (target) {
+        ret = priority.otherRoom[object.role];
+
+      } else { ret = 12; }
+
+      if (ret) {return ret;}
+
       // TODO added because target was misused as a pos object
-      if (!target) {
-        return 12;
-      }
+
       return 100 + Game.map.getRoomLinearDistance(room.name, target);
     };
 
