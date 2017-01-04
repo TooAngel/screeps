@@ -24,12 +24,12 @@ roles.sourcer.getPartConfig = function(room, creep) {
     layout: [WORK, HEAL],
     amount: [4,1],
     minEnergyStored: 200};
-  /**
-  if (creep.heal) {
-    datas.layout = datas.layout.concat([HEAL, MOVE, HEAL, MOVE, WORK, WORK, WORK,
-      WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE]);
+  if (room.controller.level > 4) {
+    datas.layout = [WORK,MOVE];
+    datas.sufixParts = [HEAL];
+    datas.maxEnergyUsed = 1000;
+    delete datas.amount;
   }
-  **/
   return room.getPartConfig(datas);
 };
 
