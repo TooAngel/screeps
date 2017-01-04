@@ -67,24 +67,10 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
 
   if (this.memory.queue.length > 0) {
     let room = this;
+
     let priorityQueue = function(object) {
-      let priority = {
-        sameRoom: {
-          harvester:     1,
-          sourcer:       2,
-          storagefiller: 3,
-          defendranged:  3
-        },
-        otherRoom: {
-          harvester:     1,
-          defender:      2,
-          defendranged:  3,
-          nextroomer:    5,
-          reserver:      6,
-          carry:         7,
-          sourcer:       8
-        }
-      };
+      let priority = config.priorityQueue;
+
       let ret = 0;
       let target = object.routing && object.routing.targetRoom;
 
