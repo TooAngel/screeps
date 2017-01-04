@@ -7,10 +7,9 @@
  */
 
 roles.powertransporter = {};
-roles.powertransporter.getPartConfig = function(room) {
-  let datas = {layout: [MOVE, CARRY],
-    maxEnergyUsed: 2000};
-  return room.getPartConfig(datas);
+roles.powertransporter.settings = {
+  parts: {layout: [MOVE, CARRY]},
+  energy: {maxEnergyUsed: 2000}
 };
 
 roles.powertransporter.action = function(creep) {

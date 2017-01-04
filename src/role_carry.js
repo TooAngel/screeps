@@ -15,12 +15,13 @@ roles.carry.flee = true;
 
 roles.carry.boostActions = ['capacity'];
 
-roles.carry.getPartConfig = function(room) {
-  let datas = {layout: [MOVE, CARRY, CARRY],
-    sufixParts: [WORK,MOVE],
-    maxEnergyUsed: room.controller.level * config.carry.size,
-    minEnergyStored: 250};
-  return room.getPartConfig(datas);
+roles.carry.settings = {
+  parts: {layout: [MOVE, CARRY, CARRY],
+    sufixParts: [WORK,MOVE]},
+  energy: {
+    // TODO maxEnergyUsed: room.controller.level * config.carry.size,
+    minEnergyStored: 250
+  }
 };
 
 roles.carry.preMove = function(creep, directions) {

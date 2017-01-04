@@ -8,12 +8,11 @@
  */
 
 roles.atkeepermelee = {};
-
-roles.atkeepermelee.getPartConfig = function(room) {
-  let datas = {
+roles.atkeepermelee.settings = {
+  parts: {
     layout: [MOVE,ATTACK,HEAL],
-    amount: [25,19,6]};
-  return room.getPartConfig(datas);
+    amount: [25,19,6]
+  }
 };
 
 roles.atkeepermelee.action = function(creep) {

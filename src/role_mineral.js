@@ -9,11 +9,12 @@
  */
 
 roles.mineral = {};
-roles.mineral.getPartConfig = function(room) {
-  let datas = {layout: [MOVE, CARRY],
+roles.mineral.settings = {
+  parts: {layout: [MOVE, CARRY]},
+  energy: {
     maxEnergyUsed: 1000,
-    minEnergyStored: 250};
-  return room.getPartConfig(datas);
+    minEnergyStored: 250
+  }
 };
 
 roles.mineral.action = function(creep) {

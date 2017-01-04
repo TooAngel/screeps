@@ -8,10 +8,9 @@
 
 roles.towerfiller = {};
 
-roles.towerfiller.getPartConfig = function(room) {
-  let datas = {layout: [MOVE, CARRY, CARRY, CARRY, CARRY],
-    minEnergyStored: 200};
-  return room.getPartConfig(datas);
+roles.towerfiller.settings = {
+  parts: {layout: [MOVE, CARRY, CARRY, CARRY, CARRY]},
+  energy: {minEnergyStored: 200}
 };
 
 roles.towerfiller.execute = function(creep) {

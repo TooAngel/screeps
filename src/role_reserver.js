@@ -12,6 +12,7 @@ roles.reserver.killPrevious = true;
 // TODO should be true, but flee must be fixed  (2016-10-13)
 roles.reserver.flee = false;
 
+//TODO convert this as setting
 roles.reserver.getPartConfig = function(room, creep) {
   let level = creep.level ? creep.level : 1;
   let datas = {layout: [MOVE, CLAIM],

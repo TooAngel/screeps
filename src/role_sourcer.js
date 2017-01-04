@@ -15,7 +15,6 @@ roles.sourcer = {};
 
 roles.sourcer.settings = {
   param: 'controller.level',
-  step: 1,
   parts: {
     prefixParts: {1: [MOVE,CARRY,WORK]},
     layout: {1: [WORK,HEAL], 4: [WORK,MOVE]},

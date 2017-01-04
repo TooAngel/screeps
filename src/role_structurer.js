@@ -11,11 +11,12 @@
 roles.structurer = {};
 roles.structurer.boostActions = ['dismantle'];
 
-roles.structurer.getPartConfig = function(room) {
-  let datas = {layout: [MOVE, WORK],
+roles.structurer.settings = {
+  parts: {layout: [MOVE, WORK]},
+  energy: {
     maxEnergyUsed: 3750,
-    minEnergyStored: 1500};
-  return room.getPartConfig(datas);
+    minEnergyStored: 1500
+  }
 };
 
 roles.structurer.preMove = function(creep, directions) {

@@ -21,11 +21,12 @@ roles.nextroomer.died = function(name, creepMemory) {
   console.log('DIED:', message);
 };
 
-roles.nextroomer.getPartConfig = function(room) {
-  let datas = {layout: [MOVE, MOVE, WORK, CARRY],
+roles.nextroomer.settings = {
+  parts: {layout: [MOVE, MOVE, WORK, CARRY]},
+  energy: {
     maxEnergyUsed: 3150,
-    minEnergyStored: 700};
-  return room.getPartConfig(datas);
+    minEnergyStored: 700
+  }
 };
 
 roles.nextroomer.checkForRampart = function(coords) {

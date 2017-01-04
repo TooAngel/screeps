@@ -18,17 +18,16 @@
 roles.harvester = {};
 
 roles.harvester.settings = {
-  param: 'storage.store.energy',
-  step: config.creep.energyFromStorageThreshold,
+  param: ['storage.store.energy'],
   parts: {
-    layout: {1: [MOVE,MOVE,WORK,CARRY]},
-    sufixParts: {2: [WORK, MOVE]}
+    layout: [MOVE,MOVE,WORK,CARRY]
   },
   energy: {
-    minEnergyStored: {1: 250},
-    maxEnergyUsed: {1: 1500}
+    minEnergyStored: 250,
+    maxEnergyUsed: 1500
   }
 };
+roles.harvester.settings.parts.sufixParts[config.creep.energyFromStorageThreshold] = [WORK, MOVE];
 
 roles.harvester.stayInRoom = true;
 roles.harvester.buildRoad = true;

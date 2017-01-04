@@ -8,11 +8,12 @@
 
 roles.nextroomerattack = {};
 
-roles.nextroomerattack.getPartConfig = function(room) {
-  let datas = {layout: [MOVE, ATTACK],
+roles.nextroomerattack.settings = {
+  parts: {layout: [MOVE, ATTACK]},
+  energy: {
     maxEnergyUsed: 3250,
-    minEnergyStored: 1000};
-  return room.getPartConfig(datas);
+    minEnergyStored: 1000
+  }
 };
 
 roles.nextroomerattack.died = function(name, memory) {

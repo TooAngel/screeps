@@ -204,10 +204,11 @@ Room.prototype.getSettings = function(creep) {
 
   parts.concat(energy).forEach((element,settingName) => {
       let i = 0; let key;
-      while (i < settings.parm.length) {
+      while (i < settings.param.length && !element.isArray() && !element.isNumber()) {
         key = getKey(element); element = element[key];
         i++;
       }
+
       datas[settingName] = element;
     });
   return datas;

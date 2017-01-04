@@ -8,10 +8,9 @@
 
 roles.powerdefender = {};
 
-roles.powerdefender.getPartConfig = function(room) {
-  let datas = {layout: [MOVE, RANGED_ATTACK],
-    maxEnergyUsed: 3250};
-  return room.getPartConfig(datas);
+roles.powerdefender.settings = {
+  parts: {layout: [MOVE, RANGED_ATTACK]},
+  energy: {maxEnergyUsed: 3250}
 };
 
 roles.powerdefender.action = function(creep) {

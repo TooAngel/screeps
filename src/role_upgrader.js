@@ -11,7 +11,6 @@ roles.upgrader = {};
 roles.upgrader.settings = {
   //TODO found how to mix that with storage check
   param: ['controller.level','storage.store.energy','memory.enemies.length'],
-  step: [1,50000],
   parts: {
     prefixParts: {1: [MOVE,CARRY,WORK]},
     layout: {1: [MOVE,WORK,WORK], 4: [WORK]},

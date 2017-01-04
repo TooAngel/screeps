@@ -8,11 +8,11 @@
 
 roles.autoattackmelee = {};
 
-roles.autoattackmelee.getPartConfig = function(room) {
-  let datas = {layout: [MOVE, ATTACK],
+roles.autoattackmelee.settings = {
+  parts: {layout: [MOVE, ATTACK]},
+  energy: {
     maxEnergyUsed: 3250,
-    minEnergyStored: 1000};
-  return room.getPartConfig(datas);
+    minEnergyStored: 1000}
 };
 
 roles.autoattackmelee.died = function(name, memory) {

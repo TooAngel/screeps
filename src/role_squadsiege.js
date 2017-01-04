@@ -8,10 +8,9 @@
 
 roles.squadsiege = {};
 
-roles.squadsiege.getPartConfig = function(room) {
-  let datas = {layout: [MOVE, WORK],
-    maxEnergyUsed: 3250};
-  return room.getPartConfig(datas);
+roles.squadsiege.settings = {
+  parts: {layout: [MOVE, WORK]},
+  energy: {maxEnergyUsed: 3250}
 };
 
 roles.squadsiege.preMove = function(creep, directions) {

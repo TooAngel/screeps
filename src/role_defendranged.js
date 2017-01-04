@@ -8,11 +8,12 @@
 
 roles.defendranged = {};
 
-roles.defendranged.getPartConfig = function(room) {
-  let datas = {layout: [MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK],
+roles.defendranged.settings = {
+  energy: {layout: [MOVE, RANGED_ATTACK]},
+  parts: {
     maxEnergyUsed: 600,
-    minEnergyStored: 200};
-  return room.getPartConfig(datas);
+    minEnergyStored: 200
+  }
 };
 
 // TODO This overwrites the target so redo and enable again
