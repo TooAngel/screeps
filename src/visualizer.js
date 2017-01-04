@@ -3,12 +3,13 @@
 var RawVisual = {
   commit: function() { }
 };
-
-try {
-  var Visual = require('visual');
-} catch (e) {
-  console.log('Visual not found, please disable config option or download visual.js from github project screeps-visual');
-  config.visualizer.enabled = false;
+if (config.visualizer.enabled) {
+  try {
+    var Visual = require('visual');
+  } catch (e) {
+    console.log('Visual not found, please disable config option or download visual.js from github project screeps-visual');
+    config.visualizer.enabled = false;
+  }
 }
 if (config.visualizer.enabled) {
   global.visualizer = {
