@@ -23,7 +23,7 @@ Room.prototype.spawnCreateCreep = function(creep) {
     return;
   }
   partConfig = partConfig.slice(0, MAX_CREEP_SIZE);
-  var spawns = this.find(FIND_MY_SPAWNS);
+  spawns = this.find(FIND_MY_SPAWNS);
 
   for (var spawn_name in spawns) {
     var spawn = spawns[spawn_name];
