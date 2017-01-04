@@ -190,36 +190,41 @@ Room.prototype.getSettings = function(creep) {
   let parts = settings.parts || {};
   let energy = settings.energy || {};
 
-  let getKey = function(part) {
+  let getKey = function(part, i) {
     let keys = Object.keys(part);
     let value = _.get(this, settings.param[i], 1);
     let previousKey = 0;
     _.forEach(keys, function(k) {
-      if (value < k) {
+      if (part[k] && value < k & previousKey !== 0) {
         return previousKey;
       }
       previousKey = k;
     });
+    return previousKey;
+
   };
   let Settings = parts;
   if (energy) {
-    Settings = Settings.concat(energy);
+    _.forEach(energy, (e,name) => Settings[name] = e);
   }
-  Settings.forEach((element,settingName) => {
+  _.forEach(Settings, (element,settingName) => {
       let i = 0; let key;
-      while (!element.isArray() && !element.isNumber() && i < settings.param.length) {
-        key = getKey(element); element = element[key];
+      while (!_.isArray(element) && !_.isNumber(element) && i < settings.param.length) {
+        key = getKey(element, i);
+        element = element[key];
         i++;
       }
 
       datas[settingName] = element;
     });
-  console.log(JSON.stringify(datas));
+  //console.log(JSON.stringify(datas));
   return datas;
 };
 
 Room.prototype.getPartConfig = function(creep) {
-
+  if (config.debug.getPartsConfLogs) {
+    console.log(this.name, '- - ->', creep.role);
+  }
   let datas = this.getSettings(creep);
 
   let layout = datas.layout;
@@ -231,8 +236,10 @@ Room.prototype.getPartConfig = function(creep) {
 
   let energyAvailable = this.energyAvailable;
   let parts = []; let cost = 0;
-  //console.log('prefix : ', prefixParts, '--layout : ', layout, '--minEnergy : ',
-  // minEnergyStored, '--maxEnergy : ', maxEnergyUsed);
+  if (config.debug.getPartsConfLogs) {
+    console.log('prefix : ', prefixParts, '--layout : ', layout, '--minEnergy : ',
+    minEnergyStored, '--maxEnergy : ', maxEnergyUsed);
+  }
 
   let maxBodyLength = 50;
   if (prefixParts) { maxBodyLength -= prefixParts.length; }
@@ -287,7 +294,9 @@ Room.prototype.getPartConfig = function(creep) {
       parts = parts.concat(sufixParts);
     }
   }
-  //console.log('cost: ', cost,'- - -length: ', parts.length, '- - -', parts, '- - -last: ', parts[parts.length - 1]);
+  if (config.debug.getPartsConfLogs) {
+    console.log('cost: ', cost, '- - -length: ', parts.length, '- - -', parts, '- - -last: ', parts[parts.length - 1]);
+  }
   parts = _.sortBy(parts, function(p) {
     let order = _.indexOf(layout, p) + 1;
     if (order) {
