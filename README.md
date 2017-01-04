@@ -37,20 +37,20 @@ welcome.
 
 ## Features
 
- - Automatic base building 
- - External room harvesting 
- - Basic mineral handling 
+ - Automatic base building
+ - External room harvesting
+ - Basic mineral handling
  - Power harvesting
- - New rooms claiming on GCL level up 
- - Automatic attack 
- - Rebuild of fallen rooms 
+ - New rooms claiming on GCL level up
+ - Automatic attack
+ - Rebuild of fallen rooms
 
 ## Tweaking
 
 A `src/friends.js` can be used to add players which are ignored (hopefully) in
 and `FIND_HOSTILE` finds.
 
-E.g.: 
+E.g.:
 `module.exports = ['TooAngel'];`
 
 In `src/config.js` multiple config variables are available for tweaking. Copy
@@ -58,12 +58,20 @@ In `src/config.js` multiple config variables are available for tweaking. Copy
 for your own bot rather than directly modifying `src/config.js` defaults.
 
 ## Upload
+### install dependencies
 
     npm install
 
+### add your account credentials
+#### via env
     export email=EMAIL
     export password=PASSWORD
 
+#### via git ignored file
+    echo "module.exports = { email: 'your-email@here.tld', password: 'your-secret' };" > account.screeps.com.js
+ or edit and rename account.screeps.com.js.sample to account.screeps.com.js   
+
+### create dist/build and upload to screeps
     grunt screeps
 
 ## Develop
@@ -73,7 +81,7 @@ for your own bot rather than directly modifying `src/config.js` defaults.
     grunt jscs
 
 ## Design
- 
+
 ### Room
 
 #### Setup
@@ -84,7 +92,7 @@ Positions:
  - `filler` creep next to the `storage`
  - `pathStart` position next to the `storage`
 
- 
+
 From `pathStart` all (sources, controller, mineral, mid of each exit) paths
 are calculated and saved. The longest path is used to place structures (spawn,
 extension, lab, observer, terminal, tower) next to it. Next to `filler` a link,
@@ -104,7 +112,7 @@ will be available to build the rest of the creeps. For this we check if
 a `harvester` is within the room, otherwise spawn it. For the rest a priority
 queue is used.
 
- 
+
 ### Role
 
  - `upgrader` get energy from the storage, puts it into the controller.
@@ -143,3 +151,9 @@ The routing from `start` to `end` is first done on room level:
    The path is cached in the memory of the room with a `created` attributes
    to allow invalidation.
 
+## Alliance
+
+If you manage to read this far it is likely that you started to test the AI, too.
+So if you are playing on the live server with the TooAngel AI you are welcome
+to join the [The Angels](Alliance.md) Alliance. Ping one of the members, you
+can recognize us, because our rooms look like yours.

@@ -19,9 +19,19 @@ roles.sourcer.killPrevious = true;
 // TODO should be true, but flee must be fixed before 2016-10-13
 roles.sourcer.flee = false;
 
-roles.sourcer.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, WORK, WORK, WORK, WORK, MOVE, MOVE, WORK, HEAL, MOVE, HEAL, MOVE, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE];
-  return room.getPartConfig(energy, parts);
+roles.sourcer.getPartConfig = function(room, creep) {
+  let datas = {};
+  let i = 0;
+  let remplace = function(data, name) {
+    if (data[i]) { datas[name] = data[i]; }
+  };
+  let configs = config[creep.role];
+  while (i < _.get(room, configs.param, 1)) {
+    i += configs.step || 1;
+    _.forEach(configs.setup, remplace);
+  }
+  //console.log(JSON.stringify(datas));
+  return room.getPartConfig(datas);
 };
 
 roles.sourcer.preMove = function(creep, directions) {
@@ -81,18 +91,6 @@ roles.sourcer.preMove = function(creep, directions) {
       break;
     }
   }
-};
-
-roles.sourcer.energyBuild = function(room, energy, heal) {
-  var max = 700;
-  // TODO Only three parts for external sourcer (Double check how many parts)
-  //  room.log('creep_sourcer.energyBuild source: ' + JSON.stringify(source));
-  if (heal) {
-    max = 1450;
-  }
-
-  energy = Math.max(200, Math.min(max, room.getEnergyCapacityAvailable()));
-  return energy;
 };
 
 roles.sourcer.died = function(name, memory) {

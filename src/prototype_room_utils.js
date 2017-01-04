@@ -1,5 +1,44 @@
 'use strict';
 
+Room.prototype.sortMyRoomsByLinearDistance = function(target) {
+  let sortByLinearDistance = function(object) {
+    return Game.map.getRoomLinearDistance(target, object);
+  };
+
+  return _.sortBy(Memory.myRooms, sortByLinearDistance);
+};
+
+Room.prototype.closestSpawn = function(target) {
+  let pathLength = {};
+  let roomsMy = this.sortMyRoomsByLinearDistance(target);
+
+  for (let room of roomsMy) {
+    let route = Game.map.findRoute(room, target);
+    let routeLength = global.utils.returnLength(route);
+
+    if (route && routeLength) {
+      //TODO @TooAngel please review: save found route from target to myRoom Spawn by shortest route!
+      //Memory.rooms[room].routing = Memory.rooms[room].routing || {};
+      //Memory.rooms[room].routing[room + '-' + target] = Memory.rooms[room].routing[room + '-' + target] || {
+      //    path: room + '-' + route,
+      //    created: Game.time,
+      //    fixed: false,
+      //    name: room + '-' + target,
+      //    category: 'moveToByClosestSpawn'
+      //  };
+
+      pathLength[room] = {
+        room: room,
+        route: route,
+        length: routeLength
+      };
+    }
+  }
+
+  let shortest = _.sortBy(pathLength, global.utils.returnLength);
+  return _.first(shortest).room;
+};
+
 Room.prototype.getEnergyCapacityAvailable = function() {
   let offset = 0;
   if (this.memory.misplacedSpawn && this.controller.level == 4) {
@@ -15,9 +54,6 @@ Room.prototype.splitRoomName = function() {
 };
 
 Room.prototype.inQueue = function(spawn) {
-  if (!this.memory.queue) {
-    this.memory.queue = [];
-  }
   for (var item of this.memory.queue) {
     if (item.role != spawn.role) {
       continue;
@@ -67,10 +103,10 @@ Room.prototype.checkAndSpawnSourcer = function() {
 };
 
 Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
-  if (!targetRoom) {
+  if (targetRoom === undefined) {
     targetRoom = this.name;
   }
-  if (!amount) {
+  if (amount === undefined) {
     amount = 1;
   }
 
@@ -87,16 +123,19 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
   }
 
   let creeps = this.find(FIND_MY_CREEPS, {
-    filter: function(object) {
-      if (targetId) {
-        if (!object.memory.routing || targetId != object.memory.routing.targetId) {
-          return false;
-        }
-      }
-      if (!object.memory.routing || targetRoom != object.memory.routing.targetRoom) {
+    filter: (creep) => {
+      if (creep.memory.routing === undefined) {
         return false;
       }
-      return object.memory.role == role;
+      if (targetId !== undefined &&
+          targetId !== creep.memory.routing.targetId) {
+        return false;
+      }
+      if (targetRoom !== undefined &&
+          targetRoom !== creep.memory.routing.targetRoom) {
+        return false;
+      }
+      return creep.memory.role == role;
     }
   });
 
@@ -132,22 +171,93 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
   }
   this.memory.queue.push(creepMemory);
 };
+Room.prototype.checkParts = function(parts, actualCost, energy) {
+  if (!parts) { return; }
+  parts.forEach(
+    function(p) {
+      actualCost += BODYPART_COST[p];
+      if (actualCost > energy) { return; }
+    }
+  );
+  return actualCost;
+};
 
-Room.prototype.getPartConfig = function(energy, parts) {
-  var sum = 0;
-  var i = 0;
-  var partConfig = [];
-  while (sum < energy && partConfig.length < 50) {
-    var part = parts[i % parts.length];
-    if (sum + BODYPART_COST[part] <= energy) {
-      partConfig.push(part);
-      sum += BODYPART_COST[part];
-      i += 1;
-    } else {
-      break;
+Room.prototype.getPartConfig = function(datas) {
+
+  let layout = datas.layout;
+  let amount = datas.amount;
+  let minEnergyStored = datas.minEnergyStored;
+  let maxEnergyUsed = datas.maxEnergyUsed;
+  let prefixParts = datas.prefixParts;
+  let sufixParts = datas.sufixParts;
+  let energyAvailable = this.energyAvailable;
+  let parts = []; let cost = 0;
+  //console.log('prefix : ', prefixParts, '--layout : ', layout, '--minEnergy : ',
+  // minEnergyStored, '--maxEnergy : ', maxEnergyUsed);
+
+  let maxBodyLength = 50;
+  if (prefixParts) { maxBodyLength -= prefixParts.length; }
+  if (sufixParts) { maxBodyLength -= sufixParts.length; }
+
+  if (minEnergyStored && minEnergyStored > energyAvailable) {return;}
+  if (maxEnergyUsed && maxEnergyUsed < energyAvailable) {energyAvailable = maxEnergyUsed;}
+
+  let prefixCost = this.checkParts(prefixParts, 0, energyAvailable);
+  if (prefixCost) {
+    cost = prefixCost;
+    parts = prefixParts;
+  }
+
+  if (amount) { // if size is defined
+    let pushAll = function(element, index, array) {
+      for (let i = 0; i < element; i++) {
+        parts.push(layout[index]);
+        cost += BODYPART_COST[layout[index]];
+      }
+    };
+    amount.forEach(pushAll);
+  } else {
+    let halt = false;
+    let i = 1; let j = 1;
+    let layoutCost; let layoutParts; let part;
+
+    while (!halt && parts.length + j <= maxBodyLength) {
+      layoutCost = 0; layoutParts = [];
+      while (!halt && j <= layout.length && parts.length + j < maxBodyLength) {
+        part = layout[j - 1];
+        layoutCost += BODYPART_COST[part];
+        if (cost + layoutCost <= energyAvailable) {
+          layoutParts.push(part);
+        } else {
+          halt = true;
+        }
+        j++;
+      }
+
+      if (!halt) {
+        cost += layoutCost;
+        parts = parts.concat(layoutParts);
+        j = 1; i++;
+      }
     }
   }
-  return partConfig;
+  if (sufixParts) {
+    let newCost = this.checkParts(sufixParts, cost, energyAvailable);
+    if (newCost) {
+      cost = newCost;
+      parts = parts.concat(sufixParts);
+    }
+  }
+  //console.log('cost: ', cost,'- - -length: ', parts.length, '- - -', parts, '- - -last: ', parts[parts.length - 1]);
+  parts = _.sortBy(parts, function(p) {
+    let order = _.indexOf(layout, p) + 1;
+    if (order) {
+      return order;
+    } else {
+      return layout.length;
+    }
+  });
+  return parts;
 };
 
 Room.pathToString = function(path) {
