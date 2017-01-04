@@ -25,8 +25,9 @@ roles.sourcer.getPartConfig = function(room, creep) {
   let remplace = function(data, name) {
     if (data[i]) { datasTest[name] = data[i]; }
   };
-  while (i <= room.controller.level) {
-    _.forEach(global.config.sourcer.setup, remplace); i++;
+  while (i <= room[global.config.sourcer.param]) {
+    _.forEach(global.config.sourcer.setup, remplace);
+    i += global.config.sourcer.step;
   }
   //console.log(JSON.stringify(datasTest));
 
