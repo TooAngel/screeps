@@ -34,7 +34,7 @@ are places. Links are triggered to transfer energy to link near the storage.
 Towers attack incoming creeps or heal my creeps. If no spawn is available
 `nextroomer` from other rooms are called, to build up the room.
 
-The basic creep is the `harvester` which can make sure, that enought energy
+The basic creep is the `harvester` which can make sure, that enough energy
 will be available to build the rest of the creeps. For this we check if
 a `harvester` is within the room, otherwise spawn it. For the rest a priority
 queue is used.
