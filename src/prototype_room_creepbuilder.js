@@ -55,7 +55,7 @@ Room.prototype.spawnCreateCreep = function(creep) {
 
 };
 
-Room.prototype.spawnCheckForCreate = function({role: creepsConfig}) {
+Room.prototype.spawnCheckForCreate = function(creepsConfig) {
   var storages;
   var energyNeeded;
   var unit;
