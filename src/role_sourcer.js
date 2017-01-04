@@ -22,14 +22,28 @@ roles.sourcer.flee = false;
 roles.sourcer.getPartConfig = function(room, creep) {
   let datas = {};
   let i = 0;
+  let configs = config[creep.role];
+  let iterate = function(id, dir) {
+    while (i < _.get(room, configs.param[id], 1)) {
+      i += configs.step[id] || 1;
+      //Must use 'configs.setup'+dir
+      _.forEach(configs.setup, remplace);
+    }
+  };
   let remplace = function(data, name) {
     if (data[i]) { datas[name] = data[i]; }
+    if (!data[i].isArray()) {
+      datas[name] = data[i];
+    } else {
+      iterate(1, name);
+    }
   };
   let configs = config[creep.role];
   while (i < _.get(room, configs.param, 1)) {
     i += configs.step || 1;
     _.forEach(configs.setup, remplace);
   }
+  iterate(0, '');
   //console.log(JSON.stringify(datas));
   return room.getPartConfig(datas);
 };

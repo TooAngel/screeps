@@ -34,15 +34,16 @@ global.config.sourcer = {
 // Work On Progress--------------
 global.config.upgrader = {
   //TODO found how to mix that with storage check
-  param: 'controller.level',
-  step: 1,
+  param: ['controller.level','storage.store.energy'],
+  step: [1,50000],
   setup: {
     prefixParts: {1: [MOVE,CARRY,WORK]},
     layout: {1: [MOVE,WORK,WORK], 4: [WORK]},
     minEnergyStored: {1: 200, 4: 1000},
-    maxEnergyUsed: {1: 350}
+    maxEnergyUsed: {1: 350, 7: {1: 350, 50000: 1950, 800000: 3900}}
   }
 };
+
 global.config.harvester = {
   param: 'storage.store.energy',
   step: config.creep.energyFromStorageThreshold,
