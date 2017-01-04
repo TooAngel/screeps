@@ -187,8 +187,8 @@ Room.prototype.getSettings = function(creep) {
   let datas = {};
   let i = 0;
   let settings = roles[creep.role].settings;
-  let parts = settings.parts;
-  let energy = settings.energy;
+  let parts = settings.parts || {};
+  let energy = settings.energy || {};
 
   let getKey = function(part) {
     let keys = Object.keys(part);
