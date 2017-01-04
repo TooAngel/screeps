@@ -203,6 +203,7 @@ Room.prototype.getPartConfig = function(datas) {
     cost = prefixCost;
     parts = prefixParts;
   }
+
   if (amount) { // if size is defined
     let pushAll = function(element, index, array) {
       for (let i = 0; i < element; i++) {
@@ -210,9 +211,10 @@ Room.prototype.getPartConfig = function(datas) {
         cost += BODYPART_COST[layout[index]];
       }
     };
+    amount.foreach(pushAll);
   } else {
-    let i = 1; let j = 1;
     let halt = false;
+    let i = 1; let j = 1;
     let layoutCost; let layoutParts; let part;
 
     while (!halt && parts.length + j <= 50) {
