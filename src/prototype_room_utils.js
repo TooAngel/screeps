@@ -171,12 +171,11 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom) {
   }
   this.memory.queue.push(creepMemory);
 };
-
 Room.prototype.checkParts = function(parts, actualCost, energy) {
   if (!parts) { return; }
-  parts.foreach(
+  parts.forEach(
     function(p) {
-      actualCost += BODYPART_COST[parts[p]];
+      actualCost += BODYPART_COST[p];
       if (actualCost > energy) { return; }
     }
   );
@@ -193,19 +192,18 @@ Room.prototype.getPartConfig = function(datas) {
   let sufixParts = datas.sufixParts;
   let energyAvailable = this.energyAvailable;
   let parts = []; let cost = 0;
+  console.log('prefix : ', prefixParts, '--layout : ', layout, '--minEnergy : ',
+   minEnergyStored, '--maxEnergy : ', maxEnergyUsed);
 
-  if (minEnergyStored < energyAvailable) {return;}
-  if (maxEnergyUsed < energyAvailable) {energyAvailable = maxEnergyUsed;}
+  if (minEnergyStored && minEnergyStored > energyAvailable) {return;}
+  if (maxEnergyUsed && maxEnergyUsed < energyAvailable) {energyAvailable = maxEnergyUsed;}
 
-  if (prefixParts) {
-    let newCost = this.checkParts(prefixParts, 0, energyAvailable);
-    if (newCost) {
-      cost = newCost;
-      parts.concat(prefixParts);
-    } else {
-      return;
-    }
+  let prefixCost = this.checkParts(prefixParts, 0, energyAvailable);
+  if (prefixCost) {
+    cost = prefixCost;
+    parts = prefixParts;
   }
+
   if (amount) { // if size is defined
     let pushAll = function(element, index, array) {
       for (let i = 0; i < element; i++) {
@@ -213,32 +211,46 @@ Room.prototype.getPartConfig = function(datas) {
         cost += BODYPART_COST[layout[index]];
       }
     };
-    amount.foreach(pushAll);
-    layout = parts;
-    parts = [];
-  }
-  let i = 1; let j = 1;
-  let halt = false;
-  let layoutCost; let layoutParts; let part;
-  while (!halt && parts.length + j <= 50) {
-    layoutCost = 0; layoutParts = [];
-    while (!halt && j <= layout.length && parts.length + j < 50) {
-      part = layout[j - 1];
-      layoutCost += BODYPART_COST[part];
-      if (cost + layoutCost <= energyAvailable) {
-        layoutParts.push(part);
-      } else if (i > 1) {
-        halt = true;
-      } else { return; }
+    amount.forEach(pushAll);
+  } else {
+    let halt = false;
+    let i = 1; let j = 1;
+    let layoutCost; let layoutParts; let part;
+
+    while (!halt && parts.length + j <= 50) {
+      layoutCost = 0; layoutParts = [];
+      while (!halt && j <= layout.length && parts.length + j < 50) {
+        part = layout[j - 1];
+        layoutCost += BODYPART_COST[part];
+        if (cost + layoutCost <= energyAvailable) {
+          layoutParts.push(part);
+        } else {
+          halt = true;
+        }
+        j++;
+      }
+
+      if (!halt) {
+        cost += layoutCost;
+        parts = parts.concat(layoutParts);
+        j = 1; i++;
+      }
     }
-    if (!halt) {
-      cost += layoutCost;
-      parts = parts.concat(layoutParts);
-      j = 1; i++;
+  }
+  if (sufixParts) {
+    let newCost = this.checkParts(sufixParts, cost, energyAvailable);
+    if (newCost) {
+      cost = newCost;
+      parts = parts.concat(prefixParts);
     }
   }
   parts = _.sortBy(parts, function(p) {
-    return _.indexOf(layout, p) + 1;
+    let order = _.indexOf(layout, p) + 1;
+    if (order) {
+      return order;
+    } else {
+      return layout.length;
+    }
   });
   return parts;
 };

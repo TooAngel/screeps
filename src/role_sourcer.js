@@ -20,12 +20,16 @@ roles.sourcer.killPrevious = true;
 roles.sourcer.flee = false;
 
 roles.sourcer.getPartConfig = function(room, creep) {
-  let datas = {layout: [MOVE, CARRY, WORK, WORK, WORK, WORK, MOVE, MOVE, WORK],
+  let datas = {prefixParts: [MOVE,CARRY,WORK],
+    layout: [WORK, HEAL],
+    amount: [4,1],
     minEnergyStored: 200};
+  /**
   if (creep.heal) {
     datas.layout = datas.layout.concat([HEAL, MOVE, HEAL, MOVE, WORK, WORK, WORK,
       WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE]);
   }
+  **/
   return room.getPartConfig(datas);
 };
 

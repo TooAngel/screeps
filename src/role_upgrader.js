@@ -24,6 +24,7 @@ roles.upgrader.getPartConfig = function(room) {
   };
   if (room.controller.level >= 4) {
     datas.layout = [WORK];
+    datas.minEnergyStored = 1000;
     if (room.controller.level >= 7) {
       if (room.storage) {
         if (room.storage.store.energy > 50000) {
