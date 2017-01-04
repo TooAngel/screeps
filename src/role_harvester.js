@@ -20,7 +20,8 @@ roles.harvester = {};
 roles.harvester.settings = {
   param: ['storage.store.energy'],
   parts: {
-    layout: [MOVE,MOVE,WORK,CARRY]
+    layout: [MOVE,MOVE,WORK,CARRY],
+    sufixParts: []
   },
   energy: {
     minEnergyStored: 250,
