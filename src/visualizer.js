@@ -1,6 +1,8 @@
 'use strict';
 
-var RawVisual = {};
+var RawVisual = {
+  commit: function() { }
+};
 
 try {
   var Visual = require('visual');
@@ -68,6 +70,13 @@ if (config.visualizer.enabled) {
         return true;
       }
       return false;
+    },
+    // Removes provided deserialized path from canvas -- untested
+    hidePath: function(path) {
+      let visual = new Visual(path);
+      visual.commit();
+      RawVisual.commit();
+      return true;
     },
 
     // renders one frame, this frame will stay in memory and keep showing in the client until you restart it.
