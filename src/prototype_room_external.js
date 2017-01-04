@@ -46,8 +46,7 @@ Room.prototype.externalHandleRoom = function() {
     }
 
     if (this.controller.reservation && this.controller.reservation.username == Memory.username) {
-      this.handleReservedRoom();
-      return false;
+      return this.handleReservedRoom();
     }
 
   }
@@ -121,13 +120,6 @@ Room.prototype.externalHandleHighwayRoom = function() {
     return;
   }
 
-  // Fix for W8S9
-  var walls = this.find(FIND_STRUCTURES, {
-    filter: function(object) {
-      return object.structureType == 'constructedWall';
-    }
-  });
-
   if (structures[0].ticksToDecay < 3000) {
     Memory.powerBanks[this.name] = {
       target: null
@@ -154,20 +146,6 @@ Room.prototype.externalHandleHighwayRoom = function() {
       Memory.powerBanks = {};
     }
     if (target !== null) {
-      if (walls.length > 0) {
-        var exits = this.find(route[0].exit);
-        var exit = exits[exits.length - 1];
-        var path = this.findPath(exit, structures[0].pos);
-        var last_pos = path[path.length - 1];
-        if (!structures[0].pos.isEqualTo(last_pos.x, last_pos.y)) {
-          this.log('No route due to wall');
-          Memory.powerBanks[this.name] = {
-            target: null
-          };
-          return true;
-        }
-      }
-
       Memory.powerBanks[this.name] = {
         target: target.name,
         min_route: min_route
@@ -260,182 +238,169 @@ Room.prototype.checkBlockedPath = function() {
   }
 };
 
+Room.prototype.checkAndSpawnReserver = function() {
+  let reservation = this.memory.reservation;
+  if (reservation === undefined) {
+    // TODO Check the closest room and set reservation
+    this.log('No reservation');
+    return false;
+  }
+
+  let baseRoom = Game.rooms[reservation.base];
+  if (baseRoom === undefined) {
+    delete this.memory.reservation;
+    return false;
+  }
+
+  if (this.checkBlockedPath()) {
+    this.log('Call structurer from ' + baseRoom.name);
+    baseRoom.memory.queue.push({
+      role: 'structurer',
+      routing: {
+        targetRoom: this.name,
+        reached: false,
+        routePos: 0,
+        pathPos: 0
+      }
+    });
+    return;
+  }
+
+  let reserverSpawn = {
+    role: 'reserver',
+    level: 2,
+    routing: {
+      targetRoom: this.name,
+      targetId: this.controller.id,
+      reached: false,
+      routePos: 0,
+      pathPos: 0
+    }
+  };
+  // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
+  let energyNeeded = 1300;
+  if (baseRoom.misplacedSpawn) {
+    energyNeeded += 300;
+  }
+  this.log('Would like to spawn reserver ' +
+      baseRoom.getEnergyCapacityAvailable() + '/' + energyNeeded);
+  if (baseRoom.getEnergyCapacityAvailable() >= energyNeeded) {
+    if (!baseRoom.inQueue(reserverSpawn)) {
+      this.log('Queuing reserver ' + baseRoom.name + ' ' +
+          JSON.stringify(reserverSpawn));
+      baseRoom.memory.queue.push(reserverSpawn);
+    }
+  }
+};
+
 Room.prototype.handleReservedRoom = function() {
   this.memory.state = 'Reserved';
   this.memory.lastSeen = Game.time;
-  this.memory.lastChecked = this.memory.lastChecked || Game.time;
+  if (this.memory.lastChecked !== undefined &&
+      Game.time - this.memory.lastChecked < 500) {
+    return false;
+  }
+  this.memory.lastChecked = Game.time;
 
   let idiotCreeps = this.find(FIND_HOSTILE_CREEPS, {
     filter: this.findAttackCreeps
   });
-  if (idiotCreeps.length > 0) {
-    for (let idiotCreep of idiotCreeps) {
-      brain.increaseIdiot(idiotCreep.owner.username);
-    }
+  for (let idiotCreep of idiotCreeps) {
+    brain.increaseIdiot(idiotCreep.owner.username);
   }
 
-  if (Game.time - this.memory.lastChecked > 500) {
-    let reservers = this.find(FIND_MY_CREEPS, {
-      filter: function(object) {
-        return object.memory.role == 'reserver';
-      }
-    });
-
-    if (reservers.length === 0) {
-
-      this.memory.lastChecked = Game.time;
-      let reserverSpawn = {
-        role: 'reserver',
-        level: 2,
-        routing: {
-          targetRoom: this.name,
-          targetId: this.controller.id,
-          reached: false,
-          routePos: 0,
-          pathPos: 0
-        }
-      };
-      // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
-      let energyThreshold = 1300;
-
-      // TODO Not sure when this happens, Check the closest room and set reservation
-      if (!this.memory.reservation) {
-        this.log('No reservation');
-        return;
-      }
-
-      if (Game.rooms[this.memory.reservation.base].misplacedSpawn) {
-        energyThreshold = 1600;
-      }
-      this.log('Would like to spawn reserver' + Game.rooms[this.memory.reservation.base].energyCapacityAvailable + ' ' + energyThreshold);
-      if (Game.rooms[this.memory.reservation.base].controller.level > 3 && Game.rooms[this.memory.reservation.base].energyCapacityAvailable > energyThreshold) {
-        this.log('Queuing reserver ' + this.memory.reservation.base + ' ' + JSON.stringify(reserverSpawn));
-        Game.rooms[this.memory.reservation.base].memory.queue.push(reserverSpawn);
-      }
-    }
+  let reservers = this.find(FIND_MY_CREEPS, {
+    filter: (c) => c.memory.role == 'reserver',
+  });
+  if (reservers.length === 0) {
+    this.checkAndSpawnReserver();
   }
+  return false;
 };
 
 Room.prototype.handleUnreservedRoom = function() {
   this.memory.state = 'Unreserved';
   this.memory.lastSeen = Game.time;
-  this.memory.lastChecked = this.memory.lastChecked || Game.time;
-
-  if (this.memory.reservation) {
-    if (this.name == this.memory.reservation.base) {
-      this.log('Want to spawn reserver for the base room, why?');
-      return false;
-    }
-
-    this.memory.state = 'Reserved';
-    //     this.log(Game.time + ' ' + this.memory.lastChecked + ' ' + (Game.time - this.memory.lastChecked));
-    if (Game.time - this.memory.lastChecked > 500) {
-      this.memory.lastChecked = Game.time;
-      if (this.checkBlockedPath()) {
-        this.log('Call structurer from ' + this.memory.reservation.base);
-        Game.rooms[this.memory.reservation.base].memory.queue.push({
-          role: 'structurer',
-          routing: {
-            targetRoom: this.name,
-            reached: false,
-            routePos: 0,
-            pathPos: 0
-          }
-        });
-      } else {
-        let reserverSpawn = {
-          role: 'reserver',
-          level: 2,
-          routing: {
-            targetRoom: this.name,
-            targetId: this.controller.id,
-            reached: false,
-            routePos: 0,
-            pathPos: 0
-          }
-        };
-        // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
-        let energyThreshold = 1300;
-        if (Game.rooms[this.memory.reservation.base].misplacedSpawn) {
-          energyThreshold = 1600;
-        }
-        this.log('Would like to spawn reserver' + Game.rooms[this.memory.reservation.base].energyCapacityAvailable + ' ' + energyThreshold);
-        if (Game.rooms[this.memory.reservation.base].controller.level > 3 && Game.rooms[this.memory.reservation.base].energyCapacityAvailable > energyThreshold) {
-          this.log('Queuing reserver ' + this.memory.reservation.base + ' ' + JSON.stringify(reserverSpawn));
-          Game.rooms[this.memory.reservation.base].memory.queue.push(reserverSpawn);
-        }
-      }
-    }
+  if (this.memory.lastChecked !== undefined &&
+      Game.time - this.memory.lastChecked < 500) {
     return true;
   }
 
-  let roomName;
-  let isReserved = function(object) {
-    if (!object.reservation) {
-      return false;
-    }
-    if (object.state != 'Reserved') {
-      return false;
-    }
-    return object.reservation.base == roomName;
-  };
-
-  for (roomName of Memory.myRooms) {
-    let room = Game.rooms[roomName];
-    if (!room) {
-      return false;
-    }
-    // TODO mark as reserved earlier, but only send sourcer
-    if (room.controller.level < 4) {
-      continue;
-    }
-
-    let distance = Game.map.getRoomLinearDistance(this.name, roomName);
-    if (distance > config.external.distance) {
-      continue;
-    }
-
-    let route = Game.map.findRoute(this.name, roomName);
-    distance = route.length;
-    if (distance > config.external.distance) {
-      continue;
-    }
-
-    if (room.memory.queue && room.memory.queue.length === 0) {
-      let reservedRooms = _.filter(Memory.rooms, isReserved);
-      if (reservedRooms.length < room.controller.level - 1) {
-        this.log('Would start to spawn');
-
-        // TODO Check paths to decide for structurer
-
-        this.memory.reservation = {
-          base: roomName,
-          tick: Game.time
-        };
-        this.memory.state = 'Reserved';
-        let reserverSpawn = {
-          role: 'reserver',
-          routing: {
-            targetRoom: this.name,
-            targetId: this.controller.id
-          },
-          level: 2
-        };
-        // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
-        let energyThreshold = 1300;
-        if (Game.rooms[this.memory.reservation.base].misplacedSpawn) {
-          energyThreshold = 1600;
+  // TODO: Don't check every tick.
+  if (this.memory.reservation === undefined) {
+    let isReservedBy = (roomName) => {
+      return (roomMemory) => {
+        return roomMemory.reservation !== undefined &&
+            roomMemory.state === 'Reserved' &&
+            roomMemory.reservation.base == roomName;
+      };
+    };
+    checkRoomsLabel: for (let roomName of Memory.myRooms) {
+      let room = Game.rooms[roomName];
+      if (!room) {
+        continue;
+      }
+      let distance = Game.map.getRoomLinearDistance(this.name, room.name);
+      if (distance > config.external.distance) {
+        continue;
+      }
+      let route = Game.map.findRoute(this.name, room.name);
+      distance = route.length;
+      if (distance > config.external.distance) {
+        continue;
+      }
+      // Only allow pathing through owned rooms or already reserved rooms.
+      for (let routeEntry of route) {
+        let routeRoomName = routeEntry.room;
+        if (Game.rooms[routeRoomName] === undefined) {
+          continue checkRoomsLabel;
         }
-        if (Game.rooms[this.memory.reservation.base].controller.level > 3 && Game.rooms[this.memory.reservation.base].energyCapacityAvailable > energyThreshold) {
-          this.log('Queuing reserver ' + this.memory.reservation.base + ' ' + JSON.stringify(reserverSpawn));
-          Game.rooms[this.memory.reservation.base].memory.queue.push(reserverSpawn);
+        let routeRoom = Game.rooms[routeRoomName];
+        if (routeRoom.controller === undefined) {
+          continue checkRoomsLabel;
         }
-        break;
+        if (!routeRoom.controller.my && routeRoom.memory.state !== 'Reserved') {
+          continue checkRoomsLabel;
+        }
+      }
+      if (room.memory.queue && room.memory.queue.length === 0 &&
+          room.energyAvailable >= room.getEnergyCapacityAvailable()) {
+        let reservedRooms = _.filter(Memory.rooms, isReservedBy(room.name));
+        // RCL: target reserved rooms
+        let numRooms = {
+          0: 0,
+          1: 0,
+          2: 0,
+          3: 0,
+          4: 1,
+          5: 2,
+          6: 3,
+          7: 6,
+          8: 9,
+        };
+        if (reservedRooms.length < numRooms[room.controller.level]) {
+          this.log('Would start to spawn');
+          this.memory.reservation = {
+            base: room.name,
+          };
+          this.memory.state = 'Reserved';
+          break;
+        }
       }
     }
   }
 
-  //    this.log(`Unreserved room found`);
+  if (this.memory.reservation !== undefined) {
+    this.memory.lastChecked = Game.time;
+    let reservation = this.memory.reservation;
+    if (this.name == reservation.base) {
+      this.log('Want to spawn reserver for the base room, why?');
+      delete this.memory.reservation;
+      return false;
+    }
+    this.memory.state = 'Reserved';
+    this.checkAndSpawnReserver();
+  }
   return true;
 };
 

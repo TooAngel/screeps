@@ -1,0 +1,4 @@
+module.exports = {
+  /** screeps.com account information */
+  email: 'your-email@here', password: 'your-secret'
+};

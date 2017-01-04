@@ -55,43 +55,37 @@ Room.prototype.spawnCreateCreep = function(creep) {
 
 };
 
-Room.prototype.spawnCheckForCreate = function({role: creepsConfig}) {
+Room.prototype.spawnCheckForCreate = function(creepsConfig) {
   var storages;
   var energyNeeded;
   var unit;
 
-  if (!this.memory.queue) {
-    this.memory.queue = [];
+  if (creepsConfig[0] === 'harvester') {
+    this.log('Spawn from creepsConfig: ' + creepsConfig[0]);
+    return this.spawnCreateCreep(creepsConfig[0]);
   }
 
-  if (this.memory.queue.length > 0 && (creepsConfig.length === 0 || creepsConfig[0] != 'harvester')) {
+  if (this.memory.queue.length > 0) {
     let room = this;
     let priorityQueue = function(object) {
-      if (object.role == 'harvester') {
-        return 1;
-      }
-
+      if (object.role == 'harvester') { return 1; }
+      if (object.role == 'defendranged') { return 3; }
       let target = object.routing && object.routing.targetRoom;
-
-      if (target == room.name) {
-        if (object.role == 'sourcer') {
-          return 2;
+      if (target === room.name) {
+        switch (object.role) {
+          case 'sourcer':       return 2;
+          case 'storagefiller': return 3;
+          default:              return 4;
         }
-        if (object.role == 'storagefiller') {
-          return 3;
+      } else {
+        switch (object.role) {
+          case 'carry':         return 5;
+          case 'sourcer':       return 6;
+          case 'reserver':      return 7;
         }
-        return 4;
       }
-
-      if (object.role == 'nextroomer') {
-        return 11;
-      }
-
+      if (object.role == 'nextroomer') { return 11; }
       // TODO added because target was misused as a pos object
-      if (object.role == 'defendranged') {
-        return 3;
-      }
-
       if (!target) {
         return 12;
       }
@@ -123,11 +117,6 @@ Room.prototype.spawnCheckForCreate = function({role: creepsConfig}) {
     }
     // Spawing only one per tick
     return;
-  }
-
-  if (creepsConfig.length > 0) {
-    this.log('Spawn from creepsConfig: ' + creepsConfig[0]);
-    return this.spawnCreateCreep(creepsConfig[0]);
   }
 
   return false;

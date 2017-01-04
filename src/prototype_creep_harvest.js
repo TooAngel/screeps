@@ -97,9 +97,6 @@ Creep.prototype.spawnCarry = function() {
       this.memory.wait = 0;
     }
     if (this.memory.wait <= 0) {
-      if (!Game.rooms[this.memory.base].memory.queue) {
-        Game.rooms[this.memory.base].memory.queue = [];
-      }
       Game.rooms[this.memory.base].memory.queue.push(spawn);
       this.memory.wait = waitTime;
     }

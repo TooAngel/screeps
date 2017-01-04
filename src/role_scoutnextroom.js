@@ -138,6 +138,7 @@ roles.scoutnextroom.execute = function(creep) {
         }
 
         creep.memory.target = exit_pos;
+        creep.memory.goalRoom = roomName;
         creep.memory.dir = direction;
         return true;
       }
@@ -183,9 +184,14 @@ roles.scoutnextroom.execute = function(creep) {
 
   if (search.incomplete || search.path.length === 0) {
     creep.say('incomplete');
-    creep.moveTo(targetPosObject);
+    if (creep.isStuck()) {
+      delete creep.memory.target;
+      delete creep.memory.last;
+    } else {
+      creep.moveTo(targetPosObject);
+    }
     return true;
   }
-  creep.say(creep.pos.getDirectionTo(search.path[0]));
+  creep.say(creep.memory.target.goalRoom);
   let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
 };

@@ -58,12 +58,20 @@ In `src/config.js` multiple config variables are available for tweaking. Copy
 for your own bot rather than directly modifying `src/config.js` defaults.
 
 ## Upload
+### install dependencies
 
     npm install
 
+### add your account credentials
+#### via env
     export email=EMAIL
     export password=PASSWORD
 
+#### via git ignored file
+    echo "module.exports = { email: 'your-email@here.tld', password: 'your-secret' };" > account.screeps.com.js
+ or edit and rename account.screeps.com.js.sample to account.screeps.com.js   
+
+### create dist/build and upload to screeps
     grunt screeps
 
 ## Develop
