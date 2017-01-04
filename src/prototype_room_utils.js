@@ -200,15 +200,13 @@ Room.prototype.getSettings = function(creep) {
     });
   };
 
-  parts.forEach((part,name) => {
-      let i = 0;
-      let key;
+  parts.concat(energy).forEach((element,settingName) => {
+      let i = 0; let key;
       while (i < settings.parm.length) {
-        key = getKey(part);
-        part = part[key];
+        key = getKey(element); element = element[key];
         i++;
       }
-      datas[name] = part;
+      datas[settingName] = element;
     });
   return datas;
 
