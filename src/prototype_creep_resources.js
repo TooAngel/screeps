@@ -839,15 +839,7 @@ Creep.prototype.handleReserver = function() {
 
       if (resource_structures.length > 0 && !creep.room.controller.my) {
         creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resource_structures[0].structureType);
-        Game.rooms[creep.memory.base].memory.queue.push({
-          role: 'structurer',
-          routing: {
-            targetRoom: this.name,
-            reached: false,
-            routePos: 0,
-            pathPos: 0
-          }
-        });
+        Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, this.name);
         return true;
       }
     }
