@@ -210,34 +210,32 @@ Room.prototype.getPartConfig = function(datas) {
         cost += BODYPART_COST[layout[index]];
       }
     };
-    amount.foreach(pushAll);
-    layout = parts;
-    parts = [];
-  }
-  let i = 1; let j = 1;
-  let halt = false;
-  let layoutCost; let layoutParts; let part;
+  } else {
+    let i = 1; let j = 1;
+    let halt = false;
+    let layoutCost; let layoutParts; let part;
 
-  while (!halt && parts.length + j <= 50) {
-    layoutCost = 0; layoutParts = [];
-    while (!halt && j <= layout.length && parts.length + j < 50) {
-      part = layout[j - 1];
-      layoutCost += BODYPART_COST[part];
-      if (cost + layoutCost <= energyAvailable) {
-        layoutParts.push(part);
-      } else {
-        halt = true;
+    while (!halt && parts.length + j <= 50) {
+      layoutCost = 0; layoutParts = [];
+      while (!halt && j <= layout.length && parts.length + j < 50) {
+        part = layout[j - 1];
+        layoutCost += BODYPART_COST[part];
+        if (cost + layoutCost <= energyAvailable) {
+          layoutParts.push(part);
+        } else {
+          halt = true;
+        }
+        j++;
       }
-      j++;
-    }
 
-    if (!halt) {
-      cost += layoutCost;
-      parts = parts.concat(layoutParts);
-      j = 1; i++;
+      if (!halt) {
+        cost += layoutCost;
+        parts = parts.concat(layoutParts);
+        j = 1; i++;
+      }
     }
   }
-  if (sufixParts & !halt) {
+  if (sufixParts) {
     let newCost = this.checkParts(sufixParts, cost, energyAvailable);
     if (newCost) {
       cost = newCost;

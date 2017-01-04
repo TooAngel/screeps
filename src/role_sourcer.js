@@ -20,8 +20,9 @@ roles.sourcer.killPrevious = true;
 roles.sourcer.flee = false;
 
 roles.sourcer.getPartConfig = function(room, creep) {
-  let datas = {layout: [MOVE,WORK,WORK],
-    prefixParts: [MOVE, CARRY, WORK],
+  let datas = {prefixParts: [MOVE,CARRY,WORK],
+    layout: [WORK, HEAL],
+    amount: [4,1],
     minEnergyStored: 200};
   /**
   if (creep.heal) {
