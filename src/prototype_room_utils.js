@@ -192,8 +192,8 @@ Room.prototype.getPartConfig = function(datas) {
   let sufixParts = datas.sufixParts;
   let energyAvailable = this.energyAvailable;
   let parts = []; let cost = 0;
-  console.log('prefix : ', prefixParts, '--layout : ', layout, '--minEnergy : ',
-   minEnergyStored, '--maxEnergy : ', maxEnergyUsed);
+  //console.log('prefix : ', prefixParts, '--layout : ', layout, '--minEnergy : ',
+  // minEnergyStored, '--maxEnergy : ', maxEnergyUsed);
 
   if (minEnergyStored && minEnergyStored > energyAvailable) {return;}
   if (maxEnergyUsed && maxEnergyUsed < energyAvailable) {energyAvailable = maxEnergyUsed;}
