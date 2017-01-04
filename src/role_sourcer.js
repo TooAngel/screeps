@@ -21,13 +21,13 @@ roles.sourcer.flee = false;
 
 roles.sourcer.getPartConfig = function(room, creep) {
   let datasTest = {};
-  let i = 1;
+  let i = 0;
   let remplace = function(data, name) {
     if (data[i]) { datasTest[name] = data[i]; }
   };
-  while (i <= room[global.config.sourcer.param]) {
+  while (i < _.get(room, global.config.sourcer.param, 1)) {
+    i += global.config.sourcer.step || 1;
     _.forEach(global.config.sourcer.setup, remplace);
-    i += global.config.sourcer.step;
   }
   //console.log(JSON.stringify(datasTest));
 
