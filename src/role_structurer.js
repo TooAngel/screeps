@@ -11,7 +11,7 @@
 roles.structurer = {};
 roles.structurer.boostActions = ['dismantle'];
 roles.structurer.energyRequired = function(room) {
-  return 1500;
+  return 1300;
 };
 
 roles.structurer.energyBuild = function(room, energy) {
