@@ -67,7 +67,7 @@ RoomPosition.prototype.inPositions = function() {
 };
 
 RoomPosition.prototype.isExit = function() {
-  if (this.x <= 1 || this.x >= 48 || this.y <= 1 || this.y >= 48) {
+  if (this.x < 1 || this.x > 48 || this.y < 1 || this.y > 48) {
     return true;
   }
   return false;

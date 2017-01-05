@@ -12,7 +12,6 @@ Creep.prototype.moveRandom = function(onPath) {
     if (onPath && !pos.inPath()) {
       continue;
     }
-
     break;
   }
   this.move(direction);

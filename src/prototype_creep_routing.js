@@ -280,15 +280,11 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
       return false;
     }
 
-    let posFirst;
-    try {
-      posFirst = new RoomPosition(path[0].x, path[0].y, path[0].roomName);
-    } catch (e) {
-      // TODO config.serializePath mismatch with memory is the only case I know of
-      this.log('Can not parse path in cache will delete Memory');
-      delete Memory.rooms[this.room.name];
-      return false;
-    }
+    let creep = this;
+    let posFirstPath = _.min(path, function(object) {
+      return creep.pos.getRangeTo(object.x, object.y);
+    });
+    let posFirst = new RoomPosition(posFirstPath.x, posFirstPath.y, posFirstPath.roomName);
 
     let search = PathFinder.search(
       this.pos, {

@@ -10,7 +10,18 @@ roles.squadheal = {};
 
 roles.squadheal.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, HEAL];
-  return room.getPartConfig(energy, parts).sort();
+
+  let config = room.getPartConfig(energy, parts).sort();
+  let costs = 0;
+  for (let a of config) {
+    costs += BODYPART_COST[a];
+  }
+  let rest = energy - costs;
+  for (let i = 0; i < Math.floor(rest / (BODYPART_COST[MOVE] + BODYPART_COST[TOUGH])); i++) {
+    config.unshift(TOUGH);
+    config.unshift(MOVE);
+  }
+  return config;
 };
 
 roles.squadheal.energyRequired = function(room) {
@@ -23,18 +34,19 @@ roles.squadheal.energyBuild = function(room, energy) {
 
 roles.squadheal.preMove = function(creep, directions) {
   if (creep.hits < creep.hitsMax) {
-    console.log('preMove heal');
+    creep.log('preMove heal');
     creep.heal(creep);
     creep.memory.routing.reverse = true;
     if (directions) {
       directions.direction = directions.backwardDirection;
+
     }
     return false;
   } else {
     creep.memory.routing.reverse = false;
   }
 
-  var myCreeps = creep.room.find(FIND_MY_CREEPS, {
+  var myCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
     filter: function(object) {
       if (object.hits < object.hitsMax) {
         return true;
@@ -42,14 +54,14 @@ roles.squadheal.preMove = function(creep, directions) {
       return false;
     }
   });
-  if (myCreeps.length > 0) {
+  if (myCreep !== null) {
     creep.say('heal', true);
-    creep.moveTo(myCreeps[0]);
-    let range = creep.pos.getRangeTo(myCreeps[0]);
+    let range = creep.pos.getRangeTo(myCreep);
     if (range <= 1) {
-      creep.heal(myCreeps[0]);
+      creep.heal(myCreep);
     } else {
-      creep.rangedHeal(myCreeps[0]);
+      creep.moveTo(myCreep);
+      creep.rangedHeal(myCreep);
     }
     return true;
   }
@@ -63,7 +75,7 @@ roles.squadheal.preMove = function(creep, directions) {
     let reverse = false;
     if (squad.action == 'move') {
       if (creep.room.name == squad.moveTarget) {
-        let nextExits = creep.room.find(creep.memory.route[creep.memory.routePos].exit);
+        let nextExits = creep.room.find(creep.memory.routing.route[creep.memory.routing.routePos].exit);
         let nextExit = nextExits[Math.floor(nextExits.length / 2)];
         let range = creep.pos.getRangeTo(nextExit.x, nextExit.y);
         if (range < 4) {
@@ -79,6 +91,35 @@ roles.squadheal.preMove = function(creep, directions) {
 
 // TODO need to check if it works
 roles.squadheal.action = function(creep) {
+  creep.heal(creep);
+
+  if (creep.room.name != creep.memory.routing.targetRoom) {
+    // creep.log('Not in room');
+    if (creep.hits < creep.hitsMax) {
+      creep.moveRandom();
+    } else {
+      // creep.log('delete?');
+      delete creep.memory.routing.reached;
+    }
+    return true;
+  } else {
+    creep.log('In room');
+    if (creep.hits < creep.hitsMax) {
+      creep.log('action heal');
+      creep.heal(creep);
+      creep.say('exit');
+      let exit = creep.pos.findClosestByRange(FIND_EXIT);
+      creep.moveTo(exit);
+    } else {
+      creep.log('mrandom');
+      creep.moveRandom();
+      creep.squadHeal();
+    }
+  }
+
+  if (true) {
+    return true;
+  }
   if (creep.hits < creep.hitsMax) {
     creep.log('action heal');
     creep.heal(creep);
@@ -118,5 +159,7 @@ roles.squadheal.action = function(creep) {
 };
 
 roles.squadheal.execute = function(creep) {
-  //  creep.log('Execute!!!');
+  creep.log('Execute!!!');
+  creep.heal(creep);
+  creep.moveRandom();
 };
