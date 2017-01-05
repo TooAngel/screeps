@@ -104,6 +104,8 @@ global.config = {
     renewOffset: 0,
     queueTtl: 100,
     structurer: true,
+    structurerInterval: 1500,
+    structurerMinEnergy: 1300,
     reserverDefender: true,
     energyFromStorageThreshold: 2000
   },
