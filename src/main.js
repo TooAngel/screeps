@@ -32,7 +32,7 @@ var main = function() {
     visualizer.render();
   }
   if (config.stats.enabled && Memory.username) {
-    Memory.stats[Memory.username + '.cpu.used'] = Game.cpu.getUsed();
+    Memory.stats[Memory.username].cpu.used = Game.cpu.getUsed();
   }
 };
 
