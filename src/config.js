@@ -138,4 +138,4 @@ global.config = {
 
 try {
   require('config_local');
-} catch (e) { }
+} catch (e) {}
