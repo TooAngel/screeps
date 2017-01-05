@@ -1,8 +1,6 @@
 'use strict';
 
 brain.prepareMemory = function() {
-  Memory.stats = {};
-
   Memory.mineralSystemPrice = {};
   Memory.ordersBuy = _.filter(Game.market.getAllOrders(), function(object) {
     if (object.type != ORDER_BUY) {
@@ -108,8 +106,24 @@ brain.prepareMemory = function() {
     }
   }
 
-  if (config.stats.summary) {
+  if (config.stats.enabled) {
+    Memory.stats = {};
+    var name = Memory.username;
+    if (name) {
+      Memory.stats[name + '.cpu.limit'] = Game.cpu.limit;
+      Memory.stats[name + '.cpu.tickLimit'] = Game.cpu.tickLimit;
+      Memory.stats[name + '.cpu.bucket'] = Game.cpu.bucket;
+      Memory.stats[name + '.exec.halt'] = Game.cpu.bucket < Game.cpu.tickLimit * 2;
 
+      Memory.stats[name + '.gcl.level'] = Game.gcl.level;
+      Memory.stats[name + '.gcl.progress'] = Game.gcl.progress;
+      Memory.stats[name + '.gcl.progressTotal'] = Game.gcl.progressTotal;
+
+      Memory.stats[name + '.rooms.available'] = Game.rooms.length;
+    }
+  }
+
+  if (config.stats.summary) {
     var interval = 100;
     if (Game.time % interval === 0) {
       console.log('=========================');
