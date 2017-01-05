@@ -37,6 +37,10 @@ Room.prototype.myHandleRoom = function() {
     let name = Memory.username;
     let roomName = this.name;
     let pathBegin = name + '.room.' + roomName;
+    if (this.memory.upgraderUpgrade === undefined) {
+      this.memory.upgraderUpgrade = 0;
+    }
+
     Memory.stats[name].room[roomName] = {
       energy: {
         available: this.energyAvailable,
@@ -45,6 +49,7 @@ Room.prototype.myHandleRoom = function() {
       },
       constroller: {
         progress: this.controller.progress,
+        preCalcSpeed: this.memory.upgraderUpgrade / (Game.time % 100),
         progressTotal: this.controller.progressTotal
       },
       creeps: {
@@ -53,9 +58,6 @@ Room.prototype.myHandleRoom = function() {
       },
       cpu: Game.cpu.getUsed()
     };
-    //Memory.stats[pathBegin + '.progress'] = this.memory.upgraderUpgrade / (Game.time % 100);
-    //don't understand and don't use in graphs so commented'
-
     if (this.storage) {
       let storage = this.storage;
       Memory.stats[pathBegin].storage = {
