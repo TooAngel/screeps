@@ -318,9 +318,6 @@ Creep.prototype.respawnMe = function() {
     routing: routing
   };
   Game.rooms[this.memory.base].memory.queue.push(spawn);
-  if (spawn.role == 'reserver') {
-    console.log('Add reserver to queue: ' + JSON.stringify(spawn));
-  }
 };
 
 Creep.prototype.spawnReplacement = function(maxOfRole) {
