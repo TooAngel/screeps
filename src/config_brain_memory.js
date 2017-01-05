@@ -121,8 +121,6 @@ brain.prepareMemory = function() {
 
       Memory.stats[name + '.rooms.available'] = Game.rooms.length;
     }
-  } else if (Memory.stats) {
-    delete Memory.stats;
   }
 
   if (config.stats.summary) {
