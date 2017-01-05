@@ -82,7 +82,7 @@ roles.structurer.action = function(creep) {
     creep.dismantle(structure);
   }
 
-  creep.spawnReplacement();
+  creep.spawnReplacement(1);
   creep.handleStructurer();
   return true;
 };
