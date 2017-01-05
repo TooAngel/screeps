@@ -254,15 +254,7 @@ Room.prototype.checkAndSpawnReserver = function() {
 
   if (this.checkBlockedPath()) {
     this.log('Call structurer from ' + baseRoom.name);
-    baseRoom.memory.queue.push({
-      role: 'structurer',
-      routing: {
-        targetRoom: this.name,
-        reached: false,
-        routePos: 0,
-        pathPos: 0
-      }
-    });
+    Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, this.name);
     return;
   }
 
@@ -283,12 +275,12 @@ Room.prototype.checkAndSpawnReserver = function() {
     energyNeeded += 300;
   }
   this.log('Would like to spawn reserver ' +
-      baseRoom.getEnergyCapacityAvailable() + '/' + energyNeeded);
+    baseRoom.getEnergyCapacityAvailable() + '/' + energyNeeded);
   if (baseRoom.getEnergyCapacityAvailable() >= energyNeeded) {
     if (!baseRoom.inQueue(reserverSpawn)) {
       this.log('Queuing reserver ' + baseRoom.name + ' ' +
-          JSON.stringify(reserverSpawn));
-      baseRoom.memory.queue.push(reserverSpawn);
+        JSON.stringify(reserverSpawn));
+      baseRoom.checkRoleToSpawn('reserver', 1, this.controller.id, this.name, 2);
     }
   }
 };
@@ -297,7 +289,7 @@ Room.prototype.handleReservedRoom = function() {
   this.memory.state = 'Reserved';
   this.memory.lastSeen = Game.time;
   if (this.memory.lastChecked !== undefined &&
-      Game.time - this.memory.lastChecked < 500) {
+    Game.time - this.memory.lastChecked < 500) {
     return false;
   }
   this.memory.lastChecked = Game.time;
@@ -322,7 +314,7 @@ Room.prototype.handleUnreservedRoom = function() {
   this.memory.state = 'Unreserved';
   this.memory.lastSeen = Game.time;
   if (this.memory.lastChecked !== undefined &&
-      Game.time - this.memory.lastChecked < 500) {
+    Game.time - this.memory.lastChecked < 500) {
     return true;
   }
 
@@ -331,8 +323,8 @@ Room.prototype.handleUnreservedRoom = function() {
     let isReservedBy = (roomName) => {
       return (roomMemory) => {
         return roomMemory.reservation !== undefined &&
-            roomMemory.state === 'Reserved' &&
-            roomMemory.reservation.base == roomName;
+          roomMemory.state === 'Reserved' &&
+          roomMemory.reservation.base == roomName;
       };
     };
     checkRoomsLabel: for (let roomName of Memory.myRooms) {
@@ -364,7 +356,7 @@ Room.prototype.handleUnreservedRoom = function() {
         }
       }
       if (room.memory.queue && room.memory.queue.length === 0 &&
-          room.energyAvailable >= room.getEnergyCapacityAvailable()) {
+        room.energyAvailable >= room.getEnergyCapacityAvailable()) {
         let reservedRooms = _.filter(Memory.rooms, isReservedBy(room.name));
         // RCL: target reserved rooms
         let numRooms = {
@@ -460,7 +452,7 @@ Room.prototype.handleSourceKeeperRoom = function() {
         }
       };
       this.log(`!!!!!!!!!!!! ${JSON.stringify(spawn)}`);
-      Game.rooms[this.memory.base].memory.queue.push(spawn);
+      Game.rooms[this.memory.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
     }
   }
 
