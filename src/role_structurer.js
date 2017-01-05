@@ -10,17 +10,13 @@
 
 roles.structurer = {};
 roles.structurer.boostActions = ['dismantle'];
-roles.structurer.energyRequired = function(room) {
-  return 1500;
-};
 
-roles.structurer.energyBuild = function(room, energy) {
-  return Math.min(energy, 3750);
-};
-
-roles.structurer.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, WORK];
-  return room.getPartConfig(energy, parts);
+roles.structurer.settings = {
+  parts: {layout: [MOVE, WORK]},
+  energy: {
+    maxEnergyUsed: 3750,
+    minEnergyStored: 1500
+  }
 };
 
 roles.structurer.preMove = function(creep, directions) {

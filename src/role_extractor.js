@@ -10,15 +10,12 @@ roles.extractor = {};
 
 roles.extractor.boostActions = ['harvest', 'capacity'];
 
-roles.extractor.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, MOVE, WORK];
-  return room.getPartConfig(energy, parts);
-};
-
-roles.extractor.energyBuild = function(room, energy, heal) {
-  var max = 2000;
-  energy = Math.max(250, Math.min(max, room.getEnergyCapacityAvailable()));
-  return energy;
+roles.extractor.settings = {
+  energy: {layout: [MOVE, MOVE, CARRY, WORK]},
+  parts: {
+    maxEnergyUsed: 2000,
+    minEnergyStored: 250
+  }
 };
 
 roles.extractor.terminalStorageExchange = function(creep) {

@@ -9,15 +9,12 @@
  */
 
 roles.mineral = {};
-roles.mineral.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY];
-  return room.getPartConfig(energy, parts);
-};
-
-roles.mineral.energyBuild = function(room, energy, heal) {
-  var max = 1000;
-  energy = Math.max(250, Math.min(max, room.getEnergyCapacityAvailable()));
-  return energy;
+roles.mineral.settings = {
+  parts: {layout: [MOVE, CARRY]},
+  energy: {
+    maxEnergyUsed: 1000,
+    minEnergyStored: 250
+  }
 };
 
 roles.mineral.action = function(creep) {

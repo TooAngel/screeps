@@ -8,17 +8,12 @@
 
 roles.defendmelee = {};
 
-roles.defendmelee.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, ATTACK];
-  return room.getPartConfig(energy, parts);
-};
-
-roles.defendmelee.energyRequired = function(room) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
-};
-
-roles.defendmelee.energyBuild = function(room, energy) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
+roles.defendmelee.settings = {
+  parts: {layout: [MOVE, ATTACK]},
+  energy: {
+    maxEnergyUsed: 3250,
+    minEnergyStored: 1000
+  }
 };
 
 roles.defendmelee.execute = function(creep) {

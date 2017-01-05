@@ -21,18 +21,12 @@ roles.nextroomer.died = function(name, creepMemory) {
   console.log('DIED:', message);
 };
 
-roles.nextroomer.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, WORK, MOVE, CARRY];
-  var config = room.getPartConfig(energy, parts);
-  return config;
-};
-
-roles.nextroomer.energyRequired = function(room) {
-  return Math.min(700, room.getEnergyCapacityAvailable());
-};
-
-roles.nextroomer.energyBuild = function(room, energy) {
-  return Math.min(3150, energy);
+roles.nextroomer.settings = {
+  parts: {layout: [MOVE, MOVE, WORK, CARRY]},
+  energy: {
+    maxEnergyUsed: 3150,
+    minEnergyStored: 700
+  }
 };
 
 roles.nextroomer.checkForRampart = function(coords) {

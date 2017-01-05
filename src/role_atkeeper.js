@@ -9,17 +9,14 @@
 
 roles.atkeeper = {};
 
-roles.atkeeper.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, RANGED_ATTACK, MOVE, HEAL];
-  return room.getPartConfig(energy, parts);
-};
-
-roles.atkeeper.energyRequired = function(room) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3430);
-};
-
-roles.atkeeper.energyBuild = function(room) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3430);
+roles.atkeeper.settings = {
+  parts: {
+    layout: [MOVE, MOVE, RANGED_ATTACK, HEAL]
+  },
+  energy: {
+    minEnergyStored: 3430,
+    maxEnergyUsed: 3430
+  }
 };
 
 roles.atkeeper.action = function(creep) {
