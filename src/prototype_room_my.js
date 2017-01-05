@@ -35,25 +35,42 @@ Room.prototype.myHandleRoom = function() {
   }
   if (config.stats.enabled) {
     let name = Memory.username;
-    let pathBegin = name + '.room.' + this.name;
-    Memory.stats[pathBegin + '.energy.available'] = this.energyAvailable;
-    Memory.stats[pathBegin + '.energy.capacity'] = this.energyCapacityAvailable;
-    Memory.stats[pathBegin + '.controller.progress'] = this.controller.progress;
-    Memory.stats[pathBegin + '.controller.progressTotal'] = this.controller.progressTotal;
-    Memory.stats[pathBegin + '.progress'] = this.memory.upgraderUpgrade / (Game.time % 100);
-    Memory.stats[pathBegin + '.queueLength'] = this.memory.queue.length;
-    Memory.stats[pathBegin + '.creepsIn'] = this.find(FIND_CREEPS).length;
-    Memory.stats[pathBegin + '.sourcesEnergy'] = _.sum(_.map(this.find(FIND_SOURCES), 'energy'));
+    let roomName = this.name;
+    let pathBegin = name + '.room.' + roomName;
+    if (this.memory.upgraderUpgrade === undefined) {
+      this.memory.upgraderUpgrade = 0;
+    }
 
+    Memory.stats[name].room[roomName] = {
+      energy: {
+        available: this.energyAvailable,
+        capacity: this.energyCapacityAvailable,
+        sources: _.sum(_.map(this.find(FIND_SOURCES), 'energy'))
+      },
+      constroller: {
+        progress: this.controller.progress,
+        preCalcSpeed: this.memory.upgraderUpgrade / (Game.time % 100),
+        progressTotal: this.controller.progressTotal
+      },
+      creeps: {
+        into: this.find(FIND_CREEPS).length,
+        queue: this.memory.queue.length
+      },
+      cpu: Game.cpu.getUsed()
+    };
     if (this.storage) {
       let storage = this.storage;
-      Memory.stats[pathBegin + '.storage.energy'] = storage.store.energy || 0;
-      Memory.stats[pathBegin + '.storage.power'] = storage.store.power || 0;
+      Memory.stats[pathBegin].storage = {
+        energy: storage.store.energy,
+        power: storage.store.power
+      };
     }
     if (this.terminal) {
       let terminal = this.terminal;
-      Memory.stats[pathBegin + '.terminal.energy'] = terminal.store.energy || 0;
-      Memory.stats[pathBegin + '.terminal.minerals'] = (_.sum(terminal.store) - (terminal.store.energy || 0)) || 0;
+      Memory.stats[pathBegin].terminal = {
+        energy: terminal.store.energy,
+        minerals: _.sum(terminal.store) - terminal.store.energy
+      };
     }
   }
 

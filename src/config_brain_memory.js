@@ -110,17 +110,27 @@ brain.prepareMemory = function() {
     Memory.stats = {};
     var name = Memory.username;
     if (name) {
-      Memory.stats[name + '.cpu.limit'] = Game.cpu.limit;
-      Memory.stats[name + '.cpu.tickLimit'] = Game.cpu.tickLimit;
-      Memory.stats[name + '.cpu.bucket'] = Game.cpu.bucket;
-      Memory.stats[name + '.exec.halt'] = Game.cpu.bucket < Game.cpu.tickLimit * 2;
-
-      Memory.stats[name + '.gcl.level'] = Game.gcl.level;
-      Memory.stats[name + '.gcl.progress'] = Game.gcl.progress;
-      Memory.stats[name + '.gcl.progressTotal'] = Game.gcl.progressTotal;
-
-      Memory.stats[name + '.rooms.available'] = Game.rooms.length;
+      Memory.stats[name] = {
+        cpu: {
+          limit: Game.cpu.limit,
+          tickLimit: Game.cpu.tickLimit,
+          bucket: Game.cpu.bucket
+        },
+        exec: {
+          halt: Game.cpu.bucket < Game.cpu.tickLimit * 2
+        },
+        gcl: {
+          level: Game.gcl.level,
+          progress: Game.gcl.progress,
+          progressTotal: Game.gcl.progressTotal
+        },
+        rooms: {
+          available: Game.rooms.length
+        }
+      };
     }
+  } else if (Memory.stats) {
+    delete Memory.stats;
   }
 
   if (config.stats.summary) {
