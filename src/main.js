@@ -31,7 +31,7 @@ var main = function() {
   Memory.myRooms = _.map(_.filter(Game.rooms, (r) => r.execute()), r => r.name);
 
   if (config.stats.enabled && Memory.username) {
-    Memory.stats[Memory.username + '.cpu.used'] = Game.cpu.getUsed();
+    Memory.stats[Memory.username].cpu.used = Game.cpu.getUsed();
   }
 };
 
