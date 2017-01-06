@@ -103,7 +103,8 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
 
     if (this.room.name == this.memory.routing.targetRoom) {
       let containers = this.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: (s) => s.structureType == STRUCTURE_CONTAINER,
+        filter: (s) => (s.structureType == STRUCTURE_CONTAINER ||
+          s.structureType == STRUCTURE_STORAGE),
       });
       for (let container of containers) {
         this.withdraw(container, RESOURCE_ENERGY);

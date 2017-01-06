@@ -8,7 +8,6 @@ require('prototype_room_init');
 require('prototype_room_costmatrix');
 require('visualizer');
 require('screepsplus');
-require('visualizer');
 
 if (config.profiler.enabled) {
   try {
