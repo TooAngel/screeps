@@ -4,7 +4,7 @@ if (config.visualizer.enabled) {
   try {
     var Visual = require('visual');
   } catch (e) {
-    console.log('Visual not found, please disable config option or copy from screeps-visual folder');
+    console.log('Visual not found, please disable config option or copy visual.js from screeps-visual');
     config.visualizer.enabled = false;
   }
 }
