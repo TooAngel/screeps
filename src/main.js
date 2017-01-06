@@ -8,6 +8,8 @@ require('prototype_room_init');
 require('prototype_room_costmatrix');
 require('screepsplus');
 
+
+
 var Stats = require('stats');
 
 if (config.profiler.enabled) {
@@ -25,6 +27,7 @@ var main = function() {
     console.log('Skipping tick ' + Game.time + ' due to lack of CPU.');
     return;
   }
+
   brain.prepareMemory();
   brain.handleNextroom();
   brain.handleSquadmanager();
@@ -34,9 +37,10 @@ var main = function() {
 
   Memory.myRooms = _.map(_.filter(Game.rooms, (r) => {
     r.execute();
+  }), r => {
     Stats.addRoom(r);
-  }), r => r.name);
-
+    return r.name;
+  });
   Stats.add('', '.cpu.used', Game.cpu.getUsed());
 };
 

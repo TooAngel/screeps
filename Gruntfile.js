@@ -3,7 +3,10 @@ module.exports = function(grunt) {
   try {
     account = require('account.screeps.com');
   } catch (e) {
-    account = {email: false, password: false};
+    account = {
+      email: false,
+      password: false
+    };
   }
 
 
@@ -61,6 +64,7 @@ module.exports = function(grunt) {
         files: {
           'dist/main.js': [
             'src/config.js',
+            'src/config_local.js',
             'src/config_logging.js',
             'src/config_brain_memory.js',
             'src/config_brain_nextroom.js',
@@ -186,6 +190,16 @@ module.exports = function(grunt) {
           ],
           dest: 'dist/',
         }]
+      },
+      visualizer: {
+        files: [{
+          expand: true,
+          cwd: 'screeps-visual/',
+          src: [
+            'visual.js'
+          ],
+          dest: 'dist/',
+        }]
       }
     },
 
@@ -199,9 +213,9 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('default', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
+  grunt.registerTask('default', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'copy:visualizer', 'screeps']);
   grunt.registerTask('release', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
-  grunt.registerTask('local', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
+  grunt.registerTask('local', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'copy:visualizer', 'sync']);
   grunt.registerTask('test', ['jshint', 'jscs']);
   grunt.registerTask('dev', ['jshint', 'jsbeautifier', 'jscs']);
   grunt.registerTask('requireFile', 'Creates an empty file', function() {

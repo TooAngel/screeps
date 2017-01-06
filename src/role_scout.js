@@ -116,7 +116,11 @@ roles.scout.execute = function(creep) {
           delete creep.memory.last; // Delete to reset stuckness.
         }
       }
-      creep.moveTo(targetPosObject);
+      if (search.path.length > 0) {
+        creep.move(creep.pos.getDirectionTo(search.path[0]));
+      } else {
+        creep.moveTo(targetPosObject);
+      }
       return true;
     }
     creep.say(creep.pos.getDirectionTo(search.path[0]));
