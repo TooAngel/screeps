@@ -1,0 +1,3 @@
+[submodule "screeps-visual"]
+	path = screeps-visual
+	url = https://github.com/screepers/screeps-visual.git

@@ -1,4 +1,5 @@
 {
+  "node": true,
   "esnext": true,
   "globals": {
     "Memory": false,
@@ -129,9 +130,6 @@
     "friends": false,
     "ORDER_SELL": false,
     "SUBSCRIPTION_TOKEN": false,
-    "cache": false,
-    "visualizer": false,
-    "RawVisual": false
-  },
-  "node": true
+    "cache": false
+  }
 }

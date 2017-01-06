@@ -1,5 +1,9 @@
 'use strict';
 
+var visualizer = {
+  render: function() { }
+};
+
 require('require');
 require('prototype_creep_startup_tasks');
 require('prototype_creep_move');
