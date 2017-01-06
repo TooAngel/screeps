@@ -8,6 +8,8 @@ require('prototype_room_init');
 require('prototype_room_costmatrix');
 require('screepsplus');
 
+var Stats = require('stats');
+
 if (config.profiler.enabled) {
   try {
     var profiler = require('screeps-profiler');
@@ -28,11 +30,14 @@ var main = function() {
   brain.handleSquadmanager();
   brain.handleIncomingTransactions();
 
-  Memory.myRooms = _.map(_.filter(Game.rooms, (r) => r.execute()), r => r.name);
+  Stats.calc();
 
-  if (config.stats.enabled && Memory.username) {
-    Memory.stats[Memory.username].cpu.used = Game.cpu.getUsed();
-  }
+  Memory.myRooms = _.map(_.filter(Game.rooms, (r) => {
+    r.execute();
+    Stats.room(r);
+  }), r => r.name);
+
+  Stats.getCpuUsed();
 };
 
 module.exports.loop = function() {
