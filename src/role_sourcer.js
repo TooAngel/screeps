@@ -32,8 +32,8 @@ roles.sourcer.preMove = function(creep, directions) {
 
     var source = creep.room.memory.position.creep[targetId];
     // TODO better the position from the room memory
-    creep.moveTo(target);
-    if (creep.pos.getRangeTo(target) > 0) {
+    creep.moveTo(targetId);
+    if (creep.pos.getRangeTo(targetId) > 0) {
       return true;
     }
   }
