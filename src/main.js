@@ -30,14 +30,13 @@ var main = function() {
   brain.handleNextroom();
   brain.handleSquadmanager();
   brain.handleIncomingTransactions();
-
-  //thinking about save all rooms datas : -CPU => +Memory
+  //Memory.myRooms = _.create(Room.prototype, Memory.myRooms);  //thinking about save all rooms datas : -CPU => +Memory
   brain.stats.addRoot();
   Memory.myRooms = _.map(_.filter(Game.rooms, r => r.execute()), r => r.name);
   Memory.myRooms.forEach(function(roomName) {
     brain.stats.addRoom(roomName);
   });
-
+};
   if (config.visualizer.enabled && config.visualizer.refresh) {
     visualizer.render();
   }
