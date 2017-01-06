@@ -32,7 +32,7 @@ var main = function() {
   //Memory.myRooms = _.create(Room.prototype, Memory.myRooms);
   //thinking about save all rooms datas : -CPU => +Memory
 
-  brain.stats.tats.addRoot();
+  brain.stats.addRoot();
   Memory.myRooms = _.map(_.filter(Game.rooms, r => r.execute()), r => r.name);
   Memory.myRooms.forEach(function(roomName) {
     brain.stats.addRoom(roomName);
