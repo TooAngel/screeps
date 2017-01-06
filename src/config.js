@@ -1,6 +1,8 @@
 'use strict';
 
-global.brain = {};
+global.brain = {
+  stats: {}
+};
 global.roles = {};
 global.cache = {
   rooms: {}
