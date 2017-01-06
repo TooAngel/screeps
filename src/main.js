@@ -34,7 +34,6 @@ var main = function() {
   Memory.myRooms = _.map(_.filter(Game.rooms, r => r.execute()), r => r.name);
   Memory.myRooms.forEach(function(roomName) {
     Stats.addRoom(roomName);
-    console.log(roomName);
   });
 
   if (config.visualizer.enabled && config.visualizer.refresh) {
