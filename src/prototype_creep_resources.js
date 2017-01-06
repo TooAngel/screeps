@@ -763,13 +763,8 @@ Creep.prototype.transferEnergyMy = function() {
     if (search.incomplete) {
       this.say('tr:incompl', true);
       if (config.path.pathfindIncomplete) {
-        let search = PathFinder.search(
-          this.pos, {
-            pos: target.pos,
-            range: 1
-          }, {
-            maxRooms: 1
-          });
+        this.moveTo(target.pos);
+        return true;
       }
       let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
     } else {
