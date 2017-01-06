@@ -66,14 +66,14 @@ var stats = {
   /**
   * stats.addRoom call stats.add with given values and given sub room path.
   *
-  * @param {object} room The room which from we will save stats.
+  * @param {String} roomName The room which from we will save stats.
   *
   */
-  addRoom: function(room) {
+  addRoom: function(roomName) {
     if (!config.stats.enabled) {
       return false;
     }
-    let roomName = room.name;
+    let room = Game.rooms[roomName];
     if (room.memory.upgraderUpgrade === undefined) {
       room.memory.upgraderUpgrade = 0;
     }

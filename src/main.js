@@ -34,11 +34,10 @@ var main = function() {
   //thinking about save all rooms datas : -CPU => +Memory
 
   Stats.addRoot();
-  Memory.myRooms = _.map(_.filter(Game.rooms, (r) => {
-    r.execute();
-  }), r => {
-    Stats.addRoom(r);
-    return r.name;
+  Memory.myRooms = _.map(_.filter(Game.rooms, r => r.execute()), r => r.name);
+  Memory.myRooms.forEach(function(roomName) {
+    Stats.addRoom(roomName);
+    console.log(roomName);
   });
   Stats.add('', '.cpu.used', Game.cpu.getUsed());
 };
