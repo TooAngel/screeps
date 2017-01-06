@@ -346,7 +346,7 @@ Room.prototype.executeRoom = function() {
     }
   }
 
-  let carryHelpInterval = 100;
+  let carryHelpInterval = config.nextRoom.ticksUntilHelpCheck;
   if (Game.time % carryHelpInterval) {
     this.memory.Energy += this.energyAvailable;
   } else if (!this.memory.Energy) {
