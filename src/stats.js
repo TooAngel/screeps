@@ -28,7 +28,7 @@ var stats = {
     return true;
   },
   /**
-  * stats.addPlayer call stats.add with given values at given path at stats root.
+  * stats.addPlayer call stats.add with given values at given sub player path.
   *
   */
   addRoot: function() {
