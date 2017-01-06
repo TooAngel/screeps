@@ -8,8 +8,6 @@ require('prototype_room_init');
 require('prototype_room_costmatrix');
 require('screepsplus');
 
-var Stats = require('stats');
-
 if (config.profiler.enabled) {
   try {
     var profiler = require('screeps-profiler');
@@ -33,12 +31,12 @@ var main = function() {
   //Memory.myRooms = _.create(Room.prototype, Memory.myRooms);
   //thinking about save all rooms datas : -CPU => +Memory
 
-  Stats.addRoot();
+  brain.stats.tats.addRoot();
   Memory.myRooms = _.map(_.filter(Game.rooms, r => r.execute()), r => r.name);
   Memory.myRooms.forEach(function(roomName) {
-    Stats.addRoom(roomName);
+    brain.stats.addRoom(roomName);
   });
-  Stats.add('', '.cpu.used', Game.cpu.getUsed());
+  brain.stats.add('', '.cpu.used', Game.cpu.getUsed());
 };
 
 module.exports.loop = function() {

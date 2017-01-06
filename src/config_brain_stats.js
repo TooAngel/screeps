@@ -1,6 +1,6 @@
 'use strict';
 
-var stats = {
+brain.stats = {
   /**
   * stats.add use for push anything into Memory.stats at a given place.
   *
@@ -114,5 +114,3 @@ var stats = {
 
   }
 };
-
-module.exports = stats;
