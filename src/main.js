@@ -30,15 +30,16 @@ var main = function() {
   brain.handleSquadmanager();
   brain.handleIncomingTransactions();
   Stats.addRoot();
+
+  Memory.myRooms = _.map(_.filter(Game.rooms, r => r.execute()), r => r.name);
+  Memory.myRooms.forEach(function(roomName) {
+    Stats.addRoom(roomName);
+    console.log(roomName);
+  });
+
   if (config.visualizer.enabled && config.visualizer.refresh) {
     visualizer.render();
-  }
-  Memory.myRooms = _.map(_.filter(Game.rooms, (r) => {
-    r.execute();
-    Stats.addRoom(r);
-  }), r => r.name);
-
-  Stats.add('', '.cpu.used', Game.cpu.getUsed());
+  }  Stats.add('', '.cpu.used', Game.cpu.getUsed());
 };
 
 module.exports.loop = function() {
