@@ -70,10 +70,11 @@ var stats = {
   *
   */
   addRoom: function(roomName) {
-    if (!config.stats.enabled) {
-      return false;
-    }
+    if (!config.stats.enabled) {return false;}
+
     let room = Game.rooms[roomName];
+    if (!room) {return false;}
+
     if (room.memory.upgraderUpgrade === undefined) {
       room.memory.upgraderUpgrade = 0;
     }
