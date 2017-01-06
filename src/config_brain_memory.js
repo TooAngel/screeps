@@ -106,33 +106,6 @@ brain.prepareMemory = function() {
     }
   }
 
-  if (config.stats.enabled) {
-    Memory.stats = {};
-    var name = Memory.username;
-    if (name) {
-      Memory.stats[name] = {
-        cpu: {
-          limit: Game.cpu.limit,
-          tickLimit: Game.cpu.tickLimit,
-          bucket: Game.cpu.bucket
-        },
-        exec: {
-          halt: Game.cpu.bucket < Game.cpu.tickLimit * 2
-        },
-        gcl: {
-          level: Game.gcl.level,
-          progress: Game.gcl.progress,
-          progressTotal: Game.gcl.progressTotal
-        },
-        rooms: {
-          available: Game.rooms.length
-        }
-      };
-    }
-  } else if (Memory.stats) {
-    delete Memory.stats;
-  }
-
   if (config.stats.summary) {
     var interval = 100;
     if (Game.time % interval === 0) {
