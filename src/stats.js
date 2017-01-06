@@ -14,16 +14,24 @@ var stats = {
     if (!config.stats.enabled) {
       return false;
     }
-    var name = Memory.username || Game.rooms[roomName].controller.owner;
+    if (!Memory.stats) { Memory.stats = {}; }
+    var name = Memory.username || Game.rooms[roomName].controller.owner || 'default';
     Memory.username = name;
     if (newContent && roomName) {
-      let existContent = Memory.stats[name].room[roomName + path];
-      Memory.stats[name].room[roomName + path] =
-        existContent ? existContent.concat(newContent) : newContent;
+      if (!Memory.stats[name].room) { Memory.stats[name].room = {}; }
+      Memory.stats[name].room[roomName + path] = newContent;
+
+      /**
+      * let existContent = Memory.stats[name].room[roomName + path];
+      * Memory.stats[name].room[roomName + path] = existContent ? _.concat(existContent,newContent) : newContent
+      */
+
     } else if (newContent) {
-      let existContent = Memory.stats[name + path];
-      Memory.stats[name + path] =
-        existContent ? existContent.concat(newContent) : newContent;
+      Memory.stats[name + path] = newContent;
+      /**
+      * let existContent = Memory.stats[name + path];
+      * Memory.stats[name + path] = existContent ? _.concat(existContent,newContent) : newContent;
+      */
     }
     return true;
   },
@@ -32,7 +40,6 @@ var stats = {
   *
   */
   addRoot: function() {
-    Memory.stats = {};
     if (!config.stats.enabled) {
       return false;
     }

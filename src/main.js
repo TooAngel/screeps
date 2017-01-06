@@ -30,9 +30,10 @@ var main = function() {
   brain.handleNextroom();
   brain.handleSquadmanager();
   brain.handleIncomingTransactions();
+  //Memory.myRooms = _.create(Room.prototype, Memory.myRooms);
+  //thinking about save all rooms datas : -CPU => +Memory
 
   Stats.addRoot();
-
   Memory.myRooms = _.map(_.filter(Game.rooms, (r) => {
     r.execute();
   }), r => {
