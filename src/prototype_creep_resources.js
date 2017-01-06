@@ -70,7 +70,7 @@ Creep.prototype.checkForTransfer = function(direction) {
       if (this.room.name == this.memory.routing.targetRoom) {
         carryPercentage = 0.8;
       }
-      if (this.room.name == this.memory.base) {
+      if (this.inBase()) {
         carryPercentage = 0.0;
       }
       return otherCreep.carry.energy + _.sum(this.carry) > carryPercentage * this.carryCapacity;
@@ -82,7 +82,7 @@ Creep.prototype.checkForTransfer = function(direction) {
 };
 
 Creep.prototype.pickupWhileMoving = function(reverse) {
-  if (this.room.name == this.memory.base && this.memory.routing.pathPos < 2) {
+  if (this.inBase() && this.memory.routing.pathPos < 2) {
     return reverse;
   }
 
@@ -207,7 +207,7 @@ Creep.prototype.handleUpgrader = function() {
 };
 
 Creep.prototype.buildContainer = function() {
-  if (this.room.name == this.memory.base) {
+  if (this.inBase()) {
     return false;
   }
   // TODO Not in base room
@@ -796,7 +796,7 @@ Creep.prototype.handleReserver = function() {
   this.spawnReplacement(1);
 
   let callCleaner = function(creep) {
-    if (creep.memory.base == creep.room.name) {
+    if (creep.inBase()) {
       return false;
     }
 
