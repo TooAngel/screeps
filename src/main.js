@@ -30,14 +30,14 @@ var main = function() {
   brain.handleSquadmanager();
   brain.handleIncomingTransactions();
 
-  Stats.calc();
+  Stats.addRoot();
 
   Memory.myRooms = _.map(_.filter(Game.rooms, (r) => {
     r.execute();
-    Stats.room(r);
+    Stats.addRoom(r);
   }), r => r.name);
 
-  Stats.getCpuUsed();
+  Stats.add('', '.cpu.used', Game.cpu.getUsed());
 };
 
 module.exports.loop = function() {
