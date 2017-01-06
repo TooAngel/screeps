@@ -1,82 +1,109 @@
-stats = {
-  calc: function() {
-    var name = Memory.username;
-    Memory.stats = {};
-    if (config.stats.enabled && name) {
-      Memory.stats[name] = {
-        cpu: {
-          limit: Game.cpu.limit,
-          tickLimit: Game.cpu.tickLimit,
-          bucket: Game.cpu.bucket
-        },
-        exec: {
-          halt: Game.cpu.bucket < Game.cpu.tickLimit * 2
-        },
-        gcl: {
-          level: Game.gcl.level,
-          progress: Game.gcl.progress,
-          progressTotal: Game.gcl.progressTotal
-        },
-        rooms: {
-          available: Game.rooms.length
-        }
-      };
+'use strict';
 
-      return 1;
-    } else if (!config.stats.enabled) {
-      delete Memory.stats;
+var stats = {
+  /**
+  * stats.add use for push anything into Memory.stats at a given place.
+  *
+  * @param {String} roomName Room name or '' if out of  Stats[Player].rooms .
+  * @param {String} path Sub Stats[Player]/Stats[Player].room[Room] ids.
+  * @param {Any} newContent The value to push into stats.
+  *
+  */
+
+  add: function(roomName, path, newContent) {
+    if (!config.stats.enabled) {
+      return false;
     }
-    return 0;
+    var name = Memory.username || Game.rooms[roomName].controller.owner;
+    Memory.username = name;
+    if (newContent && roomName) {
+      let existContent = Memory.stats[name].room[roomName + path];
+      Memory.stats[name].room[roomName + path] =
+        existContent ? existContent.concat(newContent) : newContent;
+    } else if (newContent) {
+      let existContent = Memory.stats[name + path];
+      Memory.stats[name + path] =
+        existContent ? existContent.concat(newContent) : newContent;
+    }
+    return true;
   },
-  room: function(room) {
-    var name = Memory.username;
-    if (config.stats.enabled && name) {
-      let name = Memory.username;
-      let roomName = room.name;
-      let pathBegin = name + '.room.' + roomName;
-      if (room.memory.upgraderUpgrade === undefined) {
-        room.memory.upgraderUpgrade = 0;
-      }
-      Memory.stats[name].room[roomName] = {
-        energy: {
-          available: room.energyAvailable,
-          capacity: room.energyCapacityAvailable,
-          sources: _.sum(_.map(room.find(FIND_SOURCES), 'energy'))
-        },
-        constroller: {
-          progress: room.controller.progress,
-          preCalcSpeed: room.memory.upgraderUpgrade / (Game.time % 100),
-          progressTotal: room.controller.progressTotal
-        },
-        creeps: {
-          into: room.find(FIND_CREEPS).length,
-          queue: room.memory.queue.length
-        },
-        cpu: Game.cpu.getUsed()
-      };
-      if (room.storage) {
-        let storage = room.storage;
-        Memory.stats[pathBegin].storage = {
-          energy: storage.store.energy,
-          power: storage.store.power
-        };
-      }
-      if (room.terminal) {
-        let terminal = room.terminal;
-        Memory.stats[pathBegin].terminal = {
-          energy: terminal.store.energy,
-          minerals: _.sum(terminal.store) - terminal.store.energy
-        };
-      }
-    } else if (!name) {
-      name = room.controller.owner;
-      Memory.name = name;
+  /**
+  * stats.addPlayer call stats.add with given values at given path at stats root.
+  *
+  */
+  addRoot: function() {
+    Memory.stats = {};
+    if (!config.stats.enabled) {
+      return false;
     }
+    this.add('', '', {
+      cpu: {
+        limit: Game.cpu.limit,
+        tickLimit: Game.cpu.tickLimit,
+        bucket: Game.cpu.bucket
+      },
+      exec: {
+        halt: Game.cpu.bucket < Game.cpu.tickLimit * 2
+      },
+      gcl: {
+        level: Game.gcl.level,
+        progress: Game.gcl.progress,
+        progressTotal: Game.gcl.progressTotal
+      },
+      rooms: {
+        available: Game.rooms.length
+      }
+    });
+    return true;
   },
-  getCpuUsed: function() {
-    if (config.stats.enabled && Memory.username) {
-      Memory.stats[Memory.username].cpu.used = Game.cpu.getUsed();
+  /**
+  * stats.addRoom call stats.add with given values and given sub room path.
+  *
+  * @param {object} room The room which from we will save stats.
+  *
+  */
+  addRoom: function(room) {
+    if (!config.stats.enabled) {
+      return false;
     }
+    let roomName = room.name;
+    if (room.memory.upgraderUpgrade === undefined) {
+      room.memory.upgraderUpgrade = 0;
+    }
+    this.add(roomName, '', {
+      energy: {
+        available: room.energyAvailable,
+        capacity: room.energyCapacityAvailable,
+        sources: _.sum(_.map(room.find(FIND_SOURCES), 'energy'))
+      },
+      constroller: {
+        progress: room.controller.progress,
+        preCalcSpeed: room.memory.upgraderUpgrade / (Game.time % 100),
+        progressTotal: room.controller.progressTotal
+      },
+      creeps: {
+        into: room.find(FIND_CREEPS).length,
+        queue: room.memory.queue.length
+      },
+      cpu: Game.cpu.getUsed()
+    });
+
+    if (room.storage) {
+      let storage = room.storage;
+      this.add(roomName, '.storage', {
+        energy: storage.store.energy,
+        power: storage.store.power
+      });
+    }
+    if (room.terminal) {
+      let terminal = room.terminal;
+      this.add(roomName, '.terminal', {
+        energy: terminal.store.energy,
+        minerals: _.sum(terminal.store) - terminal.store.energy
+      });
+    }
+    return true;
+
   }
 };
 
