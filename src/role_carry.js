@@ -37,8 +37,8 @@ roles.carry.preMove = function(creep, directions) {
       var source = creep.room.memory.position.creep[targetId];
       // TODO better the position from the room memory
       if (source !== null) {
-        let returnCode = creep.moveTo(source.pos);
-        if (creep.pos.getRangeTo(source.pos) > 1) {
+        let returnCode = creep.moveTo(target);
+        if (creep.pos.getRangeTo(target) > 1) {
           return true;
         }
       }
