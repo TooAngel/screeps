@@ -29,6 +29,9 @@ var main = function() {
   brain.handleNextroom();
   brain.handleSquadmanager();
   brain.handleIncomingTransactions();
+  if (config.visualizer.enabled && config.visualizer.refresh) {
+    visualizer.render();
+  }
   //Memory.myRooms = _.create(Room.prototype, Memory.myRooms);
   //thinking about save all rooms datas : -CPU => +Memory
 
