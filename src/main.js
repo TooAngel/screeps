@@ -8,8 +8,6 @@ require('prototype_room_init');
 require('prototype_room_costmatrix');
 require('screepsplus');
 
-
-
 var Stats = require('stats');
 
 if (config.profiler.enabled) {
