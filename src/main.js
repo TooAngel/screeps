@@ -31,6 +31,7 @@ var main = function() {
   brain.handleSquadmanager();
   brain.handleIncomingTransactions();
 
+  //thinking about save all rooms datas : -CPU => +Memory
   brain.stats.addRoot();
   Memory.myRooms = _.map(_.filter(Game.rooms, r => r.execute()), r => r.name);
   Memory.myRooms.forEach(function(roomName) {
