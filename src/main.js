@@ -6,7 +6,9 @@ require('prototype_creep_move');
 require('prototype_roomPosition');
 require('prototype_room_init');
 require('prototype_room_costmatrix');
-require('screepsplus');require('visualizer');
+require('screepsplus');
+require('visualizer');
+
 if (config.profiler.enabled) {
   try {
     var profiler = require('screeps-profiler');
@@ -27,13 +29,16 @@ var main = function() {
   brain.handleNextroom();
   brain.handleSquadmanager();
   brain.handleIncomingTransactions();
-  Memory.myRooms = _.map(_.filter(Game.rooms, (r) => r.execute()), r => r.name);
+  Stats.addRoot();
+
+  Memory.myRooms = _.map(_.filter(Game.rooms, r => r.execute()), r => r.name);
+  Memory.myRooms.forEach(function(roomName) {
+    Stats.addRoom(roomName);
+  });
+
   if (config.visualizer.enabled && config.visualizer.refresh) {
     visualizer.render();
-  }
-  if (config.stats.enabled && Memory.username) {
-    Memory.stats[Memory.username].cpu.used = Game.cpu.getUsed();
-  }
+  }  Stats.add('', '.cpu.used', Game.cpu.getUsed());
 };
 
 module.exports.loop = function() {

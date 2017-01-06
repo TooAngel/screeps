@@ -33,47 +33,6 @@ Room.prototype.myHandleRoom = function() {
       };
     }
   }
-  if (config.stats.enabled) {
-    let name = Memory.username;
-    let roomName = this.name;
-    let pathBegin = name + '.room.' + roomName;
-    if (this.memory.upgraderUpgrade === undefined) {
-      this.memory.upgraderUpgrade = 0;
-    }
-
-    Memory.stats[name].room[roomName] = {
-      energy: {
-        available: this.energyAvailable,
-        capacity: this.energyCapacityAvailable,
-        sources: _.sum(_.map(this.find(FIND_SOURCES), 'energy'))
-      },
-      constroller: {
-        progress: this.controller.progress,
-        preCalcSpeed: this.memory.upgraderUpgrade / (Game.time % 100),
-        progressTotal: this.controller.progressTotal
-      },
-      creeps: {
-        into: this.find(FIND_CREEPS).length,
-        queue: this.memory.queue.length
-      },
-      cpu: Game.cpu.getUsed()
-    };
-    if (this.storage) {
-      let storage = this.storage;
-      Memory.stats[pathBegin].storage = {
-        energy: storage.store.energy,
-        power: storage.store.power
-      };
-    }
-    if (this.terminal) {
-      let terminal = this.terminal;
-      Memory.stats[pathBegin].terminal = {
-        energy: terminal.store.energy,
-        minerals: _.sum(terminal.store) - terminal.store.energy
-      };
-    }
-  }
-
   return this.executeRoom();
 };
 
