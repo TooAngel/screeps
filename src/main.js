@@ -7,6 +7,7 @@ require('prototype_roomPosition');
 require('prototype_room_init');
 require('prototype_room_costmatrix');
 require('screepsplus');
+-require('visualizer');
 
 if (config.profiler.enabled) {
   try {
@@ -36,6 +37,9 @@ var main = function() {
   Memory.myRooms.forEach(function(roomName) {
     brain.stats.addRoom(roomName);
   });
+- if (config.visualizer.enabled && config.visualizer.refresh) {
+-   visualizer.render();
+- }
   brain.stats.add('', '.cpu.used', Game.cpu.getUsed());
 };
 
