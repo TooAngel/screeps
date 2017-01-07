@@ -4,6 +4,7 @@ require('utils');
 require('config_brain_memory');
 require('config_brain_nextroom');
 require('config_brain_squadmanager');
+require('config_brain_stats');
 require('prototype_creep');
 require('prototype_creep_clean');
 require('prototype_creep_fight');
