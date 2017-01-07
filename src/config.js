@@ -16,6 +16,12 @@ global.config = {
   profiler: {
     enabled: false,
   },
+  visualizer: {
+    enabled: false,
+    showRoomPaths: true,
+    showCreepPaths: true,
+    refresh: true,
+  },
 
   info: {
     signController: true

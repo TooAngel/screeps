@@ -254,15 +254,7 @@ Room.prototype.checkAndSpawnReserver = function() {
 
   if (this.checkBlockedPath()) {
     this.log('Call structurer from ' + baseRoom.name);
-    baseRoom.memory.queue.push({
-      role: 'structurer',
-      routing: {
-        targetRoom: this.name,
-        reached: false,
-        routePos: 0,
-        pathPos: 0
-      }
-    });
+    Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, this.name);
     return;
   }
 

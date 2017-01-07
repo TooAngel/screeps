@@ -141,9 +141,16 @@ global.utils = {
   },
 
   queueCheck: function(roomName) {
-    console.log(JSON.stringify(_.countBy(Game.rooms[roomName].memory.queue), function(object) {
-      return object.role;
-    }));
-  }
+    // todo move to global.utils
+    // todo save functions by prop so creation should only be once
+    let prop = function(prop) {
+      return function(object) {
+        return object[prop];
+      };
+    };
 
+    var found = _.countBy(Memory.rooms[roomName].queue, prop('role'));
+    console.log(JSON.stringify(found));
+    return found;
+  },
 };
