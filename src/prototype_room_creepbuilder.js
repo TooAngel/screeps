@@ -1,32 +1,20 @@
 'use strict';
 
-Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing) {
-  var energy = this.energyAvailable;
-
+Room.prototype.spawnCreateCreep = function(creep) {
+  let role = creep.role;
   let unit = roles[role];
   if (!unit) {
     this.log('Can not find role: ' + role + ' creep_' + role);
     return true;
   }
 
-  var energyNeeded = 50;
-
-  if (unit.energyRequired) {
-    energyNeeded = unit.energyRequired(this);
-  }
-
-  if (this.energyAvailable < energyNeeded) {
-    return false;
-  }
-
   var id = Math.floor((Math.random() * 1000) + 1);
   var name = role + '-' + id;
 
-  if (unit.energyBuild) {
-    energy = unit.energyBuild(this, energy, heal, level);
+  var partConfig = unit.getPartConfig(this, creep);
+  if (!partConfig) {
+    return;
   }
-
-  var partConfig = unit.getPartConfig(this, energy, heal);
   partConfig = partConfig.slice(0, MAX_CREEP_SIZE);
   var spawns = this.find(FIND_MY_SPAWNS);
 
@@ -38,14 +26,14 @@ Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing) {
       step: 0,
       base: this.name,
       born: Game.time,
-      heal: heal,
-      level: level,
-      squad: squad,
+      heal: creep.heal,
+      level: creep.level,
+      squad: creep.squad,
       // Values from the creep configuration
       killPrevious: unit.killPrevious,
       flee: unit.flee,
       buildRoad: unit.buildRoad,
-      routing: routing
+      routing: creep.routing
     };
     //     if (memory.role == 'reserver') {
     //       console.log('Spawning reserver: ' + JSON.stringify(memory));
@@ -72,45 +60,32 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
   var energyNeeded;
   var unit;
 
-  if (this.memory.queue.length > 0 && (creepsConfig.length === 0 || creepsConfig[0] != 'harvester')) {
+  if (creepsConfig[0] === 'harvester') {
+    this.log('Spawn from creepsConfig: ' + creepsConfig[0]);
+    return this.spawnCreateCreep(creepsConfig[0]);
+  }
+
+  if (this.memory.queue.length > 0) {
     let room = this;
     let priorityQueue = function(object) {
-      if (object.role == 'harvester') {
-        return 1;
-      }
-
+      if (object.role == 'harvester') { return 1; }
+      if (object.role == 'defendranged') { return 3; }
       let target = object.routing && object.routing.targetRoom;
-
-      if (target == room.name) {
-        if (object.role == 'sourcer') {
-          return 2;
+      if (target === room.name) {
+        switch (object.role) {
+          case 'sourcer':       return 2;
+          case 'storagefiller': return 3;
+          default:              return 4;
         }
-        if (object.role == 'storagefiller') {
-          return 3;
-        }
-        return 4;
-      }
-      // spawn reserver after external supply line
-      if (target !== room.name) {
-        if (object.role == 'carry') {
-          return 5;
-        }
-        if (object.role == 'sourcer') {
-          return 6;
-        }
-        if (object.role == 'reserver') {
-          return 7;
+      } else {
+        switch (object.role) {
+          case 'carry':         return 5;
+          case 'sourcer':       return 6;
+          case 'reserver':      return 7;
         }
       }
-      if (object.role == 'nextroomer') {
-        return 11;
-      }
-
+      if (object.role == 'nextroomer') { return 11; }
       // TODO added because target was misused as a pos object
-      if (object.role == 'defendranged') {
-        return 3;
-      }
-
       if (!target) {
         return 12;
       }
@@ -122,7 +97,7 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
     var creep = this.memory.queue[0];
     energyNeeded = 50;
 
-    if (this.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing)) {
+    if (this.spawnCreateCreep(creep)) {
       this.memory.queue.shift();
     } else {
       if (creep.ttl === 0) {
@@ -142,11 +117,6 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
     }
     // Spawing only one per tick
     return;
-  }
-
-  if (creepsConfig.length > 0) {
-    this.log('Spawn from creepsConfig: ' + creepsConfig[0]);
-    return this.spawnCreateCreep(creepsConfig[0]);
   }
 
   return false;

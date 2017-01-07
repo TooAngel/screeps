@@ -8,17 +8,11 @@
 
 roles.nextroomerattack = {};
 
-roles.nextroomerattack.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, ATTACK];
-  return room.getPartConfig(energy, parts).sort().reverse();
-};
-
-roles.nextroomerattack.energyRequired = function(room) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
-};
-
-roles.nextroomerattack.energyBuild = function(room, energy) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
+roles.nextroomerattack.getPartConfig = function(room) {
+  let datas = {layout: [MOVE, ATTACK],
+    maxEnergyUsed: 3250,
+    minEnergyStored: 1000};
+  return room.getPartConfig(datas);
 };
 
 roles.nextroomerattack.died = function(name, memory) {
