@@ -173,22 +173,139 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
   }
   this.memory.queue.push(creepMemory);
 };
+Room.prototype.checkParts = function(parts, actualCost, energy) {
+  if (!parts) { return; }
+  parts.forEach(
+    function(p) {
+      actualCost += BODYPART_COST[p];
+      if (actualCost > energy) { return; }
+    }
+  );
+  return actualCost;
+};
+Room.prototype.getSettings = function(creep) {
+  let datas = {};
+  let i = 0;
+  let settings = roles[creep.role].settings;
+  let parts = settings.parts || {};
+  let energy = settings.energy || {};
 
-Room.prototype.getPartConfig = function(energy, parts) {
-  var sum = 0;
-  var i = 0;
-  var partConfig = [];
-  while (sum < energy && partConfig.length < 50) {
-    var part = parts[i % parts.length];
-    if (sum + BODYPART_COST[part] <= energy) {
-      partConfig.push(part);
-      sum += BODYPART_COST[part];
-      i += 1;
-    } else {
-      break;
+  let getKey = function(part, i) {
+    let keys = Object.keys(part);
+    let value = _.get(this, settings.param[i], 1);
+    let previousKey = 0;
+    _.forEach(keys, function(k) {
+      if (part[k] && value < k & previousKey !== 0) {
+        return previousKey;
+      }
+      previousKey = k;
+    });
+    return previousKey;
+
+  };
+  let Settings = parts;
+  if (energy) {
+    _.forEach(energy, (e,name) => Settings[name] = e);
+  }
+  _.forEach(Settings, (element,settingName) => {
+      let i = 0; let key;
+      while (!_.isArray(element) && !_.isNumber(element) && i < settings.param.length) {
+        key = getKey(element, i);
+        element = element[key];
+        i++;
+      }
+
+      datas[settingName] = element;
+    });
+  //console.log(JSON.stringify(datas));
+  return datas;
+};
+
+Room.prototype.getPartConfig = function(creep) {
+  if (config.debug.getPartsConfLogs) {
+    console.log(this.name, '- - ->', creep.role);
+  }
+  let datas = this.getSettings(creep);
+
+  let layout = datas.layout;
+  let amount = datas.amount;
+  let minEnergyStored = datas.minEnergyStored;
+  let maxEnergyUsed = datas.maxEnergyUsed;
+  let prefixParts = datas.prefixParts;
+  let sufixParts = datas.sufixParts;
+
+  let energyAvailable = this.energyAvailable;
+  let parts = []; let cost = 0;
+  if (config.debug.getPartsConfLogs) {
+    console.log('prefix : ', prefixParts, '--layout : ', layout, '--minEnergy : ',
+    minEnergyStored, '--maxEnergy : ', maxEnergyUsed);
+  }
+
+  let maxBodyLength = 50;
+  if (prefixParts) { maxBodyLength -= prefixParts.length; }
+  if (sufixParts) { maxBodyLength -= sufixParts.length; }
+
+  if (minEnergyStored && minEnergyStored > energyAvailable) {return;}
+  if (maxEnergyUsed && maxEnergyUsed < energyAvailable) {energyAvailable = maxEnergyUsed;}
+
+  let prefixCost = this.checkParts(prefixParts, 0, energyAvailable);
+  if (prefixCost) {
+    cost = prefixCost;
+    parts = prefixParts;
+  }
+
+  if (amount) { // if size is defined
+    let pushAll = function(element, index, array) {
+      for (let i = 0; i < element; i++) {
+        parts.push(layout[index]);
+        cost += BODYPART_COST[layout[index]];
+      }
+    };
+    amount.forEach(pushAll);
+  } else {
+    let halt = false;
+    let i = 1; let j = 1;
+    let layoutCost; let layoutParts; let part;
+
+    while (!halt && parts.length + j <= maxBodyLength) {
+      layoutCost = 0; layoutParts = [];
+      while (!halt && j <= layout.length && parts.length + j < maxBodyLength) {
+        part = layout[j - 1];
+        layoutCost += BODYPART_COST[part];
+        if (cost + layoutCost <= energyAvailable) {
+          layoutParts.push(part);
+        } else {
+          halt = true;
+        }
+        j++;
+      }
+
+      if (!halt) {
+        cost += layoutCost;
+        parts = parts.concat(layoutParts);
+        j = 1; i++;
+      }
     }
   }
-  return partConfig;
+  if (sufixParts) {
+    let newCost = this.checkParts(sufixParts, cost, energyAvailable);
+    if (newCost) {
+      cost = newCost;
+      parts = parts.concat(sufixParts);
+    }
+  }
+  if (config.debug.getPartsConfLogs) {
+    console.log('cost: ', cost, '- - -length: ', parts.length, '- - -', parts, '- - -last: ', parts[parts.length - 1]);
+  }
+  parts = _.sortBy(parts, function(p) {
+    let order = _.indexOf(layout, p) + 1;
+    if (order) {
+      return order;
+    } else {
+      return layout.length;
+    }
+  });
+  return parts;
 };
 
 Room.pathToString = function(path) {

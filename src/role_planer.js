@@ -10,13 +10,12 @@
 roles.planer = {};
 roles.planer.stayInRoom = true;
 
-roles.planer.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, MOVE, WORK];
-  return room.getPartConfig(energy, parts);
-};
-
-roles.planer.energyBuild = function(room, energy) {
-  return Math.max(250, Math.min(energy, 3000));
+roles.planer.settings = {
+  parts: {layout: [MOVE, MOVE, CARRY, WORK]},
+  energy: {
+    maxEnergyUsed: 3000,
+    minEnergyStored: 250
+  }
 };
 
 roles.planer.action = function(creep) {

@@ -1,6 +1,8 @@
 'use strict';
 
-global.brain = {};
+global.brain = {
+  stats: {}
+};
 global.roles = {};
 global.cache = {
   rooms: {}
@@ -35,6 +37,13 @@ global.config = {
   stats: {
     enabled: false,
     summary: false,
+    //--- Uncomment screepsplusToken for share datas on TooAngels datasboard on screepspl.us
+    //--- You can acces datas contacting tooangel on #the_angels slack channel or use your token.
+    //screepsplusToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRvb2FuZ2VscyIsImlhdCI6MTQ4MzU2MTU3OSwiYXVkIjoic2NyZWVwc3BsLnVzIiwiaXNzIjoic2NyZWVwc3BsLnVzIn0.NhobT7Jg8bOAg-MYqrYsgeMgXEVXGVYG9s3G9Qpfm-o'
+  },
+
+  debug: {
+    getPartsConfLogs: false
   },
 
   autoattack: {
@@ -133,6 +142,24 @@ global.config = {
     storage: 100000,
     minAmount: 5000,
     minAmountForMarket: 100000
+  },
+
+  priorityQueue: {
+    sameRoom: {
+      harvester:     1,
+      sourcer:       2,
+      storagefiller: 3,
+      defendranged:  3
+    },
+    otherRoom: {
+      harvester:     1,
+      defender:      2,
+      defendranged:  3,
+      nextroomer:    5,
+      reserver:      6,
+      carry:         7,
+      sourcer:       8
+    }
   }
 };
 

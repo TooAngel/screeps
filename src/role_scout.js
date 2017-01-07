@@ -7,13 +7,9 @@
  */
 
 roles.scout = {};
-roles.scout.getPartConfig = function(room, energy, heal) {
-  let parts = [MOVE];
-  return room.getPartConfig(energy, parts);
-};
-
-roles.scout.energyBuild = function(room, energy) {
-  return 50;
+roles.scout.settings = {
+  parts: {layout: [MOVE]},
+  energy: {maxEnergyUsed: 50}
 };
 
 function onBorder(creep) {

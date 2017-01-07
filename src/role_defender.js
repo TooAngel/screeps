@@ -9,23 +9,13 @@
 roles.defender = {};
 roles.defender.boostActions = ['rangedAttack', 'heal'];
 
-roles.defender.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, RANGED_ATTACK, MOVE, HEAL];
-  return room.getPartConfig(energy, parts).sort().reverse();
-};
-
-roles.defender.energyRequired = function(room) {
-  if (room.controller.level == 8) {
-    return Math.min(room.getEnergyCapacityAvailable(), 6200);
+roles.defender.settings = {
+  param: ['controller.level'],
+  parts: {layout: [MOVE, MOVE, RANGED_ATTACK, HEAL]},
+  energy: {
+    maxEnergyUsed: {1: 1000, 8: 6200},
+    minEnergyStored: {8: 2000}
   }
-  return Math.min(room.getEnergyCapacityAvailable(), 1000);
-};
-
-roles.defender.energyBuild = function(room, energy) {
-  if (room.controller.level == 8) {
-    return Math.max(2000, Math.min(room.getEnergyCapacityAvailable(), 6200));
-  }
-  return Math.min(room.getEnergyCapacityAvailable(), 1000);
 };
 
 roles.defender.action = function(creep) {
