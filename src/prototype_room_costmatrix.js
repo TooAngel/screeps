@@ -1,5 +1,45 @@
 'use strict';
 
+Room.prototype.getCostMatrixCallback = function(end, excludeStructures) {
+  let callback = this.getMatrixCallback(end);
+  if (this.memory.costMatrix && this.memory.costMatrix.base) {
+    let room = this;
+    callback = function(end) {
+      let callbackInner = function(roomName) {
+        let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
+        // TODO the ramparts could be within existing walls (at least when converging to the newmovesim
+        costMatrix.set(end.x, end.y, 0);
+
+        if (excludeStructures) {
+          // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
+          let structures = room.find(FIND_STRUCTURES, {
+            filter: function(object) {
+              if (object.structureType == STRUCTURE_RAMPART) {
+                return false;
+              }
+              if (object.structureType == STRUCTURE_ROAD) {
+                return false;
+              }
+              if (object.structureType == STRUCTURE_CONTAINER) {
+                return false;
+              }
+              return true;
+            }
+          });
+          for (let structure of structures) {
+            costMatrix.set(structure.pos.x, structure.pos.y, config.layout.structureAvoid);
+          }
+        }
+        return costMatrix;
+      };
+      return callbackInner;
+    };
+  } else {
+    this.log('getCostMatrixCallback updatePosition');
+    this.updatePosition();
+  }
+};
+
 Room.prototype.getCostMatrix = function() {
   let costMatrix = new PathFinder.CostMatrix();
   // Keep distance to walls
@@ -34,66 +74,4 @@ Room.prototype.getCostMatrix = function() {
   }
 
   return costMatrix;
-};
-
-Room.prototype.getAvoids = function(target, inRoom) {
-  // TODO Only the matrix is enough?
-  let callback = this.getMatrixCallback();
-
-  if (this.memory.costMatrix && this.memory.costMatrix.base) {
-    let room = this;
-    callback = function(roomName) {
-      let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
-      if (target && target.pos) {
-        costMatrix.set(target.pos.x, target.pos.y, 0);
-      }
-
-      let structures = room.find(FIND_STRUCTURES, {
-        filter: function(object) {
-          if (object.structureType == STRUCTURE_RAMPART) {
-            return false;
-          }
-          if (object.structureType == STRUCTURE_ROAD) {
-            return false;
-          }
-          return true;
-        }
-      });
-      for (let structure of structures) {
-        costMatrix.set(structure.pos.x, structure.pos.y, 255);
-      }
-
-      // Noobie walls
-      let walls = room.find(FIND_STRUCTURES, {
-        filter: function(object) {
-          if (object.structureType == STRUCTURE_WALL && !object.hits) {
-            return true;
-          }
-          return false;
-        }
-      });
-      for (let wall of walls) {
-        costMatrix.set(wall.pos.x, wall.pos.y, 255);
-      }
-
-      if (target && target.scout) {
-        let structures = room.find(FIND_STRUCTURES, {
-          filter: function(object) {
-            if (object.structureType == STRUCTURE_WALL) {
-              return true;
-            }
-            return false;
-          }
-        });
-        for (let structure of structures) {
-          costMatrix.set(structure.pos.x, structure.pos.y, 255);
-        }
-      }
-      return costMatrix;
-    };
-  } else {
-    //    this.log('No costmatrix.base?');
-    this.updatePosition();
-  }
-  return callback;
 };

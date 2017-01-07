@@ -208,25 +208,12 @@ Room.prototype.buildPath = function(route, routePos, from, to) {
   }
 
   // TODO avoid swamps in external rooms
-  let callback = this.getMatrixCallback;
-
-  if (this.memory.costMatrix && this.memory.costMatrix.base) {
-    let room = this;
-    callback = function(end) {
-      let callbackInner = function(roomName) {
-        let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
-        return costMatrix;
-      };
-      return callbackInner;
-    };
-  }
-
   let search = PathFinder.search(
     start, {
       pos: end,
       range: 1
     }, {
-      roomCallback: callback(end),
+      roomCallback: this.getCostMatrixCallback(end),
       maxRooms: 1,
       swampCost: config.layout.swampCost,
       plainCost: config.layout.plainCost
@@ -291,8 +278,8 @@ Room.prototype.getMyExitTo = function(room) {
 
 Room.prototype.getMatrixCallback = function(end) {
   // TODO cache?!
-  //  console.log('getMatrixCallback', this);
   let callback = function(roomName) {
+    // console.log('getMatrixCallback', this);
     let room = Game.rooms[roomName];
     let costMatrix = new PathFinder.CostMatrix();
     // Previous Source Keeper where also excluded?
@@ -324,36 +311,6 @@ Room.prototype.getMatrixCallback = function(end) {
         }
       }
     }
-
-    // Ignore walls?
-    //    let structures = room.find(FIND_STRUCTURES, {
-    //      filter: function(object) {
-    //        if (object.structureType == STRUCTURE_ROAD) {
-    //          return false;
-    //        }
-    //        if (object.structureType == STRUCTURE_RAMPART) {
-    //          return !object.my;
-    //        }
-    //        return true;
-    //      }
-    //    });
-    //    for (let structure of structures) {
-    //      costMatrix.set(structure.pos.x, structure.pos.y, 0xFF);
-    //    }
-    //    let constructionSites = room.find(FIND_CONSTRUCTION_SITES, {
-    //      filter: function(object) {
-    //        if (object.structureType == STRUCTURE_ROAD) {
-    //          return false;
-    //        }
-    //        if (object.structureType == STRUCTURE_RAMPART) {
-    //          return object.my;
-    //        }
-    //        return true;
-    //      }
-    //    });
-    //    for (let constructionSite of constructionSites) {
-    //      costMatrix.set(constructionSite.pos.x, constructionSite.pos.y, 0xFF);
-    //    }
     return costMatrix;
   };
 

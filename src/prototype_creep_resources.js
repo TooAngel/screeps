@@ -121,15 +121,7 @@ Creep.prototype.handleExractor = function() {
   }
   let carrying = _.sum(this.carry);
   if (carrying == this.carryCapacity) {
-    let search = PathFinder.search(
-      this.pos, {
-        pos: this.room.terminal.pos,
-        range: 1
-      }, {
-        roomCallback: this.room.getAvoids(this.room, {}, true),
-      }
-    );
-    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+    let returnCode = this.moveToMy(this.room.terminal.pos, 1);
     for (let key in this.carry) {
       if (this.carry[key] === 0) {
         continue;
@@ -143,15 +135,7 @@ Creep.prototype.handleExractor = function() {
   if (minerals.length > 0) {
     let posMem = this.room.memory.position.creep[minerals[0].id];
     let pos = new RoomPosition(posMem.x, posMem.y, posMem.roomName);
-    let search = PathFinder.search(
-      this.pos, {
-        pos: pos,
-        range: 0
-      }, {
-        roomCallback: this.room.getAvoids(this.room, {}, true),
-      }
-    );
-    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+    let returnCode = this.moveToMy(pos);
     this.harvest(minerals[0]);
   }
   return true;
@@ -507,11 +491,7 @@ Creep.prototype.getEnergy = function() {
   if (item === null) {
     if (this.carry.energy === 0) {
       var source = this.pos.findClosestByRange(FIND_SOURCES);
-      this.moveTo(source, {
-        reusePath: 5,
-        ignoreCreeps: true,
-        costCallback: this.room.getAvoids(this.room)
-      });
+      let returnCode = this.moveToMy(source.pos);
       return true;
     } else {
       this.memory.hasEnergy = true; // Stop looking and spend the energy.
@@ -632,47 +612,12 @@ Creep.prototype.construct = function() {
     }
     this.log('config_creep_resource construct: ' + returnCode + ' ' + JSON.stringify(target.pos));
   } else {
-    let callback = this.room.getMatrixCallback;
-
-    if (this.room.memory.costMatrix && this.room.memory.costMatrix.base) {
-      let room = this.room;
-      let creep = this;
-      callback = function(end) {
-        let callbackInner = function(roomName) {
-          let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
-          costMatrix.set(creep.pos.x, creep.pos.y, 0);
-
-          // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
-          let structures = room.find(FIND_STRUCTURES, {
-            filter: function(object) {
-              if (object.structureType == STRUCTURE_RAMPART) {
-                return false;
-              }
-              if (object.structureType == STRUCTURE_ROAD) {
-                return false;
-              }
-              if (object.structureType == STRUCTURE_CONTAINER) {
-                return false;
-              }
-              return true;
-            }
-          });
-          for (let structure of structures) {
-            costMatrix.set(structure.pos.x, structure.pos.y, config.layout.structureAvoid);
-          }
-
-          return costMatrix;
-        };
-        return callbackInner;
-      };
-    }
-
     let search = PathFinder.search(
       this.pos, {
         pos: target.pos,
         range: 3
       }, {
-        roomCallback: callback(target.pos),
+        roomCallback: this.room.getCostMatrixCallback(target.pos, true),
         maxRooms: 0
       }
     );
@@ -745,31 +690,13 @@ Creep.prototype.transferEnergyMy = function() {
     }
     delete this.memory.target;
   } else {
-    let search = PathFinder.search(
-      this.pos, {
-        pos: target.pos,
-        range: 1
-      }, {
-        roomCallback: this.room.getAvoids(this.room, {
-          scout: true
-        }, true),
-        maxRooms: 1
-      }
-    );
-    if (search.path.length === 0) {
-      this.moveRandom();
-      return true;
-    }
-    if (search.incomplete) {
+    let returnCode = this.moveToMy(target.pos);
+    if (returnCode === false) {
       this.say('tr:incompl', true);
       if (config.path.pathfindIncomplete) {
-        this.moveTo(target.pos);
+        this.moveTo(target.pos, 1);
         return true;
       }
-      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
-    } else {
-      //       this.say('tr:' + this.pos.getDirectionTo(search.path[0]), true);
-      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
     }
   }
   return true;
