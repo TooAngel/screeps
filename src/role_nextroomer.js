@@ -308,11 +308,15 @@ roles.nextroomer.settle = function(creep) {
     methods.push(Creep.constructTask);
   }
 
-  if (creep.room.controller.level < 8) {
-    methods.push(Creep.upgradeControllerTask);
+  // Fill energy after building is done
+  if (creep.room.controller.level >= 4) {
+    methods.push(Creep.transferEnergy);
   }
 
-  methods.push(Creep.transferEnergy);
+  if (creep.room.controller.level < 8) {
+
+    methods.push(Creep.upgradeControllerTask);
+  }
   return Creep.execute(creep, methods);
 };
 
