@@ -182,7 +182,7 @@ Room.prototype.getCreepPositionForId = function(to) {
 
   let pos = this.memory.position.creep[to];
   if (!pos) {
-    this.log('getCreepPositionForId no pos in memory take pos of target: ' + to);
+    //this.log('getCreepPositionForId no pos in memory take pos of target: ' + to);
     pos = Game.getObjectById(to).pos;
   }
   return new RoomPosition(pos.x, pos.y, this.name);
