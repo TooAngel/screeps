@@ -346,6 +346,29 @@ Room.prototype.executeRoom = function() {
     }
   }
 
+  let carryHelpInterval = config.nextRoom.ticksUntilHelpCheck;
+  if (Game.time % carryHelpInterval) {
+    this.memory.energyAvailableSum += this.energyAvailable;
+  } else if (Memory.needEnergyRooms === undefined) {
+    Memory.needEnergyRooms = [];
+  } else if (this.memory.energyAvailableSum === undefined) {
+    this.memory.energyAvailableSum = 0;
+  } else {
+    if (this.memory.energyAvailableSum < 300 * carryHelpInterval) {
+      Memory.needEnergyRooms.push(this.name);
+      console.log('!!!', this.name, ' need energy !!!');
+    } else if (this.memory.energyAvailableSum > 1000 * carryHelpInterval && this.storage) {
+      this.checkRoleToSpawn('carry', 1, this.storage.id, this.name);
+      console.log('!!!', this.name, ' give energy !!!');
+    } else {
+      let key = _.findKeys(Memory.needEnergyRooms, this.name);
+      if (key) {
+        delete Memory.needEnergyRooms[key];
+      }
+    }
+    this.memory.energyAvailableSum = 0;
+  }
+
   this.checkAndSpawnSourcer();
 
   if (this.controller.level >= 4 && this.storage) {
