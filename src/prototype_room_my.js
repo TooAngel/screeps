@@ -242,7 +242,10 @@ Room.prototype.executeRoom = function() {
 
   if (spawns.length === 0) {
     this.reviveRoom();
-  } else if (this.energyCapacityAvailable < 1000) {
+  }
+  // Revive Room if energycapacity or storage don't met minimum
+  else if (this.energyCapacityAvailable < config.nextRoom.minEnergyForActive ||
+  this.storage.store.energy < config.nextRoom.minStorage) {
     this.reviveRoom();
     if (hostiles.length > 0) {
       this.controller.activateSafeMode();
@@ -462,9 +465,10 @@ Room.prototype.reviveRoom = function() {
   let nextRoomers = _.filter(Game.creeps, c => c.memory.role === 'nextroomer' &&
     c.memory.routing.targetRoom === this.name).length;
   if (this.controller.level >= 4 &&
-    this.controller.ticksToDowngrade >
-    (CONTROLLER_DOWNGRADE[this.controller.level] * config.nextRoom.minDowngradPercent / 100) &&
-    this.energyCapacityAvailable > config.nextRoom.minEnergyForActive) {
+      this.controller.ticksToDowngrade >
+       (CONTROLLER_DOWNGRADE[this.controller.level] * config.nextRoom.minDowngradPercent / 100) &&
+      this.energyCapacityAvailable > config.nextRoom.minEnergyForActive &&
+      this.storage.store.energy > config.nextRoom.minStorage) {
 
     this.memory.active = true;
     return false;
