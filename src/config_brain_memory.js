@@ -1,8 +1,6 @@
 'use strict';
 
 brain.prepareMemory = function() {
-  Memory.stats = {};
-
   Memory.mineralSystemPrice = {};
   Memory.ordersBuy = _.filter(Game.market.getAllOrders(), function(object) {
     if (object.type != ORDER_BUY) {
@@ -109,7 +107,6 @@ brain.prepareMemory = function() {
   }
 
   if (config.stats.summary) {
-
     var interval = 100;
     if (Game.time % interval === 0) {
       console.log('=========================');
