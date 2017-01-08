@@ -48,7 +48,6 @@ Room.prototype.externalHandleRoom = function() {
     if (this.controller.reservation && this.controller.reservation.username == Memory.username) {
       return this.handleReservedRoom();
     }
-
   }
 
   let blocked = this.checkBlocked();

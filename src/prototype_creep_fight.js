@@ -63,7 +63,6 @@ Creep.prototype.handleDefender = function() {
         this.moveRandom();
       }
       let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
-
     }
     if (range === 0) {
       this.log('Range: ' + range);
@@ -167,7 +166,6 @@ Creep.prototype.handleDefender = function() {
 
   this.moveRandom();
   return true;
-
 };
 
 Creep.prototype.waitRampart = function() {
@@ -202,7 +200,6 @@ Creep.prototype.waitRampart = function() {
   }
   let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
   return true;
-
 };
 
 Creep.prototype.fightRampart = function(target) {

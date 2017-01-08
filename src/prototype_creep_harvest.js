@@ -47,7 +47,6 @@ Creep.prototype.handleSourcer = function() {
     let link = Game.getObjectById(this.memory.link);
     this.transfer(link, RESOURCE_ENERGY);
   }
-
 };
 
 Creep.prototype.spawnCarry = function() {

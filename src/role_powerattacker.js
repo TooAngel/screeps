@@ -44,7 +44,6 @@ roles.powerattacker.action = function(creep) {
     }
     var range = creep.pos.getRangeTo(hostileCreep);
     if (range < 10) {
-
       creep.moveTo(hostileCreep);
       creep.attack(hostileCreep);
       return true;

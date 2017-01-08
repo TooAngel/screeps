@@ -10,7 +10,6 @@ if (config.visualizer.enabled) {
 }
 if (config.visualizer.enabled) {
   global.visualizer = {
-
     // Draws path types configured in config.visualizer
     showPaths: function() {
       let colors = [];

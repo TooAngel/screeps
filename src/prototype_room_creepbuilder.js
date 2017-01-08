@@ -64,7 +64,6 @@ Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing) {
     return true;
   }
   return false;
-
 };
 
 Room.prototype.spawnCheckForCreate = function(creepsConfig) {

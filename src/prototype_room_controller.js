@@ -1,7 +1,6 @@
 'use strict';
 
 Room.prototype.buildBase = function() {
-
   let resetCounters = function(room) {
     room.memory.controllerLevel.checkPathInterval = 1;
     room.memory.controllerLevel.checkWrongStructureInterval = 1;

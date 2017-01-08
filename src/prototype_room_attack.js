@@ -37,7 +37,6 @@ Room.prototype.attack42 = function(roomName, spawn) {
   let closestSpawn = this.closestSpawn(roomName);
   // this.log('closestSpawn ' + JSON.stringify(closestSpawn, null, 2));
   if (closestSpawn && closestSpawn.id) {
-
     brain.startMeleeSquad(closestSpawn.room, roomName
       //, spawn
     );
@@ -67,9 +66,7 @@ Room.prototype.attackRoom = function() {
     return true;
   }
 
-  function attack1(room) {
-
-  }
+  function attack1(room) {}
 
   if (config.autoattack.disabled) {
     return true;

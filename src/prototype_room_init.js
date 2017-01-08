@@ -64,7 +64,6 @@ Room.prototype.setTowerFiller = function() {
 };
 
 function setStructures(room, path, costMatrixBase) {
-
   room.setTowerFiller();
 
   let pathI;
@@ -278,7 +277,6 @@ Room.prototype.setup = function() {
       }
       value += valueAdd;
       last_pos = new RoomPosition(pos.x, pos.y, pos.roomName);
-
     }
     return value;
   };
@@ -304,5 +302,4 @@ Room.prototype.setup = function() {
     }
   }
   this.memory.costMatrix.base = costMatrixBase.serialize();
-
 };

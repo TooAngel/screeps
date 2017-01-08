@@ -37,7 +37,6 @@ roles.squadsiege.preMove = function(creep, directions) {
     creep.dismantle(structure);
     creep.say('dismantle');
     break;
-
   }
 
   if (!creep.memory.initialized) {

@@ -9,7 +9,6 @@ module.exports = function(grunt) {
     };
   }
 
-
   grunt.loadNpmTasks('grunt-screeps');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks("grunt-jsbeautifier");
@@ -221,5 +220,4 @@ module.exports = function(grunt) {
   grunt.registerTask('requireFile', 'Creates an empty file', function() {
     grunt.file.write('dist/require.js', '');
   });
-
 };

@@ -220,7 +220,6 @@ roles.nextroomer.settle = function(creep) {
   if (room.memory.underSiege && room.controller && room.controller.level >= 3) {
     creep.log('underSiege: ' + room.memory.attack_timer);
     return roles.nextroomer.underSiege(creep);
-
   }
 
   if (creep.carry.energy > 0) {
@@ -228,7 +227,6 @@ roles.nextroomer.settle = function(creep) {
       filter: function(object) {
         return (object.structureType === STRUCTURE_TOWER &&
           object.energy < 10);
-
       }
     });
     if (towers.length) {
@@ -252,7 +250,6 @@ roles.nextroomer.settle = function(creep) {
     });
 
     if (hostileStructures.length) {
-
       let structure = _.max(hostileStructures, s => s.structureType === STRUCTURE_STORAGE);
 
       if (structure.structureType === STRUCTURE_STORAGE) {
@@ -282,7 +279,6 @@ roles.nextroomer.settle = function(creep) {
         };
         return table[object.structureType] || false;
       }
-
     });
     for (let cs of constructionSites) {
       cs.remove();

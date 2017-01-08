@@ -55,7 +55,6 @@ roles.nextroomerattack.action = function(creep) {
   creep.attack(spawn);
   var return_code = creep.moveByPath(path);
   return true;
-
 };
 
 roles.nextroomerattack.execute = function(creep) {

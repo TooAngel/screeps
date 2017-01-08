@@ -17,7 +17,6 @@ Creep.prototype.getRoute = function() {
   if (this.memory.base != this.memory.routing.targetRoom) {
     // TODO more dynamic, room.memory.hostile value?
     let routeCallback = function(roomName, fromRoomName) {
-
       if (roomName == creep.memory.routing.targetRoom) {
         return 1;
       }
@@ -131,7 +130,6 @@ Creep.prototype.getDirections = function(path, pathPos) {
   let pos = path[pathPos];
   if (!pos) {
     console.log('newmove: getDirections: pathPos: ' + pathPos + ' path: ' + JSON.stringify(path));
-
   }
   let currentPos = new RoomPosition(pos.x, pos.y, this.room.name);
   let forwardDirection;
@@ -324,7 +322,6 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
   }
 
   if (!Room.isRoomUnderAttack(this.room.name)) {
-
     if (routePos == route.length - 1) {
       if (pathPos == path.length - 2) {
         if (this.memory.killPrevious) {

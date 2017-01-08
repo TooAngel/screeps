@@ -214,7 +214,6 @@ Room.prototype.closeExitsByPath = function() {
   for (let pathPosPlain of path) {
     var pathPos = new RoomPosition(pathPosPlain.x, pathPosPlain.y, this.name);
     if (wallPlaceable(pathPos)) {
-
       if (inLayer(this, pathPos)) {
         continue;
       }
