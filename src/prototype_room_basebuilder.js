@@ -104,7 +104,7 @@ Room.prototype.destroyStructure = function(structure) {
 
     // Build ramparts around the spawn if wallThickness > 1
     if (config.layout.wallThickness > 1) {
-      let costMatrixBase = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
+      let costMatrixBase = this.getMemoryCostMatrix();
       let spawns = this.find(FIND_MY_STRUCTURES, {
         filter: function(object) {
           return object.structureType == STRUCTURE_SPAWN;
@@ -130,7 +130,7 @@ Room.prototype.destroyStructure = function(structure) {
           }
         }
       }
-      this.memory.costMatrix.base = costMatrixBase.serialize();
+      this.setMemoryCostMatrix(costMatrixBase);
     }
   }
   return false;

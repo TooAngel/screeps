@@ -14,11 +14,33 @@
  */
 
 Room.prototype.setMemoryCostMatrix = function(costMatrix) {
-
+  if (!cache.rooms[this.name]) {
+    cache.rooms[this.name] = {};
+  }
+  if (!cache.rooms[this.name].costMatrix) {
+    cache.rooms[this.name].costMatrix = {};
+  }
+  if (this.controller.my) {
+    if (!this.memory.costMatrix) {
+      this.memory.costMatrix = {};
+    }
+    this.memory.costMatrix.base = costMatrix.serialize();
+  }
+  cache.rooms[this.name].costMatrix.base = costMatrix;
 };
 
 Room.prototype.getMemoryCostMatrix = function() {
+  if (!cache.rooms[this.name]) {
+    cache.rooms[this.name] = {};
+  }
+  if (!cache.rooms[this.name].costMatrix) {
+    cache.rooms[this.name].costMatrix = {};
+  }
+  if (!cache.rooms[this.name].costMatrix.base) {
+    cache.rooms[this.name].costMatrix.base = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
+  }
 
+  return cache.rooms[this.name].costMatrix.base;
 };
 
 Room.prototype.getMemoryPaths = function() {
