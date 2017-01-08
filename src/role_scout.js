@@ -102,7 +102,6 @@ roles.scout.execute = function(creep) {
     } catch (e) {
       //      creep.log(`search: ${targetPosObject} %{e}`);
       return false;
-
     }
 
     if (search.incomplete || search.path.length === 0 || (creep.room.name == creep.memory.base && creep.room.memory.misplacedSpawn)) {

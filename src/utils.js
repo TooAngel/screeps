@@ -3,7 +3,6 @@
  * they should be as general as they can be, so we can use them as often as possible
  **/
 global.utils = {
-
   /**
    * return object.length if exist else return _.size
    *

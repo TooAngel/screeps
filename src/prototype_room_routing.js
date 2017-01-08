@@ -157,7 +157,6 @@ Room.prototype.updatePosition = function() {
     }
 
     this.setFillerArea(storagePos, costMatrixBase, route);
-
   }
 
   this.memory.costMatrix.base = costMatrixBase.serialize();
@@ -359,5 +358,4 @@ Room.prototype.getMatrixCallback = function(end) {
   };
 
   return callback;
-
 };

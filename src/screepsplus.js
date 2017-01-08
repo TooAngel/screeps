@@ -33,7 +33,7 @@ global.runAgent = function() {
     setInterval(document.pushStats, 15000);
   }
   </SCRIPT>`;
-  console.log(output.split('\n').map((s)=>s.trim()).join(''));
+  console.log(output.split('\n').map((s) => s.trim()).join(''));
 };
 if (config.stats.enabled && config.stats.screepsplusToken) {
   runAgent();

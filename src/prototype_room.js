@@ -21,6 +21,5 @@ Room.prototype.execute = function() {
     this.log('Executing room failed: ' + this.name + ' ' + err + ' ' + err.stack);
     Game.notify('Executing room failed: ' + this.name + ' ' + err + ' ' + err.stack, 30);
     return false;
-
   }
 };

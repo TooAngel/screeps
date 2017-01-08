@@ -6,7 +6,6 @@ Room.prototype.getNextReaction = function() {
       continue;
     }
     for (let mineralSecond in this.terminal.store) {
-
       if (!REACTIONS[mineralFirst][mineralSecond]) {
         continue;
       }
@@ -26,7 +25,6 @@ Room.prototype.getNextReaction = function() {
 };
 
 Room.prototype.reactions = function() {
-
   if (!this.memory.reaction) {
     let result = this.getNextReaction();
     if (!result) {
@@ -97,7 +95,6 @@ Room.prototype.reactions = function() {
         }
         break;
       }
-
     }
     if (labs.length < 3) {
       //      this.log('Not enought labs');
@@ -114,7 +111,6 @@ Room.prototype.reactions = function() {
     this.log('Done with reaction:' + this.memory.reaction.result.result);
     delete this.memory.reaction;
   }
-
 };
 
 Room.prototype.orderMinerals = function() {
@@ -171,7 +167,6 @@ Room.prototype.orderMinerals = function() {
       }
     }
   }
-
 };
 
 Room.prototype.handleTerminal = function() {

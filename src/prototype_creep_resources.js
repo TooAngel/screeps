@@ -172,7 +172,6 @@ Creep.prototype.handleUpgrader = function() {
     }
     let word = Game.time % sentence.length;
     creep.say(sentence[word], true);
-
   };
   say(this);
   this.spawnReplacement(1);
@@ -512,7 +511,6 @@ Creep.prototype.getEnergy = function() {
         reusePath: 5,
         ignoreCreeps: true,
         costCallback: this.room.getAvoids(this.room)
-
       });
       return true;
     } else {
@@ -702,7 +700,6 @@ Creep.prototype.construct = function() {
     }
   }
   return true;
-
 };
 
 Creep.prototype.transferEnergyMy = function() {
@@ -812,7 +809,6 @@ Creep.prototype.handleReserver = function() {
     }
 
     if (config.creep.structurer) {
-
       var structurers = creep.room.find(FIND_MY_CREEPS, {
         filter: function(object) {
           return object.memory.role == 'structurer';
@@ -910,7 +906,6 @@ Creep.prototype.handleReserver = function() {
         ticksToLive: this.ticksToLive,
         reservation: this.room.controller.reservation.ticksToEnd
       };
-
     }
     this.memory.targetReached = true;
     this.setNextSpawn();
@@ -926,5 +921,4 @@ Creep.prototype.handleReserver = function() {
   this.log('reserver: ' + return_code);
 
   return true;
-
 };

@@ -176,7 +176,6 @@ Creep.prototype.handleMineralCreep = function() {
       });
       let returnCode = creep.withdraw(lab, lab.mineralType);
       //    creep.log(returnCode + ' ' + lab.mineralType + ' ' + JSON.stringify(lab));
-
     }
   }
 
@@ -451,7 +450,6 @@ Creep.prototype.handleMineralCreep = function() {
           lab0.runReaction(lab1, lab2);
         }
       }
-
     }
 
     if (room.memory.boosting && Object.keys(room.memory.boosting).length > 0) {

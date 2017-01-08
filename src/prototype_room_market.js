@@ -46,7 +46,6 @@ Room.prototype.handleMarket = function() {
     if (returnCode == OK) {
       break;
     }
-
   }
   return true;
 };

@@ -431,7 +431,6 @@ Creep.prototype.repairStructure = function() {
   var creep = this;
   structure = this.pos.findClosestByRange(FIND_STRUCTURES, {
     filter: function(object) {
-
       // Newbie zone walls have no hits
       if (!object.hits) {
         return false;

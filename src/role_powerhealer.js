@@ -112,7 +112,6 @@ roles.powerhealer.action = function(creep) {
       creep.moveTo(creep_to_heal);
     }
     return true;
-
   };
 
   heal();
