@@ -60,6 +60,13 @@ My code and my AI are shit. The last time I were mainly working on the bot
 and on private servers, to make sure the first RCLs work out somehow.
 Having a GCL 20+ is in many regards different to a GCL 1.
 
+## Why did you made your AI open source?
+
+ - I wanted to deploy my AI on random private servers where my code is not as
+   private as before.
+ - Playing against myself is a funny idea, so releasing it as a bot allows it
+ - In diplomatic conversation I was telling people 'My AI is doing this or that',
+   have it public will underline that statement.
 
 # Any other question?
 Contact me on
