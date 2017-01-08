@@ -13,11 +13,15 @@ brain.stats.add = function(roomName, path, newContent) {
   if (!config.stats.enabled) {
     return false;
   }
-  if (!Memory.stats) { Memory.stats = {}; }
+  if (!Memory.stats) {
+    Memory.stats = {};
+  }
   var name = Memory.username || Game.rooms[roomName].controller.owner || 'default';
   Memory.username = name;
   if (newContent && roomName) {
-    if (!Memory.stats[name].room) { Memory.stats[name].room = {}; }
+    if (!Memory.stats[name].room) {
+      Memory.stats[name].room = {};
+    }
     Memory.stats[name].room[roomName + path] = newContent;
 
     /**
@@ -69,10 +73,14 @@ brain.stats.addRoot = function() {
  *
  */
 brain.stats.addRoom = function(roomName) {
-  if (!config.stats.enabled) { return false; }
+  if (!config.stats.enabled) {
+    return false;
+  }
 
   let room = Game.rooms[roomName];
-  if (!room) { return false; }
+  if (!room) {
+    return false;
+  }
 
   if (room.memory.upgraderUpgrade === undefined) {
     room.memory.upgraderUpgrade = 0;

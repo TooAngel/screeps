@@ -97,7 +97,6 @@ Room.prototype.reactions = function() {
       }
     }
     if (labs.length < 3) {
-      //      this.log('Not enought labs');
       return false;
     }
     this.memory.reaction = {

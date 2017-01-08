@@ -18,7 +18,7 @@ roles.carry.boostActions = ['capacity'];
 roles.carry.preMove = function(creep, directions) {
   // Misplaced spawn
   // TODO Somehow ugly and maybe better somewhere else
-  if (creep.room.name == creep.memory.base && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
+  if (creep.inBase() && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
     //     creep.say('cmis', true);
     if (creep.carry.energy > 0) {
       let structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
@@ -73,13 +73,13 @@ roles.carry.preMove = function(creep, directions) {
   if (creep.room.name == creep.memory.routing.targetRoom) {
     carryPercentage = config.carry.carryPercentageExtern;
   }
-  if (creep.room.name == creep.memory.base) {
+  if (creep.inBase()) {
     carryPercentage = config.carry.carryPercentageBase;
   }
 
   if (_.sum(creep.carry) > carryPercentage * creep.carryCapacity) {
     reverse = true;
-    if (creep.room.name == creep.memory.base) {
+    if (creep.inBase()) {
       let transferred = creep.transferToStructures();
       if (transferred) {
         if (transferred.moreStructures) {
@@ -180,7 +180,7 @@ roles.carry.energyBuild = function(room, energy) {
 };
 
 roles.carry.execute = function(creep) {
-  creep.log('Execute!!!');
+  // creep.log('Execute!!!');
   let target = Game.getObjectById(creep.memory.routing.targetId);
   if (target === null) {
     delete creep.memory.routing.targetId;

@@ -33,7 +33,7 @@ roles.scoutnextroom.execute = function(creep) {
     let hostileCreeps = creep.room.getEnemys();
 
     let opponentRoom = hostileCreeps.length > 0;
-    if (creep.room.name != creep.memory.base) {
+    if (!creep.inBase()) {
       opponentRoom = opponentRoom || (creep.room.controller && creep.room.controller.my);
 
       // TODO No way to controller doesn't mean it is an opponentRoom
@@ -54,7 +54,7 @@ roles.scoutnextroom.execute = function(creep) {
     }
 
     let checkNewRoom = function(creep, opponentRoom) {
-      if (creep.room.name == creep.memory.base) {
+      if (creep.inBase()) {
         return false;
       }
 
@@ -69,7 +69,7 @@ roles.scoutnextroom.execute = function(creep) {
       }
       var sources = creep.room.find(FIND_SOURCES);
       if (sources.length < 2) {
-        creep.log('Not enought sources');
+        creep.log('Not enough sources');
         return false;
       }
 

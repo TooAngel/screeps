@@ -259,7 +259,7 @@ Room.prototype.setupStructure = function(structure) {
   }
 
   var max = CONTROLLER_STRUCTURES[structure][this.controller.level];
-  for (let pos of (this.memory.position.structure[structure] || [])) {
+  for (let pos of(this.memory.position.structure[structure] || [])) {
     // TODO special case e.g. when powerSpawn can't be set on costmatrix.setup - need to be fixed there
     if (!pos) {
       continue;
@@ -432,7 +432,7 @@ Room.prototype.checkBlockers = function() {
       }
       let returnCode = pos.createConstructionSite(structureType);
       if (returnCode != OK && returnCode != ERR_FULL) {
-        this.log('Build ' + structureType + ' at ' + pos + ' with ' + returnCode);
+        // this.log('Build ' + structureType + ' at ' + pos + ' with ' + returnCode);
         return true;
       }
     }

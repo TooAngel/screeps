@@ -29,11 +29,11 @@ roles.defender.energyBuild = function(room, energy) {
 };
 
 roles.defender.action = function(creep) {
-  if (creep.room.name == creep.memory.base && creep.memory.reverse) {
+  if (creep.inBase() && creep.memory.reverse) {
     return Creep.recycleCreep(creep);
   }
   // TODO Better in premove
-  if (creep.room.name != creep.memory.base) {
+  if (!creep.inBase()) {
     let walls = creep.pos.findInRange(FIND_STRUCTURES, 1, {
       filter: function(object) {
         if (object.structureType == STRUCTURE_WALL) {

@@ -70,7 +70,7 @@ Creep.prototype.checkForTransfer = function(direction) {
       if (this.room.name == this.memory.routing.targetRoom) {
         carryPercentage = 0.8;
       }
-      if (this.room.name == this.memory.base) {
+      if (this.inBase()) {
         carryPercentage = 0.0;
       }
       return otherCreep.carry.energy + _.sum(this.carry) > carryPercentage * this.carryCapacity;
@@ -82,7 +82,7 @@ Creep.prototype.checkForTransfer = function(direction) {
 };
 
 Creep.prototype.pickupWhileMoving = function(reverse) {
-  if (this.room.name == this.memory.base && this.memory.routing.pathPos < 2) {
+  if (this.inBase() && this.memory.routing.pathPos < 2) {
     return reverse;
   }
 
@@ -207,7 +207,7 @@ Creep.prototype.handleUpgrader = function() {
 };
 
 Creep.prototype.buildContainer = function() {
-  if (this.room.name == this.memory.base) {
+  if (this.inBase()) {
     return false;
   }
   // TODO Not in base room
@@ -763,13 +763,8 @@ Creep.prototype.transferEnergyMy = function() {
     if (search.incomplete) {
       this.say('tr:incompl', true);
       if (config.path.pathfindIncomplete) {
-        let search = PathFinder.search(
-          this.pos, {
-            pos: target.pos,
-            range: 1
-          }, {
-            maxRooms: 1
-          });
+        this.moveTo(target.pos);
+        return true;
       }
       let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
     } else {
@@ -796,7 +791,7 @@ Creep.prototype.handleReserver = function() {
   this.spawnReplacement(1);
 
   let callCleaner = function(creep) {
-    if (creep.memory.base == creep.room.name) {
+    if (creep.inBase()) {
       return false;
     }
 
@@ -835,7 +830,7 @@ Creep.prototype.handleReserver = function() {
 
       if (resource_structures.length > 0 && !creep.room.controller.my) {
         creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resource_structures[0].structureType);
-        Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, this.name);
+        Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, creep.room.name);
         return true;
       }
     }

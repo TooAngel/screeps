@@ -252,9 +252,11 @@ Room.prototype.checkAndSpawnReserver = function() {
   }
 
   if (this.checkBlockedPath()) {
-    this.log('Call structurer from ' + baseRoom.name);
-    Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, this.name);
-    return;
+    if (Game.time % config.creep.structurerInterval === 0) {
+      this.log('Call structurer from ' + baseRoom.name);
+      Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, this.name);
+      return;
+    }
   }
 
   let reserverSpawn = {
@@ -273,12 +275,8 @@ Room.prototype.checkAndSpawnReserver = function() {
   if (baseRoom.misplacedSpawn) {
     energyNeeded += 300;
   }
-  this.log('Would like to spawn reserver ' +
-    baseRoom.getEnergyCapacityAvailable() + '/' + energyNeeded);
   if (baseRoom.getEnergyCapacityAvailable() >= energyNeeded) {
     if (!baseRoom.inQueue(reserverSpawn)) {
-      this.log('Queuing reserver ' + baseRoom.name + ' ' +
-        JSON.stringify(reserverSpawn));
       baseRoom.checkRoleToSpawn('reserver', 1, this.controller.id, this.name, 2);
     }
   }

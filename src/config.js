@@ -26,7 +26,8 @@ global.config = {
   },
 
   info: {
-    signController: true
+    signController: true,
+    signText: 'Fully automated TooAngel bot: https://github.com/TooAngel/screeps',
   },
 
   // Due to newly introduces via global variable caching this can be removed
@@ -82,7 +83,7 @@ global.config = {
   path: {
     refresh: 20000,
     allowRoutingThroughFriendRooms: false,
-    pathfindIncomplete: false
+    pathfindIncomplete: true
   },
 
   external: {
@@ -104,6 +105,8 @@ global.config = {
     renewOffset: 0,
     queueTtl: 100,
     structurer: true,
+    structurerInterval: 1500,
+    structurerMinEnergy: 1300,
     reserverDefender: true,
     energyFromStorageThreshold: 2000
   },

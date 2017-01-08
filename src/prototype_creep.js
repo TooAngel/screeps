@@ -5,6 +5,10 @@ function getOppositeDirection(direction) {
   return ((direction + 3) % 8) + 1;
 }
 
+Creep.prototype.inBase = function() {
+  return this.room.name == this.memory.base;
+};
+
 Creep.prototype.handle = function() {
   if (this.spawning) {
     return;
@@ -40,7 +44,7 @@ Creep.prototype.handle = function() {
 
     if (unit.action) {
       if (this.memory.routing && this.memory.routing.reached) {
-        if (this.room.name == this.memory.base || !Room.isRoomUnderAttack(this.room.name)) {
+        if (this.inBase() || !Room.isRoomUnderAttack(this.room.name)) {
           // TODO maybe rename action to ... something better
           //      this.say('Action');
           return unit.action(this);
@@ -123,7 +127,7 @@ Creep.prototype.getEnergyFromStructure = function() {
 };
 
 Creep.prototype.stayInRoom = function() {
-  if (this.room.name == this.memory.base) {
+  if (this.inBase()) {
     return false;
   }
 
@@ -318,9 +322,6 @@ Creep.prototype.respawnMe = function() {
     routing: routing
   };
   Game.rooms[this.memory.base].memory.queue.push(spawn);
-  if (spawn.role == 'reserver') {
-    console.log('Add reserver to queue: ' + JSON.stringify(spawn));
-  }
 };
 
 Creep.prototype.spawnReplacement = function(maxOfRole) {

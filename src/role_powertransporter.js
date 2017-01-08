@@ -28,7 +28,7 @@ roles.powertransporter.action = function(creep) {
     creep.drop(RESOURCE_ENERGY);
   }
 
-  if (creep.memory.reverse && creep.memory.base == creep.room.name) {
+  if (creep.memory.reverse && creep.inBase()) {
     creep.log('Fill storage');
     creep.moveTo(creep.room.storage, {
       ignoreCreeps: true,

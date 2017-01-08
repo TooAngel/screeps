@@ -2,30 +2,13 @@
 
 The AI automatically generates a layout for the room and builds the structures
 for the current RCL. A `scout` creep or observer explores external harvest rooms.
-If the number of rooms are less than the GCL a new room
-will be acquired and build up. Also fallen rooms will be survived and basically
-defended. The AI sends some waves of auto attacks. Minerals
-are fetched from the extractor and transported to the terminal. Reactions
-are basically implemented. Depending on a threshold minerals are sold on the
-market.
+New rooms are acquired if the current number doesn't fit the GCL. Fallen
+rooms will be survived and basically defended. The AI sends some waves of
+auto attacks. Minerals are fetched from the extractor and transported to the
+terminal. Reactions are basically implemented. Depending on a threshold minerals
+are sold on the market.
 
-## Room
-
-### Setup
-
-Positions:
- - `upgrader` creep next to the `controller`
- - `storage` structure next to the `upgrader`
- - `filler` creep next to the `storage`
- - `pathStart` position next to the `storage`
-
-
-From `pathStart` all (sources, controller, mineral, mid of each exit) paths
-are calculated and saved. The longest path is used to place structures (spawn,
-extension, lab, observer, terminal, tower) next to it. Next to `filler` a link,
-tower and power_spawn is located. `Link`s are placed next to the sources and at
-the paths to the exits. Layers of walls are placed at the exits, positions
-within the precalculated paths are replaced by ramparts.
+## [Base building](BaseBuilding.md)
 
 ### Logic
 
@@ -34,7 +17,7 @@ are places. Links are triggered to transfer energy to link near the storage.
 Towers attack incoming creeps or heal my creeps. If no spawn is available
 `nextroomer` from other rooms are called, to build up the room.
 
-The basic creep is the `harvester` which can make sure, that enought energy
+The basic creep is the `harvester` which can make sure, that enough energy
 will be available to build the rest of the creeps. For this we check if
 a `harvester` is within the room, otherwise spawn it. For the rest a priority
 queue is used.

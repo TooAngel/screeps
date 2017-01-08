@@ -29,7 +29,7 @@ Creep.prototype.handleSourcer = function() {
     this.spawnCarry();
   }
 
-  if (this.room.name == this.memory.base) {
+  if (this.inBase()) {
     if (!this.memory.link) {
       let links = this.pos.findInRange(FIND_MY_STRUCTURES, 1, {
         filter: function(object) {
@@ -85,7 +85,7 @@ Creep.prototype.spawnCarry = function() {
     return false;
   }
 
-  if (this.room.name == this.memory.base) {
+  if (this.inBase()) {
     if (energies.length > 0 && energies[0].amount < energyThreshold) {
       return false;
     }

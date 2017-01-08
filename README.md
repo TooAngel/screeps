@@ -8,7 +8,7 @@ https://screeps.com/
 
 ## For in game room visitors:
 
-Happy to see you visiting one of my rooms. [Visit FAQ to find answers](FAQ.md)
+Happy to see you visiting one of my rooms. [Visit FAQ to find answers](doc/FAQ.md)
 
 ## Info
 
@@ -28,7 +28,7 @@ welcome.
 
 ## Features
 
- - Automatic base building
+ - [Automatic Base building](doc/BaseBuilding.md)
  - External room harvesting
  - Basic mineral handling
  - Power harvesting
@@ -89,7 +89,7 @@ implementation.
 
 ## Design
 
-[More details of the AI design](Design.md)
+[More details of the AI design](doc/Design.md)
 
 ## Alliance
 
