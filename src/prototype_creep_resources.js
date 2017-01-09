@@ -329,12 +329,10 @@ Creep.prototype.transferToCreep = function(direction) {
       if (!Game.creeps[otherCreep.name]) {
         continue;
       }
-
       // don't transfer to extractor, fixes full terminal with 80% energy?
-      if(Game.creeps[otherCreep.name].memory.role == 'extractor') {
+      if (Game.creeps[otherCreep.name].memory.role == 'extractor') {
         continue;
       }
-      
       // Do we want this?
       if (Game.creeps[otherCreep.name].memory.role == 'powertransporter') {
         continue;
