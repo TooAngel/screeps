@@ -76,7 +76,7 @@ roles.storagefiller.action = function(creep) {
   }
 
   let room = Game.rooms[creep.room.name];
-  if (room.memory.attack_timer > 50 && room.controller.level > 6) {
+  if (room.memory.attackTimer > 50 && room.controller.level > 6) {
     creep.withdraw(storage, RESOURCE_ENERGY);
     for (let tower of towers) {
       let returnCode = creep.transfer(tower, RESOURCE_ENERGY);

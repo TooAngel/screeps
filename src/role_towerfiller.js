@@ -23,7 +23,7 @@ roles.towerfiller.execute = function(creep) {
     return false;
   }
   let room = Game.rooms[creep.room.name];
-  if (room.memory.attack_timer > 50 && room.controller.level > 6) {
+  if (room.memory.attackTimer > 50 && room.controller.level > 6) {
     creep.spawnReplacement();
   }
 
