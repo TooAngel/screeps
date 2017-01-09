@@ -101,10 +101,10 @@ Room.prototype.handleLinks = function() {
   }
 };
 
-Room.prototype.handle_powerspawn = function() {
+Room.prototype.handlePowerSpawn = function() {
   var powerSpawns = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {
-      return object.structureType == 'powerSpawn';
+      return object.structureType == STRUCTURE_POWER_SPAWN;
     }
   });
   if (powerSpawns.length === 0) {
@@ -406,7 +406,7 @@ Room.prototype.executeRoom = function() {
 
   this.handleLinks();
   this.handleObserver();
-  this.handle_powerspawn();
+  this.handlePowerSpawn();
   this.handleTerminal();
   this.handleNukeAttack();
 
