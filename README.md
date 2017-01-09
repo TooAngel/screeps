@@ -1,6 +1,7 @@
 # screeps-bot-tooangel
 
 [![CircleCI](https://circleci.com/gh/TooAngel/screeps.svg?style=svg)](https://circleci.com/gh/TooAngel/screeps)
+[![Code Climate](https://codeclimate.com/github/Somotaw/screeps/badges/gpa.svg)](https://codeclimate.com/github/Somotaw/screeps)
 [![npm version](https://badge.fury.io/js/screeps-bot-tooangel.svg)](https://badge.fury.io/js/screeps-bot-tooangel)
 [![gitter](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/screeps-bot-tooangel/Lobby)
 
