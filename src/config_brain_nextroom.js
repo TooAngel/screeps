@@ -11,7 +11,9 @@ brain.handleNextroom = function() {
         if (room.controller.level < config.nextRoom.scoutMinControllerLevel) {
           continue;
         }
-        Game.notify('Searching for a new room from ' + room.name);
+        if (config.nextRoom.notify) {
+          Game.notify('Searching for a new room from ' + room.name);
+        }
         console.log('Searching for a new room from ' + room.name);
         room.memory.queue.push({
           role: 'scoutnextroom'
