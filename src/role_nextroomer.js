@@ -218,7 +218,7 @@ roles.nextroomer.settle = function(creep) {
   }
   room.memory.wayBlocked = false;
   if (room.memory.underSiege && room.controller && room.controller.level >= 3) {
-    creep.log('underSiege: ' + room.memory.attack_timer);
+    creep.log('underSiege: ' + room.memory.attackTimer);
     return roles.nextroomer.underSiege(creep);
   }
 

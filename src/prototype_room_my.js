@@ -56,7 +56,7 @@ Room.prototype.getLinkStorage = function() {
 };
 
 Room.prototype.handleLinks = function() {
-  if (this.memory.attack_timer <= 0) {
+  if (this.memory.attackTimer <= 0) {
     this.memory.underSiege = false;
   }
 
@@ -82,7 +82,7 @@ Room.prototype.handleLinks = function() {
     var time = Game.time % ((number_of_links - 1) * 12);
     var link = (time / 12);
     if (time % 12 === 0 && links.length - 1 >= link) {
-      if (this.memory.attack_timer > 50 && this.controller.level > 6) {
+      if (this.memory.attackTimer > 50 && this.controller.level > 6) {
         for (let i = 1; i < 3; i++) {
           let linkSourcer = this.memory.position.structure.link[i];
           if (links[link].pos.isEqualTo(linkSourcer.x, linkSourcer.y)) {
@@ -101,10 +101,10 @@ Room.prototype.handleLinks = function() {
   }
 };
 
-Room.prototype.handle_powerspawn = function() {
+Room.prototype.handlePowerSpawn = function() {
   var powerSpawns = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {
-      return object.structureType == 'powerSpawn';
+      return object.structureType == STRUCTURE_POWER_SPAWN;
     }
   });
   if (powerSpawns.length === 0) {
@@ -270,6 +270,7 @@ Room.prototype.checkForEnergyTransfer = function() {
 
 Room.prototype.executeRoom = function() {
   this.buildBase();
+  this.memory.attackTimer = this.memory.attackTimer || 0;
 
   var spawns = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {
@@ -281,10 +282,10 @@ Room.prototype.executeRoom = function() {
     filter: this.findAttackCreeps
   });
   if (hostiles.length === 0) {
-    this.memory.attack_timer = Math.max(this.memory.attack_timer - 5, 0);
+    this.memory.attackTimer = Math.max(this.memory.attackTimer - 5, 0);
     // Make sure we don't spawn towerFiller on reducing again
-    if (this.memory.attack_timer % 5 === 0) {
-      this.memory.attack_timer--;
+    if (this.memory.attackTimer % 5 === 0) {
+      this.memory.attackTimer--;
     }
   }
 
@@ -327,7 +328,7 @@ Room.prototype.executeRoom = function() {
     this.checkRoleToSpawn('harvester', amount, 'harvester');
   }
 
-  if (this.memory.attack_timer > 100) {
+  if (this.memory.attackTimer > 100) {
     // TODO better metric for SafeMode
     let enemies = this.find(FIND_HOSTILE_CREEPS, {
       filter: function(object) {
@@ -338,18 +339,18 @@ Room.prototype.executeRoom = function() {
       this.controller.activateSafeMode();
     }
   }
-  if (this.memory.attack_timer >= 50 && this.controller.level > 6) {
+  if (this.memory.attackTimer >= 50 && this.controller.level > 6) {
     let towers = this.find(FIND_STRUCTURES, {
       filter: function(object) {
         return object.structureType == STRUCTURE_TOWER;
       }
     });
     if (towers.length === 0) {
-      this.memory.attack_timer = 47;
+      this.memory.attackTimer = 47;
     } else {
-      if (this.memory.attack_timer == 50 && this.memory.position.creep.towerFiller) {
+      if (this.memory.attackTimer == 50 && this.memory.position.creep.towerFiller) {
         for (let towerFillerPos of this.memory.position.creep.towerFiller) {
-          this.log('Spawning towerfiller: ' + this.memory.attack_timer);
+          this.log('Spawning towerfiller: ' + this.memory.attackTimer);
           this.memory.queue.push({
             role: 'towerfiller',
             target_id: towerFillerPos
@@ -371,14 +372,14 @@ Room.prototype.executeRoom = function() {
   }
 
   if (hostiles.length > 0) {
-    this.memory.attack_timer++;
+    this.memory.attackTimer++;
 
-    if (this.memory.attack_timer > 15) {
+    if (this.memory.attackTimer > 15) {
       var defender = {
         role: 'defendranged'
       };
       creepsConfig.push('defendranged');
-      if (this.memory.attack_timer > 300) {
+      if (this.memory.attackTimer > 300) {
         defender.role = 'defendmelee';
         creepsConfig.push('defendmelee');
       }
@@ -475,7 +476,7 @@ Room.prototype.executeRoom = function() {
 
   this.handleLinks();
   this.handleObserver();
-  this.handle_powerspawn();
+  this.handlePowerSpawn();
   this.handleTerminal();
   this.handleNukeAttack();
 

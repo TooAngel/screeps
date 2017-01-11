@@ -177,7 +177,7 @@ Creep.prototype.handleUpgrader = function() {
   say(this);
   this.spawnReplacement(1);
   var room = Game.rooms[this.room.name];
-  if (room.memory.attack_timer > 50 && room.controller.level > 6) {
+  if (room.memory.attackTimer > 50 && room.controller.level > 6) {
     if (room.controller.ticksToDowngrade > 10000) {
       return true;
     }
