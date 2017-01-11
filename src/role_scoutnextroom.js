@@ -19,6 +19,7 @@ roles.scoutnextroom.energyBuild = function(room, energy) {
 };
 
 roles.scoutnextroom.execute = function(creep) {
+  creep.notifyWhenAttacked(false);
   if (creep.memory.claimRoom) {
     creep.moveTo(creep.room.controller);
     let returnCode = creep.claimController(creep.room.controller);
@@ -162,6 +163,12 @@ roles.scoutnextroom.execute = function(creep) {
       creep.memory.target = exit;
       creep.memory.dir = (creep.memory.dir + 4) % 8;
     }
+  }
+
+  if (!creep.memory.target) {
+    // Still haven't found target, no point in continuing.
+    creep.log('Cannot find a target');
+    return;
   }
 
   let targetPosObject;

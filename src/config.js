@@ -58,7 +58,8 @@ global.config = {
     maxDistance: 17,
     minNewRoomDistance: 3,
     minEnergyForActive: 1000,
-    minDowngradPercent: 90
+    minDowngradPercent: 90,
+    notify: false,
   },
 
   carryHelpers: {
