@@ -201,9 +201,8 @@ Room.prototype.handleScout = function() {
 };
 
 Room.prototype.checkNeedHelp = function() {
-  let spawn = Game.rooms[this.name].find(STRUCTURE_SPAWN);
   let needHelp = this.memory.energyAvailableSum < config.carryHelpers.needTreshold * config.carryHelpers.ticksUntilHelpCheck &&
-    !this.hostile && spawn && spawn.my;
+    !this.hostile;
   let oldNeedHelp = this.memory.needHelp;
   if (needHelp) {
     if (!oldNeedHelp) {
@@ -223,7 +222,7 @@ Room.prototype.checkNeedHelp = function() {
   return;
 
 };
-Room.prototype.checkCanHelp = function(targetName) {
+Room.prototype.checkCanHelp = function() {
   if (!Memory.needEnergyRooms) { return; }
 
   let nearestRoom = this.memory.nearestRoom;
@@ -234,15 +233,16 @@ Room.prototype.checkCanHelp = function(targetName) {
   if (!Game.rooms[nearestRoom] || !Memory.rooms[nearestRoom].needHelp) {
     _.remove(Memory.needEnergyRooms, (r) => r === nearestRoom);
   }
+  let nearestRoomObj = Game.rooms[nearestRoom];
 
   let canHelp = this.memory.energyAvailableSum > config.carryHelpers.helpTreshold * config.carryHelpers.ticksUntilHelpCheck &&
-    targetName !== this.name && Game.rooms[targetName] && this.storage &&
-    !Game.rooms[targetName].hostile && !this.terminal;
+    nearestRoom !== this.name && nearestRoomObj && this.storage &&
+    !nearestRoomObj.hostile && !nearestRoomObj.terminal;
   if (canHelp) {
     this.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, this.storage.id,
-      this.name, undefined, targetName);
+      this.name, undefined, nearestRoom);
     this.memory.energyAvailableSum = 0;
-    return '---!!! ' + this.name + ' send energy to: ' + targetName + ' !!!---';
+    return '---!!! ' + this.name + ' send energy to: ' + nearestRoom + ' !!!---';
   }
   return 'no';
 
@@ -515,11 +515,9 @@ Room.prototype.reviveRoom = function() {
     this.controller.ticksToDowngrade >
     (CONTROLLER_DOWNGRADE[this.controller.level] * config.nextRoom.minDowngradPercent / 100) &&
     this.energyCapacityAvailable > config.nextRoom.minEnergyForActive) {
-
     this.memory.active = true;
     return false;
   } else if (this.controller.level > 1 && nextRoomers >= config.nextRoom.numberOfNextroomers) {
-    console.log('Enough nextroomers');
     return false;
   }
 
