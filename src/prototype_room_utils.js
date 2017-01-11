@@ -8,6 +8,15 @@ Room.prototype.sortMyRoomsByLinearDistance = function(target) {
   return _.sortBy(Memory.myRooms, sortByLinearDistance);
 };
 
+Room.prototype.nearestRoomName = function(roomsNames, limit) {
+  let roomName = this.name;
+  let sortByLinearDistance = function(object) {
+    let dist = Game.map.getRoomLinearDistance(roomName, object);
+    return dist <= limit ? dist : 1000;
+  };
+  return _.min(roomsNames, sortByLinearDistance);
+};
+
 Room.prototype.closestSpawn = function(target) {
   let pathLength = {};
   let roomsMy = this.sortMyRoomsByLinearDistance(target);
@@ -104,7 +113,7 @@ Room.prototype.checkAndSpawnSourcer = function() {
   }
 };
 
-Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, level) {
+Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, level, base) {
   if (targetRoom === undefined) {
     targetRoom = this.name;
   }
@@ -115,6 +124,7 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
   let creepMemory = {
     role: role,
     level: level,
+    base: base || undefined,
     routing: {
       targetRoom: targetRoom,
       targetId: targetId

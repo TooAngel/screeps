@@ -1,6 +1,6 @@
 'use strict';
 
-Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing) {
+Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing, base) {
   var energy = this.energyAvailable;
 
   let unit = roles[role];
@@ -36,7 +36,7 @@ Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing) {
       role: role,
       number: id,
       step: 0,
-      base: this.name,
+      base: base || this.name,
       born: Game.time,
       heal: heal,
       level: level,
@@ -112,7 +112,7 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
     var creep = this.memory.queue[0];
     energyNeeded = 50;
 
-    if (this.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing)) {
+    if (this.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, creep.base)) {
       this.memory.queue.shift();
     } else {
       if (creep.ttl === 0) {
