@@ -486,7 +486,7 @@ Creep.prototype.getDroppedEnergy = function() {
           maxRooms: 0
         }
       );
-      if (search.path.length === 0 || search.incomplete) {
+      if (search.path.length === 0 || (search.incomplete && !search[1])) {
         this.say('deir');
         this.moveRandom();
         return true;
