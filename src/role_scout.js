@@ -93,10 +93,7 @@ roles.scout.execute = function(creep) {
           pos: targetPosObject,
           range: 20
         }, {
-          roomCallback: creep.room.getAvoids(creep.room, {
-            pos: targetPosObject,
-            scout: true
-          })
+          roomCallback: creep.room.getCostMatrixCallback(targetPosObject)
         }
       );
     } catch (e) {

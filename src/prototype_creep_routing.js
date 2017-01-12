@@ -234,47 +234,6 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
       }
     }
     // TODO ?? This is the place where I get back to the path ??
-    let callback = this.room.getMatrixCallback;
-
-    if (this.room.memory.costMatrix && this.room.memory.costMatrix.base) {
-      // this.log('base matrix: ' +
-      // PathFinder.CostMatrix.deserialize(this.room.memory.costMatrix.base).get(28,
-      // 13));
-      let room = this.room;
-      callback = function(end) {
-        let callbackInner = function(roomName) {
-          let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
-
-          // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
-          let structures = room.find(FIND_STRUCTURES, {
-            filter: function(object) {
-              if (object.structureType == STRUCTURE_RAMPART) {
-                return false;
-              }
-              if (object.structureType == STRUCTURE_ROAD) {
-                return false;
-              }
-              if (object.structureType == STRUCTURE_CONTAINER) {
-                return false;
-              }
-              return true;
-            }
-          });
-          for (let structure of structures) {
-            costMatrix.set(structure.pos.x, structure.pos.y, config.layout.structureAvoid);
-          }
-
-          return costMatrix;
-        };
-        return callbackInner;
-      };
-    }
-    // this.log('matrix: ' +
-    // PathFinder.CostMatrix.deserialize(this.room.memory.costMatrix.base).get(19,
-    // 24));
-    // this.log('storage: ' +
-    // JSON.stringify(this.room.memory.position.structure.storage));
-
     if (path.length === 0) {
       this.log('config_creep_routing.followPath no pos: ' + JSON.stringify(path));
       return false;
@@ -295,7 +254,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
         pos: posFirst,
         range: 0
       }, {
-        roomCallback: callback(posFirst),
+        roomCallback: this.room.getCostMatrixCallback(posFirst, true),
         maxRooms: 1
       }
     );

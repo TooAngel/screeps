@@ -4,10 +4,44 @@
  * Memory abstraction layer
  *
  * The methods build the interface to the memory.
- * Currently only for path
+ * Path:
  * The idea is to cache paths as roomPosition in a global object.
  * Store paths from my rooms in a compressed form in memory.
+ *
+ * CostMatrix:
+ * Store costMatrix for myRooms in cache and memory.
+ * Other rooms are only stored in cache.
  */
+
+Room.prototype.setMemoryCostMatrix = function(costMatrix) {
+  if (!cache.rooms[this.name]) {
+    cache.rooms[this.name] = {};
+  }
+  if (!cache.rooms[this.name].costMatrix) {
+    cache.rooms[this.name].costMatrix = {};
+  }
+  if (this.controller.my) {
+    if (!this.memory.costMatrix) {
+      this.memory.costMatrix = {};
+    }
+    this.memory.costMatrix.base = costMatrix.serialize();
+  }
+  cache.rooms[this.name].costMatrix.base = costMatrix;
+};
+
+Room.prototype.getMemoryCostMatrix = function() {
+  if (!cache.rooms[this.name]) {
+    cache.rooms[this.name] = {};
+  }
+  if (!cache.rooms[this.name].costMatrix) {
+    cache.rooms[this.name].costMatrix = {};
+  }
+  if (!cache.rooms[this.name].costMatrix.base) {
+    cache.rooms[this.name].costMatrix.base = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
+  }
+
+  return cache.rooms[this.name].costMatrix.base;
+};
 
 Room.prototype.getMemoryPaths = function() {
   this.memory.routing = this.memory.routing || {};

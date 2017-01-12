@@ -184,10 +184,7 @@ roles.scoutnextroom.execute = function(creep) {
       range: 1
     }, {
       // TODO Can prevent the creep move through the room (base: W1N7, room: W2N7, private server)
-      roomCallback: creep.room.getAvoids(creep.room, {
-        //        pos: targetPosObject,
-        scout: true
-      }),
+      roomCallback: creep.room.getCostMatrixCallback(targetPosObject, true),
       maxRooms: 1
     }
   );

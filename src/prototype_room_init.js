@@ -154,7 +154,7 @@ function setStructures(room, path, costMatrixBase) {
       return pathI;
     }
   }
-  room.memory.costMatrix.base = costMatrixBase.serialize();
+  room.setMemoryCostMatrix(costMatrixBase);
 
   return -1;
 }
@@ -181,7 +181,7 @@ let buildCostMatrix = function(room) {
       costMatrixBase.set(pos.x, pos.y, 0xFF);
     }
   }
-  room.memory.costMatrix.base = costMatrixBase.serialize();
+  room.setMemoryCostMatrix(costMatrixBase);
 
   let exits = Game.map.describeExits(room.name);
   if (room.controller) {
@@ -195,7 +195,7 @@ let buildCostMatrix = function(room) {
       for (let pos of path) {
         costMatrixBase.set(pos.x, pos.y, config.layout.pathAvoid);
       }
-      room.memory.costMatrix.base = costMatrixBase.serialize();
+      room.setMemoryCostMatrix(costMatrixBase);
     }
 
     for (let endDir in exits) {
@@ -209,7 +209,7 @@ let buildCostMatrix = function(room) {
       for (let pos of path) {
         costMatrixBase.set(pos.x, pos.y, config.layout.pathAvoid);
       }
-      room.memory.costMatrix.base = costMatrixBase.serialize();
+      room.setMemoryCostMatrix(costMatrixBase);
     }
     return costMatrixBase;
   }
@@ -232,7 +232,7 @@ let buildCostMatrix = function(room) {
       for (let pos of path) {
         costMatrixBase.set(pos.x, pos.y, config.layout.pathAvoid);
       }
-      room.memory.costMatrix.base = costMatrixBase.serialize();
+      room.setMemoryCostMatrix(costMatrixBase);
     }
   }
   return costMatrixBase;

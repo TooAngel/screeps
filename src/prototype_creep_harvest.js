@@ -96,7 +96,7 @@ Creep.prototype.spawnCarry = function() {
       this.memory.wait = 0;
     }
     if (this.memory.wait <= 0) {
-      Game.rooms[this.memory.base].memory.queue.push(spawn);
+      Game.rooms[this.memory.base].checkRoleToSpawn('carry', 2, this.memory.routing.targetId, this.memory.routing.targetRoom);
       this.memory.wait = waitTime;
     }
   }

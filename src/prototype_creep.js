@@ -5,6 +5,25 @@ function getOppositeDirection(direction) {
   return ((direction + 3) % 8) + 1;
 }
 
+Creep.prototype.moveToMy = function(target, range) {
+  range = range || 0;
+  let search = PathFinder.search(
+    this.pos, {
+      pos: target,
+      range: range
+    }, {
+      roomCallback: this.room.getCostMatrixCallback(target, true),
+      maxRooms: 0
+    }
+  );
+
+  if (search.incomplete) {
+    this.moveRandom();
+    return false;
+  }
+  return this.move(this.pos.getDirectionTo(search.path[0]));
+};
+
 Creep.prototype.inBase = function() {
   return this.room.name == this.memory.base;
 };
@@ -254,11 +273,7 @@ Creep.prototype.getPositionInPath = function(target) {
 
     this.memory.path[this.room.name] = this.room.findPath(start, end, {
       ignoreCreeps: true,
-      costCallback: this.room.getAvoids(this.room, {
-        controller: true,
-        power: true,
-        filler: true
-      })
+      costCallback: this.room.getCostMatrixCallback(end, true)
     });
   }
   var path = this.memory.path[this.room.name];

@@ -96,7 +96,7 @@ roles.squadheal.action = function(creep) {
         pos: exit,
         range: 0
       }, {
-        roomCallback: creep.room.getAvoids(creep.room, {}, true),
+        roomCallback: creep.room.getCostMatrixCallback(exit),
         maxRooms: 1
       }
     );

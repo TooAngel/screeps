@@ -49,20 +49,7 @@ Creep.prototype.handleDefender = function() {
 
     range = this.pos.getRangeTo(hostile);
     if (range > 3) {
-      let search = PathFinder.search(
-        this.pos, {
-          pos: hostile.pos,
-          range: 0
-        }, {
-          roomCallback: this.room.getAvoids(this.room, {}, true),
-          maxRooms: 0
-        }
-      );
-
-      if (search.incomplete) {
-        this.moveRandom();
-      }
-      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+      let returnCode = this.moveToMy(hostile.pos);
     }
     if (range === 0) {
       this.log('Range: ' + range);
@@ -146,21 +133,7 @@ Creep.prototype.handleDefender = function() {
   if (constructionSite !== null) {
     this.say('kcs');
     this.log('Kill constructionSite: ' + JSON.stringify(constructionSite));
-    let search = PathFinder.search(
-      this.pos, {
-        pos: constructionSite.pos,
-        range: 0
-      }, {
-        roomCallback: this.room.getAvoids(this.room, {}, true),
-        maxRooms: 0
-      }
-    );
-
-    if (search.incomplete) {
-      this.moveRandom();
-      return true;
-    }
-    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+    let returnCode = this.moveToMy(constructionSite.pos);
     return true;
   }
 
@@ -184,21 +157,7 @@ Creep.prototype.waitRampart = function() {
     this.moveRandom();
     return true;
   }
-  let search = PathFinder.search(
-    this.pos, {
-      pos: structure.pos,
-      range: 0
-    }, {
-      roomCallback: this.room.getAvoids(this.room, {}, true),
-      maxRooms: 0
-    }
-  );
-
-  if (search.incomplete) {
-    this.moveRandom();
-    return true;
-  }
-  let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+  let returnCode = this.moveToMy(structure.pos);
   return true;
 };
 
@@ -221,34 +180,7 @@ Creep.prototype.fightRampart = function(target) {
   if (range > 3) {
     return false;
   }
-
-  let callback = this.room.getMatrixCallback;
-
-  // TODO Extract the callback method to ... e.g. room and replace this.room.getAvoids
-  if (this.room.memory.costMatrix && this.room.memory.costMatrix.base) {
-    let room = this.room;
-    callback = function(end) {
-      let callbackInner = function(roomName) {
-        let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
-        // TODO the ramparts could be within existing walls (at least when converging to the newmovesim
-        costMatrix.set(position.pos.x, position.pos.y, 0);
-        return costMatrix;
-      };
-      return callbackInner;
-    };
-  }
-
-  let search = PathFinder.search(
-    this.pos, {
-      pos: position.pos,
-      range: 0
-    }, {
-      roomCallback: callback(position.pos),
-      maxRooms: 1
-    }
-  );
-
-  let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+  let returnCode = this.moveToMy(position.pos);
   if (returnCode == OK) {
     return true;
   }
@@ -256,7 +188,7 @@ Creep.prototype.fightRampart = function(target) {
     return true;
   }
 
-  this.log('creep_fight.fightRampart returnCode: ' + returnCode + ' path: ' + JSON.stringify(search.path[0]));
+  this.log('creep_fight.fightRampart returnCode: ' + returnCode);
 
   let targets = this.pos.findInRange(FIND_HOSTILE_CREEPS, 3, {
     filter: this.room.findAttackCreeps
@@ -298,40 +230,7 @@ Creep.prototype.fightRanged = function(target) {
     return true;
   }
 
-  let creep = this;
-  let callbackFunction = function(roomName) {
-    let callback = creep.room.getAvoids(creep.room);
-    let costMatrix = callback(roomName);
-    for (let i = 0; i < 50; i++) {
-      costMatrix.set(i, 0, 0xFF);
-      costMatrix.set(i, 49, 0xFF);
-      costMatrix.set(0, i, 0xFF);
-      costMatrix.set(49, i, 0xFF);
-    }
-    let room = Game.rooms[roomName];
-    let structures = room.find(FIND_STRUCTURES, {
-      filter: function(object) {
-        return object.structureType != STRUCTURE_ROAD;
-      }
-    });
-    for (let i in structures) {
-      let structure = structures[i];
-      costMatrix.set(structure.pos.x, structure.pos.y, 0xFF);
-    }
-    return costMatrix;
-  };
-
-  let search = PathFinder.search(
-    this.pos, {
-      pos: target.pos,
-      range: 3
-    }, {
-      roomCallback: callbackFunction,
-      maxRooms: 1
-    }
-  );
-
-  let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+  let returnCode = this.moveToMy(target.pos, 3);
   if (returnCode == OK) {
     return true;
   }
