@@ -7,11 +7,15 @@
  */
 
 roles.extractor = {};
-
+roles.extractor.stayInRoom = true;
+roles.extractor.buildRoad = true;
 roles.extractor.boostActions = ['harvest', 'capacity'];
 
 roles.extractor.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, MOVE, WORK];
+  // default was:
+  //var parts = [MOVE, CARRY, MOVE, WORK];
+  // but move less, work harder!
+  var parts = [MOVE, CARRY, WORK, WORK];
   return room.getPartConfig(energy, parts);
 };
 
@@ -21,10 +25,18 @@ roles.extractor.energyBuild = function(room, energy, heal) {
   return energy;
 };
 
-roles.extractor.terminalStorageExchange = function(creep) {
+roles.extractor.terminalToStorageExchange = function(creep) {
   var terminal = creep.room.terminal;
-  if (!terminal || !terminal.isActive()) {
-    // TODO kill creep?
+  /**
+   * The isActive() method is somehow expensive, could be fine for just the mineral roles
+   * see https://github.com/TooAngel/screeps/pull/69
+   * !terminal.isActive() is added if you loose RCL (Room Controller Level) somehow
+   * :-) should not happen !
+   */
+  if (!terminal
+  //|| !terminal.isActive()
+  ) {
+    creep.suicide();
     return ERR_INVALID_TARGET;
   }
   var energyInTerminal = terminal.store.energy / terminal.storeCapacity;
@@ -38,23 +50,33 @@ roles.extractor.terminalStorageExchange = function(creep) {
   }
   // transferToStructures then decide go to terminal or storage
   creep.transferToStructures();
+  creep.construct();
+  // creep.pickupEnergy();
 
   var action = {
     withdraw: _.sum(creep.carry) / creep.carryCapacity < 0.8,
     transfer: _.sum(creep.carry) / creep.carryCapacity > 0.3
   };
-
-  // TODO replace creep.moveTo by moving on path ?
-
+  var movingOptions = {
+    //noPathFinding: true,
+    reusePath: 1500
+  };
+  // TODO create new shortest path and use it
+  // TODO replace creep.moveTo by creep.moveByPath
+  // @see @link http://support.screeps.com/hc/en-us/articles/203013212-Creep#moveByPath
   if (action.withdraw) {
     if (creep.withdraw(terminal, RESOURCE_ENERGY) !== OK) {
-      creep.moveTo(terminal);
+      if (creep.moveTo(terminal, movingOptions) === ERR_NOT_FOUND) {
+        console.log('create new path for the terminalStorageExchange feature');
+      }
     }
   }
 
   if (!action.withdraw || action.transfer) {
     if (creep.transfer(creep.room.storage, RESOURCE_ENERGY) !== OK) {
-      creep.moveTo(creep.room.storage);
+      if (creep.moveTo(creep.room.storage, movingOptions) === ERR_NOT_FOUND) {
+        console.log('create new path for the terminalStorageExchange feature');
+      }
     }
   }
   if (!action.withdraw && !action.transfer) {
@@ -65,10 +87,18 @@ roles.extractor.terminalStorageExchange = function(creep) {
 };
 
 function executeExtractor(creep) {
-  let returnValue = roles.extractor.terminalStorageExchange(creep);
-  if (returnValue == OK) {
+  let energyInStorage = creep.room.terminal.store.energy / creep.room.terminal.storeCapacity;
+  let returnValue = null;
+  // TODO FIXME this is real ugly, but works move energy to storage for 5000 ticks, then extracts
+  // TODO result of FIXME carry creeps from neighbour rooms transfer to extractor
+  var limit = (Math.round(Game.time / 1000) % 10000 < 5) ? 0.6 : 0.5;
+  if (energyInStorage > limit) {
+    returnValue = roles.extractor.terminalToStorageExchange(creep);
+  }
+  if (returnValue === OK) {
     return true;
   } else {
+    //creep.log('terminalToStorageExchange ' + returnValue);
     return creep.handleExractor();
   }
 }
