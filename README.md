@@ -54,9 +54,9 @@ has the default values.
 
 All kind of contribution is welcome, issues, contact via channels, pull requests.
 
-Pull Request rule:
-Prefix `[WIP]` in the PR title means, have a look if you like, but not ready to
-merge.
+Follow this link if you are planning to contribute via pull request.
+
+[Contribution and Workflow](doc/Constribution-and-Workflow.md)
 
 [Issues](https://github.com/TooAngel/screeps/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
 with label 'enhancement' exist, which are open for discussion
