@@ -14,16 +14,19 @@ if (config.visualizer.enabled) {
     showPaths: function() {
       let colors = [];
       let COLOR_BLACK = colors.push('#000000') - 1;
-      let COLOR_RED = colors.push('rgba(249,8,8,0.5)') - 1;
+      let COLOR_RED = colors.push('rgba(255,0,0,0.5)') - 1;
+      let COLOR_BLUE = colors.push('rgba(0,0,255,0.1)') - 1;
+      let COLOR_YELLOW = colors.push('rgba(255,255,0,0.1)') - 1;
       let COLOR_WHITE = colors.push('rgba(255,255,255,0.5)') - 1;
       _.each(Game.rooms, (room, name) => {
         let visual = new Visual(name);
         visual.defineColors(colors);
         visual.setLineWidth = 0.5;
-
+        visual.font = '1px sans';
+        // draw fixed paths in room
         if (config.visualizer.showRoomPaths) {
           let paths = room.getMemoryPaths();
-          if (paths.length !== 0 && config.visualizer.showRoomPaths) {
+          if (paths.length !== 0) {
             _.each(paths, route => {
               visual.drawLine(route.path.map(p => ([p.x, p.y])), COLOR_WHITE, {
                 lineWidth: 0.1
@@ -31,7 +34,7 @@ if (config.visualizer.enabled) {
             });
           }
         }
-
+        // draw creep paths from using moveTo
         if (config.visualizer.showCreepPaths) {
           _.each(Game.creeps, creep => {
             if (creep.room != room) {
@@ -40,7 +43,7 @@ if (config.visualizer.enabled) {
             let mem = creep.memory;
             if (mem._move) {
               let path = Room.deserializePath(mem._move.path);
-              if (path.length) {
+              if (path.length !== 0) {
                 visual.drawLine(path.map(p => ([p.x, p.y])), COLOR_RED, {
                   lineWidth: 0.1
                 });
@@ -48,6 +51,38 @@ if (config.visualizer.enabled) {
             }
           });
         }
+        // draw structures
+        if (config.visualizer.showStructures) {
+          let structures = room.memory.position.structure;
+          _.each(Object.keys(structures), structType => {
+            let text = structType.substr(0, 1).toUpperCase();
+            _.each(structures[structType], structure => {
+              visual.drawCell(structure.x, structure.y, COLOR_BLUE);
+              visual.fillStyle = 'blue';
+              visual.fillText(text, structure.x + 0.2, structure.y + 0.85);
+            });
+          });
+        }
+        // draw creep positions
+        if (config.visualizer.showCreeps) {
+          let creeps = room.memory.position.creep;
+          _.each(Object.keys(creeps), position => {
+            if (position.x || position.y) {
+              let text = position.substr(0, 1);
+              visual.drawCell(position.x, position.y, COLOR_YELLOW);
+              visual.fillStyle = 'yellow';
+              visual.fillText(text, position.x + 0.3, position.y + 0.75);
+            } else {
+              _.each(creeps[position], towerfiller => {
+                let text = position.substr(0, 1);
+                visual.drawCell(towerfiller.x, towerfiller.y, COLOR_YELLOW);
+                visual.fillStyle = 'yellow';
+                visual.fillText(text, towerfiller.x + 0.3, towerfiller.y + 0.75);
+              });
+            }
+          });
+        }
+
         visual.commit();
       });
       return true;
@@ -110,4 +145,5 @@ if (config.visualizer.enabled) {
         '}</script>');
     },
   };
+  visualizer.run();
 }

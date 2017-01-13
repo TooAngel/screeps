@@ -22,6 +22,8 @@ global.config = {
     enabled: false,
     showRoomPaths: true,
     showCreepPaths: true,
+    showStructures: true,
+    showCreeps: true,
     refresh: true,
   },
 
