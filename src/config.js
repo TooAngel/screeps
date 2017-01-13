@@ -134,6 +134,7 @@ global.config = {
     scout: true, // TODO somehow broken ?? Is it broken ??
     upgraderMinStorage: 0,
     lastSeenThreshold: 10000
+    notify: false,
   },
 
   layout: {

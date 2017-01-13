@@ -390,7 +390,7 @@ Room.prototype.executeRoom = function() {
     if (Game.time % 10 === 0) {
       this.log('Under attack from ' + hostiles[0].owner.username);
     }
-    if (hostiles[0].owner.username != 'Invader') {
+    if (hostiles[0].owner.username != 'Invader' && config.room.notify) {
       Game.notify(this.name + ' Under attack from ' + hostiles[0].owner.username + ' at ' + Game.time);
     }
   }

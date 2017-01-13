@@ -69,7 +69,7 @@ function executeExtractor(creep) {
   if (returnValue == OK) {
     return true;
   } else {
-    return creep.handleExractor();
+    return creep.handleExtractor();
   }
 }
 

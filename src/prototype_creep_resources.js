@@ -115,7 +115,7 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
   return reverse;
 };
 
-Creep.prototype.handleExractor = function() {
+Creep.prototype.handleExtractor = function() {
   if (!this.room.terminal) {
     this.suicide();
     return true;
@@ -153,7 +153,12 @@ Creep.prototype.handleExractor = function() {
       }
     );
     let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
-    this.harvest(minerals[0]);
+    returnCode = this.harvest(minerals[0]);
+    // -11 is extractor depleted, move to get out of the way. Stay on path to
+    // avoid going into swamps.
+    if (returnCode === -11) {
+      this.moveRandom(true);
+    }
   }
   return true;
 };
