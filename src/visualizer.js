@@ -16,6 +16,7 @@ if (config.visualizer.enabled) {
       let COLOR_BLACK = colors.push('#000000') - 1;
       let COLOR_RED = colors.push('rgba(255,0,0,0.5)') - 1;
       let COLOR_BLUE = colors.push('rgba(0,0,255,0.5)') - 1;
+      let COLOR_YELLOW = colors.push('rgba(255,255,0,0.5)') - 1;
       let COLOR_WHITE = colors.push('rgba(255,255,255,0.5)') - 1;
       _.each(Game.rooms, (room, name) => {
         let visual = new Visual(name);
@@ -50,12 +51,24 @@ if (config.visualizer.enabled) {
           });
         }
 
-        if (config.visualizer.showRoomPaths) {
+        if (config.visualizer.showStructures) {
           let structures = room.memory.position.structure;
           _.each(structures, structType => {
             _.each(structType, structure => {
               visual.drawCell(structure.x, structure.y, COLOR_BLUE);
             });
+          });
+        }
+        if (config.visualizer.showCreeps) {
+          let creeps = room.memory.position.creep;
+          _.each(creeps, position => {
+            if (position.x || position.y) {
+              visual.drawCell(position.x, position.y, COLOR_YELLOW);
+            } else {
+              _.each(position, towerfiller => {
+                visual.drawCell(towerfiller.x, towerfiller.y, COLOR_YELLOW);
+              });
+            }
           });
         }
 
@@ -121,4 +134,5 @@ if (config.visualizer.enabled) {
         '}</script>');
     },
   };
+  visualizer.run();
 }
