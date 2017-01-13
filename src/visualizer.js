@@ -15,14 +15,14 @@ if (config.visualizer.enabled) {
       let colors = [];
       let COLOR_BLACK = colors.push('#000000') - 1;
       let COLOR_RED = colors.push('rgba(255,0,0,0.5)') - 1;
-      let COLOR_BLUE = colors.push('rgba(0,0,255,0.5)') - 1;
-      let COLOR_YELLOW = colors.push('rgba(255,255,0,0.5)') - 1;
+      let COLOR_BLUE = colors.push('rgba(0,0,255,0.1)') - 1;
+      let COLOR_YELLOW = colors.push('rgba(255,255,0,0.1)') - 1;
       let COLOR_WHITE = colors.push('rgba(255,255,255,0.5)') - 1;
       _.each(Game.rooms, (room, name) => {
         let visual = new Visual(name);
         visual.defineColors(colors);
         visual.setLineWidth = 0.5;
-
+        visual.font = '1px sans';
         if (config.visualizer.showRoomPaths) {
           let paths = room.getMemoryPaths();
           if (paths.length !== 0) {
@@ -53,20 +53,29 @@ if (config.visualizer.enabled) {
 
         if (config.visualizer.showStructures) {
           let structures = room.memory.position.structure;
-          _.each(structures, structType => {
-            _.each(structType, structure => {
+          _.each(Object.keys(structures), structType => {
+            let text = structType.substr(0, 1).toUpperCase();
+            _.each(structures[structType], structure => {
               visual.drawCell(structure.x, structure.y, COLOR_BLUE);
+              visual.fillStyle = 'blue';
+              visual.fillText(text, structure.x + 0.2, structure.y + 0.85);
             });
           });
         }
         if (config.visualizer.showCreeps) {
           let creeps = room.memory.position.creep;
-          _.each(creeps, position => {
+          _.each(Object.keys(creeps), position => {
             if (position.x || position.y) {
+              let text = position.substr(0, 1);
               visual.drawCell(position.x, position.y, COLOR_YELLOW);
+              visual.fillStyle = 'yellow';
+              visual.fillText(text, position.x + 0.3, position.y + 0.75);
             } else {
-              _.each(position, towerfiller => {
+              _.each(creeps[position], towerfiller => {
+                let text = position.substr(0, 1);
                 visual.drawCell(towerfiller.x, towerfiller.y, COLOR_YELLOW);
+                visual.fillStyle = 'yellow';
+                visual.fillText(text, towerfiller.x + 0.3, towerfiller.y + 0.75);
               });
             }
           });
