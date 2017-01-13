@@ -14,7 +14,8 @@ if (config.visualizer.enabled) {
     showPaths: function() {
       let colors = [];
       let COLOR_BLACK = colors.push('#000000') - 1;
-      let COLOR_RED = colors.push('rgba(249,8,8,0.5)') - 1;
+      let COLOR_RED = colors.push('rgba(255,0,0,0.5)') - 1;
+      let COLOR_BLUE = colors.push('rgba(0,0,255,0.5)') - 1;
       let COLOR_WHITE = colors.push('rgba(255,255,255,0.5)') - 1;
       _.each(Game.rooms, (room, name) => {
         let visual = new Visual(name);
@@ -23,7 +24,7 @@ if (config.visualizer.enabled) {
 
         if (config.visualizer.showRoomPaths) {
           let paths = room.getMemoryPaths();
-          if (paths.length !== 0 && config.visualizer.showRoomPaths) {
+          if (paths.length !== 0) {
             _.each(paths, route => {
               visual.drawLine(route.path.map(p => ([p.x, p.y])), COLOR_WHITE, {
                 lineWidth: 0.1
@@ -40,7 +41,7 @@ if (config.visualizer.enabled) {
             let mem = creep.memory;
             if (mem._move) {
               let path = Room.deserializePath(mem._move.path);
-              if (path.length) {
+              if (path.length !== 0) {
                 visual.drawLine(path.map(p => ([p.x, p.y])), COLOR_RED, {
                   lineWidth: 0.1
                 });
@@ -48,6 +49,16 @@ if (config.visualizer.enabled) {
             }
           });
         }
+
+        if (config.visualizer.showRoomPaths) {
+          let structures = room.memory.position.structure;
+          _.each(structures, structType => {
+            _.each(structType, structure => {
+              visual.drawCell(structure.x, structure.y, COLOR_BLUE);
+            });
+          });
+        }
+
         visual.commit();
       });
       return true;
