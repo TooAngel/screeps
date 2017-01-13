@@ -47,7 +47,11 @@ Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing, ba
       buildRoad: unit.buildRoad,
       routing: routing
     };
-    var returnCode = spawn.createCreep(partConfig, name, memory);
+    let returnCode = spawn.createCreep(partConfig, name, memory);
+    let userName = Memory.username;
+    let roleStat = Memory.stats[Memory.username].roles[role];
+    let previousAmount = roleStat ? roleStat.amount : 0;
+    brain.stats.add('', '.roles.' + role, previousAmount + 1);
 
     if (returnCode != name) {
       continue;
