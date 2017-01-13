@@ -23,6 +23,7 @@ if (config.visualizer.enabled) {
         visual.defineColors(colors);
         visual.setLineWidth = 0.5;
         visual.font = '1px sans';
+        // draw fixed paths in room
         if (config.visualizer.showRoomPaths) {
           let paths = room.getMemoryPaths();
           if (paths.length !== 0) {
@@ -33,7 +34,7 @@ if (config.visualizer.enabled) {
             });
           }
         }
-
+        // draw creep paths from using moveTo
         if (config.visualizer.showCreepPaths) {
           _.each(Game.creeps, creep => {
             if (creep.room != room) {
@@ -50,7 +51,7 @@ if (config.visualizer.enabled) {
             }
           });
         }
-
+        // draw structures
         if (config.visualizer.showStructures) {
           let structures = room.memory.position.structure;
           _.each(Object.keys(structures), structType => {
@@ -62,6 +63,7 @@ if (config.visualizer.enabled) {
             });
           });
         }
+        // draw creep positions
         if (config.visualizer.showCreeps) {
           let creeps = room.memory.position.creep;
           _.each(Object.keys(creeps), position => {
