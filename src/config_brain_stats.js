@@ -10,7 +10,7 @@
  */
 
 brain.stats.add = function(roomName, path, newContent) {
-  if (!config.stats.enabled) {
+  if (!config.stats.enabled || Game.time % 3) {
     return false;
   }
   if (!Memory.stats) {
@@ -42,7 +42,7 @@ brain.stats.add = function(roomName, path, newContent) {
  *
  */
 brain.stats.addRoot = function() {
-  if (!config.stats.enabled) {
+  if (!config.stats.enabled || Game.time % 3) {
     return false;
   }
   brain.stats.add('', '', {
@@ -73,7 +73,7 @@ brain.stats.addRoot = function() {
  *
  */
 brain.stats.addRoom = function(roomName) {
-  if (!config.stats.enabled) {
+  if (!config.stats.enabled || Game.time % 3) {
     return false;
   }
 
@@ -119,3 +119,15 @@ brain.stats.addRoom = function(roomName) {
   }
   return true;
 };
+
+let rolesNames = [];
+rolesNames = _.map(Memory.creeps, c => {
+  if (_.findIndex(rolesNames, c) === -1) {
+    return c;
+  }
+});
+
+rolesNames.forEach(r => {
+  brain.stats.add('', '.roles.' + r + 's.amount',
+    _.filter(Memory.creeps, c => c.role === r).length);
+});
