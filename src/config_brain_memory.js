@@ -47,7 +47,10 @@ brain.prepareMemory = function() {
   for (let name in Memory.creeps) {
     if (!Game.creeps[name]) {
       let role = Memory.creeps[name].role;
-      let roleStat = Memory.stats[userName].roles[role];
+      let roleStat;
+      if (!Memory.stats[userName]) {
+        roleStat = Memory.stats[userName].roles[role];
+      }
       let previousAmount = roleStat ? roleStat.amount : 0;
       let amount = previousAmount ? 0 : previousAmount - 1;
       brain.stats.add('', '.roles.' + role, amount);
