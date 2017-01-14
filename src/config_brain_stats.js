@@ -3,53 +3,41 @@
 /**
  * stats.add use for push anything into Memory.stats at a given place.
  *
- * @param {String} roomName Room name or '' if out of  Stats[Player].rooms .
- * @param {String} path Sub Stats[Player]/Stats[Player].room[Room] ids.
+ * @param {Array} path Sub stats path.
  * @param {Any} newContent The value to push into stats.
  *
  */
-
-brain.stats.add = function(roomName, path, newContent) {
+brain.stats.add = function(path, newContent) {
   if (!config.stats.enabled || Game.time % 3) {
     return false;
   }
 
-  var name = Memory.username || Game.rooms[roomName].controller.owner;
+  var name = Memory.username || _.find(Game.spawns, 'owner').owner;
   Memory.username = name;
-  if (!Memory.stats[name].room[roomName]) {
-    Memory.stats[name].room[roomName] = {};
-  }
-  if (!Memory.stats[name].room[roomName + path]) {
-    Memory.stats[name].room[roomName + path] = {};
-  }
-  if (newContent && roomName) {
-    if (!Memory.stats[name].room[roomName]) {
-      Memory.stats[name].room[roomName] = {};
-    }
-    Memory.stats[name].room[roomName + path] = _.merge(Memory.stats[name].room[roomName + path], newContent);
+  Memory.stats = Memory.stats || {};
+  Memory.stats[name] = Memory.stats[name] || {};
 
-    /**
-     * let existContent = Memory.stats[name].room[roomName + path];
-     * Memory.stats[name].room[roomName + path] = existContent ? _.concat(existContent,newContent) : newContent
-     */
-  } else if (newContent) {
-    Memory.stats[name + path] = _.merge(Memory.stats[name + path], newContent);
-    /**
-     * let existContent = Memory.stats[name + path];
-     * Memory.stats[name + path] = existContent ? _.concat(existContent,newContent) : newContent;
-     */
+  let current = Memory.stats[name];
+  for (let item of path) {
+    if (!current[item]) {
+      current[item] = {};
+    }
+    current = current[item];
   }
+
+  current = _.merge(current, newContent);
   return true;
 };
+
 /**
- * stats.addPlayer call stats.add with given values at given sub player path.
+ * stats.addRoot sets the root values, cpu, exec, gcl
  *
  */
 brain.stats.addRoot = function() {
   if (!config.stats.enabled || Game.time % 3) {
     return false;
   }
-  brain.stats.add('', '', {
+  brain.stats.add([], {
     cpu: {
       limit: Game.cpu.limit,
       tickLimit: Game.cpu.tickLimit,
@@ -86,7 +74,7 @@ brain.stats.addRoom = function(roomName, previousCpu) {
   if (room.memory.upgraderUpgrade === undefined) {
     room.memory.upgraderUpgrade = 0;
   }
-  brain.stats.add(roomName, '', {
+  brain.stats.add(['room', roomName], {
     energy: {
       available: room.energyAvailable,
       capacity: room.energyCapacityAvailable,
@@ -106,14 +94,14 @@ brain.stats.addRoom = function(roomName, previousCpu) {
 
   if (room.storage) {
     let storage = room.storage;
-    brain.stats.add(roomName, '.storage', {
+    brain.stats.add(['room', roomName, 'storage'], {
       energy: storage.store.energy,
       power: storage.store.power
     });
   }
   if (room.terminal) {
     let terminal = room.terminal;
-    brain.stats.add(roomName, '.terminal', {
+    brain.stats.add(['room', roomName, 'terminal'], {
       energy: terminal.store.energy,
       minerals: _.sum(terminal.store) - terminal.store.energy
     });
