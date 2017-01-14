@@ -17,11 +17,9 @@
  */
 Room.prototype.setMemoryCostMatrix = function(costMatrix) {
   if (!cache.rooms[this.name]) {
-    this.log('Set No cache');
     cache.rooms[this.name] = {};
   }
   if (!cache.rooms[this.name].costMatrix) {
-    this.log('Set No costMatrix');
     cache.rooms[this.name].costMatrix = {};
   }
   if (this.controller && this.controller.my) {
@@ -50,9 +48,6 @@ Room.prototype.getMemoryCostMatrix = function() {
     }
     cache.rooms[this.name].costMatrix.base = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
   }
-  // if (!cache.rooms[this.name].costMatrix.base) {
-  //   this.log('getMemoryCostMatrix' + cache.rooms[this.name].costMatrix.base + ' ' + cache.rooms[this.name].costMatrix);
-  // }
   return cache.rooms[this.name].costMatrix.base;
 };
 
