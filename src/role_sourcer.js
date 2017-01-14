@@ -25,9 +25,9 @@ roles.sourcer.settings = {
     1: 4,
     5: 2,
   },
-  sufixString: {
-    4: 'MCWH'
-  }
+  // sufixString: {
+  //   4: 'MCWH'
+  // }
 };
 
 roles.sourcer.buildRoad = true;

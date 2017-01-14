@@ -44,20 +44,7 @@ Creep.prototype.attackHostile = function(hostile) {
     return this.fleeFromHostile(hostile);
   }
 
-  let search = PathFinder.search(
-    this.pos, {
-      pos: hostile.pos,
-      range: 0
-    }, {
-      roomCallback: this.room.getAvoids(this.room, {}, true),
-      maxRooms: 0
-    }
-  );
-
-  if (search.incomplete) {
-    this.moveRandom();
-  }
-  let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+  let returnCode = this.moveToMy(hostile.pos);
   this.rangedAttack(hostile);
   return true;
 
@@ -125,21 +112,7 @@ Creep.prototype.moveToHostileConstructionSites = function() {
   if (constructionSite !== null) {
     this.say('kcs');
     this.log('Kill constructionSite: ' + JSON.stringify(constructionSite));
-    let search = PathFinder.search(
-      this.pos, {
-        pos: constructionSite.pos,
-        range: 0
-      }, {
-        roomCallback: this.room.getAvoids(this.room, {}, true),
-        maxRooms: 0
-      }
-    );
-
-    if (search.incomplete) {
-      this.moveRandom();
-      return true;
-    }
-    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+    let returnCode = this.moveToMy(constructionSite.pos);
     return true;
   }
   return false;
@@ -188,21 +161,7 @@ Creep.prototype.waitRampart = function() {
     this.moveRandom();
     return true;
   }
-  let search = PathFinder.search(
-    this.pos, {
-      pos: structure.pos,
-      range: 0
-    }, {
-      roomCallback: this.room.getAvoids(this.room, {}, true),
-      maxRooms: 0
-    }
-  );
-
-  if (search.incomplete) {
-    this.moveRandom();
-    return true;
-  }
-  let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+  let returnCode = this.moveToMy(structure.pos);
   return true;
 };
 
@@ -225,18 +184,7 @@ Creep.prototype.fightRampart = function(target) {
   if (range > 3) {
     return false;
   }
-
-  let search = PathFinder.search(
-    this.pos, {
-      pos: position.pos,
-      range: 0
-    }, {
-      roomCallback: this.room.getCostMatrixCallback(position.pos),
-      maxRooms: 1
-    }
-  );
-
-  let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+  let returnCode = this.moveToMy(position.pos);
   if (returnCode === OK) {
     return true;
   }
@@ -244,7 +192,7 @@ Creep.prototype.fightRampart = function(target) {
     return true;
   }
 
-  this.log('creep_fight.fightRampart returnCode: ' + returnCode + ' path: ' + JSON.stringify(search.path[0]));
+  this.log('creep_fight.fightRampart returnCode: ' + returnCode);
 
   let targets = this.pos.findInRange(FIND_HOSTILE_CREEPS, 3, {
     filter: this.room.findAttackCreeps
@@ -286,17 +234,7 @@ Creep.prototype.fightRanged = function(target) {
     return true;
   }
 
-  let search = PathFinder.search(
-    this.pos, {
-      pos: target.pos,
-      range: 3
-    }, {
-      roomCallback: this.room.getCostMatrixCallback(target.pos),
-      maxRooms: 1
-    }
-  );
-
-  let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+  let returnCode = this.moveToMy(target.pos, 3);
   if (returnCode === OK) {
     return true;
   }

@@ -94,7 +94,9 @@ Room.prototype.setFillerArea = function(storagePos, route) {
           this.memory.position.structure.tower.push(towerPos);
           return;
         }
+        this.memory.position.structure.powerSpawn.pop();
       }
+      this.memory.position.structure.link.shift();
     }
   }
 };
