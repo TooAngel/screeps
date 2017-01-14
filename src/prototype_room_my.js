@@ -233,6 +233,10 @@ Room.prototype.checkCanHelp = function() {
     nearestRoom !== this.name && nearestRoomObj && this.storage && //!nearestRoomObj.hostile &&
     !nearestRoomObj.terminal;
   if (canHelp) {
+    let route = this.findRoute(nearestRoom, this.name);
+    if (route == -2 || route.length === 0) {
+      return 'no';
+    }
     this.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, this.storage.id,
       this.name, undefined, nearestRoom);
     this.memory.energyAvailableSum = 0;

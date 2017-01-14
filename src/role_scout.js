@@ -89,15 +89,11 @@ roles.scout.execute = function(creep) {
           pos: targetPosObject,
           range: 20
         }, {
-          roomCallback: creep.room.getAvoids(creep.room, {
-            pos: targetPosObject,
-            scout: true
-          })
+          roomCallback: creep.room.getCostMatrixCallback(targetPosObject, true)
         }
       );
     } catch (e) {
       creep.log(`search: ${targetPosObject} ${e} ${e.stack}`);
-
       // creep.memory.search.seen.push(creep.memory.search.target);
       // // TODO extract to a method
       // if (!setNewTarget(creep)) {
@@ -131,7 +127,10 @@ roles.scout.execute = function(creep) {
       //if (search.path.length > 0) {
       //creep.move(creep.pos.getDirectionTo(search.path[0]));
       //} else {
-      creep.moveTo(targetPosObject);
+      let returnCode = creep.moveTo(targetPosObject, {
+        ignoreCreeps: true,
+        costCallback: creep.room.getCostMatrixCallback()
+      });
       //}
       return true;
     }
