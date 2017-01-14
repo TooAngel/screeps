@@ -113,16 +113,8 @@ Creep.prototype.handleExtractor = function() {
     return true;
   }
   let carrying = _.sum(this.carry);
-  if (carrying === this.carryCapacity) {
-    let search = PathFinder.search(
-      this.pos, {
-        pos: this.room.terminal.pos,
-        range: 1
-      }, {
-        roomCallback: this.room.getAvoids(this.room, {}, true),
-      }
-    );
-    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+  if (carrying == this.carryCapacity) {
+    let returnCode = this.moveToMy(this.room.terminal.pos, 1);
     for (let key in this.carry) {
       if (this.carry[key] === 0) {
         continue;
@@ -136,21 +128,8 @@ Creep.prototype.handleExtractor = function() {
   if (minerals.length > 0) {
     let posMem = this.room.memory.position.creep[minerals[0].id];
     let pos = new RoomPosition(posMem.x, posMem.y, posMem.roomName);
-    let search = PathFinder.search(
-      this.pos, {
-        pos: pos,
-        range: 0
-      }, {
-        roomCallback: this.room.getAvoids(this.room, {}, true),
-      }
-    );
-    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
-    returnCode = this.harvest(minerals[0]);
-    // -11 is extractor depleted, move to get out of the way. Stay on path to
-    // avoid going into swamps.
-    if (returnCode === -11) {
-      this.moveRandom(true);
-    }
+    let returnCode = this.moveToMy(pos);
+    this.harvest(minerals[0]);
   }
   return true;
 };
@@ -171,7 +150,7 @@ Creep.prototype.handleUpgrader = function() {
     let word = Game.time % sentence.length;
     creep.say(sentence[word], true);
   };
-  say(this);
+  // say(this);
   this.spawnReplacement(1);
   var room = Game.rooms[this.room.name];
   if (room.memory.attackTimer > 50 && room.controller.level > 6) {
@@ -509,11 +488,7 @@ Creep.prototype.getEnergy = function() {
   if (item === null) {
     if (this.carry.energy === 0) {
       var source = this.pos.findClosestByRange(FIND_SOURCES);
-      this.moveTo(source, {
-        reusePath: 5,
-        ignoreCreeps: true,
-        costCallback: this.room.getAvoids(this.room)
-      });
+      let returnCode = this.moveToMy(source.pos);
       return true;
     } else {
       this.memory.hasEnergy = true; // Stop looking and spend the energy.
@@ -634,7 +609,7 @@ Creep.prototype.construct = function() {
         pos: target.pos,
         range: 3
       }, {
-        roomCallback: this.room.getCostMatrixCallback(target.pos),
+        roomCallback: this.room.getCostMatrixCallback(target.pos, true),
         maxRooms: 0
       }
     );
@@ -707,31 +682,13 @@ Creep.prototype.transferEnergyMy = function() {
     }
     delete this.memory.target;
   } else {
-    let search = PathFinder.search(
-      this.pos, {
-        pos: target.pos,
-        range: 1
-      }, {
-        roomCallback: this.room.getAvoids(this.room, {
-          scout: true
-        }, true),
-        maxRooms: 1
-      }
-    );
-    if (search.path.length === 0) {
-      this.moveRandom();
-      return true;
-    }
-    if (search.incomplete) {
+    let returnCode = this.moveToMy(target.pos);
+    if (returnCode === false) {
       this.say('tr:incompl', true);
       if (config.path.pathfindIncomplete) {
-        this.moveTo(target.pos);
+        this.moveTo(target.pos, 1);
         return true;
       }
-      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
-    } else {
-      //       this.say('tr:' + this.pos.getDirectionTo(search.path[0]), true);
-      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
     }
   }
   return true;

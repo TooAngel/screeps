@@ -58,18 +58,6 @@ Creep.prototype.handleMineralCreep = function() {
     creep.memory.state = (creep.memory.state + 1) % states.length;
   }
 
-  function moveTo(creep, target) {
-    let search = PathFinder.search(
-      creep.pos, {
-        pos: target.pos,
-        range: 1
-      }, {
-        roomCallback: creep.room.getAvoids(creep.room, {}, true),
-      }
-    );
-    let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
-  }
-
   function get(creep, target, resource) {
     if (_.sum(creep.carry) === creep.carryCapacity) {
       //    creep.log('next state no capacity' + target);
@@ -141,10 +129,9 @@ Creep.prototype.handleMineralCreep = function() {
   function cleanUpLabs(creep) {
     creep.say('cleanup');
     if (_.sum(creep.carry) > 0) {
-      creep.moveTo(creep.room.terminal, {
-        ignoreCreeps: true,
-        costCallback: creep.room.getAvoids(creep.room)
-      });
+
+      let returnCode = creep.moveToMy(creep.room.terminal.pos);
+
       for (let resource in creep.carry) {
         if (creep.carry[resource] === 0) {
           continue;
@@ -170,11 +157,9 @@ Creep.prototype.handleMineralCreep = function() {
         creep.moveRandom();
         return false;
       }
-      creep.moveTo(lab, {
-        ignoreCreeps: true,
-        costCallback: creep.room.getAvoids(creep.room)
-      });
-      let returnCode = creep.withdraw(lab, lab.mineralType);
+      let returnCode = creep.moveToMy(lab.pos);
+
+      returnCode = creep.withdraw(lab, lab.mineralType);
       //    creep.log(returnCode + ' ' + lab.mineralType + ' ' + JSON.stringify(lab));
     }
   }
@@ -284,23 +269,18 @@ Creep.prototype.handleMineralCreep = function() {
     if (lab.energy < lab.energyCapacity) {
       creep.say('boost');
       if (creep.carry.energy > 0) {
-        creep.moveTo(lab, {
-          ignoreCreeps: true,
-          costCallback: creep.room.getAvoids(creep.room)
-        });
+        let returnCode = creep.moveToMy(lab.pos);
         creep.transfer(lab, RESOURCE_ENERGY);
         return true;
       } else {
-        creep.moveTo(creep.room.storage, {
-          ignoreCreeps: true,
-          costCallback: creep.room.getAvoids(creep.room)
-        });
+        let returnCode = creep.moveToMy(creep.room.storage.pos);
+
         if (_.sum(creep.carry) > 0) {
           for (let resource in creep.carry) {
             creep.transfer(creep.room.storage, resource);
           }
         }
-        let returnCode = creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
+        returnCode = creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
         return true;
       }
     }
@@ -308,10 +288,8 @@ Creep.prototype.handleMineralCreep = function() {
     if (lab.mineralAmount < lab.mineralCapacity) {
       creep.say('mineral');
       if (creep.carry[creep.memory.boostAction.mineral] > 0) {
-        creep.moveTo(lab, {
-          ignoreCreeps: true,
-          costCallback: creep.room.getAvoids(creep.room)
-        });
+        let returnCode = creep.moveToMy(lab.pos);
+
         creep.transfer(lab, creep.memory.boostAction.mineral);
         return true;
       } else {
@@ -319,10 +297,9 @@ Creep.prototype.handleMineralCreep = function() {
           //        creep.log('For boosting ' + creep.memory.boostAction.mineral + ' not available');
           return false;
         }
-        creep.moveTo(creep.room.terminal, {
-          ignoreCreeps: true,
-          costCallback: creep.room.getAvoids(creep.room)
-        });
+
+        let returnCode = creep.moveToMy(creep.room.terminal.pos);
+
         creep.withdraw(creep.room.terminal, creep.memory.boostAction.mineral);
         return true;
       }
@@ -340,21 +317,15 @@ Creep.prototype.handleMineralCreep = function() {
     // TODO Transfer to structures
 
     if (creep.carry.energy === 0) {
-      creep.moveTo(creep.room.terminal.pos, {
-        ignoreCreeps: true,
-        costCallback: creep.room.getAvoids(creep.room)
-      });
+      let returnCode = creep.moveToMy(creep.room.terminal.pos);
       for (let resource in creep.carry) {
         creep.transfer(creep.room.terminal, resource);
       }
       creep.withdraw(creep.room.terminal, RESOURCE_ENERGY);
       return true;
     }
+    let returnCode = creep.moveToMy(creep.room.storage.pos);
 
-    creep.moveTo(creep.room.storage.pos, {
-      ignoreCreeps: true,
-      costCallback: creep.room.getAvoids(creep.room)
-    });
     creep.transfer(creep.room.storage, RESOURCE_ENERGY);
     return true;
   }
@@ -375,10 +346,8 @@ Creep.prototype.handleMineralCreep = function() {
     creep.say('checkStorage');
 
     if (_.sum(creep.carry) > 0) {
-      creep.moveTo(creep.room.terminal.pos, {
-        ignoreCreeps: true,
-        costCallback: creep.room.getAvoids(creep.room)
-      });
+      let returnCode = creep.moveToMy(creep.room.terminal.pos);
+
       for (let transfer in creep.carry) {
         let returnCode = creep.transfer(creep.room.terminal, transfer);
         if (returnCode === OK || returnCode === ERR_NOT_IN_RANGE) {
@@ -388,11 +357,8 @@ Creep.prototype.handleMineralCreep = function() {
       }
       return true;
     }
+    let returnCode = creep.moveToMy(creep.room.storage.pos);
 
-    creep.moveTo(creep.room.storage.pos, {
-      ignoreCreeps: true,
-      costCallback: creep.room.getAvoids(creep.room)
-    });
     creep.withdraw(creep.room.storage, resource);
     return true;
   }
@@ -404,16 +370,11 @@ Creep.prototype.handleMineralCreep = function() {
         let nuker = nukers[0];
         if (nuker.ghodium < nuker.ghodiumCapacity) {
           if (creep.carry[RESOURCE_GHODIUM] > 0) {
-            creep.moveTo(nuker, {
-              ignoreCreeps: true,
-              costCallback: creep.room.getAvoids(creep.room)
-            });
+            let returnCode = creep.moveToMy(nuker.pos);
             creep.transfer(nuker, RESOURCE_GHODIUM);
           } else {
-            creep.moveTo(creep.room.terminal, {
-              ignoreCreeps: true,
-              costCallback: creep.room.getAvoids(creep.room)
-            });
+            let returnCode = creep.moveToMy(creep.room.terminal.pos);
+
             creep.withdraw(creep.room.terminal, RESOURCE_GHODIUM);
           }
           return true;
@@ -486,10 +447,8 @@ Creep.prototype.handleMineralCreep = function() {
 
     if (room.memory.terminalTooLessEnergy) {
       if (_.sum(creep.carry) - creep.carry.energy > 0) {
-        creep.moveTo(room.terminal, {
-          ignoreCreeps: true,
-          costCallback: creep.room.getAvoids(creep.room)
-        });
+        let returnCode = creep.moveToMy(creep.room.terminal.pos);
+
         for (let resource in creep.carry) {
           creep.transfer(room.terminal, resource);
         }
@@ -498,16 +457,11 @@ Creep.prototype.handleMineralCreep = function() {
 
       creep.say('TEnergy');
       if (creep.carry.energy > 0) {
-        creep.moveTo(room.terminal, {
-          ignoreCreeps: true,
-          costCallback: creep.room.getAvoids(creep.room)
-        });
+        let returnCode = creep.moveToMy(creep.room.terminal.pos);
+
         creep.transfer(room.terminal, RESOURCE_ENERGY);
       } else {
-        creep.moveTo(room.storage, {
-          ignoreCreeps: true,
-          costCallback: creep.room.getAvoids(creep.room)
-        });
+        let returnCode = creep.moveToMy(creep.room.storage.pos);
         creep.withdraw(room.storage, RESOURCE_ENERGY);
       }
       return true;
@@ -531,10 +485,8 @@ Creep.prototype.handleMineralCreep = function() {
     } else if (state.destination === STRUCTURE_STORAGE) {
       target = creep.room.storage;
     }
-    moveTo(creep, target, {
-      ignoreCreeps: true,
-      costCallback: creep.room.getAvoids(creep.room)
-    });
+
+    creep.moveToMy(target.pos);
 
     let resource = RESOURCE_ENERGY;
     if (state.resouce != 'energy') {
@@ -600,19 +552,9 @@ Creep.prototype.boost = function() {
             room.memory.boosting[boost][this.id] = true;
 
             if (labs.length > 0) {
-              let search = PathFinder.search(
-                this.pos, {
-                  pos: labs[0].pos,
-                  range: 1
-                }, {
-                  roomCallback: this.room.getAvoids(this.room, {}, true),
-                  maxRooms: 1
-                }
-              );
-
-              this.move(this.pos.getDirectionTo(search.path[0]));
-              let returnCode = labs[0].boostCreep(this);
-              if (returnCode === OK) {
+              let returnCode = this.moveToMy(labs[0].pos, 1);
+              returnCode = labs[0].boostCreep(this);
+              if (returnCode == OK) {
                 let room = Game.rooms[this.room.name];
                 delete room.memory.boosting[boost][this.id];
               }
