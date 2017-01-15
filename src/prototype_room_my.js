@@ -544,29 +544,24 @@ Room.prototype.reviveRoom = function() {
 
       let distance = Game.map.getRoomLinearDistance(this.name, roomName);
       if (distance < config.nextRoom.maxDistance) {
-        let creepToSpawn = {
-          role: 'nextroomer',
-          routing: {
-            targetRoom: this.name
-          }
-        };
+        let route = this.findRoute(roomOther.name, this.name);
+        // TODO Instead of skipping we could try to free up the way: nextroomerattack or squad
+        if (route.length === 0) {
+          roomOther.log('No route to other room: ' + roomOther.name);
+          continue;
+        }
+
+        let role = 'nextroomer';
         if (this.memory.wayBlocked) {
-          creepToSpawn.role = 'nextroomerattack';
+          role = 'nextroomerattack';
         }
         let hostileCreep = this.find(FIND_HOSTILE_CREEPS);
         if (hostileCreep.length > 0) {
           roomOther.log('Queuing defender for ' + this.name);
-          roomOther.memory.queue.push({
-            role: 'defender',
-            routing: {
-              targetRoom: this.name
-            }
-          });
+          roomOther.checkRoleToSpawn('defender', 1, undefined, this.name);
         }
-        roomOther.log('Queuing ' + creepToSpawn.role + ' for ' + this.name);
-        if (!this.inQueue(creepToSpawn)) {
-          roomOther.memory.queue.push(creepToSpawn);
-        }
+        roomOther.log('Queuing ' + role + ' for ' + this.name);
+        roomOther.checkRoleToSpawn(role, 1, undefined, this.name);
         nextroomerCalled++;
       }
     }
