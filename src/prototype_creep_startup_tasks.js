@@ -1,7 +1,7 @@
 'use strict';
 
 Creep.execute = function(creep, methods) {
-  for (var method of methods) {
+  for (let method of methods) {
     if (method(creep)) {
       return true;
     }
@@ -13,7 +13,7 @@ Creep.upgradeControllerTask = function(creep) {
     return false;
   }
 
-  var range = creep.pos.getRangeTo(creep.room.controller);
+  let range = creep.pos.getRangeTo(creep.room.controller);
   if (range <= 3) {
     let returnCode = creep.upgradeController(creep.room.controller);
     if (returnCode != OK) {
@@ -57,7 +57,7 @@ Creep.buildRoads = function(creep) {
 
   // TODO extract to roomposition
   function checkForRoad(pos) {
-    var structures = pos.lookFor('structure');
+    let structures = pos.lookFor('structure');
     for (let structuresIndex in structures) {
       if (structures[structuresIndex].structureType == STRUCTURE_ROAD) {
         return true;
@@ -67,9 +67,9 @@ Creep.buildRoads = function(creep) {
   }
 
   // TODO Redo for all path in room
-  var path = room.memory.position.path;
+  let path = room.memory.position.path;
   for (let pathIndex in path) {
-    var pos = new RoomPosition(
+    let pos = new RoomPosition(
       path[pathIndex].x,
       path[pathIndex].y,
       creep.room.name
@@ -177,7 +177,7 @@ Creep.prototype.getEnergyFromStorage = function() {
     return false;
   }
 
-  var range = this.pos.getRangeTo(this.room.storage);
+  let range = this.pos.getRangeTo(this.room.storage);
   if (range == 1) {
     this.withdraw(this.room.storage, RESOURCE_ENERGY);
   } else {
@@ -205,13 +205,12 @@ Creep.prototype.getEnergyFromStorage = function() {
 };
 
 Creep.prototype.repairStructure = function() {
-  var structure = null;
-  var range = null;
-  var i = null;
-  var structures = null;
+  let structure = null;
+  let i = null;
+  let structures = null;
 
   if (this.memory.target) {
-    var to_repair = Game.getObjectById(this.memory.target);
+    let to_repair = Game.getObjectById(this.memory.target);
     if (!to_repair || to_repair === null) {
       delete this.memory.target;
       return false;
@@ -245,7 +244,7 @@ Creep.prototype.repairStructure = function() {
     } else if (to_repair.hits < 10000 || to_repair.hits < this.memory.step + 10000) {
       this.repair(to_repair);
       if (this.fatigue === 0) {
-        range = this.pos.getRangeTo(to_repair);
+        let range = this.pos.getRangeTo(to_repair);
         if (range <= 3) {
           this.moveRandomWithin(to_repair);
         } else {
@@ -359,7 +358,7 @@ Creep.prototype.repairStructure = function() {
   }
 
   // Build construction sites
-  var target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
+  let target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
     filter: function(object) {
       if (object.structureType == 'constructedWall') {
         return true;
@@ -372,12 +371,12 @@ Creep.prototype.repairStructure = function() {
   });
 
   if (target !== null) {
-    range = this.pos.getRangeTo(target);
+    let range = this.pos.getRangeTo(target);
 
     if (range <= 3) {
       this.build(target);
       this.memory.step = 0;
-      var targetNew = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
+      let targetNew = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
         filter: function(object) {
           if (object.id == target.id) {
             return false;
@@ -428,7 +427,7 @@ Creep.prototype.repairStructure = function() {
     return true;
   }
 
-  var creep = this;
+  let creep = this;
   structure = this.pos.findClosestByRange(FIND_STRUCTURES, {
     filter: function(object) {
       // Newbie zone walls have no hits
@@ -471,7 +470,7 @@ Creep.prototype.getDroppedEnergy = function() {
     }
   });
   if (target !== null) {
-    var energyRange = this.pos.getRangeTo(target.pos);
+    let energyRange = this.pos.getRangeTo(target.pos);
     if (energyRange <= 1) {
       this.pickup(target);
       return true;

@@ -34,7 +34,7 @@ global.config = {
 
   // Due to newly introduces via global variable caching this can be removed
   performance: {
-    serializePath: true
+    serializePath: true,
   },
 
   stats: {
@@ -70,47 +70,47 @@ global.config = {
     helpTreshold: 1500,
     needTreshold: 750,
     maxDistance: 7,
-    factor: 0.2
+    factor: 0.2,
   },
 
   power: {
     disabled: false,
     energyForCreeps: 800000,
-    energyForSpawn: 250000
+    energyForSpawn: 250000,
   },
 
   buildRoad: {
     maxConstructionSitesTotal: 80,
-    maxConstructionSitesRoom: 3
+    maxConstructionSitesRoom: 3,
   },
 
   constructionSite: {
-    maxIdleTime: 5000
+    maxIdleTime: 5000,
   },
 
   hostile: {
-    remeberInRoom: 1500
+    remeberInRoom: 1500,
   },
 
   path: {
     refresh: 20000,
     allowRoutingThroughFriendRooms: false,
-    pathfindIncomplete: true
+    pathfindIncomplete: true,
   },
 
   external: {
-    distance: 3
+    distance: 3,
   },
 
   sourcer: {
     spawnCarryLevelMultiplier: 300,
-    spawnCarryWaitTime: 400
+    spawnCarryWaitTime: 400,
   },
 
   carry: {
     size: 200,
     carryPercentageBase: 0.2,
-    carryPercentageExtern: 0.5
+    carryPercentageExtern: 0.5,
   },
 
   creep: {
@@ -120,7 +120,7 @@ global.config = {
     structurerInterval: 1500,
     structurerMinEnergy: 1300,
     reserverDefender: true,
-    energyFromStorageThreshold: 2000
+    energyFromStorageThreshold: 2000,
   },
 
   room: {
@@ -133,7 +133,8 @@ global.config = {
     scoutSkipWhenStuck: true, // Useful for novice areas.
     scout: true, // TODO somehow broken ?? Is it broken ??
     upgraderMinStorage: 0,
-    lastSeenThreshold: 10000
+    lastSeenThreshold: 10000,
+    notify: false,
   },
 
   layout: {
@@ -145,14 +146,14 @@ global.config = {
     structureAvoid: 0xFF,
     creepAvoid: 0xFF,
     wallThickness: 1,
-    version: 16
+    version: 16,
   },
 
   mineral: {
     enabled: false,
     storage: 100000,
     minAmount: 5000,
-    minAmountForMarket: 100000
+    minAmountForMarket: 100000,
   }
 };
 
