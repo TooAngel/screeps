@@ -1,5 +1,3 @@
-﻿# My edited suggestion :)
-
 # Contribution [![Issue Count](https://codeclimate.com/github/TooAngel/screeps/badges/issue_count.svg)](https://codeclimate.com/github/TooAngel/screeps)
 All kind of contribution is welcome, issues, contact via channels, pull requests.
 
