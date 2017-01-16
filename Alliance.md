@@ -1,6 +1,6 @@
 # The Angels alliance
 
-http://www.leagueofautomatednations.com/a/Too
+http://www.leagueofautomatednations.com/a/TheAngels
 
 <img src="theangels.png" width="100">
 
