@@ -201,8 +201,8 @@ Room.prototype.handleScout = function() {
 };
 
 Room.prototype.checkNeedHelp = function() {
-  let needHelp = this.memory.energyAvailableSum < config.carryHelpers.needTreshold * config.carryHelpers.ticksUntilHelpCheck &&
-    !this.hostile;
+
+  let needHelp = this.memory.energyAvailableSum < config.carryHelpers.needTreshold * config.carryHelpers.ticksUntilHelpCheck; //&& !this.hostile;
   let oldNeedHelp = this.memory.needHelp;
   if (needHelp) {
     if (!oldNeedHelp) {
@@ -222,10 +222,9 @@ Room.prototype.checkNeedHelp = function() {
   return;
 
 };
+
 Room.prototype.checkCanHelp = function() {
-  if (!Memory.needEnergyRooms) {
-    return;
-  }
+  if (!Memory.needEnergyRooms) { return; }
 
   let nearestRoom = this.memory.nearestRoom;
   if (!nearestRoom || !Memory.rooms[nearestRoom].needHelp) {
@@ -238,8 +237,8 @@ Room.prototype.checkCanHelp = function() {
   let nearestRoomObj = Game.rooms[nearestRoom];
 
   let canHelp = this.memory.energyAvailableSum > config.carryHelpers.helpTreshold * config.carryHelpers.ticksUntilHelpCheck &&
-    nearestRoom !== this.name && nearestRoomObj && this.storage &&
-    !nearestRoomObj.hostile && !nearestRoomObj.terminal;
+    nearestRoom !== this.name && nearestRoomObj && this.storage && //!nearestRoomObj.hostile &&
+    !nearestRoomObj.terminal;
   if (canHelp) {
     this.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, this.storage.id,
       this.name, undefined, nearestRoom);
@@ -262,19 +261,16 @@ Room.prototype.checkForEnergyTransfer = function() {
   }
   let needHelp = this.checkNeedHelp();
   if (needHelp) {
-    if (needHelp !== 'Already set as needHelp') {
-      this.log(needHelp);
-    }
+    if (needHelp !== 'Already set as needHelp') { this.log(needHelp); }
   } else {
     let canHelp = this.checkCanHelp();
-    if (canHelp !== 'no') {
-      this.log(canHelp);
-    }
+    if (canHelp !== 'no') { this.log(canHelp); }
   }
   this.memory.energyAvailableSum = 0;
 };
 
 Room.prototype.executeRoom = function() {
+  let cpuUsed = Game.cpu.getUsed();
   this.buildBase();
   this.memory.attackTimer = this.memory.attackTimer || 0;
 
@@ -338,7 +334,7 @@ Room.prototype.executeRoom = function() {
     // TODO better metric for SafeMode
     let enemies = this.find(FIND_HOSTILE_CREEPS, {
       filter: function(object) {
-        return object.owner.username !== 'Invader';
+        return object.owner.username != 'Invader';
       }
     });
     if (enemies > 0) {
@@ -368,7 +364,7 @@ Room.prototype.executeRoom = function() {
 
   let idiotCreeps = this.find(FIND_HOSTILE_CREEPS, {
     filter: function(object) {
-      return object.owner.username !== 'Invader';
+      return object.owner.username != 'Invader';
     }
   });
   if (idiotCreeps.length > 0) {
@@ -396,7 +392,7 @@ Room.prototype.executeRoom = function() {
     if (Game.time % 10 === 0) {
       this.log('Under attack from ' + hostiles[0].owner.username);
     }
-    if (hostiles[0].owner.username !== 'Invader' && config.room.notify) {
+    if (hostiles[0].owner.username != 'Invader') {
       Game.notify(this.name + ' Under attack from ' + hostiles[0].owner.username + ' at ' + Game.time);
     }
   }
@@ -512,6 +508,7 @@ Room.prototype.executeRoom = function() {
   this.spawnCheckForCreate(creepsConfig);
 
   this.handleMarket();
+  brain.stats.addRoom(this.name, cpuUsed);
   return true;
 };
 
