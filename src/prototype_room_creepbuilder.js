@@ -10,7 +10,6 @@ Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing, ba
   }
 
   var energyNeeded = 50;
-
   if (unit.energyRequired) {
     energyNeeded = unit.energyRequired(this);
   }
@@ -26,12 +25,11 @@ Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing, ba
     energy = unit.energyBuild(this, energy, heal, level);
   }
 
-  var partConfig = unit.getPartConfig(this, energy, heal);
-  partConfig = partConfig.slice(0, MAX_CREEP_SIZE);
+  var partConfig = unit.getPartConfig(this, energy, heal).slice(0, MAX_CREEP_SIZE);
   var spawns = this.find(FIND_MY_SPAWNS);
 
-  for (var spawn_name in spawns) {
-    var spawn = spawns[spawn_name];
+  for (var spawnName in spawns) {
+    var spawn = spawns[spawnName];
     var memory = {
       role: role,
       number: id,
@@ -49,7 +47,10 @@ Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing, ba
     };
     let returnCode = spawn.createCreep(partConfig, name, memory);
     let userName = Memory.username;
-    let roleStat = Memory.stats[Memory.username].roles[role];
+    let roleStat;
+    if (Memory.stats[Memory.username] && Memory.stats[Memory.username].roles) {
+      roleStat = Memory.stats[Memory.username].roles[role];
+    }
     let previousAmount = roleStat ? roleStat.amount : 0;
     brain.stats.add('', '.roles.' + role, previousAmount + 1);
 

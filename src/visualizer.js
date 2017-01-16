@@ -52,7 +52,7 @@ if (config.visualizer.enabled) {
           });
         }
         // draw structures
-        if (config.visualizer.showStructures) {
+        if (config.visualizer.showStructures && room.memory.position) {
           let structures = room.memory.position.structure;
           _.each(Object.keys(structures), structType => {
             let text = structType.substr(0, 1).toUpperCase();
@@ -64,7 +64,7 @@ if (config.visualizer.enabled) {
           });
         }
         // draw creep positions
-        if (config.visualizer.showCreeps) {
+        if (config.visualizer.showCreeps && room.memory.position) {
           let creeps = room.memory.position.creep;
           _.each(Object.keys(creeps), position => {
             if (position.x || position.y) {
