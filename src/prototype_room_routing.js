@@ -192,7 +192,7 @@ Room.prototype.buildPath = function(route, routePos, from, to) {
     this.log('newmove: buildPath: no to');
   }
   let start;
-  if (routePos === 0) {
+  if (routePos === 0 || from == 'pathStart') {
     start = this.getCreepPositionForId(from);
   } else {
     start = this.getMyExitTo(from);

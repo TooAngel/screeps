@@ -224,7 +224,9 @@ Room.prototype.checkNeedHelp = function() {
 };
 
 Room.prototype.checkCanHelp = function() {
-  if (!Memory.needEnergyRooms) { return; }
+  if (!Memory.needEnergyRooms) {
+    return;
+  }
 
   let nearestRoom = this.memory.nearestRoom;
   if (!nearestRoom || !Memory.rooms[nearestRoom].needHelp) {
@@ -261,10 +263,14 @@ Room.prototype.checkForEnergyTransfer = function() {
   }
   let needHelp = this.checkNeedHelp();
   if (needHelp) {
-    if (needHelp !== 'Already set as needHelp') { this.log(needHelp); }
+    if (needHelp !== 'Already set as needHelp') {
+      this.log(needHelp);
+    }
   } else {
     let canHelp = this.checkCanHelp();
-    if (canHelp !== 'no') { this.log(canHelp); }
+    if (canHelp !== 'no') {
+      this.log(canHelp);
+    }
   }
   this.memory.energyAvailableSum = 0;
 };

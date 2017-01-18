@@ -10,7 +10,6 @@ Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing, ba
   }
 
   let energyNeeded = 50;
-
   if (unit.energyRequired) {
     energyNeeded = unit.energyRequired(this);
   }
@@ -51,8 +50,10 @@ Room.prototype.spawnCreateCreep = function(role, heal, level, squad, routing, ba
     if (returnCode != name) {
       continue;
     }
-    let userName = Memory.username || _.find(Game.spawns, 'owner').owner;
     if (config.stats.enabled) {
+      let userName = Memory.username || _.find(Game.spawns, 'owner').owner;
+      Memory.stats = Memory.stats || {};
+      Memory.stats[userName].roles = Memory.stats[userName].roles || {};
       let roleStat = Memory.stats[userName].roles[role];
       let previousAmount = roleStat ? roleStat : 0;
       Memory.stats[userName].roles[role] = previousAmount + 1;

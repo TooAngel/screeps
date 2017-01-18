@@ -36,7 +36,9 @@ var main = function() {
   if (config.visualizer.enabled && config.visualizer.refresh) {
     visualizer.render();
   }
-  brain.stats.add('', '.cpu.used', Game.cpu.getUsed());
+  brain.stats.add(['cpu'], {
+    used: Game.cpu.getUsed()
+  });
 };
 
 module.exports.loop = function() {
