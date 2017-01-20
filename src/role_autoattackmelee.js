@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * autoattackmelle is the first wave of autoattacks
+ * autoattackmelee is the first wave of autoattacks
  *
  * Kills tower and spawn, hostile creeps and construction sites
  */
@@ -10,7 +10,7 @@ roles.autoattackmelee = {};
 
 roles.autoattackmelee.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, ATTACK];
-  return room.getPartConfig(energy, parts).sort().reverse();
+  return room.getPartConfig(energy, parts).sort();
 };
 
 roles.autoattackmelee.energyRequired = function(room) {
@@ -23,86 +23,96 @@ roles.autoattackmelee.energyBuild = function(room, energy) {
 
 roles.autoattackmelee.died = function(name, memory) {
   console.log('--->', name, 'Died naturally?');
+  delete Memory.squads[Memory.creeps.name.squad].heal[Memory.creeps.name.id];
   delete Memory.creeps[name];
 };
 
-roles.autoattackmelee.preMove = function(creep) {
-  //  creep.log('!!!!!!!!!!!!!!!! Autoattacking');
+roles.autoattackmelee.preMove = function(creep, directions) {
+  let closestHostileCreep = creep.findClosestEnemy();
+  if (creep.pos.getRangeTo(closestHostileCreep) < 5) {
+    creep.say('ARRRGH!!', true);
+    creep.moveTo(closestHostileCreep, {
+      reusePath: 0
+    });
+    creep.attack(closestHostileCreep);
+    return true;
+  }
+  return false;
 };
 
 roles.autoattackmelee.action = function(creep) {
-  if (config.autoattack.notify && !creep.memory.notified) {
-    creep.log('Attacking');
-    Game.notify(Game.time + ' ' + creep.room.name + ' Attacking');
-    creep.memory.notified = true;
-  }
-
-  if (creep.room.name != creep.memory.routing.targetRoom) {
-    creep.memory.routing.reached = false;
-    return true;
-  }
-
-  if (creep.room.controller.safeMode) {
-    let constructionSites = creep.room.find(FIND_CONSTRUCTION_SITES);
-    creep.moveTo(constructionSites[0]);
-    return true;
-  }
-
-  var spawn = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
-    filter: function(object) {
-      if (object.structureType == STRUCTURE_SPAWN) {
+  creep.memory.hitsLost = creep.memory.hitsLast - creep.hits;
+  creep.memory.hitsLast = creep.hits;
+  if (creep.hits - creep.memory.hitsLost < creep.hitsMax / 1.5 && creep.room.name == creep.memory.routing.targetRoom && creep.memory.squad) {
+    creep.say('Run Away!', true);
+    let healer = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
+      filter: function(object) {
+        return object.memory.role == 'squadheal';
+      }
+    });
+    if (healer) {
+      var healerRangeToTower = healer.pos.getRangeTo(creep.pos.findClosestByRange(STRUCTURE_TOWER));
+      if (healerRangeToTower >= creep.pos.getRangeTo(creep.pos.findClosestByRange(STRUCTURE_TOWER))) {
+        creep.moveTo(healer, {
+          reusePath: 0,
+          ignoreCreeps: true
+        });
         return true;
       }
-      return false;
     }
-  });
-
-  if (spawn === null) {
-    var hostileCreep = creep.findClosestEnemy();
-    if (hostileCreep === null) {
-      let structures = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
-        filter: function(object) {
-          if (object.structureType == STRUCTURE_CONTROLLER) {
-            return false;
-          }
-          return true;
-        }
+    let exitNext = creep.pos.findClosestByRange(FIND_EXIT);
+    creep.cancelOrder('move');
+    creep.cancelOrder('moveTo');
+    creep.moveTo(exitNext, {
+      reusePath: 0,
+      ignoreCreeps: true
+    });
+    return true;
+  }
+  creep.autosiege();
+  if (creep.room.name != creep.memory.routing.targetRoom && creep.hits == creep.hitsMax && creep.memory.squad) {
+    let closestHostileCreep = creep.findClosestEnemy();
+    if (creep.pos.getRangeTo(closestHostileCreep) < 25) {
+      creep.say('ARRRGH!!', true);
+      creep.moveTo(closestHostileCreep, {
+        reusePath: 0
       });
-
-      if (structures === null) {
-        var constructionSites = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
-        creep.moveTo(constructionSites);
-        return true;
-      }
-
-      creep.moveTo(structures);
-      creep.attack(structures);
+      creep.attack(closestHostileCreep);
       return true;
     }
-    creep.moveTo(hostileCreep);
-    creep.attack(hostileCreep);
+    let nextExits = creep.room.find(creep.memory.routing.route[creep.memory.routing.routePos].exit);
+    let nextExit = nextExits[Math.floor(nextExits.length / 2)];
+    creep.say('Going back', true);
+    creep.cancelOrder('move');
+    creep.cancelOrder('moveTo');
+    creep.moveTo(nextExit, {
+      reusePath: 0,
+      ignoreCreeps: true
+    });
+    return true;
+  } else if (creep.hits < creep.hitsMax && creep.room.name != creep.memory.routing.targetRoom && creep.memory.squad) {
+    let closestHostileCreep = creep.findClosestEnemy();
+    if (creep.pos.getRangeTo(closestHostileCreep) < 25) {
+      creep.say('ARRRGH!!', true);
+      creep.moveTo(closestHostileCreep, {
+        reusePath: 0
+      });
+      creep.attack(closestHostileCreep);
+      return true;
+    }
+    let healer = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
+      filter: function(object) {
+        return object.memory.role == 'squadheal';
+      }
+    });
+    creep.say('wait:heal', true);
+    if (healer) {
+      creep.moveTo(healer, {
+        reusePath: 0
+      });
+    }
     return true;
   }
-  //  var path = creep.pos.findPathTo(spawn, {
-  //    ignoreDestructibleStructures: true
-  //  });
-  let search = PathFinder.search(
-    creep.pos, {
-      pos: spawn.pos,
-      range: 1
-    }, {
-      maxRooms: 1
-    }
-  );
-  creep.move(creep.pos.getDirectionTo(search.path[0]));
-  if (creep.pos.getRangeTo(spawn.pos) <= 1) {
-    creep.attack(spawn);
-  } else {
-    let structures = creep.pos.findInRange(FIND_STRUCTURES, 1);
-    creep.cancelOrder('attack');
-    let returnCode = creep.attack(structures[0]);
-  }
-  return true;
 };
 
 roles.autoattackmelee.execute = function(creep) {
