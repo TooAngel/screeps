@@ -137,7 +137,7 @@ brain.addToQueue = function(spawns, roomNameFrom, roomNameTarget, squadName, que
   }
 };
 /**
- * brain.startSquad used to attack player.rooms
+ * brain.startSquad used to attack player.rooms and dismantle walls/structures
  *
  * @param {String} roomNameFrom
  * @param {String} roomNameAttack
@@ -152,11 +152,11 @@ brain.startSquad = function(roomNameFrom, roomNameAttack) {
   Memory.squads = Memory.squads || {};
 
   var siegeSpawns = [{
-    creeps: 1,
-    role: 'squadsiege'
+    creeps: 2,
+    role: 'squadheal'
   }, {
     creeps: 3,
-    role: 'squadheal'
+    role: 'squadsiege'
   }];
   this.addToQueue(siegeSpawns, roomNameFrom, roomNameAttack, name);
 
@@ -164,6 +164,7 @@ brain.startSquad = function(roomNameFrom, roomNameAttack) {
     born: Game.time,
     target: roomNameAttack,
     from: roomNameFrom,
+    autoattackmelee: {},
     siege: {},
     heal: {},
     route: route,
