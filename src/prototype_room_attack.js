@@ -56,12 +56,7 @@ Room.prototype.attackRoom = function() {
 
     let roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
 
-    Game.rooms[roomsMy[0]].memory.queue.push({
-      role: 'autoattackmelee',
-      routing: {
-        targetRoom: room.name
-      }
-    });
+    brain.startAutoSquad(roomsMy[0], room.name);
 
     return true;
   }
