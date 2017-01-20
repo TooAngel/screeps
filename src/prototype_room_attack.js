@@ -86,23 +86,6 @@ Room.prototype.attackRoom = function() {
     return true;
   }
 
-  function attack2(room) {
-    room.log('Queuing level 2 attack');
-    if (config.autoattack.notify) {
-      Game.notify(Game.time + ' ' + room.name + ' Queuing attack');
-    }
-
-    let sortByDistance = function(object) {
-      return Game.map.getRoomLinearDistance(room.name, object);
-    };
-
-    let roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
-
-    brain.startSquad(roomsMy[0], room.name);
-
-    return true;
-  }
-
   if (config.autoattack.disabled) {
     return true;
   }
@@ -142,18 +125,16 @@ Room.prototype.attackRoom = function() {
   };
 
   addRoom(player, this);
-
-  if (this.controller.level < 3 && player.level === 0) {
+  Memory.players[name] = player;
+  if (player.level === 0) {
     attack0(this);
     player.counter++;
-  } else if (this.controller.level < 7 && player.level < 10) {
+  } else if (this.controller.level < 7 && player.level == 1) {
     attack1(this);
     player.counter++;
   }
-  if (player.counter == 5) {
-    player.counter = 0;
-    player.level++;
+  if (player.counter >= 1) {
+    player.level = 1;
   }
-  Memory.players[name] = player;
   return true;
 };
