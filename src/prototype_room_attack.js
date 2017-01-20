@@ -12,15 +12,15 @@
  */
 Room.prototype.attack42 = function(roomName, spawn) {
   spawn = spawn || [{
-      creep: 1,
-      role: 'autoattackmelee'
-    }, {
-      creep: 1,
-      role: 'defender'
-    }, {
-      creep: 1,
-      role: 'squadheal'
-    },
+    creep: 1,
+    role: 'autoattackmelee'
+  }, {
+    creep: 1,
+    role: 'defender'
+  }, {
+    creep: 1,
+    role: 'squadheal'
+  },
 
     {
       creep: 2,
@@ -61,7 +61,30 @@ Room.prototype.attackRoom = function() {
     return true;
   }
 
-  function attack1(room) {}
+  function attack1(room) {
+    room.log('Queuing level 1 attack');
+    if (config.autoattack.notify) {
+      Game.notify(Game.time + ' ' + room.name + ' Queuing attack');
+    }
+
+    let roomsMy = Memory.myRooms;
+    for (let rooms in roomsMy) {
+      if (Game.rooms[rooms].controller.level < 5) {
+        roomsMy.splice(roomsMy.indexOf(rooms));
+      }
+    }
+    let sortByDistance = function(object) {
+      return Game.map.getRoomLinearDistance(room.name, object);
+    };
+
+    roomsMy = _.sortBy(roomsMy, sortByDistance);
+
+    brain.startAutoSquad(roomsMy[0], room.name);
+    brain.startMeleeSquad(roomsMy[0], room.name);
+    brain.startSiegeSqiad(roomsMy[1], room.name);
+
+    return true;
+  }
 
   if (config.autoattack.disabled) {
     return true;
@@ -103,14 +126,17 @@ Room.prototype.attackRoom = function() {
 
   addRoom(player, this);
 
-  if (player.level === 0) {
+  if (this.controller.level < 3 && player.level === 0) {
     attack0(this);
     player.counter++;
-    if (player.counter > 5) {
-      player.level = 1;
-      player.counter = 0;
-    }
-    Memory.players[name] = player;
+  } else if (this.controller.level < 7 && player.level < 10) {
+    attack1(this);
+    player.counter++;
   }
+  if (player.counter == 5) {
+    player.counter = 0;
+    player.level++;
+  }
+  Memory.players[name] = player;
   return true;
 };
