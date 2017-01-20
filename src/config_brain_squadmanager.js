@@ -71,28 +71,31 @@ brain.isFriend = function(name) {
 };
 
 brain.handleSquadmanager = function() {
-  for (let squadIndex in Memory.squads) {
-    let squad = Memory.squads[squadIndex];
-    if (Object.keys(squad.siege).length === 0) {
-      return true;
-    }
-    if (squad.action == 'move') {
-      for (let siegeId in squad.siege) {
-        let siege = squad.siege[siegeId];
-        if (!siege.waiting) {
-          return true;
-        }
-      }
-      for (let healId in squad.heal) {
-        let heal = squad.heal[healId];
-        if (!heal.waiting) {
-          return true;
-        }
-      }
+  //for (let squadIndex in Memory.squads) {
+  //  let squad = Memory.squads[squadIndex];
+  //  if (squad.action == 'move') {
+  //    for (let siegeId in squad.siege) {
+  //      let siege = squad.siege[siegeId];
+  //      if (!siege.waiting) {
+  //        return true;
+  //      }
+  //    }
+  //    for (let autoId in squad.autoattackmelee) {
+  //      let auto = squad.autoattackmelee[autoId];
+  //      if (!auto.waiting) {
+  //        return true;
+  //      }
+  //    }
+  //    for (let healId in squad.heal) {
+  //      let heal = squad.heal[healId];
+  //      if (!heal.waiting) {
+  //        return true;
+  //      }
+  //    }
 
-      squad.action = 'attack';
-    }
-  }
+  //    squad.action = 'attack';
+  //  }
+  //}
 };
 
 /**
