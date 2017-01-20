@@ -172,9 +172,8 @@ brain.startSquad = function(roomNameFrom, roomNameAttack) {
     moveTarget: target
   };
 };
-
 /**
- * brain.startMeleeSquad use to clean rooms from invaders and players
+ * brain.startMeleeSquad use to clean rooms from invaders and player creeps, will then attack structures
  *
  * @param {String} roomNameFrom
  * @param {String} roomNameAttack
@@ -190,17 +189,11 @@ brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
   Memory.squads = Memory.squads || {};
   // TODO check for queue length
   let meleeSpawn = [{
-    creeps: 1,
-    role: 'autoattackmelee'
-  }, {
-    creeps: 1,
+    creeps: 3,
     role: 'squadheal'
   }, {
-    creeps: 2,
+    creeps: 1,
     role: 'autoattackmelee'
-  }, {
-    creeps: 2,
-    role: 'squadheal'
   }];
 
   spawns = spawns || meleeSpawn;
@@ -211,6 +204,11 @@ brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
     target: roomNameAttack,
     from: roomNameFrom,
     autoattackmelee: {},
+    siege: {},
+    heal: {},
+    route: route,
+    action: 'move',
+    moveTarget: target
     heal: {},
     route: route,
     action: 'move',
