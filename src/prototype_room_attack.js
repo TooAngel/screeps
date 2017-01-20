@@ -86,6 +86,23 @@ Room.prototype.attackRoom = function() {
     return true;
   }
 
+  function attack2(room) {
+    room.log('Queuing level 2 attack');
+    if (config.autoattack.notify) {
+      Game.notify(Game.time + ' ' + room.name + ' Queuing attack');
+    }
+
+    let sortByDistance = function(object) {
+      return Game.map.getRoomLinearDistance(room.name, object);
+    };
+
+    let roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
+
+    brain.startSquad(roomsMy[0], room.name);
+
+    return true;
+  }
+
   if (config.autoattack.disabled) {
     return true;
   }
