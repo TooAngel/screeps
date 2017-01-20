@@ -209,6 +209,32 @@ brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
     route: route,
     action: 'move',
     moveTarget: target
+  };
+};
+
+brain.startAutoSquad = function(roomNameFrom, roomNameAttack, spawns) {
+  let name = 'autosquad-' + Math.random();
+  let route = Game.map.findRoute(roomNameFrom, roomNameAttack);
+  let target = roomNameFrom;
+  if (route.length > 1) {
+    target = route[route.length - 2].room;
+  }
+  Memory.squads = Memory.squads || {};
+  // TODO check for queue length
+  let meleeSpawn = [{
+    creeps: 1,
+    role: 'autoattackmelee'
+  }];
+
+  spawns = spawns || meleeSpawn;
+  this.addToQueue(spawns, roomNameFrom, roomNameAttack);
+
+  Memory.squads[name] = {
+    born: Game.time,
+    target: roomNameAttack,
+    from: roomNameFrom,
+    autoattackmelee: {},
+    siege: {},
     heal: {},
     route: route,
     action: 'move',
