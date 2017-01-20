@@ -31,7 +31,7 @@ roles.structurer.preMove = function(creep, directions) {
       delete creep.memory.routing.targetId;
     }
 
-    if (directions.forwardDirection) {
+    if (directions && directions.forwardDirection) {
       let posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
       let structures = posForward.lookFor(LOOK_STRUCTURES);
       for (let structure of structures) {

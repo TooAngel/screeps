@@ -109,6 +109,33 @@ roles.carry.preMove = function(creep, directions) {
     directions.direction = directions.forwardDirection;
   }
   creep.memory.routing.reverse = reverse;
+
+  if (!directions.direction) {
+    return false;
+  }
+  let posForward = creep.pos.getAdjacentPosition(directions.direction);
+  let structures = posForward.lookFor(LOOK_STRUCTURES);
+  for (let structure of structures) {
+    if (structure.structureType == STRUCTURE_ROAD) {
+      continue;
+    }
+    if (structure.structureType == STRUCTURE_CONTAINER) {
+      continue;
+    }
+    if (structure.structureType == STRUCTURE_RAMPART && structure.my) {
+      continue;
+    }
+    if (structure.structureType == STRUCTURE_SPAWN && structure.my) {
+      continue;
+    }
+    if (structure.structureType == STRUCTURE_STORAGE && structure.my) {
+      continue;
+    }
+
+    creep.dismantle(structure);
+    creep.say('dismantle');
+    break;
+  }
 };
 
 roles.carry.action = function(creep) {
