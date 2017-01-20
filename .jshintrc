@@ -117,6 +117,7 @@
     "ORDER_BUY": false,
     "FIND_CREEPS": false,
     "LOOK_SOURCES": false,
+    "LOOK_CREEPS": false,
     "CONTROLLER_DOWNGRADE": false,
     "ConstructionSite": false,
     "OBSERVER_RANGE": false,
