@@ -88,14 +88,17 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
       }
       // spawn reserver after external supply line
       if (target !== room.name) {
-        if (object.role == 'carry') {
+        if (object.role == 'autoattackmelee' || object.role == 'squadheal' || object.role == 'squadsiege') {
           return 5;
         }
-        if (object.role == 'sourcer') {
+        if (object.role == 'carry') {
           return 6;
         }
-        if (object.role == 'reserver') {
+        if (object.role == 'sourcer') {
           return 7;
+        }
+        if (object.role == 'reserver') {
+          return 8;
         }
       }
       if (object.role == 'nextroomer') {
