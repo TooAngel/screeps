@@ -17,6 +17,14 @@ Array.prototype.forEach = function(callback, thisArg) {
   }
 };
 
+Array.prototype.map = function(callback, thisArg) {
+  var arr = this;
+  var returnVal = [];
+  for (var iterator = 0; iterator < arr.length; iterator++) {
+    returnVal.push(callback.call(thisArg, arr[iterator], iterator, arr));
+  }
+  return returnVal;
+};
 require('require');
 require('prototype_creep_startup_tasks');
 require('prototype_creep_move');
