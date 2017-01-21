@@ -80,7 +80,7 @@ brain.stats.addRoom = function(roomName, previousCpu) {
       capacity: room.energyCapacityAvailable,
       sources: _.sum(_.map(room.find(FIND_SOURCES), 'energy'))
     },
-    constroller: {
+    controller: {
       progress: room.controller.progress,
       preCalcSpeed: room.memory.upgraderUpgrade / (Game.time % 100),
       progressTotal: room.controller.progressTotal
