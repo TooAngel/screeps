@@ -18,7 +18,7 @@
 roles.harvester = {};
 roles.harvester.stayInRoom = true;
 roles.harvester.buildRoad = true;
-roles.harvester.boostActions = ['capacity'];
+//roles.harvester.boostActions = ['capacity'];
 
 roles.harvester.preMove = function(creep, directions) {
   let pickableResources = function(object) {

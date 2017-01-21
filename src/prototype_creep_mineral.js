@@ -586,9 +586,9 @@ Creep.prototype.boost = function() {
     return false;
   };
   // TODO boosting disabled, too many room.finds
-  if (true) {
-    return false;
-  }
+  //if (true) {
+  //  return false;
+  //}
   for (let part in parts) {
     for (boost in BOOSTS[part]) {
       for (let action in BOOSTS[part][boost]) {

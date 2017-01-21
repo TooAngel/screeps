@@ -8,7 +8,7 @@
 
 roles.extractor = {};
 
-roles.extractor.boostActions = ['harvest', 'capacity'];
+//roles.extractor.boostActions = ['harvest', 'capacity'];
 
 roles.extractor.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, CARRY, MOVE, WORK];

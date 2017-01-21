@@ -14,7 +14,7 @@ roles.upgrader.stayInRoom = true;
 roles.upgrader.buildRoad = false;
 roles.upgrader.killPrevious = true;
 
-roles.upgrader.boostActions = ['upgradeController'];
+//roles.upgrader.boostActions = ['upgradeController'];
 
 roles.upgrader.getPartConfig = function(room, energy, heal) {
   let parts = [MOVE, CARRY, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK];

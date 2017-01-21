@@ -13,7 +13,7 @@ roles.carry = {};
 roles.carry.buildRoad = true;
 roles.carry.flee = true;
 
-roles.carry.boostActions = ['capacity'];
+//roles.carry.boostActions = ['capacity'];
 
 roles.carry.preMove = function(creep, directions) {
   // Misplaced spawn

@@ -64,6 +64,7 @@ roles.squadsiege.action = function(creep) {
   if (creep.room.name != creep.memory.routing.targetRoom && creep.hits == creep.hitsMax && creep.memory.squad) {
     let nextExits = creep.room.find(creep.memory.routing.route[creep.memory.routing.routePos].exit);
     let nextExit = nextExits[Math.floor(nextExits.length / 2)];
+    creep.say('Going back', true);
     creep.cancelOrder('move');
     creep.cancelOrder('moveTo');
     creep.moveTo(nextExit, {

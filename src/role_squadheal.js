@@ -2,6 +2,8 @@
 
 roles.squadheal = {};
 
+roles.squadheal.boostActions = ['heal'];
+
 roles.squadheal.getPartConfig = function(room, energy, heal) {
   var parts = [MOVE, HEAL];
   return room.getPartConfig(energy, parts).sort();

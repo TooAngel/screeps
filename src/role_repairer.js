@@ -25,7 +25,7 @@ roles.repairer.energyBuild = function(room, energy) {
   return Math.max(250, energy);
 };
 
-roles.repairer.boostActions = ['repair'];
+//roles.repairer.boostActions = ['repair'];
 
 // TODO needs to be enabled again, repair overwrites target
 //module.exports.action = function(creep) {
