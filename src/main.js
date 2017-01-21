@@ -1,4 +1,14 @@
 'use strict';
+Array.prototype.filter = function(callback, thisArg) {
+  var results = [];
+  var arr = this;
+  for (var iterator = 0; iterator < arr.length; iterator++) {
+    if (callback.call(thisArg, arr[iterator], iterator, arr)) {
+      results.push(arr[iterator]);
+    }
+  }
+  return results;
+};
 
 require('require');
 require('prototype_creep_startup_tasks');
