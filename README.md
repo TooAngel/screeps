@@ -118,9 +118,12 @@ Soon you can also use
 ## Sending a Reserver to reserve a rooms controller: (This will also trigger Remote Mining in the room)
 ###Example: 
 
-    Game.rooms.W81N49.memory.queue.push({role: 'reserver', routing: {targetRoom: 'W82N48', targetId: '5873bc0e11e3e4361b4d6fc3'}})
-### 
+    Game.rooms.W81N49.memory.queue.push({role: 'reserver', routing: {targetRoom: 'W82N48', targetId: '5873bc0e11e3e4361b4d6fc3'}}) 
 targetId: Is in this case the ID of the controller in the target room.
+### Claiming the Controller (You need a nearby creep with Claim Part/s
+    Game.getObjectById('TheCreepsIdHere').claimController(Game.rooms.RoomNameHere.controller)
+### Assigning Text to the Controller (readable from Worldmap mouseover, need nearby creep with Claim Part/s)
+    Game.getObjectById('TheCreepsIdHere').signController(Game.rooms.RoomNameHere.controller, "YourTextHere");
 
 • Using the commands above you can also send sourcer, carry, defender etc. to certain rooms/targets.
 
