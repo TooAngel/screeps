@@ -10,7 +10,7 @@ Room.prototype.getNextReaction = function() {
         continue;
       }
       let result = REACTIONS[mineralFirst][mineralSecond];
-      if (this.terminal.store[result]) {
+      if (this.terminal.store[result] > config.mineral.minAmount) {
         continue;
       }
       //this.log('Could build: ' + mineralFirst + ' ' + mineralSecond + ' ' + result);
@@ -106,7 +106,7 @@ Room.prototype.reactions = function() {
     //    this.log('Setting reaction: ' + JSON.stringify(this.memory.reaction));
   }
 
-  if (this.terminal.store[this.memory.reaction.result.result] > 1000) {
+  if (this.terminal.store[this.memory.reaction.result.result] > config.mineral.minAmount) {
     this.log('Done with reaction:' + this.memory.reaction.result.result);
     delete this.memory.reaction;
   }
