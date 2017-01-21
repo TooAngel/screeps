@@ -10,6 +10,13 @@ Array.prototype.filter = function(callback, thisArg) {
   return results;
 };
 
+Array.prototype.forEach = function(callback, thisArg) {
+  var arr = this;
+  for (var iterator = 0; iterator < arr.length; iterator++) {
+    callback.call(thisArg, arr[iterator], iterator, arr);
+  }
+};
+
 require('require');
 require('prototype_creep_startup_tasks');
 require('prototype_creep_move');
