@@ -82,7 +82,7 @@ implementation.
     grunt screeps
 
 ## Develop
-
+    g
     grunt jshint
     grunt jsbeautifier
     grunt jscs
@@ -102,7 +102,8 @@ can recognize us, because our rooms look like yours.
 
 ##Attacking a room with a single creep:
 ###Example: 
-Game.rooms.W81N49.memory.queue.push({role: 'autoattackmelee', routing: {targetRoom: 'W82N48'}})
+
+    Game.rooms.W81N49.memory.queue.push({role: 'autoattackmelee', routing: {targetRoom: 'W82N48'}})
 ### 
 Game.rooms.W81N49.memory.queue.push is where the creeps is build.
 role: is the role the creep will be, you can change this to any available role.
@@ -112,17 +113,18 @@ Soon you can also use startAutoSquad(roomfrom,roomto)
 
 ## Sending a Reserver to reserve a rooms controller: (This will also trigger Remote Mining in the room)
 ###Example: 
-Game.rooms.W81N49.memory.queue.push({role: 'reserver', routing: {targetRoom: 'W82N48', targetId: '5873bc0e11e3e4361b4d6fc3'}})
+
+    Game.rooms.W81N49.memory.queue.push({role: 'reserver', routing: {targetRoom: 'W82N48', targetId: '5873bc0e11e3e4361b4d6fc3'}})
 ### 
 targetId: Is in this case the ID of the controller in the target room.
 
 • Using the commands above you can also send sourcer, carry, defender etc. to certain rooms/targets.
 
 Soon there will be Squad attacks the Commands for those are:
-• Send a Squad of Healer and Structurer (only attack structures) 
-brain.startSquad('RoomFrom','RoomTo')
-• Send a Squad of Healer and MeleeAttacker (Attack everything)
-brain.startMeleeSquad('RoomFrom','RoomTo')
+### Send a Squad of Healer and Structurer (only attack structures) 
+    brain.startSquad('RoomFrom','RoomTo')
+### Send a Squad of Healer and MeleeAttacker (Attack everything)
+    brain.startMeleeSquad('RoomFrom','RoomTo')
 
 
 
