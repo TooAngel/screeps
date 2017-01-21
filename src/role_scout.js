@@ -100,7 +100,24 @@ roles.scout.execute = function(creep) {
         }
       );
     } catch (e) {
-      //      creep.log(`search: ${targetPosObject} %{e}`);
+      creep.log(`search: ${targetPosObject} ${e} ${e.stack}`);
+
+      // creep.memory.search.seen.push(creep.memory.search.target);
+      // // TODO extract to a method
+      // if (!setNewTarget(creep)) {
+      //   creep.memory.search.levels.push([]);
+      //   for (let room of creep.memory.search.levels[creep.memory.search.level]) {
+      //     let rooms = Game.map.describeExits(room);
+      //     for (let direction in rooms) {
+      //       let roomNext = rooms[direction];
+      //       if (haveNotSeen(creep, roomNext)) {
+      //         creep.memory.search.levels[creep.memory.search.level + 1].push(roomNext);
+      //         creep.memory.search.target = roomNext;
+      //       }
+      //     }
+      //   }
+      //   creep.memory.search.level++;
+      // }
       return false;
     }
 
