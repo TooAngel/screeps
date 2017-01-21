@@ -114,7 +114,7 @@ Room.prototype.closeExitsByPath = function() {
   if (!this.memory.walls.layer[this.memory.walls.layer_i]) {
     this.memory.walls.layer[this.memory.walls.layer_i] = [];
   }
-  this.log('closeExitsByPath layer: ' + this.memory.walls.layer_i + ' exit: ' + this.memory.walls.exit_i + ' walls: ' + this.memory.walls.layer[this.memory.walls.layer_i].length);
+  // this.log('closeExitsByPath layer: ' + this.memory.walls.layer_i + ' exit: ' + this.memory.walls.exit_i + ' walls: ' + this.memory.walls.layer[this.memory.walls.layer_i].length);
 
   var ignores = [];
   for (var i = 0; i < this.memory.walls.layer_i; i++) {
@@ -213,8 +213,6 @@ Room.prototype.closeExitsByPath = function() {
       if (inLayer(this, pathPos)) {
         continue;
       }
-
-      this.log('pathPos: ' + pathPos);
 
       var structure = STRUCTURE_WALL;
       let costMatrixBase = this.getMemoryCostMatrix();
