@@ -12,15 +12,15 @@
  */
 Room.prototype.attack42 = function(roomName, spawn) {
   spawn = spawn || [{
-    creep: 1,
-    role: 'autoattackmelee'
-  }, {
-    creep: 1,
-    role: 'defender'
-  }, {
-    creep: 1,
-    role: 'squadheal'
-  },
+      creep: 1,
+      role: 'autoattackmelee'
+    }, {
+      creep: 1,
+      role: 'defender'
+    }, {
+      creep: 1,
+      role: 'squadheal'
+    },
 
     {
       creep: 2,
