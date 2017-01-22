@@ -81,6 +81,21 @@ implementation.
 ### create dist/build and upload to screeps
     grunt screeps
 
+
+### to private server
+Create a `.locaSync.js` file with content:
+```
+module.exports = [{
+  cwd: 'src',
+  src: [
+    '*.js'
+  ],
+  dest: '$HOME/.config/Screeps/scripts/SERVER/default',
+}
+```
+    `grunt local`
+
+
 ## Develop
 
     grunt jshint

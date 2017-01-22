@@ -11,3 +11,5 @@ build/
 
 ## screeps.com account.email and account.password
 account.screeps.com.js
+
+.localSync.js
