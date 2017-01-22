@@ -71,29 +71,29 @@ Room.prototype.reactions = function() {
       let labsNear = lab.pos.findInRange(FIND_MY_STRUCTURES, 2, {
         filter: getNearLabs
       });
-
-      if (labsNear.length >= 2) {
+      if (labsNear.length >= 2 && labs.indexOf(lab) == -1) {
         labs.push(lab.id);
-        //        console.log(lab.mineralType, result.result);
+        console.log(lab.id, lab.mineralType, result.result);
 
         for (let labNear of labsNear) {
-          if (!labNear.mineralType || labNear.mineralType == result.first) {
-            //            console.log(labNear.mineralType, result.first);
+          if (labs.indexOf(labNear) == -1 || labNear.mineralType == result.first) {
+            console.log(labNear.id, labNear.mineralType, result.first);
             labs.push(labNear.id);
+            labsAll.splice(labsAll.indexOf(labNear), 1);
+            labsNear.splice(labsNear.indexOf(labNear), 1);
             break;
           }
         }
         for (let labNear of labsNear) {
-          if (labNear.id == labs[1]) {
-            continue;
-          }
-          if (!labNear.mineralType || labNear.mineralType == result.second) {
-            //            console.log(labNear.mineralType, result.second);
+          if (labs.indexOf(labNear) == -1 || labNear.mineralType == result.second) {
+            console.log(labNear.id, labNear.mineralType, result.second);
             labs.push(labNear.id);
+            labsAll.splice(labsAll.indexOf(labNear), 1);
+            labsNear.splice(labsNear.indexOf(labNear), 1);
             break;
           }
         }
-        break;
+        //break;
       }
     }
     if (labs.length < 3) {
@@ -103,7 +103,7 @@ Room.prototype.reactions = function() {
       result: result,
       labs: labs
     };
-    //    this.log('Setting reaction: ' + JSON.stringify(this.memory.reaction));
+    this.log('Setting reaction: ' + JSON.stringify(this.memory.reaction));
   }
 
   if (this.terminal.store[this.memory.reaction.result.result] > 1000) {
