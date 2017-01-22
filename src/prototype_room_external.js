@@ -204,7 +204,12 @@ Room.prototype.handleOccupiedRoom = function() {
           return object.structureType == STRUCTURE_SPAWN;
         }
       });
-      if (spawns.length > 0) {
+      var squads = _.filter(Memory.squads,
+        function(object) {
+          return object.target == this.name;
+        }
+      );
+      if (spawns.length > 0 && squads.length === 0) {
         this.attackRoom();
       }
     }
