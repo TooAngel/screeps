@@ -10,62 +10,18 @@ Creep.prototype.inBase = function() {
 };
 
 Creep.prototype.handle = function() {
-  if (this.spawning) {
-    return;
-  }
-
   let role = this.memory.role;
-  if (!role) {
-    this.log('Creep role not defined for: ' + this.id + ' ' + this.name.split('-')[0].replace(/[0-9]/g, ''));
-    this.suicide();
-    return;
-  }
-
+  if (this.spawning) {return false;}
   try {
     let unit = roles[role];
-    if (unit.stayInRoom) {
-      if (this.stayInRoom()) {
-        return;
-      }
+    if (unit.stayInRoom && this.stayInRoom()) {
+      return;
     }
-
-    // TODO this happens when the creep is not on the path (maybe pathPos check will solve)
-    if (unit.buildRoad) {
-      if (this.memory.routing && !this.memory.routing.reached) {
-        this.buildRoad();
-      }
+    if (!this.memory.boosted && this.boost()) {
+      return true;
     }
-
-    if (!this.memory.boosted) {
-      if (this.boost()) {
-        return true;
-      }
-    }
-
-    if (unit.action) {
-      if (this.memory.routing && this.memory.routing.reached) {
-        if (this.inBase() || !Room.isRoomUnderAttack(this.room.name)) {
-          // TODO maybe rename action to ... something better
-          //      this.say('Action');
-          return unit.action(this);
-        }
-      }
-
-      if (this.followPath(unit.action)) {
-        return true;
-      }
-    }
-
-    //    if (this.memory.role != 'defendranged' && this.memory.role != 'repairer' && this.memory.role != 'scout' && this.memory.role != 'scoutnextroom' && this.memory.role != 'nextroomer' && this.memory.role != 'upgrader') {
-    //      this.log('After followPath');
-    //    }
-
-    if (unit.execute) {
-      unit.execute(this);
-      // TODO this is very old, can be removed?
-    } else {
-      this.log('Old module execution !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1');
-      unit(this);
+    if (this.followPath()) {
+      return true;
     }
   } catch (err) {
     let message = 'Executing creep role failed: ' +
@@ -81,10 +37,7 @@ Creep.prototype.handle = function() {
     this.log(message);
     Game.notify(message, 30);
   } finally {
-    if (this.memory.last === undefined) {
-      this.memory.last = {};
-    }
-    let last = this.memory.last;
+    let last = this.memory.last || {};
     this.memory.last = {
       pos1: this.pos,
       pos2: last.pos1,
@@ -185,15 +138,7 @@ Creep.prototype.buildRoad = function() {
     this.build(Game.getObjectById(constructionSites[0].id));
     return true;
   }
-
-  constructionSites = this.room.find(FIND_MY_CONSTRUCTION_SITES, {
-    filter: function(object) {
-      if (object.structureType === STRUCTURE_ROAD) {
-        return true;
-      }
-      return false;
-    }
-  });
+  constructionSites = this.room.findOnlyStructType(FIND_MY_CONSTRUCTION_SITES, [STRUCTURE_ROAD]);
   if (constructionSites.length <= config.buildRoad.maxConstructionSitesRoom && Object.keys(Game.constructionSites).length < config.buildRoad.maxConstructionSitesTotal && this.pos.inPath()) {
     let returnCode = this.pos.createConstructionSite(STRUCTURE_ROAD);
     if (returnCode === OK) {

@@ -13,6 +13,7 @@ Room.prototype.execute = function() {
     for (var creep of this.find(FIND_MY_CREEPS)) {
       creep.handle();
     }
+    //TODO delete these in the right places
     delete this.transferableStructures;
     delete this.droppedResources;
     delete this.constructionSites;

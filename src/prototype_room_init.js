@@ -1,5 +1,4 @@
 'use strict';
-
 Room.prototype.setTowerFiller = function() {
   let exits = _.map(Game.map.describeExits(this.name));
 
@@ -14,7 +13,7 @@ Room.prototype.setTowerFiller = function() {
       let linkSet = false;
       let towerFillerSet = false;
       let positionsFound = false;
-      let path = this.getMemoryPath('pathStart' + '-' + roomName);
+      let path = this.getMemoryPath('pathStart-' + roomName);
       for (let pathIndex = path.length - 1; pathIndex >= 1; pathIndex--) {
         let posPath = path[pathIndex];
         let posPathObject = new RoomPosition(posPath.x, posPath.y, posPath.roomName);
@@ -286,6 +285,46 @@ Room.prototype.setup = function() {
   });
   let paths_sorted = _.sortBy(paths_controller, sorter);
   let path = this.getMemoryPath(paths_sorted[paths_sorted.length - 1].name);
+  let pos = {};
+
+  function aroundLength(pos) {
+    let near = pos.findNearPosition();
+    return near ? near.length : 0;
+  }
+  let values = {};
+  values['2,0'] = [
+    [1, -1],
+    [1, 0],
+    [1, 1]
+  ];
+  values['-2,0'] = [
+    [-1, -1],
+    [-1, 0],
+    [-1, 1]
+  ];
+  values['0,2'] = [
+    [-1, 1],
+    [0, 1],
+    [1, 1]
+  ];
+  values['0,-2'] = [
+    [-1, -1],
+    [0, -1],
+    [1, -1]
+  ];
+  for (let I in path) {
+    if (I > path.length - 3) {
+      break;
+    }
+    let diff = path[I].x - path[I + 2].x + ',' + path[I].y - path[I + 2].y;
+    if (values[diff]) {
+      for (let p = 0; p < 3; p++) {
+        pos[p] = new RoomPosition(path[I].x + values[diff][0], path[I].y + values[diff][1], this.roomName);
+      }
+    }
+    let target = _.maxBy(pos, aroundLength);
+    path[I + 1] = target;
+  }
   let pathI = setStructures(this, path, costMatrixBase);
   console.log('path: ' + path.name + ' pathI: ' + pathI + ' length: ' + path.length);
   if (pathI === -1) {

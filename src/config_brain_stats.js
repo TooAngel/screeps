@@ -1,5 +1,15 @@
 'use strict';
 
+brain.stats.decreaseRole = function(role) {
+  let userName = Memory.username;
+  if (config.stats.enabled && userName && Memory.stats && Memory.stats[userName].roles) {
+    let roleStat = Memory.stats[userName].roles[role];
+    let previousAmount = roleStat ? roleStat : 0;
+    let amount = previousAmount > 0 ? previousAmount - 1 : 0;
+    Memory.stats[userName].roles[role] = amount;
+  }
+};
+
 /**
  * stats.add use for push anything into Memory.stats at a given place.
  *
@@ -11,21 +21,21 @@ brain.stats.add = function(path, newContent) {
   if (!config.stats.enabled || Game.time % 3) {
     return false;
   }
-
-  var name = Memory.username || _.find(Game.spawns, 'owner').owner.username;
-  Memory.username = name;
+  var userName = Memory.username;
   Memory.stats = Memory.stats || {};
-  Memory.stats[name] = Memory.stats[name] || {};
+  Memory.stats[userName] = Memory.stats[userName] || {};
 
-  let current = Memory.stats[name];
+  let current = Memory.stats[userName];
   for (let item of path) {
-    if (!current[item]) {
-      current[item] = {};
-    }
+    current[item] = current[item] || {};
     current = current[item];
   }
-
-  current = _.merge(current, newContent);
+  let stringPath = path.join('.');
+  if (stringPath) {
+    Memory.stats[userName][stringPath] = _.merge(current, newContent);
+  } else {
+    Memory.stats[userName] = _.merge(current, newContent);
+  }
   return true;
 };
 
@@ -65,12 +75,11 @@ brain.stats.addRoom = function(roomName, previousCpu) {
   if (!config.stats.enabled || Game.time % 3) {
     return false;
   }
-
   let room = Game.rooms[roomName];
   if (!room) {
     return false;
   }
-
+  room.memory.upgraderUpgrade = room.memory.upgraderUpgrade || 0;
   if (room.memory.upgraderUpgrade === undefined) {
     room.memory.upgraderUpgrade = 0;
   }
@@ -109,15 +118,15 @@ brain.stats.addRoom = function(roomName, previousCpu) {
   return true;
 };
 brain.stats.init = function() {
-  var name = Memory.username || _.find(Game.spawns, 'my').owner;
+  var userName = Memory.username;
   Memory.stats = {
-    [name]: {
+    [userName]: {
       roles: {},
       room: {}
     }
   };
   let rolesNames = _(Game.creeps).map(c => c.memory.role).countBy(function(r) { return r; }).value();
   _.forEach(rolesNames, function(element, index) {
-    Memory.stats[name].roles[index] = element;
+    Memory.stats[userName].roles[index] = element;
   });
 };

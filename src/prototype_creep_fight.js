@@ -309,11 +309,7 @@ Creep.prototype.fightRanged = function(target) {
       costMatrix.set(49, i, 0xFF);
     }
     let room = Game.rooms[roomName];
-    let structures = room.find(FIND_STRUCTURES, {
-      filter: function(object) {
-        return object.structureType != STRUCTURE_ROAD;
-      }
-    });
+    let structures = room.findWithoutStructType(FIND_STRUCTURES, [STRUCTURE_ROAD]);
     for (let i in structures) {
       let structure = structures[i];
       costMatrix.set(structure.pos.x, structure.pos.y, 0xFF);
@@ -357,17 +353,7 @@ Creep.prototype.siege = function() {
     Game.notify(Game.time + ' ' + this.room.name + ' Attacking');
     this.memory.notified = true;
   }
-  var tower = this.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
-    filter: function(object) {
-      if (object.structureType === STRUCTURE_TOWER) {
-        return true;
-      }
-      if (object.structureType === STRUCTURE_CONTROLLER) {
-        return true;
-      }
-      return true;
-    }
-  });
+  let tower = this.findOnlyStructType(FIND_HOSTILE_STRUCTURES, [STRUCTURE_TOWER, STRUCTURE_CONTROLLER]);
   let target = tower;
   if (tower === null) {
     var spawn = this.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {

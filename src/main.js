@@ -18,6 +18,7 @@ if (config.profiler.enabled) {
     config.profiler.enabled = false;
   }
 }
+brain.prepareMemory();
 brain.stats.init();
 
 var main = function() {
@@ -25,7 +26,6 @@ var main = function() {
     console.log('Skipping tick ' + Game.time + ' due to lack of CPU.');
     return;
   }
-
   brain.prepareMemory();
   brain.handleNextroom();
   brain.handleSquadmanager();

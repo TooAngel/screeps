@@ -296,7 +296,6 @@ Room.prototype.spawnCreateCreep = function(creep) {
       continue;
     }
     if (config.stats.enabled) {
-      let userName = Memory.username || _.find(Game.spawns, 'owner').owner;
       Memory.stats = Memory.stats || {};
       Memory.stats[userName].roles = Memory.stats[userName].roles || {};
       let roleStat = Memory.stats[userName].roles[role];

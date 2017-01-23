@@ -47,18 +47,7 @@ Room.prototype.getAvoids = function(target, inRoom) {
       if (target && target.pos) {
         costMatrix.set(target.pos.x, target.pos.y, 0);
       }
-
-      let structures = room.find(FIND_STRUCTURES, {
-        filter: function(object) {
-          if (object.structureType === STRUCTURE_RAMPART) {
-            return false;
-          }
-          if (object.structureType === STRUCTURE_ROAD) {
-            return false;
-          }
-          return true;
-        }
-      });
+      let structures = this.findWithoutStructType(FIND_STRUCTURES, [STRUCTURE_RAMPART, STRUCTURE_ROAD]);
       for (let structure of structures) {
         costMatrix.set(structure.pos.x, structure.pos.y, 255);
       }
@@ -77,14 +66,7 @@ Room.prototype.getAvoids = function(target, inRoom) {
       }
 
       if (target && target.scout) {
-        let structures = room.find(FIND_STRUCTURES, {
-          filter: function(object) {
-            if (object.structureType === STRUCTURE_WALL) {
-              return true;
-            }
-            return false;
-          }
-        });
+        let structures = this.findOnlyStructType(FIND_STRUCTURES, [STRUCTURE_WALL]);
         for (let structure of structures) {
           costMatrix.set(structure.pos.x, structure.pos.y, 255);
         }
