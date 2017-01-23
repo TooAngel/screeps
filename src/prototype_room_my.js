@@ -521,7 +521,7 @@ Room.prototype.executeRoom = function() {
 Room.prototype.reviveRoom = function() {
   let nextRoomers = _.filter(Game.creeps, c => c.memory.role === 'nextroomer' &&
     c.memory.routing.targetRoom === this.name).length;
-  if (this.controller.level >= 4 &&
+  if (this.controller.level >= config.nextRoom.boostToControllerLevel &&
     this.controller.ticksToDowngrade >
     (CONTROLLER_DOWNGRADE[this.controller.level] * config.nextRoom.minDowngradPercent / 100) &&
     this.energyCapacityAvailable > config.nextRoom.minEnergyForActive) {

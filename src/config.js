@@ -51,6 +51,7 @@ global.config = {
   },
 
   nextRoom: {
+    boostToControllerLevel: 4,
     scoutMinControllerLevel: 4,
     ttlPerRoomForScout: 500,
     numberOfNextroomers: 10,
