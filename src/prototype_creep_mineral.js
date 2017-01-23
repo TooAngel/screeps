@@ -2,57 +2,62 @@
 
 // TODO totally ugly copy&paste from creep_mineral to migrate to role_mineral
 Creep.prototype.handleMineralCreep = function() {
-  let states = [{
-    name: 'storage result',
-    destination: STRUCTURE_TERMINAL,
-    action: transfer,
-    resource: 'result'
-  }, {
-    name: 'terminal 0',
-    destination: STRUCTURE_TERMINAL,
-    action: get,
-    resource: 'first'
-  }, {
-    name: 'terminal 1',
-    destination: STRUCTURE_TERMINAL,
-    action: get,
-    resource: 'second'
-  }, {
-    name: 'lab 1',
-    destination: STRUCTURE_LAB,
-    lab: 1,
-    action: transfer,
-    resource: 'first'
-  }, {
-    name: 'lab 2',
-    destination: STRUCTURE_LAB,
-    lab: 2,
-    action: transfer,
-    resource: 'second'
-  }, {
-    name: 'storage energy',
-    destination: STRUCTURE_STORAGE,
-    action: get,
-    resource: 'energy'
-  }, {
-    name: 'lab 1',
-    destination: STRUCTURE_LAB,
-    lab: 1,
-    action: transfer,
-    resource: 'energy'
-  }, {
-    name: 'lab 2',
-    destination: STRUCTURE_LAB,
-    lab: 2,
-    action: transfer,
-    resource: 'energy'
-  }, {
-    name: 'lab result1',
-    destination: STRUCTURE_LAB,
-    lab: 0,
-    action: get,
-    resource: 'result'
-  }];
+  let states = [];
+  if (this.room.memory.reaction) {
+    for (let index = 0; index <= this.room.memory.reaction.labs.length / 3; index += 3) {
+      states.push({
+        name: 'storage result ' + index,
+        destination: STRUCTURE_TERMINAL,
+        action: transfer,
+        resource: 'result'
+      }, {
+        name: 'terminal ' + index,
+        destination: STRUCTURE_TERMINAL,
+        action: get,
+        resource: 'first'
+      }, {
+        name: 'terminal ' + index + 1,
+        destination: STRUCTURE_TERMINAL,
+        action: get,
+        resource: 'second'
+      }, {
+        name: 'lab ' + index + 1,
+        destination: STRUCTURE_LAB,
+        lab: index + 1,
+        action: transfer,
+        resource: 'first'
+      }, {
+        name: 'lab ' + index + 2,
+        destination: STRUCTURE_LAB,
+        lab: 2,
+        action: transfer,
+        resource: 'second'
+      }, {
+        name: 'storage energy ' + index,
+        destination: STRUCTURE_STORAGE,
+        action: get,
+        resource: 'energy'
+      }, {
+        name: 'lab ' + index + 1,
+        destination: STRUCTURE_LAB,
+        lab: index + 1,
+        action: transfer,
+        resource: 'energy'
+      }, {
+        name: 'lab ' + index + 2,
+        destination: STRUCTURE_LAB,
+        lab: index + 2,
+        action: transfer,
+        resource: 'energy'
+      }, {
+        name: 'lab result ' + index + 1,
+        destination: STRUCTURE_LAB,
+        lab: index + 0,
+        action: get,
+        resource: 'result'
+      });
+    }
+  }
 
   function nextState(creep) {
     creep.memory.state = (creep.memory.state + 1) % states.length;
@@ -238,33 +243,37 @@ Creep.prototype.handleMineralCreep = function() {
     };
 
     for (mineral in room.memory.boosting) {
-      let labs = room.find(FIND_STRUCTURES, {
-        filter: labForMineral
-      });
-      if (labs.length > 0) {
-        if (labs[0].mineralAmount == labs[0].mineralsCapacity) {
-          if (labs[0].energy == labs[0].energyCapacity) {
-            continue;
+      if (room.memory.reaction) {
+        for (let index = 0; index <= room.memory.reaction.labs.length / 3; index += 3) {
+          let labs = room.find(FIND_STRUCTURES, {
+            filter: labForMineral
+          });
+          if (labs.length > 0) {
+            if (labs[index].mineralAmount == labs[index].mineralsCapacity) {
+              if (labs[index].energy == labs[index].energyCapacity) {
+                continue;
+              }
+            }
+            creep.memory.boostAction = {
+              mineral: mineral,
+              lab: labs[index].id
+            };
+            return true;
           }
-        }
-        creep.memory.boostAction = {
-          mineral: mineral,
-          lab: labs[0].id
-        };
-        return true;
-      }
 
-      labs = room.find(FIND_STRUCTURES, {
-        filter: labEmpty
-      });
-      if (labs.length > 0) {
-        creep.memory.boostAction = {
-          mineral: mineral,
-          lab: labs[0].id
-        };
-        return true;
+          labs = room.find(FIND_STRUCTURES, {
+            filter: labEmpty
+          });
+          if (labs.length > 0) {
+            creep.memory.boostAction = {
+              mineral: mineral,
+              lab: labs[index].id
+            };
+            return true;
+          }
+          //    creep.log('No free labs');
+        }
       }
-      //    creep.log('No free labs');
     }
     return false;
   }
@@ -439,36 +448,46 @@ Creep.prototype.handleMineralCreep = function() {
     let lab1;
     let lab2;
     if (room.memory.reaction) {
-      lab0 = Game.getObjectById(room.memory.reaction.labs[0]);
-      lab1 = Game.getObjectById(room.memory.reaction.labs[1]);
-      lab2 = Game.getObjectById(room.memory.reaction.labs[2]);
+      for (let index = 0; index <= room.memory.reaction.labs.length / 3; index += 3) {
+        lab0 = Game.getObjectById(room.memory.reaction.labs[index + 0]);
+        lab1 = Game.getObjectById(room.memory.reaction.labs[index + 1]);
+        lab2 = Game.getObjectById(room.memory.reaction.labs[index + 2]);
 
-      if (lab0 === null || lab1 === null || lab2 === null) {
-        delete creep.room.memory.reaction;
-      } else {
-        if (lab0.cooldown === 0) {
-          lab0.runReaction(lab1, lab2);
+        if (lab0 === null || lab1 === null || lab2 === null) {
+          delete creep.room.memory.reaction;
+        } else {
+          if (lab0.cooldown === 0) {
+            lab0.runReaction(lab1, lab2);
+          }
+
+        }
+        if (!creep.room.memory.reaction.fullLabs) {
+          creep.room.memory.reaction.fullLabs = [];
+        }
+        if (lab0.mineralAmount > lab0.mineralCapacity - 100 && creep.room.memory.reaction) {
+          creep.room.memory.reaction.fullLabs[index] = 1;
         }
 
-      }
-      if (lab0.mineralAmount > 1000) {
-        creep.room.memory.fullLab = 1;
-      }
-
-      if (lab0.mineralAmount < 100) {
-        creep.room.memory.fullLab = 0;
+        if (lab0.mineralAmount < 100 && creep.room.memory.reaction) {
+          creep.room.memory.reaction.fullLabs[index] = 0;
+        }
       }
     }
-
-    if (creep.room.memory.fullLab === 1) {
-      if (_.sum(creep.carry) > 0) {
-        creep.memory.state = 0;
+    if (room.memory.reaction) {
+      if (!creep.room.memory.reaction.fullLabs) {
+        creep.room.memory.reaction.fullLabs = [];
       }
-      if (_.sum(creep.carry) === 0) {
-        creep.memory.state = 8;
+      for (let index = 0; index <= room.memory.reaction.labs.length / 3; index += 3) {
+        if (creep.room.memory.reaction.fullLabs[index]) {
+          if (_.sum(creep.carry) > 0) {
+            creep.memory.state = (index * 9) + 0;
+          }
+          if (_.sum(creep.carry) === 0) {
+            creep.memory.state = (index * 9) + 8;
+          }
+        }
       }
     }
-
     if (room.memory.boosting && Object.keys(room.memory.boosting).length > 0) {
       if (prepareBoost(creep)) {
         return true;
@@ -586,9 +605,9 @@ Creep.prototype.boost = function() {
     return false;
   };
   // TODO boosting disabled, too many room.finds
-  if (true) {
-    return false;
-  }
+  //if (true) {
+  //  return false;
+  //}
   for (let part in parts) {
     for (boost in BOOSTS[part]) {
       for (let action in BOOSTS[part][boost]) {
