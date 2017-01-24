@@ -309,7 +309,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     // this.pos.getDirectionTo(search.path[0]) + ' pathPos: ' + pathPos + ' pos:
     // ' + this.pos + ' routePos: ' + routePos + ' path: ' +
     // JSON.stringify(path) + ' route: ' + JSON.stringify(route));
-    this.say('R:p-1: ' + this.pos.getDirectionTo(search.path[0]), true);
+    this.say('R:p-1: ' + this.pos.getDirectionTo(search.path[0]));
     let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
     if (returnCode == OK) {
       return true;
