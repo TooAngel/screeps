@@ -12,7 +12,7 @@ brain.stats.add = function(path, newContent) {
     return false;
   }
 
-  var name = Memory.username || _.find(Game.spawns, 'owner').owner;
+  var name = Memory.username || _.find(Game.spawns, 'owner').owner.username;
   Memory.username = name;
   Memory.stats = Memory.stats || {};
   Memory.stats[name] = Memory.stats[name] || {};
