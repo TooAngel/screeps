@@ -299,7 +299,7 @@ Room.prototype.executeRoom = function() {
 
   if (spawns.length === 0) {
     this.reviveRoom();
-  } else if (this.energyCapacityAvailable < 1000) {
+  } else if (this.energyCapacityAvailable < config.room.reviveEnergyCapacity) {
     this.reviveRoom();
     if (hostiles.length > 0) {
       this.controller.activateSafeMode();
