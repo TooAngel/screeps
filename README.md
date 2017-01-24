@@ -112,7 +112,7 @@ targetRoom: is the creeps target room.
 
 Soon you can also use 
 
-    startAutoSquad(roomfrom,roomto)
+    startAutoSquad('roomFrom' , 'roomTo')
 
 #### Sending a Reserver to reserve a rooms controller: (This will also trigger Remote Mining in the room)
 
@@ -126,7 +126,7 @@ targetId: Is in this case the ID of the controller in the target room.
 • Using the commands above you can also send sourcer, carry, defender etc. to certain rooms/targets.
 
 Soon there will be Squad attacks the Commands for those are:
-#### Send a Squad of Healer and Structurer (only attack structures) 
+#### Send a Squad of 3 Healers and 3 Structurers (only attack structures,good for walls/ramparts) 
     brain.startSquad('RoomFrom','RoomTo')
-#### Send a Squad of Healer and MeleeAttacker (Attack everything)
+#### Send a Squad of 3 Healers and 1 MeleeAttacker (Attack everything)
     brain.startMeleeSquad('RoomFrom','RoomTo')
