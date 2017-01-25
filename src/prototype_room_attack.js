@@ -68,11 +68,22 @@ Room.prototype.attackRoom = function() {
     }
 
     let roomsMy = Memory.myRooms;
+    let towers = room.find(FIND_STRUCTURES, {
+      filter: function(object) {
+        return object.structureType == STRUCTURE_TOWER;
+      }
+    });
     for (let rooms of roomsMy) {
       if (Game.rooms[rooms].controller.level < 4) {
         roomsMy.splice(roomsMy.indexOf(rooms));
       }
+      if (room.controller.level > 4 && towers.length > 1) {
+        if (Game.rooms[rooms].controller.level < 6) {
+          roomsMy.splice(roomsMy.indexOf(rooms));
+        }
+      }
     }
+
     let sortByDistance = function(object) {
       return Game.map.getRoomLinearDistance(room.name, object);
     };
