@@ -62,6 +62,7 @@ roles.squadheal.preMove = function(creep, directions) {
 };
 
 roles.squadheal.action = function(creep) {
+  creep.heal(creep);
   creep.memory.hitsLost = creep.memory.hitsLast - creep.hits;
   creep.memory.hitsLast = creep.hits;
   if (creep.hits - creep.memory.hitsLost < creep.hitsMax / 1.5 && creep.room.name == creep.memory.routing.targetRoom) {
