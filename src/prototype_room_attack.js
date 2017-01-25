@@ -12,15 +12,15 @@
  */
 Room.prototype.attack42 = function(roomName, spawn) {
   spawn = spawn || [{
-    creep: 1,
-    role: 'autoattackmelee'
-  }, {
-    creep: 1,
-    role: 'defender'
-  }, {
-    creep: 1,
-    role: 'squadheal'
-  },
+      creep: 1,
+      role: 'autoattackmelee'
+    }, {
+      creep: 1,
+      role: 'defender'
+    }, {
+      creep: 1,
+      role: 'squadheal'
+    },
 
     {
       creep: 2,
@@ -68,7 +68,7 @@ Room.prototype.attackRoom = function() {
     }
 
     let roomsMy = Memory.myRooms;
-    for (let rooms in roomsMy) {
+    for (let rooms of roomsMy) {
       if (Game.rooms[rooms].controller.level < 4) {
         roomsMy.splice(roomsMy.indexOf(rooms));
       }
