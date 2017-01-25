@@ -359,13 +359,15 @@ Creep.prototype.avoidEdge = function(range) {
 };
 
 Creep.prototype.fightSafeMode = function() {
-  if (this.room.controller.safeMode) {
-    let constructionSites = this.room.find(FIND_CONSTRUCTION_SITES);
-    this.moveTo(constructionSites[0], {
-      reusePath: 0,
-      ignoreCreeps: true
-    });
-    return true;
+  if (this.room.controller) {
+    if (this.room.controller.safeMode) {
+      let constructionSites = this.room.find(FIND_CONSTRUCTION_SITES);
+      this.moveTo(constructionSites[0], {
+        reusePath: 0,
+        ignoreCreeps: true
+      });
+      return true;
+    }
   }
   return false;
 };
