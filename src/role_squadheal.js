@@ -65,7 +65,7 @@ roles.squadheal.action = function(creep) {
   creep.heal(creep);
   creep.memory.hitsLost = creep.memory.hitsLast - creep.hits;
   creep.memory.hitsLast = creep.hits;
-  if (creep.hits - creep.memory.hitsLost < creep.hitsMax / 1.5 && creep.room.name == creep.memory.routing.targetRoom) {
+  if (creep.hits - creep.memory.hitsLost < creep.hitsMax / 1.75 && creep.room.name == creep.memory.routing.targetRoom) {
     creep.say('Run & heal', true);
     creep.heal(creep);
     creep.cancelOrder('move');
