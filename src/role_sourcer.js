@@ -103,7 +103,7 @@ roles.sourcer.died = function(name, memory) {
 roles.sourcer.action = function(creep) {
   // TODO check source keeper structure for ticksToSpawn
   if (!creep.room.controller) {
-    var target = creep.pos.findClosestSourceKeeper();
+    var target = creep.findClosestSourceKeeper();
     if (target !== null) {
       let range = creep.pos.getRangeTo(target);
       if (range < 5) {
