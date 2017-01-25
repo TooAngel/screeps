@@ -586,7 +586,7 @@ Creep.prototype.autosiege = function() {
     this.attack(spawn);
     return true;
   }
-  if (search.path[0].lookFor(LOOK_STRUCTURES).length !== 0 && search.path[0].lookFor(LOOK_STRUCTURES)[0].structureType != STRUCTURE_ROAD) {
+  if (search.path[0].lookFor(LOOK_STRUCTURES).length !== 0 && (search.path[0].lookFor(LOOK_STRUCTURES)[0].structureType == STRUCTURE_WALL || search.path[0].lookFor(LOOK_STRUCTURES)[0].structureType == STRUCTURE_RAMPART)) {
     let structures = this.pos.findInRange(FIND_STRUCTURES, 1, {
       filter: function(object) {
         return object.structureType != STRUCTURE_ROAD;
