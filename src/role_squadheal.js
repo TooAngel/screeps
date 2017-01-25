@@ -27,13 +27,13 @@ roles.squadheal.preMove = function(creep, directions) {
   if (creep.hits < creep.hitsMax) {
     creep.log('preMove heal');
     creep.heal(creep);
-    creep.memory.routing.reverse = true;
+    //creep.memory.routing.reverse = true;
     if (directions) {
-      directions.direction = directions.backwardDirection;
+      //directions.direction = directions.backwardDirection;
     }
     return false;
   } else {
-    creep.memory.routing.reverse = false;
+    //creep.memory.routing.reverse = false;
   }
 
   var myCreeps = creep.pos.findInRange(FIND_MY_CREEPS, 10, {
