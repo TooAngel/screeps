@@ -81,7 +81,7 @@ Room.prototype.attackRoom = function() {
 
     brain.startAutoSquad(roomsMy[0], room.name);
     brain.startMeleeSquad(roomsMy[0], room.name);
-    brain.startSiegeSquad(roomsMy[1], room.name);
+    brain.startSquad(roomsMy[1], room.name);
 
     return true;
   }
