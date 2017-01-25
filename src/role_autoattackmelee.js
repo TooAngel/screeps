@@ -29,7 +29,7 @@ roles.autoattackmelee.died = function(name, memory) {
 
 roles.autoattackmelee.preMove = function(creep, directions) {
   let closestHostileCreep = creep.findClosestEnemy();
-  if (creep.pos.getRangeTo(closestHostileCreep) < 5) {
+  if (creep.pos.getRangeTo(closestHostileCreep) < 10) {
     creep.say('ARRRGH!!', true);
     creep.moveTo(closestHostileCreep, {
       reusePath: 0
