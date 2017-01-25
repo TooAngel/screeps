@@ -108,9 +108,9 @@ brain.prepareMemory = function() {
         delete Memory.rooms[name];
         continue;
       }
-      if (Memory.rooms[name].lastSeen < config.room.lastSeenThreshold) {
-        console.log('Deleting ' + name + ' from memory older than 100000');
-        //delete Memory.rooms[name];
+      if (Memory.rooms[name].lastSeen < Game.time - config.room.lastSeenThreshold) {
+        console.log(`Deleting ${name} from memory older than ${config.room.lastSeenThreshold}`);
+        delete Memory.rooms[name];
         continue;
       }
     }
