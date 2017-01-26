@@ -39,11 +39,27 @@ roles.sourcer.preMove = function(creep, directions) {
   }
 
   if (!creep.room.controller) {
+    var sourceKeeperHome = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+      filter: function(object) {
+        if (!object.owner) {
+          return false;
+        }
+        return object.owner.username == 'Source Keeper';
+      }
+    });
+    if (sourceKeeperHome.ticksToSpawn <= 5 && sourceKeeperHome.pos.getRangeTo(creep) < 5) {
+      creep.memory.routing.reverse = true;
+    } else {
+      creep.memory.routing.reverse = false;
+    }
     var target = creep.findClosestSourceKeeper();
     if (target !== null) {
       let range = creep.pos.getRangeTo(target);
+      if (range > 5) {
+        creep.memory.routing.reverse = false;
+      }
       if (range < 5) {
-        return true;
+        creep.memory.routing.reverse = true;
       }
     }
   }
@@ -100,6 +116,20 @@ roles.sourcer.died = function(name, memory) {
 roles.sourcer.action = function(creep) {
   // TODO check source keeper structure for ticksToSpawn
   if (!creep.room.controller) {
+    var sourceKeeperHome = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+      filter: function(object) {
+        if (!object.owner) {
+          return false;
+        }
+        return object.owner.username == 'Source Keeper';
+      }
+    });
+    if (sourceKeeperHome.ticksToSpawn <= 5 && sourceKeeperHome.pos.getRangeTo(creep) < 5) {
+      delete creep.memory.routing.reached;
+      creep.memory.routing.reverse = true;
+    } else {
+      creep.memory.routing.reverse = false;
+    }
     var target = creep.findClosestSourceKeeper();
     if (target !== null) {
       let range = creep.pos.getRangeTo(target);
