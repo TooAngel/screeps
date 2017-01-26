@@ -429,7 +429,7 @@ Room.prototype.handleSourceKeeperRoom = function() {
         let reservedRooms = _.filter(Memory.rooms, isReservedBy(room.name));
         // RCL: target reserved rooms
         let numRooms = config.room.reservedRCL;
-        if (reservedRooms.length < numRooms[room.controller.level] + config.room.numberOfSkRooms) {
+        if (reservedRooms.length < numRooms[room.controller.level] + config.room.numberOfSkRooms && room.controller.level > 4) {
           this.memory.reservation = {
             base: room.name,
           };

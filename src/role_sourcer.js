@@ -49,6 +49,7 @@ roles.sourcer.preMove = function(creep, directions) {
     });
     if (sourceKeeperHome.ticksToSpawn <= 5 && sourceKeeperHome.pos.getRangeTo(creep) < 5) {
       creep.memory.routing.reverse = true;
+      return false;
     } else {
       creep.memory.routing.reverse = false;
     }
@@ -57,9 +58,11 @@ roles.sourcer.preMove = function(creep, directions) {
       let range = creep.pos.getRangeTo(target);
       if (range > 5) {
         creep.memory.routing.reverse = false;
+        return false;
       }
       if (range < 5) {
         creep.memory.routing.reverse = true;
+        return false;
       }
     }
   }
@@ -127,6 +130,7 @@ roles.sourcer.action = function(creep) {
     if (sourceKeeperHome.ticksToSpawn <= 5 && sourceKeeperHome.pos.getRangeTo(creep) < 5) {
       delete creep.memory.routing.reached;
       creep.memory.routing.reverse = true;
+      return false;
     } else {
       creep.memory.routing.reverse = false;
     }
@@ -136,6 +140,7 @@ roles.sourcer.action = function(creep) {
       if (range < 5) {
         delete creep.memory.routing.reached;
         creep.memory.routing.reverse = true;
+        return false;
       }
     }
   }
