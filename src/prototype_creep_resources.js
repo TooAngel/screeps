@@ -872,7 +872,7 @@ Creep.prototype.handleReserver = function() {
             Game.rooms[creep.memory.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
           }
         };
-        sources.forEach(sourceParse);
+        _.each(sources, (sourceParse));
       }
     };
     checkSourcer(this);
