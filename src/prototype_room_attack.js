@@ -90,10 +90,16 @@ Room.prototype.attackRoom = function() {
 
     roomsMy = _.sortBy(roomsMy, sortByDistance);
     let roomFrom = roomsMy[0];
-    brain.startAutoSquad(roomFrom, room.name);
-    brain.startMeleeSquad(roomFrom, room.name);
-    brain.startSquad(roomFrom, room.name);
-    brain.startSquad(roomFrom, room.name);
+    if (towers.length > 1 && roomsMy.length > 1) {
+      let roomFrom2 = roomsMy[1];
+      brain.startAutoSquad(roomFrom, room.name);
+      brain.startMeleeSquad(roomFrom2, room.name);
+      brain.startSquad(roomFrom, room.name);
+    } else {
+      brain.startAutoSquad(roomFrom, room.name);
+      brain.startMeleeSquad(roomFrom, room.name);
+      brain.startSquad(roomFrom, room.name);
+    }
 
     return true;
   }
