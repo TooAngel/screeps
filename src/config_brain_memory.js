@@ -41,7 +41,7 @@ brain.prepareMemory = function() {
     console.log('Known constructionSites: ' + Object.keys(constructionSites).length);
   }
 
-  var userName = Memory.username || _.find(Game.spawns, 'owner').owner;
+  var userName = Memory.username || _.find(Game.spawns, 'owner').owner.username;
   Memory.username = userName;
   // Cleanup memory
   for (let name in Memory.creeps) {
