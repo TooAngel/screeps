@@ -84,7 +84,7 @@ Room.prototype.externalHandleHighwayRoom = function() {
   if (config.power.disabled) {
     return false;
   }
-
+  this.log('handle Highwayroom');
   var structures = this.find(FIND_STRUCTURES, {
     filter: {
       structureType: STRUCTURE_POWER_BANK
@@ -439,7 +439,7 @@ Room.prototype.handleSourceKeeperRoom = function() {
       }
     }
   }
-  if (this.memory.reservation !== undefined && (!this.memory.lastChecked || Game.time - this.memory.lastchecked > 893)) {
+  if (this.memory.reservation !== undefined) {
     this.memory.lastChecked = Game.time;
     let reservation = this.memory.reservation;
     this.memory.state = 'Reserved';
@@ -498,7 +498,7 @@ Room.prototype.handleSourceKeeperRoom = function() {
         }
       };
       this.log(`!!!!!!!!!!!! ${JSON.stringify(spawn)}`);
-      Game.rooms[reservation.base].memory.queue.push(spawn);
+      Game.rooms[reservation.base].checkRoleToSpawn('atkeepermelee', 1, '', this.name);
     }
   }
 };

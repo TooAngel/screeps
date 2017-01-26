@@ -42,10 +42,10 @@ roles.sourcer.preMove = function(creep, directions) {
     var target = creep.findClosestSourceKeeper();
     if (target !== null) {
       let range = creep.pos.getRangeTo(target);
-      if (range > 6) {
+      if (range > 5) {
         creep.memory.routing.reverse = false;
       }
-      if (range < 6) {
+      if (range < 5) {
         creep.memory.routing.reverse = true;
       }
     }
@@ -106,7 +106,7 @@ roles.sourcer.action = function(creep) {
     var target = creep.findClosestSourceKeeper();
     if (target !== null) {
       let range = creep.pos.getRangeTo(target);
-      if (range < 5) {
+      if (range < 4) {
         delete creep.memory.routing.reached;
         creep.memory.routing.reverse = true;
       }
