@@ -89,10 +89,11 @@ Room.prototype.attackRoom = function() {
     };
 
     roomsMy = _.sortBy(roomsMy, sortByDistance);
-
-    brain.startAutoSquad(roomsMy[0], room.name);
-    brain.startMeleeSquad(roomsMy[0], room.name);
-    brain.startSquad(roomsMy[1], room.name);
+    let roomFrom = roomsMy[0];
+    brain.startAutoSquad(roomFrom, room.name);
+    brain.startMeleeSquad(roomFrom, room.name);
+    brain.startSquad(roomFrom, room.name);
+    brain.startSquad(roomFrom, room.name);
 
     return true;
   }
@@ -113,7 +114,7 @@ Room.prototype.attackRoom = function() {
 
   // We only exclude players in the friends.js
   if (friends.indexOf(name) > -1) {
-    return true;
+    return false;
   }
 
   let getPlayer = function(name) {
