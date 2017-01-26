@@ -226,28 +226,12 @@ Creep.prototype.fightRampart = function(target) {
     return false;
   }
 
-  let callback = this.room.getMatrixCallback;
-
-  // TODO Extract the callback method to ... e.g. room and replace this.room.getAvoids
-  if (this.room.memory.costMatrix && this.room.memory.costMatrix.base) {
-    let room = this.room;
-    callback = function(end) {
-      let callbackInner = function(roomName) {
-        let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
-        // TODO the ramparts could be within existing walls (at least when converging to the newmovesim
-        costMatrix.set(position.pos.x, position.pos.y, 0);
-        return costMatrix;
-      };
-      return callbackInner;
-    };
-  }
-
   let search = PathFinder.search(
     this.pos, {
       pos: position.pos,
       range: 0
     }, {
-      roomCallback: callback(position.pos),
+      roomCallback: this.room.getCostMatrixCallback(position.pos),
       maxRooms: 1
     }
   );
@@ -302,31 +286,12 @@ Creep.prototype.fightRanged = function(target) {
     return true;
   }
 
-  let creep = this;
-  let callbackFunction = function(roomName) {
-    let callback = creep.room.getAvoids(creep.room);
-    let costMatrix = callback(roomName);
-    for (let i = 0; i < 50; i++) {
-      costMatrix.set(i, 0, 0xFF);
-      costMatrix.set(i, 49, 0xFF);
-      costMatrix.set(0, i, 0xFF);
-      costMatrix.set(49, i, 0xFF);
-    }
-    let room = Game.rooms[roomName];
-    let structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_ROAD], true);
-    for (let i in structures) {
-      let structure = structures[i];
-      costMatrix.set(structure.pos.x, structure.pos.y, 0xFF);
-    }
-    return costMatrix;
-  };
-
   let search = PathFinder.search(
     this.pos, {
       pos: target.pos,
       range: 3
     }, {
-      roomCallback: callbackFunction,
+      roomCallback: this.room.getCostMatrixCallback(target.pos),
       maxRooms: 1
     }
   );

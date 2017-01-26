@@ -50,4 +50,9 @@ module.exports.loop = function() {
   } else {
     main();
   }
+  // console.log('--');
+  // console.log(JSON.stringify(_.filter(Object.keys(cache.rooms), function(object) { return !cache.rooms[object].costMatrix; })));
+  // if (cache && cache.rooms && cache.rooms.W1N4) {
+  //   console.log('END W1N4":' + cache.rooms.W1N4.costMatrix);
+  // }
 };
