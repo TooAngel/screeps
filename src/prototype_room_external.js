@@ -453,7 +453,7 @@ Room.prototype.handleSourceKeeperRoom = function() {
         sourcer++;
         continue;
       }
-      if (creep.memory.role == 'atkeepermelee') {
+      if (creep.memory.role == 'atkeeper') {
         melee++;
         continue;
       }
@@ -492,13 +492,13 @@ Room.prototype.handleSourceKeeperRoom = function() {
 
     if (melee === 0) {
       var spawn = {
-        role: 'atkeepermelee',
+        role: 'atkeeper',
         routing: {
           targetRoom: this.name
         }
       };
       this.log(`!!!!!!!!!!!! ${JSON.stringify(spawn)}`);
-      Game.rooms[reservation.base].checkRoleToSpawn('atkeepermelee', 1, '', this.name);
+      Game.rooms[reservation.base].checkRoleToSpawn('atkeeper', 1, '', this.name);
     }
   }
 };
