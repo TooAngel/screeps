@@ -29,7 +29,7 @@ roles.autoattackmelee.died = function(name, memory) {
 
 roles.autoattackmelee.preMove = function(creep, directions) {
   let closestHostileCreep = creep.findClosestEnemy();
-  let healer = creep.find(FIND_MY_CREEPS, {
+  let healer = creep.room.find(FIND_MY_CREEPS, {
     filter: function(object) {
       return object.role == 'squadheal';
     }
