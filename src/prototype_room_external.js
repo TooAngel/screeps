@@ -50,10 +50,13 @@ Room.prototype.externalHandleRoom = function() {
     }
   }
 
-  let blocked = this.checkBlocked();
-  if (blocked) {
-    this.memory.lastSeen = Game.time;
-    this.memory.state = 'Blocked';
+  if (!this.memory.blockedCheck || Game.time - this.memory.blockedCheck > 100000) {
+    this.memory.blockedCheck = Game.time;
+    let blocked = this.checkBlocked();
+    if (blocked) {
+      this.memory.lastSeen = Game.time;
+      this.memory.state = 'Blocked';
+    }
   }
 
   if (this.controller && !this.controller.reservation) {
