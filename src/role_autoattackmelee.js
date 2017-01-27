@@ -29,13 +29,26 @@ roles.autoattackmelee.died = function(name, memory) {
 
 roles.autoattackmelee.preMove = function(creep, directions) {
   let closestHostileCreep = creep.findClosestEnemy();
-  if (creep.pos.getRangeTo(closestHostileCreep) < 10) {
+  let healer = creep.find(FIND_MY_CREEPS, {
+    filter: function(object) {
+      return object.role == 'squadheal';
+    }
+  });
+  if (creep.pos.getRangeTo(closestHostileCreep && healer) < 10) {
     creep.say('ARRRGH!!', true);
     creep.moveTo(closestHostileCreep, {
       reusePath: 0
     });
     creep.attack(closestHostileCreep);
     return true;
+  }
+  if (closestHostileCreep) {
+    creep.memory.routing.reverse = true;
+    return false;
+  }
+  if (healer) {
+    creep.memory.routing.reverse = false;
+    return false;
   }
   return false;
 };
