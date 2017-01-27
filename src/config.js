@@ -51,6 +51,7 @@ global.config = {
   },
 
   nextRoom: {
+    boostToControllerLevel: 4,
     scoutMinControllerLevel: 4,
     ttlPerRoomForScout: 500,
     numberOfNextroomers: 10,
@@ -127,6 +128,7 @@ global.config = {
     revive: true,
     rebuildLayout: 7654,
     handleNukeAttackInterval: 132,
+    reviveEnergyCapacity: 1000,
     reviveEnergyAvailable: 1000,
     reviveStorageAvailable: 3000,
     scoutInterval: 1499,
