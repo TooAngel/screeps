@@ -5,7 +5,7 @@ Room.prototype.buildBlockers = function() {
 
   var spawns = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {
-      return object.structureType == 'spawn';
+      return object.structureType === 'spawn';
     }
   });
   if (spawns.length === 0) {
@@ -36,7 +36,7 @@ Room.prototype.checkExitsAreReachable = function() {
     for (let i = 0; i < room.memory.walls.layer_i; i++) {
       for (let j in room.memory.walls.layer[i]) {
         let position = room.memory.walls.layer[i][j];
-        if (pos.x == position.x && pos.y == position.y) {
+        if (pos.x === position.x && pos.y === position.y) {
           return true;
         }
       }
@@ -193,7 +193,7 @@ Room.prototype.closeExitsByPath = function() {
   // TODO check if incomplete just solves the issue
   let wayFound = false;
   for (let targetId in targets) {
-    if (posLastObject.getRangeTo(targets[targetId]) == 1) {
+    if (posLastObject.getRangeTo(targets[targetId]) === 1) {
       wayFound = true;
       //      this.log('Way found true: ' + !search.incomplete);
       break;
@@ -232,10 +232,10 @@ Room.prototype.closeExitsByPath = function() {
       this.memory.costMatrix.base = costMatrixBase.serialize();
       this.memory.walls.layer[this.memory.walls.layer_i].push(pathPos);
       var returnCode = pathPos.createConstructionSite(structure);
-      if (returnCode == ERR_FULL) {
+      if (returnCode === ERR_FULL) {
         return false;
       }
-      if (returnCode == ERR_INVALID_TARGET) {
+      if (returnCode === ERR_INVALID_TARGET) {
         return false;
       }
       this.log('Placing ' + structure + ' with ' + returnCode + ' at ' + JSON.stringify(pathPos));

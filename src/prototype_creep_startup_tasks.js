@@ -59,7 +59,7 @@ Creep.buildRoads = function(creep) {
   function checkForRoad(pos) {
     let structures = pos.lookFor('structure');
     for (let structuresIndex in structures) {
-      if (structures[structuresIndex].structureType == STRUCTURE_ROAD) {
+      if (structures[structuresIndex].structureType === STRUCTURE_ROAD) {
         return true;
       }
     }
@@ -79,13 +79,13 @@ Creep.buildRoads = function(creep) {
     }
 
     let returnCode = pos.createConstructionSite(STRUCTURE_ROAD);
-    if (returnCode == OK) {
+    if (returnCode === OK) {
       return true;
     }
-    if (returnCode == ERR_FULL) {
+    if (returnCode === ERR_FULL) {
       return true;
     }
-    if (returnCode == ERR_INVALID_TARGET) {
+    if (returnCode === ERR_INVALID_TARGET) {
       // FIXME Creep is standing on constructionSite, need to check why it is not building
       creep.moveRandom();
       continue;
@@ -97,7 +97,7 @@ Creep.buildRoads = function(creep) {
 };
 
 Creep.recycleCreep = function(creep) {
-  if (creep.memory.role == 'planer') {
+  if (creep.memory.role === 'planer') {
     creep.room.buildStructures();
   }
 
@@ -144,7 +144,7 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
 
   this.say('hostile');
   hostileStructures = _.sortBy(hostileStructures, function(object) {
-    if (object.structureType == STRUCTURE_STORAGE) {
+    if (object.structureType === STRUCTURE_STORAGE) {
       return 1;
     }
     return 2;
@@ -178,7 +178,7 @@ Creep.prototype.getEnergyFromStorage = function() {
   }
 
   let range = this.pos.getRangeTo(this.room.storage);
-  if (range == 1) {
+  if (range === 1) {
     this.withdraw(this.room.storage, RESOURCE_ENERGY);
   } else {
     let search = PathFinder.search(
@@ -270,10 +270,10 @@ Creep.prototype.repairStructure = function() {
 
           let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
           this.memory.lastPosition = this.pos;
-          if (returnCode == OK) {
+          if (returnCode === OK) {
             return true;
           }
-          if (returnCode == ERR_NO_PATH) {
+          if (returnCode === ERR_NO_PATH) {
             this.memory.move_wait = 0;
             this.log('No path : ' + JSON.stringify(search));
             returnCode = this.moveTo(to_repair, {
@@ -308,7 +308,7 @@ Creep.prototype.repairStructure = function() {
         let rampart;
         structures = spawn.pos.lookFor(LOOK_STRUCTURES);
         for (structure of structures) {
-          if (structure.structureType == STRUCTURE_RAMPART) {
+          if (structure.structureType === STRUCTURE_RAMPART) {
             if (structure.hits < 1100000) {
               found = true;
               rampart = structure;
@@ -328,7 +328,7 @@ Creep.prototype.repairStructure = function() {
   // Repair low ramparts
   let lowRamparts = this.pos.findInRange(FIND_STRUCTURES, 4, {
     filter: function(object) {
-      if (object.structureType == STRUCTURE_RAMPART && object.hits < 10000) {
+      if (object.structureType === STRUCTURE_RAMPART && object.hits < 10000) {
         return true;
       }
       return false;
@@ -360,10 +360,10 @@ Creep.prototype.repairStructure = function() {
   // Build construction sites
   let target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
     filter: function(object) {
-      if (object.structureType == 'constructedWall') {
+      if (object.structureType === 'constructedWall') {
         return true;
       }
-      if (object.structureType == 'rampart') {
+      if (object.structureType === 'rampart') {
         return true;
       }
       return false;
@@ -378,13 +378,13 @@ Creep.prototype.repairStructure = function() {
       this.memory.step = 0;
       let targetNew = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
         filter: function(object) {
-          if (object.id == target.id) {
+          if (object.id === target.id) {
             return false;
           }
-          if (object.structureType == 'constructedWall') {
+          if (object.structureType === 'constructedWall') {
             return true;
           }
-          if (object.structureType == 'rampart') {
+          if (object.structureType === 'rampart') {
             return true;
           }
           return false;
@@ -439,11 +439,11 @@ Creep.prototype.repairStructure = function() {
         return false;
       }
 
-      if (object.structureType == 'constructedWall') {
+      if (object.structureType === 'constructedWall') {
         return true;
       }
 
-      if (object.structureType == 'rampart') {
+      if (object.structureType === 'rampart') {
         return true;
       }
       return false;

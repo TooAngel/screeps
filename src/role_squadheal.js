@@ -61,8 +61,8 @@ roles.squadheal.preMove = function(creep, directions) {
       creep.memory.initialized = true;
     }
     let reverse = false;
-    if (squad.action == 'move') {
-      if (creep.room.name == squad.moveTarget) {
+    if (squad.action === 'move') {
+      if (creep.room.name === squad.moveTarget) {
         let nextExits = creep.room.find(creep.memory.route[creep.memory.routePos].exit);
         let nextExit = nextExits[Math.floor(nextExits.length / 2)];
         let range = creep.pos.getRangeTo(nextExit.x, nextExit.y);
@@ -87,7 +87,7 @@ roles.squadheal.action = function(creep) {
     creep.cancelOrder('move');
     creep.cancelOrder('moveTo');
 
-    if (creep.pos.x === 0 || creep.pos.y === 0 || creep.pos.x == 49 || creep.pos.y == 49) {
+    if (creep.pos.x === 0 || creep.pos.y === 0 || creep.pos.x === 49 || creep.pos.y === 49) {
       return true;
     }
 

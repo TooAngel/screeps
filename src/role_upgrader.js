@@ -18,7 +18,7 @@ roles.upgrader.boostActions = ['upgradeController'];
 
 roles.upgrader.getPartConfig = function(room, energy, heal) {
   let parts = [MOVE, CARRY, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK];
-  if (room.controller.level == 4) {
+  if (room.controller.level === 4) {
     parts = [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK];
   }
   return room.getPartConfig(energy, parts);
@@ -39,7 +39,7 @@ roles.upgrader.energyBuild = function(room, energy) {
   if (room.controller.level < 7) {
     energyNeeded = Math.min(1950, room.getEnergyCapacityAvailable());
   }
-  if (room.controller.level == 7) {
+  if (room.controller.level === 7) {
     // TODO Better calculation for the upgrader size
     //    energyNeeded = Math.min(3900, energy);
   }

@@ -34,7 +34,7 @@ roles.powerdefender.action = function(creep) {
 
   var powerBank = creep.room.find(FIND_STRUCTURES, {
     filter: function(object) {
-      return object.structureType == STRUCTURE_POWER_BANK;
+      return object.structureType === STRUCTURE_POWER_BANK;
     }
   });
 

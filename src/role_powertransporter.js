@@ -35,7 +35,7 @@ roles.powertransporter.action = function(creep) {
       costCallback: creep.room.getAvoids(creep.room)
     });
     var return_code = creep.transfer(creep.room.storage, RESOURCE_POWER);
-    if (return_code == OK) {
+    if (return_code === OK) {
       creep.memory.target = creep.memory.old_target;
       creep.suicide();
     }
@@ -54,7 +54,7 @@ roles.powertransporter.action = function(creep) {
 
     var power_bank = creep.room.find(FIND_STRUCTURES, {
       filter: function(object) {
-        return object.structureType == 'powerBank';
+        return object.structureType === 'powerBank';
       }
     });
     if (power_bank.length > 0) {
@@ -67,7 +67,7 @@ roles.powertransporter.action = function(creep) {
 
     var resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES, {
       filter: function(object) {
-        if (object.resourceType == 'power') {
+        if (object.resourceType === 'power') {
           return true;
         }
       }
@@ -85,7 +85,7 @@ roles.powertransporter.action = function(creep) {
       ignoreCreeps: true
     });
     var return_code = creep.pickup(resource);
-    if (return_code == OK) {
+    if (return_code === OK) {
       creep.memory.reverse = true;
     }
     return true;

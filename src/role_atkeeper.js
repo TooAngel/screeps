@@ -37,7 +37,7 @@ roles.atkeeper.action = function(creep) {
         direction = (direction + 3) % 8 + 1;
         var pos = creep.pos.getAdjacentPosition(direction);
         var terrain = pos.lookFor(LOOK_TERRAIN)[0];
-        if (terrain == 'wall') {
+        if (terrain === 'wall') {
           direction = (Math.random() * 8) + 1;
         }
         creep.move(direction);
@@ -81,10 +81,10 @@ roles.atkeeper.action = function(creep) {
     if (!target || target === null) {
       var my_creep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
         filter: function(object) {
-          if (object.hits == object.hitsMax) {
+          if (object.hits === object.hitsMax) {
             return false;
           }
-          if (object.memory.role == 'atkeeper') {
+          if (object.memory.role === 'atkeeper') {
             return false;
           }
           return true;
@@ -101,7 +101,7 @@ roles.atkeeper.action = function(creep) {
           if (!object.owner) {
             return false;
           }
-          return object.owner.username == 'Source Keeper';
+          return object.owner.username === 'Source Keeper';
         }
       });
       var min_spawn_time = 500;

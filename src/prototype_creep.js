@@ -6,7 +6,7 @@ function getOppositeDirection(direction) {
 }
 
 Creep.prototype.inBase = function() {
-  return this.room.name == this.memory.base;
+  return this.room.name === this.memory.base;
 };
 
 Creep.prototype.handle = function() {
@@ -100,7 +100,7 @@ Creep.prototype.isStuck = function() {
 };
 
 Creep.prototype.getEnergyFromStructure = function() {
-  if (this.carry.energy == this.carryCapacity) {
+  if (this.carry.energy === this.carryCapacity) {
     return false;
   }
   var area = this.room.lookForAtArea(
@@ -116,8 +116,8 @@ Creep.prototype.getEnergyFromStructure = function() {
         continue;
       }
       for (var i in area[y][x]) {
-        if (area[y][x][i].structureType == STRUCTURE_EXTENSION ||
-          area[y][x][i].structureType == STRUCTURE_SPAWN) {
+        if (area[y][x][i].structureType === STRUCTURE_EXTENSION ||
+          area[y][x][i].structureType === STRUCTURE_SPAWN) {
           area[y][x][i].transferEnergy(this);
           return true;
         }
@@ -154,9 +154,9 @@ Creep.prototype.buildRoad = function() {
   }
 
   if (this.pos.x === 0 ||
-    this.pos.x == 49 ||
+    this.pos.x === 49 ||
     this.pos.y === 0 ||
-    this.pos.y == 49
+    this.pos.y === 49
   ) {
     return true;
   }
@@ -164,7 +164,7 @@ Creep.prototype.buildRoad = function() {
   let structures = this.pos.lookFor(LOOK_STRUCTURES);
   if (structures.length > 0) {
     for (let structure of structures) {
-      if (structure.structureType == STRUCTURE_ROAD) {
+      if (structure.structureType === STRUCTURE_ROAD) {
         this.repair(structure);
         return true;
       }
@@ -188,7 +188,7 @@ Creep.prototype.buildRoad = function() {
 
   constructionSites = this.room.find(FIND_MY_CONSTRUCTION_SITES, {
     filter: function(object) {
-      if (object.structureType == STRUCTURE_ROAD) {
+      if (object.structureType === STRUCTURE_ROAD) {
         return true;
       }
       return false;
@@ -196,7 +196,7 @@ Creep.prototype.buildRoad = function() {
   });
   if (constructionSites.length <= config.buildRoad.maxConstructionSitesRoom && Object.keys(Game.constructionSites).length < config.buildRoad.maxConstructionSitesTotal && this.pos.inPath()) {
     let returnCode = this.pos.createConstructionSite(STRUCTURE_ROAD);
-    if (returnCode == OK) {
+    if (returnCode === OK) {
       return true;
     }
     if (returnCode != OK && returnCode != ERR_INVALID_TARGET && returnCode != ERR_FULL) {
@@ -275,7 +275,7 @@ Creep.prototype.killPrevious = function() {
   var creep = this;
   var previous = this.pos.findClosestByRange(FIND_MY_CREEPS, {
     filter: function(object) {
-      if (object.id == creep.id) {
+      if (object.id === creep.id) {
         return false;
       }
       if (object.memory.role != creep.memory.role) {
@@ -292,7 +292,7 @@ Creep.prototype.killPrevious = function() {
   }
 
   var range = this.pos.getRangeTo(previous);
-  if (range == 1) {
+  if (range === 1) {
     if (this.ticksToLive < previous.ticksToLive) {
       this.log('kill me: ' + JSON.stringify(this));
       this.suicide();
@@ -327,12 +327,12 @@ Creep.prototype.respawnMe = function() {
 Creep.prototype.spawnReplacement = function(maxOfRole) {
   if (this.memory.nextSpawn) {
     //    this.say('sr: ' + (this.ticksToLive - this.memory.nextSpawn));
-    if (this.ticksToLive == this.memory.nextSpawn) {
+    if (this.ticksToLive === this.memory.nextSpawn) {
       if (maxOfRole) {
         let creep = this;
         let creepOfRole = creep.room.find(FIND_MY_CREEPS, {
           filter: function(object) {
-            if (object.memory.role == creep.memory.role) {
+            if (object.memory.role === creep.memory.role) {
               return true;
             }
             return false;

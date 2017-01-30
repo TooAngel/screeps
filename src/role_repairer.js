@@ -47,11 +47,11 @@ roles.repairer.execute = function(creep) {
     if (creep.memory.step <= 0) {
       structures = creep.room.find(FIND_STRUCTURES, {
         filter: function(object) {
-          if (object.structureType == 'constructedWall') {
+          if (object.structureType === 'constructedWall') {
             return true;
           }
 
-          if (object.structureType == 'rampart') {
+          if (object.structureType === 'rampart') {
             return true;
           }
           return false;

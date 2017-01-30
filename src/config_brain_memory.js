@@ -6,7 +6,7 @@ brain.prepareMemory = function() {
     if (object.type != ORDER_BUY) {
       return false;
     }
-    if (object.resourceType == 'token') {
+    if (object.resourceType === 'token') {
       return false;
     }
     var patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
@@ -27,7 +27,7 @@ brain.prepareMemory = function() {
       let cs = Game.constructionSites[csId];
       let csMem = Memory.constructionSites[csId];
       if (csMem) {
-        if (csMem == cs.progress) {
+        if (csMem === cs.progress) {
           console.log(csId + ' constructionSite too old');
           let csObject = Game.getObjectById(csId);
           let returnCode = csObject.remove();

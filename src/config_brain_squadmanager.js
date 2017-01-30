@@ -23,7 +23,7 @@ brain.handleIncomingTransactions = function() {
 };
 
 brain.increaseIdiot = function(name, value) {
-  if (name == 'Invader') {
+  if (name === 'Invader') {
     return false;
   }
 
@@ -64,7 +64,7 @@ brain.isFriend = function(name) {
   if (Memory.players[name].idiot <= 0) {
     return true;
   }
-  if (name == 'Source Keeper') {
+  if (name === 'Source Keeper') {
     return true;
   }
   return false;
@@ -76,7 +76,7 @@ brain.handleSquadmanager = function() {
     if (Object.keys(squad.siege).length === 0) {
       return true;
     }
-    if (squad.action == 'move') {
+    if (squad.action === 'move') {
       for (let siegeId in squad.siege) {
         let siege = squad.siege[siegeId];
         if (!siege.waiting) {

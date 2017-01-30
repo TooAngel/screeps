@@ -16,7 +16,7 @@ RoomPosition.prototype.getAdjacentPosition = function(direction) {
 };
 
 RoomPosition.prototype.checkForWall = function() {
-  return this.lookFor(LOOK_TERRAIN)[0] == 'wall';
+  return this.lookFor(LOOK_TERRAIN)[0] === 'wall';
 };
 
 RoomPosition.prototype.inPath = function() {

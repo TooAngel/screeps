@@ -39,7 +39,7 @@ Room.prototype.reactions = function() {
         if (!object.mineralType) {
           return true;
         }
-        if (object.mineralType == result.result) {
+        if (object.mineralType === result.result) {
           return true;
         }
         return false;
@@ -49,7 +49,7 @@ Room.prototype.reactions = function() {
     let lab;
     let labs = [];
     let getNearLabs = function(object) {
-      if (object.id == lab.id) {
+      if (object.id === lab.id) {
         return false;
       }
       if (object.structureType != STRUCTURE_LAB) {
@@ -58,10 +58,10 @@ Room.prototype.reactions = function() {
       if (!object.mineralType) {
         return true;
       }
-      if (object.mineralType == result.first) {
+      if (object.mineralType === result.first) {
         return true;
       }
-      if (object.mineralType == result.second) {
+      if (object.mineralType === result.second) {
         return true;
       }
       return false;
@@ -77,17 +77,17 @@ Room.prototype.reactions = function() {
         //        console.log(lab.mineralType, result.result);
 
         for (let labNear of labsNear) {
-          if (!labNear.mineralType || labNear.mineralType == result.first) {
+          if (!labNear.mineralType || labNear.mineralType === result.first) {
             //            console.log(labNear.mineralType, result.first);
             labs.push(labNear.id);
             break;
           }
         }
         for (let labNear of labsNear) {
-          if (labNear.id == labs[1]) {
+          if (labNear.id === labs[1]) {
             continue;
           }
-          if (!labNear.mineralType || labNear.mineralType == result.second) {
+          if (!labNear.mineralType || labNear.mineralType === result.second) {
             //            console.log(labNear.mineralType, result.second);
             labs.push(labNear.id);
             break;
@@ -138,7 +138,7 @@ Room.prototype.orderMinerals = function() {
         let roomsOther = _.sortBy(Memory.myRooms, orderByDistance);
 
         for (let roomOtherName of roomsOther) {
-          if (roomOtherName == this.name) {
+          if (roomOtherName === this.name) {
             continue;
           }
           let roomOther = Game.rooms[roomOtherName];
@@ -153,7 +153,7 @@ Room.prototype.orderMinerals = function() {
           if (!roomOther.terminal || roomOther.terminal[minerals[0].mineralType] < config.mineral.minAmount) {
             continue;
           }
-          if (mineralType == mineral) {
+          if (mineralType === mineral) {
             roomOther.memory.mineralOrder = roomOther.memory.mineralOrder || {};
             if (roomOther.memory.mineralOrder[room.name]) {
               break;

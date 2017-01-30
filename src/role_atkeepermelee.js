@@ -76,7 +76,7 @@ roles.atkeepermelee.action = function(creep) {
   let getNextSourceKeeper = function(creep) {
     var sourceKeeper = creep.room.find(FIND_HOSTILE_STRUCTURES, {
       filter: function(object) {
-        return object.owner.username == 'Source Keeper';
+        return object.owner.username === 'Source Keeper';
       }
     });
 
@@ -99,7 +99,7 @@ roles.atkeepermelee.action = function(creep) {
         let sourcers = creep.pos.findInRange(FIND_MY_CREEPS, 3, {
           filter: function(object) {
             let target = Game.getObjectById(object.id);
-            if (target.memory.role == 'sourcer' && target.hits < target.hitsMax) {
+            if (target.memory.role === 'sourcer' && target.hits < target.hitsMax) {
               return true;
             }
             return false;
@@ -113,7 +113,7 @@ roles.atkeepermelee.action = function(creep) {
       }
 
       creep.heal(creep);
-      if (creep.hits == creep.hitsMax || range > 5 || range < 5) {
+      if (creep.hits === creep.hitsMax || range > 5 || range < 5) {
         let returnCode = creep.moveTo(target);
         if (returnCode != OK) {
           creep.log(`heal.move returnCode: ${returnCode}`);

@@ -10,7 +10,7 @@ RoomPosition.prototype.setSpawn = function(posPath, posNext) {
   let pathPosObject = new RoomPosition(posPath.x, posPath.y, this.roomName);
   let directionStructure = pathPosObject.getDirectionTo(this.x, this.y);
 
-  if (directionStructure == BOTTOM) {
+  if (directionStructure === BOTTOM) {
     return true;
   }
 
@@ -21,19 +21,19 @@ RoomPosition.prototype.setSpawn = function(posPath, posNext) {
 
   let directionNext = pathPosObject.getDirectionTo(posNext.x, posNext.y);
 
-  if (directionNext == RIGHT && directionStructure == BOTTOM_RIGHT) {
+  if (directionNext === RIGHT && directionStructure === BOTTOM_RIGHT) {
     return true;
   }
 
-  if (directionNext == LEFT && directionStructure == BOTTOM_LEFT) {
+  if (directionNext === LEFT && directionStructure === BOTTOM_LEFT) {
     return true;
   }
 
-  if (directionNext == TOP_RIGHT && directionStructure == RIGHT) {
+  if (directionNext === TOP_RIGHT && directionStructure === RIGHT) {
     return true;
   }
 
-  if (directionNext == TOP_LEFT && directionStructure == LEFT) {
+  if (directionNext === TOP_LEFT && directionStructure === LEFT) {
     return true;
   }
 

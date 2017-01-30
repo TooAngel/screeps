@@ -12,7 +12,7 @@ function posIsIn(pos, array) {
       throw new Error();
       //      continue;
     }
-    if (pos.x == posCheck.x && pos.y == posCheck.y) {
+    if (pos.x === posCheck.x && pos.y === posCheck.y) {
       return true;
     }
   }
@@ -20,7 +20,7 @@ function posIsIn(pos, array) {
 }
 
 Room.prototype.destroyStructure = function(structure) {
-  if (structure.structureType == STRUCTURE_WALL) {
+  if (structure.structureType === STRUCTURE_WALL) {
     if (!this.memory.walls) {
       return false;
     }
@@ -42,7 +42,7 @@ Room.prototype.destroyStructure = function(structure) {
     structure.destroy();
     return true;
   }
-  if (structure.structureType == STRUCTURE_ROAD) {
+  if (structure.structureType === STRUCTURE_ROAD) {
     for (let pathName in this.getMemoryPaths()) {
       for (let pos of this.getMemoryPath(pathName)) {
         if (structure.pos.isEqualTo(pos.x, pos.y)) {
@@ -54,7 +54,7 @@ Room.prototype.destroyStructure = function(structure) {
     structure.destroy();
     return true;
   }
-  if (structure.structureType == STRUCTURE_RAMPART) {
+  if (structure.structureType === STRUCTURE_RAMPART) {
     return false;
   }
 
@@ -64,12 +64,12 @@ Room.prototype.destroyStructure = function(structure) {
 
   let structures = this.find(FIND_STRUCTURES, {
     filter: function(object) {
-      return object.structureType == structure.structureType;
+      return object.structureType === structure.structureType;
     }
   });
 
   let structuresMin = 0;
-  if (structure.structureType == STRUCTURE_SPAWN) {
+  if (structure.structureType === STRUCTURE_SPAWN) {
     structuresMin = 1;
   }
 
@@ -79,13 +79,13 @@ Room.prototype.destroyStructure = function(structure) {
     return true;
   }
   this.log('Not destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos) + ' ' + structures.length + ' ' + structuresMin);
-  if (structure.structureType == STRUCTURE_SPAWN) {
+  if (structure.structureType === STRUCTURE_SPAWN) {
     if (this.memory.misplacedSpawn) {
       if (this.storage && this.storage.store.energy > 20000) {
         let planers = this.find(FIND_MY_CREEPS, {
           filter: function(object) {
             let creep = Game.getObjectById(object.id);
-            return creep.memory.role == 'planer';
+            return creep.memory.role === 'planer';
           }
         });
         if (planers.length > 3) {
@@ -107,12 +107,12 @@ Room.prototype.destroyStructure = function(structure) {
       let costMatrixBase = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
       let spawns = this.find(FIND_MY_STRUCTURES, {
         filter: function(object) {
-          return object.structureType == STRUCTURE_SPAWN;
+          return object.structureType === STRUCTURE_SPAWN;
         }
       });
 
       let getWalls = function(object) {
-        return object.structureType == STRUCTURE_WALL;
+        return object.structureType === STRUCTURE_WALL;
       };
 
       for (let spawn of spawns) {
@@ -145,17 +145,17 @@ Room.prototype.checkPath = function() {
     return false;
   }
   let filterSpawns = function(object) {
-    return object.structureType == STRUCTURE_SPAWN;
+    return object.structureType === STRUCTURE_SPAWN;
   };
   for (let pos of path) {
     let roomPos = new RoomPosition(pos.x, pos.y, this.name);
     let structures = roomPos.lookFor('structure');
 
     for (let structure of structures) {
-      if (structure.structureType == STRUCTURE_ROAD) {
+      if (structure.structureType === STRUCTURE_ROAD) {
         continue;
       }
-      if (structure.structureType == STRUCTURE_RAMPART) {
+      if (structure.structureType === STRUCTURE_RAMPART) {
         continue;
       }
       console.log('checkPath: ' + pos);
@@ -189,10 +189,10 @@ Room.prototype.checkWrongStructure = function() {
   let structures = this.find(FIND_STRUCTURES);
 
   for (let structure of structures) {
-    if (structure.structureType == STRUCTURE_RAMPART) {
+    if (structure.structureType === STRUCTURE_RAMPART) {
       continue;
     }
-    if (structure.structureType == STRUCTURE_CONTROLLER) {
+    if (structure.structureType === STRUCTURE_CONTROLLER) {
       continue;
     }
 
@@ -208,13 +208,13 @@ Room.prototype.clearPosition = function(pos, structure) {
   let returnValue = false;
   for (let posStructureIndex in posStructures) {
     let posStructure = posStructures[posStructureIndex];
-    if (posStructure.structureType == STRUCTURE_ROAD) {
+    if (posStructure.structureType === STRUCTURE_ROAD) {
       continue;
     }
-    if (posStructure.structureType == STRUCTURE_RAMPART) {
+    if (posStructure.structureType === STRUCTURE_RAMPART) {
       continue;
     }
-    if (posStructure.structureType == structure) {
+    if (posStructure.structureType === structure) {
       returnValue = {
         destoyed: false
       };
@@ -239,14 +239,14 @@ Room.prototype.setupStructure = function(structure) {
   });
 
   // Only build one spawn at a time, especially for reviving
-  if (structure == STRUCTURE_SPAWN) {
+  if (structure === STRUCTURE_SPAWN) {
     if (constructionsites.length > 0) {
       return true;
     }
   }
 
   // Complete storage before building something else - 2016-10-16
-  if (structure == STRUCTURE_STORAGE) {
+  if (structure === STRUCTURE_STORAGE) {
     if (constructionsites.length > 0) {
       return true;
     }
@@ -276,19 +276,19 @@ Room.prototype.setupStructure = function(structure) {
     }
 
     let returnCode = posObject.createConstructionSite(structure);
-    if (returnCode == OK) {
+    if (returnCode === OK) {
       this.log('Build: ' + structure + ' ' + JSON.stringify(posObject));
       return true;
     }
-    if (returnCode == ERR_FULL) {
+    if (returnCode === ERR_FULL) {
       this.log('setup createConstrustionSite too many constructionSites');
       return true;
     }
-    if (returnCode == ERR_INVALID_TARGET) {
+    if (returnCode === ERR_INVALID_TARGET) {
       this.log('setup createConstrustionSite invalid target: ' + structure + ' ' + JSON.stringify(posObject));
       continue;
     }
-    if (returnCode == ERR_RCL_NOT_ENOUGH) {
+    if (returnCode === ERR_RCL_NOT_ENOUGH) {
       this.log(structure + ' ' + this.controller.level + ' ' + CONTROLLER_STRUCTURES[structure][this.controller.level]);
       this.log('setup createConstrustionSite ERR_RCL_NOT_ENOUGH structure: ' + structure + ' ' + CONTROLLER_STRUCTURES[structure][this.controller.level] + ' ' + structures.length + ' ' + constructionsites.length);
     }
@@ -323,10 +323,10 @@ Room.prototype.buildStructures = function() {
 
   let constructionSites = this.find(FIND_CONSTRUCTION_SITES, {
     filter: function(object) {
-      if (object.structureType == STRUCTURE_RAMPART) {
+      if (object.structureType === STRUCTURE_RAMPART) {
         return false;
       }
-      if (object.structureType == STRUCTURE_WALL) {
+      if (object.structureType === STRUCTURE_WALL) {
         return false;
       }
       return true;
@@ -393,7 +393,7 @@ Room.prototype.buildStructures = function() {
 let structureExist = function(pos, structureType) {
   let structures = pos.lookFor(LOOK_STRUCTURES);
   for (let structure of structures) {
-    if (structure.structureType == structureType) {
+    if (structure.structureType === structureType) {
       return true;
     }
   }
@@ -401,7 +401,7 @@ let structureExist = function(pos, structureType) {
 };
 
 Room.prototype.checkBlockers = function() {
-  if (this.controller.level == 1) {
+  if (this.controller.level === 1) {
     return false;
   }
   //  this.log('checkBlockers: ' + this.memory.controllerLevel.checkBlockersInterval + ' ' + this.controller.level + ' ' + this.memory.walls);

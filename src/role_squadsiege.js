@@ -27,10 +27,10 @@ roles.squadsiege.preMove = function(creep, directions) {
   let posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
   let structures = posForward.lookFor(LOOK_STRUCTURES);
   for (let structure of structures) {
-    if (structure.structureType == STRUCTURE_ROAD) {
+    if (structure.structureType === STRUCTURE_ROAD) {
       continue;
     }
-    if (structure.structureType == STRUCTURE_RAMPART && structure.my) {
+    if (structure.structureType === STRUCTURE_RAMPART && structure.my) {
       continue;
     }
 
@@ -44,8 +44,8 @@ roles.squadsiege.preMove = function(creep, directions) {
     creep.memory.initialized = true;
   }
   var squad = Memory.squads[creep.memory.squad];
-  if (squad.action == 'move') {
-    if (creep.room.name == squad.moveTarget) {
+  if (squad.action === 'move') {
+    if (creep.room.name === squad.moveTarget) {
       let nextExits = creep.room.find(creep.memory.routing.route[creep.memory.routing.routePos].exit);
       let nextExit = nextExits[Math.floor(nextExits.length / 2)];
       let range = creep.pos.getRangeTo(nextExit.x, nextExit.y);

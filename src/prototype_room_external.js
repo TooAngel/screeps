@@ -14,7 +14,7 @@ Room.prototype.checkBlocked = function() {
     let fromExitPoss = this.find(fromExitDirection);
     let fromNextExit = fromExitPoss[Math.floor(fromExitPoss.length / 2)];
     for (let toDirection in exits) {
-      if (fromDirection == toDirection) {
+      if (fromDirection === toDirection) {
         continue;
       }
 
@@ -45,7 +45,7 @@ Room.prototype.externalHandleRoom = function() {
       return this.handleOccupiedRoom();
     }
 
-    if (this.controller.reservation && this.controller.reservation.username == Memory.username) {
+    if (this.controller.reservation && this.controller.reservation.username === Memory.username) {
       return this.handleReservedRoom();
     }
   }
@@ -68,7 +68,7 @@ Room.prototype.externalHandleRoom = function() {
   if (!this.controller) {
     var sourceKeeper = this.find(FIND_HOSTILE_STRUCTURES, {
       filter: function(object) {
-        return object.owner.username == 'Source Keeper';
+        return object.owner.username === 'Source Keeper';
       }
     });
 
@@ -192,7 +192,7 @@ Room.prototype.handleOccupiedRoom = function() {
       let myCreeps = this.find(FIND_MY_CREEPS, {
         filter: function(object) {
           let creep = Game.getObjectById(object.id);
-          if (creep.memory.role == 'scout') {
+          if (creep.memory.role === 'scout') {
             return false;
           }
           return true;
@@ -204,7 +204,7 @@ Room.prototype.handleOccupiedRoom = function() {
 
       var spawns = this.find(FIND_HOSTILE_STRUCTURES, {
         filter: function(object) {
-          return object.structureType == STRUCTURE_SPAWN;
+          return object.structureType === STRUCTURE_SPAWN;
         }
       });
       if (spawns.length > 0) {
@@ -224,13 +224,13 @@ Room.prototype.checkBlockedPath = function() {
       let structures = roomPos.lookFor('structure');
 
       for (let structure of structures) {
-        if (structure.structureType == STRUCTURE_ROAD) {
+        if (structure.structureType === STRUCTURE_ROAD) {
           continue;
         }
-        if (structure.structureType == STRUCTURE_RAMPART) {
+        if (structure.structureType === STRUCTURE_RAMPART) {
           continue;
         }
-        if (structure.structureType == STRUCTURE_CONTAINER) {
+        if (structure.structureType === STRUCTURE_CONTAINER) {
           continue;
         }
         this.log(`Path ${pathName} blocked on ${pos} due to ${structure.structureType}`);
@@ -302,7 +302,7 @@ Room.prototype.handleReservedRoom = function() {
   }
 
   let reservers = this.find(FIND_MY_CREEPS, {
-    filter: (c) => c.memory.role == 'reserver',
+    filter: (c) => c.memory.role === 'reserver',
   });
   if (reservers.length === 0) {
     this.checkAndSpawnReserver();
@@ -324,7 +324,7 @@ Room.prototype.handleUnreservedRoom = function() {
       return (roomMemory) => {
         return roomMemory.reservation !== undefined &&
           roomMemory.state === 'Reserved' &&
-          roomMemory.reservation.base == roomName;
+          roomMemory.reservation.base === roomName;
       };
     };
     checkRoomsLabel: for (let roomName of Memory.myRooms) {
@@ -385,7 +385,7 @@ Room.prototype.handleUnreservedRoom = function() {
   if (this.memory.reservation !== undefined) {
     this.memory.lastChecked = Game.time;
     let reservation = this.memory.reservation;
-    if (this.name == reservation.base) {
+    if (this.name === reservation.base) {
       this.log('Want to spawn reserver for the base room, why?');
       delete this.memory.reservation;
       return false;
@@ -415,11 +415,11 @@ Room.prototype.handleSourceKeeperRoom = function() {
   let melee = 0;
   for (let object of myCreeps) {
     let creep = Game.getObjectById(object.id);
-    if (creep.memory.role == 'sourcer') {
+    if (creep.memory.role === 'sourcer') {
       sourcer++;
       continue;
     }
-    if (creep.memory.role == 'atkeepermelee') {
+    if (creep.memory.role === 'atkeepermelee') {
       melee++;
       continue;
     }
@@ -428,7 +428,7 @@ Room.prototype.handleSourceKeeperRoom = function() {
   if (sourcer < 3) {
     let getSourcer = function(object) {
       let creep = Game.getObjectById(object.id);
-      if (creep.memory.role == 'sourcer') {
+      if (creep.memory.role === 'sourcer') {
         return true;
       }
       return false;

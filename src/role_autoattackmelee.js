@@ -50,7 +50,7 @@ roles.autoattackmelee.action = function(creep) {
 
   var spawn = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
     filter: function(object) {
-      if (object.structureType == STRUCTURE_SPAWN) {
+      if (object.structureType === STRUCTURE_SPAWN) {
         return true;
       }
       return false;
@@ -62,7 +62,7 @@ roles.autoattackmelee.action = function(creep) {
     if (hostileCreep === null) {
       let structures = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
         filter: function(object) {
-          if (object.structureType == STRUCTURE_CONTROLLER) {
+          if (object.structureType === STRUCTURE_CONTROLLER) {
             return false;
           }
           return true;

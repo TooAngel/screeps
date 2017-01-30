@@ -22,8 +22,8 @@ function onBorder(creep) {
 }
 
 function haveNotSeen(creep, room) {
-  return creep.memory.search.seen.indexOf(room) == -1 &&
-    creep.memory.skip.indexOf(room) == -1;
+  return creep.memory.search.seen.indexOf(room) === -1 &&
+    creep.memory.skip.indexOf(room) === -1;
 }
 
 roles.scout.execute = function(creep) {
@@ -55,7 +55,7 @@ roles.scout.execute = function(creep) {
       }
     }
 
-    if (creep.memory.scoutSkip || creep.room.name == creep.memory.search.target) {
+    if (creep.memory.scoutSkip || creep.room.name === creep.memory.search.target) {
       if (creep.memory.scoutSkip) {
         creep.memory.skip.push(creep.memory.search.target);
         delete creep.memory.scoutSkip;
