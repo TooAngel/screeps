@@ -1,0 +1,25 @@
+{
+  "name": "ScreepsAutocomplete",
+  "version": "1.0.0",
+  "description": "IDE Autocomplete for Screeps",
+  "dependencies": {
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Garethp/ScreepsAutocomplete.git"
+  },
+  "keywords": [
+    "game",
+    "screeps"
+  ],
+  "author": "Garethp",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Garethp/ScreepsAutocomplete/issues"
+  },
+  "homepage": "https://github.com/Garethp/ScreepsAutocomplete#readme"
+}
