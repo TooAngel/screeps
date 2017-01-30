@@ -142,7 +142,7 @@ brain.addToQueue = function(spawns, roomNameFrom, roomNameTarget, squadName, que
 brain.startSquad = function(roomNameFrom, roomNameAttack) {
   let name = 'siegesquad-' + Math.random();
   let route = Game.map.findRoute(roomNameFrom, roomNameAttack);
-  let target = roomNameFrom;
+  let target = roomNameAttack;
   if (route.length > 1) {
     target = route[route.length - 2].room;
   }
@@ -179,7 +179,7 @@ brain.startSquad = function(roomNameFrom, roomNameAttack) {
 brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
   let name = 'meleesquad-' + Math.random();
   let route = Game.map.findRoute(roomNameFrom, roomNameAttack);
-  let target = roomNameFrom;
+  let target = roomNameAttack;
   if (route.length > 1) {
     target = route[route.length - 2].room;
   }
