@@ -511,25 +511,20 @@ Creep.prototype.getEnergy = function() {
     return true;
   }
 
-  var range = null;
-  var item = this.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
-
-  if (item === null) {
-    if (this.carry.energy === 0) {
-      var source = this.pos.findClosestByRange(FIND_SOURCES);
-      this.moveTo(source, {
-        reusePath: 5,
-        ignoreCreeps: true,
-        costCallback: this.room.getAvoids(this.room)
-      });
-      return true;
-    } else {
-      this.memory.hasEnergy = true; // Stop looking and spend the energy.
-      return false;
+  let range = null;
+  let sources = this.room.find(FIND_SOURCES);
+  let source;
+  let maxRatio = 0;
+  _.each(sources, s => {
+    let rangeTemp = this.pos.getRangeTo(s);
+    let ratio = (s.energy / (s.ticksToRegeneration * rangeTemp)) || 0;
+    if (ratio > maxRatio) {
+      maxRatio = ratio;
+      range = rangeTemp;
+      source = s;
     }
-  }
-
-  range = this.pos.getRangeTo(item);
+  });
+  source = source || sources[0];
   if (this.carry.energy > 0 && range > 1) {
     this.memory.hasEnergy = true; // Stop looking and spend the energy.
     return false;
@@ -559,7 +554,7 @@ Creep.prototype.getEnergy = function() {
   }
 
   if (range === 1) {
-    let returnCode = this.harvest(item);
+    let returnCode = this.harvest(source);
     if (this.carry.energy >= this.carryCapacity) {
       var creep = this;
       var creep_without_energy = this.pos.findClosestByRange(FIND_MY_CREEPS, {
@@ -582,12 +577,13 @@ Creep.prototype.getEnergy = function() {
       this.memory.routing = {};
     }
     this.memory.routing.reverse = false;
-    if (this.room.memory.misplacedSpawn || this.room.controller.level < 3) {
-      this.moveTo(item.pos);
+    if (this.room.memory.misplacedSpawn || this.room.controller.level < 3 ||
+       (range === 2 && this.memory.role !== 'sourcer')) {
+      this.moveTo(source.pos);
     } else {
       this.moveByPathMy([{
         'name': this.room.name
-      }], 0, 'pathStart', item.id, true, undefined);
+      }], 0, 'pathStart', source.id, true, undefined);
     }
     return true;
   }

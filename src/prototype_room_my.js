@@ -493,14 +493,15 @@ Room.prototype.executeRoom = function() {
 
 Room.prototype.reviveRoom = function() {
   let nextRoomers = _.filter(Game.creeps, c => c.memory.role === 'nextroomer' &&
-    c.memory.routing.targetRoom === this.name).length;
+    c.memory.routing.targetRoom === this.name);
+  let nextRoomersTicksAmount = _(nextRoomers).map('ticksToLive').sum() / CREEP_LIFE_TIME;
   if (this.controller.level >= config.nextRoom.boostToControllerLevel &&
     this.controller.ticksToDowngrade >
     (CONTROLLER_DOWNGRADE[this.controller.level] * config.nextRoom.minDowngradPercent / 100) &&
     this.energyCapacityAvailable > config.nextRoom.minEnergyForActive) {
     this.memory.active = true;
     return false;
-  } else if (this.controller.level > 1 && nextRoomers >= config.nextRoom.numberOfNextroomers) {
+  } else if (this.controller.level > 1 && nextRoomersTicksAmount >= config.nextRoom.numberOfNextroomers) {
     return false;
   }
 
