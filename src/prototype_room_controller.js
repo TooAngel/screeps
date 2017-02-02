@@ -16,12 +16,7 @@ Room.prototype.buildBase = function() {
         this.setup();
       }
     }
-    // FIX for a server bug, where exits were not available in non standard rooms (fixing the bots on these servers)
     resetCounters(this);
-    if (this.controller.level >= 5) {
-      delete Memory.rooms[this.name];
-      this.setup();
-    }
     this.memory.controllerLevel['setup_level_' + this.controller.level] = Game.time;
   }
 
