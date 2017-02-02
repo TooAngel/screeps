@@ -10,7 +10,7 @@
 roles.atkeeper = {};
 
 roles.atkeeper.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, RANGED_ATTACK, MOVE, HEAL];
+  var parts = [MOVE, MOVE, RANGED_ATTACK, HEAL, HEAL, MOVE];
   return room.getPartConfig(energy, parts);
 };
 
@@ -29,7 +29,7 @@ roles.atkeeper.action = function(creep) {
 
   let heal = function(creep) {
     if (creep.hits < 500) {
-      var target = creep.pos.findClosestSourceKeeper();
+      var target = creep.findClosestSourceKeeper();
       var range = creep.pos.getRangeTo(target);
       creep.heal(creep);
       if (range <= 3) {
@@ -51,7 +51,7 @@ roles.atkeeper.action = function(creep) {
   };
 
   let attack = function(creep) {
-    var target = creep.pos.findClosestSourceKeeper();
+    var target = creep.findClosestSourceKeeper();
     var range;
     var direction;
 
@@ -64,7 +64,9 @@ roles.atkeeper.action = function(creep) {
       }
       if (range < 3) {
         direction = creep.pos.getDirectionTo(target);
-        creep.move((direction + 4) % 8);
+        creep.move((direction + 4) % 8, {
+          ignoreCreeps: true
+        });
       }
       return true;
     } else {

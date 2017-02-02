@@ -125,6 +125,18 @@ global.config = {
   },
 
   room: {
+    reservedRCL: {
+      0: 0,
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 1,
+      5: 2,
+      6: 3,
+      7: 6,
+      8: 9,
+    },
+    numberOfSkRooms: 1,
     revive: true,
     rebuildLayout: 7654,
     handleNukeAttackInterval: 132,
@@ -137,6 +149,7 @@ global.config = {
     upgraderMinStorage: 0,
     lastSeenThreshold: 10000,
     notify: false,
+    skMining: false,
   },
 
   layout: {

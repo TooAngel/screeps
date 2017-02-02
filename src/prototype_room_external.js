@@ -87,7 +87,7 @@ Room.prototype.externalHandleHighwayRoom = function() {
   if (config.power.disabled) {
     return false;
   }
-
+  this.log('handle Highwayroom');
   var structures = this.find(FIND_STRUCTURES, {
     filter: {
       structureType: STRUCTURE_POWER_BANK
@@ -359,17 +359,7 @@ Room.prototype.handleUnreservedRoom = function() {
         room.energyAvailable >= room.getEnergyCapacityAvailable()) {
         let reservedRooms = _.filter(Memory.rooms, isReservedBy(room.name));
         // RCL: target reserved rooms
-        let numRooms = {
-          0: 0,
-          1: 0,
-          2: 0,
-          3: 0,
-          4: 1,
-          5: 2,
-          6: 3,
-          7: 6,
-          8: 9,
-        };
+        let numRooms = config.room.reservedRCL;
         if (reservedRooms.length < numRooms[room.controller.level]) {
           this.log('Would start to spawn');
           this.memory.reservation = {
@@ -397,73 +387,121 @@ Room.prototype.handleUnreservedRoom = function() {
 };
 
 Room.prototype.handleSourceKeeperRoom = function() {
-  if (!this.memory.base) {
+  if (!config.room.skMining) {
     return false;
   }
 
-  if (Game.time % 893 !== 0) {
-    return false;
-  }
-  this.log('handle source keeper room');
-  this.log('DISABLED - Routing keep distance to Source keeper structure, sourcer/carry check for next spawn, move await ~10 ticksToSpawn');
-  if (true) {
-    return false;
-  }
-
-  let myCreeps = this.find(FIND_MY_CREEPS);
-  let sourcer = 0;
-  let melee = 0;
-  for (let object of myCreeps) {
-    let creep = Game.getObjectById(object.id);
-    if (creep.memory.role == 'sourcer') {
-      sourcer++;
-      continue;
+  if (this.memory.reservation === undefined) {
+    let isReservedBy = (roomName) => {
+      return (roomMemory) => {
+        return roomMemory.reservation !== undefined &&
+          roomMemory.state === 'Reserved' &&
+          roomMemory.reservation.base == roomName;
+      };
+    };
+    checkRoomsLabel: for (let roomName of Memory.myRooms) {
+      let room = Game.rooms[roomName];
+      if (!room) {
+        continue;
+      }
+      let distance = Game.map.getRoomLinearDistance(this.name, room.name);
+      if (distance > config.external.distance) {
+        continue;
+      }
+      let route = Game.map.findRoute(this.name, room.name);
+      distance = route.length;
+      if (distance > config.external.distance) {
+        continue;
+      }
+      // Only allow pathing through owned rooms or already reserved rooms.
+      for (let routeEntry of route) {
+        let routeRoomName = routeEntry.room;
+        if (Game.rooms[routeRoomName] === undefined) {
+          continue checkRoomsLabel;
+        }
+        let routeRoom = Game.rooms[routeRoomName];
+        if (routeRoom.controller === undefined) {
+          continue checkRoomsLabel;
+        }
+        if (!routeRoom.controller.my && routeRoom.memory.state !== 'Reserved') {
+          continue checkRoomsLabel;
+        }
+      }
+      if (room.memory.queue && room.memory.queue.length === 0 &&
+        room.energyAvailable >= room.getEnergyCapacityAvailable()) {
+        let reservedRooms = _.filter(Memory.rooms, isReservedBy(room.name));
+        // RCL: target reserved rooms
+        let numRooms = config.room.reservedRCL;
+        if (reservedRooms.length < numRooms[room.controller.level] + config.room.numberOfSkRooms && room.controller.level > 4) {
+          this.memory.reservation = {
+            base: room.name,
+          };
+          this.memory.state = 'Reserved';
+          break;
+        }
+      }
     }
-    if (creep.memory.role == 'atkeepermelee') {
-      melee++;
-      continue;
-    }
   }
-
-  if (sourcer < 3) {
-    let getSourcer = function(object) {
+  if (this.memory.reservation !== undefined) {
+    this.memory.lastChecked = Game.time;
+    let reservation = this.memory.reservation;
+    this.memory.state = 'Reserved';
+    //this.log('handle source keeper room');
+    let myCreeps = this.find(FIND_MY_CREEPS);
+    let sourcer = 0;
+    let melee = 0;
+    for (let object of myCreeps) {
       let creep = Game.getObjectById(object.id);
       if (creep.memory.role == 'sourcer') {
-        return true;
+        sourcer++;
+        continue;
       }
-      return false;
-    };
+      if (creep.memory.role == 'atkeeper') {
+        melee++;
+        continue;
+      }
+    }
 
-    for (let source of this.find(FIND_SOURCES)) {
-      let sourcer = source.pos.findClosestByRange(FIND_MY_CREEPS, {
-        filter: getSourcer
-      });
-      if (sourcer !== null) {
-        let range = source.pos.getRangeTo(sourcer.pos);
-        if (range < 7) {
-          continue;
-        }
-      }
-      let spawn = {
-        role: 'sourcer',
+    if (melee < 3) {
+      var spawn = {
+        role: 'atkeeper',
         routing: {
-          targetId: source.id,
-          targetRoom: source.pos.roomName
+          targetRoom: this.name
         }
       };
-      this.log(`!!!!!!!!!!!! ${JSON.stringify(spawn)}`);
-      Game.rooms[this.memory.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
+      //this.log(`!!!!!!!!!!!! ${JSON.stringify(spawn)}`);
+      Game.rooms[reservation.base].checkRoleToSpawn('atkeeper', 1, '', this.name);
     }
-  }
 
-  if (melee === 0) {
-    var spawn = {
-      role: 'atkeepermelee',
-      routing: {
-        targetRoom: this.name
+    if (sourcer < 3) {
+      let getSourcer = function(object) {
+        let creep = Game.getObjectById(object.id);
+        if (creep.memory.role == 'sourcer') {
+          return true;
+        }
+        return false;
+      };
+
+      for (let source of this.find(FIND_SOURCES)) {
+        let sourcer = source.pos.findClosestByRange(FIND_MY_CREEPS, {
+          filter: getSourcer
+        });
+        if (sourcer !== null) {
+          let range = source.pos.getRangeTo(sourcer.pos);
+          if (range < 7) {
+            continue;
+          }
+        }
+        let spawn = {
+          role: 'sourcer',
+          routing: {
+            targetId: source.id,
+            targetRoom: source.pos.roomName
+          }
+        };
+        //this.log(`!!!!!!!!!!!! ${JSON.stringify(spawn)}`);
+        Game.rooms[reservation.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
       }
-    };
-    this.log(`!!!!!!!!!!!! ${JSON.stringify(spawn)}`);
-    Game.rooms[this.memory.base].memory.queue.push(spawn);
+    }
   }
 };
