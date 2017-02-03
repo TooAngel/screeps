@@ -66,7 +66,7 @@ roles.extractor.terminalStorageExchange = function(creep) {
 
 function executeExtractor(creep) {
   let returnValue = roles.extractor.terminalStorageExchange(creep);
-  if (returnValue == OK) {
+  if (returnValue === OK) {
     return true;
   } else {
     return creep.handleExtractor();

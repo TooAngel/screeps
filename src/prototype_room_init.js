@@ -37,7 +37,7 @@ Room.prototype.setTowerFiller = function() {
         }
 
         let terrain = pos.lookFor(LOOK_TERRAIN)[0];
-        if (terrain == 'wall') {
+        if (terrain === 'wall') {
           break;
         }
 
@@ -147,7 +147,7 @@ function setStructures(room, path, costMatrixBase) {
       if (!room.memory.position.pathEnd) {
         room.log('Room not completly build');
       }
-      //      let pathIndex = _.findIndex(path, i => i.x == room.memory.position.pathEnd[0].x && i.y == room.memory.position.pathEnd[0].y);
+      //      let pathIndex = _.findIndex(path, i => i.x === room.memory.position.pathEnd[0].x && i.y === room.memory.position.pathEnd[0].y);
       //      room.memory.position.path = path.slice(0, pathIndex);
       //      return positions;
       console.log('All structures set: ' + pathI);
@@ -218,7 +218,7 @@ let buildCostMatrix = function(room) {
     let start = exits[startDir];
     for (let endDir in exits) {
       let end = exits[endDir];
-      if (start == end) {
+      if (start === end) {
         continue;
       }
       let route = [{
@@ -270,7 +270,7 @@ Room.prototype.setup = function() {
         for (let y = -1; y < 2; y++) {
           let wall = new RoomPosition(pos.x + x, pos.y + y, pos.roomName);
           let terrains = wall.lookFor(LOOK_TERRAIN);
-          if (terrains == 'wall') {
+          if (terrains === 'wall') {
             valueAdd *= 0.5; // TODO some factor
           }
         }
@@ -288,7 +288,7 @@ Room.prototype.setup = function() {
   let path = this.getMemoryPath(paths_sorted[paths_sorted.length - 1].name);
   let pathI = setStructures(this, path, costMatrixBase);
   console.log('path: ' + path.name + ' pathI: ' + pathI + ' length: ' + path.length);
-  if (pathI == -1) {
+  if (pathI === -1) {
     pathI = path.length - 1;
   }
 

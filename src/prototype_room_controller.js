@@ -11,7 +11,7 @@ Room.prototype.buildBase = function() {
   this.memory.controllerLevel = this.memory.controllerLevel || {};
 
   if (!this.memory.controllerLevel['setup_level_' + this.controller.level]) {
-    if (this.controller.level == 1) {
+    if (this.controller.level === 1) {
       if (!this.memory.position) {
         this.setup();
       }

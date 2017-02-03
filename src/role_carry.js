@@ -23,7 +23,7 @@ roles.carry.preMove = function(creep, directions) {
     if (creep.carry.energy > 0) {
       let structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
         filter: function(object) {
-          if (object.energy == object.energyCapacity) {
+          if (object.energy === object.energyCapacity) {
             return false;
           }
           return true;
@@ -72,7 +72,7 @@ roles.carry.preMove = function(creep, directions) {
   }
   // define minimum carryPercentage to move back to storage
   let carryPercentage = 0.1;
-  if (creep.room.name == creep.memory.routing.targetRoom) {
+  if (creep.room.name === creep.memory.routing.targetRoom) {
     carryPercentage = config.carry.carryPercentageExtern;
   }
   if (creep.inBase()) {
@@ -118,19 +118,19 @@ roles.carry.preMove = function(creep, directions) {
   let posForward = creep.pos.getAdjacentPosition(directions.direction);
   let structures = posForward.lookFor(LOOK_STRUCTURES);
   for (let structure of structures) {
-    if (structure.structureType == STRUCTURE_ROAD) {
+    if (structure.structureType === STRUCTURE_ROAD) {
       continue;
     }
-    if (structure.structureType == STRUCTURE_CONTAINER) {
+    if (structure.structureType === STRUCTURE_CONTAINER) {
       continue;
     }
-    if (structure.structureType == STRUCTURE_RAMPART && structure.my) {
+    if (structure.structureType === STRUCTURE_RAMPART && structure.my) {
       continue;
     }
-    if (structure.structureType == STRUCTURE_SPAWN && structure.my) {
+    if (structure.structureType === STRUCTURE_SPAWN && structure.my) {
       continue;
     }
-    if (structure.structureType == STRUCTURE_STORAGE && structure.my) {
+    if (structure.structureType === STRUCTURE_STORAGE && structure.my) {
       continue;
     }
 

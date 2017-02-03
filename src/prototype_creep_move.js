@@ -43,37 +43,37 @@ Creep.prototype.moveCreep = function(position, direction) {
   var pos = new RoomPosition(position.x, position.y, this.room.name);
   var creeps = pos.lookFor('creep');
   if (creeps.length > 0 && creeps[0].memory) {
-    if (creeps[0].memory.role == 'carry') {
+    if (creeps[0].memory.role === 'carry') {
       creeps[0].move(direction);
       return;
     }
-    if (this.memory.role == 'defendmelee') {
+    if (this.memory.role === 'defendmelee') {
       creeps[0].move(direction);
       return;
     }
-    if (creeps[0].memory.role == 'harvester') {
+    if (creeps[0].memory.role === 'harvester') {
       creeps[0].move(direction);
       return;
     }
-    if (this.memory.role == 'upgrader' &&
-      creeps[0].memory.role == 'storagefiller') {
+    if (this.memory.role === 'upgrader' &&
+      creeps[0].memory.role === 'storagefiller') {
       creeps[0].move(direction);
       return;
     }
-    if (this.memory.role == 'upgrader' &&
-      creeps[0].memory.role == 'upgrader') {
+    if (this.memory.role === 'upgrader' &&
+      creeps[0].memory.role === 'upgrader') {
       creeps[0].suicide();
       this.log('New killing');
       return;
     }
-    if (this.memory.role == 'upgrader' &&
-      creeps[0].memory.role == 'sourcer') {
+    if (this.memory.role === 'upgrader' &&
+      creeps[0].memory.role === 'sourcer') {
       this.log('config_creep_move suicide sourcer');
       creeps[0].suicide();
       return;
     }
-    if (this.memory.role == 'upgrader' &&
-      creeps[0].memory.role == 'harvester') {
+    if (this.memory.role === 'upgrader' &&
+      creeps[0].memory.role === 'harvester') {
       this.log('config_creep_move suicide harvester');
       creeps[0].suicide();
       return;

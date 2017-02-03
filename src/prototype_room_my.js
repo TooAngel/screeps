@@ -48,7 +48,7 @@ Room.prototype.getLinkStorage = function() {
   let linkPosObject = new RoomPosition(linkPos.x, linkPos.y, this.name);
   let structures = linkPosObject.lookFor(LOOK_STRUCTURES);
   for (let structure of structures) {
-    if (structure.structureType == STRUCTURE_LINK) {
+    if (structure.structureType === STRUCTURE_LINK) {
       this.memory.constants.linkStorage = structure.id;
       return structure;
     }
@@ -67,7 +67,7 @@ Room.prototype.handleLinks = function() {
 
   var links = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {
-      if (object.id == linkStorage.id) {
+      if (object.id === linkStorage.id) {
         return false;
       }
       if (object.structureType != STRUCTURE_LINK) {
@@ -104,7 +104,7 @@ Room.prototype.handleLinks = function() {
 Room.prototype.handlePowerSpawn = function() {
   var powerSpawns = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {
-      return object.structureType == STRUCTURE_POWER_SPAWN;
+      return object.structureType === STRUCTURE_POWER_SPAWN;
     }
   });
   if (powerSpawns.length === 0) {
@@ -117,7 +117,7 @@ Room.prototype.handlePowerSpawn = function() {
 };
 
 Room.prototype.handleObserver = function() {
-  if (this.name == 'sim') {
+  if (this.name === 'sim') {
     return false;
   }
 
@@ -127,7 +127,7 @@ Room.prototype.handleObserver = function() {
 
   var observers = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {
-      return object.structureType == 'observer';
+      return object.structureType === 'observer';
     }
   });
   if (observers.length > 0) {
@@ -158,12 +158,12 @@ Room.prototype.handleObserver = function() {
     let yDir = nameSplit[3];
 
     if (xPos < 0) {
-      xDir = xDir == 'E' ? 'W' : 'E';
+      xDir = xDir === 'E' ? 'W' : 'E';
       xPos = xPos * -1 - 1;
     }
 
     if (yPos < 0) {
-      yDir = yDir == 'N' ? 'S' : 'N';
+      yDir = yDir === 'N' ? 'S' : 'N';
       yPos = yPos * -1 - 1;
     }
 
@@ -180,7 +180,7 @@ Room.prototype.handleObserver = function() {
 };
 
 Room.prototype.handleScout = function() {
-  if (this.name == 'sim') {
+  if (this.name === 'sim') {
     return false;
   }
   let shouldSpawn = (
@@ -282,7 +282,7 @@ Room.prototype.executeRoom = function() {
 
   var spawns = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {
-      return object.structureType == STRUCTURE_SPAWN;
+      return object.structureType === STRUCTURE_SPAWN;
     }
   });
 
@@ -312,7 +312,7 @@ Room.prototype.executeRoom = function() {
 
   var nextroomers = this.find(FIND_MY_CREEPS, {
     filter: function(object) {
-      if (object.memory.role == 'nextroomer') {
+      if (object.memory.role === 'nextroomer') {
         return object.memory.base != room.name;
       }
       return false;
@@ -329,7 +329,7 @@ Room.prototype.executeRoom = function() {
     if (!room.storage) {
       amount = 2;
       // TODO maybe better spawn harvester when a carry recognize that the dropped energy > threshold
-      if (room.controller.level == 2 || room.controller.level == 3) {
+      if (room.controller.level === 2 || room.controller.level === 3) {
         amount = 5;
       }
     }
@@ -350,13 +350,13 @@ Room.prototype.executeRoom = function() {
   if (this.memory.attackTimer >= 50 && this.controller.level > 6) {
     let towers = this.find(FIND_STRUCTURES, {
       filter: function(object) {
-        return object.structureType == STRUCTURE_TOWER;
+        return object.structureType === STRUCTURE_TOWER;
       }
     });
     if (towers.length === 0) {
       this.memory.attackTimer = 47;
     } else {
-      if (this.memory.attackTimer == 50 && this.memory.position.creep.towerFiller) {
+      if (this.memory.attackTimer === 50 && this.memory.position.creep.towerFiller) {
         for (let towerFillerPos of this.memory.position.creep.towerFiller) {
           this.log('Spawning towerfiller: ' + this.memory.attackTimer);
           this.memory.queue.push({
@@ -417,13 +417,13 @@ Room.prototype.executeRoom = function() {
 
   var constructionSites = this.find(FIND_MY_CONSTRUCTION_SITES, {
     filter: function(object) {
-      if (object.structureType == STRUCTURE_ROAD) {
+      if (object.structureType === STRUCTURE_ROAD) {
         return false;
       }
-      if (object.structureType == STRUCTURE_WALL) {
+      if (object.structureType === STRUCTURE_WALL) {
         return false;
       }
-      if (object.structureType == STRUCTURE_RAMPART) {
+      if (object.structureType === STRUCTURE_RAMPART) {
         return false;
       }
 
@@ -434,7 +434,7 @@ Room.prototype.executeRoom = function() {
     let amount = 1;
     creepsConfig.push('planer');
     for (let cs of constructionSites) {
-      if (cs.structureType == STRUCTURE_STORAGE) {
+      if (cs.structureType === STRUCTURE_STORAGE) {
         amount = 3;
       }
     }
@@ -467,10 +467,10 @@ Room.prototype.executeRoom = function() {
 
   let constructionSitesBlocker = this.find(FIND_MY_CONSTRUCTION_SITES, {
     filter: function(object) {
-      if (object.structureType == STRUCTURE_RAMPART) {
+      if (object.structureType === STRUCTURE_RAMPART) {
         return true;
       }
-      if (object.structureType == STRUCTURE_WALL) {
+      if (object.structureType === STRUCTURE_WALL) {
         return true;
       }
       return false;
@@ -565,7 +565,7 @@ Room.prototype.reviveRoom = function() {
     return false;
   }
 
-  if (this.controller.level == 1 && this.controller.ticksToDowngrade < 100) {
+  if (this.controller.level === 1 && this.controller.ticksToDowngrade < 100) {
     this.clearRoom();
     return false;
   }
@@ -590,7 +590,7 @@ Room.prototype.reviveRoom = function() {
         break;
       }
       let roomName = Memory.myRooms[roomIndex];
-      if (this.name == roomName) {
+      if (this.name === roomName) {
         continue;
       }
       let roomOther = Game.rooms[roomName];

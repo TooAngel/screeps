@@ -3,7 +3,7 @@
 Creep.prototype.findClosestSourceKeeper = function() {
   return this.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
     filter: function(object) {
-      if (object.owner.username == 'Source Keeper') {
+      if (object.owner.username === 'Source Keeper') {
         return true;
       }
       return false;
@@ -40,7 +40,7 @@ Creep.prototype.handleDefender = function() {
       direction = (direction + 3) % 8 + 1;
       let pos = this.pos.getAdjacentPosition(direction);
       let terrain = pos.lookFor(LOOK_TERRAIN)[0];
-      if (terrain == 'wall') {
+      if (terrain === 'wall') {
         direction = (Math.random() * 8) + 1;
       }
       this.move(direction);
@@ -70,13 +70,13 @@ Creep.prototype.handleDefender = function() {
     if (range < 3) {
       var direction = this.pos.getDirectionTo(hostile);
       direction = (direction + 3) % 8 + 1;
-      if (!direction || direction === null || this.pos.x === 0 || this.pos.x == 49 || this.pos.y === 0 || this.pos.y == 49) {
+      if (!direction || direction === null || this.pos.x === 0 || this.pos.x === 49 || this.pos.y === 0 || this.pos.y === 49) {
         this.moveTo(25, 25);
         return true;
       }
       var pos = this.pos.getAdjacentPosition(direction);
       var field = pos.lookFor(LOOK_TERRAIN)[0];
-      if (field == 'wall') {
+      if (field === 'wall') {
         direction = Math.floor((Math.random() * 8) + 1);
       }
       let creeps = pos.lookFor('creep');
@@ -111,7 +111,7 @@ Creep.prototype.handleDefender = function() {
 
   var allyCreeps = this.room.find(FIND_HOSTILE_CREEPS, {
     filter: function(object) {
-      if (object.hits == object.hitsMax) {
+      if (object.hits === object.hitsMax) {
         return false;
       }
       if (brain.isFriend(object.owner.username)) {
@@ -137,7 +137,7 @@ Creep.prototype.handleDefender = function() {
       if (!object.owner) {
         return false;
       }
-      if (object.owner.username == Memory.username) {
+      if (object.owner.username === Memory.username) {
         return false;
       }
       return true;
@@ -209,7 +209,7 @@ Creep.prototype.fightRampart = function(target) {
 
   let position = target.pos.findClosestByRange(FIND_MY_STRUCTURES, {
     filter: function(object) {
-      return object.structureType == STRUCTURE_RAMPART;
+      return object.structureType === STRUCTURE_RAMPART;
     }
   });
 
@@ -249,10 +249,10 @@ Creep.prototype.fightRampart = function(target) {
   );
 
   let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
-  if (returnCode == OK) {
+  if (returnCode === OK) {
     return true;
   }
-  if (returnCode == ERR_TIRED) {
+  if (returnCode === ERR_TIRED) {
     return true;
   }
 
@@ -275,7 +275,7 @@ Creep.prototype.flee = function(target) {
   direction = (direction + 3) % 8 + 1;
   let pos = this.pos.getAdjacentPosition(direction);
   let terrain = pos.lookFor(LOOK_TERRAIN)[0];
-  if (terrain == 'wall') {
+  if (terrain === 'wall') {
     direction = (Math.random() * 8) + 1;
   }
   this.move(direction);
@@ -332,10 +332,10 @@ Creep.prototype.fightRanged = function(target) {
   );
 
   let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
-  if (returnCode == OK) {
+  if (returnCode === OK) {
     return true;
   }
-  if (returnCode == ERR_TIRED) {
+  if (returnCode === ERR_TIRED) {
     return true;
   }
 
@@ -359,10 +359,10 @@ Creep.prototype.siege = function() {
   }
   var tower = this.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
     filter: function(object) {
-      if (object.structureType == STRUCTURE_TOWER) {
+      if (object.structureType === STRUCTURE_TOWER) {
         return true;
       }
-      if (object.structureType == STRUCTURE_CONTROLLER) {
+      if (object.structureType === STRUCTURE_CONTROLLER) {
         return true;
       }
       return true;
@@ -372,7 +372,7 @@ Creep.prototype.siege = function() {
   if (tower === null) {
     var spawn = this.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
       filter: function(object) {
-        if (object.structureType == 'spawn') {
+        if (object.structureType === 'spawn') {
           return true;
         }
         return false;
@@ -395,7 +395,7 @@ Creep.prototype.siege = function() {
   if (path.length === 0 || !target.pos.isEqualTo(posLast.x, posLast.y)) {
     var structure = this.pos.findClosestByRange(FIND_STRUCTURES, {
       filter: function(object) {
-        return object.structureType == STRUCTURE_RAMPART;
+        return object.structureType === STRUCTURE_RAMPART;
       }
     });
     returnCode = this.moveTo(structure);
@@ -408,7 +408,7 @@ Creep.prototype.siege = function() {
 
   let structures = target.pos.lookFor('structure');
   for (let i = 0; i < structures.length; i++) {
-    if (structures[i].structureType == STRUCTURE_RAMPART) {
+    if (structures[i].structureType === STRUCTURE_RAMPART) {
       target = structures[i];
       break;
     }
@@ -450,7 +450,7 @@ Creep.prototype.squadHeal = function() {
     } else {
       this.heal(creepToHeal);
     }
-    if (creepToHeal.id == this.id) {
+    if (creepToHeal.id === this.id) {
       this.say('exit');
       let exit = this.pos.findClosestByRange(FIND_EXIT);
       this.moveTo(exit);
@@ -463,14 +463,14 @@ Creep.prototype.squadHeal = function() {
 
   var attacker = this.pos.findClosestByRange(FIND_MY_CREEPS, {
     filter: function(object) {
-      return object.memory.role == 'squadsiege';
+      return object.memory.role === 'squadsiege';
     }
   });
 
   if (this.pos.x === 0 ||
-    this.pos.x == 49 ||
+    this.pos.x === 49 ||
     this.pos.y === 0 ||
-    this.pos.y == 49
+    this.pos.y === 49
   ) {
     this.moveTo(25, 25);
     return true;

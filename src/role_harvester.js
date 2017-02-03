@@ -11,7 +11,7 @@
  *
  * Proper storage store level:
  *  - Move along the harvester path
- *  - pathPos == 0 get energy from storage
+ *  - pathPos === 0 get energy from storage
  *  - transfer energy to extensions in range
  */
 
@@ -30,7 +30,7 @@ roles.harvester.preMove = function(creep, directions) {
     creep.pickup(resource);
   }
 
-  if (typeof(creep.memory.move_forward_direction) == 'undefined') {
+  if (typeof(creep.memory.move_forward_direction) === 'undefined') {
     creep.memory.move_forward_direction = true;
   }
 
@@ -47,18 +47,18 @@ roles.harvester.preMove = function(creep, directions) {
 
   if (creep.memory.routing.pathPos === 0) {
     for (let resource in creep.carry) {
-      if (resource == RESOURCE_ENERGY) {
+      if (resource === RESOURCE_ENERGY) {
         continue;
       }
       creep.transfer(creep.room.storage, resource);
     }
 
     let returnCode = creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
-    if (returnCode == OK || returnCode == ERR_FULL) {
+    if (returnCode === OK || returnCode === ERR_FULL) {
       creep.memory.move_forward_direction = true;
       reverse = false;
       creep.memory.routing.reverse = false;
-      if (returnCode == OK) {
+      if (returnCode === OK) {
         return true;
       }
     }

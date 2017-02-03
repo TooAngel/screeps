@@ -33,7 +33,7 @@ Creep.prototype.handleSourcer = function() {
     if (!this.memory.link) {
       let links = this.pos.findInRange(FIND_MY_STRUCTURES, 1, {
         filter: function(object) {
-          if (object.structureType == STRUCTURE_LINK) {
+          if (object.structureType === STRUCTURE_LINK) {
             return true;
           }
           return false;
@@ -92,7 +92,7 @@ Creep.prototype.spawnCarry = function() {
   }
 
   if (!existInArray(Game.rooms[this.memory.base].memory.queue, spawn)) {
-    if (typeof(this.memory.wait) == 'undefined') {
+    if (typeof(this.memory.wait) === 'undefined') {
       this.memory.wait = 0;
     }
     if (this.memory.wait <= 0) {

@@ -26,7 +26,7 @@ roles.reserver.energyBuild = function(room, energy, heal, level) {
     level = 1;
   }
 
-  if (level == 5) {
+  if (level === 5) {
     let value = Math.max((BODYPART_COST[CLAIM] + BODYPART_COST[MOVE]) * level, energy);
     let energyLevel = level * (BODYPART_COST[CLAIM] + BODYPART_COST[MOVE]);
     let multiplier = Math.floor(value / energyLevel);
@@ -40,7 +40,7 @@ roles.reserver.action = function(creep) {
   if (!creep.memory.routing.targetId) {
     // TODO check when this happens and fix it
     creep.log('creep_reserver.action No targetId !!!!!!!!!!!' + JSON.stringify(creep.memory));
-    if (creep.room.name == creep.memory.routing.targetRoom) {
+    if (creep.room.name === creep.memory.routing.targetRoom) {
       creep.memory.routing.targetId = creep.room.controller.id;
     }
   }

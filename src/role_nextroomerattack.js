@@ -34,7 +34,7 @@ roles.nextroomerattack.action = function(creep) {
   }
   var spawn = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
     filter: function(object) {
-      if (object.structureType == 'spawn') {
+      if (object.structureType === 'spawn') {
         return true;
       }
       return false;

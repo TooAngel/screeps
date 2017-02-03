@@ -25,7 +25,7 @@ Creep.prototype.handleStructurer = function() {
   let pos = search.path[0];
   let returnCode = this.move(this.pos.getDirectionTo(pos));
 
-  if (returnCode == ERR_NO_PATH) {
+  if (returnCode === ERR_NO_PATH) {
     this.moveRandom();
     //    delete this.memory.routing.targetId;
     return true;
@@ -35,7 +35,7 @@ Creep.prototype.handleStructurer = function() {
   }
 
   returnCode = this.dismantle(structure);
-  if (returnCode == OK) {
+  if (returnCode === OK) {
     this.setNextSpawn();
     this.spawnCarry();
   }
@@ -54,13 +54,13 @@ Creep.prototype.cleanController = function() {
     if (object.ticksToDecay === null) {
       return false;
     }
-    if (object.structureType == STRUCTURE_CONTROLLER) {
+    if (object.structureType === STRUCTURE_CONTROLLER) {
       return false;
     }
-    if (object.structureType == STRUCTURE_ROAD) {
+    if (object.structureType === STRUCTURE_ROAD) {
       return false;
     }
-    if (object.structureType == STRUCTURE_CONTAINER) {
+    if (object.structureType === STRUCTURE_CONTAINER) {
       return false;
     }
     return true;
@@ -87,13 +87,13 @@ Creep.prototype.cleanExits = function() {
     if (object.ticksToDecay === null) {
       return false;
     }
-    if (object.structureType == STRUCTURE_CONTROLLER) {
+    if (object.structureType === STRUCTURE_CONTROLLER) {
       return false;
     }
-    if (object.structureType == STRUCTURE_ROAD) {
+    if (object.structureType === STRUCTURE_ROAD) {
       return false;
     }
-    if (object.structureType == STRUCTURE_CONTAINER) {
+    if (object.structureType === STRUCTURE_CONTAINER) {
       return false;
     }
     return true;
@@ -146,13 +146,13 @@ Creep.prototype.cleanSetTargetId = function() {
         if (object.ticksToDecay === null) {
           return false;
         }
-        if (object.structureType == STRUCTURE_CONTROLLER) {
+        if (object.structureType === STRUCTURE_CONTROLLER) {
           return false;
         }
-        if (object.structureType == STRUCTURE_ROAD) {
+        if (object.structureType === STRUCTURE_ROAD) {
           return false;
         }
-        if (object.structureType == STRUCTURE_CONTAINER) {
+        if (object.structureType === STRUCTURE_CONTAINER) {
           return false;
         }
         return true;
@@ -163,7 +163,7 @@ Creep.prototype.cleanSetTargetId = function() {
 
       if (structures.length > 0) {
         for (let structureLook of structures) {
-          if (structure.structureType == STRUCTURE_RAMPART) {
+          if (structure.structureType === STRUCTURE_RAMPART) {
             structure = structureLook;
             break;
           }

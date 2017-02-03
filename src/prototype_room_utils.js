@@ -55,7 +55,7 @@ Room.prototype.closestSpawn = function(target) {
 
 Room.prototype.getEnergyCapacityAvailable = function() {
   let offset = 0;
-  if (this.memory.misplacedSpawn && this.controller.level == 4) {
+  if (this.memory.misplacedSpawn && this.controller.level === 4) {
     offset = 300;
   }
   return this.energyCapacityAvailable - offset;
@@ -154,7 +154,7 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
           targetRoom !== creep.memory.routing.targetRoom) {
           return false;
         }
-        return creep.memory.role == role;
+        return creep.memory.role === role;
       }
     });
     if (creeps.length >= amount) {
@@ -164,7 +164,7 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
 
   let spawns = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {
-      return object.structureType == STRUCTURE_SPAWN;
+      return object.structureType === STRUCTURE_SPAWN;
     }
   });
 
@@ -174,7 +174,7 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
     }
 
     let creep = Game.creeps[spawn.spawning.name];
-    if (creep.memory.role == role) {
+    if (creep.memory.role === role) {
       return false;
     }
     if (targetId && creep.memory.routing) {

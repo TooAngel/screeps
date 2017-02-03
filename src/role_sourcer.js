@@ -69,13 +69,13 @@ roles.sourcer.preMove = function(creep, directions) {
     let posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
     let structures = posForward.lookFor(LOOK_STRUCTURES);
     for (let structure of structures) {
-      if (structure.structureType == STRUCTURE_ROAD) {
+      if (structure.structureType === STRUCTURE_ROAD) {
         continue;
       }
-      if (structure.structureType == STRUCTURE_RAMPART && structure.my) {
+      if (structure.structureType === STRUCTURE_RAMPART && structure.my) {
         continue;
       }
-      if (structure.structureType == STRUCTURE_SPAWN && structure.my) {
+      if (structure.structureType === STRUCTURE_SPAWN && structure.my) {
         continue;
       }
       creep.dismantle(structure);

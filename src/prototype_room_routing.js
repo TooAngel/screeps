@@ -17,7 +17,7 @@ Room.isRoomUnderAttack = function(roomName) {
   }
 
   // Maybe also add? Rethink wayBlocked
-  //	    if (this.memory.role == 'nextroomer' && Game.rooms[this.memory.target]) {
+  //	    if (this.memory.role === 'nextroomer' && Game.rooms[this.memory.target]) {
   //	      Game.rooms[this.memory.target].memory.wayBlocked = true;
   //	    }
 
@@ -192,7 +192,7 @@ Room.prototype.buildPath = function(route, routePos, from, to) {
     this.log('newmove: buildPath: no to');
   }
   let start;
-  if (routePos === 0 || from == 'pathStart') {
+  if (routePos === 0 || from === 'pathStart') {
     start = this.getCreepPositionForId(from);
   } else {
     start = this.getMyExitTo(from);
@@ -306,7 +306,7 @@ Room.prototype.getMatrixCallback = function(end) {
     for (let source of sources) {
       for (let x = -1; x < 2; x++) {
         for (let y = -1; y < 2; y++) {
-          if (end && source.pos.x + x == end.x && source.pos.y + y != end.y) {
+          if (end && source.pos.x + x === end.x && source.pos.y + y != end.y) {
             continue;
           }
           costMatrix.set(source.pos.x + x, source.pos.y + y, 0xff);
@@ -317,7 +317,7 @@ Room.prototype.getMatrixCallback = function(end) {
     if (room.controller) {
       for (let x = -1; x < 2; x++) {
         for (let y = -1; y < 2; y++) {
-          if (end && room.controller.pos.x + x == end.x && room.controller.pos.y + y != end.y) {
+          if (end && room.controller.pos.x + x === end.x && room.controller.pos.y + y != end.y) {
             continue;
           }
           costMatrix.set(room.controller.pos.x + x, room.controller.pos.y + y, 0xff);
@@ -328,10 +328,10 @@ Room.prototype.getMatrixCallback = function(end) {
     // Ignore walls?
     //    let structures = room.find(FIND_STRUCTURES, {
     //      filter: function(object) {
-    //        if (object.structureType == STRUCTURE_ROAD) {
+    //        if (object.structureType === STRUCTURE_ROAD) {
     //          return false;
     //        }
-    //        if (object.structureType == STRUCTURE_RAMPART) {
+    //        if (object.structureType === STRUCTURE_RAMPART) {
     //          return !object.my;
     //        }
     //        return true;
@@ -342,10 +342,10 @@ Room.prototype.getMatrixCallback = function(end) {
     //    }
     //    let constructionSites = room.find(FIND_CONSTRUCTION_SITES, {
     //      filter: function(object) {
-    //        if (object.structureType == STRUCTURE_ROAD) {
+    //        if (object.structureType === STRUCTURE_ROAD) {
     //          return false;
     //        }
-    //        if (object.structureType == STRUCTURE_RAMPART) {
+    //        if (object.structureType === STRUCTURE_RAMPART) {
     //          return object.my;
     //        }
     //        return true;

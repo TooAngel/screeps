@@ -71,7 +71,7 @@ Creep.prototype.handleMineralCreep = function() {
   }
 
   function get(creep, target, resource) {
-    if (_.sum(creep.carry) == creep.carryCapacity) {
+    if (_.sum(creep.carry) === creep.carryCapacity) {
       //    creep.log('next state no capacity' + target);
       nextState(creep);
       return;
@@ -122,15 +122,15 @@ Creep.prototype.handleMineralCreep = function() {
     //  if (target instanceof StructureStorage) {
     //    creep.log('creep.withdray: ' + returnCode + ' ' + target + ' ' + resource + ' ' + amount);
     //  }
-    if (returnCode == OK || returnCode == ERR_FULL || returnCode == ERR_NOT_ENOUGH_RESOURCES) {
+    if (returnCode === OK || returnCode === ERR_FULL || returnCode === ERR_NOT_ENOUGH_RESOURCES) {
       //creep.log('next state transfer ok: ' + returnCode + ' ' + target);
       nextState(creep);
       return true;
     }
-    if (returnCode == ERR_NOT_IN_RANGE) {
+    if (returnCode === ERR_NOT_IN_RANGE) {
       return true;
     }
-    if (returnCode == ERR_INVALID_ARGS) {
+    if (returnCode === ERR_INVALID_ARGS) {
       delete creep.room.memory.reaction;
       return false;
     }
@@ -182,7 +182,7 @@ Creep.prototype.handleMineralCreep = function() {
   function transfer(creep, target, resource) {
     if (target instanceof StructureTerminal) {
       for (let carryResource in creep.carry) {
-        if (carryResource == resource) {
+        if (carryResource === resource) {
           continue;
         }
         if (creep.carry[carryResource] > 0) {
@@ -198,15 +198,15 @@ Creep.prototype.handleMineralCreep = function() {
     }
 
     let returnCode = creep.transfer(target, resource);
-    if (returnCode == OK) {
+    if (returnCode === OK) {
       nextState(creep);
       return;
     }
-    if (returnCode == ERR_FULL) {
+    if (returnCode === ERR_FULL) {
       nextState(creep);
       return;
     }
-    if (returnCode == ERR_NOT_IN_RANGE) {
+    if (returnCode === ERR_NOT_IN_RANGE) {
       return;
     }
     creep.log('Transfer to: ' + target + 'failed with: ' + returnCode);
@@ -222,7 +222,7 @@ Creep.prototype.handleMineralCreep = function() {
       if (object.structureType != STRUCTURE_LAB) {
         return false;
       }
-      if (object.mineralType == mineral) {
+      if (object.mineralType === mineral) {
         return true;
       }
       return false;
@@ -242,8 +242,8 @@ Creep.prototype.handleMineralCreep = function() {
         filter: labForMineral
       });
       if (labs.length > 0) {
-        if (labs[0].mineralAmount == labs[0].mineralsCapacity) {
-          if (labs[0].energy == labs[0].energyCapacity) {
+        if (labs[0].mineralAmount === labs[0].mineralsCapacity) {
+          if (labs[0].energy === labs[0].energyCapacity) {
             continue;
           }
         }
@@ -362,7 +362,7 @@ Creep.prototype.handleMineralCreep = function() {
   function checkStorage(creep) {
     let resource;
     for (resource in creep.room.storage.store) {
-      if (resource == 'energy' || resource == 'power') {
+      if (resource === 'energy' || resource === 'power') {
         resource = undefined;
         continue;
       }
@@ -381,7 +381,7 @@ Creep.prototype.handleMineralCreep = function() {
       });
       for (let transfer in creep.carry) {
         let returnCode = creep.transfer(creep.room.terminal, transfer);
-        if (returnCode == OK || returnCode == ERR_NOT_IN_RANGE) {
+        if (returnCode === OK || returnCode === ERR_NOT_IN_RANGE) {
           continue;
         }
         //      creep.log('checkStorage.transferto terminal: ' + transfer + ' returnCode: ' + returnCode);
@@ -530,9 +530,9 @@ Creep.prototype.handleMineralCreep = function() {
     let state = states[creep.memory.state];
 
     let target = creep.room.terminal;
-    if (state.destination == STRUCTURE_LAB) {
+    if (state.destination === STRUCTURE_LAB) {
       target = Game.getObjectById(room.memory.reaction.labs[state.lab]);
-    } else if (state.destination == STRUCTURE_STORAGE) {
+    } else if (state.destination === STRUCTURE_STORAGE) {
       target = creep.room.storage;
     }
     moveTo(creep, target, {
@@ -616,11 +616,11 @@ Creep.prototype.boost = function() {
 
               this.move(this.pos.getDirectionTo(search.path[0]));
               let returnCode = labs[0].boostCreep(this);
-              if (returnCode == OK) {
+              if (returnCode === OK) {
                 let room = Game.rooms[this.room.name];
                 delete room.memory.boosting[boost][this.id];
               }
-              if (returnCode == ERR_NOT_IN_RANGE) {
+              if (returnCode === ERR_NOT_IN_RANGE) {
                 return true;
               }
               this.log('Boost returnCode: ' + returnCode + ' lab: ' + labs[0].pos);

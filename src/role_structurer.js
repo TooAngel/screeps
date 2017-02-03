@@ -24,7 +24,7 @@ roles.structurer.getPartConfig = function(room, energy, heal) {
 };
 
 roles.structurer.preMove = function(creep, directions) {
-  if (creep.room.name == creep.memory.routing.targetRoom) {
+  if (creep.room.name === creep.memory.routing.targetRoom) {
     let target = Game.getObjectById(creep.memory.routing.targetId);
     if (target === null) {
       creep.log('Invalid target');
@@ -35,10 +35,10 @@ roles.structurer.preMove = function(creep, directions) {
       let posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
       let structures = posForward.lookFor(LOOK_STRUCTURES);
       for (let structure of structures) {
-        if (structure.structureType == STRUCTURE_ROAD) {
+        if (structure.structureType === STRUCTURE_ROAD) {
           continue;
         }
-        if (structure.structureType == STRUCTURE_RAMPART && structure.my) {
+        if (structure.structureType === STRUCTURE_RAMPART && structure.my) {
           continue;
         }
 
@@ -50,7 +50,7 @@ roles.structurer.preMove = function(creep, directions) {
   }
 
   // Routing would end within the wall - this is the fix for that
-  if (creep.memory.routing.targetId && creep.room.name == creep.memory.routing.targetRoom) {
+  if (creep.memory.routing.targetId && creep.room.name === creep.memory.routing.targetRoom) {
     let target = Game.getObjectById(creep.memory.routing.targetId);
     if (target === null) {
       delete creep.memory.routing.targetId;
@@ -70,10 +70,10 @@ roles.structurer.action = function(creep) {
         if (object.ticksToDecay === null) {
           return false;
         }
-        if (object.structureType == 'controller') {
+        if (object.structureType === 'controller') {
           return false;
         }
-        if (object.structureType == 'road') {
+        if (object.structureType === 'road') {
           return false;
         }
         return true;
