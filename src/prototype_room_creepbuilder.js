@@ -117,52 +117,51 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
 
     let creep = this.memory.queue[0];
     energyNeeded = 50;
-    let c_room = this;
+    let c_room = this;    
     let sortByDistance = function(object) {
       return Game.map.getRoomLinearDistance(c_room.name, object);
     };
-    let roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
+    let roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
     if (this.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, this.name)) {
       console.log('['+this.name +' Spawning]- Activating '+creep.role );
-      this.memory.queue.shift();    
-    } else {
-      if (creep.ttl === 0) {
+      this.memory.queue.shift();
+    } else if (creep.ttl) {
+      if ( creep.ttl === 0) {
         for (var room_id in roomsMy) {
           var s_room = Game.rooms[roomsMy[room_id]];
           if (s_room !== this) {
             if (s_room.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, this.name)) {
               console.log('['+s_room.name +' Spawning]- Activating '+creep.role+' for: '+this.name  );
-              this.memory.queue.shift;      
-              return;     
-            }                 
-          }   
-        }  
+              this.memory.queue.shift();
+              return;
+            }
+          }           
+        }
+        this.log('TTL reached, skipping: ' + JSON.stringify(creep));
+        this.memory.queue.shift();
+        return;
       }
-      this.log('TTL reached, skipping: ' + JSON.stringify(creep));
-      this.memory.queue.shift();
-      return;
-    }      
+    }; 
     // TODO maybe skip only if there is a spawn which is not spawning
     creep.ttl = creep.ttl || config.creep.queueTtl;
     let spawnsNotSpawning = _.filter(this.find(FIND_MY_SPAWNS), function(object) {
-      return !object.spawning;      
-    });      
+      return !object.spawning;
+    });
     if (spawnsNotSpawning.length === 0) {
-      creep.ttl--;      
-    }    
-  } 
-  if(this.memory.queue.length > 5){
-    for (var room_id in roomsMy) {
-      var s_room = Game.rooms[roomsMy[room_id]];
-      if (s_room !== this) {
-        if (s_room.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, this.name)) {
-          console.log('['+s_room.name +' Spawning]- Activating '+creep.role+' for: '+this.name  );
-          this.memory.queue.shift;
-          return;     
-        }                 
-      }   
-    } 
-  }
+      creep.ttl--;
+    }
+    if(this.memory.queue.length > 5){
+      for (var room_id in roomsMy) {
+        var s_room = Game.rooms[roomsMy[room_id]];
+        if (s_room !== this) {
+          if (s_room.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, this.name)) {
+            console.log('['+s_room.name +' Spawning]- Activating '+creep.role+' for: '+this.name  );
+            this.memory.queue.shift();
+            return;
+          }
+        }
+      }
+    }
     // Spawing only one per tick
     return;
   }
