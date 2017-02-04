@@ -123,7 +123,7 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
       if (dist < 10 && dist > 0){
         return dist;    
       }      
-      return
+      return;
     };
    
     if (room.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, room.name)) {
@@ -144,7 +144,7 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
       }  
       room.memory.queue.shift();
       return;
-    }; 
+    }
     // TODO maybe skip only if there is a spawn which is not spawning
     creep.ttl = creep.ttl || config.creep.queueTtl;
     let spawnsNotSpawning = _.filter(this.find(FIND_MY_SPAWNS), function(object) {
