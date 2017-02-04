@@ -67,9 +67,9 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
   let storages;
   let energyNeeded;
   let unit;
-
-  if (this.memory.queue.length > 0 && (creepsConfig.length === 0 || creepsConfig[0] != 'harvester')) {
-    let room = this;
+  let room = this;
+  
+  if (room.memory.queue.length > 0 && (creepsConfig.length === 0 || creepsConfig[0] != 'harvester')) {
     let priorityQueue = function(object) {
       if (object.role == 'harvester') {
         return 1;
@@ -113,34 +113,37 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
       return 100 + Game.map.getRoomLinearDistance(room.name, target);
     };
 
-    this.memory.queue = _.sortBy(this.memory.queue, priorityQueue);
+    room.memory.queue = _.sortBy(this.memory.queue, priorityQueue);
 
     let creep = this.memory.queue[0];
     energyNeeded = 50;
-    let c_room = this;    
-    let sortByDistance = function(object) {
-      return Game.map.getRoomLinearDistance(c_room.name, object);
+
+    let sortByDistance = function(object) {
+      let dist = Game.map.getRoomLinearDistance(room.name, object);  
+      if (dist < 10 && dist > 0){
+        return dist;    
+      }      
+      return
     };
-    let roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
-    if (this.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, this.name)) {
-      console.log('['+this.name +' Spawning]- Activating '+creep.role );
-      this.memory.queue.shift();
-    } else if (creep.ttl) {
-      if ( creep.ttl === 0) {
-        for (var room_id in roomsMy) {
-          var s_room = Game.rooms[roomsMy[room_id]];
-          if (s_room !== this) {
-            if (s_room.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, this.name)) {
-              console.log('['+s_room.name +' Spawning]- Activating '+creep.role+' for: '+this.name  );
-              this.memory.queue.shift();
-              return;
-            }
-          }           
+   
+    if (room.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, room.name)) {
+      room.log('['+room.name +' Spawning]- Activating '+creep.role );
+      room.memory.queue.shift();
+    } else if ((creep.ttl && creep.ttl === 0)|| room.memory.queue.length > 5) {
+      let roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
+      for (var roomName in roomsMy) {
+        var s_room = Game.rooms[roomsMy[roomName]];
+        if (s_room.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, room.name)) {
+          s_room.log('['+s_room.name +' Spawning]- Activating '+creep.role+' for: '+room.name  );  
+          room.memory.queue.shift();
+          return;
         }
-        this.log('TTL reached, skipping: ' + JSON.stringify(creep));
-        this.memory.queue.shift();
-        return;
-      }
+      }  
+      if(creep.ttl ===0){
+        room.log('TTL reached, skipping: ' + JSON.stringify(creep));
+      }  
+      room.memory.queue.shift();
+      return;
     }; 
     // TODO maybe skip only if there is a spawn which is not spawning
     creep.ttl = creep.ttl || config.creep.queueTtl;
@@ -150,25 +153,13 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
     if (spawnsNotSpawning.length === 0) {
       creep.ttl--;
     }
-    if(this.memory.queue.length > 5){
-      for (var room_id in roomsMy) {
-        var s_room = Game.rooms[roomsMy[room_id]];
-        if (s_room !== this) {
-          if (s_room.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, this.name)) {
-            console.log('['+s_room.name +' Spawning]- Activating '+creep.role+' for: '+this.name  );
-            this.memory.queue.shift();
-            return;
-          }
-        }
-      }
-    }
     // Spawing only one per tick
     return;
   }
 
   if (creepsConfig.length > 0) {
-    this.log('Spawn from creepsConfig: ' + creepsConfig[0]);
-    return this.spawnCreateCreep(creepsConfig[0]);
+    room.log('Spawn from creepsConfig: ' + creepsConfig[0]);
+    return room.spawnCreateCreep(creepsConfig[0]);
   }
 
   return false;
