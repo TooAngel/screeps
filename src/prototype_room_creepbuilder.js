@@ -68,7 +68,6 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
   let energyNeeded;
   let unit;
   let room = this;
-  
   if (room.memory.queue.length > 0 && (creepsConfig.length === 0 || creepsConfig[0] != 'harvester')) {
     let priorityQueue = function(object) {
       if (object.role == 'harvester') {
@@ -119,29 +118,28 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
     energyNeeded = 50;
 
     let sortByDistance = function(object) {
-      let dist = Game.map.getRoomLinearDistance(room.name, object);  
-      if (dist < 10 && dist > 0){
-        return dist;    
-      }      
+      let dist = Game.map.getRoomLinearDistance(room.name, object);
+      if (dist < 10 && dist > 0) {
+        return dist;
+      }
       return;
     };
-   
     if (room.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, room.name)) {
-      room.log('['+room.name +' Spawning]- Activating '+creep.role );
+      room.log('[' + room.name + ' Spawning]- Activating ' + creep.role );
       room.memory.queue.shift();
     } else if ((creep.ttl && creep.ttl === 0)|| room.memory.queue.length > 5) {
       let roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
       for (var roomName in roomsMy) {
         var s_room = Game.rooms[roomsMy[roomName]];
         if (s_room.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, room.name)) {
-          s_room.log('['+s_room.name +' Spawning]- Activating '+creep.role+' for: '+room.name  );  
+          s_room.log('[' + s_room.name + ' Spawning]- Activating ' + creep.role + ' for: ' + room.name  );  
           room.memory.queue.shift();
           return;
         }
-      }  
-      if(creep.ttl ===0){
+      }
+      if (creep.ttl ===0 ) {
         room.log('TTL reached, skipping: ' + JSON.stringify(creep));
-      }  
+      }
       room.memory.queue.shift();
       return;
     }
