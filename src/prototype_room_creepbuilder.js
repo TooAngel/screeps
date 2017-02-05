@@ -117,7 +117,7 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
     let creep = this.memory.queue[0];
     energyNeeded = 50;
 
-    let sortByDistance = function(object) {
+    let sortByDistance = function(object) {
       let dist = Game.map.getRoomLinearDistance(room.name, object);
       if (dist < 10 && dist > 0) {
         return dist;
@@ -139,10 +139,10 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
       }
       if (creep.ttl === 0) {
         room.log('TTL reached, skipping: ' + JSON.stringify(creep));
+        room.memory.queue.shift();
       }
-      room.memory.queue.shift();
       return;
-    }
+    }
     // TODO maybe skip only if there is a spawn which is not spawning
     creep.ttl = creep.ttl || config.creep.queueTtl;
     let spawnsNotSpawning = _.filter(this.find(FIND_MY_SPAWNS), function(object) {
