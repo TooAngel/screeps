@@ -125,19 +125,19 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
       return;
     };
     if (room.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, room.name)) {
-      room.log('[' + room.name + ' Spawning]- Activating ' + creep.role );
+      room.log('[' + room.name + ' Spawning]- Activating ' + creep.role);
       room.memory.queue.shift();
-    } else if ((creep.ttl && creep.ttl === 0)|| room.memory.queue.length > 5) {
+    } else if ((creep.ttl && creep.ttl === 0) || room.memory.queue.length > 5) {
       let roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
       for (var roomName in roomsMy) {
         var s_room = Game.rooms[roomsMy[roomName]];
         if (s_room.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, room.name)) {
-          s_room.log('[' + s_room.name + ' Spawning]- Activating ' + creep.role + ' for: ' + room.name  );  
+          s_room.log('[' + s_room.name + ' Spawning]- Activating ' + creep.role + ' for: ' + room.name);  
           room.memory.queue.shift();
           return;
         }
       }
-      if (creep.ttl ===0 ) {
+      if (creep.ttl === 0) {
         room.log('TTL reached, skipping: ' + JSON.stringify(creep));
       }
       room.memory.queue.shift();
