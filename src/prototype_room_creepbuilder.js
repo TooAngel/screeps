@@ -132,7 +132,7 @@ Room.prototype.spawnCheckForCreate = function(creepsConfig) {
       for (var roomName in roomsMy) {
         var s_room = Game.rooms[roomsMy[roomName]];
         if (s_room.spawnCreateCreep(creep.role, creep.heal, creep.level, creep.squad, creep.routing, room.name)) {
-          s_room.log('[' + s_room.name + ' Spawning]- Activating ' + creep.role + ' for: ' + room.name);  
+          s_room.log('[' + s_room.name + ' Spawning]- Activating ' + creep.role + ' for: ' + room.name);
           room.memory.queue.shift();
           return;
         }
