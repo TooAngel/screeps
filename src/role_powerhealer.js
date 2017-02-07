@@ -8,17 +8,9 @@
 
 roles.powerhealer = {};
 
-roles.powerhealer.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, HEAL];
-  return room.getPartConfig(energy, parts);
-};
-
-roles.powerhealer.energyRequired = function(room) {
-  return Math.min(6500, room.getEnergyCapacityAvailable());
-};
-
-roles.powerhealer.energyBuild = function(room, energy) {
-  return Math.min(6500, room.getEnergyCapacityAvailable());
+roles.powerhealer.settings = {
+  layoutString: 'MH',
+  maxLayoutAmount: 21
 };
 
 roles.powerhealer.action = function(creep) {

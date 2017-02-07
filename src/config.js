@@ -42,6 +42,10 @@ global.config = {
     summary: false,
   },
 
+  debug: {
+    getPartsConfLogs: false
+  },
+
   autoattack: {
     disabled: false,
     notify: false,
@@ -68,7 +72,7 @@ global.config = {
     helpTreshold: 1500,
     needTreshold: 750,
     maxDistance: 7,
-    factor: 0.2,
+    factor: 0.2
   },
 
   power: {
@@ -119,6 +123,7 @@ global.config = {
     structurerMinEnergy: 1300,
     reserverDefender: true,
     energyFromStorageThreshold: 2000,
+    sortParts: true,
   },
 
   room: {
@@ -164,6 +169,24 @@ global.config = {
     storage: 100000,
     minAmount: 5000,
     minAmountForMarket: 100000,
+  },
+
+  priorityQueue: {
+    sameRoom: {
+      harvester: 1,
+      sourcer: 2,
+      storagefiller: 3,
+      defendranged: 3
+    },
+    otherRoom: {
+      harvester: 1,
+      defender: 2,
+      defendranged: 3,
+      nextroomer: 5,
+      reserver: 6,
+      carry: 7,
+      sourcer: 8
+    }
   }
 };
 

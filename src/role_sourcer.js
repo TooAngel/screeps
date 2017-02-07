@@ -13,21 +13,33 @@
 
 roles.sourcer = {};
 
+roles.sourcer.settings = {
+  param: ['controller.level'],
+  prefixString: 'MWC',
+  layoutString: {
+    1: 'W',
+    3: 'MW',
+    5: 'MWW'
+  },
+  maxLayoutAmount: {
+    1: 4,
+    5: 2,
+  },
+  sufixString: {
+    4: 'MCWH'
+  }
+};
+
 roles.sourcer.buildRoad = true;
 roles.sourcer.killPrevious = true;
 
 // TODO should be true, but flee must be fixed before 2016-10-13
 roles.sourcer.flee = false;
 
-roles.sourcer.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, WORK, WORK, WORK, WORK, MOVE, MOVE, WORK, HEAL, MOVE, HEAL, MOVE, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE];
-  return room.getPartConfig(energy, parts);
-};
-
 roles.sourcer.preMove = function(creep, directions) {
   // Misplaced spawn
   if (creep.inBase() && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
-    //    creep.say('smis', true);
+    //creep.say('smis', true);
     let targetId = creep.memory.routing.targetId;
 
     var source = creep.room.memory.position.creep[targetId];
@@ -83,18 +95,6 @@ roles.sourcer.preMove = function(creep, directions) {
       break;
     }
   }
-};
-
-roles.sourcer.energyBuild = function(room, energy, heal) {
-  var max = 700;
-  // TODO Only three parts for external sourcer (Double check how many parts)
-  //  room.log('creep_sourcer.energyBuild source: ' + JSON.stringify(source));
-  if (heal) {
-    max = 1450;
-  }
-
-  energy = Math.max(200, Math.min(max, room.getEnergyCapacityAvailable()));
-  return energy;
 };
 
 roles.sourcer.died = function(name, memory) {

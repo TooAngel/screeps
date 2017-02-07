@@ -9,13 +9,9 @@
 
 roles.scoutnextroom = {};
 
-roles.scoutnextroom.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CLAIM];
-  return room.getPartConfig(energy, parts);
-};
-
-roles.scoutnextroom.energyBuild = function(room, energy) {
-  return 650;
+roles.scoutnextroom.settings = {
+  layoutString: 'MK',
+  maxLayoutAmount: 1
 };
 
 roles.scoutnextroom.execute = function(creep) {

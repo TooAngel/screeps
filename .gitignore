@@ -13,3 +13,6 @@ build/
 account.screeps.com.js
 
 .localSync.js
+
+##Autocomplete
+ScreepsAutocomplete/
