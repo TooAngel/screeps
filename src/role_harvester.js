@@ -22,11 +22,15 @@ roles.harvester.settings = {
   layoutString: 'MWC',
   amount: {
     1: [2, 1, 1],
-    3: [1, 1, 1],
+    3: [2, 2, 2],
   },
   maxLayoutAmount: 6,
 };
-//roles.harvester.settings.prefixParts = config.creep.energyFromStorageThreshold ? [WORK, MOVE] : undefined;
+roles.harvester.updateSettings = function(room, creep) {
+  if (room.storage && room.storage.store.energy > config.creep.energyFromStorageThreshold) {
+    return {layoutString: 'MC', amount: [2, 3], maxLayoutAmount: 10};
+  }
+};
 
 roles.harvester.stayInRoom = true;
 roles.harvester.buildRoad = true;
