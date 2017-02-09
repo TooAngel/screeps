@@ -261,27 +261,13 @@ Room.prototype.checkAndSpawnReserver = function() {
       return;
     }
   }
-
-  let reserverSpawn = {
-    role: 'reserver',
-    level: 2,
-    routing: {
-      targetRoom: this.name,
-      targetId: this.controller.id,
-      reached: false,
-      routePos: 0,
-      pathPos: 0
-    }
-  };
   // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
   let energyNeeded = 1300;
   if (baseRoom.misplacedSpawn) {
     energyNeeded += 300;
   }
   if (baseRoom.getEnergyCapacityAvailable() >= energyNeeded) {
-    if (!baseRoom.inQueue(reserverSpawn)) {
-      baseRoom.checkRoleToSpawn('reserver', 1, this.controller.id, this.name, 2);
-    }
+    baseRoom.checkRoleToSpawn('reserver', 1, this.controller.id, this.name, 2);
   }
 };
 
