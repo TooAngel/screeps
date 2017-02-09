@@ -262,11 +262,11 @@ Room.prototype.checkAndSpawnReserver = function() {
     }
   }
   // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
-  let energyNeeded = baseRoom.energyCapacityAvailable > 1300 ? baseRoom.energyCapacityAvailable / 4 : 1300;
+  let energyNeeded = baseRoom.getEnergyCapacityAvailable > 1300 ? baseRoom.energyCapacityAvailable / 4 : 1300;
   if (baseRoom.misplacedSpawn) {
     energyNeeded += 300;
   }
-  if (baseRoom.energyAvailable() >= energyNeeded) {
+  if (baseRoom.energyAvailable >= energyNeeded) {
     baseRoom.checkRoleToSpawn('reserver', 1, this.controller.id, this.name, 2);
   }
 };
