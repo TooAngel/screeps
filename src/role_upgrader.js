@@ -26,11 +26,14 @@ roles.upgrader.settings = {
   },
   maxLayoutAmount: {
     7: {
+      0: 1,
+      [2 * config.creep.energyFromStorageThreshold]: 5,
       50000: 20,
       800000: undefined,
     }
   }
 };
+
 roles.upgrader.stayInRoom = true;
 // TODO disabled because the upgrader took energy from the extension
 roles.upgrader.buildRoad = false;
