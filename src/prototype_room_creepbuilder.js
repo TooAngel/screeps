@@ -93,6 +93,7 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
   amount = amount || 1;
   for (let i = 0; iMax; i++) {
     let iMem = creeps[i].memory;
+    if (!iMem.routing) {continue;}
     if (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
        creepMemory.routing.targetId === iMem.routing.targetId &&
        role === iMem.role) {
