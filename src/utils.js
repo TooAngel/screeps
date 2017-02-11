@@ -9,7 +9,7 @@ global.utils = {
    * @param {Array} object
    * @returns {*}
    */
-  returnLength: function returnLength(object) {
+  returnLength: function(object) {
     return (object && object.length) ? object.length : _.size(object);
   },
 
