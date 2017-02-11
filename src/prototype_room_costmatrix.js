@@ -8,7 +8,7 @@ Room.prototype.getCostMatrix = function() {
       let roomPos = new RoomPosition(x, y, this.name);
       let terrain = roomPos.lookFor(LOOK_TERRAIN)[0];
       let cost = costMatrix.get(x, y);
-      if (terrain == 'wall') {
+      if (terrain === 'wall') {
         costMatrix.set(roomPos.x, roomPos.y, 0xFF);
         for (let i = 1; i < 9; i++) {
           let pos = new RoomPosition(x, y, this.name).getAdjacentPosition(i);
@@ -50,10 +50,10 @@ Room.prototype.getAvoids = function(target, inRoom) {
 
       let structures = room.find(FIND_STRUCTURES, {
         filter: function(object) {
-          if (object.structureType == STRUCTURE_RAMPART) {
+          if (object.structureType === STRUCTURE_RAMPART) {
             return false;
           }
-          if (object.structureType == STRUCTURE_ROAD) {
+          if (object.structureType === STRUCTURE_ROAD) {
             return false;
           }
           return true;
@@ -66,7 +66,7 @@ Room.prototype.getAvoids = function(target, inRoom) {
       // Noobie walls
       let walls = room.find(FIND_STRUCTURES, {
         filter: function(object) {
-          if (object.structureType == STRUCTURE_WALL && !object.hits) {
+          if (object.structureType === STRUCTURE_WALL && !object.hits) {
             return true;
           }
           return false;
@@ -79,7 +79,7 @@ Room.prototype.getAvoids = function(target, inRoom) {
       if (target && target.scout) {
         let structures = room.find(FIND_STRUCTURES, {
           filter: function(object) {
-            if (object.structureType == STRUCTURE_WALL) {
+            if (object.structureType === STRUCTURE_WALL) {
               return true;
             }
             return false;

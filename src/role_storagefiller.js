@@ -13,13 +13,9 @@
 roles.storagefiller = {};
 roles.storagefiller.killPrevious = true;
 
-roles.storagefiller.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, CARRY, CARRY, CARRY];
-  return room.getPartConfig(energy, parts);
-};
-
-roles.storagefiller.energyBuild = function(room, energy) {
-  return 200;
+roles.storagefiller.settings = {
+  layoutString: 'MC',
+  amount: [1, 4],
 };
 
 roles.storagefiller.action = function(creep) {
@@ -46,7 +42,7 @@ roles.storagefiller.action = function(creep) {
     }
   });
 
-  if (creep.room.controller.level == 4) {
+  if (creep.room.controller.level === 4) {
     if (towers.length > 0) {
       if (creep.carry.energy === 0) {
         creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
@@ -80,7 +76,7 @@ roles.storagefiller.action = function(creep) {
     creep.withdraw(storage, RESOURCE_ENERGY);
     for (let tower of towers) {
       let returnCode = creep.transfer(tower, RESOURCE_ENERGY);
-      if (returnCode == OK) {
+      if (returnCode === OK) {
         return true;
       }
     }
@@ -89,7 +85,7 @@ roles.storagefiller.action = function(creep) {
     link.transferEnergy(creep);
     for (let tower of towers) {
       let returnCode = creep.transfer(tower, RESOURCE_ENERGY);
-      if (returnCode == OK) {
+      if (returnCode === OK) {
         return true;
       }
     }

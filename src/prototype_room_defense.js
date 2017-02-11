@@ -1,7 +1,7 @@
 'use strict';
 
 Room.prototype.findAttackCreeps = function(object) {
-  if (object.owner.username == 'Source Keeper') {
+  if (object.owner.username === 'Source Keeper') {
     return false;
   }
 
@@ -10,19 +10,19 @@ Room.prototype.findAttackCreeps = function(object) {
     if (part.energy === 0) {
       continue;
     }
-    if (part.type == 'attack') {
+    if (part.type === 'attack') {
       return true;
     }
-    if (part.type == 'ranged_attack') {
+    if (part.type === 'ranged_attack') {
       return true;
     }
-    if (part.type == 'heal') {
+    if (part.type === 'heal') {
       return true;
     }
-    if (part.type == 'work') {
+    if (part.type === 'work') {
       return true;
     }
-    if (part.type == 'claim') {
+    if (part.type === 'claim') {
       return true;
     }
   }
@@ -49,20 +49,20 @@ Room.prototype.handleNukeAttack = function() {
   }
 
   let findSaveableStructures = function(object) {
-    if (object.structureType == STRUCTURE_ROAD) {
+    if (object.structureType === STRUCTURE_ROAD) {
       return false;
     }
-    if (object.structureType == STRUCTURE_RAMPART) {
+    if (object.structureType === STRUCTURE_RAMPART) {
       return false;
     }
-    if (object.structureType == STRUCTURE_WALL) {
+    if (object.structureType === STRUCTURE_WALL) {
       return false;
     }
     return true;
   };
 
   let isRampart = function(object) {
-    return object.structureType == STRUCTURE_RAMPART;
+    return object.structureType === STRUCTURE_RAMPART;
   };
 
   for (let nuke of nukes) {
@@ -92,7 +92,7 @@ Room.prototype.handleTower = function() {
   var tower_id;
   var towers = this.find(FIND_MY_STRUCTURES, {
     filter: function(object) {
-      return object.structureType == STRUCTURE_TOWER;
+      return object.structureType === STRUCTURE_TOWER;
     }
   });
   if (towers.length === 0) {
@@ -140,17 +140,17 @@ Room.prototype.handleTower = function() {
   }
 
   let repairable_structures = function(object) {
-    if (object.hits == object.hitsMax) {
+    if (object.hits === object.hitsMax) {
       return false;
     }
-    if (object.structureType == STRUCTURE_WALL) {
+    if (object.structureType === STRUCTURE_WALL) {
       return false;
     }
-    if (object.structureType == STRUCTURE_RAMPART) {
+    if (object.structureType === STRUCTURE_RAMPART) {
       return false;
     }
     // TODO Let see if the creeps can keep the roads alive
-    if (object.structureType == STRUCTURE_ROAD) {
+    if (object.structureType === STRUCTURE_ROAD) {
       return false;
     }
     return true;
@@ -161,10 +161,10 @@ Room.prototype.handleTower = function() {
     if (object.hits >= Math.min(repair_min, object.hitsMax)) {
       return false;
     }
-    if (object.structureType == STRUCTURE_WALL) {
+    if (object.structureType === STRUCTURE_WALL) {
       return true;
     }
-    if (object.structureType == STRUCTURE_RAMPART) {
+    if (object.structureType === STRUCTURE_RAMPART) {
       return true;
     }
     return false;
@@ -183,7 +183,7 @@ Room.prototype.handleTower = function() {
 
     var low_rampart = tower.pos.findClosestByRange(FIND_STRUCTURES, {
       filter: function(object) {
-        if (object.structureType == 'rampart' && object.hits < 10000) {
+        if (object.structureType === 'rampart' && object.hits < 10000) {
           return true;
         }
         return false;

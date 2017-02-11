@@ -18,7 +18,7 @@ Room.prototype.handleMarket = function() {
   let amount = this.terminal.store[resource];
 
   let myMineralOrders = function(object) {
-    if (object.resourceType == resource) {
+    if (object.resourceType === resource) {
       return true;
     }
     return false;
@@ -43,7 +43,7 @@ Room.prototype.handleMarket = function() {
     this.log(order.id + ' ' + this.name + ' ' + amount);
     let returnCode = Game.market.deal(order.id, amount, this.name);
     this.log('market.deal: ' + resource + ' ' + returnCode);
-    if (returnCode == OK) {
+    if (returnCode === OK) {
       break;
     }
   }

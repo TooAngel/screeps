@@ -21,7 +21,7 @@ if (config.profiler.enabled) {
 brain.stats.init();
 
 var main = function() {
-  if (Game.cpu.bucket < Game.cpu.tickLimit * 2) {
+  if (Game.cpu.bucket < Game.cpu.tickLimit) {
     console.log('Skipping tick ' + Game.time + ' due to lack of CPU.');
     return;
   }

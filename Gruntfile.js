@@ -1,3 +1,8 @@
+var localSync = [];
+try {
+  localSync = require('./.localSync');
+} catch (e) {}
+
 module.exports = function(grunt) {
   var account;
   try {
@@ -11,9 +16,9 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-screeps');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks("grunt-jsbeautifier");
+  grunt.loadNpmTasks('grunt-jsbeautifier');
   grunt.loadNpmTasks('grunt-mocha-test');
-  grunt.loadNpmTasks("grunt-jscs");
+  grunt.loadNpmTasks('grunt-jscs');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-sync');
@@ -38,7 +43,7 @@ module.exports = function(grunt) {
       }
     },
     jsbeautifier: {
-      files: ["Gruntfile.js", "src/*.js"],
+      files: ['Gruntfile.js', 'src/*.js'],
       options: {
         config: '.jsbeautifyrc'
       }
@@ -47,7 +52,7 @@ module.exports = function(grunt) {
       src: ['test/**/*.js']
     },
     jscs: {
-      src: "src/*.js"
+      src: 'src/*.js'
     },
     clean: ['dist/'],
     uglify: {
@@ -204,10 +209,10 @@ module.exports = function(grunt) {
 
     sync: {
       main: {
-        files: [],
+        files: localSync,
         updateAndDelete: true,
         verbose: true,
-        compareUsing: "md5"
+        compareUsing: 'md5'
       },
     }
   });

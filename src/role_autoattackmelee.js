@@ -8,17 +8,10 @@
 
 roles.autoattackmelee = {};
 
-roles.autoattackmelee.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, ATTACK];
-  return room.getPartConfig(energy, parts).sort().reverse();
-};
+roles.autoattackmelee.settings = {
+  layoutString: 'MA',
+  amount: [5, 5],
 
-roles.autoattackmelee.energyRequired = function(room) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
-};
-
-roles.autoattackmelee.energyBuild = function(room, energy) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
 };
 
 roles.autoattackmelee.died = function(name, memory) {
@@ -50,7 +43,7 @@ roles.autoattackmelee.action = function(creep) {
 
   var spawn = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
     filter: function(object) {
-      if (object.structureType == STRUCTURE_SPAWN) {
+      if (object.structureType === STRUCTURE_SPAWN) {
         return true;
       }
       return false;
@@ -62,7 +55,7 @@ roles.autoattackmelee.action = function(creep) {
     if (hostileCreep === null) {
       let structures = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
         filter: function(object) {
-          if (object.structureType == STRUCTURE_CONTROLLER) {
+          if (object.structureType === STRUCTURE_CONTROLLER) {
             return false;
           }
           return true;

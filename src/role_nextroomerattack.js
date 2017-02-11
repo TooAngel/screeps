@@ -8,17 +8,9 @@
 
 roles.nextroomerattack = {};
 
-roles.nextroomerattack.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, ATTACK];
-  return room.getPartConfig(energy, parts).sort().reverse();
-};
-
-roles.nextroomerattack.energyRequired = function(room) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
-};
-
-roles.nextroomerattack.energyBuild = function(room, energy) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
+roles.nextroomerattack.settings = {
+  layoutString: 'MA',
+  amount: [5, 5],
 };
 
 roles.nextroomerattack.died = function(name, memory) {
@@ -34,7 +26,7 @@ roles.nextroomerattack.action = function(creep) {
   }
   var spawn = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
     filter: function(object) {
-      if (object.structureType == 'spawn') {
+      if (object.structureType === 'spawn') {
         return true;
       }
       return false;

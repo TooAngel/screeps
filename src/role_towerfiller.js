@@ -7,13 +7,10 @@
  */
 
 roles.towerfiller = {};
-roles.towerfiller.energyBuild = function(room, energy) {
-  return 200;
-};
 
-roles.towerfiller.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, CARRY, CARRY, CARRY];
-  return room.getPartConfig(energy, parts);
+roles.towerfiller.settings = {
+  layoutString: 'MC',
+  amount: [1, 4]
 };
 
 roles.towerfiller.execute = function(creep) {
@@ -29,10 +26,10 @@ roles.towerfiller.execute = function(creep) {
 
   if (!creep.memory.link) {
     let getTower = function(object) {
-      return object.structureType == STRUCTURE_TOWER;
+      return object.structureType === STRUCTURE_TOWER;
     };
     let getLink = function(object) {
-      return object.structureType == STRUCTURE_LINK;
+      return object.structureType === STRUCTURE_LINK;
     };
 
     let pos = creep.memory.target_id;
@@ -60,7 +57,7 @@ roles.towerfiller.execute = function(creep) {
   let tower = Game.getObjectById(creep.memory.tower);
   link.transferEnergy(creep);
   let returnCode = creep.transfer(tower, RESOURCE_ENERGY);
-  if (returnCode == OK) {
+  if (returnCode === OK) {
     creep.setNextSpawn();
   }
   return true;

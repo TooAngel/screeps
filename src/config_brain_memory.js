@@ -6,7 +6,7 @@ brain.prepareMemory = function() {
     if (object.type != ORDER_BUY) {
       return false;
     }
-    if (object.resourceType == 'token') {
+    if (object.resourceType === 'token') {
       return false;
     }
     var patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
@@ -27,7 +27,7 @@ brain.prepareMemory = function() {
       let cs = Game.constructionSites[csId];
       let csMem = Memory.constructionSites[csId];
       if (csMem) {
-        if (csMem == cs.progress) {
+        if (csMem === cs.progress) {
           console.log(csId + ' constructionSite too old');
           let csObject = Game.getObjectById(csId);
           let returnCode = csObject.remove();
@@ -41,7 +41,7 @@ brain.prepareMemory = function() {
     console.log('Known constructionSites: ' + Object.keys(constructionSites).length);
   }
 
-  var userName = Memory.username || _.find(Game.spawns, 'owner').owner;
+  var userName = Memory.username || _.find(Game.spawns, 'owner').owner.username;
   Memory.username = userName;
   // Cleanup memory
   for (let name in Memory.creeps) {
@@ -51,7 +51,7 @@ brain.prepareMemory = function() {
         let roleStat = Memory.stats[userName].roles[role];
         let previousAmount = roleStat ? roleStat : 0;
         let amount = previousAmount > 0 ? previousAmount - 1 : 0;
-        Memory.stats[userName].roles[role] = amount;
+        brain.stats.add(['roles', role], amount);
       }
 
       if ((name.startsWith('reserver') && Memory.creeps[name].born < (Game.time - CREEP_CLAIM_LIFE_TIME)) || Memory.creeps[name].born < (Game.time - CREEP_LIFE_TIME)) {

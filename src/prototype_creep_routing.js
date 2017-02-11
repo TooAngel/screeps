@@ -17,11 +17,11 @@ Creep.prototype.getRoute = function() {
   if (this.memory.base != this.memory.routing.targetRoom) {
     // TODO more dynamic, room.memory.hostile value?
     let routeCallback = function(roomName, fromRoomName) {
-      if (roomName == creep.memory.routing.targetRoom) {
+      if (roomName === creep.memory.routing.targetRoom) {
         return 1;
       }
 
-      if (Memory.rooms[roomName] && Memory.rooms[roomName].state == 'Occupied') {
+      if (Memory.rooms[roomName] && Memory.rooms[roomName].state === 'Occupied') {
         //         console.log(`Creep.prototype.getRoute: Do not route through occupied rooms ${roomName}`);
         if (config.path.allowRoutingThroughFriendRooms && friends.indexOf(Memory.rooms[roomName].player) > -1) {
           console.log('routing through friendly room' + roomName);
@@ -31,7 +31,7 @@ Creep.prototype.getRoute = function() {
         return Infinity;
       }
 
-      if (Memory.rooms[roomName] && Memory.rooms[roomName].state == 'Blocked') {
+      if (Memory.rooms[roomName] && Memory.rooms[roomName].state === 'Blocked') {
         //         console.log(`Creep.prototype.getRoute: Do not route through blocked rooms ${roomName}`);
         return Infinity;
       }
@@ -43,7 +43,7 @@ Creep.prototype.getRoute = function() {
     });
     //     this.log('getRoute: ' + this.memory.base + ' target: ' + this.memory.routing.targetRoom + ' route: ' + route);
     // TODO I guess some bug while transitionen to memory.routing
-    if (route == -2) {
+    if (route === -2) {
       route = [];
     }
   }
@@ -58,7 +58,7 @@ Creep.prototype.getRoutePos = function(route) {
   let routePos = this.memory.routing.routePos || 0;
   // Detect room change
   if (!route[routePos] || this.room.name != route[routePos].room) {
-    routePos = _.findIndex(route, i => i.room == this.room.name);
+    routePos = _.findIndex(route, i => i.room === this.room.name);
 
     // TODO if we can't find the room in the array
     if (routePos < 0) {
@@ -78,8 +78,8 @@ Creep.prototype.getPathPos = function(route, routePos, path) {
   let pos = path[pathPos];
 
   if (!pos || !this.pos.isEqualTo(pos.x, pos.y)) {
-    pathPos = _.findIndex(path, i => i.x == this.pos.x && i.y == this.pos.y);
-    if (pathPos == -1) {
+    pathPos = _.findIndex(path, i => i.x === this.pos.x && i.y === this.pos.y);
+    if (pathPos === -1) {
       // Not sure if this method is the best place
       // this.log('routing: Not on path, pos: ' + JSON.stringify(this.pos) + '
       // path: ' + JSON.stringify(path));
@@ -191,7 +191,7 @@ Creep.prototype.followPath = function(action) {
 
   let unit = roles[this.memory.role];
 
-  if (!this.memory.routing.targetId && this.room.name == this.memory.routing.targetRoom) {
+  if (!this.memory.routing.targetId && this.room.name === this.memory.routing.targetRoom) {
     this.memory.routing.reached = true;
     return action(this);
   }
@@ -248,13 +248,13 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
           // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
           let structures = room.find(FIND_STRUCTURES, {
             filter: function(object) {
-              if (object.structureType == STRUCTURE_RAMPART) {
+              if (object.structureType === STRUCTURE_RAMPART) {
                 return false;
               }
-              if (object.structureType == STRUCTURE_ROAD) {
+              if (object.structureType === STRUCTURE_ROAD) {
                 return false;
               }
-              if (object.structureType == STRUCTURE_CONTAINER) {
+              if (object.structureType === STRUCTURE_CONTAINER) {
                 return false;
               }
               return true;
@@ -309,7 +309,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     // this.pos.getDirectionTo(search.path[0]) + ' pathPos: ' + pathPos + ' pos:
     // ' + this.pos + ' routePos: ' + routePos + ' path: ' +
     // JSON.stringify(path) + ' route: ' + JSON.stringify(route));
-    this.say('R:p-1: ');
+    this.say('R:p-1: ' + this.pos.getDirectionTo(search.path[0]));
     var creepPos = this.pos;
     let returnCode = this.moveTo(_.min(search.path, function(object) {
       return object.getRangeTo(creepPos);
@@ -319,7 +319,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     if (returnCode == OK) {
       return true;
     }
-    if (returnCode == ERR_TIRED) {
+    if (returnCode === ERR_TIRED) {
       return true;
     }
 
@@ -329,13 +329,13 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
   }
 
   if (!Room.isRoomUnderAttack(this.room.name)) {
-    if (routePos == route.length - 1) {
-      if (pathPos == path.length - 2) {
+    if (routePos === route.length - 1) {
+      if (pathPos === path.length - 2) {
         if (this.memory.killPrevious) {
           this.killPrevious();
         }
       }
-      if (pathPos == path.length - 1 && !this.memory.routing.reverse) {
+      if (pathPos === path.length - 1 && !this.memory.routing.reverse) {
         // this.log('creep_routing.followPath reached: ' + pathPos + '
         // path.length: ' + path.length);
         this.memory.routing.reached = true;

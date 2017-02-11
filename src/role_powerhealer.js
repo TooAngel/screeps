@@ -8,17 +8,9 @@
 
 roles.powerhealer = {};
 
-roles.powerhealer.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, HEAL];
-  return room.getPartConfig(energy, parts);
-};
-
-roles.powerhealer.energyRequired = function(room) {
-  return Math.min(6500, room.getEnergyCapacityAvailable());
-};
-
-roles.powerhealer.energyBuild = function(room, energy) {
-  return Math.min(6500, room.getEnergyCapacityAvailable());
+roles.powerhealer.settings = {
+  layoutString: 'MH',
+  maxLayoutAmount: 21
 };
 
 roles.powerhealer.action = function(creep) {
@@ -51,7 +43,7 @@ roles.powerhealer.action = function(creep) {
 
     var power_bank = creep.room.find(FIND_STRUCTURES, {
       filter: function(object) {
-        return object.structureType == 'powerBank';
+        return object.structureType === 'powerBank';
       }
     });
 
@@ -82,7 +74,7 @@ roles.powerhealer.action = function(creep) {
         }
         attacker = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
           filter: function(object) {
-            return object.memory.role == 'powerattacker';
+            return object.memory.role === 'powerattacker';
           }
         });
         creep.moveTo(attacker);
@@ -92,7 +84,7 @@ roles.powerhealer.action = function(creep) {
       if (hostileCreeps.length > 0) {
         attacker = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
           filter: function(object) {
-            return object.memory.role == 'powerattacker';
+            return object.memory.role === 'powerattacker';
           }
         });
         creep.moveTo(attacker);

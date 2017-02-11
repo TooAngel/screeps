@@ -40,9 +40,10 @@ global.config = {
   stats: {
     enabled: false,
     summary: false,
-    //--- Uncomment screepsplusToken for share datas on TooAngels datasboard on screepspl.us
-    //--- You can acces datas contacting tooangel on #the_angels slack channel or use your token.
-    //screepsplusToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRvb2FuZ2VscyIsImlhdCI6MTQ4MzU2MTU3OSwiYXVkIjoic2NyZWVwc3BsLnVzIiwiaXNzIjoic2NyZWVwc3BsLnVzIn0.NhobT7Jg8bOAg-MYqrYsgeMgXEVXGVYG9s3G9Qpfm-o'
+  },
+
+  debug: {
+    getPartsConfLogs: false
   },
 
   autoattack: {
@@ -51,6 +52,7 @@ global.config = {
   },
 
   nextRoom: {
+    boostToControllerLevel: 4,
     scoutMinControllerLevel: 4,
     ttlPerRoomForScout: 500,
     numberOfNextroomers: 10,
@@ -70,7 +72,7 @@ global.config = {
     helpTreshold: 1500,
     needTreshold: 750,
     maxDistance: 7,
-    factor: 0.2,
+    factor: 0.2
   },
 
   power: {
@@ -121,12 +123,25 @@ global.config = {
     structurerMinEnergy: 1300,
     reserverDefender: true,
     energyFromStorageThreshold: 2000,
+    sortParts: true,
   },
 
   room: {
+    reservedRCL: {
+      0: 0,
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 1,
+      5: 2,
+      6: 3,
+      7: 6,
+      8: 9,
+    },
     revive: true,
     rebuildLayout: 7654,
     handleNukeAttackInterval: 132,
+    reviveEnergyCapacity: 1000,
     reviveEnergyAvailable: 1000,
     reviveStorageAvailable: 3000,
     scoutInterval: 1499,
@@ -154,6 +169,24 @@ global.config = {
     storage: 100000,
     minAmount: 5000,
     minAmountForMarket: 100000,
+  },
+
+  priorityQueue: {
+    sameRoom: {
+      harvester: 1,
+      sourcer: 2,
+      storagefiller: 3,
+      defendranged: 3
+    },
+    otherRoom: {
+      harvester: 1,
+      defender: 2,
+      defendranged: 3,
+      nextroomer: 5,
+      reserver: 6,
+      carry: 7,
+      sourcer: 8
+    }
   }
 };
 

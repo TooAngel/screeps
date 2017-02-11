@@ -15,6 +15,12 @@ roles.carry.flee = true;
 
 roles.carry.boostActions = ['capacity'];
 
+roles.carry.settings = {
+  prefixString: 'WMC',
+  layoutString: 'MC',
+  amount: [1, 2]
+};
+
 roles.carry.preMove = function(creep, directions) {
   // Misplaced spawn
   // TODO Somehow ugly and maybe better somewhere else
@@ -23,13 +29,15 @@ roles.carry.preMove = function(creep, directions) {
     if (creep.carry.energy > 0) {
       let structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
         filter: function(object) {
-          if (object.energy == object.energyCapacity) {
+          if (object.energy === object.energyCapacity) {
             return false;
           }
           return true;
         }
       });
-      creep.moveTo(structure);
+      creep.moveTo(structure, {
+        ignoreCreeps: true,
+      });
       creep.transfer(structure, RESOURCE_ENERGY);
     } else {
       let targetId = creep.memory.routing.targetId;
@@ -72,7 +80,7 @@ roles.carry.preMove = function(creep, directions) {
   }
   // define minimum carryPercentage to move back to storage
   let carryPercentage = 0.1;
-  if (creep.room.name == creep.memory.routing.targetRoom) {
+  if (creep.room.name === creep.memory.routing.targetRoom) {
     carryPercentage = config.carry.carryPercentageExtern;
   }
   if (creep.inBase()) {
@@ -118,19 +126,19 @@ roles.carry.preMove = function(creep, directions) {
   let posForward = creep.pos.getAdjacentPosition(directions.direction);
   let structures = posForward.lookFor(LOOK_STRUCTURES);
   for (let structure of structures) {
-    if (structure.structureType == STRUCTURE_ROAD) {
+    if (structure.structureType === STRUCTURE_ROAD) {
       continue;
     }
-    if (structure.structureType == STRUCTURE_CONTAINER) {
+    if (structure.structureType === STRUCTURE_CONTAINER) {
       continue;
     }
-    if (structure.structureType == STRUCTURE_RAMPART && structure.my) {
+    if (structure.structureType === STRUCTURE_RAMPART && structure.my) {
       continue;
     }
-    if (structure.structureType == STRUCTURE_SPAWN && structure.my) {
+    if (structure.structureType === STRUCTURE_SPAWN && structure.my) {
       continue;
     }
-    if (structure.structureType == STRUCTURE_STORAGE && structure.my) {
+    if (structure.structureType === STRUCTURE_STORAGE && structure.my) {
       continue;
     }
 
@@ -187,25 +195,6 @@ roles.carry.action = function(creep) {
   creep.memory.routing.reverse = true;
 
   return true;
-};
-
-roles.carry.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CARRY, CARRY];
-
-  let partConfig = room.getPartConfig(energy - 150, parts);
-  partConfig.unshift(WORK);
-  partConfig.unshift(MOVE);
-
-  return partConfig;
-};
-
-roles.carry.energyRequired = function(room) {
-  // TODO make the factor dependent on e.g. room.storage or waiting duration in queue
-  return Math.max(250, Math.min(room.controller.level * config.carry.size, room.getEnergyCapacityAvailable()));
-};
-
-roles.carry.energyBuild = function(room, energy) {
-  return Math.max(250, Math.min(room.controller.level * config.carry.size, room.getEnergyCapacityAvailable()));
 };
 
 roles.carry.execute = function(creep) {

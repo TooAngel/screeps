@@ -9,23 +9,13 @@
 roles.defender = {};
 roles.defender.boostActions = ['rangedAttack', 'heal'];
 
-roles.defender.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, RANGED_ATTACK, MOVE, HEAL];
-  return room.getPartConfig(energy, parts).sort().reverse();
-};
-
-roles.defender.energyRequired = function(room) {
-  if (room.controller.level == 8) {
-    return Math.min(room.getEnergyCapacityAvailable(), 6200);
+roles.defender.settings = {
+  param: ['controller.level'],
+  layoutString: 'MRH',
+  amount: {
+    1: [2, 1, 1],
+    8: [4, 1, 1],
   }
-  return Math.min(room.getEnergyCapacityAvailable(), 1000);
-};
-
-roles.defender.energyBuild = function(room, energy) {
-  if (room.controller.level == 8) {
-    return Math.max(2000, Math.min(room.getEnergyCapacityAvailable(), 6200));
-  }
-  return Math.min(room.getEnergyCapacityAvailable(), 1000);
 };
 
 roles.defender.action = function(creep) {
@@ -36,10 +26,10 @@ roles.defender.action = function(creep) {
   if (!creep.inBase()) {
     let walls = creep.pos.findInRange(FIND_STRUCTURES, 1, {
       filter: function(object) {
-        if (object.structureType == STRUCTURE_WALL) {
+        if (object.structureType === STRUCTURE_WALL) {
           return true;
         }
-        if (object.structureType == STRUCTURE_RAMPART) {
+        if (object.structureType === STRUCTURE_RAMPART) {
           return true;
         }
         return false;

@@ -8,64 +8,9 @@
  */
 
 roles.atkeepermelee = {};
-
-roles.atkeepermelee.getPartConfig = function(room, energy, heal) {
-  let parts = [];
-  for (let i = 0; i < 22; i++) {
-    parts.push(MOVE);
-  }
-  for (let i = 0; i < 3; i++) {
-    parts.push(MOVE);
-  }
-  for (let i = 0; i < 19; i++) {
-    parts.push(ATTACK);
-  }
-  for (let i = 0; i < 6; i++) {
-    parts.push(HEAL);
-  }
-  return room.getPartConfig(energy, parts);
-};
-
-roles.atkeepermelee.energyRequired = function(room) {
-  let parts = [];
-  for (let i = 0; i < 22; i++) {
-    parts.push(MOVE);
-  }
-  for (let i = 0; i < 3; i++) {
-    parts.push(MOVE);
-  }
-  for (let i = 0; i < 19; i++) {
-    parts.push(ATTACK);
-  }
-  for (let i = 0; i < 6; i++) {
-    parts.push(HEAL);
-  }
-  let costs = 0;
-  for (let part of parts) {
-    costs += BODYPART_COST[part];
-  }
-  return Math.min(room.getEnergyCapacityAvailable(), costs);
-};
-
-roles.atkeepermelee.energyBuild = function(room) {
-  let parts = [];
-  for (let i = 0; i < 22; i++) {
-    parts.push(MOVE);
-  }
-  for (let i = 0; i < 3; i++) {
-    parts.push(MOVE);
-  }
-  for (let i = 0; i < 19; i++) {
-    parts.push(ATTACK);
-  }
-  for (let i = 0; i < 6; i++) {
-    parts.push(HEAL);
-  }
-  let costs = 0;
-  for (let part of parts) {
-    costs += BODYPART_COST[part];
-  }
-  return Math.min(room.getEnergyCapacityAvailable(), costs);
+roles.atkeepermelee.settings = {
+  layoutString: 'MAH',
+  amount: [25, 19, 6]
 };
 
 roles.atkeepermelee.action = function(creep) {
@@ -76,7 +21,7 @@ roles.atkeepermelee.action = function(creep) {
   let getNextSourceKeeper = function(creep) {
     var sourceKeeper = creep.room.find(FIND_HOSTILE_STRUCTURES, {
       filter: function(object) {
-        return object.owner.username == 'Source Keeper';
+        return object.owner.username === 'Source Keeper';
       }
     });
 
@@ -99,7 +44,7 @@ roles.atkeepermelee.action = function(creep) {
         let sourcers = creep.pos.findInRange(FIND_MY_CREEPS, 3, {
           filter: function(object) {
             let target = Game.getObjectById(object.id);
-            if (target.memory.role == 'sourcer' && target.hits < target.hitsMax) {
+            if (target.memory.role === 'sourcer' && target.hits < target.hitsMax) {
               return true;
             }
             return false;
@@ -113,7 +58,7 @@ roles.atkeepermelee.action = function(creep) {
       }
 
       creep.heal(creep);
-      if (creep.hits == creep.hitsMax || range > 5 || range < 5) {
+      if (creep.hits === creep.hitsMax || range > 5 || range < 5) {
         let returnCode = creep.moveTo(target);
         if (returnCode != OK) {
           creep.log(`heal.move returnCode: ${returnCode}`);

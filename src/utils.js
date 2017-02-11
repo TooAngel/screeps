@@ -38,7 +38,7 @@ global.utils = {
 
   roomCheck: function() {
     for (let roomName in Memory.rooms) {
-      if (Memory.rooms[roomName].state == 'Occupied') {
+      if (Memory.rooms[roomName].state === 'Occupied') {
         console.log(`${roomName} ${Memory.rooms[roomName].player}`);
       }
     }
@@ -84,7 +84,7 @@ global.utils = {
   showReserveredRooms: function() {
     for (let roomName in Memory.rooms) {
       let room = Memory.rooms[roomName];
-      if (room.state == 'Reserved') {
+      if (room.state === 'Reserved') {
         console.log(roomName, JSON.stringify(room.reservation));
       }
     }
@@ -97,7 +97,7 @@ global.utils = {
       if (room.terminal) {
         console.log(name, JSON.stringify(room.terminal.store));
         for (let mineral in room.terminal.store) {
-          if (mineral == 'U') {
+          if (mineral === 'U') {
             console.log(room.name, room.terminal.store[mineral]);
           }
           if (!minerals[mineral]) {
@@ -123,7 +123,7 @@ global.utils = {
         }
         console.log(name, JSON.stringify(room.terminal.store));
         for (let mineral in room.terminal.store) {
-          if (mineral == 'U') {
+          if (mineral === 'U') {
             console.log(room.name, room.terminal.store[mineral]);
           }
           if (!minerals[mineral]) {
@@ -151,5 +151,26 @@ global.utils = {
     var found = _.countBy(Memory.rooms[roomName].queue, prop('role'));
     console.log(JSON.stringify(found));
     return found;
+  },
+
+  stringToParts: function(stringParts) {
+    if (!stringParts || typeof(stringParts) !== 'string') {
+      return;
+    }
+    let partsConversion = {
+      M: MOVE,
+      C: CARRY,
+      A: ATTACK,
+      W: WORK,
+      R: RANGED_ATTACK,
+      T: TOUGH,
+      H: HEAL,
+      K: CLAIM,
+    };
+    let arrayParts = [];
+    for (let i = 0; i < stringParts.length; i++) {
+      arrayParts.push(partsConversion[stringParts.charAt(i)]);
+    }
+    return arrayParts;
   },
 };

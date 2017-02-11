@@ -8,51 +8,35 @@
  */
 
 roles.upgrader = {};
-
+roles.upgrader.settings = {
+  param: ['controller.level', 'storage.store.energy', 'memory.enemies.length'],
+  prefixString: {
+    1: 'MCW'
+  },
+  layoutString: {
+    1: 'MWW',
+    4: 'W'
+  },
+  sufixString: {
+    4: {
+      0: {
+        1: 'H'
+      }
+    }
+  },
+  maxLayoutAmount: {
+    7: {
+      50000: 20,
+      800000: undefined,
+    }
+  }
+};
 roles.upgrader.stayInRoom = true;
 // TODO disabled because the upgrader took energy from the extension
 roles.upgrader.buildRoad = false;
 roles.upgrader.killPrevious = true;
 
 roles.upgrader.boostActions = ['upgradeController'];
-
-roles.upgrader.getPartConfig = function(room, energy, heal) {
-  let parts = [MOVE, CARRY, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK, MOVE, WORK, WORK];
-  if (room.controller.level == 4) {
-    parts = [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK];
-  }
-  return room.getPartConfig(energy, parts);
-};
-
-roles.upgrader.energyRequired = function(room) {
-  return 200;
-};
-
-roles.upgrader.energyBuild = function(room, energy) {
-  if (room.controller.level >= 7) {
-    if (room.storage && room.storage.store.energy < 50000) {
-      return 350;
-    }
-    return Math.min(1950, room.getEnergyCapacityAvailable());
-  }
-  var energyNeeded = 200;
-  if (room.controller.level < 7) {
-    energyNeeded = Math.min(1950, room.getEnergyCapacityAvailable());
-  }
-  if (room.controller.level == 7) {
-    // TODO Better calculation for the upgrader size
-    //    energyNeeded = Math.min(3900, energy);
-  }
-  if (room.storage) {
-    if (room.storage.store.energy > 800000) {
-      return Math.min(3900, room.getEnergyCapacityAvailable());
-    }
-    if (room.storage.store.energy < 10000) {
-      return 350;
-    }
-  }
-  return energyNeeded;
-};
 
 roles.upgrader.work = function(creep) {
   return creep.handleUpgrader();

@@ -7,17 +7,10 @@
  */
 
 roles.squadsiege = {};
-roles.squadsiege.energyRequired = function(room) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
-};
 
-roles.squadsiege.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, WORK];
-  return room.getPartConfig(energy, parts).sort().reverse();
-};
-
-roles.squadsiege.energyBuild = function(room, energy) {
-  return Math.min(room.getEnergyCapacityAvailable(), 3250);
+roles.squadsiege.settings = {
+  layoutString: 'MW',
+  maxLayoutAmount: 21,
 };
 
 roles.squadsiege.preMove = function(creep, directions) {
@@ -27,10 +20,10 @@ roles.squadsiege.preMove = function(creep, directions) {
   let posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
   let structures = posForward.lookFor(LOOK_STRUCTURES);
   for (let structure of structures) {
-    if (structure.structureType == STRUCTURE_ROAD) {
+    if (structure.structureType === STRUCTURE_ROAD) {
       continue;
     }
-    if (structure.structureType == STRUCTURE_RAMPART && structure.my) {
+    if (structure.structureType === STRUCTURE_RAMPART && structure.my) {
       continue;
     }
 
@@ -44,8 +37,8 @@ roles.squadsiege.preMove = function(creep, directions) {
     creep.memory.initialized = true;
   }
   var squad = Memory.squads[creep.memory.squad];
-  if (squad.action == 'move') {
-    if (creep.room.name == squad.moveTarget) {
+  if (squad.action === 'move') {
+    if (creep.room.name === squad.moveTarget) {
       let nextExits = creep.room.find(creep.memory.routing.route[creep.memory.routing.routePos].exit);
       let nextExit = nextExits[Math.floor(nextExits.length / 2)];
       let range = creep.pos.getRangeTo(nextExit.x, nextExit.y);

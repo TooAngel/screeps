@@ -13,16 +13,10 @@ roles.repairer = {};
 
 roles.repairer.stayInRoom = true;
 
-roles.repairer.getPartConfig = function(room, energy, heal) {
-  var parts = [CARRY, MOVE, WORK, MOVE];
-  return room.getPartConfig(energy, parts);
-};
-
-roles.repairer.energyBuild = function(room, energy) {
-  if (room.storage) {
-    return Math.max(250, Math.min(energy, Math.ceil(room.storage.store.energy / 10000) * 250));
-  }
-  return Math.max(250, energy);
+roles.repairer.settings = {
+  layoutString: 'MWC',
+  amount: [2, 1, 1],
+  //if (room.storage) {datas.maxEnergyUsed = (room.storage.store.energy / 10000) * 250;}
 };
 
 roles.repairer.boostActions = ['repair'];
@@ -47,11 +41,11 @@ roles.repairer.execute = function(creep) {
     if (creep.memory.step <= 0) {
       structures = creep.room.find(FIND_STRUCTURES, {
         filter: function(object) {
-          if (object.structureType == 'constructedWall') {
+          if (object.structureType === 'constructedWall') {
             return true;
           }
 
-          if (object.structureType == 'rampart') {
+          if (object.structureType === 'rampart') {
             return true;
           }
           return false;

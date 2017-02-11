@@ -15,24 +15,15 @@ roles.nextroomer = {};
 roles.nextroomer.died = function(name, creepMemory) {
   let roomName = creepMemory.routing.route[creepMemory.routing.route].room;
   let message = `${name} ${roomName} ${JSON.stringify(creepMemory)}`;
-  if (roomName == creepMemory.routing.targetRoom) {
+  if (roomName === creepMemory.routing.targetRoom) {
     // TODO make underSiege to a counter
   }
   console.log('DIED:', message);
 };
 
-roles.nextroomer.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, WORK, MOVE, CARRY];
-  var config = room.getPartConfig(energy, parts);
-  return config;
-};
-
-roles.nextroomer.energyRequired = function(room) {
-  return Math.min(700, room.getEnergyCapacityAvailable());
-};
-
-roles.nextroomer.energyBuild = function(room, energy) {
-  return Math.min(3150, energy);
+roles.nextroomer.settings = {
+  layoutString: 'MWC',
+  amount: [6, 3, 3],
 };
 
 roles.nextroomer.checkForRampart = function(coords) {
@@ -71,7 +62,7 @@ roles.nextroomer.buildRamparts = function(creep) {
 
   let links = creep.pos.findInRange(FIND_STRUCTURES, 1, {
     filter: function(object) {
-      return object.structureType == STRUCTURE_LINK;
+      return object.structureType === STRUCTURE_LINK;
     }
   });
   if (links.length) {
@@ -211,7 +202,7 @@ roles.nextroomer.settle = function(creep) {
   let hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
   if (hostileCreeps.length) {
     room.memory.underSiege = true;
-    if (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 || creep.room.controller.level == 1) {
+    if (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 || creep.room.controller.level === 1) {
       let methods = [Creep.getEnergy, Creep.upgradeControllerTask];
       return Creep.execute(creep, methods);
     }
@@ -319,10 +310,10 @@ roles.nextroomer.preMove = function(creep, directions) {
   let posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
   let structures = posForward.lookFor(LOOK_STRUCTURES);
   for (let structure of structures) {
-    if (structure.structureType == STRUCTURE_ROAD) {
+    if (structure.structureType === STRUCTURE_ROAD) {
       continue;
     }
-    if (structure.structureType == STRUCTURE_RAMPART && structure.my) {
+    if (structure.structureType === STRUCTURE_RAMPART && structure.my) {
       continue;
     }
 
@@ -341,7 +332,7 @@ roles.nextroomer.action = function(creep) {
 
   // TODO ugly fix cause, target gets deleted
   creep.memory.targetBackup = creep.memory.targetBackup || creep.memory.target;
-  if (creep.room.name == creep.memory.targetBackup) {
+  if (creep.room.name === creep.memory.targetBackup) {
     return roles.nextroomer.settle(creep);
   }
   return roles.nextroomer.settle(creep);
@@ -349,5 +340,5 @@ roles.nextroomer.action = function(creep) {
 
 roles.nextroomer.execute = function(creep) {
   creep.log('Execute!!!');
-  creep.moveTo(25, 25);
+  //creep.moveTo(25, 25);
 };

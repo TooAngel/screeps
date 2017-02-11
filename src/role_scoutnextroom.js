@@ -9,13 +9,9 @@
 
 roles.scoutnextroom = {};
 
-roles.scoutnextroom.getPartConfig = function(room, energy, heal) {
-  var parts = [MOVE, CLAIM];
-  return room.getPartConfig(energy, parts);
-};
-
-roles.scoutnextroom.energyBuild = function(room, energy) {
-  return 650;
+roles.scoutnextroom.settings = {
+  layoutString: 'MK',
+  maxLayoutAmount: 1
 };
 
 roles.scoutnextroom.execute = function(creep) {
@@ -23,7 +19,7 @@ roles.scoutnextroom.execute = function(creep) {
   if (creep.memory.claimRoom) {
     creep.moveTo(creep.room.controller);
     let returnCode = creep.claimController(creep.room.controller);
-    if (returnCode == OK) {
+    if (returnCode === OK) {
       delete Memory.next_room;
       creep.suicide();
     }
@@ -103,17 +99,17 @@ roles.scoutnextroom.execute = function(creep) {
       for (var i = 0; i < 4; i++) {
         // Don't go back
         var direction = (((offset + i) % 4) * 2) + 1;
-        if (direction == (creep.memory.dir + 4) % 8) {
+        if (direction === (creep.memory.dir + 4) % 8) {
           continue;
         }
 
         var roomName = exits[direction];
-        if (typeof(roomName) == 'undefined') {
+        if (typeof(roomName) === 'undefined') {
           continue;
         }
 
         var exit = creep.room.findExitTo(roomName);
-        if (exit == -2) {
+        if (exit === -2) {
           continue;
         }
 
