@@ -62,11 +62,13 @@ Room.prototype.spawnCheckForCreate = function() {
 Room.prototype.inQueue = function(creepMemory) {
   this.memory.queue = this.memory.queue || [];
   for (var item of this.memory.queue) {
-    if (!item.routing) {continue;}
-    let creepTarget = {targetId: item.routing.targetId,
-      targetRoom: item.routing.targetRoom};
+    if (!item.routing) { continue; }
+    let creepTarget = {
+      targetId: item.routing.targetId,
+      targetRoom: item.routing.targetRoom
+    };
     let found = _.eq(creepMemory.routing, creepTarget) && creepMemory.role === item.role;
-    if (found) {return true;}
+    if (found) { return true; }
   }
   return false;
 };
@@ -75,15 +77,15 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
   var creepsSpawning = _(this.find(FIND_MY_SPAWNS)).map(s => s.spawning && Game.creeps[s.spawning.name]).compact();
   var creeps = this.find(FIND_MY_CREEPS).concat(creepsSpawning);
   var iMax = creeps.length;
-  if (!iMax) {return false;}
+  if (!iMax) { return false; }
   let j = 0;
   this.memory.roles = this.memory.roles || {};
   for (let i = 0; i < iMax; i++) {
     let iMem = creeps[i].memory;
-    if (!iMem) {continue;}
+    if (!iMem) { continue; }
     if (creepMemory.role === iMem.role && !(iMem.routing ||
-      (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
-      creepMemory.routing.targetId === iMem.routing.targetId))) {
+        (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
+          creepMemory.routing.targetId === iMem.routing.targetId))) {
       j++;
     }
     if (j >= amount) {
@@ -116,7 +118,7 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
   if (this.memory.roles && this.memory.roles[creepMemory.role] && Game.time % 10) {
     return false;
   }
-  if (this.inQueue(creepMemory) || this.inRoom(creepMemory, amount)) {return false;}
+  if (this.inQueue(creepMemory) || this.inRoom(creepMemory, amount)) { return false; }
 
   if (config.debug.queue) {
     this.log('Add ' + creepMemory.role + 'to queue.');
@@ -138,7 +140,11 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
  */
 
 Room.prototype.getPartsStringDatas = function(parts, energyAvailable) {
-  if (!_.isString(parts) || parts === '') { return {null: true}; }
+  if (!_.isString(parts) || parts === '') {
+    return {
+      null: true
+    };
+  }
   let ret = {};
   Memory.layoutsCost = Memory.layoutsCost || {};
   ret.cost = Memory.layoutsCost[parts] || 0;
@@ -257,11 +263,11 @@ Room.prototype.getPartConfig = function(creep) {
   if (sufixString) { maxBodyLength -= sufixString.length; }
 
   let prefix = this.getPartsStringDatas(prefixString, energyAvailable);
-  if (prefix.fail) {return false;}
+  if (prefix.fail) { return false; }
   energyAvailable -= prefix.cost || 0;
   layoutString = this.applyAmount(layoutString, amount);
   let layout = this.getPartsStringDatas(layoutString, energyAvailable);
-  if (layout.fail || layout.null) {return false;}
+  if (layout.fail || layout.null) { return false; }
   let parts = prefix.parts || [];
   let maxRepeat = Math.floor(Math.min(energyAvailable / layout.cost, maxBodyLength / layout.len));
   if (maxLayoutAmount) {
@@ -306,7 +312,7 @@ Room.prototype.spawnCreateCreep = function(creep) {
   var name = role + '-' + id;
   //console.log(this.name,'--->',role);
   var partConfig = this.getPartConfig(creep);
-  if (!partConfig) {return;}
+  if (!partConfig) { return; }
   let memory = {
     role: role,
     number: id,
