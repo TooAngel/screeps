@@ -1,4 +1,8 @@
 'use strict';
+
+config.debug.queue = true;
+config.debug.spawn = true;
+
 /**
  * get priority from config for a creep.
  *
@@ -62,7 +66,7 @@ Room.prototype.creepMem = function(role, targetId, targetRoom, level, base) {
       targetRoom: targetRoom || this.name,
       targetId: targetId,
     },
-    level: level || 1,
+    level: level,
     base: base,
   };
 };
@@ -80,6 +84,9 @@ Room.prototype.creepMem = function(role, targetId, targetRoom, level, base) {
  */
 Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, level, base) {
   var creepMemory = this.creepMem(role, targetId, targetRoom, level, base);
+  if (this.memory.roles && this.memory.roles[creepMemory.role] && Game.time % 10) {
+    return false;
+  }
   var creeps = this.find(FIND_MY_CREEPS);
   var spawns = this.find(FIND_MY_SPAWNS);
   if (this.inQueue(creepMemory)) {return false;}
@@ -92,19 +99,30 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
   let iMax = creeps.length || 0;
   amount = amount || 1;
   for (let i = 0; iMax; i++) {
+    if(!creeps[i]) {
+      if (config.debug.queue) {
+        this.log('Add ' + creepMemory.role + 'to queue.');
+      }
+      return this.memory.queue.push(creepMemory);
+    }
     let iMem = creeps[i].memory;
     if (!iMem.routing) {continue;}
     if (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
-       creepMemory.routing.targetId === iMem.routing.targetId &&
-       role === iMem.role) {
-      j++;
+        creepMemory.routing.targetId === iMem.routing.targetId &&
+        role === iMem.role) {
+        j++;
     }
-    if (j >= amount) {return false;}
+    if (j >= amount) {
+      this.memory.roles = this.memory.roles || {};
+      this.memory.roles[creepMemory.role]=true;
+      if (config.debug.queue) {
+        this.log('Already enough ' + creepMemory.role);
+      }
+      return false;
+    }
   }
-  return this.memory.queue.push(creepMemory);
 
 };
-
 /**
  * Room.prototype.getPartsStringDatas used for parse parts as string and return
  * parts as array, cost, if spawn is allow and length.
@@ -242,7 +260,7 @@ Room.prototype.getPartConfig = function(creep) {
   energyAvailable -= prefix.cost || 0;
   layoutString = this.applyAmount(layoutString, amount);
   let layout = this.getPartsStringDatas(layoutString, energyAvailable);
-  if (layout.fail) {return ;}
+  if (layout.fail || layout.null) {return ;}
   let parts = prefix.parts || [];
   let maxRepeat = Math.floor(Math.min(energyAvailable / layout.cost, maxBodyLength / layout.len));
   if (maxLayoutAmount) {
@@ -254,6 +272,9 @@ Room.prototype.getPartConfig = function(creep) {
   let sufix = this.getPartsStringDatas(sufixString, energyAvailable);
   if (!sufix.fail && !sufix.null) {
     parts = parts.concat(sufix.parts);
+  }
+  if (config.debug.spawn) {
+    this.log('Spawning ' + creep.role + '- - - Body: ' + JSON.stringify(prefix.parts) + ' - ' + maxRepeat + ' * ' + JSON.stringify(layout.parts) + ' - ' + JSON.stringify(sufix.parts));
   }
   return config.creep.sortParts ? this.sortParts(parts, layout) : parts;
 };
