@@ -51,7 +51,7 @@ roles.structurer.preMove = function(creep, directions) {
   // Routing would end within the wall - this is the fix for that
   if (creep.memory.routing.targetId && creep.room.name === creep.memory.routing.targetRoom) {
     let target = Game.getObjectById(creep.memory.routing.targetId);
-    if (target === null || Object.noviceCheck(target)) {
+    if (target === null || Object.edgeCheck(target)) {
       delete creep.memory.routing.targetId;
       return true;
     }
@@ -66,7 +66,7 @@ roles.structurer.action = function(creep) {
     var structure;
     structure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
       filter: function(object) {
-        if (Object.noviceCheck(object)) {
+        if (Object.edgeCheck(object)) {
           return false;
         }
         if (object.ticksToDecay === null) {

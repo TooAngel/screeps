@@ -20,7 +20,7 @@ Object.defineProperty(Structure.prototype, 'memory', {
   enumerable: false
 });
 
-Object.noviceCheck = function(object) {
+Object.edgeCheck = function(object) {
   if (object !== undefined && object !== null) {
     if (object.pos.x === 0 || object.pos.y === 0 || object.pos.x === 49 || object.pos.y === 49) {
       return true;
