@@ -38,6 +38,9 @@ Room.prototype.destroyStructure = function(structure) {
         }
       }
     }
+    if (Object.noviceCheck(structure)) {
+      return false;
+    }
     this.log('destroyStructure: wall not found in memory, destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
     structure.destroy();
     return true;
@@ -49,9 +52,6 @@ Room.prototype.destroyStructure = function(structure) {
           return false;
         }
       }
-    }
-    if(structure.pos.x === 0 || structure.pos.y === 0 || structure.pos.x === 49 || structure.pos.y === 49){
-      return false;
     }
     this.log('destroyStructure: road not found in paths, destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
     structure.destroy();
