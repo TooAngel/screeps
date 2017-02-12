@@ -19,6 +19,10 @@ roles.repairer.settings = {
   //if (room.storage) {datas.maxEnergyUsed = (room.storage.store.energy / 10000) * 250;}
 };
 
+roles.repairer.updateAmount = function(creep, room) {
+  return room.controller.level > 1 && room.memory.walls && room.memory.walls.finished ? 1 : 0;
+};
+
 roles.repairer.boostActions = ['repair'];
 
 // TODO needs to be enabled again, repair overwrites target

@@ -274,65 +274,7 @@ Room.prototype.checkForEnergyTransfer = function() {
   this.memory.energyAvailableSum = 0;
 };
 
-Room.prototype.executeRoom = function() {
-  let cpuUsed = Game.cpu.getUsed();
-  this.buildBase();
-  this.memory.attackTimer = this.memory.attackTimer || 0;
-
-  var spawns = this.find(FIND_MY_STRUCTURES, {
-    filter: function(object) {
-      return object.structureType === STRUCTURE_SPAWN;
-    }
-  });
-
-  var hostiles = this.find(FIND_HOSTILE_CREEPS, {
-    filter: this.findAttackCreeps
-  });
-  if (hostiles.length === 0) {
-    this.memory.attackTimer = Math.max(this.memory.attackTimer - 5, 0);
-    // Make sure we don't spawn towerFiller on reducing again
-    if (this.memory.attackTimer % 5 === 0) {
-      this.memory.attackTimer--;
-    }
-  }
-
-  if (spawns.length === 0) {
-    this.reviveRoom();
-  } else if (this.energyCapacityAvailable < config.room.reviveEnergyCapacity) {
-    this.reviveRoom();
-    if (hostiles.length > 0) {
-      this.controller.activateSafeMode();
-    }
-  } else {
-    this.memory.active = true;
-  }
-
-  var room = this;
-
-  var nextroomers = this.find(FIND_MY_CREEPS, {
-    filter: function(object) {
-      if (object.memory.role === 'nextroomer') {
-        return object.memory.base != room.name;
-      }
-      return false;
-    }
-  });
-  var building = nextroomers.length > 0 && this.controller.level < 5;
-
-  var creepsInRoom = this.find(FIND_MY_CREEPS);
-  var spawn;
-  if (!building) {
-    let amount = 1;
-    if (!room.storage) {
-      amount = 2;
-      // TODO maybe better spawn harvester when a carry recognize that the dropped energy > threshold
-      if (room.controller.level === 2 || room.controller.level === 3) {
-        amount = 5;
-      }
-    }
-    this.checkRoleToSpawn('harvester', amount, 'harvester');
-  }
-
+Room.prototype.handleAttacks = function(hostiles) {
   if (this.memory.attackTimer > 100) {
     // TODO better metric for SafeMode
     let enemies = this.find(FIND_HOSTILE_CREEPS, {
@@ -397,6 +339,66 @@ Room.prototype.executeRoom = function() {
       Game.notify(this.name + ' Under attack from ' + hostiles[0].owner.username + ' at ' + Game.time);
     }
   }
+};
+
+Room.prototype.executeRoom = function() {
+  let cpuUsed = Game.cpu.getUsed();
+  this.buildBase();
+  this.memory.attackTimer = this.memory.attackTimer || 0;
+
+  var spawns = this.find(FIND_MY_STRUCTURES, {
+    filter: function(object) {
+      return object.structureType === STRUCTURE_SPAWN;
+    }
+  });
+
+  var hostiles = this.find(FIND_HOSTILE_CREEPS, {
+    filter: this.findAttackCreeps
+  });
+  if (hostiles.length === 0) {
+    this.memory.attackTimer = Math.max(this.memory.attackTimer - 5, 0);
+    // Make sure we don't spawn towerFiller on reducing again
+    if (this.memory.attackTimer % 5 === 0) {
+      this.memory.attackTimer--;
+    }
+  }
+
+  if (spawns.length === 0) {
+    this.reviveRoom();
+  } else if (this.energyCapacityAvailable < config.room.reviveEnergyCapacity) {
+    this.reviveRoom();
+    if (hostiles.length > 0) {
+      this.controller.activateSafeMode();
+    }
+  } else {
+    this.memory.active = true;
+  }
+
+  var nextroomers = this.find(FIND_MY_CREEPS, {
+    filter: function(object) {
+      if (object.memory.role === 'nextroomer') {
+        return object.memory.base != this.name;
+      }
+      return false;
+    }
+  });
+  var building = nextroomers.length > 0 && this.controller.level < 5;
+
+  var creepsInRoom = this.find(FIND_MY_CREEPS);
+  var spawn;
+  if (!building) {
+    let amount = 1;
+    if (!this.storage) {
+      amount = 2;
+      // TODO maybe better spawn harvester when a carry recognize that the dropped energy > threshold
+      if (this.controller.level === 2 || this.controller.level === 3) {
+        amount = 5;
+      }
+    }
+    this.checkRoleToSpawn('harvester', amount, 'harvester');
+  }
+
+  this.handleAttacks(hostiles);
 
   this.checkForEnergyTransfer();
 
@@ -436,24 +438,8 @@ Room.prototype.executeRoom = function() {
   } else if (this.memory.misplacedSpawn && this.storage && this.storage.store.energy > 20000 && this.energyAvailable >= this.energyCapacityAvailable - 300) {
     this.checkRoleToSpawn('planer', 4);
   }
-
-  let extractors = this.find(FIND_STRUCTURES, {
-    filter: {
-      structureType: STRUCTURE_EXTRACTOR
-    }
-  });
-  if (this.terminal && extractors.length > 0) {
-    let minerals = this.find(FIND_MINERALS);
-    if (minerals.length > 0 && minerals[0].mineralAmount > 0) {
-      let amount = this.terminal.store[minerals[0].mineralType] || 0;
-      if (amount < config.mineral.storage) {
-        this.checkRoleToSpawn('extractor');
-      }
-    }
-  }
-  if (config.mineral.enabled && this.terminal && ((this.memory.mineralBuilds && Object.keys(this.memory.mineralBuilds).length > 0) || this.memory.reaction || this.memory.mineralOrder)) {
-    this.checkRoleToSpawn('mineral');
-  }
+  this.checkRoleToSpawn('extractor');
+  this.checkRoleToSpawn('mineral');
 
   if (!building && nextroomers.length === 0) {
     this.handleScout();
@@ -472,9 +458,8 @@ Room.prototype.executeRoom = function() {
   });
 
   this.handleTower();
-  if (this.controller.level > 1 && this.memory.walls && this.memory.walls.finished) {
-    this.checkRoleToSpawn('repairer');
-  }
+
+  this.checkRoleToSpawn('repairer');
 
   this.handleLinks();
   this.handleObserver();
