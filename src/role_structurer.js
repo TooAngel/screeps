@@ -67,6 +67,9 @@ roles.structurer.action = function(creep) {
     var structure;
     structure = creep.pos.findClosestByRange(FIND_STRUCTURES, {
       filter: function(object) {
+        if(object.pos.x === 0 || object.pos.y === 0 || object.pos.x === 49 || object.pos.y === 49){
+          return false;
+        }
         if (object.ticksToDecay === null) {
           return false;
         }

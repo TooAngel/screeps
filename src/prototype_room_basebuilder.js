@@ -50,6 +50,9 @@ Room.prototype.destroyStructure = function(structure) {
         }
       }
     }
+    if(structure.pos.x === 0 || structure.pos.y === 0 || structure.pos.x === 49 || structure.pos.y === 49){
+      return false;
+    }
     this.log('destroyStructure: road not found in paths, destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
     structure.destroy();
     return true;
