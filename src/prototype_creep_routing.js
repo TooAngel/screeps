@@ -16,7 +16,7 @@ Creep.prototype.getRoute = function() {
   if (this.memory.base != this.memory.routing.targetRoom) {
     // TODO more dynamic, room.memory.hostile value?
     let routeCallback = function(roomName, fromRoomName) {
-      if (roomName === creep.memory.routing.targetRoom) {
+      if (roomName === this.memory.routing.targetRoom) {
         return 1;
       }
 
