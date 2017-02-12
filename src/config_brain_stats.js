@@ -1,5 +1,33 @@
 'use strict';
 
+brain.stats.init = function() {
+  let userName = Memory.username;
+  if (!config.stats.enabled || !userName) {return false;}
+  Memory.stats = {
+    [userName]: {
+      roles: {},
+      room: {}
+    }
+  };
+  let rolesNames = _(Game.creeps).map(c => c.memory.role).countBy(function(r) { return r; }).value();
+  _.each(rolesNames, function(element, index) {
+    Memory.stats[userName].roles[index] = element;
+  });
+};
+
+brain.stats.modifyRoleAmount = function(role, diff) {
+  let userName = Memory.username;
+  if (!config.stats.enabled || !userName) {return false;}
+  if (Memory.stats && Memory.stats[userName] && Memory.stats[userName].roles) {
+    let roleStat = Memory.stats[userName].roles[role];
+    let previousAmount = roleStat ? roleStat : 0;
+    let amount = (diff < 0 && previousAmount < -diff) ? 0 : previousAmount + diff;
+    brain.stats.add(['roles', role], amount);
+  } else {
+    brain.stats.init();
+  }
+};
+
 /**
  * stats.add use for push anything into Memory.stats at a given place.
  *
@@ -12,12 +40,11 @@ brain.stats.add = function(path, newContent) {
     return false;
   }
 
-  var name = Memory.username || _.find(Game.spawns, 'owner').owner.username;
-  Memory.username = name;
+  var userName = Memory.username;
   Memory.stats = Memory.stats || {};
-  Memory.stats[name] = Memory.stats[name] || {};
+  Memory.stats[userName] = Memory.stats[userName] || {};
 
-  let current = Memory.stats[name];
+  let current = Memory.stats[userName];
   for (let item of path) {
     if (!current[item]) {
       current[item] = {};
@@ -70,10 +97,7 @@ brain.stats.addRoom = function(roomName, previousCpu) {
   if (!room) {
     return false;
   }
-
-  if (room.memory.upgraderUpgrade === undefined) {
-    room.memory.upgraderUpgrade = 0;
-  }
+  room.memory.upgraderUpgrade = room.memory.upgraderUpgrade || 0;
   brain.stats.add(['room', roomName], {
     energy: {
       available: room.energyAvailable,
@@ -107,17 +131,4 @@ brain.stats.addRoom = function(roomName, previousCpu) {
     });
   }
   return true;
-};
-brain.stats.init = function() {
-  var name = Memory.username || _.find(Game.spawns, 'my').owner;
-  Memory.stats = {
-    [name]: {
-      roles: {},
-      room: {}
-    }
-  };
-  let rolesNames = _(Game.creeps).map(c => c.memory.role).countBy(function(r) { return r; }).value();
-  _.forEach(rolesNames, function(element, index) {
-    Memory.stats[name].roles[index] = element;
-  });
 };

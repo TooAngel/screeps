@@ -325,14 +325,7 @@ Room.prototype.spawnCreateCreep = function(creep) {
     if (spawn.createCreep(partConfig, name, memory) != name) {
       continue;
     }
-    if (config.stats.enabled) {
-      let userName = Memory.username || _.find(Game.spawns, 'owner').owner;
-      Memory.stats = Memory.stats || {};
-      Memory.stats[userName].roles = Memory.stats[userName].roles || {};
-      let roleStat = Memory.stats[userName].roles[role];
-      let previousAmount = roleStat ? roleStat : 0;
-      Memory.stats[userName].roles[role] = previousAmount + 1;
-    }
+    brain.stats.modifyRoleAmount(creep.role, 1);
     return true;
   }
   return false;
