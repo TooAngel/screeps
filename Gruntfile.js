@@ -6,14 +6,13 @@ try {
 module.exports = function(grunt) {
   var account;
   try {
-    account = require('./account.screeps.com');
+    account = require('account.screeps.com');
   } catch (e) {
     account = {
       email: false,
       password: false
     };
   }
-  console.log(account);
 
   grunt.loadNpmTasks('grunt-screeps');
   grunt.loadNpmTasks('grunt-contrib-jshint');
