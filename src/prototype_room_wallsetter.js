@@ -3,11 +3,7 @@
 Room.prototype.buildBlockers = function() {
   //   this.log('buildBlockers: ' + this.memory.controllerLevel.buildBlockersInterval);
 
-  var spawns = this.find(FIND_MY_STRUCTURES, {
-    filter: function(object) {
-      return object.structureType === 'spawn';
-    }
-  });
+  var spawns = this.findOnlyStructType(FIND_MY_STRUCTURES, [STRUCTURE_SPAWN]);
   if (spawns.length === 0) {
     return false;
   }

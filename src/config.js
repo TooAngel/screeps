@@ -46,6 +46,10 @@ global.config = {
     getPartsConfLogs: false
   },
 
+  debug: {
+    divers: false,
+  },
+
   autoattack: {
     disabled: false,
     notify: false,

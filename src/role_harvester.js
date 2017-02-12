@@ -53,7 +53,10 @@ roles.harvester.preMove = function(creep, directions) {
   creep.setNextSpawn();
   creep.spawnReplacement(1);
 
-  if (!creep.room.storage || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
+  let linkStorage = creep.room.getLinkStorage();
+  if (linkStorage && linkStorage.energy > 0.2 * linkStorage.energyCapacity) {
+    creep.withdraw(linkStorage, RESOURCE_ENERGY);
+  } else if (!creep.room.storage || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
     creep.harvesterBeforeStorage();
     creep.memory.routing.reached = true;
     return true;

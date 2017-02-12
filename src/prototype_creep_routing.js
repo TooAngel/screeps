@@ -13,11 +13,10 @@ Creep.prototype.getRoute = function() {
 
   // Add room avoidance
   let route = [];
-  let creep = this;
   if (this.memory.base != this.memory.routing.targetRoom) {
     // TODO more dynamic, room.memory.hostile value?
     let routeCallback = function(roomName, fromRoomName) {
-      if (roomName === creep.memory.routing.targetRoom) {
+      if (roomName === this.memory.routing.targetRoom) {
         return 1;
       }
 
@@ -54,7 +53,8 @@ Creep.prototype.getRoute = function() {
   return route;
 };
 
-Creep.prototype.getRoutePos = function(route) {
+Creep.prototype.getRoutePos = function() {
+  let route = this.getRoute();
   let routePos = this.memory.routing.routePos || 0;
   // Detect room change
   if (!route[routePos] || this.room.name != route[routePos].room) {
@@ -66,7 +66,7 @@ Creep.prototype.getRoutePos = function(route) {
     }
   }
   this.memory.routing.routePos = routePos;
-  return routePos;
+  return {route: route, routePos: routePos};
 };
 
 Creep.prototype.getPathPos = function(route, routePos, path) {
@@ -179,48 +179,31 @@ Creep.prototype.getDirections = function(path, pathPos) {
   };
 };
 
-Creep.prototype.followPath = function(action) {
-  let route = this.getRoute();
-  let routePos = this.getRoutePos(route);
-
-  // TODO Disable base room for now
-  // if (routePos === 0) {
-  // this.say('R:Base');
-  // return false;
-  // }
-
+Creep.prototype.followPath = function() {
+  if (!this.memory.routing) {return ERR_NO_PATH;}
+  let {route, routePos} = this.getRoutePos();
   let unit = roles[this.memory.role];
-
-  if (!this.memory.routing.targetId && this.room.name === this.memory.routing.targetRoom) {
-    this.memory.routing.reached = true;
-    return action(this);
+  if (!this.memory.routing.reached) {
+    if (unit.buildRoad) {this.buildRoad();}
+    return this.moveByPathMy(route, routePos, 'pathStart', this.memory.routing.targetId, false);
   }
-  return this.moveByPathMy(route, routePos, 'pathStart', this.memory.routing.targetId, false, action);
+  if (this.inBase() || !Room.isRoomUnderAttack(this.room.name)) {
+    return unit.action(this);
+  }
 };
-
-Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreMove, action) {
+Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreMove) {
   let unit = roles[this.memory.role];
   // Somehow reset the pathPos if the path has changed?!
+  if (!Game.getObjectById(target) && unit.resetTarget) {
+    unit.resetTarget(this);
+  }
   let path = this.room.getPath(route, routePos, start, target);
   if (!path) {
-    // TODO this could be because the targetId Object does not exist anymore
-    // this.log('newmove: no path legacy fallback: ' + this.memory.base + ' ' +
-    // this.room.name + ' ' + this.memory.base + ' ' +
-    // this.memory.routing.targetRoom + ' routePos: ' + routePos + ' route: ' +
-    // JSON.stringify(route));
-    this.say('R:no path');
-    // this.log('R:no path: pathStart-' + this.memory.routing.targetId);
-    if (!skipPreMove) {
-      if (unit.preMove) {
-        if (unit.preMove(this)) {
-          return true;
-        }
-      }
-    }
+    this.say('NoPath');
     return false;
   }
-
   let pathPos = this.getPathPos(route, routePos, path);
+
   if (pathPos < 0) {
     this.say('R:pos -1');
     this.memory.routing.pathPos = pathPos;
@@ -246,20 +229,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
           let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
 
           // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
-          let structures = room.find(FIND_STRUCTURES, {
-            filter: function(object) {
-              if (object.structureType === STRUCTURE_RAMPART) {
-                return false;
-              }
-              if (object.structureType === STRUCTURE_ROAD) {
-                return false;
-              }
-              if (object.structureType === STRUCTURE_CONTAINER) {
-                return false;
-              }
-              return true;
-            }
-          });
+          let structures = room.findWithoutStructType(FIND_STRUCTURES, [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER]);
           for (let structure of structures) {
             costMatrix.set(structure.pos.x, structure.pos.y, config.layout.structureAvoid);
           }
@@ -334,7 +304,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
         // this.log('creep_routing.followPath reached: ' + pathPos + '
         // path.length: ' + path.length);
         this.memory.routing.reached = true;
-        return action(this);
+        return unit.action(this);
       }
     }
   }

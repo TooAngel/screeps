@@ -22,6 +22,22 @@ Room.prototype.nearestRoomName = function(roomsNames, limit) {
   return _.min(roomsNames, sortByLinearDistance);
 };
 
+Room.prototype.findWithoutStructType = function(findTarget, excludes) {
+  let table = {};
+  _.each(excludes, e => table[e] = true);
+  return this.find(findTarget, {
+    filter: s => !table[s.structureType]
+  });
+};
+
+Room.prototype.findOnlyStructType = function(findTarget, excludes) {
+  let table = {};
+  _.each(excludes, e => table[e] = true);
+  return this.find(findTarget, {
+    filter: s => table[s.structureType]
+  });
+};
+
 Room.prototype.closestSpawn = function(target) {
   let pathLength = {};
   let roomsMy = this.sortMyRoomsByLinearDistance(target);
