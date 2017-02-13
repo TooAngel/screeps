@@ -16,6 +16,14 @@ roles.mineral.settings = {
 
 };
 
+roles.mineral.updateAmount = function(creep, room) {
+  return config.mineral.enabled && room.terminal &&
+    (
+      (room.memory.mineralBuilds && Object.keys(room.memory.mineralBuilds).length > 0) ||
+      room.memory.reaction || room.memory.mineralOrder
+    ) ? 1 : 0;
+};
+
 roles.mineral.action = function(creep) {
   return creep.handleMineralCreep();
 };

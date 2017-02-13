@@ -16,6 +16,24 @@ roles.extractor.settings = {
   maxLayoutAmount: 8,
 };
 
+roles.extractor.updateAmount = function(creep, room) {
+  let extractors = room.find(FIND_STRUCTURES, {
+    filter: {
+      structureType: STRUCTURE_EXTRACTOR
+    }
+  });
+  if (room.terminal && extractors.length > 0) {
+    let minerals = room.find(FIND_MINERALS);
+    if (minerals.length > 0 && minerals[0].mineralAmount > 0) {
+      let amount = room.terminal.store[minerals[0].mineralType] || 0;
+      if (amount < config.mineral.storage) {
+        return 1;
+      }
+    }
+  }
+  return 0;
+};
+
 roles.extractor.terminalStorageExchange = function(creep) {
   var terminal = creep.room.terminal;
   if (!terminal || !terminal.isActive()) {

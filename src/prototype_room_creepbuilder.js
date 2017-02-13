@@ -68,8 +68,6 @@ Room.prototype.inQueue = function(creepMemory) {
  */
 Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, level, base) {
   targetRoom = targetRoom || this.name;
-  amount = amount || 1;
-
   let creepMemory = {
     role: role,
     level: level,
@@ -79,6 +77,12 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
       targetId: targetId
     }
   };
+  amount = amount || 1;
+  if (roles[role].updateAmount && amount === 1) {
+    amount = roles[role].updateAmount(creepMemory, this);
+    if (!amount) {return false;}
+  }
+
   if (this.inQueue(creepMemory)) {return false;}
   let creeps = this.find(FIND_MY_CREEPS);
   let spawns = this.find(FIND_MY_SPAWNS);
