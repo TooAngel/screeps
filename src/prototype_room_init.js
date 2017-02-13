@@ -238,17 +238,34 @@ let buildCostMatrix = function(room) {
   return costMatrixBase;
 };
 
+Room.prototype.checkAround = function(path, pathPos, aroundMap, diff) {
+  let pos = {};
+  for (let p = 0; p < 3; p++) {
+    pos[p] = new RoomPosition(path[pathPos].x + aroundMap[diff][p][0], path[pathPos].y + aroundMap[diff][p][1], this.roomName);
+  }
+  return _.maxBy(pos, this.aroundLength);
+};
 Room.prototype.setup = function() {
-  delete this.memory.constants;
-  this.log('costmatrix.setup called');
-  this.memory.controllerLevel = {};
-
-  let costMatrixBase = buildCostMatrix(this);
-  //  this.memory.position = {
-  //    creep: {}
-  //  };
-
-  // TODO find longest path, calculate vert-/horizontal as 2 (new structures) and diagonal as 4
+  var aroundLength = function(pos) {
+    let near = pos.findNearPosition();
+    return near ? near.length : 0;
+  };
+  var getAroundMap = function() {
+    let keys = [[2, 0], [-2, 0], [0, 2], [0, -2]];
+    let key = [];
+    let absKey = [];
+    let map = new Map();
+    for (let i = 0; i < 4; i++) {
+      key = keys[i];
+      absKey = [Math.abs(key[0]), Math.abs(key[1])];
+      for (let j = 0; j < 3; j++) {
+        for (let k = 0; k < 2; k++) {
+          map[key][j][k] = Math.abs(key[0]) === 2 ? key[0] / 2 : j - 1;
+        }
+      }
+    }
+    return map;
+  };
 
   let sorter = function(object) {
     let last_pos;
@@ -281,11 +298,27 @@ Room.prototype.setup = function() {
     return value;
   };
 
+  delete this.memory.constants;
+  this.log('costmatrix.setup called');
+  this.memory.controllerLevel = {};
+
+  let costMatrixBase = buildCostMatrix(this);
+  //  this.memory.position = {
+  //    creep: {}
+  //  };
+  // TODO find longest path, calculate vert-/horizontal as 2 (new structures) and diagonal as 4
   let paths_controller = _.filter(this.getMemoryPaths(), function(object, key) {
     return key.startsWith('pathStart-');
   });
-  let paths_sorted = _.sortBy(paths_controller, sorter);
+  let paths_sorted = _.sortBy(paths_controller, this.sorter);
   let path = this.getMemoryPath(paths_sorted[paths_sorted.length - 1].name);
+  let pos = {};
+  let aroundMap = getAroundMap();
+  let iMax = path.length;
+  for (let i = 0; i < iMax - 3; i++) {
+    let diff = path[i].x - path[i + 2].x + ',' + path[i].y - path[i + 2].y;
+    path[i + 1] = this.checkAround(path, i, aroundMap, diff);
+  }
   let pathI = setStructures(this, path, costMatrixBase);
   console.log('path: ' + path.name + ' pathI: ' + pathI + ' length: ' + path.length);
   if (pathI === -1) {
