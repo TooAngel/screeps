@@ -63,6 +63,42 @@ Room.prototype.setTowerFiller = function() {
   }
 };
 
+function setLabsTerminal(room, path, costMatrixBase) {
+  for (let pathI = path.length - 1; pathI > 0; pathI--) {
+    let pathPos = new RoomPosition(path[pathI].x, path[pathI].y, room.name);
+    let structurePosIterator = pathPos.findNearPosition();
+    for (let structurePos of structurePosIterator) {
+      if (room.memory.position.structure.lab.length < CONTROLLER_STRUCTURES.lab[8]) {
+        room.memory.position.structure.lab.push(structurePos);
+        costMatrixBase.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
+        continue;
+      }
+      if (room.memory.position.structure.terminal.length < CONTROLLER_STRUCTURES.terminal[8]) {
+        room.memory.position.structure.terminal.push(structurePos);
+        costMatrixBase.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
+        room.memory.position.pathEnd = [pathPos];
+        continue;
+      }
+      if (room.memory.position.structure.lab.length < CONTROLLER_STRUCTURES.lab[8] ||
+        room.memory.position.structure.terminal.length < CONTROLLER_STRUCTURES.terminal[8]) {
+        room.log('Structures not found: ' +
+          'lab: ' + room.memory.position.structure.lab.length + ' ' +
+          'terminal: ' + room.memory.position.structure.terminal.length
+        );
+        continue;
+      }
+      if (!room.memory.position.pathEnd) {
+        room.log('Room not completly build');
+      }
+      console.log('All labs/terminal set: ' + pathI);
+      return pathI;
+    }
+  }
+  room.setMemoryCostMatrix(costMatrixBase);
+
+  return -1;
+}
+
 function setStructures(room, path, costMatrixBase) {
   room.setTowerFiller();
 
@@ -97,11 +133,6 @@ function setStructures(room, path, costMatrixBase) {
         costMatrixBase.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
         continue;
       }
-      if (room.memory.position.structure.lab.length < CONTROLLER_STRUCTURES.lab[8]) {
-        room.memory.position.structure.lab.push(structurePos);
-        costMatrixBase.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
-        continue;
-      }
       if (room.memory.position.structure.nuker.length < CONTROLLER_STRUCTURES.nuker[8]) {
         room.memory.position.structure.nuker.push(structurePos);
         costMatrixBase.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
@@ -112,12 +143,7 @@ function setStructures(room, path, costMatrixBase) {
         costMatrixBase.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
         continue;
       }
-      if (room.memory.position.structure.terminal.length < CONTROLLER_STRUCTURES.terminal[8]) {
-        room.memory.position.structure.terminal.push(structurePos);
-        costMatrixBase.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
-        room.memory.position.pathEnd = [pathPos];
-        continue;
-      }
+
       if (room.memory.position.structure.link.length < CONTROLLER_STRUCTURES.link[8]) {
         room.memory.position.structure.link.push(structurePos);
         costMatrixBase.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
@@ -129,8 +155,6 @@ function setStructures(room, path, costMatrixBase) {
         room.memory.position.structure.tower.length < CONTROLLER_STRUCTURES.tower[8] ||
         room.memory.position.structure.link.length < CONTROLLER_STRUCTURES.link[8] ||
         room.memory.position.structure.observer.length < CONTROLLER_STRUCTURES.observer[8] ||
-        room.memory.position.structure.lab.length < CONTROLLER_STRUCTURES.lab[8] ||
-        room.memory.position.structure.terminal.length < CONTROLLER_STRUCTURES.terminal[8] ||
         room.memory.position.structure.nuker.length < CONTROLLER_STRUCTURES.nuker[8]) {
         room.log('Structures not found: ' +
           'spawns: ' + room.memory.position.structure.spawn.length + ' ' +
@@ -286,6 +310,8 @@ Room.prototype.setup = function() {
   });
   let paths_sorted = _.sortBy(paths_controller, sorter);
   let path = this.getMemoryPath(paths_sorted[paths_sorted.length - 1].name);
+  let pathLB = this.getMemoryPath(paths_controller[4].name);
+  let pathL = setLabsTerminal(this, pathLB, costMatrixBase);
   let pathI = setStructures(this, path, costMatrixBase);
   console.log('path: ' + path.name + ' pathI: ' + pathI + ' length: ' + path.length);
   if (pathI === -1) {
