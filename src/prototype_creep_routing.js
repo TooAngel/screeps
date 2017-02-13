@@ -310,8 +310,13 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     // ' + this.pos + ' routePos: ' + routePos + ' path: ' +
     // JSON.stringify(path) + ' route: ' + JSON.stringify(route));
     this.say('R:p-1: ' + this.pos.getDirectionTo(search.path[0]));
-    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
-    if (returnCode === OK) {
+    var creepPos = this.pos;
+    let returnCode = this.moveTo(_.min(search.path, function(object) {
+      return object.getRangeTo(creepPos);
+    }), {
+      reusePath: 0
+    });
+    if (returnCode == OK) {
       return true;
     }
     if (returnCode === ERR_TIRED) {
