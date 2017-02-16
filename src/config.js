@@ -15,8 +15,9 @@ try {
 }
 
 global.config = {
+  debug: {},
   profiler: {
-    enabled: false,
+    enabled: true,
   },
   visualizer: {
     enabled: false,
@@ -38,12 +39,9 @@ global.config = {
   },
 
   stats: {
-    enabled: false,
-    summary: false,
-  },
-
-  debug: {
-    getPartsConfLogs: false
+    enabled: true,
+    summary: true,
+    screepsplusToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRvb2FuZ2VscyIsImlhdCI6MTQ4MzU2MTU3OSwiYXVkIjoic2NyZWVwc3BsLnVzIiwiaXNzIjoic2NyZWVwc3BsLnVzIn0.NhobT7Jg8bOAg-MYqrYsgeMgXEVXGVYG9s3G9Qpfm-o',
   },
 
   autoattack: {
@@ -69,8 +67,8 @@ global.config = {
   carryHelpers: {
     ticksUntilHelpCheck: 100,
     maxHelpersAmount: 5,
-    helpTreshold: 1500,
-    needTreshold: 750,
+    helpTreshold: 1000,
+    needTreshold: 500,
     maxDistance: 7,
     factor: 0.2
   },

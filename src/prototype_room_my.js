@@ -387,7 +387,8 @@ Room.prototype.executeRoom = function() {
     this.checkRoleToSpawn('storagefiller', 1, 'filler');
   }
 
-  if (this.storage && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
+  if (this.storage && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn &&
+    (this.energyAvailable > this.energyCapacityAvailable / 4  || this.controller.ticksToDowngrade < 10000)) {
     this.checkRoleToSpawn('upgrader', 1, this.controller.id);
   }
 
