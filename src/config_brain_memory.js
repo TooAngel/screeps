@@ -1,6 +1,6 @@
 'use strict';
 
-brain.prepareMemory = function() {
+brain.setMarketOrdersBuy = function() {
   Memory.mineralSystemPrice = {};
   Memory.ordersBuy = _.filter(Game.market.getAllOrders(), function(object) {
     if (object.type != ORDER_BUY) {
@@ -16,7 +16,9 @@ brain.prepareMemory = function() {
     }
     return true;
   });
+};
 
+brain.setConstructionSites = function() {
   if (!Memory.constructionSites) {
     Memory.constructionSites = {};
   }
@@ -40,55 +42,65 @@ brain.prepareMemory = function() {
     Memory.constructionSites = constructionSites;
     console.log('Known constructionSites: ' + Object.keys(constructionSites).length);
   }
+};
 
-  var userName = Memory.username || _.find(Game.spawns, 'owner').owner.username;
-  Memory.username = userName;
+brain.addToStats = function(name) {
+  Memory.username = Memory.username || _.find(Game.spawns, 'owner').owner.username;
+  let role = Memory.creeps[name].role;
+  if (config.stats.enabled && Memory.username && Memory.stats && Memory.stats[Memory.username].roles) {
+    let roleStat = Memory.stats[Memory.username].roles[role];
+    let previousAmount = roleStat ? roleStat : 0;
+    let amount = previousAmount > 0 ? previousAmount - 1 : 0;
+    brain.stats.add(['roles', role], amount);
+  }
+};
+
+brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
+  console.log(name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
+  if (Game.time - creepMemory.born < 20) {
+    return;
+  }
+
+  if (!creepMemory.role) {
+    delete Memory.creeps[name];
+    return;
+  }
+
+  let unit = roles[creepMemory.role];
+  if (!unit) {
+    delete Memory.creeps[name];
+    return;
+  }
+  if (unit.died) {
+    unit.died(name, creepMemory);
+    //            delete Memory.creeps[name];
+  } else {
+    delete Memory.creeps[name];
+  }
+};
+
+brain.cleanCreeps = function() {
   // Cleanup memory
   for (let name in Memory.creeps) {
     if (!Game.creeps[name]) {
-      let role = Memory.creeps[name].role;
-      if (config.stats.enabled && userName && Memory.stats && Memory.stats[userName].roles) {
-        let roleStat = Memory.stats[userName].roles[role];
-        let previousAmount = roleStat ? roleStat : 0;
-        let amount = previousAmount > 0 ? previousAmount - 1 : 0;
-        brain.stats.add(['roles', role], amount);
-      }
-
+      brain.addToStats(name);
       if ((name.startsWith('reserver') && Memory.creeps[name].born < (Game.time - CREEP_CLAIM_LIFE_TIME)) || Memory.creeps[name].born < (Game.time - CREEP_LIFE_TIME)) {
         delete Memory.creeps[name];
-      } else {
-        var creepMemory = Memory.creeps[name];
-        if (creepMemory.killed) {
-          delete Memory.creeps[name];
-          continue;
-        }
-
-        console.log(name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
-        if (Game.time - creepMemory.born < 20) {
-          continue;
-        }
-        if (!creepMemory.role) {
-          delete Memory.creeps[name];
-          continue;
-        }
-        try {
-          let unit = roles[creepMemory.role];
-          if (!unit) {
-            delete Memory.creeps[name];
-          }
-          if (unit.died) {
-            unit.died(name, creepMemory);
-            //            delete Memory.creeps[name];
-          } else {
-            delete Memory.creeps[name];
-          }
-        } catch (e) {
-          delete Memory.creeps[name];
-        }
+        continue;
       }
+
+      var creepMemory = Memory.creeps[name];
+      if (creepMemory.killed) {
+        delete Memory.creeps[name];
+        continue;
+      }
+
+      brain.handleUnexpectedDeadCreeps(name, creepMemory);
     }
   }
+};
 
+brain.cleanSquads = function() {
   if (Game.time % 1500 === 0) {
     for (let squadId in Memory.squads) {
       let squad = Memory.squads[squadId];
@@ -98,7 +110,9 @@ brain.prepareMemory = function() {
       }
     }
   }
+};
 
+brain.cleanRooms = function() {
   if (Game.time % 300 === 0) {
     for (let name in Memory.rooms) {
       // Check for reserved rooms
@@ -115,56 +129,77 @@ brain.prepareMemory = function() {
       }
     }
   }
+};
 
-  if (config.stats.summary) {
-    var interval = 100;
-    if (Game.time % interval === 0) {
-      console.log('=========================');
-      var diff = Game.gcl.progress - Memory.progress;
-      Memory.progress = Game.gcl.progress;
+brain.getStorageStringForRoom = function(strings, room, interval) {
+  let addToString = function(variable, name, value) {
+    strings[variable] += name + ':' + value + ' ';
+  };
 
-      console.log('Progress: ', diff / interval, '/', Memory.myRooms.length * 15);
-      console.log('ConstructionSites: ', Object.keys(Memory.constructionSites).length);
-      console.log('-------------------------');
+  if (room.storage.store.energy < 200000) {
+    addToString('storageLowString', room.name, room.storage.store.energy);
+  } else if (room.storage.store.energy > 800000) {
+    addToString('storageHighString', room.name, room.storage.store.energy);
+  } else {
+    addToString('storageMiddleString', room.name, room.storage.store.energy);
+  }
+  if (room.storage.store.power && room.storage.store.power > 0) {
+    addToString('storagePower', room.name, room.storage.store.power);
+  }
+  // TODO 15 it should be
+  if (Math.ceil(room.memory.upgraderUpgrade / interval) < 15) {
+    addToString('upgradeLess', room.name, room.memory.upgraderUpgrade / interval);
+  }
+  room.memory.upgraderUpgrade = 0;
+};
 
-      var storageNoString = '';
-      var storageLowString = '';
-      var storageMiddleString = '';
-      var storageHighString = '';
-      var storagePower = '';
-      var upgradeLess = '';
-      for (var id in Memory.myRooms) {
-        let name = Memory.myRooms[id];
-        let room = Game.rooms[name];
-        if (!room || !room.storage) {
-          storageNoString += name + ' ';
-          continue;
-        }
-        if (room.storage.store.energy < 200000) {
-          storageLowString += name + ':' + room.storage.store.energy + ' ';
-        } else if (room.storage.store.energy > 800000) {
-          storageHighString += name + ':' + room.storage.store.energy + ' ';
-        } else {
-          storageMiddleString += name + ':' + room.storage.store.energy + ' ';
-        }
-        if (room.storage.store.power && room.storage.store.power > 0) {
-          storagePower += name + ':' + room.storage.store.power + ' ';
-        }
-        // TODO 15 it should be
-        if (Math.ceil(room.memory.upgraderUpgrade / interval) < 15) {
-          upgradeLess += name + ':' + room.memory.upgraderUpgrade / interval + ' ';
-        }
-        room.memory.upgraderUpgrade = 0;
-      }
-      console.log('No storage:', storageNoString);
-      console.log('Low storage:', storageLowString);
-      console.log('Middle storage:', storageMiddleString);
-      console.log('High storage:', storageHighString);
-      console.log('-------------------------');
-      console.log('Power storage:', storagePower);
-      console.log('-------------------------');
-      console.log('Upgrade less:', upgradeLess);
-      console.log('=========================');
+brain.printSummary = function() {
+  var interval = 100;
+  if (Game.time % interval !== 0) {
+    return;
+  }
+  var diff = Game.gcl.progress - Memory.progress;
+  Memory.progress = Game.gcl.progress;
+
+  let strings = {
+    storageNoString: '',
+    storageLowString: '',
+    storageMiddleString: '',
+    storageHighString: '',
+    storagePower: '',
+    upgradeLess: ''
+  };
+  for (var name of Memory.myRooms) {
+    let room = Game.rooms[name];
+    if (!room || !room.storage) {
+      strings.storageNoString += name + ' ';
+      continue;
     }
+    brain.getStorageStringForRoom(strings, room, interval);
+  }
+
+  console.log(`=========================
+Progress: ${diff / interval}/${Memory.myRooms.length * 15}
+ConstructionSites: ${Object.keys(Memory.constructionSites).length}
+-------------------------
+No storage: ${strings.storageNoString}
+Low storage: ${strings.storageLowString}
+Middle storage: ${strings.storageMiddleString}
+High storage: ${strings.storageHighString}
+-------------------------
+Power storage: ${strings.storagePower}
+-------------------------
+Upgrade less: ${strings.upgradeLess}
+=========================`);
+};
+
+brain.prepareMemory = function() {
+  brain.setMarketOrdersBuy();
+  brain.setConstructionSites();
+  brain.cleanCreeps();
+  brain.cleanSquads();
+  brain.cleanRooms();
+  if (config.stats.summary) {
+    brain.printSummary();
   }
 };
