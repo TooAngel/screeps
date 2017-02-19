@@ -34,7 +34,7 @@ Room.prototype.findPropertyFiltre = function(findTarget, property, properties, w
   let table = {};
   _.each(properties, e => table[e] = true);
   return this.find(findTarget, {
-    filter: s => (!without && table[s[property]]) || !table[s[property]]
+    filter: s => without ? !table[s[property]] : table[s[property]]
   });
 };
 
