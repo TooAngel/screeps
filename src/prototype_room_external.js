@@ -88,7 +88,7 @@ Room.prototype.externalHandleHighwayRoom = function() {
     return false;
   }
 
-  var structures = this.findPropertyFiltre(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
+  var structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
   if (structures.length === 0) {
     if (Memory.powerBanks) {
       delete Memory.powerBanks[this.name];
@@ -197,7 +197,7 @@ Room.prototype.handleOccupiedRoom = function() {
       if (myCreeps.length > 0) {
         return false;
       }
-      var spawns = this.findPropertyFiltre(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+      var spawns = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
       if (spawns.length > 0) {
         this.attackRoom();
       }

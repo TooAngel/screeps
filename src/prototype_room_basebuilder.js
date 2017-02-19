@@ -61,7 +61,7 @@ Room.prototype.destroyStructure = function(structure) {
   if (posIsIn(structure.pos, this.memory.position.structure[structure.structureType])) {
     return false;
   }
-  let structures = this.findPropertyFiltre(FIND_STRUCTURES, 'structureType', [structure.structureType]);
+  let structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [structure.structureType]);
   let structuresMin = 0;
   if (structure.structureType === STRUCTURE_SPAWN) {
     structuresMin = 1;
@@ -99,7 +99,7 @@ Room.prototype.destroyStructure = function(structure) {
     // Build ramparts around the spawn if wallThickness > 1
     if (config.layout.wallThickness > 1) {
       let costMatrixBase = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
-      let spawns = this.findPropertyFiltre(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+      let spawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
       let getWalls = function(object) {
         return object.structureType === STRUCTURE_WALL;
       };
@@ -174,7 +174,7 @@ Room.prototype.checkWrongStructure = function() {
   //  this.log('checkWrongStructure: controller.level < 6');
   //  return false;
   //}
-  let structures = this.findPropertyFiltre(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_CONTROLLER], true);
+  let structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_CONTROLLER], true);
   for (let structure of structures) {
     if (this.destroyStructure(structure)) {
       return true;
@@ -206,8 +206,8 @@ Room.prototype.clearPosition = function(pos, structure) {
 };
 
 Room.prototype.setupStructure = function(structure) {
-  var structures = this.findPropertyFiltre(FIND_MY_STRUCTURES, 'structureType', [structure]);
-  var constructionsites = this.findPropertyFiltre(FIND_CONSTRUCTION_SITES, 'structureType', [structure]);
+  var structures = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [structure]);
+  var constructionsites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [structure]);
   // Only build one spawn at a time, especially for reviving
   if (structure === STRUCTURE_SPAWN) {
     if (constructionsites.length > 0) {
@@ -291,7 +291,7 @@ Room.prototype.buildStructures = function() {
     return false;
   }
 
-  let constructionSites = this.findPropertyFiltre(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], true);
+  let constructionSites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], true);
   if (constructionSites.length > 3) {
     //    this.log('basebuilder.setup: Too many construction sites');
     return true;
@@ -316,7 +316,7 @@ Room.prototype.buildStructures = function() {
     return true;
   }
 
-  if (!this.storage || this.findPropertyFiltre(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_LINK]).length > 0) {
+  if (!this.storage || this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_LINK]).length > 0) {
     return false;
   }
   if (this.setupStructure(STRUCTURE_POWER_SPAWN)) {

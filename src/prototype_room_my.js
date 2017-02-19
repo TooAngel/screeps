@@ -102,7 +102,7 @@ Room.prototype.handleLinks = function() {
 };
 
 Room.prototype.handlePowerSpawn = function() {
-  let powerSpawns = this.findPropertyFiltre(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_POWER_SPAWN]);
+  let powerSpawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_POWER_SPAWN]);
   if (powerSpawns.length === 0) {
     return false;
   }
@@ -120,7 +120,7 @@ Room.prototype.handleObserver = function() {
   if (CONTROLLER_STRUCTURES.observer[this.controller.level] === 0) {
     return false;
   }
-  let observers = this.findPropertyFiltre(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_OBSERVER]);
+  let observers = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_OBSERVER]);
   if (observers.length > 0) {
     if (!this.memory.observe_rooms) {
       // TODO manage switch from E to W and S to N
@@ -269,7 +269,7 @@ Room.prototype.executeRoom = function() {
   let cpuUsed = Game.cpu.getUsed();
   this.buildBase();
   this.memory.attackTimer = this.memory.attackTimer || 0;
-  var spawns = this.findPropertyFiltre(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+  var spawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
   var hostiles = this.find(FIND_HOSTILE_CREEPS, {
     filter: this.findAttackCreeps
   });
@@ -330,7 +330,7 @@ Room.prototype.executeRoom = function() {
     }
   }
   if (this.memory.attackTimer >= 50 && this.controller.level > 6) {
-    let towers = this.findPropertyFiltre(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER]);
+    let towers = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER]);
     if (towers.length === 0) {
       this.memory.attackTimer = 47;
     } else {
@@ -391,7 +391,7 @@ Room.prototype.executeRoom = function() {
     this.checkRoleToSpawn('upgrader', 1, this.controller.id);
   }
 
-  var constructionSites = this.findPropertyFiltre(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART], true);
+  var constructionSites = this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART], true);
   if (constructionSites.length > 0) {
     let amount = 1;
     for (let cs of constructionSites) {
@@ -403,7 +403,7 @@ Room.prototype.executeRoom = function() {
   } else if (this.memory.misplacedSpawn && this.storage && this.storage.store.energy > 20000 && this.energyAvailable >= this.energyCapacityAvailable - 300) {
     this.checkRoleToSpawn('planer', 4);
   }
-  let extractors = this.findPropertyFiltre(FIND_STRUCTURES, 'structureType', [STRUCTURE_EXTRACTOR]);
+  let extractors = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_EXTRACTOR]);
   if (this.terminal && extractors.length > 0) {
     let minerals = this.find(FIND_MINERALS);
     if (minerals.length > 0 && minerals[0].mineralAmount > 0) {
@@ -420,7 +420,7 @@ Room.prototype.executeRoom = function() {
   if (!building && nextroomers.length === 0) {
     this.handleScout();
   }
-  let constructionSitesBlocker = this.findPropertyFiltre(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL]);
+  let constructionSitesBlocker = this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL]);
   this.handleTower();
   if (this.controller.level > 1 && this.memory.walls && this.memory.walls.finished) {
     this.checkRoleToSpawn('repairer');

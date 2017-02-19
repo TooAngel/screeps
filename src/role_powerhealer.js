@@ -40,7 +40,7 @@ roles.powerhealer.action = function(creep) {
         return object.hits < object.hitsMax / 1.5;
       }
     });
-    var power_bank = creep.room.findPropertyFiltre(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
+    var power_bank = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
     if (power_bank.length > 0 && power_bank[0].hits > 100000) {
       creep.spawnReplacement();
     }

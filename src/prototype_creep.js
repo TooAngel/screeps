@@ -186,7 +186,7 @@ Creep.prototype.buildRoad = function() {
     return true;
   }
 
-  constructionSites = this.room.findPropertyFiltre(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD]);
+  constructionSites = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD]);
   if (constructionSites.length <= config.buildRoad.maxConstructionSitesRoom && Object.keys(Game.constructionSites).length < config.buildRoad.maxConstructionSitesTotal && this.pos.inPath()) {
     let returnCode = this.pos.createConstructionSite(STRUCTURE_ROAD);
     if (returnCode === OK) {

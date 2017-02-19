@@ -47,7 +47,7 @@ Room.prototype.getAvoids = function(target, inRoom) {
       if (target && target.pos) {
         costMatrix.set(target.pos.x, target.pos.y, 0);
       }
-      let structures = this.findPropertyFiltre(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD], true);
+      let structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD], true);
       for (let structure of structures) {
         costMatrix.set(structure.pos.x, structure.pos.y, 255);
       }

@@ -10,7 +10,7 @@ Creep.prototype.harvesterBeforeStorage = function() {
   }
 
   methods.push(Creep.transferEnergy);
-  let structures = this.room.findPropertyFiltre(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_CONTROLLER], true);
+  let structures = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_CONTROLLER], true);
   if (structures.length > 0) {
     methods.push(Creep.constructTask);
   }
@@ -616,7 +616,7 @@ Creep.prototype.construct = function() {
       for (let structureId in structures) {
         let structure = structures[structureId];
         if (structure.structureType === STRUCTURE_SPAWN) {
-          let spawns = this.room.findPropertyFiltre(FIND_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+          let spawns = this.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
           if (spawns.length <= 1) {
             target.remove();
             return true;
@@ -640,7 +640,7 @@ Creep.prototype.construct = function() {
           costMatrix.set(creep.pos.x, creep.pos.y, 0);
 
           // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
-          let structures = room.findPropertyFiltre(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
+          let structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
           for (let structure of structures) {
             costMatrix.set(structure.pos.x, structure.pos.y, config.layout.structureAvoid);
           }
@@ -796,7 +796,7 @@ Creep.prototype.handleReserver = function() {
       if (structurers.length > 0) {
         return false;
       }
-      var resource_structures = creep.room.findPropertyFiltre(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
+      var resource_structures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
       if (resource_structures.length > 0 && !creep.room.controller.my) {
         creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resource_structures[0].structureType);
         Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, creep.room.name);

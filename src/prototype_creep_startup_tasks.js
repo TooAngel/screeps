@@ -128,7 +128,7 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
   if (this.carry.energy) {
     return false;
   }
-  let hostileStructures = this.room.findPropertyFiltre(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR]);
+  let hostileStructures = this.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR]);
   if (!hostileStructures.length) {
     return false;
   }
@@ -285,7 +285,7 @@ Creep.prototype.repairStructure = function() {
 
   let nukes = this.room.find(FIND_NUKES);
   if (nukes.length > 0) {
-    let spawns = this.room.findPropertyFiltre(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+    let spawns = this.room.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
     if (spawns.length > 0) {
       for (let spawn of spawns) {
         let found = false;

@@ -228,7 +228,7 @@ roles.nextroomer.settle = function(creep) {
   }
 
   if (_.sum(creep.carry) === 0) {
-    let hostileStructures = creep.room.findPropertyFiltre(FIND_HOSTILE_STRUCTURES, 'structureType',
+    let hostileStructures = creep.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType',
       [STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_WALL, STRUCTURE_CONTROLLER]);
     if (hostileStructures.length) {
       let structure = _.max(hostileStructures, s => s.structureType === STRUCTURE_STORAGE);
@@ -251,7 +251,7 @@ roles.nextroomer.settle = function(creep) {
   }
 
   if (creep.room.energyCapacityAvailable < 300) {
-    let constructionSites = creep.room.findPropertyFiltre(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_LAB, STRUCTURE_NUKER, STRUCTURE_TERMINAL]);
+    let constructionSites = creep.room.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_LAB, STRUCTURE_NUKER, STRUCTURE_TERMINAL]);
     for (let cs of constructionSites) {
       cs.remove();
     }
@@ -261,7 +261,7 @@ roles.nextroomer.settle = function(creep) {
   if (creep.room.controller.ticksToDowngrade < 1500) {
     methods.push(Creep.upgradeControllerTask);
   }
-  let structures = creep.room.findPropertyFiltre(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_CONTROLLER], true);
+  let structures = creep.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_CONTROLLER], true);
   if (creep.room.controller.level >= 3 && structures.length > 0) {
     methods.push(Creep.constructTask);
   }

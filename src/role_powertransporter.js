@@ -43,7 +43,7 @@ roles.powertransporter.action = function(creep) {
       creep.moveTo(nextExit);
       return true;
     }
-    var power_bank = creep.room.findPropertyFiltre(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
+    var power_bank = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
     if (power_bank.length > 0) {
       var range = creep.pos.getRangeTo(power_bank[0]);
       if (range > 3) {
