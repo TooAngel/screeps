@@ -13,7 +13,7 @@
 roles.nextroomer = {};
 
 roles.nextroomer.died = function(name, creepMemory) {
-  let roomName = creepMemory.routing.route[creepMemory.routing.route].room;
+  let roomName = creepMemory.routing.route[creepMemory.routing.routePos].room;
   let message = `${name} ${roomName} ${JSON.stringify(creepMemory)}`;
   if (roomName === creepMemory.routing.targetRoom) {
     // TODO make underSiege to a counter
