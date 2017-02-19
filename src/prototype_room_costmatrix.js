@@ -42,7 +42,7 @@ Room.prototype.getAvoids = function(target, inRoom) {
 
   if (this.memory.costMatrix && this.memory.costMatrix.base) {
     let room = this;
-    callback = function(roomName) {
+    callback = (roomName) => {
       let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
       if (target && target.pos) {
         costMatrix.set(target.pos.x, target.pos.y, 0);
