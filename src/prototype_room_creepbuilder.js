@@ -80,7 +80,7 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
   for (let i = 0; i < iMax; i++) {
     let iMem = creeps[i].memory;
     if (!iMem) { continue; }
-    if (creepMemory.role === iMem.role && !(iMem.routing ||
+    if (creepMemory.role === iMem.role && (!iMem.routing ||
         (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
           creepMemory.routing.targetId === iMem.routing.targetId))) {
       j++;
