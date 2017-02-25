@@ -9,7 +9,7 @@ RoomPosition.prototype.findInRangeStructures = function(structures, range, struc
 };
 
 RoomPosition.prototype.findClosestStructure = function(structures, structureType) {
-  return this.pos.findClosestByPath(structures, {
+  return this.findClosestByPath(structures, {
     filter: function(object) {
       return object.structureType === structureType;
     }
