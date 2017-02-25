@@ -90,7 +90,7 @@ Room.prototype.handleNukeAttack = function() {
 
 Room.prototype.handleTower = function() {
   var tower_id;
-  var towers = this.findPropertyFiltre(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_TOWER]);
+  var towers = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_TOWER]);
   if (towers.length === 0) {
     return false;
   }

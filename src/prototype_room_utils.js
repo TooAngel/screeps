@@ -30,11 +30,11 @@ Room.prototype.nearestRoomName = function(roomsNames, limit) {
  * @param  {Boolean} [without=false] Exclude or include the properties to find.
  * @return {Array}                  the objects returned in an array.
  */
-Room.prototype.findPropertyFiltre = function(findTarget, property, properties, without = false) {
+Room.prototype.findPropertyFilter = function(findTarget, property, properties, without = false) {
   let table = {};
   _.each(properties, e => table[e] = true);
   return this.find(findTarget, {
-    filter: s => (!without && table[s[property]]) || !table[s[property]]
+    filter: s => without ? !table[s[property]] : table[s[property]]
   });
 };
 
