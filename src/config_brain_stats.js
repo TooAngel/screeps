@@ -1,5 +1,14 @@
 'use strict';
 
+brain.stats.addRole = function(role) {
+  let userName = Memory.username || _.find(Game.spawns, 'owner').owner;
+  Memory.stats = Memory.stats || {};
+  Memory.stats[userName].roles = Memory.stats[userName].roles || {};
+  let roleStat = Memory.stats[userName].roles[role];
+  let previousAmount = roleStat ? roleStat : 0;
+  Memory.stats[userName].roles[role] = previousAmount + 1;
+};
+
 /**
  * stats.add use for push anything into Memory.stats at a given place.
  *

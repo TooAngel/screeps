@@ -1,8 +1,5 @@
 'use strict';
 
-config.debug.queue = true;
-config.debug.spawn = true;
-
 Room.prototype.creepMem = function(role, targetId, targetRoom, level, base) {
   return {
     role: role,
@@ -62,11 +59,13 @@ Room.prototype.spawnCheckForCreate = function() {
 Room.prototype.inQueue = function(creepMemory) {
   this.memory.queue = this.memory.queue || [];
   for (var item of this.memory.queue) {
-    if (!item.routing) {continue;}
-    let creepTarget = {targetId: item.routing.targetId,
-      targetRoom: item.routing.targetRoom};
+    if (!item.routing) { continue; }
+    let creepTarget = {
+      targetId: item.routing.targetId,
+      targetRoom: item.routing.targetRoom
+    };
     let found = _.eq(creepMemory.routing, creepTarget) && creepMemory.role === item.role;
-    if (found) {return true;}
+    if (found) { return true; }
   }
   return false;
 };
@@ -75,15 +74,15 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
   var creepsSpawning = _(this.find(FIND_MY_SPAWNS)).map(s => s.spawning && Game.creeps[s.spawning.name]).compact();
   var creeps = this.find(FIND_MY_CREEPS).concat(creepsSpawning);
   var iMax = creeps.length;
-  if (!iMax) {return false;}
+  if (!iMax) { return false; }
   let j = 0;
   this.memory.roles = this.memory.roles || {};
   for (let i = 0; i < iMax; i++) {
     let iMem = creeps[i].memory;
-    if (!iMem) {continue;}
+    if (!iMem) { continue; }
     if (creepMemory.role === iMem.role && !(iMem.routing ||
-      (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
-      creepMemory.routing.targetId === iMem.routing.targetId))) {
+        (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
+          creepMemory.routing.targetId === iMem.routing.targetId))) {
       j++;
     }
     if (j >= amount) {
@@ -116,10 +115,10 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
   if (this.memory.roles && this.memory.roles[creepMemory.role] && Game.time % 10) {
     return false;
   }
-  if (this.inQueue(creepMemory) || this.inRoom(creepMemory, amount)) {return false;}
+  if (this.inQueue(creepMemory) || this.inRoom(creepMemory, amount)) { return false; }
 
   if (config.debug.queue) {
-    this.log('Add ' + creepMemory.role + 'to queue.');
+    this.log('Add ' + creepMemory.role + ' to queue.');
   }
   return this.memory.queue.push(creepMemory);
 };
@@ -138,7 +137,11 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
  */
 
 Room.prototype.getPartsStringDatas = function(parts, energyAvailable) {
-  if (!_.isString(parts) || parts === '') { return {null: true}; }
+  if (!_.isString(parts) || parts === '') {
+    return {
+      null: true
+    };
+  }
   let ret = {};
   Memory.layoutsCost = Memory.layoutsCost || {};
   ret.cost = Memory.layoutsCost[parts] || 0;
@@ -257,11 +260,11 @@ Room.prototype.getPartConfig = function(creep) {
   if (sufixString) { maxBodyLength -= sufixString.length; }
 
   let prefix = this.getPartsStringDatas(prefixString, energyAvailable);
-  if (prefix.fail) {return false;}
+  if (prefix.fail) { return false; }
   energyAvailable -= prefix.cost || 0;
   layoutString = this.applyAmount(layoutString, amount);
   let layout = this.getPartsStringDatas(layoutString, energyAvailable);
-  if (layout.fail || layout.null) {return false;}
+  if (layout.fail || layout.null) { return false; }
   let parts = prefix.parts || [];
   let maxRepeat = Math.floor(Math.min(energyAvailable / layout.cost, maxBodyLength / layout.len));
   if (maxLayoutAmount) {
@@ -275,38 +278,32 @@ Room.prototype.getPartConfig = function(creep) {
     parts = parts.concat(sufix.parts);
   }
   if (config.debug.spawn) {
-    this.log('Spawning ' + creep.role + '- - - Body: ' + JSON.stringify(prefix.parts) + ' - ' + maxRepeat + ' * ' + JSON.stringify(layout.parts) + ' - ' + JSON.stringify(sufix.parts));
+    this.log('Spawning ' + creep.role + ' - - - Body: ' + JSON.stringify(prefix.parts) + ' - ' + maxRepeat + ' * ' + JSON.stringify(layout.parts) + ' - ' + JSON.stringify(sufix.parts));
   }
   return config.creep.sortParts ? this.sortParts(parts, layout) : parts;
 };
 
-/**
- * Room.prototype.spawnCreateCreep use for launch spawn of first creep in queue.
- *
- * @param {Collection} creep Object with queue's creep datas.
- */
-Room.prototype.spawnCreateCreep = function(creep) {
-  var spawns = this.find(FIND_MY_SPAWNS);
+Room.prototype.getSpawnableSpawns = function() {
+  let spawns = this.find(FIND_MY_SPAWNS);
   _.each(spawns, s => {
     if (s && s.spawning) {
       spawns.shift();
     }
   });
-  if (spawns.length === 0) { return; }
-  let role = creep.role;
-  var energy = this.energyAvailable;
+  return spawns;
+};
 
+Room.prototype.getCreepConfig = function(creep) {
+  let role = creep.role;
   let unit = roles[role];
   if (!unit) {
     this.log('Can not find role: ' + role + ' creep_' + role);
-    return true;
+    return false;
   }
-
   var id = Math.floor((Math.random() * 1000) + 1);
   var name = role + '-' + id;
-  //console.log(this.name,'--->',role);
   var partConfig = this.getPartConfig(creep);
-  if (!partConfig) {return;}
+  if (!partConfig) { return; }
   let memory = {
     role: role,
     number: id,
@@ -321,17 +318,34 @@ Room.prototype.spawnCreateCreep = function(creep) {
     buildRoad: unit.buildRoad,
     routing: creep.routing
   };
+  return {
+    name: name,
+    memory: memory,
+    partConfig: partConfig
+  };
+};
+
+/**
+ * Room.prototype.spawnCreateCreep use for launch spawn of first creep in queue.
+ *
+ * @param {Collection} creep Object with queue's creep datas.
+ */
+Room.prototype.spawnCreateCreep = function(creep) {
+  let spawns = this.getSpawnableSpawns();
+
+  if (spawns.length === 0) { return; }
+
+  let creepConfig = this.getCreepConfig(creep);
+  if (!creepConfig) {
+    return false;
+  }
+
   for (let spawn of spawns) {
-    if (spawn.createCreep(partConfig, name, memory) != name) {
+    if (spawn.createCreep(creepConfig.partConfig, creepConfig.name, creepConfig.memory) != creepConfig.name) {
       continue;
     }
     if (config.stats.enabled) {
-      let userName = Memory.username || _.find(Game.spawns, 'owner').owner;
-      Memory.stats = Memory.stats || {};
-      Memory.stats[userName].roles = Memory.stats[userName].roles || {};
-      let roleStat = Memory.stats[userName].roles[role];
-      let previousAmount = roleStat ? roleStat : 0;
-      Memory.stats[userName].roles[role] = previousAmount + 1;
+      brain.stats.addRole(creep.role);
     }
     return true;
   }

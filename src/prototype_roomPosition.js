@@ -1,5 +1,21 @@
 'use strict';
 
+RoomPosition.prototype.findInRangeStructures = function(structures, range, structureTypes) {
+  return this.findInRangeStructures(FIND_STRUCTURES, 1, {
+    filter: function(object) {
+      return structureTypes.indexOf(object.structureType) >= 0;
+    }
+  });
+};
+
+RoomPosition.prototype.findClosestStructure = function(structures, structureType) {
+  return this.pos.findClosestByPath(structures, {
+    filter: function(object) {
+      return object.structureType === structureType;
+    }
+  });
+};
+
 RoomPosition.prototype.getAdjacentPosition = function(direction) {
   var adjacentPos = [
     [0, 0],
