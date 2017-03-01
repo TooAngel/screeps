@@ -92,10 +92,12 @@ Room.prototype.updatePosition = function() {
     let sourcer = source.pos.findNearPosition().next().value;
     this.memory.position.creep[source.id] = sourcer;
     // TODO E.g. E11S8 it happens that sourcer has no position
-    let link = sourcer.findNearPosition().next().value;
-    this.memory.position.structure.link.push(link);
-    costMatrixBase.set(link.x, link.y, config.layout.structureAvoid);
-    this.memory.costMatrix.base = costMatrixBase.serialize();
+    if (sourcer) {
+      let link = sourcer.findNearPosition().next().value;
+      this.memory.position.structure.link.push(link);
+      costMatrixBase.set(link.x, link.y, config.layout.structureAvoid);
+      this.memory.costMatrix.base = costMatrixBase.serialize();
+    }
   }
 
   let minerals = this.find(FIND_MINERALS);
