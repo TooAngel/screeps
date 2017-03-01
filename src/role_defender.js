@@ -24,17 +24,7 @@ roles.defender.action = function(creep) {
   }
   // TODO Better in premove
   if (!creep.inBase()) {
-    let walls = creep.pos.findInRange(FIND_STRUCTURES, 1, {
-      filter: function(object) {
-        if (object.structureType === STRUCTURE_WALL) {
-          return true;
-        }
-        if (object.structureType === STRUCTURE_RAMPART) {
-          return true;
-        }
-        return false;
-      }
-    });
+    let walls = creep.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_WALL, STRUCTURE_RAMPART]);
     if (walls.length > 0) {
       if (!creep.room.controller || !creep.room.controller.my) {
         creep.rangedAttack(walls[0]);
