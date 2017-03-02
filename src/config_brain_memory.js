@@ -45,14 +45,8 @@ brain.setConstructionSites = function() {
 };
 
 brain.addToStats = function(name) {
-  Memory.username = Memory.username || _.find(Game.spawns, 'owner').owner.username;
   let role = Memory.creeps[name].role;
-  if (config.stats.enabled && Memory.username && Memory.stats && Memory.stats[Memory.username].roles) {
-    let roleStat = Memory.stats[Memory.username].roles[role];
-    let previousAmount = roleStat ? roleStat : 0;
-    let amount = previousAmount > 0 ? previousAmount - 1 : 0;
-    brain.stats.add(['roles', role], amount);
-  }
+  brain.stats.modifyRoleAmount(role, -1);
 };
 
 brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
@@ -194,6 +188,7 @@ Upgrade less: ${strings.upgradeLess}
 };
 
 brain.prepareMemory = function() {
+  Memory.username = Memory.username || _.find(Game.spawns, 'owner').owner.username;
   brain.setMarketOrdersBuy();
   brain.setConstructionSites();
   brain.cleanCreeps();
