@@ -84,16 +84,20 @@ Creep.prototype.handle = function() {
     if (this.memory.last === undefined) {
       this.memory.last = {};
     }
-    let last = this.memory.last;
-    this.memory.last = {
-      pos1: this.pos,
-      pos2: last.pos1,
-      pos3: last.pos2,
-    };
+    if(this.fatigue === 0){
+      let last = this.memory.last;
+      this.memory.last = {
+        pos1: this.pos,
+        pos2: last.pos1,
+        pos3: last.pos2,
+        pos4: last.pos3,
+        pos5: last.pos4,
+      };
+    }
+    this.handleStuck();
   }
-};
 Creep.prototype.isStuck = function() {
-  if(this.memory.last !== undefined && this.memory.last.pos3 !== undefined && this.pos.isEqualTo(this.memory.last.pos3.x, this.memory.last.pos3.y)){
+  if(this.memory.last !== undefined && this.memory.last.pos5 !== undefined && this.pos.isEqualTo(this.memory.last.pos5.x, this.memory.last.pos5.y)){
     if(!this.memory.stuckCount){
       this.memory.stuckCount = 0;
     }  if(!this.memory.stuckx){
