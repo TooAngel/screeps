@@ -101,10 +101,9 @@ function setLabsTerminal(room, path, costMatrixBase) {
 
 function setStructures(room, path, costMatrixBase) {
   room.setTowerFiller();
-
   let pathI;
   for (pathI in path) {
-    let pathPos = new RoomPosition(path[pathI].x, path[pathI].y, room.name);
+    let pathPos = room.getPositionAt(path[pathI].x, path[pathI].y);
     let structurePosIterator = pathPos.findNearPosition();
     for (let structurePos of structurePosIterator) {
       if (structurePos.setSpawn(pathPos, path[+pathI + 1])) {
@@ -264,10 +263,17 @@ let buildCostMatrix = function(room) {
 
 Room.prototype.checkAround = function(path, pathPos, aroundMap, diff) {
   let pos = {};
+  console.log(JSON.stringify(aroundMap[diff]));
+  console.log(diff);
+  let x;
+  let y;
   for (let p = 0; p < 3; p++) {
-    pos[p] = new RoomPosition(path[pathPos].x + aroundMap[diff][p][0], path[pathPos].y + aroundMap[diff][p][1], this.roomName);
+    x = path[pathPos].x + aroundMap[diff][p][0];
+    y = path[pathPos].y + aroundMap[diff][p][1];
+    pos[p] = this.getPositionAt(x, y);
   }
-  return _.maxBy(pos, this.aroundLength);
+  let max = _.max(pos, this.aroundLength);
+  return max != -Infinity ? max : pos[1];
 };
 Room.prototype.setup = function() {
   var aroundLength = function(pos) {
@@ -278,16 +284,21 @@ Room.prototype.setup = function() {
     let keys = [[2, 0], [-2, 0], [0, 2], [0, -2]];
     let key = [];
     let absKey = [];
-    let map = new Map();
+    let map = {};
+    let stringId;
     for (let i = 0; i < 4; i++) {
       key = keys[i];
+      stringId = '' + key[0] + ',' + key[1];
+      map[stringId] = [];
       absKey = [Math.abs(key[0]), Math.abs(key[1])];
       for (let j = 0; j < 3; j++) {
+        map[stringId][j] = [];
         for (let k = 0; k < 2; k++) {
-          map[key][j][k] = Math.abs(key[0]) === 2 ? key[0] / 2 : j - 1;
+          map[stringId][j][k] = Math.abs(key[k]) === 2 ? key[k] / 2 : j - 1;
         }
       }
     }
+    console.log(JSON.stringify(map));
     return map;
   };
 
@@ -340,7 +351,11 @@ Room.prototype.setup = function() {
   let aroundMap = getAroundMap();
   let iMax = path.length;
   for (let i = 0; i < iMax - 3; i++) {
-    let diff = path[i].x - path[i + 2].x + ',' + path[i].y - path[i + 2].y;
+    let diff = '' + (path[i].x - path[i + 2].x) + ',' + (path[i].y - path[i + 2].y);
+    if (!aroundMap[diff] || path[i + 1] !== [path[i].x + diff[0] / 2, path[i].y + diff[1] / 2]) {
+      continue ;
+    }
+    console.log(JSON.stringify(aroundMap[diff]));
     path[i + 1] = this.checkAround(path, i, aroundMap, diff);
   }
   this.setMemoryPath(paths_sorted[paths_sorted.length - 1].name, path);
