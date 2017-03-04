@@ -319,6 +319,7 @@ Room.prototype.setup = function() {
     let diff = path[i].x - path[i + 2].x + ',' + path[i].y - path[i + 2].y;
     path[i + 1] = this.checkAround(path, i, aroundMap, diff);
   }
+  this.setMemoryPath(paths_sorted[paths_sorted.length - 1].name, path);
   let pathI = setStructures(this, path, costMatrixBase);
   console.log('path: ' + path.name + ' pathI: ' + pathI + ' length: ' + path.length);
   if (pathI === -1) {
