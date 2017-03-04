@@ -92,13 +92,38 @@ Creep.prototype.handle = function() {
     };
   }
 };
-
 Creep.prototype.isStuck = function() {
-  return this.memory.last !== undefined &&
-    this.memory.last.pos3 !== undefined &&
-    this.pos.isEqualTo(this.memory.last.pos3.x, this.memory.last.pos3.y);
+  if(this.memory.last !== undefined && this.memory.last.pos3 !== undefined && this.pos.isEqualTo(this.memory.last.pos3.x, this.memory.last.pos3.y)){
+    if(!this.memory.stuckCount){
+      this.memory.stuckCount = 0;
+    }  if(!this.memory.stuckx){
+      this.memory.stuckx = this.memory.last.pos1.x;
+    }
+    if(!this.memory.stucky){
+      this.memory.stucky = this.memory.last.pos1.y;
+    }
+    if(this.memory.stuckx == this.memory.last.pos1.x && this.memory.stucky == this.memory.last.pos1.y){
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  };
 };
-
+Creep.prototype.handleStuck = function() {
+  if(this.isStuck() && (this.role == 'harvester' || this.role == 'carry' || this.role == 'planer' || this.role == 'repairer' || this.role == 'scout')){
+    this.memory.stuckCount = this.memory.stuckCount + 1;
+    this.log('Stuck! - ' + this.memory.stuckCount);
+    if(this.memory.stuckCount > 100){
+      this.log('UnStuck!')
+      this.suicide();
+    }
+    return true;
+  } else {
+    this.memory.stuckCount = 0;
+    return false; };
+};
 Creep.prototype.getEnergyFromStructure = function() {
   if (this.carry.energy === this.carryCapacity) {
     return false;
