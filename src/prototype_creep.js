@@ -101,7 +101,8 @@ Creep.prototype.isStuck = function() {
   if(this.memory.last !== undefined && this.memory.last.pos5 !== undefined && this.pos.isEqualTo(this.memory.last.pos5.x, this.memory.last.pos5.y)){
     if(!this.memory.stuckCount){
       this.memory.stuckCount = 0;
-    }  if(!this.memory.stuckx){
+    }
+    if(!this.memory.stuckx){
       this.memory.stuckx = this.memory.last.pos1.x;
     }
     if(!this.memory.stucky){
@@ -127,7 +128,8 @@ Creep.prototype.handleStuck = function() {
     return true;
   } else {
     this.memory.stuckCount = 0;
-    return false; };
+    return false;
+  };
 };
 Creep.prototype.getEnergyFromStructure = function() {
   if (this.carry.energy === this.carryCapacity) {
