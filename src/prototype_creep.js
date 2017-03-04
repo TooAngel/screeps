@@ -96,6 +96,7 @@ Creep.prototype.handle = function() {
     }
     this.handleStuck();
   }
+};
 Creep.prototype.isStuck = function() {
   if(this.memory.last !== undefined && this.memory.last.pos5 !== undefined && this.pos.isEqualTo(this.memory.last.pos5.x, this.memory.last.pos5.y)){
     if(!this.memory.stuckCount){
