@@ -42,11 +42,7 @@ roles.powerattacker.action = function(creep) {
     }
   }
 
-  var power_bank = creep.room.find(FIND_STRUCTURES, {
-    filter: function(object) {
-      return object.structureType === 'powerBank';
-    }
-  });
+  var power_bank = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
 
   if (power_bank.length === 0) {
     if (hostileCreep !== null) {

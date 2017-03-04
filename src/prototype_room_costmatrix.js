@@ -42,23 +42,12 @@ Room.prototype.getAvoids = function(target, inRoom) {
 
   if (this.memory.costMatrix && this.memory.costMatrix.base) {
     let room = this;
-    callback = function(roomName) {
+    callback = (roomName) => {
       let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
       if (target && target.pos) {
         costMatrix.set(target.pos.x, target.pos.y, 0);
       }
-
-      let structures = room.find(FIND_STRUCTURES, {
-        filter: function(object) {
-          if (object.structureType === STRUCTURE_RAMPART) {
-            return false;
-          }
-          if (object.structureType === STRUCTURE_ROAD) {
-            return false;
-          }
-          return true;
-        }
-      });
+      let structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD], true);
       for (let structure of structures) {
         costMatrix.set(structure.pos.x, structure.pos.y, 255);
       }

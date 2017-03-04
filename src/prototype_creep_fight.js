@@ -309,11 +309,7 @@ Creep.prototype.fightRanged = function(target) {
       costMatrix.set(49, i, 0xFF);
     }
     let room = Game.rooms[roomName];
-    let structures = room.find(FIND_STRUCTURES, {
-      filter: function(object) {
-        return object.structureType != STRUCTURE_ROAD;
-      }
-    });
+    let structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_ROAD], true);
     for (let i in structures) {
       let structure = structures[i];
       costMatrix.set(structure.pos.x, structure.pos.y, 0xFF);

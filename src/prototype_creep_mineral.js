@@ -399,11 +399,7 @@ Creep.prototype.handleMineralCreep = function() {
 
   function checkNuke(creep) {
     if (creep.room.terminal.store[RESOURCE_GHODIUM] > 500 || creep.carry[RESOURCE_GHODIUM]) {
-      let nukers = creep.room.find(FIND_STRUCTURES, {
-        filter: {
-          structureType: STRUCTURE_NUKER
-        }
-      });
+      let nukers = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_NUKER]);
       if (nukers.length > 0) {
         let nuker = nukers[0];
         if (nuker.ghodium < nuker.ghodiumCapacity) {

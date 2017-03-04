@@ -246,20 +246,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
           let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
 
           // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
-          let structures = room.find(FIND_STRUCTURES, {
-            filter: function(object) {
-              if (object.structureType === STRUCTURE_RAMPART) {
-                return false;
-              }
-              if (object.structureType === STRUCTURE_ROAD) {
-                return false;
-              }
-              if (object.structureType === STRUCTURE_CONTAINER) {
-                return false;
-              }
-              return true;
-            }
-          });
+          let structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
           for (let structure of structures) {
             costMatrix.set(structure.pos.x, structure.pos.y, config.layout.structureAvoid);
           }
@@ -310,8 +297,13 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     // ' + this.pos + ' routePos: ' + routePos + ' path: ' +
     // JSON.stringify(path) + ' route: ' + JSON.stringify(route));
     this.say('R:p-1: ' + this.pos.getDirectionTo(search.path[0]));
-    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
-    if (returnCode === OK) {
+    var creepPos = this.pos;
+    let returnCode = this.moveTo(_.min(search.path, function(object) {
+      return object.getRangeTo(creepPos);
+    }), {
+      reusePath: 0
+    });
+    if (returnCode == OK) {
       return true;
     }
     if (returnCode === ERR_TIRED) {

@@ -21,6 +21,22 @@ Room.prototype.nearestRoomName = function(roomsNames, limit) {
   };
   return _.min(roomsNames, sortByLinearDistance);
 };
+/**
+ * use a static array for filter a find.
+ *
+ * @param  {String}  findTarget      one of the FIND constant. e.g. [FIND_MY_STRUCTURES]
+ * @param  {String}  property        the property to filter on. e.g. 'structureType'
+ * @param  {Array}  properties      the properties to filter. e.g. [STRUCTURE_ROAD, STRUCTURE_RAMPART]
+ * @param  {Boolean} [without=false] Exclude or include the properties to find.
+ * @return {Array}                  the objects returned in an array.
+ */
+Room.prototype.findPropertyFilter = function(findTarget, property, properties, without = false) {
+  let table = {};
+  _.each(properties, e => table[e] = true);
+  return this.find(findTarget, {
+    filter: s => without ? !table[s[property]] : table[s[property]]
+  });
+};
 
 Room.prototype.closestSpawn = function(target) {
   let pathLength = {};

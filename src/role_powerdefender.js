@@ -23,13 +23,7 @@ roles.powerdefender.action = function(creep) {
     creep.rangedAttack(hostileCreeps[0]);
     return true;
   }
-
-  var powerBank = creep.room.find(FIND_STRUCTURES, {
-    filter: function(object) {
-      return object.structureType === STRUCTURE_POWER_BANK;
-    }
-  });
-
+  var powerBank = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
   if (powerBank.length === 0) {
     let hostileCreep = creep.findClosestEnemy();
     if (hostileCreep !== null) {
