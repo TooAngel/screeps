@@ -21,7 +21,21 @@ roles.carry.settings = {
   amount: [1, 2]
 };
 
-roles.carry.preMove = function(creep, directions) {
+roles.carry.checkHelperEmptyStorage = function(creep) {
+  // Fix blocked helpers due to empty structure in the room where we get the energy from
+  if (creep.room.name === creep.memory.routing.targetRoom) {
+    let targetStructure = Game.getObjectById(creep.memory.routing.targetId);
+    if (targetStructure.structureType === STRUCTURE_STORAGE) {
+      creep.say('storage');
+      if (targetStructure.store.energy === 0) {
+        creep.log('Suiciding the storage I should get the energy from is empty');
+        creep.suicide();
+      }
+    }
+  }
+};
+
+roles.carry.handleMisplacedSpawn = function(creep) {
   // Misplaced spawn
   // TODO Somehow ugly and maybe better somewhere else
   if (creep.inBase() && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
@@ -53,6 +67,15 @@ roles.carry.preMove = function(creep, directions) {
         }
       }
     }
+    return false;
+  }
+};
+
+roles.carry.preMove = function(creep, directions) {
+  roles.carry.checkHelperEmptyStorage(creep);
+
+  if (roles.carry.handleMisplacedSpawn(creep)) {
+    return true;
   }
 
   if (!creep.room.controller) {
@@ -150,7 +173,7 @@ roles.carry.preMove = function(creep, directions) {
 
 roles.carry.action = function(creep) {
   // TODO log when this happens, carry is getting energy from the source
-  //   creep.log('ACTION');
+  // creep.log('ACTION');
   let source = Game.getObjectById(creep.memory.routing.targetId);
   if (source === null) {
     creep.say('sfener');
