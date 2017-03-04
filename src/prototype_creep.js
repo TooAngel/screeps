@@ -84,7 +84,7 @@ Creep.prototype.handle = function() {
     if (this.memory.last === undefined) {
       this.memory.last = {};
     }
-    if (this.fatigue === 0){
+    if (this.fatigue === 0) {
       let last = this.memory.last;
       this.memory.last = {
         pos1: this.pos,
