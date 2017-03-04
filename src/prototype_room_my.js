@@ -432,7 +432,7 @@ Room.prototype.executeRoom = function() {
   this.handleTerminal();
   this.handleNukeAttack();
 
-  if(!this.memory.spawnTimer) {
+  if (!this.memory.spawnTimer) {
     this.memory.spawnTimer = 0;
   }
   var harvesters = this.find(FIND_MY_CREEPS, {
@@ -446,7 +446,7 @@ Room.prototype.executeRoom = function() {
   if (harvesters.length < 1) {
     this.spawnCheckForCreate();
   }
-  if (this.memory.spawnTimer > 100 || this.energyAvailable === this.energyCapacityAvailable || (this.controller.level *250 < this.energyCapacityAvailable && Game.Time % 50 === 0) || this.memory.attackTimer > 15) {
+  if (this.memory.spawnTimer > 100 || this.energyAvailable === this.energyCapacityAvailable || (this.controller.level * 250 < this.energyCapacityAvailable && Game.Time % 50 === 0) || this.memory.attackTimer > 15) {
     this.memory.spawnTimer = 0;
     this.spawnCheckForCreate();
   } else {
