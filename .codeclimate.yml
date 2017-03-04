@@ -10,7 +10,7 @@ engines:
       comma-dangle:
         enabled: false
   fixme:
-    enabled: true
+    enabled: false
 ratings:
   paths:
   - src/**
