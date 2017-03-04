@@ -84,7 +84,7 @@ Creep.prototype.handle = function() {
     if (this.memory.last === undefined) {
       this.memory.last = {};
     }
-    if(this.fatigue === 0){
+    if (this.fatigue === 0){
       let last = this.memory.last;
       this.memory.last = {
         pos1: this.pos,
@@ -98,17 +98,17 @@ Creep.prototype.handle = function() {
   }
 };
 Creep.prototype.isStuck = function() {
-  if(this.memory.last !== undefined && this.memory.last.pos5 !== undefined && this.pos.isEqualTo(this.memory.last.pos5.x, this.memory.last.pos5.y)){
-    if(!this.memory.stuckCount){
+  if (this.memory.last !== undefined && this.memory.last.pos5 !== undefined && this.pos.isEqualTo(this.memory.last.pos5.x, this.memory.last.pos5.y)) {
+    if (!this.memory.stuckCount) {
       this.memory.stuckCount = 0;
     }
-    if(!this.memory.stuckx){
+    if (!this.memory.stuckx) {
       this.memory.stuckx = this.memory.last.pos1.x;
     }
-    if(!this.memory.stucky){
+    if (!this.memory.stucky) {
       this.memory.stucky = this.memory.last.pos1.y;
     }
-    if(this.memory.stuckx == this.memory.last.pos1.x && this.memory.stucky == this.memory.last.pos1.y){
+    if (this.memory.stuckx == this.memory.last.pos1.x && this.memory.stucky == this.memory.last.pos1.y) {
       return true;
     } else {
       return false;
@@ -118,10 +118,10 @@ Creep.prototype.isStuck = function() {
   }
 };
 Creep.prototype.handleStuck = function() {
-  if(this.isStuck() && (this.role == 'harvester' || this.role == 'carry' || this.role == 'planer' || this.role == 'repairer' || this.role == 'scout')){
+  if (this.isStuck() && (this.role == 'harvester' || this.role == 'carry' || this.role == 'planer' || this.role == 'repairer' || this.role == 'scout')) {
     this.memory.stuckCount = this.memory.stuckCount + 1;
     this.log('Stuck! - ' + this.memory.stuckCount);
-    if(this.memory.stuckCount > 100){
+    if (this.memory.stuckCount > 100) {
       this.log('UnStuck!');
       this.suicide();
     }
