@@ -115,21 +115,21 @@ Creep.prototype.isStuck = function() {
     }
   } else {
     return false;
-  };
+  }
 };
 Creep.prototype.handleStuck = function() {
   if(this.isStuck() && (this.role == 'harvester' || this.role == 'carry' || this.role == 'planer' || this.role == 'repairer' || this.role == 'scout')){
     this.memory.stuckCount = this.memory.stuckCount + 1;
     this.log('Stuck! - ' + this.memory.stuckCount);
     if(this.memory.stuckCount > 100){
-      this.log('UnStuck!')
+      this.log('UnStuck!');
       this.suicide();
     }
     return true;
   } else {
     this.memory.stuckCount = 0;
     return false;
-  };
+  }
 };
 Creep.prototype.getEnergyFromStructure = function() {
   if (this.carry.energy === this.carryCapacity) {
