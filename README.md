@@ -9,7 +9,7 @@ https://screeps.com/
 
 ## For in game room visitors:
 
-Happy to see you visiting one of my rooms. [Visit FAQ to find answers](doc/FAQ.md)
+Happy to see you visiting one of our rooms. [Visit FAQ to find answers](doc/FAQ.md)
 
 ## Info
 
@@ -36,6 +36,8 @@ welcome.
  - New rooms claiming on GCL level up
  - Automatic attack
  - Rebuild of fallen rooms
+ - [Manual commands](doc/Manual.md)
+ - [Alliance](doc/Alliance.md)
 
 ## Tweaking
 
@@ -65,22 +67,30 @@ discussion and should end up in the documentation, when finishing the
 implementation.
 
 ## Upload
-### install dependencies
+
+install dependencies
 
     npm install
 
-### add your account credentials
+add your account credentials
+
+### to screeps.com
+
+To deploy to the live server provide the credentials.
+
 #### via env
+
     export email=EMAIL
     export password=PASSWORD
 
 #### via git ignored file
+
     echo "module.exports = { email: 'your-email@here.tld', password: 'your-secret' };" > account.screeps.com.js
  or edit and rename account.screeps.com.js.sample to account.screeps.com.js   
 
-### create dist/build and upload to screeps
-    grunt screeps
+And deploy to the server:
 
+    grunt screeps
 
 ### to private server
 Create a `.locaSync.js` file with content:
@@ -93,7 +103,8 @@ module.exports = [{
   dest: '$HOME/.config/Screeps/scripts/SERVER/default',
 }
 ```
-    `grunt local`
+
+    grunt local
 
 
 ## Develop
@@ -106,42 +117,3 @@ module.exports = [{
 ## Design
 
 [More details of the AI design](doc/Design.md)
-
-## Alliance
-
-If you are playing on the live server with the TooAngel AI you are welcome
-to join the [The Angels](Alliance.md) Alliance. Ping one of the members, you
-can recognize us, because our rooms look like yours.
-
-## Manual Play
-
-####Attacking a room with a single creep:
-
-    Game.rooms.W81N49.memory.queue.push({role: 'autoattackmelee', routing: {targetRoom: 'W82N48'}})
-
-Game.rooms.W81N49.memory.queue.push is where the creeps is build.
-
-role: is the role the creep will be, you can change this to any available role.
-
-targetRoom: is the creeps target room.
-
-Soon you can also use
-
-    startAutoSquad('roomFrom' , 'roomTo')
-
-#### Sending a Reserver to reserve a rooms controller: (This will also trigger Remote Mining in the room)
-
-    Game.rooms.W81N49.memory.queue.push({role: 'reserver', routing: {targetRoom: 'W82N48', targetId: '5873bc0e11e3e4361b4d6fc3'}})
-targetId: Is in this case the ID of the controller in the target room.
-#### Claiming the Controller (You need a nearby creep with Claim Part/s)
-    Game.getObjectById('TheCreepsIdHere').claimController(Game.rooms.RoomNameHere.controller)
-#### Assigning Text to the Controller (readable from Worldmap mouseover, you need a nearby creep)
-    Game.getObjectById('TheCreepsIdHere').signController(Game.rooms.RoomNameHere.controller, "YourTextHere");
-
-• Using the commands above you can also send sourcer, carry, defender etc. to certain rooms/targets.
-
-Soon there will be Squad attacks the Commands for those are:
-#### Send a Squad of 3 Healers and 3 Structurers (only attack structures,good for walls/ramparts)
-    brain.startSquad('RoomFrom','RoomTo')
-#### Send a Squad of 3 Healers and 1 MeleeAttacker (Attack everything)
-    brain.startMeleeSquad('RoomFrom','RoomTo')
