@@ -108,7 +108,7 @@ Creep.prototype.isStuck = function() {
     if (!this.memory.stucky) {
       this.memory.stucky = this.memory.last.pos1.y;
     }
-    if (this.memory.stuckx == this.memory.last.pos1.x && this.memory.stucky == this.memory.last.pos1.y) {
+    if (this.memory.stuckx === this.memory.last.pos1.x && this.memory.stucky === this.memory.last.pos1.y) {
       return true;
     } else {
       return false;
@@ -118,7 +118,7 @@ Creep.prototype.isStuck = function() {
   }
 };
 Creep.prototype.handleStuck = function() {
-  if (this.isStuck() && (this.role == 'harvester' || this.role == 'carry' || this.role == 'planer' || this.role == 'repairer' || this.role == 'scout')) {
+  if (this.isStuck() && (this.role === 'harvester' || this.role === 'carry' || this.role === 'planer' || this.role === 'repairer' || this.role === 'scout')) {
     this.memory.stuckCount = this.memory.stuckCount + 1;
     this.log('Stuck! - ' + this.memory.stuckCount);
     if (this.memory.stuckCount > 100) {
