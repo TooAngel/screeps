@@ -2,7 +2,7 @@
 
 brain.stats.init = function() {
   let userName = Memory.username;
-  if (!config.stats.enabled || !userName) {return false;}
+  if (!config.stats.enabled || !userName) { return false; }
   Memory.stats = {
     [userName]: {
       roles: {},
@@ -17,7 +17,7 @@ brain.stats.init = function() {
 
 brain.stats.modifyRoleAmount = function(role, diff) {
   let userName = Memory.username;
-  if (!config.stats.enabled || !userName) {return false;}
+  if (!config.stats.enabled || !userName) { return false; }
   if (Memory.stats && Memory.stats[userName] && Memory.stats[userName].roles) {
     let roleStat = Memory.stats[userName].roles[role];
     let previousAmount = roleStat ? roleStat : 0;

@@ -228,8 +228,7 @@ roles.nextroomer.settle = function(creep) {
   }
 
   if (_.sum(creep.carry) === 0) {
-    let hostileStructures = creep.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType',
-      [STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_WALL, STRUCTURE_CONTROLLER]);
+    let hostileStructures = creep.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_WALL, STRUCTURE_CONTROLLER]);
     if (hostileStructures.length) {
       let structure = _.max(hostileStructures, s => s.structureType === STRUCTURE_STORAGE);
 

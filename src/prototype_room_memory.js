@@ -39,20 +39,15 @@ Room.prototype.setMemoryCostMatrix = function(costMatrix) {
  */
 Room.prototype.getMemoryCostMatrix = function() {
   if (!cache.rooms[this.name]) {
-    this.log('No cache');
     cache.rooms[this.name] = {};
   }
   if (!cache.rooms[this.name].costMatrix) {
-    this.log('Get No costMatrix');
     cache.rooms[this.name].costMatrix = {};
   }
   if (!cache.rooms[this.name].costMatrix.base) {
-    this.log('No base costMatrix <-- JSON.stringify the output');
     if (!this.memory.costMatrix || !this.memory.costMatrix.base) {
-      this.log('No memory');
       return;
     }
-    this.log('costMatrix from memory ');
     cache.rooms[this.name].costMatrix.base = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
   }
   // if (!cache.rooms[this.name].costMatrix.base) {
