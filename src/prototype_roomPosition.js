@@ -1,7 +1,7 @@
 'use strict';
 
 RoomPosition.prototype.findInRangeStructures = function(structures, range, structureTypes) {
-  return this.findInRangeStructures(FIND_STRUCTURES, 1, {
+  return this.findInRange(FIND_STRUCTURES, 1, {
     filter: function(object) {
       return structureTypes.indexOf(object.structureType) >= 0;
     }

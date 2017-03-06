@@ -91,7 +91,7 @@ Room.prototype.destroyStructure = function(structure) {
           return true;
         }
       }
-      return true;
+      return false;
     }
     this.log('Set misplaced spawn');
     this.memory.misplacedSpawn = true;

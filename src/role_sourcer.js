@@ -98,7 +98,7 @@ roles.sourcer.preMove = function(creep, directions) {
 };
 
 roles.sourcer.died = function(name, memory) {
-  console.log(name, 'died', JSON.stringify(memory));
+  //console.log(name, 'died', JSON.stringify(memory));
   delete Memory.creeps[name];
 };
 

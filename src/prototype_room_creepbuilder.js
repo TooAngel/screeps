@@ -59,7 +59,12 @@ Room.prototype.spawnCheckForCreate = function() {
 Room.prototype.inQueue = function(creepMemory) {
   this.memory.queue = this.memory.queue || [];
   for (var item of this.memory.queue) {
-    if (!item.routing) { continue; }
+    if (!item.routing) {
+      if (item.role !== 'scout') {
+        this.log('inQueue: no routing: ' + JSON.stringify(item) + ' ' + JSON.stringify(creepMemory));
+      }
+      continue;
+    }
     let creepTarget = {
       targetId: item.routing.targetId,
       targetRoom: item.routing.targetRoom
@@ -116,6 +121,9 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
     return false;
   }
   if (this.inQueue(creepMemory) || this.inRoom(creepMemory, amount)) { return false; }
+  if (role === 'harvester') {
+    this.log(`checkRoleToSpawn: ${amount} ${this.inQueue(creepMemory)} ${this.inRoom(creepMemory, amount)}`);
+  }
 
   if (config.debug.queue) {
     this.log('Add ' + creepMemory.role + ' to queue.');

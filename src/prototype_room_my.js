@@ -192,7 +192,6 @@ Room.prototype.handleScout = function() {
 };
 
 Room.prototype.checkNeedHelp = function() {
-
   let needHelp = this.memory.energyAvailableSum < config.carryHelpers.needTreshold * config.carryHelpers.ticksUntilHelpCheck; //&& !this.hostile;
   let oldNeedHelp = this.memory.needHelp;
   if (needHelp) {
@@ -247,6 +246,10 @@ Room.prototype.checkCanHelp = function() {
 };
 
 Room.prototype.checkForEnergyTransfer = function() {
+  if (config.carryHelpers.disabled) {
+    return false;
+  }
+
   Memory.needEnergyRooms = Memory.needEnergyRooms || [];
   this.memory.energyAvailableSum = this.memory.energyAvailableSum || 0;
   if (Game.time % config.carryHelpers.ticksUntilHelpCheck) {

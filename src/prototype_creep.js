@@ -325,6 +325,9 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
             return false;
           }
         });
+        if (this.memory.role === 'harvester') {
+          this.log(`spawnReplacement: ${creepOfRole.length} ${maxOfRole}`);
+        }
         if (creepOfRole.length > maxOfRole) {
           return false;
         }

@@ -4,9 +4,7 @@ Room.prototype.checkBlocked = function() {
   let roomCallback = function(roomName) {
     let costMatrix = new PathFinder.CostMatrix();
     let structures = room.find(FIND_STRUCTURES);
-    for (let structure of structures) {
-      costMatrix.set(structure.pos.x, structure.pos.y, 0xFF);
-    }
+    this.setCostMatrixStructures(costMatrix, structures, 255);
     return costMatrix;
   };
   for (let fromDirection in exits) {
