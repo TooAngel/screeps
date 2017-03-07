@@ -187,6 +187,34 @@ Room.prototype.getCreepPositionForId = function(to) {
   return new RoomPosition(pos.x, pos.y, this.name);
 };
 
+Room.prototype.findRoute = function(from, to) {
+  let routeCallback = function(roomName, fromRoomName) {
+    if (roomName === to) {
+      return 1;
+    }
+
+    if (Memory.rooms[roomName] && Memory.rooms[roomName].state === 'Occupied') {
+      //         console.log(`Creep.prototype.getRoute: Do not route through occupied rooms ${roomName}`);
+      if (config.path.allowRoutingThroughFriendRooms && friends.indexOf(Memory.rooms[roomName].player) > -1) {
+        console.log('routing through friendly room' + roomName);
+        return 1;
+      }
+      //         console.log('Not routing through enemy room' + roomName);
+      return Infinity;
+    }
+
+    if (Memory.rooms[roomName] && Memory.rooms[roomName].state === 'Blocked') {
+      //         console.log(`Creep.prototype.getRoute: Do not route through blocked rooms ${roomName}`);
+      return Infinity;
+    }
+
+    return 1;
+  };
+  return Game.map.findRoute(from, to, {
+    routeCallback: routeCallback
+  });
+};
+
 Room.prototype.buildPath = function(route, routePos, from, to) {
   if (!to) {
     this.log('newmove: buildPath: no to');

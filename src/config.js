@@ -51,6 +51,12 @@ global.config = {
     notify: false,
   },
 
+  revive: {
+    disabled: false,
+    reviverMaxQueue: 4,
+    reviverMinEnergy: 1300
+  },
+
   nextRoom: {
     boostToControllerLevel: 4,
     scoutMinControllerLevel: 4,
