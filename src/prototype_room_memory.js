@@ -9,6 +9,52 @@
  * Store paths from my rooms in a compressed form in memory.
  */
 
+/**
+ * Stores the costMatrix in cache or in case of a controller room
+ * in memory, too.
+ *
+ * @param {Object} costMatrix - the costMatrix to save
+ */
+Room.prototype.setMemoryCostMatrix = function(costMatrix) {
+  if (!cache.rooms[this.name]) {
+    cache.rooms[this.name] = {};
+  }
+  if (!cache.rooms[this.name].costMatrix) {
+    cache.rooms[this.name].costMatrix = {};
+  }
+  if (this.controller && this.controller.my) {
+    if (!this.memory.costMatrix) {
+      this.memory.costMatrix = {};
+    }
+    this.memory.costMatrix.base = costMatrix.serialize();
+  }
+  cache.rooms[this.name].costMatrix.base = costMatrix;
+};
+
+/**
+ * Returns the costMatrix for the room. The cache will be populated
+ * from memory.
+ */
+Room.prototype.getMemoryCostMatrix = function() {
+  if (!cache.rooms[this.name]) {
+    cache.rooms[this.name] = {};
+  }
+  if (!cache.rooms[this.name].costMatrix) {
+    cache.rooms[this.name].costMatrix = {};
+  }
+  if (!cache.rooms[this.name].costMatrix.base) {
+    if (!this.memory.costMatrix || !this.memory.costMatrix.base) {
+      return;
+    }
+    cache.rooms[this.name].costMatrix.base = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
+  }
+  return cache.rooms[this.name].costMatrix.base;
+};
+
+/**
+ * Returns all paths for this room from cache. Checks if cache and memory
+ * paths fit, otherwise populate cache.
+ */
 Room.prototype.getMemoryPaths = function() {
   this.memory.routing = this.memory.routing || {};
   cache.rooms[this.name] = cache.rooms[this.name] || {};
@@ -36,6 +82,12 @@ Room.prototype.getMemoryPaths = function() {
   return cache.rooms[this.name].routing;
 };
 
+/**
+ * Returns the path for the given name. Checks for validity and populated
+ * cache if missing.
+^
+ * @param {String} name - the name of the path
+ */
 Room.prototype.getMemoryPath = function(name) {
   this.memory.routing = this.memory.routing || {};
   cache.rooms[this.name] = cache.rooms[this.name] || {};
@@ -69,6 +121,9 @@ Room.prototype.getMemoryPath = function(name) {
   return false;
 };
 
+/**
+ * Cleans the cache and memory from all paths
+ */
 Room.prototype.deleteMemoryPaths = function() {
   this.memory.routing = this.memory.routing || {};
   cache.rooms[this.name] = cache.rooms[this.name] || {};
@@ -77,6 +132,11 @@ Room.prototype.deleteMemoryPaths = function() {
   delete this.memory.routing;
 };
 
+/**
+ * Removes the named path from cache and memory
+ *
+ * @param {String} name - the name of the path
+ */
 Room.prototype.deleteMemoryPath = function(name) {
   this.memory.routing = this.memory.routing || {};
   cache.rooms[this.name] = cache.rooms[this.name] || {};
@@ -84,6 +144,14 @@ Room.prototype.deleteMemoryPath = function(name) {
   delete this.memory.routing[name];
 };
 
+/**
+ * Stores the given path under the name in cache. If `fixed` is true
+ * the path is stored in memory serialized.
+ *
+ * @param {String} name - the name of the path
+ * @param {Array} path - the path itself
+ * @param {boolean} fixed - Flag to define if the path should be stored in memory
+ */
 Room.prototype.setMemoryPath = function(name, path, fixed) {
   this.memory.routing = this.memory.routing || {};
   cache.rooms[this.name] = cache.rooms[this.name] || {};

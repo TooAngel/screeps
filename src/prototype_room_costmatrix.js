@@ -1,5 +1,37 @@
 'use strict';
 
+Room.prototype.getCostMatrixCallback = function(end, excludeStructures) {
+  let costMatrix = this.getMemoryCostMatrix();
+  if (!costMatrix) {
+    this.log('getCostMatrixCallback updatePosition: ' + JSON.stringify(costMatrix));
+    this.updatePosition();
+    // this.log('costmatrix: ' + JSON.stringify(this.getMemoryCostMatrix()));
+  }
+
+  let room = this;
+  let callbackInner = function(roomName) {
+    let costMatrix = room.getMemoryCostMatrix();
+    // TODO the ramparts could be within existing walls (at least when converging to the newmovesim
+    if (end) {
+      costMatrix.set(end.x, end.y, 0);
+    }
+
+    if (excludeStructures) {
+      // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
+      let structures = room.findBlockingStructures();
+      for (let structure of structures) {
+        costMatrix.set(structure.pos.x, structure.pos.y, config.layout.structureAvoid);
+      }
+    }
+    for (let structure of structures) {
+      costMatrix.set(structure.pos.x, structure.pos.y, config.layout.structureAvoid);
+    }
+    return costMatrix;
+  };
+};
+return callbackInner;
+};
+
 Room.prototype.getCostMatrix = function() {
   let costMatrix = new PathFinder.CostMatrix();
   // Keep distance to walls
@@ -37,52 +69,51 @@ Room.prototype.getCostMatrix = function() {
 };
 
 Room.prototype.getAvoids = function(target, inRoom) {
-  // TODO Only the matrix is enough?
-  let callback = this.getMatrixCallback();
+  let costMatrix = this.getMemoryCostMatrix();
+  if (!costMatrix) {
+    this.log('get avoids No costmatrix.base?');
+    this.updatePosition();
+  }
 
-  if (this.memory.costMatrix && this.memory.costMatrix.base) {
-    let room = this;
-    callback = (roomName) => {
-      let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
-      if (target && target.pos) {
-        costMatrix.set(target.pos.x, target.pos.y, 0);
-      }
-      let structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD], true);
-      for (let structure of structures) {
-        costMatrix.set(structure.pos.x, structure.pos.y, 255);
-      }
+  let room = this;
+  let callback = (roomName) => {
+    let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
+    if (target && target.pos) {
+      costMatrix.set(target.pos.x, target.pos.y, 0);
+    }
 
-      // Noobie walls
-      let walls = room.find(FIND_STRUCTURES, {
+    let structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD], true);
+    for (let structure of structures) {
+      costMatrix.set(structure.pos.x, structure.pos.y, 255);
+    }
+
+    // Noobie walls
+    let walls = room.find(FIND_STRUCTURES, {
+      filter: function(object) {
+        if (object.structureType == STRUCTURE_WALL && !object.hits) {
+          return true;
+        }
+        return false;
+      }
+    });
+    for (let wall of walls) {
+      costMatrix.set(wall.pos.x, wall.pos.y, 255);
+    }
+
+    if (target && target.scout) {
+      let structures = room.find(FIND_STRUCTURES, {
         filter: function(object) {
-          if (object.structureType === STRUCTURE_WALL && !object.hits) {
+          if (object.structureType == STRUCTURE_WALL) {
             return true;
           }
           return false;
         }
       });
-      for (let wall of walls) {
-        costMatrix.set(wall.pos.x, wall.pos.y, 255);
+      for (let structure of structures) {
+        costMatrix.set(structure.pos.x, structure.pos.y, 255);
       }
-
-      if (target && target.scout) {
-        let structures = room.find(FIND_STRUCTURES, {
-          filter: function(object) {
-            if (object.structureType === STRUCTURE_WALL) {
-              return true;
-            }
-            return false;
-          }
-        });
-        for (let structure of structures) {
-          costMatrix.set(structure.pos.x, structure.pos.y, 255);
-        }
-      }
-      return costMatrix;
-    };
-  } else {
-    //    this.log('No costmatrix.base?');
-    this.updatePosition();
-  }
+    }
+    return costMatrix;
+  };
   return callback;
 };

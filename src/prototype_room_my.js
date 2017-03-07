@@ -233,6 +233,10 @@ Room.prototype.checkCanHelp = function() {
     nearestRoom !== this.name && nearestRoomObj && this.storage && //!nearestRoomObj.hostile &&
     !nearestRoomObj.terminal;
   if (canHelp) {
+    let route = this.findRoute(nearestRoom, this.name);
+    if (route == -2 || route.length === 0) {
+      return 'no';
+    }
     this.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, this.storage.id,
       this.name, undefined, nearestRoom);
     this.memory.energyAvailableSum = 0;
@@ -441,6 +445,102 @@ Room.prototype.executeRoom = function() {
   return true;
 };
 
+Room.prototype.setRoomToInactive = function() {
+  let tokens = Game.market.getAllOrders({
+    type: ORDER_SELL,
+    resourceType: SUBSCRIPTION_TOKEN
+  });
+  let addToIdiot = 3000000;
+  if (tokens.length > 0) {
+    tokens = _.sortBy(tokens, function(object) {
+      return -1 * object.price;
+    });
+    addToIdiot = Math.max(addToIdiot, tokens[0].price);
+  }
+  this.log('Increase idiot by subscription token');
+  let idiotCreeps = this.find(FIND_HOSTILE_CREEPS, {
+    filter: function(object) {
+      return object.owner.username != 'Invader';
+    }
+  });
+  if (idiotCreeps.length > 0) {
+    for (let idiotCreep of idiotCreeps) {
+      brain.increaseIdiot(idiotCreep.owner.username, addToIdiot);
+    }
+  }
+  this.memory.active = false;
+};
+
+Room.prototype.canRoomHelpToRevive = function(roomIndex) {
+  let roomName = Memory.myRooms[roomIndex];
+  if (this.name == roomName) {
+    return false;
+  }
+  let roomOther = Game.rooms[roomName];
+  roomOther.log('Can I revive?');
+  if (!roomOther.memory.active) {
+    roomOther.log('No active');
+    return false;
+  }
+  if (!roomOther.storage || roomOther.storage.store.energy < config.room.reviveStorageAvailable) {
+    roomOther.log('No storage');
+    return false;
+  }
+  // TODO find a proper value
+  if (roomOther.memory.queue.length > 4) {
+    roomOther.log('No queue');
+    return false;
+  }
+
+  // TODO config value, meaningful
+  if (roomOther.energyCapacityAvailable < 1300) {
+    roomOther.log('Too Small');
+    return false;
+  }
+
+  let distance = Game.map.getRoomLinearDistance(this.name, roomName);
+  if (distance < config.nextRoom.maxDistance) {
+    let route = this.findRoute(roomOther.name, this.name);
+    // TODO Instead of skipping we could try to free up the way: nextroomerattack or squad
+    if (route.length === 0) {
+      roomOther.log('No route to other room: ' + roomOther.name);
+      return false;
+    }
+    return true;
+  }
+  return false;
+};
+
+Room.prototype.callNextroomers = function() {
+  let nextroomerCalled = 0;
+  let room = this;
+  let sortByDistance = function(object) {
+    return Game.map.getRoomLinearDistance(room.name, object);
+  };
+  let roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
+  for (let roomIndex in roomsMy) {
+    if (nextroomerCalled > config.nextRoom.numberOfNextroomers) {
+      break;
+    }
+    if (this.checkRoomToHelpRevive(roomIndex)) {
+      let roomName = Memory.myRooms[roomIndex];
+      let roomOther = Game.rooms[roomName];
+      let role = 'nextroomer';
+      if (this.memory.wayBlocked) {
+        role = 'nextroomerattack';
+      }
+      let hostileCreep = this.find(FIND_HOSTILE_CREEPS);
+      if (hostileCreep.length > 0) {
+        roomOther.log('Queuing defender for ' + this.name);
+        roomOther.checkRoleToSpawn('defender', 1, undefined, this.name);
+      }
+      roomOther.log('Queuing ' + role + ' for ' + this.name);
+      roomOther.checkRoleToSpawn(role, 1, undefined, this.name);
+      nextroomerCalled++;
+    }
+  }
+};
+
 Room.prototype.reviveRoom = function() {
   let nextRoomers = _.filter(Game.creeps, c => c.memory.role === 'nextroomer' &&
     c.memory.routing.targetRoom === this.name).length;
@@ -455,35 +555,11 @@ Room.prototype.reviveRoom = function() {
   }
 
   if (this.memory.active) {
-    this.log('Setting room to underSiege');
-    //this.memory.underSiege = true;
-    let tokens = Game.market.getAllOrders({
-      type: ORDER_SELL,
-      resourceType: SUBSCRIPTION_TOKEN
-    });
-    let addToIdiot = 3000000;
-    if (tokens.length > 0) {
-      tokens = _.sortBy(tokens, function(object) {
-        return -1 * object.price;
-      });
-      addToIdiot = Math.max(addToIdiot, tokens[0].price);
-    }
-    this.log('Increase idiot by subscription token');
-    let idiotCreeps = this.find(FIND_HOSTILE_CREEPS, {
-      filter: function(object) {
-        return object.owner.username !== 'Invader';
-      }
-    });
-    if (idiotCreeps.length > 0) {
-      for (let idiotCreep of idiotCreeps) {
-        brain.increaseIdiot(idiotCreep.owner.username, addToIdiot);
-      }
-    }
+    this.setRoomToInactive();
   }
 
   this.handleTower();
   this.handleTerminal();
-  this.memory.active = false;
   if (!config.room.revive) {
     return false;
   }
@@ -497,75 +573,7 @@ Room.prototype.reviveRoom = function() {
     (Game.time + this.controller.pos.x + this.controller.pos.y) %
     config.nextRoom.nextroomerInterval === 0) {
     this.log('revive me now');
-
-    let nextroomerCalled = 0;
-
-    let room = this;
-
-    let sortByDistance = function(object) {
-      return Game.map.getRoomLinearDistance(room.name, object);
-    };
-
-    let roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
-
-    for (let roomIndex in roomsMy) {
-      if (nextroomerCalled > config.nextRoom.numberOfNextroomers) {
-        break;
-      }
-      let roomName = Memory.myRooms[roomIndex];
-      if (this.name === roomName) {
-        continue;
-      }
-      let roomOther = Game.rooms[roomName];
-      roomOther.log('Can I revive?');
-      if (!roomOther.memory.active) {
-        roomOther.log('No active');
-        continue;
-      }
-      if (!roomOther.storage || roomOther.storage.store.energy < config.room.reviveStorageAvailable) {
-        roomOther.log('No storage');
-        continue;
-      }
-      // TODO find a proper value
-      if (roomOther.memory.queue.length > 4) {
-        roomOther.log('No queue');
-        continue;
-      }
-
-      // TODO config value, meaningful
-      if (roomOther.energyCapacityAvailable < 1300) {
-        roomOther.log('Too Small');
-        continue;
-      }
-
-      let distance = Game.map.getRoomLinearDistance(this.name, roomName);
-      if (distance < config.nextRoom.maxDistance) {
-        let creepToSpawn = {
-          role: 'nextroomer',
-          routing: {
-            targetRoom: this.name
-          }
-        };
-        if (this.memory.wayBlocked) {
-          creepToSpawn.role = 'nextroomerattack';
-        }
-        let hostileCreep = this.find(FIND_HOSTILE_CREEPS);
-        if (hostileCreep.length > 0) {
-          roomOther.log('Queuing defender for ' + this.name);
-          roomOther.memory.queue.push({
-            role: 'defender',
-            routing: {
-              targetRoom: this.name
-            }
-          });
-        }
-        roomOther.log('Queuing ' + creepToSpawn.role + ' for ' + this.name);
-        if (!this.inQueue(creepToSpawn)) {
-          roomOther.memory.queue.push(creepToSpawn);
-        }
-        nextroomerCalled++;
-      }
-    }
+    this.callNextroomers();
   }
   return true;
 };

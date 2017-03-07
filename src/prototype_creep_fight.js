@@ -203,6 +203,7 @@ Creep.prototype.waitRampart = function() {
 };
 
 Creep.prototype.fightRampart = function(target) {
+  this.rangedAttack(target);
   if (!target) {
     return false;
   }

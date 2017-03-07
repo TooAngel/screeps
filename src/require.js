@@ -21,6 +21,7 @@ require('prototype_room_controller');
 require('prototype_room_creepbuilder');
 require('prototype_room_defense');
 require('prototype_room_fight');
+require('prototype_room_find');
 require('prototype_room_market');
 require('prototype_room_memory');
 require('prototype_room_mineral');

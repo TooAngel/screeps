@@ -39,12 +39,12 @@ Room.prototype.checkExitsAreReachable = function() {
     }
     return false;
   };
-  let costMatrixBase = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
+  let costMatrixBase = this.getMemoryCostMatrix();
 
   let exits = this.find(FIND_EXIT);
   let room = this;
   var callbackNew = function(roomName) {
-    let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
+    let costMatrix = room.getMemoryCostMatrix();
     return costMatrix;
   };
   for (let exit of exits) {
@@ -75,7 +75,7 @@ Room.prototype.checkExitsAreReachable = function() {
         if (inLayer(this, pathPos)) {
           this.memory.walls.ramparts.push(pathPos);
           costMatrixBase.set(pathPos.x, pathPos.y, 0);
-          this.memory.costMatrix.base = costMatrixBase.serialize();
+          this.setMemoryCostMatrix(costMatrixBase);
         }
       }
     }
@@ -217,7 +217,7 @@ Room.prototype.closeExitsByPath = function() {
       this.log('pathPos: ' + pathPos);
 
       var structure = STRUCTURE_WALL;
-      let costMatrixBase = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
+      let costMatrixBase = this.getMemoryCostMatrix();
       if (pathPos.inPath() || pathPos.inPositions()) {
         structure = STRUCTURE_RAMPART;
         costMatrixBase.set(pathPos.x, pathPos.y, 0);
@@ -225,7 +225,7 @@ Room.prototype.closeExitsByPath = function() {
       } else {
         costMatrixBase.set(pathPos.x, pathPos.y, 0xff);
       }
-      this.memory.costMatrix.base = costMatrixBase.serialize();
+      this.setMemoryCostMatrix(costMatrixBase);
       this.memory.walls.layer[this.memory.walls.layer_i].push(pathPos);
       var returnCode = pathPos.createConstructionSite(structure);
       if (returnCode === ERR_FULL) {

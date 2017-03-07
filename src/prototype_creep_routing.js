@@ -15,37 +15,7 @@ Creep.prototype.getRoute = function() {
   let route = [];
   let creep = this;
   if (this.memory.base != this.memory.routing.targetRoom) {
-    // TODO more dynamic, room.memory.hostile value?
-    let routeCallback = function(roomName, fromRoomName) {
-      if (roomName === creep.memory.routing.targetRoom) {
-        return 1;
-      }
-
-      if (Memory.rooms[roomName] && Memory.rooms[roomName].state === 'Occupied') {
-        //         console.log(`Creep.prototype.getRoute: Do not route through occupied rooms ${roomName}`);
-        if (config.path.allowRoutingThroughFriendRooms && friends.indexOf(Memory.rooms[roomName].player) > -1) {
-          console.log('routing through friendly room' + roomName);
-          return 1;
-        }
-        //         console.log('Not routing through enemy room' + roomName);
-        return Infinity;
-      }
-
-      if (Memory.rooms[roomName] && Memory.rooms[roomName].state === 'Blocked') {
-        //         console.log(`Creep.prototype.getRoute: Do not route through blocked rooms ${roomName}`);
-        return Infinity;
-      }
-
-      return 1;
-    };
-    route = Game.map.findRoute(this.memory.base, this.memory.routing.targetRoom, {
-      routeCallback: routeCallback
-    });
-    //     this.log('getRoute: ' + this.memory.base + ' target: ' + this.memory.routing.targetRoom + ' route: ' + route);
-    // TODO I guess some bug while transitionen to memory.routing
-    if (route === -2) {
-      route = [];
-    }
+    route = this.room.findRoute(this.memory.base, this.memory.routing.targetRoom);
   }
   route.splice(0, 0, {
     room: this.memory.base
@@ -245,8 +215,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
         let callbackInner = function(roomName) {
           let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
 
-          // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
-          let structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
+          let structures = room.findBlockingStructures();
           for (let structure of structures) {
             costMatrix.set(structure.pos.x, structure.pos.y, config.layout.structureAvoid);
           }
