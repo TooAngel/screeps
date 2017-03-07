@@ -165,9 +165,9 @@ Room.prototype.handleTower = function() {
     }
     return false;
   };
-
+  let tower;
   for (var tower_index in towers) {
-    var tower = towers[tower_index];
+    tower = towers[tower_index];
     if (tower.energy === 0) {
       continue;
     }
@@ -202,8 +202,8 @@ Room.prototype.handleTower = function() {
       //        continue;
       //      }
       repair = to_repair;
+      tower.repair(repair);
     }
-    tower.repair(repair);
   }
   return true;
 };
