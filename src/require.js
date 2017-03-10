@@ -25,6 +25,7 @@ require('prototype_room_market');
 require('prototype_room_memory');
 require('prototype_room_mineral');
 require('prototype_room_my');
+require('prototype_room_paths');
 require('prototype_room_external');
 require('prototype_room_routing');
 require('prototype_room_utils');
