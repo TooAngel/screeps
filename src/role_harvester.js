@@ -29,9 +29,10 @@ roles.harvester.settings = {
 roles.harvester.updateSettings = function(room, creep) {
   if (room.storage && room.storage.store.energy > config.creep.energyFromStorageThreshold) {
     return {
+      prefixString: 'WMC',
       layoutString: 'MC',
-      amount: [2, 3],
-      maxLayoutAmount: 10
+      amount: [1, 1],
+      maxLayoutAmount: 12
     };
   }
 };

@@ -43,7 +43,9 @@ global.config = {
   },
 
   debug: {
-    getPartsConfLogs: false
+    getPartsConfLogs: false,
+    queue: false,
+    spawn: false
   },
 
   autoattack: {

@@ -131,7 +131,8 @@
     "SUBSCRIPTION_TOKEN": false,
     "cache": false,
     "visualizer": false,
-    "RawVisual": false
+    "RawVisual": false,
+    "LOOK_CREEPS": false
   },
   "node": true
 }
