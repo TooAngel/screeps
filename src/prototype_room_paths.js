@@ -75,7 +75,7 @@ RoomPosition.prototype.getInternPath = function(target) {
   } else if (target instanceof RoomPosition) {
     range = 0;
   }
-  if (!target || target.room != this.room) {
+  if (!target || target.room !== this.room) {
     return false;
   }
   console.log(JSON.stringify(target));
@@ -165,18 +165,22 @@ Room.prototype.init = function() {
   let mineral = this.getMineral();  // same
   let n = 0;
   let path;
+  let pathName;
 
   while (n < 8) {
-      console.log(n);
     if(n < 4) {
-      path = controller.pos.getInternPath(exits['E' + (n + 1)]);
-      this.formatPath(path, 'E' + (n + 1));
+      pathName = 'E' + (n + 1);
+      path = controller.pos.getInternPath(exits[pathName]);
     } else if (n < 7) {
-      path = controller.pos.getInternPath(sources['S' + (n - 3)]);
-      this.formatPath(path, 'S' + (n - 3));
+      pathName = 'S' + (n - 3)
+      path = controller.pos.getInternPath(sources[pathName]);
     } else {
-      path = controller.pos.getInternPath(mineral['M']);
-      this.formatPath(path, 'M');
+      pathName = 'M';
+      path = controller.pos.getInternPath(mineral[pathName]);
+    }
+    this.formatPath(path, pathName);
+    if (config.debug.paths) {
+      this.log('Path to ', pathName, 'created and reformated');
     }
     n++;
 
