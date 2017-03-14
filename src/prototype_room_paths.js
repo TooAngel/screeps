@@ -37,34 +37,30 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-Room.prototype.getExits = function() {
-  let exits = {};
+Room.prototype.getEndPoints = function() {
+  let endPoints = {};
+  let i = 1;
+        
   let exitTiles;
-  let dir = 1;
-  let dirs = [FIND_EXIT_TOP, FIND_EXIT_RIGHT, FIND_EXIT_BOTTOM, FIND_EXIT_LEFT];
-  for (dir; dir <= 4; dir++) {
-    exitTiles = this.find(dirs[dir - 1]);
-    if (exitTiles.length > 0) {
-      exits['E' + dir] = exitTiles[Math.floor(exitTiles.length / 2)];
-    }
-  }
-  return exits;
-};
-
-Room.prototype.getSources = function() {
+  let exitDirs = [FIND_EXIT_TOP, FIND_EXIT_RIGHT, FIND_EXIT_BOTTOM, FIND_EXIT_LEFT];
+        
   let sources = this.find(FIND_SOURCES);
-  let id = 1;
-  let newSources = {};
-  for (id; id <= 3; id++) {
-    if (sources[id - 1]) {
-      newSources['S' + id] = sources[id - 1].id;
+        
+  for (i; i <= 4; i++) {
+    exitTiles = this.find(dirs[i - 1]);
+    if (exitTiles.length > 0) {
+      endPoints['E' + i] = exitTiles[Math.floor(exitTiles.length / 2)];
     }
   }
-  return newSources;
-};
-
-Room.prototype.getMineral = function() {
-  return {M: this.find(FIND_MINERALS)[0]};
+  for (i = 1; i <= 3; i++) {
+    if (sources[i - 1]) {
+      endPoints['S' + i] = sources[i - 1].id;
+    }
+  }
+  
+  endPoints.M = this.find(FIND_MINERALS)[0];
+        
+  return endPoints;
 };
 
 RoomPosition.prototype.getInternPath = function(target) {
@@ -160,9 +156,7 @@ Room.prototype.init = function() {
     return false;
   }
   this.memory.paths = {list: []};
-  let exits = this.getExits();      // should return {E2: E2pos, E3: E3pos, E4: E4pos}
-  let sources = this.getSources();  // same
-  let mineral = this.getMineral();  // same
+  let endPoints = this.getEndPoints();
   let n = 0;
   let path;
   let pathName;
@@ -170,19 +164,16 @@ Room.prototype.init = function() {
   while (n < 8) {
     if(n < 4) {
       pathName = 'E' + (n + 1);
-      path = controller.pos.getInternPath(exits[pathName]);
     } else if (n < 7) {
       pathName = 'S' + (n - 3)
-      path = controller.pos.getInternPath(sources[pathName]);
     } else {
       pathName = 'M';
-      path = controller.pos.getInternPath(mineral[pathName]);
     }
+    path = controller.pos.getInternPath(endPoints[pathName]);
     this.formatPath(path, pathName);
     if (config.debug.paths) {
       this.log('Path to ', pathName, 'created and reformated');
     }
     n++;
-
   }
 }
