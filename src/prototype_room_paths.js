@@ -108,34 +108,27 @@ Room.prototype.formatPath = function(path, pathName) {
   }
 
   let finish = false;
-  let parentEnd = false;
   let deep = 0;
   let pos = 0;
-  let parentPos;
   let newPath = [];
-  let actualParentName;
-  let previousParentName;
-  let previousParentPos;
+  let parent = [];
   let paths = this.memory.paths;
 
   while (!finish) {
-    actualParentName = searchParent(deep);
-
-    if (actualParentName) {
-      deep++;
-      parentPos = 0;
-      parentEnd = false;
-      while (!parentEnd) {
-        //console.log(JSON.stringify(paths[actualParentName].path[parentPos]));
-        //console.log(JSON.stringify(path[pos]));
-        if (!path[pos] || !_.eq(path[pos], paths[actualParentName].path[parentPos])) {
-          parentEnd = true;
-          previousParentName = actualParentName;
+    parent[deep] = {
+      name: searchParent(deep),
+      pos: 0,
+      end: false,
+    };
+    if (parent[deep].name) {
+      while (!parent[deep].end) {
+        if (!path[pos] || !_.eq(path[pos], paths[parent[deep].name].path[parent[deep].pos])) {
+          parent[deep].end = true;
         }
         pos++;
-        parentPos++;
-
+        parent[deep].pos++;
       }
+      deep++;
     } else {
       while (path[pos]) {
         newPath.push(path[pos]);
@@ -147,7 +140,7 @@ Room.prototype.formatPath = function(path, pathName) {
 
   this.memory.paths.list[deep] = this.memory.paths.list[deep] || []
   this.memory.paths.list[deep].push(pathName);
-  this.memory.paths[pathName] = { path: newPath, parentNode: [previousParentName, parentPos]};
+  this.memory.paths[pathName] = { path: newPath, parentNode: [parent[deep - 1].name, parent[deep - 1].pos]};
 };
 
 Room.prototype.init = function() {
