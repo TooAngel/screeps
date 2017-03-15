@@ -188,7 +188,7 @@ Upgrade less: ${strings.upgradeLess}
 };
 
 brain.prepareMemory = function() {
-  Memory.username = Memory.username || _.find(Game.spawns, 'owner').owner.username;
+  Memory.username = Memory.username || _.chain(Game.rooms).map('controller').flatten().filter('my').map('owner.username').first().value();
   brain.setMarketOrdersBuy();
   brain.setConstructionSites();
   brain.cleanCreeps();
