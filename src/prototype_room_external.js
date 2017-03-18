@@ -352,7 +352,6 @@ Room.prototype.handleUnreservedRoom = function() {
         // RCL: target reserved rooms
         let numRooms = config.room.reservedRCL;
         if (reservedRooms.length < numRooms[room.controller.level]) {
-          this.log('Would start to spawn');
           this.memory.reservation = {
             base: room.name,
           };

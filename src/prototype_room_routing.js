@@ -85,6 +85,13 @@ Room.prototype.updatePosition = function() {
     extractor: []
   };
 
+  if (this.controller) {
+    let upgraderPos = this.controller.pos.findNearPosition().next().value;
+    this.memory.position.creep[this.controller.id] = upgraderPos;
+    costMatrixBase.set(upgraderPos.x, upgraderPos.y, config.layout.creepAvoid);
+    this.setMemoryCostMatrix(costMatrixBase);
+  }
+
   let sources = this.find(FIND_SOURCES);
   for (let source of sources) {
     let sourcer = source.pos.findNearPosition().next().value;
@@ -111,11 +118,6 @@ Room.prototype.updatePosition = function() {
       this.memory.position.structure.extractor.push(mineral.pos);
     }
 
-    let upgraderPos = this.controller.pos.findNearPosition().next().value;
-    this.memory.position.creep[this.controller.id] = upgraderPos;
-    costMatrixBase.set(upgraderPos.x, upgraderPos.y, config.layout.creepAvoid);
-    this.setMemoryCostMatrix(costMatrixBase);
-
     let storagePos = this.memory.position.creep[this.controller.id].findNearPosition().next().value;
     this.memory.position.structure.storage.push(storagePos);
     // TODO should also be done for the other structures
@@ -130,7 +132,7 @@ Room.prototype.updatePosition = function() {
     let pathUpgrader = this.getPath(route, 0, 'pathStart', this.controller.id, true);
     // TODO exclude the last position (creepAvoid) in all paths
     for (let pos of pathUpgrader) {
-      if (upgraderPos.isEqualTo(pos.x, pos.y)) {
+      if (this.memory.position.creep[this.controller.id].isEqualTo(pos.x, pos.y)) {
         continue;
       }
       costMatrixBase.set(pos.x, pos.y, config.layout.pathAvoid);
@@ -292,8 +294,8 @@ Room.prototype.getMyExitTo = function(room) {
 
 Room.prototype.getMatrixCallback = function(end) {
   //  console.log('getMatrixCallback', this);
+  let room = this;
   let callback = function(roomName) {
-    let room = Game.rooms[roomName];
     let costMatrix = new PathFinder.CostMatrix();
     // Previous Source Keeper where also excluded?
 
