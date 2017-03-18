@@ -236,26 +236,12 @@ Room.prototype.buildPath = function(route, routePos, from, to) {
     }
   }
 
-  // TODO avoid swamps in external rooms
-  let callback = this.getMatrixCallback;
-
-  if (this.memory.costMatrix && this.memory.costMatrix.base) {
-    let room = this;
-    callback = function(end) {
-      let callbackInner = function(roomName) {
-        let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
-        return costMatrix;
-      };
-      return callbackInner;
-    };
-  }
-
   let search = PathFinder.search(
     start, {
       pos: end,
       range: 1
     }, {
-      roomCallback: callback(end),
+      roomCallback: this.getCostMatrixCallback(end),
       maxRooms: 1,
       swampCost: config.layout.swampCost,
       plainCost: config.layout.plainCost
@@ -293,22 +279,7 @@ Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
     this.setMemoryPath(pathName, path, fixed);
   }
 
-  // TODO When switch to global cache is done, this can be removed
-  if (!this.cache) {
-    this.cache = {};
-  }
-
-  let cacheName = this.name + ':' + pathName;
-  if (!this.cache[cacheName]) {
-    try {
-      this.cache[cacheName] = this.getMemoryPath(pathName);
-    } catch (e) {
-      this.log('Can not parse path in cache will delete Memory');
-      delete Memory.rooms[this.name];
-    }
-  }
-
-  return this.cache[cacheName];
+  return this.getMemoryPath(pathName);
 };
 
 Room.prototype.getMyExitTo = function(room) {
@@ -320,7 +291,6 @@ Room.prototype.getMyExitTo = function(room) {
 };
 
 Room.prototype.getMatrixCallback = function(end) {
-  // TODO cache?!
   //  console.log('getMatrixCallback', this);
   let callback = function(roomName) {
     let room = Game.rooms[roomName];

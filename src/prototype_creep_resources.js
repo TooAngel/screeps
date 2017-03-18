@@ -629,34 +629,12 @@ Creep.prototype.construct = function() {
     }
     this.log('config_creep_resource construct: ' + returnCode + ' ' + JSON.stringify(target.pos));
   } else {
-    let callback = this.room.getMatrixCallback;
-
-    if (this.room.memory.costMatrix && this.room.memory.costMatrix.base) {
-      let room = this.room;
-      let creep = this;
-      callback = function(end) {
-        let callbackInner = function(roomName) {
-          let costMatrix = PathFinder.CostMatrix.deserialize(room.memory.costMatrix.base);
-          costMatrix.set(creep.pos.x, creep.pos.y, 0);
-
-          // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
-          let structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
-          for (let structure of structures) {
-            costMatrix.set(structure.pos.x, structure.pos.y, config.layout.structureAvoid);
-          }
-
-          return costMatrix;
-        };
-        return callbackInner;
-      };
-    }
-
     let search = PathFinder.search(
       this.pos, {
         pos: target.pos,
         range: 3
       }, {
-        roomCallback: callback(target.pos),
+        roomCallback: this.room.getCostMatrixCallback(target.pos),
         maxRooms: 0
       }
     );
