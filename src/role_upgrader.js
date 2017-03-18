@@ -17,19 +17,19 @@ roles.upgrader.settings = {
     1: 'MWW',
     4: 'W'
   },
-  sufixString: {
-    4: {
-      0: {
-        1: 'H'
-      }
-    }
-  },
-  maxLayoutAmount: {
-    7: {
-      50000: 20,
-      800000: undefined,
-    }
-  }
+  // sufixString: {
+  //   4: {
+  //     0: {
+  //       1: 'H'
+  //     }
+  //   }
+  // },
+  // maxLayoutAmount: {
+  //   7: {
+  //     50000: 20,
+  //     800000: undefined,
+  //   }
+  // }
 };
 roles.upgrader.stayInRoom = true;
 // TODO disabled because the upgrader took energy from the extension
