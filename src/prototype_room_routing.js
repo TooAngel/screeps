@@ -293,9 +293,10 @@ Room.prototype.getMyExitTo = function(room) {
 };
 
 Room.prototype.getMatrixCallback = function(end) {
-  //  console.log('getMatrixCallback', this);
-  let room = this;
+  // TODO cache?!
   let callback = function(roomName) {
+    // console.log('getMatrixCallback', this);
+    let room = Game.rooms[roomName];
     let costMatrix = new PathFinder.CostMatrix();
     // Previous Source Keeper where also excluded?
 
@@ -326,36 +327,6 @@ Room.prototype.getMatrixCallback = function(end) {
         }
       }
     }
-
-    // Ignore walls?
-    //    let structures = room.find(FIND_STRUCTURES, {
-    //      filter: function(object) {
-    //        if (object.structureType === STRUCTURE_ROAD) {
-    //          return false;
-    //        }
-    //        if (object.structureType === STRUCTURE_RAMPART) {
-    //          return !object.my;
-    //        }
-    //        return true;
-    //      }
-    //    });
-    //    for (let structure of structures) {
-    //      costMatrix.set(structure.pos.x, structure.pos.y, 0xFF);
-    //    }
-    //    let constructionSites = room.find(FIND_CONSTRUCTION_SITES, {
-    //      filter: function(object) {
-    //        if (object.structureType === STRUCTURE_ROAD) {
-    //          return false;
-    //        }
-    //        if (object.structureType === STRUCTURE_RAMPART) {
-    //          return object.my;
-    //        }
-    //        return true;
-    //      }
-    //    });
-    //    for (let constructionSite of constructionSites) {
-    //      costMatrix.set(constructionSite.pos.x, constructionSite.pos.y, 0xFF);
-    //    }
     return costMatrix;
   };
 

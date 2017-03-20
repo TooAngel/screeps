@@ -204,7 +204,6 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
         }
       }
     }
-
     if (path.length === 0) {
       this.log('config_creep_routing.followPath no pos: ' + JSON.stringify(path));
       return false;

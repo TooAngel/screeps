@@ -21,7 +21,7 @@ roles.defendmelee.execute = function(creep) {
   let search = PathFinder.search(
     creep.pos,
     hostile.pos, {
-      roomCallback: creep.room.getAvoids(creep.room)
+      roomCallback: creep.room.getCostMatrixCallback(hostile.pos)
     });
   let direction = creep.pos.getDirectionTo(search.path[0]);
   creep.moveCreep(search.path[0], (direction + 3) % 8 + 1);
