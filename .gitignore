@@ -14,5 +14,8 @@ account.screeps.com.js
 
 .localSync.js
 
-##Autocomplete
+## Autocomplete
 ScreepsAutocomplete/
+
+## lupa_atom config
+lupaProject.json

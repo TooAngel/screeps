@@ -4,5 +4,6 @@
   "loadEagerly": [
     "ScreepsAutocomplete/**/*.js"
   ],
-  "plugins": {}
+  "plugins": {},
+  "dontLoad": []
 }
