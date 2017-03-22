@@ -17,13 +17,9 @@
  */
 Room.prototype.setMemoryCostMatrix = function(costMatrix) {
   if (!cache.rooms[this.name]) {
-    this.log('Set No cache');
     cache.rooms[this.name] = {};
   }
-  if (!cache.rooms[this.name].costMatrix) {
-    this.log('Set No costMatrix');
-    cache.rooms[this.name].costMatrix = {};
-  }
+  this.checkCacheCostMatrix();
   if (this.controller && this.controller.my) {
     if (!this.memory.costMatrix) {
       this.memory.costMatrix = {};
@@ -31,6 +27,12 @@ Room.prototype.setMemoryCostMatrix = function(costMatrix) {
     this.memory.costMatrix.base = costMatrix.serialize();
   }
   cache.rooms[this.name].costMatrix.base = costMatrix;
+};
+
+Room.prototype.checkCacheCostMatrix = function() {
+  if (!cache.rooms[this.name].costMatrix) {
+    cache.rooms[this.name].costMatrix = {};
+  }
 };
 
 /**
@@ -41,9 +43,8 @@ Room.prototype.getMemoryCostMatrix = function() {
   if (!cache.rooms[this.name]) {
     cache.rooms[this.name] = {};
   }
-  if (!cache.rooms[this.name].costMatrix) {
-    cache.rooms[this.name].costMatrix = {};
-  }
+  this.checkCacheCostMatrix();
+
   if (!cache.rooms[this.name].costMatrix.base) {
     if (!this.memory.costMatrix || !this.memory.costMatrix.base) {
       return;

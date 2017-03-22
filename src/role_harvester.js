@@ -114,7 +114,7 @@ roles.harvester.action = function(creep) {
 
   if (!creep.room.storage || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
     creep.harvesterBeforeStorage();
-    creep.memory.routing.reached = true;
+    creep.memory.routing.reached = false;
     return true;
   }
 

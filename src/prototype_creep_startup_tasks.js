@@ -177,7 +177,7 @@ Creep.prototype.getEnergyFromStorage = function() {
         pos: this.room.storage.pos,
         range: 1
       }, {
-        roomCallback: this.room.getAvoids(this.room, {}, true),
+        roomCallback: this.room.getCostMatrixCallback(this.room.storage.pos)
       }
     );
     if (search.incomplete) {
@@ -203,6 +203,7 @@ Creep.prototype.repairStructure = function() {
   if (this.memory.target) {
     let to_repair = Game.getObjectById(this.memory.target);
     if (!to_repair || to_repair === null) {
+      this.say('No target');
       delete this.memory.target;
       return false;
     }
@@ -221,7 +222,9 @@ Creep.prototype.repairStructure = function() {
       );
 
       if (search.incomplete) {
-        this.moveTo(to_repair);
+        this.moveTo(to_repair, {
+          ignoreCreeps: true
+        });
         return true;
       }
 
@@ -244,18 +247,19 @@ Creep.prototype.repairStructure = function() {
               pos: to_repair.pos,
               range: 3
             }, {
-              roomCallback: this.room.getAvoids(this.room, {}, true),
+              roomCallback: this.room.getCostMatrixCallback(to_repair.pos),
               maxRooms: 0
             }
           );
-
           if (!this.pos.getDirectionTo(search.path[0])) {
             this.moveRandom();
             return true;
           }
 
           if (search.incomplete) {
-            this.moveTo(to_repair.pos);
+            this.moveTo(to_repair.pos, {
+              ignoreCreeps: true
+            });
             return true;
           }
 
@@ -282,6 +286,7 @@ Creep.prototype.repairStructure = function() {
       delete this.memory.target;
     }
   }
+  this.say('aa');
 
   let nukes = this.room.find(FIND_NUKES);
   if (nukes.length > 0) {

@@ -25,6 +25,11 @@ roles.carry.checkHelperEmptyStorage = function(creep) {
   // Fix blocked helpers due to empty structure in the room where we get the energy from
   if (creep.room.name === creep.memory.routing.targetRoom) {
     let targetStructure = Game.getObjectById(creep.memory.routing.targetId);
+    if (targetStructure === null) {
+      creep.suicide();
+      return;
+    }
+
     if (targetStructure.structureType === STRUCTURE_STORAGE) {
       creep.say('storage');
       if (targetStructure.store.energy === 0) {

@@ -32,6 +32,7 @@ Creep.prototype.moveRandomWithin = function(goal, dist = 3) {
     }
     break;
   }
+  this.say(direction);
   this.move(direction);
 };
 
