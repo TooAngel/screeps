@@ -20,7 +20,7 @@ Room.prototype.buildBase = function() {
     this.memory.controllerLevel['setup_level_' + this.controller.level] = Game.time;
   }
 
-  if ((Game.time + this.controller.pos.x * 10 + this.controller.pos.y * 10) % this.memory.controllerLevel.checkPathInterval === 0) {
+  if (this.exectueEveryTicks(this.memory.controllerLevel.checkPathInterval)) {
     if (this.checkPath(this)) {
       resetCounters(this);
     } else {
@@ -31,7 +31,7 @@ Room.prototype.buildBase = function() {
   if (!this.memory.controllerLevel.checkWrongStructureInterval) {
     this.memory.controllerLevel.checkWrongStructureInterval = 1;
   }
-  if (this.memory.walls && this.memory.walls.finished && (Game.time + this.controller.pos.x * 10 + this.controller.pos.y * 10) % this.memory.controllerLevel.checkWrongStructureInterval === 0) {
+  if (this.memory.walls && this.memory.walls.finished && this.exectueEveryTicks(this.memory.controllerLevel.checkWrongStructureInterval)) {
     if (this.checkWrongStructure(this)) {
       resetCounters(this);
     } else {
@@ -41,37 +41,35 @@ Room.prototype.buildBase = function() {
 
   // TODO Add build ramparts and walls
 
+  let room = this;
+  let executeTask = function(name) {
+    if (room[name]()) {
+      room.memory.controllerLevel[name + 'Interval'] = 1;
+    } else {
+      room.memory.controllerLevel[name + 'Interval']++;
+    }
+  };
+
   if (!this.memory.controllerLevel.buildStructuresInterval) {
     this.memory.controllerLevel.buildStructuresInterval = 1;
   }
-  if ((Game.time + this.controller.pos.x * 10 + this.controller.pos.y * 10) % this.memory.controllerLevel.buildStructuresInterval === 0) {
-    if (this.buildStructures()) {
-      this.memory.controllerLevel.buildStructuresInterval = 1;
-    } else {
-      this.memory.controllerLevel.buildStructuresInterval++;
-    }
+  if (this.exectueEveryTicks(this.memory.controllerLevel.buildStructuresInterval)) {
+    executeTask('buildStructures');
   }
 
   if (!this.memory.controllerLevel.checkBlockersInterval) {
     this.memory.controllerLevel.checkBlockersInterval = 1;
   }
-  if (this.memory.controllerLevel.buildStructuresInterval > 1 && (Game.time + this.controller.pos.x * 10 + this.controller.pos.y * 10) % this.memory.controllerLevel.checkBlockersInterval === 0) {
-    if (this.checkBlockers()) {
-      this.memory.controllerLevel.checkBlockersInterval = 1;
-    } else {
-      this.memory.controllerLevel.checkBlockersInterval++;
-    }
-  }
-
   if (!this.memory.controllerLevel.buildBlockersInterval) {
     this.memory.controllerLevel.buildBlockersInterval = 1;
   }
-  if (this.memory.controllerLevel.buildStructuresInterval > 1 && (Game.time + this.controller.pos.x * 10 + this.controller.pos.y * 10) % this.memory.controllerLevel.buildBlockersInterval === 0) {
-    if (this.controller.level >= 2) {
-      if (this.buildBlockers()) {
-        this.memory.controllerLevel.buildBlockersInterval = 1;
-      } else {
-        this.memory.controllerLevel.buildBlockersInterval++;
+  if (this.memory.controllerLevel.buildStructuresInterval > 1) {
+    if (this.exectueEveryTicks(this.memory.controllerLevel.checkBlockersInterval)) {
+      executeTask('checkBlockers');
+    }
+    if (this.exectueEveryTicks(this.memory.controllerLevel.buildBlockersInterval)) {
+      if (this.controller.level >= 2) {
+        executeTask('buildBlockers');
       }
     }
   }

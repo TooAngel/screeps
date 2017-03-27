@@ -117,7 +117,7 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
  */
 Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, level, base) {
   var creepMemory = this.creepMem(role, targetId, targetRoom, level, base);
-  if (this.memory.roles && this.memory.roles[creepMemory.role] && Game.time % 10) {
+  if (this.memory.roles && this.memory.roles[creepMemory.role]) {
     return false;
   }
   if (this.inQueue(creepMemory) || this.inRoom(creepMemory, amount)) { return false; }

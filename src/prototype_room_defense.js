@@ -32,7 +32,7 @@ Room.prototype.findAttackCreeps = function(object) {
 };
 
 Room.prototype.handleNukeAttack = function() {
-  if (Game.time % config.room.handleNukeAttackInterval !== 0) {
+  if (!this.exectueEveryTicks(config.room.handleNukeAttackInterval)) {
     return false;
   }
 
@@ -171,7 +171,7 @@ Room.prototype.handleTower = function() {
     if (tower.energy === 0) {
       continue;
     }
-    if ((Game.time + this.controller.pos.x + this.controller.pos.y + tower.pos.x + tower.pos.y + tower.energy) % 10 !== 0) {
+    if (!this.exectueEveryTicks(10)) {
       if (tower.energy < tower.energyCapacity / 2 || this.memory.repair_min > 1000000) {
         continue;
       }

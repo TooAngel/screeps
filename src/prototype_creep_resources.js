@@ -718,7 +718,7 @@ Creep.prototype.handleReserver = function() {
       return false;
     }
 
-    if ((Game.time + creep.pos.x + creep.pos.y) % 1000 !== 0) {
+    if (!creep.room.exectueEveryTicks(1000)) {
       return false;
     }
 
@@ -742,7 +742,7 @@ Creep.prototype.handleReserver = function() {
 
   callCleaner(this);
 
-  if (Game.time % 100 === 0 && this.room.controller.reservation && this.room.controller.reservation.username === Memory.username) {
+  if (this.room.exectueEveryTicks(100) && this.room.controller.reservation && this.room.controller.reservation.username === Memory.username) {
     let checkSourcer = function(creep) {
       let checkSourcerMatch = function(sourcers, source_id) {
         for (var sourcer_i in sourcers) {
