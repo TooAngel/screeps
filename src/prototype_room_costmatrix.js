@@ -31,7 +31,8 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures) {
 };
 
 Room.prototype.setCostMatrixPath = function(costMatrix, path) {
-  for (let pos of path) {
+  for (let i = 0; i < path.length - 1; i++) {
+    let pos = path[i];
     costMatrix.set(pos.x, pos.y, config.layout.pathAvoid);
   }
 };

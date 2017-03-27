@@ -19,15 +19,15 @@ roles.sourcer.settings = {
   layoutString: {
     1: 'W',
     3: 'MW',
-    5: 'MWW'
+    5: 'MW'
+  },
+  amount: {
+    5: [2, 4]
   },
   maxLayoutAmount: {
     1: 4,
-    5: 2,
+    5: 1,
   },
-  // sufixString: {
-  //   4: 'MCWH'
-  // }
 };
 
 roles.sourcer.buildRoad = true;

@@ -26,14 +26,11 @@ Room.prototype.getPriority = function(object) {
   } else if (target) {
     return priority.otherRoom[object.role] || 20 + Game.map.getRoomLinearDistance(this.name, target);
   } else {
-    return 12;
+    return 19;
   }
 };
 
 Room.prototype.spawnCheckForCreate = function() {
-  let spawnsNotSpawning = _.filter(this.find(FIND_MY_SPAWNS), function(object) {
-    return !object.spawning;
-  });
   if (this.memory.queue.length === 0) {
     return false;
   }
@@ -50,7 +47,7 @@ Room.prototype.spawnCheckForCreate = function() {
     return false;
   }
   creep.ttl = creep.ttl || config.creep.queueTtl;
-  if (spawnsNotSpawning.length === 0) {
+  if (this.getSpawnableSpawns().length === 0) {
     creep.ttl--;
   }
   return false;
@@ -59,33 +56,43 @@ Room.prototype.spawnCheckForCreate = function() {
 Room.prototype.inQueue = function(creepMemory) {
   this.memory.queue = this.memory.queue || [];
   for (var item of this.memory.queue) {
+    if (creepMemory.role !== item.role) {
+      continue;
+    }
     if (!item.routing) {
+      this.log('No item routing: ' + JSON.stringify(item));
       if (item.role !== 'scout') {
         this.log('inQueue: no routing: ' + JSON.stringify(item) + ' ' + JSON.stringify(creepMemory));
       }
       continue;
     }
-    let creepTarget = {
-      targetId: item.routing.targetId,
-      targetRoom: item.routing.targetRoom
-    };
-    let found = _.eq(creepMemory.routing, creepTarget) && creepMemory.role === item.role;
-    if (found) { return true; }
+    if (creepMemory.routing.targetId === item.routing.targetId && creepMemory.routing.targetRoom === item.routing.targetRoom) {
+      return true;
+    }
   }
   return false;
 };
 
 Room.prototype.inRoom = function(creepMemory, amount = 1) {
-  var creepsSpawning = _(this.find(FIND_MY_SPAWNS)).map(s => s.spawning && Game.creeps[s.spawning.name]).compact();
+  let creepsSpawning = [];
+  for (let spawn of this.find(FIND_MY_SPAWNS)) {
+    if (spawn.spawning) {
+      creepsSpawning.push(Game.creeps[spawn.spawning.name]);
+    }
+  }
   var creeps = this.find(FIND_MY_CREEPS).concat(creepsSpawning);
-  var iMax = creeps.length;
-  if (!iMax) { return false; }
-  let j = 0;
   this.memory.roles = this.memory.roles || {};
-  this.memory.roles[creepMemory.role] = false;
-  for (let i = 0; i < iMax; i++) {
-    let iMem = creeps[i].memory;
-    if (!iMem) { continue; }
+
+  let j = 0;
+  for (let creep of creeps) {
+    let iMem = Memory.creeps[creep.name];
+
+    if (!iMem) {
+      this.log(`${creep} ${creep.name} ${Array.isArray(creep)} ${creep instanceof Array} ${typeof creep} ${Object.keys(creep)}`);
+      this.log(`inRoom no iMem ${JSON.stringify(creep)}`);
+      this.log(`inRoom no iMem ${creep.name}`);
+      continue;
+    }
     if (creepMemory.role === iMem.role && (!iMem.routing ||
         (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
           creepMemory.routing.targetId === iMem.routing.targetId))) {
@@ -117,13 +124,7 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
  */
 Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, level, base) {
   var creepMemory = this.creepMem(role, targetId, targetRoom, level, base);
-  // if (this.memory.roles && this.memory.roles[creepMemory.role]) {
-  //   return false;
-  // }
   if (this.inQueue(creepMemory) || this.inRoom(creepMemory, amount)) { return false; }
-  if (role === 'harvester') {
-    this.log(`checkRoleToSpawn: ${amount} ${this.inQueue(creepMemory)} ${this.inRoom(creepMemory, amount)}`);
-  }
 
   if (config.debug.queue) {
     this.log('Add ' + creepMemory.role + ' to queue.');
@@ -262,7 +263,6 @@ Room.prototype.getPartConfig = function(creep) {
     maxLayoutAmount,
     sufixString,
   } = this.getSettings(creep);
-
   let maxBodyLength = MAX_CREEP_SIZE;
   if (prefixString) { maxBodyLength -= prefixString.length; }
   if (sufixString) { maxBodyLength -= sufixString.length; }
@@ -292,13 +292,12 @@ Room.prototype.getPartConfig = function(creep) {
 };
 
 Room.prototype.getSpawnableSpawns = function() {
-  let spawns = this.find(FIND_MY_SPAWNS);
-  _.each(spawns, s => {
-    if (s && s.spawning) {
-      spawns.shift();
+  let spawnsNotSpawning = this.find(FIND_MY_SPAWNS, {
+    filter: function(object) {
+      return !object.spawning;
     }
   });
-  return spawns;
+  return spawnsNotSpawning;
 };
 
 Room.prototype.getCreepConfig = function(creep) {
@@ -349,7 +348,9 @@ Room.prototype.spawnCreateCreep = function(creep) {
   }
 
   for (let spawn of spawns) {
-    if (spawn.createCreep(creepConfig.partConfig, creepConfig.name, creepConfig.memory) != creepConfig.name) {
+    let returnCode = spawn.createCreep(creepConfig.partConfig, creepConfig.name, creepConfig.memory);
+    // this.log('spawnCreateCreep: ' + creepConfig.name + ' ' + returnCode);
+    if (returnCode != creepConfig.name) {
       continue;
     }
     brain.stats.modifyRoleAmount(creep.role, 1);
@@ -368,10 +369,10 @@ Room.prototype.checkAndSpawnSourcer = function() {
     if (object.memory.role !== 'sourcer') {
       return false;
     }
-    if (object.memory.routing && object.memory.routing.targetId !== source.id) {
+    if (object.memory.routing.targetId !== source.id) {
       return false;
     }
-    if (object.memory.routing && object.memory.routing.targetRoom !== source.pos.roomName) {
+    if (object.memory.routing.targetRoom !== source.pos.roomName) {
       return false;
     }
     return true;

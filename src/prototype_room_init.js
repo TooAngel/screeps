@@ -344,7 +344,6 @@ Room.prototype.setStructures = function(path) {
 
 Room.prototype.costMatrixSetMineralPath = function() {
   let costMatrix = this.getMemoryCostMatrix();
-  // TODO which first minerals or sources? Maybe order by length of path
   let minerals = this.find(FIND_MINERALS);
   for (let mineral of minerals) {
     let route = [{
