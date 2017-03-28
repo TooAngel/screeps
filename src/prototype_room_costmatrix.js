@@ -6,7 +6,7 @@ Room.prototype.setCostMatrixStructures = function(costMatrix, structures, value)
   }
 };
 
-Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom) {
+Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom, allowExits) {
   let costMatrix = this.getMemoryCostMatrix();
   if (!costMatrix) {
     this.updatePosition();
@@ -34,6 +34,18 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom)
       // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
       let structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
       this.setCostMatrixStructures(costMatrix, structures, config.layout.structureAvoid);
+    }
+
+    if (allowExits) {
+      let openExits = function(x, y) {
+        costMatrix.set(x, y, new RoomPosition(x, y, room.name).lookFor(LOOK_TERRAIN)[0] === 'wall' ? 0xff : 0);
+      };
+      for (let i = 0; i < 50; i++) {
+        openExits(i, 0);
+        openExits(i, 49);
+        openExits(0, i);
+        openExits(49, i);
+      }
     }
     return costMatrix;
   };
