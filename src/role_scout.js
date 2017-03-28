@@ -112,7 +112,12 @@ roles.scout.execute = function(creep) {
       // }
       return false;
     }
-
+    if (creep.isStuck()) {
+      creep.moveRandom();
+      creep.say('ImStuck', true);
+      creep.log(JSON.stringify(creep.memory.last) + ' ' + JSON.stringify(creep.isStuck()));
+      return false;
+    }
     if (search.incomplete || search.path.length === 0 || (creep.inBase() && creep.room.memory.misplacedSpawn)) {
       creep.say('hello', true);
       //       creep.log(creep.pos + ' ' + targetPosObject + ' ' + JSON.stringify(search));
