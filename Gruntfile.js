@@ -222,6 +222,7 @@ module.exports = function(grunt) {
   grunt.registerTask('local', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'copy:visualizer', 'sync']);
   grunt.registerTask('test', ['jshint', 'jscs']);
   grunt.registerTask('dev', ['jshint', 'jsbeautifier', 'jscs']);
+  grunt.registerTask('deploy', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'copy:visualizer', 'screeps']);
   grunt.registerTask('requireFile', 'Creates an empty file', function() {
     grunt.file.write('dist/require.js', '');
   });
