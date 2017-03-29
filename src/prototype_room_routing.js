@@ -151,9 +151,9 @@ Room.prototype.getMyExitTo = function(room) {
 
 Room.prototype.getMatrixCallback = function(end) {
   // TODO cache?!
-  //  console.log('getMatrixCallback', this);
-  let room = this;
   let callback = function(roomName) {
+    // console.log('getMatrixCallback', this);
+    let room = Game.rooms[roomName];
     let costMatrix = new PathFinder.CostMatrix();
     // Previous Source Keeper where also excluded?
 

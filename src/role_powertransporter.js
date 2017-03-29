@@ -22,10 +22,7 @@ roles.powertransporter.action = function(creep) {
 
   if (creep.memory.reverse && creep.inBase()) {
     creep.log('Fill storage');
-    creep.moveTo(creep.room.storage, {
-      ignoreCreeps: true,
-      costCallback: creep.room.getAvoids(creep.room)
-    });
+    creep.moveToMy(creep.room.storage);
     var return_code = creep.transfer(creep.room.storage, RESOURCE_POWER);
     if (return_code === OK) {
       creep.memory.target = creep.memory.old_target;
