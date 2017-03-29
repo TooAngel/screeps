@@ -438,8 +438,7 @@ Room.prototype.executeRoom = function() {
   this.handlePowerSpawn();
   this.handleTerminal();
   this.handleNukeAttack();
-
-  if (Game.time % 10 === 0) {
+  if (Game.time % 50 === 0) {
     this.spawnCheckForCreate();
   }
 
