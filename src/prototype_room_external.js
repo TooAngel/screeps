@@ -277,33 +277,86 @@ Room.prototype.checkAndSpawnReserver = function() {
 Room.prototype.handleReservedRoom = function() {
   this.memory.state = 'Reserved';
   this.memory.lastSeen = Game.time;
-  if (this.memory.lastChecked !== undefined &&
-    Game.time - this.memory.lastChecked < 500) {
+
+  if (this.memory.lastChecked !== undefined && Game.time - this.memory.lastChecked < 10) {
     return false;
   }
   this.memory.lastChecked = Game.time;
 
-  let idiotCreeps = this.find(FIND_HOSTILE_CREEPS, {
+  this.checkHostiles();
+
+  this.checkSourcers();
+
+  this.checkReservers();
+
+  return false;
+};
+
+Room.prototype.checkHostiles = function() {
+  let hostiles = this.getEnemys();
+  if (hostiles.length > 0) {
+    this.memory.lastHostile = Game.time;
+  }
+  if (Game.time - this.memory.lastHostile < 600) {
+    roomName = this.name;
+    if (!this.memory.defender_last_called || Game.time - this.memory.defender_last_called > 200) {
+      if (hostiles.length > _.filter(Game.creeps, function(c) {
+          return c.memory.role === 'defender' && c.memory.routing.targetRoom === roomName;
+        })) {
+        Game.rooms[this.memory.reservation.base].memory.queue.push({
+          role: 'defender',
+          routing: {
+            targetRoom: roomName
+          },
+        });
+        this.memory.defender_last_called = Game.time;
+      }
+    }
+  }
+
+  let idiotCreeps = _.filter(hostiles, {
     filter: this.findAttackCreeps
   });
   for (let idiotCreep of idiotCreeps) {
     brain.increaseIdiot(idiotCreep.owner.username);
   }
+};
 
-  let reservers = this.find(FIND_MY_CREEPS, {
-    filter: (c) => c.memory.role === 'reserver',
+Room.prototype.checkSourcers = function() {
+  if (this.controller.reservation && this.controller.reservation.username === Memory.username && this.memory.reservation) {
+    let sources = this.find(FIND_SOURCES);
+    let roomName = this.name;
+    let sourcers = {};
+
+    for (let s of _.filter(Game.creeps, (c) => c.memory.role === 'sourcer' && c.memory.routing.targetRoom === roomName)) {
+      sourcers[s.memory.routing.targetId] = s.name;
+    }
+
+    for (let s of sources) {
+      if (sourcers[s.id] === undefined) {
+        Game.rooms[this.memory.reservation.base].checkRoleToSpawn('sourcer', 1, s.id, s.pos.roomName);
+      }
+    }
+  }
+};
+
+Room.prototype.checkReservers = function() {
+  if (this.controller.reservation && this.controller.reservation.ticksToEnd > 1000) {
+    return false;
+  }
+  let roomName = this.name;
+  let reservers = _.filter(Game.creeps, function(c) {
+    return c.memory.role === 'reserver' && c.memory.routing.targetRoom === roomName;
   });
   if (reservers.length === 0) {
     this.checkAndSpawnReserver();
   }
-  return false;
 };
 
 Room.prototype.handleUnreservedRoom = function() {
   this.memory.state = 'Unreserved';
   this.memory.lastSeen = Game.time;
-  if (this.memory.lastChecked !== undefined &&
-    Game.time - this.memory.lastChecked < 500) {
+  if (this.memory.lastChecked !== undefined && Game.time - this.memory.lastChecked < 50) {
     return true;
   }
 
@@ -369,7 +422,7 @@ Room.prototype.handleUnreservedRoom = function() {
       return false;
     }
     this.memory.state = 'Reserved';
-    this.checkAndSpawnReserver();
+    this.checkReservers();
   }
   return true;
 };
