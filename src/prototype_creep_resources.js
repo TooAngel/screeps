@@ -742,36 +742,6 @@ Creep.prototype.handleReserver = function() {
 
   callCleaner(this);
 
-  if (Game.time % 100 === 0 && this.room.controller.reservation && this.room.controller.reservation.username === Memory.username) {
-    let checkSourcer = function(creep) {
-      let checkSourcerMatch = function(sourcers, source_id) {
-        for (var sourcer_i in sourcers) {
-          var sourcer = sourcers[sourcer_i];
-          if (sourcer.memory.routing.targetId === source_id) {
-            return true;
-          }
-        }
-        return false;
-      };
-      var sources = creep.room.find(FIND_SOURCES);
-      var sourcer = creep.room.find(FIND_MY_CREEPS, {
-        filter: function(object) {
-          return object.memory.role === 'sourcer';
-        }
-      });
-
-      if (sourcer.length < sources.length) {
-        let sourceParse = function(source) {
-          if (!checkSourcerMatch(sourcer, source.pos)) {
-            Game.rooms[creep.memory.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
-          }
-        };
-        _.each(sources, (sourceParse));
-      }
-    };
-    checkSourcer(this);
-  }
-
   if (config.creep.reserverDefender) {
     var hostiles = this.room.getEnemys();
     if (hostiles.length > 0) {

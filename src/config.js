@@ -130,7 +130,7 @@ global.config = {
     structurer: true,
     structurerInterval: 1500,
     structurerMinEnergy: 1300,
-    reserverDefender: true,
+    reserverDefender: false,
     energyFromStorageThreshold: 2000,
     sortParts: true,
   },
