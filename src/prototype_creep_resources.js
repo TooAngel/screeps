@@ -20,7 +20,7 @@ Creep.prototype.harvesterBeforeStorage = function() {
   } else {
     methods.push(Creep.repairStructure);
   }
-
+  this.say('startup', true);
   Creep.execute(this, methods);
   return true;
 };
@@ -640,8 +640,6 @@ Creep.prototype.construct = function() {
 };
 
 Creep.prototype.transferEnergyMy = function() {
-  let exitDir;
-
   if (!this.memory.target) {
     let structure = this.pos.findClosestByRange(FIND_MY_STRUCTURES, {
       filter: (s) => {
@@ -670,10 +668,7 @@ Creep.prototype.transferEnergyMy = function() {
     delete this.memory.target;
     return false;
   }
-
-  //   this.say('transferEnergy', true);
   var range = this.pos.getRangeTo(target);
-  // this.log('target: ' + target.pos + ' range: ' + range);
   if (range === 1) {
     let returnCode = this.transfer(target, RESOURCE_ENERGY);
     if (returnCode != OK && returnCode != ERR_FULL) {

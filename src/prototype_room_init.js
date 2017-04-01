@@ -159,7 +159,7 @@ Room.prototype.setTowerFiller = function() {
   let exits = _.map(Game.map.describeExits(this.name));
 
   this.memory.position.creep.towerfiller = [];
-
+  let costMatrix = this.getMemoryCostMatrix();
   for (let index = 0; index < CONTROLLER_STRUCTURES.tower[8] - 1; index++) {
     let roomName = exits[index % exits.length];
     if (!roomName) {
@@ -198,6 +198,8 @@ Room.prototype.setTowerFiller = function() {
 
         if (!linkSet) {
           this.memory.position.structure.link.push(pos);
+          costMatrix.set(pos.x, pos.y, config.layout.structureAvoid);
+          this.setMemoryCostMatrix(costMatrix);
           linkSet = true;
           continue;
         }
@@ -207,6 +209,8 @@ Room.prototype.setTowerFiller = function() {
           continue;
         }
         this.memory.position.structure.tower.push(pos);
+        costMatrix.set(pos.x, pos.y, config.layout.structureAvoid);
+        this.setMemoryCostMatrix(costMatrix);
         positionsFound = true;
         break;
       }
