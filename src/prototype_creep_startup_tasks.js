@@ -22,22 +22,7 @@ Creep.upgradeControllerTask = function(creep) {
     creep.moveRandomWithin(creep.room.controller.pos);
     return true;
   } else {
-    let search = PathFinder.search(
-      creep.pos, {
-        pos: creep.room.controller.pos,
-        range: 3
-      }, {
-        roomCallback: creep.room.getAvoids(creep.room, {}, true),
-        maxRooms: 0
-      }
-    );
-
-    if (search.incomplete) {
-      creep.say('incomplete');
-      creep.moveTo(creep.room.controller.pos);
-      return true;
-    }
-    creep.move(creep.pos.getDirectionTo(search.path[0]));
+    creep.moveToMy(creep.room.controller.pos, 3);
   }
   return true;
 };
@@ -107,9 +92,7 @@ Creep.recycleCreep = function(creep) {
     }
   });
   if (spawn !== null) {
-    creep.moveTo(spawn, {
-      ignoreCreeps: true
-    });
+    creep.moveToMy(spawn.pos);
     spawn.recycleCreep(creep);
   }
   // TODO move back
@@ -154,7 +137,7 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
   }
 
   let range = this.pos.getRangeTo(structure);
-  this.moveTo(structure);
+  this.moveToMy(structure.pos);
   this.withdraw(structure, RESOURCE_ENERGY);
   return true;
 };
@@ -172,25 +155,7 @@ Creep.prototype.getEnergyFromStorage = function() {
   if (range === 1) {
     this.withdraw(this.room.storage, RESOURCE_ENERGY);
   } else {
-    let search = PathFinder.search(
-      this.pos, {
-        pos: this.room.storage.pos,
-        range: 1
-      }, {
-        roomCallback: this.room.getCostMatrixCallback(this.room.storage.pos)
-      }
-    );
-    if (search.incomplete) {
-      this.say('incomplete', true);
-      this.moveTo(this.room.storage.pos, {
-        ignoreCreeps: true
-      });
-      return true;
-    }
-    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
-    if (returnCode != OK && returnCode != ERR_TIRED) {
-      // this.log(`getEnergyFromStorage: ${returnCode}`);
-    }
+    this.moveToMy(this.room.storage.pos, 1);
   }
   return true;
 };
@@ -210,30 +175,7 @@ Creep.prototype.repairStructure = function() {
 
     if (to_repair instanceof ConstructionSite) {
       this.build(to_repair);
-
-      let search = PathFinder.search(
-        this.pos, {
-          pos: to_repair.pos,
-          range: 3
-        }, {
-          roomCallback: this.room.getAvoids(this.room, {}, true),
-          maxRooms: 0
-        }
-      );
-
-      if (search.incomplete) {
-        this.moveTo(to_repair, {
-          ignoreCreeps: true
-        });
-        return true;
-      }
-
-      if (!this.pos.getDirectionTo(search.path[0])) {
-        this.moveRandom();
-        return true;
-      }
-
-      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+      this.moveToMy(to_repair.pos, 3);
       return true;
     } else if (to_repair.hits < 10000 || to_repair.hits < this.memory.step + 10000) {
       this.repair(to_repair);
@@ -242,43 +184,12 @@ Creep.prototype.repairStructure = function() {
         if (range <= 3) {
           this.moveRandomWithin(to_repair);
         } else {
-          let search = PathFinder.search(
-            this.pos, {
-              pos: to_repair.pos,
-              range: 3
-            }, {
-              roomCallback: this.room.getCostMatrixCallback(to_repair.pos),
-              maxRooms: 0
-            }
-          );
-          if (!this.pos.getDirectionTo(search.path[0])) {
-            this.moveRandom();
-            return true;
-          }
-
-          if (search.incomplete) {
-            this.moveTo(to_repair.pos, {
-              ignoreCreeps: true
-            });
-            return true;
-          }
-
-          let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+          let returnCode = this.moveToMy(to_repair.pos, 3);
           this.memory.lastPosition = this.pos;
           if (returnCode === OK) {
             return true;
           }
-          if (returnCode === ERR_NO_PATH) {
-            this.memory.move_wait = 0;
-            this.log('No path : ' + JSON.stringify(search));
-            returnCode = this.moveTo(to_repair, {
-              ignoreCreeps: true,
-              costCallback: this.room.getAvoids(this.room, {
-                power: true
-              })
-            });
-          }
-          this.log('config_creep_resources.repairStructure moveByPath.returnCode: ' + returnCode + ' search: ' + JSON.stringify(search) + ' start: ' + JSON.stringify(this.pos) + ' end: ' + JSON.stringify(to_repair.pos));
+          this.log('config_creep_resources.repairStructure moveByPath.returnCode: ' + returnCode);
           return true;
         }
       }
@@ -331,17 +242,7 @@ Creep.prototype.repairStructure = function() {
       this.repair(lowRampart);
       this.moveRandomWithin(lowRampart);
     } else {
-      let search = PathFinder.search(
-        this.pos, {
-          pos: lowRampart.pos,
-          range: 3
-        }, {
-          roomCallback: this.room.getAvoids(this.room, {}, true),
-          maxRooms: 0
-        }
-      );
-      //     this.log('LowRampart: ' + lowRamparts[0].pos + ' search: ' + JSON.stringify(search));
-      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+      this.moveToMy(lowRampart.pos, 3);
     }
     return true;
   }
@@ -393,24 +294,7 @@ Creep.prototype.repairStructure = function() {
     } else {
       this.memory.move_wait = 0;
     }
-
-    let search = PathFinder.search(
-      this.pos, {
-        pos: target.pos,
-        range: 3
-      }, {
-        roomCallback: this.room.getAvoids(this.room, {}, true),
-        maxRooms: 0
-      }
-    );
-    //    this.log('ConstructionSite: ' + target.pos + ' search: ' + JSON.stringify(search));
-    // for (let x = 19; x < 31; x++) {
-    // for (let y = 2; y < 7; y++) {
-    // let costmatrix = this.room.getAvoids(this.room, {}, true)(this.room.name);
-    // this.log(x + ',' + y + ' ' + costmatrix.get(x, y));
-    // }
-    // }
-    let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+    this.moveToMy(target.pos, 3);
     this.memory.lastPosition = this.pos;
     this.memory.target = target.id;
     return true;
@@ -465,21 +349,7 @@ Creep.prototype.getDroppedEnergy = function() {
       return true;
     }
     if (target.energy > (energyRange * 10) * (this.carry.energy + 1)) {
-      let search = PathFinder.search(
-        this.pos, {
-          pos: target.pos,
-          range: 1
-        }, {
-          roomCallback: this.room.getAvoids(this.room, {}, true),
-          maxRooms: 0
-        }
-      );
-      if (search.path.length === 0 || (search.incomplete && !search[1])) {
-        this.say('deir');
-        this.moveRandom();
-        return true;
-      }
-      let returnCode = this.move(this.pos.getDirectionTo(search.path[0]));
+      this.moveToMy(target.pos, 1);
       return true;
     }
   }

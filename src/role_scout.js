@@ -93,7 +93,11 @@ roles.scout.execute = function(creep) {
         }
       );
     } catch (e) {
-      creep.log(`search: ${targetPosObject} ${e} ${e.stack}`);
+      if (e !== null) {
+        creep.log(`search: ${targetPosObject} ${e} ${e.stack}`);
+      } else {
+        creep.log(`search: ${targetPosObject} ${e}`);
+      }
       // creep.memory.search.seen.push(creep.memory.search.target);
       // // TODO extract to a method
       // if (!setNewTarget(creep)) {
@@ -112,7 +116,12 @@ roles.scout.execute = function(creep) {
       // }
       return false;
     }
-
+    if (creep.isStuck()) {
+      creep.moveRandom();
+      creep.say('ImStuck', true);
+      creep.log('Scout Stuck, Randomly Moving: ' + JSON.stringify(creep.memory.last) + ' ' + JSON.stringify(creep.isStuck()));
+      return true;
+    }
     if (search.incomplete || search.path.length === 0 || (creep.inBase() && creep.room.memory.misplacedSpawn)) {
       creep.say('hello', true);
       //       creep.log(creep.pos + ' ' + targetPosObject + ' ' + JSON.stringify(search));
