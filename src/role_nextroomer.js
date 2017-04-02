@@ -200,7 +200,9 @@ roles.nextroomer.underSiege = function(creep) {
 
 roles.nextroomer.settle = function(creep) {
   let room = Game.rooms[creep.room.name];
-  let hostileCreeps = room.find(FIND_HOSTILE_CREEPS, {filter: creep => !room.controller.safeMode || creep.ticksToLive > room.controller.safeMode});
+  let hostileCreeps = room.find(FIND_HOSTILE_CREEPS, {
+    filter: creep => !room.controller.safeMode || creep.ticksToLive > room.controller.safeMode
+  });
   if (hostileCreeps.length) {
     room.memory.underSiege = true;
     if (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 || creep.room.controller.level === 1) {
