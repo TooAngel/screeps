@@ -1,5 +1,11 @@
 'use strict';
 
+Creep.prototype.pickableResources = function(creep) {
+  return function(object) {
+    return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
+  };
+};
+
 Creep.prototype.harvesterBeforeStorage = function() {
   let methods = [];
 
@@ -48,7 +54,7 @@ Creep.prototype.checkForTransfer = function(direction) {
 
   creeps = adjacentPos.lookFor('creep');
 
-  for (var name in creeps) {
+  for (let name in creeps) {
     let otherCreep = creeps[name];
     if (!Game.creeps[otherCreep.name]) {
       continue;
@@ -81,11 +87,7 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
   if (_.sum(this.carry) < this.carryCapacity) {
     let creep = this;
     // TODO Extract to somewhere (also in creep_harvester, creep_carry, config_creep_resources)
-    let pickableResources = function(object) {
-      return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
-    };
-
-    let resources = _.filter(this.room.getDroppedResources(), pickableResources);
+    let resources = _.filter(this.room.getDroppedResources(), creep.pickableResources(creep));
 
     if (resources.length > 0) {
       let resource = Game.getObjectById(resources[0].id);
@@ -200,7 +202,7 @@ Creep.prototype.buildContainer = function() {
     if (this.carry.energy >= 50) {
       let constructionSites = this.pos.findInRange(FIND_CONSTRUCTION_SITES, 0, {
         filter: function(object) {
-          if (object.structureType != STRUCTURE_CONTAINER) {
+          if (object.structureType !== STRUCTURE_CONTAINER) {
             return false;
           }
           return true;
@@ -208,7 +210,7 @@ Creep.prototype.buildContainer = function() {
       });
       if (constructionSites.length > 0) {
         let returnCode = this.build(constructionSites[0]);
-        if (returnCode != OK) {
+        if (returnCode !== OK) {
           this.log('build container: ' + returnCode);
         }
         return true;
@@ -226,7 +228,7 @@ Creep.prototype.buildContainer = function() {
         }
         return false;
       }
-      if (returnCode != ERR_FULL) {
+      if (returnCode !== ERR_FULL) {
         this.log('Container: ' + returnCode + ' pos: ' + this.pos);
       }
       return false;
@@ -243,11 +245,8 @@ Creep.prototype.buildContainer = function() {
 Creep.prototype.pickupEnergy = function() {
   // TODO Extract to somewhere (also in creep_harvester, creep_carry, config_creep_resources)
   let creep = this;
-  let pickableResources = function(object) {
-    return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
-  };
 
-  let resources = _.filter(this.room.getDroppedResources(), pickableResources);
+  let resources = _.filter(this.room.getDroppedResources(), creep.pickableResources);
   if (resources.length > 0) {
     let resource = Game.getObjectById(resources[0].id);
     let returnCode = this.pickup(resource);
@@ -352,14 +351,10 @@ Creep.prototype.transferToStructures = function() {
     }
 
     if (object.structureType === STRUCTURE_LINK) {
-      if (object.pos.isEqualTo(room.memory.position.structure.link[0].x, room.memory.position.structure.link[0].y)) {
-        return false;
-      }
-      if (object.pos.isEqualTo(room.memory.position.structure.link[1].x, room.memory.position.structure.link[1].y)) {
-        return false;
-      }
-      if (object.pos.isEqualTo(room.memory.position.structure.link[2].x, room.memory.position.structure.link[2].y)) {
-        return false;
+      for (let i = 0; i < 3; i++) {
+        if (object.pos.isEqualTo(room.memory.position.structure.link[i].x, room.memory.position.structure.link[i].y)) {
+          return false;
+        }
       }
     }
 
@@ -719,9 +714,7 @@ Creep.prototype.handleReserver = function() {
 
     if (config.creep.structurer) {
       var structurers = creep.room.find(FIND_MY_CREEPS, {
-        filter: function(object) {
-          return object.memory.role === 'structurer';
-        }
+        filter: creep.room.findCreep('structurer')
       });
       if (structurers.length > 0) {
         return false;
@@ -750,9 +743,7 @@ Creep.prototype.handleReserver = function() {
       };
       var sources = creep.room.find(FIND_SOURCES);
       var sourcer = creep.room.find(FIND_MY_CREEPS, {
-        filter: function(object) {
-          return object.memory.role === 'sourcer';
-        }
+        filter: creep.room.findCreep('sourcer')
       });
 
       if (sourcer.length < sources.length) {

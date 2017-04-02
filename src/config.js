@@ -7,7 +7,6 @@ global.roles = {};
 global.cache = {
   rooms: {}
 };
-console.log('!! No global cache !!');
 
 try {
   global.friends = require('friends');
@@ -49,6 +48,10 @@ global.config = {
     spawn: false
   },
 
+  tower: {
+    healMyCreeps: false,
+    repairStructures: false
+  },
   autoattack: {
     disabled: false,
     notify: false,
@@ -66,10 +69,10 @@ global.config = {
     ttlPerRoomForScout: 500,
     numberOfNextroomers: 10,
     nextroomerInterval: _.ceil(1500 / 10),
-    maxRooms: 30,
+    maxRooms: 20,
     revive: true,
     maxDistance: 17,
-    minNewRoomDistance: 3,
+    minNewRoomDistance: 2,
     minEnergyForActive: 1000,
     minDowngradPercent: 90,
     notify: false,

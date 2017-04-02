@@ -16,9 +16,16 @@ roles.carry.flee = true;
 roles.carry.boostActions = ['capacity'];
 
 roles.carry.settings = {
-  prefixString: 'WMC',
+  param: ['controller.level'],
+  prefixString: {
+    1: 'MC',
+    3: 'WMC',
+  },
   layoutString: 'MC',
-  amount: [1, 2]
+  amount: {
+    1: [1, 1],
+    3: [1, 2]
+  }
 };
 
 roles.carry.checkHelperEmptyStorage = function(creep) {

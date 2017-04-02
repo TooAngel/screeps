@@ -55,7 +55,7 @@ roles.towerfiller.execute = function(creep) {
   creep.moveTo(creep.memory.target_id.x, creep.memory.target_id.y);
   let link = Game.getObjectById(creep.memory.link);
   let tower = Game.getObjectById(creep.memory.tower);
-  link.transferEnergy(creep);
+  creep.withdraw(link, RESOURCE_ENERGY);
   let returnCode = creep.transfer(tower, RESOURCE_ENERGY);
   if (returnCode === OK) {
     creep.setNextSpawn();

@@ -115,20 +115,26 @@ Room.prototype.handleTower = function() {
     return true;
   }
 
-  var my_creeps = this.find(FIND_MY_CREEPS, {
-    filter: function(object) {
-      return object.hits < object.hitsMax;
+  if (config.tower.healMyCreeps) {
+    var my_creeps = this.find(FIND_MY_CREEPS, {
+      filter: function(object) {
+        return object.hits < object.hitsMax;
+      }
+    });
+    if (my_creeps.length > 0) {
+      for (tower_id in towers) {
+        towers[tower_id].heal(my_creeps[0]);
+      }
+      return true;
     }
-  });
-  if (my_creeps.length > 0) {
-    for (tower_id in towers) {
-      towers[tower_id].heal(my_creeps[0]);
-    }
-    return true;
   }
 
   if (this.controller.level < 4) {
     return false;
+  }
+
+  if (!config.tower.repairStructures) {
+    return true;
   }
 
   if (!this.memory.repair_min) {

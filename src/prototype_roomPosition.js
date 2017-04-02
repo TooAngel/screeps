@@ -40,6 +40,9 @@ RoomPosition.prototype.checkForObstacleStructure = function() {
 };
 
 RoomPosition.prototype.inPath = function() {
+  // if (true) {
+  //   throw new Error();
+  // }
   let room = Game.rooms[this.roomName];
   for (let pathName in room.getMemoryPaths()) {
     let path = room.getMemoryPath(pathName);

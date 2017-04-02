@@ -32,10 +32,15 @@ Room.prototype.setMemoryCostMatrix = function(costMatrix) {
 
 Room.prototype.checkCache = function() {
   this.memory.routing = this.memory.routing || {};
+  // cache.rooms[this.name] = cache.rooms[this.name] || {};
+  // cache.rooms[this.name].find = cache.rooms[this.name].find || {};
+  // cache.rooms[this.name].routing = cache.rooms[this.name].routing || {};
+  // cache.rooms[this.name].costMatrix = cache.rooms[this.name].costMatrix || {};
+
   cache.rooms[this.name] = cache.rooms[this.name] || {
     find: {},
-    costMatrix: {},
-    routing: {}
+    routing: {},
+    costMatrix: {}
   };
 };
 
@@ -47,8 +52,6 @@ Room.prototype.getMemoryCostMatrix = function() {
   this.checkCache();
 
   if (!cache.rooms[this.name].costMatrix.base) {
-    // this.log(JSON.stringify(cache.rooms[this.name].costMatrix));
-    // this.log(JSON.stringify(cache.rooms[this.name]));
     if (!this.memory.costMatrix || !this.memory.costMatrix.base) {
       return;
     }
@@ -128,7 +131,7 @@ Room.prototype.getMemoryPath = function(name) {
  */
 Room.prototype.deleteMemoryPaths = function() {
   this.checkCache();
-  delete cache.rooms[this.name].routing;
+  cache.rooms[this.name].routing = {};
   delete this.memory.routing;
 };
 

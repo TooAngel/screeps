@@ -13,9 +13,6 @@ Room.prototype.handle = function() {
 
 Room.prototype.execute = function() {
 
-  // if (cache && cache.rooms && cache.rooms.W1N4) {
-  //   console.log('ROOM W1N4":' + cache.rooms.W1N4.costMatrix);
-  // }
   this.memory.lastSeen = Game.time;
   try {
     let returnCode = this.handle();

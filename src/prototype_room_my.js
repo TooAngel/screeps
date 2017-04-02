@@ -444,8 +444,6 @@ Room.prototype.executeRoom = function() {
 };
 
 Room.prototype.reviveMyNow = function() {
-  this.log('revive me now');
-
   let nextroomerCalled = 0;
   let room = this;
 

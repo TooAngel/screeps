@@ -42,10 +42,7 @@ roles.harvester.buildRoad = true;
 roles.harvester.boostActions = ['capacity'];
 
 roles.harvester.preMove = function(creep, directions) {
-  let pickableResources = function(object) {
-    return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
-  };
-  let resources = _.filter(creep.room.getDroppedResources(), pickableResources);
+  let resources = _.filter(creep.room.getDroppedResources(), creep.pickableResources);
   if (resources.length > 0) {
     let resource = Game.getObjectById(resources[0].id);
     creep.pickup(resource);

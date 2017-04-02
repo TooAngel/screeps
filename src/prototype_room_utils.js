@@ -50,6 +50,12 @@ Room.prototype.findPropertyFilter = function(findTarget, property, properties, w
   return result;
 };
 
+Room.prototype.findCreep = function(role) {
+  return function(object) {
+    return object.memory.role === role;
+  };
+};
+
 Room.prototype.closestSpawn = function(target) {
   let pathLength = {};
   let roomsMy = this.sortMyRoomsByLinearDistance(target);
