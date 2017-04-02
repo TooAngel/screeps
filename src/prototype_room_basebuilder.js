@@ -291,8 +291,8 @@ Room.prototype.buildStructures = function() {
     return false;
   }
 
-  let constructionSites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], true);
-  if (constructionSites.length > 3) {
+  let constructionSites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_ROAD], true);
+  if (constructionSites.length > 0) {
     //    this.log('basebuilder.setup: Too many construction sites');
     return true;
   }

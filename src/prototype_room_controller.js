@@ -20,7 +20,7 @@ Room.prototype.buildBase = function() {
     this.memory.controllerLevel['setup_level_' + this.controller.level] = Game.time;
   }
 
-  if (this.exectueEveryTicks(this.memory.controllerLevel.checkPathInterval)) {
+  if (this.controller.level > 2 && this.exectueEveryTicks(this.memory.controllerLevel.checkPathInterval)) {
     if (this.checkPath(this)) {
       resetCounters(this);
     } else {

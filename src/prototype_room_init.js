@@ -106,7 +106,7 @@ Room.prototype.setFillerArea = function(storagePos, route) {
 };
 
 Room.prototype.updatePosition = function() {
-  cache.rooms[this.name] = {};
+  this.checkCache();
   delete this.memory.routing;
 
   let costMatrixBase = this.getCostMatrix();

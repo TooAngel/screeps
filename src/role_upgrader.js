@@ -41,10 +41,7 @@ roles.upgrader.work = function(creep) {
 };
 
 roles.upgrader.action = function(creep) {
-  if (config.info.signController && !creep.room.controller.sign) {
-    let returnCode = creep.signController(creep.room.controller, config.info.signText);
-    creep.log(returnCode);
-  }
+  creep.mySignController();
 
   if (!creep.memory.routing.targetId && creep.memory.routing.reached) {
     creep.memory.routing.reached = false;

@@ -5,6 +5,13 @@ function getOppositeDirection(direction) {
   return ((direction + 3) % 8) + 1;
 }
 
+Creep.prototype.mySignController = function() {
+  if (config.info.signController && !this.room.controller.sign) {
+    let returnCode = this.signController(this.room.controller, config.info.signText);
+    this.log(returnCode);
+  }
+};
+
 Creep.prototype.moveToMy = function(target, range) {
   range = range || 0;
   let search = PathFinder.search(
@@ -211,7 +218,11 @@ Creep.prototype.buildRoad = function() {
   }
 
   constructionSites = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD]);
-  if (constructionSites.length <= config.buildRoad.maxConstructionSitesRoom && Object.keys(Game.constructionSites).length < config.buildRoad.maxConstructionSitesTotal && this.pos.inPath()) {
+  if (
+    constructionSites.length <= config.buildRoad.maxConstructionSitesRoom &&
+    Object.keys(Game.constructionSites).length < config.buildRoad.maxConstructionSitesTotal
+    //&& this.pos.inPath()
+  ) {
     let returnCode = this.pos.createConstructionSite(STRUCTURE_ROAD);
     if (returnCode === OK) {
       return true;
