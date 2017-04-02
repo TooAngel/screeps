@@ -36,6 +36,7 @@ welcome.
  - New rooms claiming on GCL level up
  - Automatic attack
  - Rebuild of fallen rooms
+ - [Layout visualization](doc/Visualization.md)
  - [Manual commands](doc/Manual.md)
  - [Alliance](doc/Alliance.md)
 
