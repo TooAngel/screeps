@@ -1,5 +1,9 @@
 'use strict';
 
+Room.prototype.exectueEveryTicks = function(ticks) {
+  return (Game.time + this.controller.pos.x + this.controller.pos.y) % ticks === 0;
+};
+
 Room.prototype.handle = function() {
   if (this.controller && this.controller.my) {
     return this.myHandleRoom();

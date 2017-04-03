@@ -175,8 +175,7 @@ Room.prototype.handleScout = function() {
     return false;
   }
   let shouldSpawn = (
-    ((Game.time + this.controller.pos.x + this.controller.pos.y) %
-      config.room.scoutInterval) === 0 &&
+    this.exectueEveryTicks(config.room.scoutInterval) &&
     this.controller.level >= 2 &&
     this.memory.queue.length === 0 &&
     config.room.scout
@@ -252,7 +251,7 @@ Room.prototype.checkForEnergyTransfer = function() {
 
   Memory.needEnergyRooms = Memory.needEnergyRooms || [];
   this.memory.energyAvailableSum = this.memory.energyAvailableSum || 0;
-  if (Game.time % config.carryHelpers.ticksUntilHelpCheck) {
+  if (!this.exectueEveryTicks(config.carryHelpers.ticksUntilHelpCheck)) {
     let factor = config.carryHelpers.factor;
     this.memory.energyAvailable = (1 - factor) * this.memory.energyAvailable + (factor) * this.energyAvailable || 0;
     this.memory.energyAvailableSum += this.memory.energyAvailable;
@@ -374,11 +373,11 @@ Room.prototype.executeRoom = function() {
       if (this.memory.attackTimer > 300) {
         defender.role = 'defendmelee';
       }
-      if (Game.time % 250 === 0 && !this.inQueue(defender)) {
+      if (this.exectueEveryTicks(250) && !this.inQueue(defender)) {
         this.memory.queue.push(defender);
       }
     }
-    if (Game.time % 10 === 0) {
+    if (this.exectueEveryTicks(10)) {
       this.log('Under attack from ' + hostiles[0].owner.username);
     }
     if (hostiles[0].owner.username != 'Invader') {
@@ -438,11 +437,7 @@ Room.prototype.executeRoom = function() {
   this.handlePowerSpawn();
   this.handleTerminal();
   this.handleNukeAttack();
-
-  if (Game.time % 10 === 0) {
-    this.spawnCheckForCreate();
-  }
-
+  this.spawnCheckForCreate();
   this.handleMarket();
   brain.stats.addRoom(this.name, cpuUsed);
   return true;
@@ -561,8 +556,7 @@ Room.prototype.reviveRoom = function() {
   }
 
   if (!config.revive.disabled && this.controller.level >= 1 &&
-    (Game.time + this.controller.pos.x + this.controller.pos.y) %
-    config.nextRoom.nextroomerInterval === 0) {
+    this.exectueEveryTicks(config.nextRoom.nextroomerInterval)) {
     this.reviveMyNow();
   }
   return true;
