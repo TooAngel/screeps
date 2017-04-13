@@ -94,7 +94,7 @@ And deploy to the server:
     grunt screeps
 
 ### to private server
-Create a `.locaSync.js` file with content:
+Create a `.localSync.js` file with content:
 ```
 module.exports = [{
   cwd: 'src',
