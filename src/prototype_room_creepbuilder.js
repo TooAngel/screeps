@@ -82,6 +82,7 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
   if (!iMax) { return false; }
   let j = 0;
   this.memory.roles = this.memory.roles || {};
+  this.memory.roles[creepMemory.role] = false;
   for (let i = 0; i < iMax; i++) {
     let iMem = creeps[i].memory;
     if (!iMem) { continue; }
@@ -99,7 +100,6 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
       **/
       return true;
     }
-    this.memory.roles[creepMemory.role] = false;
   }
   return false;
 };
@@ -117,9 +117,9 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
  */
 Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, level, base) {
   var creepMemory = this.creepMem(role, targetId, targetRoom, level, base);
-  if (this.memory.roles && this.memory.roles[creepMemory.role]) {
-    return false;
-  }
+  // if (this.memory.roles && this.memory.roles[creepMemory.role]) {
+  //   return false;
+  // }
   if (this.inQueue(creepMemory) || this.inRoom(creepMemory, amount)) { return false; }
   if (role === 'harvester') {
     this.log(`checkRoleToSpawn: ${amount} ${this.inQueue(creepMemory)} ${this.inRoom(creepMemory, amount)}`);
