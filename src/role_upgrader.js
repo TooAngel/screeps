@@ -17,18 +17,16 @@ roles.upgrader.settings = {
     1: 'MWW',
     4: 'W'
   },
-  sufixString: {
-    4: {
-      0: {
-        1: 'H'
-      }
-    }
-  },
   maxLayoutAmount: {
     7: {
       50000: 20,
       800000: undefined,
+    },
+    8: {
+      50000: 1,
+      800000: undefined,
     }
+
   }
 };
 roles.upgrader.stayInRoom = true;

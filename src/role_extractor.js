@@ -12,8 +12,8 @@ roles.extractor.boostActions = ['harvest', 'capacity'];
 
 roles.extractor.settings = {
   layoutString: 'MCW',
-  amount: [2, 1, 1],
-  maxLayoutAmount: 8,
+  amount: [5, 1, 4],
+  maxLayoutAmount: 5,
 };
 
 roles.extractor.terminalStorageExchange = function(creep) {

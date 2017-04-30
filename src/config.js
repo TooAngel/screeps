@@ -188,13 +188,13 @@ global.config = {
       defendranged: 3
     },
     otherRoom: {
-      harvester: 1,
-      defender: 2,
-      defendranged: 3,
-      nextroomer: 5,
-      reserver: 6,
-      carry: 7,
-      sourcer: 8
+      harvester: 11,
+      defender: 12,
+      defendranged: 13,
+      nextroomer: 15,
+      reserver: 16,
+      carry: 17,
+      sourcer: 18
     }
   }
 };

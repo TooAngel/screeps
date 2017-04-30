@@ -314,10 +314,10 @@ Room.prototype.executeRoom = function() {
   var spawn;
   if (!building) {
     let amount = 1;
-    if (!room.storage) {
+    if (!this.storage) {
       amount = 2;
       // TODO maybe better spawn harvester when a carry recognize that the dropped energy > threshold
-      if (room.controller.level === 2 || room.controller.level === 3) {
+      if (this.controller.level === 2 || this.controller.level === 3) {
         amount = 5;
       }
     }

@@ -18,7 +18,8 @@ roles.nextroomer.died = function(name, creepMemory) {
   if (roomName === creepMemory.routing.targetRoom) {
     // TODO make underSiege to a counter
   }
-  console.log('DIED:', message);
+  // Works but was annoying due to suppen
+  // console.log('DIED:', message);
 };
 
 roles.nextroomer.settings = {
