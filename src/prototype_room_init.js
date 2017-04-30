@@ -350,6 +350,7 @@ Room.prototype.costMatrixSetMineralPath = function() {
       room: this.name
     }];
     let path = this.getPath(route, 0, 'pathStart', mineral.id, true);
+
     this.setCostMatrixPath(costMatrix, path);
     this.setMemoryCostMatrix(costMatrix);
   }

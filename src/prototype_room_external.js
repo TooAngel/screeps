@@ -1,10 +1,10 @@
 Room.prototype.checkBlocked = function() {
   let exits = Game.map.describeExits(this.name);
-  let room = this;
-  let roomCallback = function(roomName) {
+  let roomCallback = (roomName) => {
+    let room = Game.rooms[roomName];
     let costMatrix = new PathFinder.CostMatrix();
     let structures = room.find(FIND_STRUCTURES);
-    this.setCostMatrixStructures(costMatrix, structures, 255);
+    room.setCostMatrixStructures(costMatrix, structures, 255);
     return costMatrix;
   };
   for (let fromDirection in exits) {
