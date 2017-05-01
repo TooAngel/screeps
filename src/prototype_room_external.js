@@ -1,7 +1,8 @@
 Room.prototype.checkBlocked = function() {
   let exits = Game.map.describeExits(this.name);
+  let callerRoom = this;
   let roomCallback = (roomName) => {
-    let room = Game.rooms[roomName];
+    let room = Game.rooms[roomName] || callerRoom;
     let costMatrix = new PathFinder.CostMatrix();
     let structures = room.find(FIND_STRUCTURES);
     room.setCostMatrixStructures(costMatrix, structures, 255);
