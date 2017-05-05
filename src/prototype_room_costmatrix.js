@@ -12,9 +12,16 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures) {
     this.updatePosition();
   }
 
-  let room = this;
   let callbackInner = (roomName) => {
-    let costMatrix = room.getMemoryCostMatrix().clone();
+    let room = Game.rooms[roomName];
+    if (!room) {
+      return;
+    }
+    let costMatrix = room.getMemoryCostMatrix();
+    if (!costMatrix) {
+      return;
+    }
+    costMatrix = costMatrix.clone();
     // TODO the ramparts could be within existing walls (at least when converging to the newmovesim
     if (end) {
       costMatrix.set(end.x, end.y, 0);

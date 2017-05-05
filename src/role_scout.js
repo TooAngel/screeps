@@ -122,7 +122,8 @@ roles.scout.execute = function(creep) {
       creep.log('Scout Stuck, Randomly Moving: ' + JSON.stringify(creep.memory.last) + ' ' + JSON.stringify(creep.isStuck()));
       return true;
     }
-    if (search.incomplete || search.path.length === 0 || (creep.inBase() && creep.room.memory.misplacedSpawn)) {
+
+    if (search.path.length === 0 || (creep.inBase() && creep.room.memory.misplacedSpawn)) {
       creep.say('hello', true);
       //       creep.log(creep.pos + ' ' + targetPosObject + ' ' + JSON.stringify(search));
       if (creep.isStuck() && onBorder(creep)) {
