@@ -132,7 +132,8 @@
     "cache": false,
     "visualizer": false,
     "RawVisual": false,
-    "LOOK_CREEPS": false
+    "LOOK_CREEPS": false,
+    "CREEP_SPAWN_TIME": false
   },
   "node": true
 }
