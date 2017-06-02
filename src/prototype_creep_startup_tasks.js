@@ -345,6 +345,24 @@ Creep.prototype.getDroppedEnergy = function() {
   if (target !== null) {
     let energyRange = this.pos.getRangeTo(target.pos);
     if (energyRange <= 1) {
+      const creepFreeSpace = this.carryCapacity - _.sum(this.carry);
+      if (target.amount < creepFreeSpace) {
+        let container = target.pos.lookFor(LOOK_STRUCTURES).find(function(structure) {
+          return structure.structureType === STRUCTURE_CONTAINER && structure.store.energy > 0 && _.sum(structure.store) === structure.storeCapacity;
+        });
+        if (container) {
+          const toWithdraw = Math.min(creepFreeSpace - target.amount, container.store.energy);
+          this.withdraw(container, RESOURCE_ENERGY, toWithdraw);
+        } else {
+          let sourcer = target.pos.lookFor(LOOK_CREEPS).find(function(creep) {
+            return creep.memory && creep.memory.role === 'sourcer' && creep.carry.energy > 0 && _.sum(creep.carry) === creep.carryCapacity;
+          });
+          if (sourcer) {
+            const toWithdraw = Math.min(creepFreeSpace - target.amount, sourcer.carry.energy);
+            sourcer.transfer(this, RESOURCE_ENERGY, toWithdraw);
+          }
+        }
+      }
       this.pickup(target);
       return true;
     }
