@@ -6,13 +6,16 @@ Room.prototype.setCostMatrixStructures = function(costMatrix, structures, value)
   }
 };
 
-Room.prototype.getCostMatrixCallback = function(end, excludeStructures) {
+Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom) {
   let costMatrix = this.getMemoryCostMatrix();
   if (!costMatrix) {
     this.updatePosition();
   }
 
   let callbackInner = (roomName) => {
+    if (oneRoom && roomName !== this.name) {
+      return false;
+    }
     let room = Game.rooms[roomName];
     if (!room) {
       return;

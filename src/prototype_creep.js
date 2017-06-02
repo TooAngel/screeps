@@ -12,7 +12,7 @@ Creep.prototype.moveToMy = function(target, range) {
       pos: target,
       range: range
     }, {
-      roomCallback: this.room.getCostMatrixCallback(target, true),
+      roomCallback: this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName),
       maxRooms: 0
     }
   );
