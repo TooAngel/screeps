@@ -337,9 +337,9 @@ Creep.prototype.repairStructure = function() {
 };
 
 Creep.prototype.getDroppedEnergy = function() {
-  let target = this.pos.findClosestByRange(FIND_DROPPED_ENERGY, {
+  let target = this.pos.findClosestByRange(FIND_DROPPED_RESOURCES, {
     filter: function(object) {
-      return 0 < object.energy;
+      return 0 < object.amount && object.resourceType === RESOURCE_ENERGY;
     }
   });
   if (target !== null) {
