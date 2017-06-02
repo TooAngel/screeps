@@ -89,8 +89,8 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
 
     if (resources.length > 0) {
       let resource = Game.getObjectById(resources[0].id);
-      this.pickup(resource);
-      return _.sum(this.carry) + resource.amount > 0.5 * this.carryCapacity;
+      const amount = this.pickupOrWithdrawFromSourcer(resource);
+      return _.sum(this.carry) + amount > 0.5 * this.carryCapacity;
     }
 
     if (this.room.name === this.memory.routing.targetRoom) {
