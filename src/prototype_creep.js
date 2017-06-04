@@ -137,7 +137,7 @@ Creep.prototype.getEnergyFromStructure = function() {
       for (var i in area[y][x]) {
         if (area[y][x][i].structureType === STRUCTURE_EXTENSION ||
           area[y][x][i].structureType === STRUCTURE_SPAWN) {
-          area[y][x][i].transferEnergy(this);
+          this.withdraw(area[y][x][i], RESOURCE_ENERGY);
           return true;
         }
       }
