@@ -35,6 +35,10 @@ RoomPosition.prototype.checkForWall = function() {
   return this.lookFor(LOOK_TERRAIN)[0] === 'wall';
 };
 
+RoomPosition.prototype.checkForObstacleStructure = function() {
+  return this.lookFor(LOOK_STRUCTURES).some(s => OBSTACLE_OBJECT_TYPES.includes(s.structureType));
+};
+
 RoomPosition.prototype.inPath = function() {
   let room = Game.rooms[this.roomName];
   for (let pathName in room.getMemoryPaths()) {

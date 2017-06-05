@@ -12,7 +12,12 @@ Creep.prototype.moveRandom = function(onPath) {
     if (onPath && !pos.inPath()) {
       continue;
     }
-
+    if (pos.checkForWall()) {
+      continue;
+    }
+    if (pos.checkForObstacleStructure()) {
+      continue;
+    }
     break;
   }
   this.move(direction);
@@ -28,6 +33,12 @@ Creep.prototype.moveRandomWithin = function(goal, dist = 3) {
       continue;
     }
     if (pos.getRangeTo(goal) > dist) {
+      continue;
+    }
+    if (pos.checkForWall()) {
+      continue;
+    }
+    if (pos.checkForObstacleStructure()) {
       continue;
     }
     break;

@@ -132,7 +132,8 @@
     "cache": false,
     "visualizer": false,
     "RawVisual": false,
-    "LOOK_CREEPS": false
+    "LOOK_CREEPS": false,
+    "OBSTACLE_OBJECT_TYPES": false
   },
   "node": true
 }
