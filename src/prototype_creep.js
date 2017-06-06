@@ -12,7 +12,7 @@ Creep.prototype.moveToMy = function(target, range) {
       pos: target,
       range: range
     }, {
-      roomCallback: this.room.getCostMatrixCallback(target, true),
+      roomCallback: this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName),
       maxRooms: 0
     }
   );
@@ -137,7 +137,7 @@ Creep.prototype.getEnergyFromStructure = function() {
       for (var i in area[y][x]) {
         if (area[y][x][i].structureType === STRUCTURE_EXTENSION ||
           area[y][x][i].structureType === STRUCTURE_SPAWN) {
-          area[y][x][i].transferEnergy(this);
+          this.withdraw(area[y][x][i], RESOURCE_ENERGY);
           return true;
         }
       }

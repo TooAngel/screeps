@@ -336,16 +336,49 @@ Creep.prototype.repairStructure = function() {
   return false;
 };
 
+/**
+ *
+ * @param {Resource} target Resource object to pick up
+ * @return {number} total received resources amount
+ */
+Creep.prototype.pickupOrWithdrawFromSourcer = function(target) {
+  const creepFreeSpace = this.carryCapacity - _.sum(this.carry);
+  let pickedUp = 0;
+  // this.log('pickupOrWithdrawFromSourcer free '+creepFreeSpace+' '+target+' '+target.amount)
+  if (target.amount < creepFreeSpace) {
+    let container = target.pos.lookFor(LOOK_STRUCTURES).find(function(structure) {
+      return structure.structureType === STRUCTURE_CONTAINER && structure.store[target.resourceType] > 0 && _.sum(structure.store) === structure.storeCapacity;
+    });
+    if (container) {
+      const toWithdraw = Math.min(creepFreeSpace - target.amount, container.store[target.resourceType]);
+      this.withdraw(container, target.resourceType, toWithdraw);
+      pickedUp += toWithdraw;
+    } else {
+      let sourcer = target.pos.lookFor(LOOK_CREEPS).find(function(creep) {
+        return creep.memory && creep.memory.role === 'sourcer' && creep.carry[target.resourceType] > 0 && _.sum(creep.carry) === creep.carryCapacity;
+      });
+      if (sourcer) {
+        const toWithdraw = Math.min(creepFreeSpace - target.amount, sourcer.carry[target.resourceType]);
+        sourcer.transfer(this, target.resourceType, toWithdraw);
+        pickedUp += toWithdraw;
+      }
+    }
+  }
+  this.pickup(target);
+  pickedUp += target.amount;
+  return Math.min(pickedUp, creepFreeSpace);
+};
+
 Creep.prototype.getDroppedEnergy = function() {
-  let target = this.pos.findClosestByRange(FIND_DROPPED_ENERGY, {
+  let target = this.pos.findClosestByRange(FIND_DROPPED_RESOURCES, {
     filter: function(object) {
-      return 0 < object.energy;
+      return 0 < object.amount && object.resourceType === RESOURCE_ENERGY;
     }
   });
   if (target !== null) {
     let energyRange = this.pos.getRangeTo(target.pos);
     if (energyRange <= 1) {
-      this.pickup(target);
+      this.pickupOrWithdrawFromSourcer(target);
       return true;
     }
     if (target.energy > (energyRange * 10) * (this.carry.energy + 1)) {
