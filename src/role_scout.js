@@ -89,9 +89,10 @@ roles.scout.execute = function(creep) {
           pos: targetPosObject,
           range: 20
         }, {
-          roomCallback: creep.room.getCostMatrixCallback(targetPosObject, true)
+          roomCallback: creep.room.getCostMatrixCallback(targetPosObject, true, false, true)
         }
       );
+
     } catch (e) {
       if (e !== null) {
         creep.log(`search: ${targetPosObject} ${e} ${e.stack}`);
