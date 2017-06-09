@@ -73,7 +73,7 @@ brain.isFriend = function(name) {
 brain.handleSquadmanager = function() {
   for (let squadIndex in Memory.squads) {
     let squad = Memory.squads[squadIndex];
-    if (Object.keys(squad.siege).length === 0) {
+    if (!squad.siege || Object.keys(squad.siege).length === 0) {
       return true;
     }
     if (squad.action === 'move') {
