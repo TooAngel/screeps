@@ -202,6 +202,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
         if (unit.preMove(this)) {
           return true;
         }
+        this.say('R:-1 no pre');
       }
     }
     if (path.length === 0) {
