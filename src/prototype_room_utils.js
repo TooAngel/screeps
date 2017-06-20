@@ -31,11 +31,23 @@ Room.prototype.nearestRoomName = function(roomsNames, limit) {
  * @return {Array}                  the objects returned in an array.
  */
 Room.prototype.findPropertyFilter = function(findTarget, property, properties, without = false) {
+  let key = `${findTarget} ${property} ${properties} ${without}`;
+  this.checkCache();
+
+  if (cache.rooms[this.name].find[key] && cache.rooms[this.name].find[key].time === Game.time) {
+    // this.log(`Found ${key} ${cache.rooms[this.name].find[key]}`);
+    return cache.rooms[this.name].find[key].result;
+  }
   let table = {};
   _.each(properties, e => table[e] = true);
-  return this.find(findTarget, {
+  let result = this.find(findTarget, {
     filter: s => without ? !table[s[property]] : table[s[property]]
   });
+  cache.rooms[this.name].find[key] = {
+    time: Game.time,
+    result: result
+  };
+  return result;
 };
 
 Room.prototype.closestSpawn = function(target) {
