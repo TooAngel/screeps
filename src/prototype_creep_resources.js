@@ -137,7 +137,7 @@ Creep.prototype.handleExtractor = function() {
   return true;
 };
 
-Creep.prototype.handleUpgrader = function() {
+Creep.prototype.sayIdiotList = function() {
   let say = function(creep) {
     let players = _.filter(Memory.players, function(object) {
       return object.idiot && object.idiot > 0;
@@ -154,6 +154,10 @@ Creep.prototype.handleUpgrader = function() {
     creep.say(sentence[word], true);
   };
   // say(this);
+};
+
+Creep.prototype.handleUpgrader = function() {
+  this.sayIdiotList();
   this.spawnReplacement(1);
   var room = Game.rooms[this.room.name];
   if (room.memory.attackTimer > 50 && room.controller.level > 6) {
