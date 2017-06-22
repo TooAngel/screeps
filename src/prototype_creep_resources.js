@@ -31,29 +31,7 @@ Creep.prototype.harvesterBeforeStorage = function() {
   return true;
 };
 
-Creep.prototype.checkForTransfer = function(direction) {
-  if (!direction) {
-    return false;
-  }
-
-  var pos;
-  var creeps;
-  var index_calc;
-  var offset;
-  var new_path;
-
-  //  for (var direction = 1; direction < 9; direction++) {
-  let adjacentPos = this.pos.getAdjacentPosition(direction);
-
-  if (adjacentPos.x < 0 || adjacentPos.y < 0) {
-    return false;
-  }
-  if (adjacentPos.x > 49 || adjacentPos.y > 49) {
-    return false;
-  }
-
-  creeps = adjacentPos.lookFor('creep');
-
+Creep.prototype.findCreepWhichCanTransfer = function(creeps) {
   for (let name in creeps) {
     let otherCreep = creeps[name];
     if (!Game.creeps[otherCreep.name]) {
@@ -75,8 +53,31 @@ Creep.prototype.checkForTransfer = function(direction) {
     }
     continue;
   }
-  //  }
   return false;
+};
+
+Creep.prototype.checkForTransfer = function(direction) {
+  if (!direction) {
+    return false;
+  }
+
+  var pos;
+  var creeps;
+  var index_calc;
+  var offset;
+  var new_path;
+
+  let adjacentPos = this.pos.getAdjacentPosition(direction);
+
+  if (adjacentPos.x < 0 || adjacentPos.y < 0) {
+    return false;
+  }
+  if (adjacentPos.x > 49 || adjacentPos.y > 49) {
+    return false;
+  }
+
+  creeps = adjacentPos.lookFor('creep');
+  return this.findCreepWhichCanTransfer(creeps);
 };
 
 Creep.prototype.pickupWhileMoving = function(reverse) {
