@@ -1,7 +1,31 @@
 'use strict';
 
-RoomPosition.prototype.findInRangeStructures = function(structures, range, structureTypes) {
-  return this.findInRange(FIND_STRUCTURES, 1, {
+RoomPosition.prototype.clearPosition = function(target) {
+  let structures = this.lookFor('structure');
+  for (let structureId in structures) {
+    let structure = structures[structureId];
+    if (structure.structureType === STRUCTURE_SPAWN) {
+      let spawns = this.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+      if (spawns.length <= 1) {
+        target.remove();
+        return true;
+      }
+    }
+    this.log('Destroying: ' + structure.structureType);
+    structure.destroy();
+  }
+};
+
+RoomPosition.prototype.getClosestSource = function() {
+  let source = this.findClosestByRange(FIND_SOURCES_ACTIVE);
+  if (source === null) {
+    source = this.findClosestByRange(FIND_SOURCES);
+  }
+  return source;
+};
+
+RoomPosition.prototype.findInRangeStructures = function(objects, range, structureTypes) {
+  return this.findInRange(objects, 1, {
     filter: function(object) {
       return structureTypes.indexOf(object.structureType) >= 0;
     }
@@ -91,6 +115,16 @@ RoomPosition.prototype.isExit = function() {
     return true;
   }
   return false;
+};
+
+RoomPosition.prototype.isValid = function() {
+  if (this.x < 0 || this.y < 0) {
+    return false;
+  }
+  if (this.x > 49 || this.y > 49) {
+    return false;
+  }
+  return true;
 };
 
 RoomPosition.prototype.validPosition = function() {

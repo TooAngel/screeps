@@ -88,10 +88,14 @@ Room.prototype.setFillerArea = function(storagePos, route) {
       let powerSpawnPosIterator = fillerPos.findNearPosition();
       for (let powerSpawnPos of powerSpawnPosIterator) {
         this.memory.position.structure.powerSpawn.push(powerSpawnPos);
+        costMatrix.set(powerSpawnPos.x, powerSpawnPos.y, config.layout.structureAvoid);
+        this.setMemoryCostMatrix(costMatrix);
 
         let towerPosIterator = fillerPos.findNearPosition();
         for (let towerPos of towerPosIterator) {
           this.memory.position.structure.tower.push(towerPos);
+          costMatrix.set(towerPos.x, towerPos.y, config.layout.structureAvoid);
+          this.setMemoryCostMatrix(costMatrix);
           return;
         }
         this.memory.position.structure.powerSpawn.pop();
@@ -448,7 +452,7 @@ Room.prototype.setup = function() {
   let pathLB = this.getMemoryPath(paths_controller[4].name);
   let pathL = this.setLabsTerminal(pathLB);
   let pathI = this.setStructures(path);
-  this.log('path: ' + path.name + ' pathI: ' + pathI + ' length: ' + path.length);
+  this.log('path: ' + paths_sorted[paths_sorted.length - 1].name + ' pathI: ' + pathI + ' length: ' + path.length);
   if (pathI === -1) {
     pathI = path.length - 1;
   }

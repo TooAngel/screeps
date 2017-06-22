@@ -157,6 +157,11 @@ Creep.prototype.stayInRoom = function() {
 };
 
 Creep.prototype.buildRoad = function() {
+  // TODO make dependent on the swamp to non-swamp relation? High swamp rooms could use the roads better ...
+  if (this.room.controller && this.room.controller.level < 4) {
+    return false;
+  }
+
   // TODO as creep variable
   if (this.memory.role != 'carry' && this.memory.role != 'harvester') {
     this.getEnergyFromStructure();

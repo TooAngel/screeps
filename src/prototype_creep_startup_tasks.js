@@ -197,7 +197,6 @@ Creep.prototype.repairStructure = function() {
       delete this.memory.target;
     }
   }
-  this.say('aa');
 
   let nukes = this.room.find(FIND_NUKES);
   if (nukes.length > 0) {
