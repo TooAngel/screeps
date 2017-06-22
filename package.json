@@ -1,6 +1,6 @@
 {
   "name": "screeps-bot-tooangel",
-  "version": "1.1.15",
+  "version": "1.2.0",
   "description": "",
   "main": "src/main.js",
   "screeps_bot": true,
