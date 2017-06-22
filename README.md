@@ -114,6 +114,14 @@ module.exports = [{
     grunt jsbeautifier
     grunt jscs
 
+## Release
+
+Releasing to npm is done automatically by increasing the version and merging to `master`.
+
+    npm version 10.0.1
+    git push --follow-tags
+
+Every deploy to `master` is automatically deployed to the live tooangel account.
 
 ## Design
 

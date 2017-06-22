@@ -1,9 +1,14 @@
+dependencies:
+  pre:
+    - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
 deployment:
-    production:
-      branch: master
-      commands: 
-        - npm run deploy
-    workspace:
-      branch: workspace
-      commands: 
-        - npm run deploy
+  production:
+    branch: master
+    tag: /v[0-9]+(\.[0-9]+)*/
+    commands:
+      - npm run deploy
+      - npm publish
+  workspace:
+    branch: workspace
+    commands:
+      - npm run deploy
