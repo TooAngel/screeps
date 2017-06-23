@@ -155,6 +155,56 @@ Room.prototype.updatePosition = function() {
   }
 };
 
+Room.prototype.setPosition = function(type, pos, value, positionType) {
+  positionType = positionType || 'structure';
+  let costMatrix = this.getMemoryCostMatrix();
+  this.memory.position[positionType][type].push(pos);
+  costMatrix.set(pos.x, pos.y, value);
+  this.setMemoryCostMatrix(costMatrix);
+};
+
+Room.prototype.setTowerFillerIterate = function(roomName, offsetDirection) {
+  let linkSet = false;
+  let towerFillerSet = false;
+  let positionsFound = false;
+  let path = this.getMemoryPath('pathStart-' + roomName);
+  for (let pathIndex = path.length - 1; pathIndex >= 1; pathIndex--) {
+    let posPath = path[pathIndex];
+    let posPathObject = new RoomPosition(posPath.x, posPath.y, posPath.roomName);
+    let posPathNext = path[pathIndex - 1];
+
+    let directionNext = posPathObject.getDirectionTo(posPathNext.x, posPathNext.y, posPathNext.roomName);
+
+    let offset = (directionNext + offsetDirection - 1) % 8 + 1;
+    let pos = posPathObject.buildRoomPosition(offset);
+
+    if (!pos.checkTowerFillerPos()) {
+      continue;
+    }
+
+    let terrain = pos.lookFor(LOOK_TERRAIN)[0];
+    if (terrain === 'wall') {
+      break;
+    }
+
+    if (!linkSet) {
+      this.setPosition('link', pos, config.layout.structureAvoid);
+      linkSet = true;
+      continue;
+    }
+    if (!towerFillerSet) {
+      this.setPosition('towerfiller', pos, config.layout.creepAvoid, 'creep');
+      towerFillerSet = true;
+      continue;
+    }
+    this.setPosition('tower', pos, config.layout.structureAvoid);
+    positionsFound = true;
+    break;
+  }
+
+  return positionsFound;
+};
+
 Room.prototype.setTowerFiller = function() {
   let exits = _.map(Game.map.describeExits(this.name));
 
@@ -166,182 +216,140 @@ Room.prototype.setTowerFiller = function() {
       break;
     }
     for (let offsetDirection = 2; offsetDirection < 7; offsetDirection += 4) {
-      let linkSet = false;
-      let towerFillerSet = false;
-      let positionsFound = false;
-      let path = this.getMemoryPath('pathStart' + '-' + roomName);
-      for (let pathIndex = path.length - 1; pathIndex >= 1; pathIndex--) {
-        let posPath = path[pathIndex];
-        let posPathObject = new RoomPosition(posPath.x, posPath.y, posPath.roomName);
-        let posPathNext = path[pathIndex - 1];
-
-        let directionNext = posPathObject.getDirectionTo(posPathNext.x, posPathNext.y, posPathNext.roomName);
-
-        let offset = (directionNext + offsetDirection - 1) % 8 + 1;
-        let pos = posPathObject.buildRoomPosition(offset);
-        if (pos.x <= 4 || pos.x >= 45 || pos.y <= 4 || pos.y >= 45) {
-          continue;
-        }
-
-        if (pos.inPositions()) {
-          continue;
-        }
-
-        if (pos.inPath()) {
-          continue;
-        }
-
-        let terrain = pos.lookFor(LOOK_TERRAIN)[0];
-        if (terrain === 'wall') {
-          break;
-        }
-
-        if (!linkSet) {
-          this.memory.position.structure.link.push(pos);
-          costMatrix.set(pos.x, pos.y, config.layout.structureAvoid);
-          this.setMemoryCostMatrix(costMatrix);
-          linkSet = true;
-          continue;
-        }
-        if (!towerFillerSet) {
-          this.memory.position.creep.towerfiller.push(pos);
-          towerFillerSet = true;
-          continue;
-        }
-        this.memory.position.structure.tower.push(pos);
-        costMatrix.set(pos.x, pos.y, config.layout.structureAvoid);
-        this.setMemoryCostMatrix(costMatrix);
-        positionsFound = true;
-        break;
-      }
-
-      if (positionsFound) {
+      if (this.setTowerFillerIterate(roomName, offsetDirection)) {
         break;
       }
     }
   }
 };
 
+Room.prototype.checkLabStructures = function(structurePos, pathPos) {
+  if (this.memory.position.structure.lab.length < CONTROLLER_STRUCTURES.lab[8]) {
+    this.setPosition('lab', structurePos, config.layout.structureAvoid);
+    return true;
+  }
+  if (this.memory.position.structure.terminal.length < CONTROLLER_STRUCTURES.terminal[8]) {
+    this.setPosition('terminal', structurePos, config.layout.structureAvoid);
+    this.memory.position.pathEnd = [pathPos];
+    return true;
+  }
+  if (this.memory.position.structure.lab.length < CONTROLLER_STRUCTURES.lab[8] ||
+    this.memory.position.structure.terminal.length < CONTROLLER_STRUCTURES.terminal[8]) {
+    this.log('Structures not found: ' +
+      'lab: ' + this.memory.position.structure.lab.length + ' ' +
+      'terminal: ' + this.memory.position.structure.terminal.length
+    );
+    return true;
+  }
+  if (!this.memory.position.pathEnd) {
+    this.log('Room not completly build');
+  }
+};
+
 Room.prototype.setLabsTerminal = function(path) {
-  let costMatrix = this.getMemoryCostMatrix();
   for (let pathI = path.length - 1; pathI > 0; pathI--) {
     let pathPos = new RoomPosition(path[pathI].x, path[pathI].y, this.name);
     let structurePosIterator = pathPos.findNearPosition();
     for (let structurePos of structurePosIterator) {
-      if (this.memory.position.structure.lab.length < CONTROLLER_STRUCTURES.lab[8]) {
-        this.memory.position.structure.lab.push(structurePos);
-        costMatrix.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
+      if (this.checkLabStructures(structurePos, pathPos)) {
         continue;
-      }
-      if (this.memory.position.structure.terminal.length < CONTROLLER_STRUCTURES.terminal[8]) {
-        this.memory.position.structure.terminal.push(structurePos);
-        costMatrix.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
-        this.memory.position.pathEnd = [pathPos];
-        continue;
-      }
-      if (this.memory.position.structure.lab.length < CONTROLLER_STRUCTURES.lab[8] ||
-        this.memory.position.structure.terminal.length < CONTROLLER_STRUCTURES.terminal[8]) {
-        this.log('Structures not found: ' +
-          'lab: ' + this.memory.position.structure.lab.length + ' ' +
-          'terminal: ' + this.memory.position.structure.terminal.length
-        );
-        continue;
-      }
-      if (!this.memory.position.pathEnd) {
-        this.log('Room not completly build');
       }
       console.log('All labs/terminal set: ' + pathI);
-      this.setMemoryCostMatrix(costMatrix);
       return pathI;
     }
   }
-  this.setMemoryCostMatrix(costMatrix);
 
   return -1;
+};
+
+Room.prototype.checkPositions = function() {
+  for (let type of ['spawn', 'extension', 'tower', 'link', 'observer', 'nuker']) {
+    if (this.memory.position.structure[type].length < CONTROLLER_STRUCTURES[type][8]) {
+      this.log('Structures not found: ' +
+        'spawns: ' + this.memory.position.structure.spawn.length + ' ' +
+        'extensions: ' + this.memory.position.structure.extension.length + ' ' +
+        'towers: ' + this.memory.position.structure.tower.length + ' ' +
+        'links: ' + this.memory.position.structure.link.length + ' ' +
+        'observer: ' + this.memory.position.structure.observer.length + ' ' +
+        'lab: ' + this.memory.position.structure.lab.length + ' ' +
+        'terminal: ' + this.memory.position.structure.terminal.length + ' ' +
+        'nuker: ' + this.memory.position.structure.nuker.length
+      );
+      return true;
+    }
+  }
+  return false;
+};
+
+Room.prototype.setExtensionPos = function(structurePos, pathI) {
+  this.setPosition('extension', structurePos, config.layout.structureAvoid);
+  if (!this.memory.position.pathEndLevel) {
+    this.memory.position.pathEndLevel = [0];
+  }
+  if (CONTROLLER_STRUCTURES.extension[this.memory.position.pathEndLevel.length] <= this.memory.position.structure.extension.length) {
+    this.memory.position.pathEndLevel.push(pathI);
+  }
+};
+
+Room.prototype.areEnergyStructuresPlaced = function() {
+  return this.memory.position.structure.spawn.length < CONTROLLER_STRUCTURES.spawn[8] && this.memory.position.structure.extension.length < CONTROLLER_STRUCTURES.extension[8];
+};
+
+Room.prototype.setPositionAux = function(structurePos) {
+  for (let type of ['tower', 'nuker', 'observer', 'link']) {
+    if (this.memory.position.structure[type].length < CONTROLLER_STRUCTURES[type][8]) {
+      this.setPosition(type, structurePos, config.layout.structureAvoid);
+      return true;
+    }
+  }
+  return false;
+};
+
+Room.prototype.setStructuresCheck = function(pathI) {
+  if (!this.memory.position.pathEnd) {
+    this.log('Room not completly build');
+  }
+  console.log('All structures set: ' + pathI);
+};
+
+Room.prototype.setStructuresIteratePos = function(structurePos, pathI, path, pathPos) {
+  if (structurePos.setSpawn(pathPos, path[+pathI + 1])) {
+    this.setPosition('spawn', structurePos, config.layout.structureAvoid);
+    return true;
+  }
+  if (structurePos.setExtension()) {
+    this.setExtensionPos(structurePos, pathI);
+    return true;
+  }
+  if (this.areEnergyStructuresPlaced()) {
+    return true;
+  }
+
+  if (this.setPositionAux(structurePos)) {
+    return true;
+  }
+
+  if (this.checkPositions()) {
+    return true;
+  }
+
+  this.setStructuresCheck(pathI);
+  return false;
 };
 
 Room.prototype.setStructures = function(path) {
   this.setTowerFiller();
 
-  let costMatrix = this.getMemoryCostMatrix();
-  let pathI;
-  for (pathI in path) {
+  for (let pathI = 0; pathI < path.length; pathI++) {
     let pathPos = new RoomPosition(path[pathI].x, path[pathI].y, this.name);
     let structurePosIterator = pathPos.findNearPosition();
     for (let structurePos of structurePosIterator) {
-      if (structurePos.setSpawn(pathPos, path[+pathI + 1])) {
-        this.memory.position.structure.spawn.push(structurePos);
-        costMatrix.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
+      if (!this.setStructuresIteratePos(structurePos, pathI, path, pathPos)) {
         continue;
       }
-      if (structurePos.setExtension()) {
-        this.memory.position.structure.extension.push(structurePos);
-        costMatrix.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
-        if (!this.memory.position.pathEndLevel) {
-          this.memory.position.pathEndLevel = [0];
-        }
-        if (CONTROLLER_STRUCTURES.extension[this.memory.position.pathEndLevel.length] <= this.memory.position.structure.extension.length) {
-          this.memory.position.pathEndLevel.push(pathI);
-        }
-        continue;
-      }
-      if (this.memory.position.structure.spawn.length < CONTROLLER_STRUCTURES.spawn[8] && this.memory.position.structure.extension.length < CONTROLLER_STRUCTURES.extension[8]) {
-        continue;
-      }
-
-      // TODO Build labs, terminal, nuker ... at the path to extractor / mineral or the next path which diverge from the harvester path
-      if (this.memory.position.structure.tower.length < CONTROLLER_STRUCTURES.tower[8]) {
-        this.memory.position.structure.tower.push(structurePos);
-        costMatrix.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
-        continue;
-      }
-      if (this.memory.position.structure.nuker.length < CONTROLLER_STRUCTURES.nuker[8]) {
-        this.memory.position.structure.nuker.push(structurePos);
-        costMatrix.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
-        continue;
-      }
-      if (this.memory.position.structure.observer.length < CONTROLLER_STRUCTURES.observer[8]) {
-        this.memory.position.structure.observer.push(structurePos);
-        costMatrix.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
-        continue;
-      }
-
-      if (this.memory.position.structure.link.length < CONTROLLER_STRUCTURES.link[8]) {
-        this.memory.position.structure.link.push(structurePos);
-        costMatrix.set(structurePos.x, structurePos.y, config.layout.structureAvoid);
-        continue;
-      }
-
-      if (this.memory.position.structure.spawn.length < CONTROLLER_STRUCTURES.spawn[8] ||
-        this.memory.position.structure.extension.length < CONTROLLER_STRUCTURES.extension[8] ||
-        this.memory.position.structure.tower.length < CONTROLLER_STRUCTURES.tower[8] ||
-        this.memory.position.structure.link.length < CONTROLLER_STRUCTURES.link[8] ||
-        this.memory.position.structure.observer.length < CONTROLLER_STRUCTURES.observer[8] ||
-        this.memory.position.structure.nuker.length < CONTROLLER_STRUCTURES.nuker[8]) {
-        this.log('Structures not found: ' +
-          'spawns: ' + this.memory.position.structure.spawn.length + ' ' +
-          'extensions: ' + this.memory.position.structure.extension.length + ' ' +
-          'towers: ' + this.memory.position.structure.tower.length + ' ' +
-          'links: ' + this.memory.position.structure.link.length + ' ' +
-          'observer: ' + this.memory.position.structure.observer.length + ' ' +
-          'lab: ' + this.memory.position.structure.lab.length + ' ' +
-          'terminal: ' + this.memory.position.structure.terminal.length + ' ' +
-          'nuker: ' + this.memory.position.structure.nuker.length
-        );
-        continue;
-      }
-      if (!this.memory.position.pathEnd) {
-        this.log('Room not completly build');
-      }
-      //      let pathIndex = _.findIndex(path, i => i.x === this.memory.position.pathEnd[0].x && i.y === this.memory.position.pathEnd[0].y);
-      //      this.memory.position.path = path.slice(0, pathIndex);
-      //      return positions;
-      console.log('All structures set: ' + pathI);
-      this.setMemoryCostMatrix(costMatrix);
       return pathI;
     }
   }
-  this.setMemoryCostMatrix(costMatrix);
 
   return -1;
 };
@@ -363,6 +371,9 @@ Room.prototype.costMatrixSetMineralPath = function() {
 Room.prototype.costMatrixPathFromStartToExit = function(exits) {
   let costMatrix = this.getMemoryCostMatrix();
   for (let endDir in exits) {
+    if (!endDir) {
+      continue;
+    }
     let end = exits[endDir];
     let route = [{
       room: this.name
@@ -375,22 +386,17 @@ Room.prototype.costMatrixPathFromStartToExit = function(exits) {
   }
 };
 
-Room.prototype.setup = function() {
-  delete this.memory.constants;
-  this.log('costmatrix.setup called');
-  this.memory.controllerLevel = {};
-  this.updatePosition();
-
+Room.prototype.costMatrixPathCrossings = function(exits) {
   let costMatrix = this.getMemoryCostMatrix();
-  let exits = Game.map.describeExits(this.name);
-  if (this.controller) {
-    this.costMatrixSetMineralPath();
-    this.costMatrixPathFromStartToExit(exits);
-  }
-
   for (let startDir in exits) {
+    if (!startDir) {
+      continue;
+    }
     let start = exits[startDir];
     for (let endDir in exits) {
+      if (!endDir) {
+        continue;
+      }
       let end = exits[endDir];
       if (start === end) {
         continue;
@@ -407,38 +413,58 @@ Room.prototype.setup = function() {
       this.setMemoryCostMatrix(costMatrix);
     }
   }
+};
 
-  // find longest path, calculate vert-/horizontal as 2 (new structures) and diagonal as 4
-  let sorter = function(object) {
-    let last_pos;
-    let value = 0;
-    for (let pos of object.path) {
-      let valueAdd = 0;
-      if (!last_pos) {
-        last_pos = new RoomPosition(pos.x, pos.y, pos.roomName);
-        continue;
+let checkForSurroundingWalls = function(pos, valueAdd) {
+  for (let x = -1; x < 2; x++) {
+    for (let y = -1; y < 2; y++) {
+      let wall = new RoomPosition(pos.x + x, pos.y + y, pos.roomName);
+      let terrains = wall.lookFor(LOOK_TERRAIN);
+      if (terrains === 'wall') {
+        valueAdd *= 0.5; // TODO some factor
       }
-      let direction = last_pos.getDirectionTo(pos.x, pos.y, pos.roomName);
-      if (direction % 2 === 0) {
-        valueAdd += 2;
-      } else {
-        valueAdd += 4;
-      }
-
-      for (let x = -1; x < 2; x++) {
-        for (let y = -1; y < 2; y++) {
-          let wall = new RoomPosition(pos.x + x, pos.y + y, pos.roomName);
-          let terrains = wall.lookFor(LOOK_TERRAIN);
-          if (terrains === 'wall') {
-            valueAdd *= 0.5; // TODO some factor
-          }
-        }
-      }
-      value += valueAdd;
-      last_pos = new RoomPosition(pos.x, pos.y, pos.roomName);
     }
-    return value;
-  };
+  }
+  return valueAdd;
+};
+
+// find longest path, calculate vert-/horizontal as 2 (new structures) and diagonal as 4
+let sorter = function(object) {
+  let last_pos;
+  let value = 0;
+  for (let pos of object.path) {
+    let valueAdd = 0;
+    if (!last_pos) {
+      last_pos = new RoomPosition(pos.x, pos.y, pos.roomName);
+      continue;
+    }
+    let direction = last_pos.getDirectionTo(pos.x, pos.y, pos.roomName);
+    if (direction % 2 === 0) {
+      valueAdd += 2;
+    } else {
+      valueAdd += 4;
+    }
+
+    value += checkForSurroundingWalls(pos, valueAdd);
+    last_pos = new RoomPosition(pos.x, pos.y, pos.roomName);
+  }
+  return value;
+};
+
+Room.prototype.setup = function() {
+  delete this.memory.constants;
+  this.log('costmatrix.setup called');
+  this.memory.controllerLevel = {};
+  this.updatePosition();
+
+  let costMatrix = this.getMemoryCostMatrix();
+  let exits = Game.map.describeExits(this.name);
+  if (this.controller) {
+    this.costMatrixSetMineralPath();
+    this.costMatrixPathFromStartToExit(exits);
+  }
+
+  this.costMatrixPathCrossings(exits);
 
   let paths_controller = _.filter(this.getMemoryPaths(), function(object, key) {
     return key.startsWith('pathStart-');

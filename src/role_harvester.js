@@ -22,7 +22,10 @@ roles.harvester.settings = {
   layoutString: 'MWC',
   amount: {
     1: [2, 1, 1],
-    3: [2, 2, 2],
+    3: {
+      0: [2, 1, 1],
+      400: [1, 1, 1]
+    }
   },
   maxLayoutAmount: 6,
 };
@@ -38,7 +41,7 @@ roles.harvester.updateSettings = function(room, creep) {
 };
 
 roles.harvester.stayInRoom = true;
-roles.harvester.buildRoad = true;
+roles.harvester.buildRoad = false;
 roles.harvester.boostActions = ['capacity'];
 
 roles.harvester.preMove = function(creep, directions) {

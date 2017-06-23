@@ -417,16 +417,21 @@ Creep.prototype.transferToStructures = function() {
   return false;
 };
 
-Creep.prototype.transferMy = function() {
-  var pos;
-  var structures;
-  var structure;
-  var creeps;
-  let otherCreep;
-  var offset;
-  var index;
-  var return_code;
-  var name;
+Creep.prototype.moveToSource = function(source) {
+  if (!this.memory.routing) {
+    this.memory.routing = {};
+  }
+  this.memory.routing.reverse = false;
+  if (this.room.memory.misplacedSpawn || this.room.controller.level < 3) {
+    this.moveTo(source.pos);
+    // TODO should be `moveToMy`, but that hangs in W5N1 spawn (10,9)
+  } else {
+    this.moveByPathMy([{
+      'name': this.room.name
+    }], 0, 'pathStart', source.id, true, undefined);
+  }
+  return true;
+};
 
   for (let direction = 1; direction < 9; direction++) {
     let adjacentPos = this.pos.getAdjacentPosition(direction);
@@ -442,11 +447,27 @@ Creep.prototype.transferMy = function() {
       if (!otherCreep.my) {
         continue;
       }
-      if (otherCreep.carry.energy === otherCreep.carryCapacity) {
-        continue;
-      }
-      return_code = this.transfer(otherCreep, RESOURCE_ENERGY);
-      return return_code === 0;
+    });
+    this.transfer(creep_without_energy, RESOURCE_ENERGY);
+  }
+
+  // TODO Somehow we move before preMove, canceling here
+  this.cancelOrder('move');
+  this.cancelOrder('moveTo');
+  return true;
+};
+
+Creep.prototype.getEnergyFromSource = function() {
+  let source = this.pos.getClosestSource();
+  let range = this.pos.getRangeTo(source);
+  if (this.carry.energy > 0 && range > 1) {
+    this.memory.hasEnergy = true; // Stop looking and spend the energy.
+    return false;
+  }
+
+  if (range <= 2) {
+    if (this.getEnergyFromSourcer()) {
+      return true;
     }
   }
   return false;
