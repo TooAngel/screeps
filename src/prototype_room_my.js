@@ -405,6 +405,9 @@ Room.prototype.executeRoom = function() {
         amount = 3;
       }
     }
+    if (this.controller.level === 4 && this.memory.misplacedSpawn) {
+      amount = 3;
+    }
     this.checkRoleToSpawn('planer', amount);
   } else if (this.memory.misplacedSpawn && this.storage && this.storage.store.energy > 20000 && this.energyAvailable >= this.energyCapacityAvailable - 300) {
     this.checkRoleToSpawn('planer', 4);
