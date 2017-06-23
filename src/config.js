@@ -93,6 +93,7 @@ global.config = {
   buildRoad: {
     maxConstructionSitesTotal: 80,
     maxConstructionSitesRoom: 3,
+    buildToOtherMyRoom: false,
   },
 
   constructionSite: {
