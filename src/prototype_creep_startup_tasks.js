@@ -369,10 +369,10 @@ Creep.prototype.pickupOrWithdrawFromSourcer = function(target) {
   return Math.min(pickedUp, creepFreeSpace);
 };
 
-Creep.prototype.getDroppedEnergy = function() {
+Creep.prototype.getDroppedEnergy = function(filter = null) {
   let target = this.pos.findClosestByRange(FIND_DROPPED_RESOURCES, {
     filter: function(object) {
-      return 0 < object.amount && object.resourceType === RESOURCE_ENERGY;
+      return 0 < object.amount && object.resourceType === RESOURCE_ENERGY && (!filter || filter(object));
     }
   });
   if (target !== null) {
