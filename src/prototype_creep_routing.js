@@ -278,7 +278,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
 
   if (!directions) {
     // TODO Better true? On stuck on the border, execute is executed in the previous room
-    if (this.pos.isExit()) {
+    if (this.pos.isBorder()) {
       return true;
     }
     this.log('no directions');

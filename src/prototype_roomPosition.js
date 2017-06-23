@@ -1,7 +1,46 @@
 'use strict';
 
-RoomPosition.prototype.findInRangeStructures = function(structures, range, structureTypes) {
-  return this.findInRange(FIND_STRUCTURES, 1, {
+RoomPosition.prototype.checkTowerFillerPos = function() {
+  if (this.isBorder(3)) {
+    return false;
+  }
+
+  if (this.inPositions()) {
+    return false;
+  }
+
+  if (this.inPath()) {
+    return false;
+  }
+  return true;
+};
+
+RoomPosition.prototype.clearPosition = function(target) {
+  let structures = this.lookFor('structure');
+  for (let structureId in structures) {
+    let structure = structures[structureId];
+    if (structure.structureType === STRUCTURE_SPAWN) {
+      let spawns = this.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+      if (spawns.length <= 1) {
+        target.remove();
+        return true;
+      }
+    }
+    this.log('Destroying: ' + structure.structureType);
+    structure.destroy();
+  }
+};
+
+RoomPosition.prototype.getClosestSource = function() {
+  let source = this.findClosestByRange(FIND_SOURCES_ACTIVE);
+  if (source === null) {
+    source = this.findClosestByRange(FIND_SOURCES);
+  }
+  return source;
+};
+
+RoomPosition.prototype.findInRangeStructures = function(objects, range, structureTypes) {
+  return this.findInRange(objects, range, {
     filter: function(object) {
       return structureTypes.indexOf(object.structureType) >= 0;
     }
@@ -86,15 +125,16 @@ RoomPosition.prototype.inPositions = function() {
   return false;
 };
 
-RoomPosition.prototype.isExit = function() {
-  if (this.x <= 1 || this.x >= 48 || this.y <= 1 || this.y >= 48) {
+RoomPosition.prototype.isBorder = function(offset) {
+  offset = offset || 0;
+  if (this.x <= 1 + offset || this.x >= 48 - offset || this.y <= 1 + offset || this.y >= 48 - offset) {
     return true;
   }
   return false;
 };
 
 RoomPosition.prototype.validPosition = function() {
-  if (this.isExit()) {
+  if (this.isBorder()) {
     return false;
   }
   if (this.checkForWall()) {
