@@ -6,7 +6,7 @@ Creep.prototype.moveRandom = function(onPath) {
   for (let i = start; i < start + 8; i++) {
     direction = ((i - 1) % 8) + 1;
     let pos = this.pos.getAdjacentPosition(direction);
-    if (pos.isExit()) {
+    if (pos.isBorder()) {
       continue;
     }
     if (onPath && !pos.inPath()) {
@@ -29,7 +29,7 @@ Creep.prototype.moveRandomWithin = function(goal, dist = 3) {
   for (let i = start; i < start + 8; i++) {
     direction = ((i - 1) % 8) + 1;
     let pos = this.pos.getAdjacentPosition(direction);
-    if (pos.isExit()) {
+    if (pos.isBorder()) {
       continue;
     }
     if (pos.getRangeTo(goal) > dist) {

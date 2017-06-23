@@ -270,7 +270,7 @@ Room.prototype.setupStructure = function(structure) {
 
 Room.prototype.buildStructures = function() {
   // TODO reduce noise
-  //  this.log('buildStructures: ' + this.memory.controllerLevel.buildStructuresInterval);
+  // this.log('buildStructures: ' + this.memory.controllerLevel.buildStructuresInterval);
   if (!this.memory.position) {
     this.log('No position buildStructures');
     this.setup();
