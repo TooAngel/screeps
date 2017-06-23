@@ -81,6 +81,15 @@ Room.prototype.getCostMatrix = function() {
     }
   }
 
+  const lairs = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_KEEPER_LAIR]);
+  for (let lair of lairs) {
+    for (let dx = -config.layout.skLairAvoidRadius; dx <= config.layout.skLairAvoidRadius; dx++) {
+      for (let dy = -config.layout.skLairAvoidRadius; dy <= config.layout.skLairAvoidRadius; dy++) {
+        this.increaseCostMatrixValue(costMatrix, {x: lair.pos.x + dx, y: lair.pos.y + dy}, config.layout.skLairAvoid);
+      }
+    }
+  }
+
   for (let i = 0; i < 50; i++) {
     let value = config.layout.borderAvoid;
     costMatrix.set(i, 0, Math.max(costMatrix.get(i, 0), 0xFF));
