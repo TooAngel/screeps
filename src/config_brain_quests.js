@@ -91,5 +91,4 @@ brain.checkQuestForAcceptance = function(transaction) {
   };
   const room = Game.rooms[transaction.to];
   room.terminal.send(RESOURCE_ENERGY, 100, transaction.from, JSON.stringify(response));
-
 };

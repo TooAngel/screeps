@@ -1,21 +1,20 @@
 # Quests
 
-The TooAngel AI provides Quests which can be solved by other players. Solving a
+The TooAngel AI provides Quests which solvable by other players. Solving a
 quest brings reputation and sometimes resources, too. With increasing reputation
 the difficulty level of the quests increases, from build some constructionSites
 up to 'Room xyz needs to have an unclaimed controller in tick ...'
 
-The reputation for the players is public visible and can be used to get an
-idea how advanced other players are. And hopefully it brings even more fun
+The reputation of the players is public visible and gives an indicator how
+advanced other players are. And hopefully it brings even more fun
 playing against the TooAngel bot on a private server.
 
-And most important, it is the best way I could come up with to authorize
-multiple instances of the TooAngel AI with each other.
+And most important, the best way I could come up with to handle interaction
+of the TooAngel AI instances.
 
-The reputation is used to weight other players, e.g. players with high
-reputation are allowed to pass through reserved or controlled rooms. Also
-players are allowed to send quests, which were solved by them self previous
-to the TooAngel AI.
+The reputation weights other players, e.g. players with high
+reputation can pass through reserved or controlled rooms without punishment.
+Other players can send quests to the TooAngel AI, which they solved.
 
 ## Communication
 
@@ -33,11 +32,11 @@ On acceptance of the application, a response is send via terminal transfer.
 
    {"type": "Quest", "id": 0.3451, "room": "W3N8", "quest": "buildcs", "end": 12345653}
 
-  - `room` the room where the Quest needs to be solved
-  - `type` the type of the Quest
-  - `end` the end time where the request needs to be solved
+  - `room` the room to solve quest
+  - `type` quest type
+  - `end` the end time of the quest
 
-If the quest is won a terminal transfer is send
+On successful finishing a quest a terminal transfer is send
 
   {"type": "Quest", "id": 0.3451, "reputation": "100", "result": "won"}
 
@@ -55,8 +54,8 @@ Quests can be:
 If necessary the `Quester` creep will watch the progress and needs to stay alive.
 
 Next level:
-To introduce the bidirectional collaboration a Quest will be given, to give
+To introduce the bidirectional collaboration a Quest will send, to give
 a Quest back to our AI. After that both sides are able to send Quests to each other.
 
-To avoid misuse, requesting Quests will cost reputation. Which quests can be
-requested depends on the reputation level.
+To avoid misuse, requesting Quests will cost reputation. The requestable
+quest types depend on the reputation level.
