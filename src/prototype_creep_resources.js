@@ -470,11 +470,18 @@ Creep.prototype.getEnergy = function() {
     return false;
   }
 
-  if (this.getDroppedEnergy()) {
-    return true;
+  if (this.room.storage) {
+    if (this.getDroppedEnergy(res => res.amount > this.carryCapacity ||
+        res.amount > this.room.storage.store.energy || this.pos.getRangeTo(res) * 2 < this.pos.getRangeTo(this.room.storage))) {
+      return true;
+    }
   }
 
   if (this.getEnergyFromStorage()) {
+    return true;
+  }
+
+  if (this.getDroppedEnergy()) {
     return true;
   }
 
