@@ -82,7 +82,7 @@ roles.storagefiller.action = function(creep) {
     }
     creep.transfer(link, RESOURCE_ENERGY);
   } else {
-    link.transferEnergy(creep);
+    creep.withdraw(link, RESOURCE_ENERGY);
     for (let tower of towers) {
       let returnCode = creep.transfer(tower, RESOURCE_ENERGY);
       if (returnCode === OK) {
