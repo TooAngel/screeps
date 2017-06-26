@@ -116,7 +116,7 @@ Creep.prototype.handleExtractor = function() {
   if (carrying === this.carryCapacity) {
     let returnCode = this.moveToMy(this.room.terminal.pos, 1);
     for (let key in this.carry) {
-      if (this.carry[key] === 0) {
+      if (this.carry[key] === 0 || key === RESOURCE_ENERGY) {
         continue;
       }
       let returnCode = this.transfer(this.room.terminal, key);
