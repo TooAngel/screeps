@@ -166,6 +166,8 @@ global.config = {
     plainCost: 5,
     swampCost: 5,
     borderAvoid: 20,
+    skLairAvoidRadius: 5,
+    skLairAvoid: 30,
     wallAvoid: 10,
     pathAvoid: 1,
     structureAvoid: 0xFF,
