@@ -122,6 +122,7 @@ global.config = {
     size: 200,
     carryPercentageBase: 0.2,
     carryPercentageExtern: 0.5,
+    maxPerTargetPerRoom: 2,
   },
 
   creep: {
