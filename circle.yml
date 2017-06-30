@@ -1,0 +1,9 @@
+deployment:
+    production:
+      branch: master
+      commands: 
+        - npm run deploy
+    workspace:
+      branch: workspace
+      commands: 
+        - npm run deploy
