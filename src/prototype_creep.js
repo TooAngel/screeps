@@ -289,7 +289,7 @@ Creep.prototype.killPrevious = function() {
       if (object.memory.role != creep.memory.role) {
         return false;
       }
-      if (object.memory.role != creep.memory.role) {
+      if (object.memory.routing.targetId != creep.memory.routing.targetId) {
         return false;
       }
       return true;
