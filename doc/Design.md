@@ -2,8 +2,8 @@
 
 The AI automatically generates a layout for the room and builds the structures
 for the current RCL. A `scout` creep or observer explores external harvest rooms.
-New rooms are acquired if the current number doesn't fit the GCL. Fallen
-rooms will be survived and basically defended. The AI sends some waves of
+If the current number of rooms is less than the GCL, the AI will acquire new
+rooms. Fallen rooms will be survived and basically defended. The AI sends some waves of
 auto attacks. Minerals are fetched from the extractor and transported to the
 terminal. Reactions are basically implemented. Depending on a threshold minerals
 are sold on the market.
@@ -32,8 +32,22 @@ queue is used.
    - External room: Builds container, fills container, calls `carry` to get
    the energy.
  - `reserver` reservs an external controller and calls `sourcer`.
- - `carry` gets energy from the target container and fills structures and
- storage on the way back. If there is a creep in front the energy is transfered.
+ - `carry`
+    A carry transports energy from the target to the storage in the base (From sources, energy piles or storages in other rooms)
+    They use fixed precalculated paths
+    While moving they try to transfer energy to the next creep or if in base to other structures (tower, link, extension)
+    So carries move forward if the have 'no' energy, backwards if the 'have' energy
+    'no' or 'have' is defined differently for different rooms
+
+    The idea behind that is:
+    - If the carry is in the target room, they should have a proper amount of energy to move all the way back
+    - If the carry is in an intermediate room, they should have at least a mediocre amount of energy to move back
+    - If the carry is in the base it should empty itself before moving backansfered.
+
+    Carries are spawned by:
+      - sourcer: if the energy pile or container is over a certain threshold
+      - structurer: if the enrgy pile is over a certain threshold
+      - rooms: if the storage is below a certain threshold to get energy from another room
  - `scout` Breadth-first search based room exploring.
  - `harvester` moves on the harvester path, and transfers energy to free structures
    on the path. On low energy in storage, the `harvester` falls back to the

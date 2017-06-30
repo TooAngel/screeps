@@ -195,7 +195,7 @@ global.config = {
       harvester: 1,
       sourcer: 2,
       storagefiller: 3,
-      defendranged: 3
+      defendranged: 4
     },
     otherRoom: {
       harvester: 11,
