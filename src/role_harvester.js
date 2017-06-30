@@ -18,11 +18,14 @@
 roles.harvester = {};
 
 roles.harvester.settings = {
-  param: ['controller.level'],
+  param: ['controller.level', 'energyAvailable'],
   layoutString: 'MWC',
   amount: {
     1: [2, 1, 1],
-    3: [2, 2, 2],
+    3: {
+      0: [2, 1, 1],
+      400: [2, 2, 2],
+    }
   },
   maxLayoutAmount: 6,
 };

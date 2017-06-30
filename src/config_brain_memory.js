@@ -66,8 +66,9 @@ brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
     return;
   }
   if (unit.died) {
-    unit.died(name, creepMemory);
-    //            delete Memory.creeps[name];
+    if (unit.died(name, creepMemory)) {
+      delete Memory.creeps[name];
+    }
   } else {
     delete Memory.creeps[name];
   }

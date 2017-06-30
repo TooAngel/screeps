@@ -261,7 +261,6 @@ Creep.prototype.handleMineralCreep = function() {
 
     creep.say('A3');
 
-    //  creep.log('aa: ' + JSON.stringify(creep.memory.boostAction));
     let lab = Game.getObjectById(creep.memory.boostAction.lab);
     if (!lab) {
       return false;

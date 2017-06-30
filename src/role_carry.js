@@ -106,16 +106,8 @@ roles.carry.preMove = function(creep, directions) {
   if (!creep.memory.routing.reverse) {
     reverse = creep.checkForTransfer(directions.forwardDirection);
   }
-  // define minimum carryPercentage to move back to storage
-  let carryPercentage = 0.1;
-  if (creep.room.name === creep.memory.routing.targetRoom) {
-    carryPercentage = config.carry.carryPercentageExtern;
-  }
-  if (creep.inBase()) {
-    carryPercentage = config.carry.carryPercentageBase;
-  }
 
-  if (_.sum(creep.carry) > carryPercentage * creep.carryCapacity) {
+  if (creep.checkEnergyTransfer()) {
     reverse = true;
     if (creep.inBase()) {
       let transferred = creep.transferToStructures();
@@ -130,10 +122,8 @@ roles.carry.preMove = function(creep, directions) {
         reverse = false;
       }
     }
-    // Have to invert the direction
-    let directionTransferInvert = (+directions.backwardDirection + 7) % 8 + 1;
-    if (directionTransferInvert && directionTransferInvert !== null) {
-      let transferred = creep.transferToCreep(directionTransferInvert);
+    if (directions.backwardDirection && directions.backwardDirection !== null) {
+      let transferred = creep.transferToCreep(directions.backwardDirection);
       reverse = !transferred;
     }
   }
