@@ -21,7 +21,7 @@ roles.atkeeper.action = function(creep) {
 
   let heal = function(creep) {
     if (creep.hits < 500) {
-      var target = creep.pos.findClosestSourceKeeper();
+      var target = creep.findClosestSourceKeeper();
       var range = creep.pos.getRangeTo(target);
       creep.heal(creep);
       if (range <= 3) {
@@ -43,7 +43,7 @@ roles.atkeeper.action = function(creep) {
   };
 
   let attack = function(creep) {
-    var target = creep.pos.findClosestSourceKeeper();
+    var target = creep.findClosestSourceKeeper();
     var range;
     var direction;
 
