@@ -81,16 +81,12 @@ Room.prototype.buildBase = function() {
 };
 
 Room.prototype.clearRoom = function() {
-  var structures = this.find(FIND_STRUCTURES);
-  for (var structures_i in structures) {
-    structures[structures_i].destroy();
-  }
-  var constructionSites = this.find(FIND_CONSTRUCTION_SITES);
-  for (var constructionSites_i in constructionSites) {
-    constructionSites[constructionSites_i].remove();
-  }
-  var creeps = this.find(FIND_MY_CREEPS);
-  for (var creeps_i in creeps) {
-    creeps[creeps_i].suicide();
-  }
+  const structures = this.find(FIND_STRUCTURES);
+  _.each(structures, s => s.destroy());
+
+  const constructionSites = this.find(FIND_CONSTRUCTION_SITES);
+  _.each(constructionSites, cs => cs.remove());
+
+  const creeps = this.find(FIND_MY_CREEPS);
+  _.each(creeps, cs => cs.suicide());
 };

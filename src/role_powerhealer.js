@@ -19,9 +19,7 @@ roles.powerhealer.action = function(creep) {
   }
 
   var my_creep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-    filter: function(object) {
-      return object.hits < object.hitsMax;
-    }
+    filter: object => object.hits < object.hitsMax
   });
 
   if (my_creep !== null) {
@@ -36,9 +34,7 @@ roles.powerhealer.action = function(creep) {
   let heal = function(creep) {
     var range;
     var creep_to_heal = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-      filter: function(object) {
-        return object.hits < object.hitsMax / 1.5;
-      }
+      filter: object => object.hits < object.hitsMax / 1.5
     });
     var power_bank = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
     if (power_bank.length > 0 && power_bank[0].hits > 100000) {
@@ -52,9 +48,7 @@ roles.powerhealer.action = function(creep) {
     if (creep_to_heal === null) {
       if (power_bank.length === 0) {
         creep_to_heal = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-          filter: function(object) {
-            return object.hits < object.hitsMax;
-          }
+          filter: object => object.hits < object.hitsMax
         });
         if (creep_to_heal !== null) {
           range = creep.pos.getRangeTo(creep_to_heal);
@@ -66,21 +60,13 @@ roles.powerhealer.action = function(creep) {
           creep.moveTo(creep_to_heal);
           return true;
         }
-        attacker = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-          filter: function(object) {
-            return object.memory.role === 'powerattacker';
-          }
-        });
+        attacker = creep.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['powerattacker']);
         creep.moveTo(attacker);
         return false;
       }
       var hostileCreeps = creep.room.getEnemys();
       if (hostileCreeps.length > 0) {
-        attacker = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-          filter: function(object) {
-            return object.memory.role === 'powerattacker';
-          }
-        });
+        attacker = creep.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['powerattacker']);
         creep.moveTo(attacker);
         return false;
       }

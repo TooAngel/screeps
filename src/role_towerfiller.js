@@ -25,21 +25,10 @@ roles.towerfiller.execute = function(creep) {
   }
 
   if (!creep.memory.link) {
-    let getTower = function(object) {
-      return object.structureType === STRUCTURE_TOWER;
-    };
-    let getLink = function(object) {
-      return object.structureType === STRUCTURE_LINK;
-    };
-
     let pos = creep.memory.target_id;
     let posObject = new RoomPosition(pos.x, pos.y, creep.room.name);
-    let towers = posObject.findInRange(FIND_STRUCTURES, 1, {
-      filter: getTower
-    });
-    let links = posObject.findInRange(FIND_STRUCTURES, 1, {
-      filter: getLink
-    });
+    let towers = posObject.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER]);
+    let links = posObject.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
     if (towers.length === 0) {
       creep.suicide();
       return false;

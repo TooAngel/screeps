@@ -102,13 +102,10 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
   }
 
   if (this.room.name === this.memory.routing.targetRoom) {
-    let containers = this.pos.findInRange(FIND_STRUCTURES, 1, {
-      filter: (s) => (s.structureType === STRUCTURE_CONTAINER ||
-        s.structureType === STRUCTURE_STORAGE)
-    });
-    for (let container of containers) {
-      this.withdraw(container, RESOURCE_ENERGY);
-      return container.store.energy > 9;
+    const containers = this.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_CONTAINER, STRUCTURE_STORAGE]);
+    if (containers.length > 0) {
+      this.withdraw(containers[0], RESOURCE_ENERGY);
+      return containers[0].store.energy > 9;
     }
   }
   return reverse;
@@ -264,14 +261,7 @@ Creep.prototype.pickupEnergy = function() {
     }
   }
 
-  let sourcers = this.pos.findInRange(FIND_MY_CREEPS, 1, {
-    filter: function(object) {
-      if (object.memory.role === 'sourcer') {
-        return true;
-      }
-      return false;
-    }
-  });
+  const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer']);
   if (sourcers.length > 0) {
     let returnCode = sourcers[0].transfer(this, RESOURCE_ENERGY);
     if (returnCode === OK) {
@@ -422,14 +412,8 @@ Creep.prototype.transferToStructures = function() {
 };
 
 Creep.prototype.getEnergyFromSourcer = function() {
-  let sourcers = this.pos.findInRange(FIND_MY_CREEPS, 1, {
-    filter: function(object) {
-      let creep = Game.getObjectById(object.id);
-      if (creep.memory.role === 'sourcer' && creep.carry.energy > 0) {
-        return true;
-      }
-      return false;
-    }
+  const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer'], {
+    filter: creep => creep.carry.energy > 0
   });
   if (sourcers.length > 0) {
     let returnCode = sourcers[0].transfer(this, RESOURCE_ENERGY);
@@ -458,14 +442,11 @@ Creep.prototype.moveToSource = function(source) {
 
 Creep.prototype.harvestSource = function(source) {
   let returnCode = this.harvest(source);
-  if (this.carry.energy >= this.carryCapacity) {
-    var creep = this;
-    var creep_without_energy = this.pos.findInRange(FIND_MY_CREEPS, 1, {
-      filter: function(object) {
-        return object.carry.energy === 0 && object.id !== creep.id;
-      }
-    });
-    this.transfer(creep_without_energy, RESOURCE_ENERGY);
+  if (this.carry.energy === this.carryCapacity && this.carryCapacity > 0) {
+    const creeps_without_energy = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'carry.energy', [0]);
+    if (creeps_without_energy.length > 0) {
+      this.transfer(creeps_without_energy[0], RESOURCE_ENERGY);
+    }
   }
 
   // TODO Somehow we move before preMove, canceling here
@@ -553,9 +534,7 @@ Creep.prototype.buildConstructionSite = function(target) {
 Creep.prototype.construct = function() {
   var target;
   if (this.memory.role === 'nextroomer') {
-    target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
-      filter: s => s.structureType !== STRUCTURE_RAMPART
-    });
+    target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART], true);
   } else {
     target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
   }
@@ -574,15 +553,8 @@ Creep.prototype.construct = function() {
 };
 
 Creep.prototype.getTransferTarget = function() {
-  let structure = this.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-    filter: (s) => {
-      if (s.energy === s.energyCapacity) {
-        return false;
-      }
-      return (s.structureType === STRUCTURE_EXTENSION ||
-        s.structureType === STRUCTURE_SPAWN ||
-        s.structureType === STRUCTURE_TOWER);
-    }
+  const structure = this.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER], false, {
+    filter: structure => structure.energy < structure.energyCapacity
   });
   if (structure === null) {
     if (this.room.storage && this.room.storage.my && this.memory.role !== 'planer') {
@@ -634,13 +606,11 @@ Creep.prototype.reserverSetLevel = function() {
 };
 
 let callStructurer = function(creep) {
-  var structurers = creep.room.find(FIND_MY_CREEPS, {
-    filter: Room.findCreep('structurer')
-  });
+  const structurers = creep.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['structurer']);
   if (structurers.length > 0) {
     return false;
   }
-  var resource_structures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
+  const resource_structures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
   if (resource_structures.length > 0 && !creep.room.controller.my) {
     creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resource_structures[0].structureType);
     Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, creep.room.name);
@@ -677,14 +647,12 @@ let checkSourcerMatch = function(sourcers, source_id) {
 };
 
 let checkSourcer = function(creep) {
-  var sources = creep.room.find(FIND_SOURCES);
-  var sourcer = creep.room.find(FIND_MY_CREEPS, {
-    filter: Room.findCreep('sourcer')
-  });
+  const sources = creep.room.find(FIND_SOURCES);
+  const sourcers = creep.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer']);
 
-  if (sourcer.length < sources.length) {
+  if (sourcers.length < sources.length) {
     let sourceParse = function(source) {
-      if (!checkSourcerMatch(sourcer, source.pos)) {
+      if (!checkSourcerMatch(sourcers, source.pos)) {
         Game.rooms[creep.memory.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
       }
     };

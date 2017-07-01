@@ -65,13 +65,8 @@ Room.prototype.externalHandleRoom = function() {
   }
 
   if (!this.controller) {
-    var sourceKeeper = this.find(FIND_HOSTILE_STRUCTURES, {
-      filter: function(object) {
-        return object.owner.username === 'Source Keeper';
-      }
-    });
-
-    if (sourceKeeper.length > 0) {
+    const sourceKeepers = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'owner.username', ['Source Keeper']);
+    if (sourceKeepers.length > 0) {
       this.memory.lastSeen = Game.time;
       this.handleSourceKeeperRoom();
       return false;
@@ -87,7 +82,7 @@ Room.prototype.externalHandleHighwayRoom = function() {
     return false;
   }
 
-  var structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
+  const structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
   if (structures.length === 0) {
     if (Memory.powerBanks) {
       delete Memory.powerBanks[this.name];
@@ -176,7 +171,7 @@ Room.prototype.externalHandleHighwayRoom = function() {
 
 Room.prototype.handleOccupiedRoom = function() {
   this.memory.lastSeen = Game.time;
-  var hostiles = this.find(FIND_HOSTILE_CREEPS);
+  const hostiles = this.find(FIND_HOSTILE_CREEPS);
   if (hostiles.length > 0) {
     // TODO replace with enum
     this.memory.state = 'Occupied';
@@ -184,19 +179,11 @@ Room.prototype.handleOccupiedRoom = function() {
 
     // TODO trigger everytime?
     if (!this.controller.safeMode) {
-      let myCreeps = this.find(FIND_MY_CREEPS, {
-        filter: function(object) {
-          let creep = Game.getObjectById(object.id);
-          if (creep.memory.role === 'scout') {
-            return false;
-          }
-          return true;
-        }
-      });
+      const myCreeps = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['scout'], true);
       if (myCreeps.length > 0) {
         return false;
       }
-      var spawns = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+      const spawns = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
       if (spawns.length > 0) {
         this.attackRoom();
       }
@@ -291,9 +278,7 @@ Room.prototype.handleReservedRoom = function() {
     brain.increaseIdiot(idiotCreep.owner.username);
   }
 
-  let reservers = this.find(FIND_MY_CREEPS, {
-    filter: (c) => c.memory.role === 'reserver',
-  });
+  let reservers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['reserver']);
   if (reservers.length === 0) {
     this.checkAndSpawnReserver();
   }
@@ -405,18 +390,8 @@ Room.prototype.handleSourceKeeperRoom = function() {
   }
 
   if (sourcer < 3) {
-    let getSourcer = function(object) {
-      let creep = Game.getObjectById(object.id);
-      if (creep.memory.role === 'sourcer') {
-        return true;
-      }
-      return false;
-    };
-
     for (let source of this.find(FIND_SOURCES)) {
-      let sourcer = source.pos.findClosestByRange(FIND_MY_CREEPS, {
-        filter: getSourcer
-      });
+      let sourcer = source.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer']);
       if (sourcer !== null) {
         let range = source.pos.getRangeTo(sourcer.pos);
         if (range < 7) {

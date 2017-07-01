@@ -31,14 +31,7 @@ Creep.prototype.handleSourcer = function() {
 
   if (this.inBase()) {
     if (!this.memory.link) {
-      let links = this.pos.findInRange(FIND_MY_STRUCTURES, 1, {
-        filter: function(object) {
-          if (object.structureType === STRUCTURE_LINK) {
-            return true;
-          }
-          return false;
-        }
-      });
+      const links = this.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
       if (links.length > 0) {
         this.memory.link = links[0].id;
       }
@@ -64,17 +57,9 @@ Creep.prototype.spawnCarry = function() {
   // Spawn carry
   var energies = this.pos.lookFor(LOOK_ENERGY);
   if (energies.length === 0) {
-    let containers = this.pos.findInRange(FIND_STRUCTURES, 0, {
-      filter: function(object) {
-        if (object.structureType != STRUCTURE_CONTAINER) {
-          return false;
-        }
-        // TODO hardcoded for now, half of the container? Good idea?
-        if (object.store.energy < 1000) {
-          return false;
-        }
-        return true;
-      }
+    const containers = this.pos.findInRangePropertyFilter(FIND_STRUCTURES, 0, 'structureType', [STRUCTURE_CONTAINER], false, {
+      // TODO hardcoded for now, half of the container? Good idea?
+      filter: container => container.store.energy >= 1000
     });
     if (containers.length === 0) {
       return false;

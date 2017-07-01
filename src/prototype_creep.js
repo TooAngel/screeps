@@ -224,7 +224,7 @@ Creep.prototype.buildRoad = function() {
   if (
     constructionSites.length <= config.buildRoad.maxConstructionSitesRoom &&
     Object.keys(Game.constructionSites).length < config.buildRoad.maxConstructionSitesTotal
-    //&& this.pos.inPath()
+  //&& this.pos.inPath()
   ) {
     let returnCode = this.pos.createConstructionSite(STRUCTURE_ROAD);
     if (returnCode === OK) {
@@ -299,35 +299,32 @@ Creep.prototype.getPositionInPath = function(target) {
 };
 
 Creep.prototype.killPrevious = function() {
-  var creep = this;
-  var previous = this.pos.findClosestByRange(FIND_MY_CREEPS, {
-    filter: function(object) {
-      if (object.id === creep.id) {
+  const previous = this.pos.findInRange(FIND_MY_CREEPS, 1, {
+    filter: creep => {
+      if (creep.id === this.id) {
         return false;
       }
-      if (object.memory.role != creep.memory.role) {
+      if (creep.memory.role !== this.memory.role) {
         return false;
       }
-      if (object.memory.routing.targetId != creep.memory.routing.targetId) {
+      if (creep.memory.routing.targetId !== this.memory.routing.targetId) {
         return false;
       }
       return true;
     }
-  });
-  if (previous === null) {
+  })[0];
+  if (!previous) {
     return false;
   }
 
-  var range = this.pos.getRangeTo(previous);
-  if (range === 1) {
-    if (this.ticksToLive < previous.ticksToLive) {
-      this.log('kill me: me: ' + this.ticksToLive + ' they: ' + previous.ticksToLive);
-      this.suicide();
-    } else {
-      this.log('kill other: me: ' + this.ticksToLive + ' they: ' + previous.ticksToLive);
-      previous.suicide();
-    }
+  if (this.ticksToLive < previous.ticksToLive) {
+    this.log('kill me: me: ' + this.ticksToLive + ' they: ' + previous.ticksToLive);
+    this.suicide();
+  } else {
+    this.log('kill other: me: ' + this.ticksToLive + ' they: ' + previous.ticksToLive);
+    previous.suicide();
   }
+  return true;
 };
 
 Creep.prototype.respawnMe = function() {
@@ -350,15 +347,7 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
     //    this.say('sr: ' + (this.ticksToLive - this.memory.nextSpawn));
     if (this.ticksToLive === this.memory.nextSpawn) {
       if (maxOfRole) {
-        let creep = this;
-        let creepOfRole = creep.room.find(FIND_MY_CREEPS, {
-          filter: function(object) {
-            if (object.memory.role === creep.memory.role) {
-              return true;
-            }
-            return false;
-          }
-        });
+        let creepOfRole = this.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', [this.memory.role]);
 
         if (creepOfRole.length > maxOfRole) {
           return false;

@@ -25,19 +25,11 @@ RoomPosition.prototype.getClosestSource = function() {
 };
 
 RoomPosition.prototype.findInRangeStructures = function(objects, range, structureTypes) {
-  return this.findInRange(objects, 1, {
-    filter: function(object) {
-      return structureTypes.indexOf(object.structureType) >= 0;
-    }
-  });
+  return this.findInRangePropertyFilter(objects, range, 'structureType', structureTypes);
 };
 
 RoomPosition.prototype.findClosestStructure = function(structures, structureType) {
-  return this.findClosestByPath(structures, {
-    filter: function(object) {
-      return object.structureType === structureType;
-    }
-  });
+  return this.findClosestByPathPropertyFilter(structures, 'structureType', [structureType]);
 };
 
 RoomPosition.prototype.getAdjacentPosition = function(direction) {
@@ -153,7 +145,7 @@ RoomPosition.prototype.buildRoomPosition = function(direction, distance) {
   return this.getAdjacentPosition((direction - 1) % 8 + 1);
 };
 
-RoomPosition.prototype.findNearPosition = function*() {
+RoomPosition.prototype.findNearPosition = function* () {
   let distanceMax = 1;
   for (let distance = 1; distance <= distanceMax; distance++) {
     for (let direction = 1; direction <= 8 * distance; direction++) {
@@ -166,5 +158,44 @@ RoomPosition.prototype.findNearPosition = function*() {
       // Array?, because path and structures are arrays?
       yield posNew;
     }
+  }
+};
+
+RoomPosition.prototype.findInRangePropertyFilter = function(findTarget, range, property, properties, without = false, opts = {}) {
+  if (_.isNumber(findTarget)) {
+    const room = Game.rooms[this.roomName];
+    if (!room) {
+      throw new Error(`Could not access room ${this.roomName}`);
+    }
+    const objects = room.findPropertyFilter(findTarget, property, properties, without, opts);
+    return this.findInRange(objects, range);
+  } else {
+    return this.findInRange(findTarget, range, Room.getPropertyFilterOptsObj(property, properties, without, opts));
+  }
+};
+
+RoomPosition.prototype.findClosestByRangePropertyFilter = function(findTarget, property, properties, without = false, opts = {}) {
+  if (_.isNumber(findTarget)) {
+    const room = Game.rooms[this.roomName];
+    if (!room) {
+      throw new Error(`Could not access room ${this.roomName}`);
+    }
+    const objects = room.findPropertyFilter(findTarget, property, properties, without, opts);
+    return this.findClosestByRange(objects);
+  } else {
+    return this.findClosestByRange(findTarget, Room.getPropertyFilterOptsObj(property, properties, without, opts));
+  }
+};
+
+RoomPosition.prototype.findClosestByPathPropertyFilter = function(findTarget, property, properties, without = false, opts = {}) {
+  if (_.isNumber(findTarget)) {
+    const room = Game.rooms[this.roomName];
+    if (!room) {
+      throw new Error(`Could not access room ${this.roomName}`);
+    }
+    const objects = room.findPropertyFilter(findTarget, property, properties, without, opts);
+    return this.findClosestByPath(objects);
+  } else {
+    return this.findClosestByPath(findTarget, Room.getPropertyFilterOptsObj(property, properties, without, opts));
   }
 };

@@ -76,12 +76,7 @@ Room.prototype.destroyStructure = function(structure) {
   if (structure.structureType === STRUCTURE_SPAWN) {
     if (this.memory.misplacedSpawn) {
       if (this.storage && this.storage.store.energy > 20000) {
-        let planers = this.find(FIND_MY_CREEPS, {
-          filter: function(object) {
-            let creep = Game.getObjectById(object.id);
-            return creep.memory.role === 'planer';
-          }
-        });
+        let planers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['planer']);
         if (planers.length > 3) {
           this.log('Destroying to rebuild spawn: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
           structure.destroy();
@@ -110,9 +105,7 @@ Room.prototype.destroyStructure = function(structure) {
             let pos = new RoomPosition(spawn.pos.x + x, spawn.pos.y + y, spawn.pos.roomName);
             this.memory.walls.ramparts.push(pos);
             costMatrixBase.set(pos.x, pos.y, 0);
-            let walls = pos.findInRange(FIND_STRUCTURES, 0, {
-              filter: getWalls
-            });
+            let walls = pos.findInRangePropertyFilter(FIND_STRUCTURES, 0, 'structureType', [STRUCTURE_WALL]);
             for (let wall of walls) {
               wall.destroy();
             }

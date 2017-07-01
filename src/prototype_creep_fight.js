@@ -1,14 +1,7 @@
 'use strict';
 
 Creep.prototype.findClosestSourceKeeper = function() {
-  return this.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-    filter: function(object) {
-      if (object.owner.username === 'Source Keeper') {
-        return true;
-      }
-      return false;
-    }
-  });
+  return this.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Source Keeper']);
 };
 
 Creep.prototype.findClosestEnemy = function() {
@@ -147,14 +140,8 @@ Creep.prototype.handleDefender = function() {
 
 Creep.prototype.waitRampart = function() {
   this.say('waitRampart');
-  let creep = this;
-  let structure = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-    filter: function(object) {
-      if (object.structureType != STRUCTURE_RAMPART) {
-        return false;
-      }
-      return creep.pos.getRangeTo(object) > 0;
-    }
+  const structure = this.pos.findClosestByPathPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], false, {
+    filter: rampart => this.pos.getRangeTo(rampart) > 0
   });
 
   if (!structure) {
@@ -170,11 +157,7 @@ Creep.prototype.fightRampart = function(target) {
     return false;
   }
 
-  let position = target.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-    filter: function(object) {
-      return object.structureType === STRUCTURE_RAMPART;
-    }
-  });
+  const position = target.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_RAMPART]);
 
   if (position === null) {
     return false;
@@ -343,11 +326,7 @@ Creep.prototype.squadHeal = function() {
     return true;
   }
 
-  var attacker = this.pos.findClosestByRange(FIND_MY_CREEPS, {
-    filter: function(object) {
-      return object.memory.role === 'squadsiege';
-    }
-  });
+  const attacker = this.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['squadsiege']);
 
   if (this.pos.x === 0 ||
     this.pos.x === 49 ||

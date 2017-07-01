@@ -54,12 +54,7 @@ roles.carry.handleMisplacedSpawn = function(creep) {
     //     creep.say('cmis', true);
     if (creep.carry.energy > 0) {
       let structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-        filter: function(object) {
-          if (object.energy === object.energyCapacity) {
-            return false;
-          }
-          return true;
-        }
+        filter: object => object.energy < object.energyCapacity
       });
       creep.moveTo(structure, {
         ignoreCreeps: true,

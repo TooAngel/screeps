@@ -30,16 +30,8 @@ roles.storagefiller.action = function(creep) {
   creep.setNextSpawn();
   creep.spawnReplacement(1);
 
-  let towers = creep.pos.findInRange(FIND_MY_STRUCTURES, 1, {
-    filter: function(object) {
-      if (object.structureType != STRUCTURE_TOWER) {
-        return false;
-      }
-      if (object.energy > 0.5 * object.energyCapacity) {
-        return false;
-      }
-      return true;
-    }
+  let towers = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER], false, {
+    filter: tower => tower.energy <= 0.5 * tower.energyCapacity
   });
 
   if (creep.room.controller.level === 4) {
@@ -53,11 +45,7 @@ roles.storagefiller.action = function(creep) {
   }
 
   if (!creep.memory.link) {
-    var links = creep.pos.findInRange(FIND_MY_STRUCTURES, 1, {
-      filter: {
-        structureType: STRUCTURE_LINK
-      }
-    });
+    var links = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
     if (links.length === 0) {
       return true;
     }

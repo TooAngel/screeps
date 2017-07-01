@@ -21,39 +21,54 @@ Room.prototype.nearestRoomName = function(roomsNames, limit) {
   };
   return _.min(roomsNames, sortByLinearDistance);
 };
+
+Room.getPropertyFilterOptsObj = function(property, properties, without = false, opts = {}) {
+  const table = {};
+  _.each(properties, e => table[e] = true);
+  const propParts = property.split('.');
+  return Object.assign({}, opts, {
+    filter: s => {
+      let propValue = s;
+      for (let prop of propParts) {
+        propValue = propValue[prop];
+      }
+      return without ? !table[propValue] : table[propValue] && (!opts.filter || opts.filter(s));
+    }
+  });
+};
+
 /**
  * use a static array for filter a find.
  *
- * @param  {String}  findTarget      one of the FIND constant. e.g. [FIND_MY_STRUCTURES]
- * @param  {String}  property        the property to filter on. e.g. 'structureType'
+ * @param  {Number}  findTarget      one of the FIND constant. e.g. [FIND_MY_STRUCTURES]
+ * @param  {String}  property        the property to filter on. e.g. 'structureType' or 'memory.role'
  * @param  {Array}  properties      the properties to filter. e.g. [STRUCTURE_ROAD, STRUCTURE_RAMPART]
  * @param  {Boolean} [without=false] Exclude or include the properties to find.
+ * @param  {object} [opts={}] Additional options.
+ * @param  {function} [opts.filter] Additional filter that wil be applied after cache.
  * @return {Array}                  the objects returned in an array.
  */
-Room.prototype.findPropertyFilter = function(findTarget, property, properties, without = false) {
+Room.prototype.findPropertyFilter = function(findTarget, property, properties, without = false, opts = {}) {
   let key = `${findTarget} ${property} ${properties} ${without}`;
   this.checkCache();
 
+  let result;
   if (cache.rooms[this.name].find[key] && cache.rooms[this.name].find[key].time === Game.time) {
     // this.log(`Found ${key} ${cache.rooms[this.name].find[key]}`);
-    return cache.rooms[this.name].find[key].result;
+    result = cache.rooms[this.name].find[key].result;
+  } else {
+    const opts = Room.getPropertyFilterOptsObj(property, properties, without);
+    result = this.find(findTarget, opts);
+    cache.rooms[this.name].find[key] = {
+      time: Game.time,
+      result: result
+    };
   }
-  let table = {};
-  _.each(properties, e => table[e] = true);
-  let result = this.find(findTarget, {
-    filter: s => without ? !table[s[property]] : table[s[property]]
-  });
-  cache.rooms[this.name].find[key] = {
-    time: Game.time,
-    result: result
-  };
-  return result;
-};
-
-Room.findCreep = function(role) {
-  return function(object) {
-    return object.memory.role === role;
-  };
+  if (opts.filter) {
+    return _.filter(result, opts.filter);
+  } else {
+    return result;
+  }
 };
 
 Room.prototype.closestSpawn = function(target) {
