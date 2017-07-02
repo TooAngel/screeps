@@ -6,10 +6,3 @@ Room.prototype.getConstructionSites = function() {
   }
   return this.constructionSites;
 };
-
-Room.prototype.getDroppedResources = function() {
-  if (!this.droppedResources) {
-    this.droppedResources = JSON.parse(JSON.stringify(this.find(FIND_DROPPED_RESOURCES)));
-  }
-  return this.droppedResources;
-};

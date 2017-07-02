@@ -1,9 +1,7 @@
 'use strict';
 
 Creep.pickableResources = function(creep) {
-  return function(object) {
-    return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 2;
-  };
+  return object => creep.pos.isNearTo(object);
 };
 
 Creep.prototype.harvesterBeforeStorage = function() {
@@ -92,11 +90,10 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
     return reverse;
   }
 
-  // TODO Extract to somewhere (also in creep_harvester, creep_carry, config_creep_resources)
-  let resources = _.filter(this.room.getDroppedResources(), Creep.pickableResources(this));
+  let resources = this.room.find(FIND_DROPPED_RESOURCES, {filter: Creep.pickableResources(this)});
 
   if (resources.length > 0) {
-    let resource = Game.getObjectById(resources[0].id);
+    let resource = resources[0];
     const amount = this.pickupOrWithdrawFromSourcer(resource);
     return _.sum(this.carry) + amount > 0.5 * this.carryCapacity;
   }
@@ -243,12 +240,11 @@ Creep.prototype.buildContainer = function() {
 };
 
 Creep.prototype.pickupEnergy = function() {
-  // TODO Extract to somewhere (also in creep_harvester, creep_carry, config_creep_resources)
-  let creep = this;
-
-  let resources = _.filter(this.room.getDroppedResources(), Creep.pickableResources);
+  let resources = this.room.findPropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], false, {
+    filter: Creep.pickableResources(this)
+  });
   if (resources.length > 0) {
-    let resource = Game.getObjectById(resources[0].id);
+    let resource = resources[0];
     let returnCode = this.pickup(resource);
     return returnCode === OK;
   }

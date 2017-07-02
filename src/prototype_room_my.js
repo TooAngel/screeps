@@ -6,7 +6,6 @@ Room.prototype.myHandleRoom = function() {
   }
   this.memory.lastSeen = Game.time;
   this.memory.constructionSites = this.find(FIND_CONSTRUCTION_SITES);
-  this.memory.droppedResources = this.find(FIND_DROPPED_RESOURCES);
   let room = this;
 
   // TODO Fix for after `delete Memory.rooms`
