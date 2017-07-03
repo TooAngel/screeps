@@ -86,7 +86,7 @@ Creep.prototype.cleanExits = function() {
     }
     if (!exit.isEqualTo(posLast.x, posLast.y)) {
       const pos = new RoomPosition(posLast.x, posLast.y, this.room.name);
-      const structure = pos.findClosestByRange(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true, {
+      const structure = pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true, {
         filter: object => object.ticksToDecay !== null
       });
 
@@ -111,7 +111,7 @@ Creep.prototype.cleanSetTargetId = function() {
       //      this.log('clean exits');
       return true;
     }
-    let structure = this.pos.findClosestByRange(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true, {
+    let structure = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true, {
       filter: object => object.ticksToDecay !== null
     });
     if (structure !== null) {

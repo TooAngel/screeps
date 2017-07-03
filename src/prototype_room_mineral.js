@@ -31,7 +31,7 @@ Room.prototype.reactions = function() {
       return;
     }
 
-    let labsAll = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB], {
+    let labsAll = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, {
       filter: object => !object.mineralType || object.mineralType === result.result
     });
 

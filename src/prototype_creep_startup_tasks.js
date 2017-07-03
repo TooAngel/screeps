@@ -223,7 +223,7 @@ Creep.prototype.repairStructure = function() {
   }
 
   // Repair low ramparts
-  const lowRamparts = this.pos.findInRange(FIND_STRUCTURES, 4, 'structureType', [STRUCTURE_RAMPART], false, {
+  const lowRamparts = this.pos.findInRangePropertyFilter(FIND_STRUCTURES, 4, 'structureType', [STRUCTURE_RAMPART], false, {
     filter: rampart => rampart.hits < 10000
   });
 

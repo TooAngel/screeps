@@ -408,7 +408,7 @@ Creep.prototype.transferToStructures = function() {
 };
 
 Creep.prototype.getEnergyFromSourcer = function() {
-  const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer'], {
+  const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer'], false, {
     filter: creep => creep.carry.energy > 0
   });
   if (sourcers.length > 0) {

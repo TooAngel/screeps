@@ -96,7 +96,7 @@ roles.nextroomer.defendTower = function(creep, source) {
     return true;
   }
 
-  let towers = creep.pos.findInRange(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER]);
+  let towers = creep.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER]);
 
   if (towers.length > 0) {
     if (roles.nextroomer.buildRamparts(creep)) {
