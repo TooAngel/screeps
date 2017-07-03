@@ -112,7 +112,7 @@ Creep.prototype.moveToHostileConstructionSites = function() {
   if (constructionSite !== null) {
     this.say('kcs');
     this.log('Kill constructionSite: ' + JSON.stringify(constructionSite));
-    let returnCode = this.moveToMy(constructionSite.pos);
+    let returnCode = this.moveToMy(constructionSite.pos, 0);
     return true;
   }
   return false;
@@ -161,7 +161,7 @@ Creep.prototype.waitRampart = function() {
     this.moveRandom();
     return true;
   }
-  let returnCode = this.moveToMy(structure.pos);
+  let returnCode = this.moveToMy(structure.pos, 0);
   return true;
 };
 
@@ -184,7 +184,7 @@ Creep.prototype.fightRampart = function(target) {
   if (range > 3) {
     return false;
   }
-  let returnCode = this.moveToMy(position.pos);
+  let returnCode = this.moveToMy(position.pos, 0);
   if (returnCode === OK) {
     return true;
   }

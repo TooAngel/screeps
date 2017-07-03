@@ -13,7 +13,7 @@ Creep.prototype.mySignController = function() {
 };
 
 Creep.prototype.moveToMy = function(target, range) {
-  range = range || 0;
+  range = range || 1;
   let search = PathFinder.search(
     this.pos, {
       pos: target,
@@ -28,7 +28,7 @@ Creep.prototype.moveToMy = function(target, range) {
     this.moveRandom();
     return false;
   }
-  return this.move(this.pos.getDirectionTo(search.path[0]));
+  return this.move(this.pos.getDirectionTo(search.path[0] || target.pos || target));
 };
 
 Creep.prototype.inBase = function() {
