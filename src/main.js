@@ -16,6 +16,9 @@ brain.stats.init();
 if (config.profiler.enabled) {
   try {
     var profiler = require('screeps-profiler');
+    for (let role of _.keys(roles)) {
+      profiler.registerObject(roles[role], 'Role_' + role);
+    }
     profiler.enable();
   } catch (e) {
     console.log('screeps-profiler not found');
