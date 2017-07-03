@@ -35,6 +35,7 @@ global.config = {
   // Due to newly introduces via global variable caching this can be removed
   performance: {
     serializePath: true,
+    costMatrixMemoryMaxGCL: 15,
   },
 
   stats: {

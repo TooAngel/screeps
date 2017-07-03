@@ -21,7 +21,7 @@
  */
 Room.prototype.setMemoryCostMatrix = function(costMatrix) {
   this.checkCache();
-  if (this.controller && this.controller.my) {
+  if (this.controller && this.controller.my || Game.gcl.level < config.performance.costMatrixMemoryMaxGCL) {
     if (!this.memory.costMatrix) {
       this.memory.costMatrix = {};
     }
