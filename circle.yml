@@ -7,7 +7,7 @@ deployment:
     tag: /v[0-9]+(\.[0-9]+)*/
     commands:
       - npm run deploy
-      - npm publish
+      - npm publish || true
   workspace:
     branch: workspace
     commands:
