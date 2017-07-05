@@ -20,7 +20,6 @@ Room.prototype.execute = function() {
       creep.handle();
     }
     delete this.transferableStructures;
-    delete this.constructionSites;
     return returnCode;
   } catch (err) {
     this.log('Executing room failed: ' + this.name + ' ' + err + ' ' + err.stack);

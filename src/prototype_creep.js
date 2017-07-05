@@ -206,17 +206,13 @@ Creep.prototype.buildRoad = function() {
   }
 
   let creep = this;
-  let buildableRoads = function(object) {
-    if (object.structureType != STRUCTURE_ROAD) {
-      return false;
-    }
-    return creep.pos.getRangeTo(object.pos.x, object.pos.y) < 4;
-  };
 
-  let constructionSites = _.filter(this.room.getConstructionSites(), buildableRoads);
+  let constructionSites = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD], false, {
+    filter: cs => creep.pos.getRangeTo(cs.pos) < 4
+  });
 
   if (constructionSites.length > 0) {
-    this.build(Game.getObjectById(constructionSites[0].id));
+    this.build(constructionSites[0]);
     return true;
   }
 
