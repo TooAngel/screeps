@@ -39,7 +39,7 @@ Creep.prototype.checkEnergyTransfer = function(otherCreep) {
   }
 
   // define minimum carryPercentage to move back to storage
-  let carryPercentage = 0.1;
+  let carryPercentage = config.carry.carryPercentageHighway;
   if (this.room.name === this.memory.routing.targetRoom) {
     carryPercentage = config.carry.carryPercentageExtern;
   }
