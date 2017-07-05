@@ -441,12 +441,12 @@ Creep.prototype.getEnergyFromSourcer = function() {
   return false;
 };
 
-Creep.prototype.moveToSource = function(source) {
+Creep.prototype.moveToSource = function(source, swarm = false) {
   if (!this.memory.routing) {
     this.memory.routing = {};
   }
   this.memory.routing.reverse = false;
-  if (this.room.memory.misplacedSpawn || this.room.controller.level < 3 || this.memory.role === 'nextroomer') {
+  if (this.room.memory.misplacedSpawn || this.room.controller.level < 3 || (this.memory.role === 'nextroomer' && swarm)) {
     this.moveTo(source.pos);
   } else {
     this.moveByPathMy([{
@@ -475,7 +475,13 @@ Creep.prototype.harvestSource = function(source) {
 };
 
 Creep.prototype.getEnergyFromSource = function() {
-  let source = this.pos.getClosestSource();
+  let swarm = false;
+  let swarmSourcesFilter;
+  if (config.swarmSourceHarvestingMaxParts < this.body.filter(b => b.type === WORK).length) {
+    swarm = true;
+    swarmSourcesFilter = source => source.pos.hasNonObstacleAdjacentPosition() || this.pos.isNearTo(source);
+  }
+  let source = this.pos.getClosestSource(swarmSourcesFilter);
   let range = this.pos.getRangeTo(source);
   if (this.carry.energy > 0 && range > 1) {
     this.memory.hasEnergy = true; // Stop looking and spend the energy.
@@ -491,7 +497,7 @@ Creep.prototype.getEnergyFromSource = function() {
   if (range === 1) {
     return this.harvestSource(source);
   } else {
-    return this.moveToSource(source);
+    return this.moveToSource(source, swarm);
   }
 };
 

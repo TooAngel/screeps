@@ -31,8 +31,11 @@ RoomPosition.prototype.clearPosition = function(target) {
   }
 };
 
-RoomPosition.prototype.getClosestSource = function() {
-  let source = this.findClosestByRange(FIND_SOURCES_ACTIVE);
+RoomPosition.prototype.getClosestSource = function(filter) {
+  let source = this.findClosestByPath(FIND_SOURCES_ACTIVE, {filter});
+  if (source === null) {
+    source = this.findClosestByRange(FIND_SOURCES_ACTIVE);
+  }
   if (source === null) {
     source = this.findClosestByRange(FIND_SOURCES);
   }
@@ -68,6 +71,33 @@ RoomPosition.prototype.getAdjacentPosition = function(direction) {
     [-1, -1]
   ];
   return new RoomPosition(this.x + adjacentPos[direction][0], this.y + adjacentPos[direction][1], this.roomName);
+};
+
+RoomPosition.prototype.getAllAdjacentPositions = function*() {
+  for (let direction = 1; direction <= 8; direction++) {
+    yield this.getAdjacentPosition(direction);
+  }
+};
+
+RoomPosition.prototype.getAllPositionsInRange = function*(range) {
+  for (let x = -range; x <= range; ++x) {
+    for (let y = -range; y <= range; ++y) {
+      yield new RoomPosition(this.x + x, this.y + y, this.roomName);
+    }
+  }
+};
+
+RoomPosition.prototype.hasNonObstacleAdjacentPosition = function() {
+  for (let pos of this.getAllPositionsInRange(1)) {
+    if (!pos.checkForWall() && !pos.checkForObstacleStructure() && !pos.checkForCreep()) {
+      return true;
+    }
+  }
+  return false;
+};
+
+RoomPosition.prototype.checkForCreep = function() {
+  return this.lookFor(LOOK_CREEPS).length > 0;
 };
 
 RoomPosition.prototype.checkForWall = function() {
