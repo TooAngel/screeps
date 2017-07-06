@@ -59,7 +59,7 @@ RoomPosition.prototype.findClosestStructure = function(structures, structureType
 };
 
 RoomPosition.prototype.getAdjacentPosition = function(direction) {
-  var adjacentPos = [
+  const adjacentPos = [
     [0, 0],
     [0, -1],
     [1, -1],
@@ -70,6 +70,9 @@ RoomPosition.prototype.getAdjacentPosition = function(direction) {
     [-1, 0],
     [-1, -1]
   ];
+  if (direction > 8) {
+    direction = (direction - 1) % 8 + 1;
+  }
   return new RoomPosition(this.x + adjacentPos[direction][0], this.y + adjacentPos[direction][1], this.roomName);
 };
 
@@ -192,25 +195,14 @@ RoomPosition.prototype.validPosition = function() {
   return true;
 };
 
-RoomPosition.prototype.buildRoomPosition = function(direction, distance) {
-  if (distance > 1) {
-    console.log('!!!! Distance > 1 not yet implemented');
-  }
-  return this.getAdjacentPosition((direction - 1) % 8 + 1);
-};
-
 RoomPosition.prototype.findNearPosition = function*() {
-  let distanceMax = 1;
-  for (let distance = 1; distance <= distanceMax; distance++) {
-    for (let direction = 1; direction <= 8 * distance; direction++) {
-      let posNew = this.buildRoomPosition(direction, distance);
-      if (!posNew.validPosition()) {
-        //        console.log(posNew + ' - invalid');
-        continue;
-      }
-      // Single position or array
-      // Array?, because path and structures are arrays?
-      yield posNew;
+  for (let posNew of this.getAllAdjacentPositions()) {
+    if (!posNew.validPosition()) {
+      //        console.log(posNew + ' - invalid');
+      continue;
     }
+    // Single position or array
+    // Array?, because path and structures are arrays?
+    yield posNew;
   }
 };

@@ -138,7 +138,7 @@ Room.stringToPath = function(string) {
   let last = new RoomPosition(x, y, roomName);
   path.push(last);
   for (let direction of string) {
-    let current = last.buildRoomPosition(parseInt(direction, 10));
+    let current = last.getAdjacentPosition(parseInt(direction, 10));
     path.push(current);
     last = current;
   }
