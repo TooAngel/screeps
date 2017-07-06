@@ -135,7 +135,7 @@ Creep.prototype.handleExtractor = function() {
   if (minerals.length > 0) {
     let posMem = this.room.memory.position.creep[minerals[0].id];
     let pos = new RoomPosition(posMem.x, posMem.y, posMem.roomName);
-    let returnCode = this.moveToMy(pos);
+    let returnCode = this.moveToMy(pos, 0);
     this.harvest(minerals[0]);
   }
   return true;
@@ -446,8 +446,8 @@ Creep.prototype.moveToSource = function(source) {
     this.memory.routing = {};
   }
   this.memory.routing.reverse = false;
-  if (this.room.memory.misplacedSpawn || this.room.controller.level < 3) {
-    this.moveToMy(source.pos);
+  if (this.room.memory.misplacedSpawn || this.room.controller.level < 3 || this.memory.role === 'nextroomer') {
+    this.moveTo(source.pos);
   } else {
     this.moveByPathMy([{
       'name': this.room.name
@@ -569,7 +569,7 @@ Creep.prototype.construct = function() {
     return this.buildConstructionSite(target);
   }
 
-  this.moveToMy(target.pos);
+  this.moveToMy(target.pos, 3);
   return true;
 };
 
