@@ -446,7 +446,11 @@ Creep.prototype.moveToSource = function(source, swarm = false) {
     this.memory.routing = {};
   }
   this.memory.routing.reverse = false;
-  if (this.room.memory.misplacedSpawn || this.room.controller.level < 3 || (this.memory.role === 'nextroomer' && swarm)) {
+  if (swarm && this.pos.inRangeTo(source, 3)) {
+    // should not be `moveToMy` unless it will start to handle creeps
+    this.moveTo(source.pos);
+  } else if (this.room.memory.misplacedSpawn || this.room.controller.level < 3) {
+    // TODO should be `moveToMy`, but that hangs in W5N1 spawn (10,9)
     this.moveTo(source.pos);
   } else {
     this.moveByPathMy([{
