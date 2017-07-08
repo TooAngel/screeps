@@ -125,7 +125,9 @@ global.config = {
 
   carry: {
     size: 200,
-    carryPercentageBase: 0.2,
+    // Percentage should increase from base to target room. Decrease may cause stack on border
+    carryPercentageBase: 0.1,
+    carryPercentageHighway: 0.2,
     carryPercentageExtern: 0.5,
     maxPerTargetPerRoom: 2,
   },
