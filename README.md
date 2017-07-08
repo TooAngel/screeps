@@ -53,20 +53,6 @@ Add a `src/config_local.js` to overwrite configuration values. Copy
 `config_local.js.example` to `src/config_local.js` as an example. `src/config.js`
 has the default values.
 
-## Contributing
-
-All kind of contribution is welcome, issues, contact via channels, pull requests.
-
-Follow this link if you are planning to contribute via pull request.
-
-[Contribution and Workflow](doc/Constribution-and-Workflow.md)
-
-[Issues](https://github.com/TooAngel/screeps/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
-with label 'enhancement' exist, which are open for discussion
-and implementation. The description will reflect the latest status of the
-discussion and should end up in the documentation, when finishing the
-implementation.
-
 ## Upload
 
 install dependencies
