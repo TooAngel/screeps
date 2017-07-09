@@ -157,7 +157,7 @@ Creep.prototype.sayIdiotList = function() {
     let word = Game.time % sentence.length;
     creep.say(sentence[word], true);
   };
-  // say(this);
+  say(this);
 };
 
 Creep.prototype.upgraderUpdateStats = function() {
