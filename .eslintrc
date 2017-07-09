@@ -7,6 +7,8 @@ env:
 
 parserOptions:
   ecmaVersion: 8
+plugins:
+  - jsdoc
 
 # http://eslint.org/docs/rules/
 rules:
@@ -37,7 +39,7 @@ rules:
   no-unexpected-multiline: 2
   no-unreachable: 2
   use-isnan: 2
-  valid-jsdoc: 0
+  valid-jsdoc: 2
   valid-typeof: 2
 
   # Best Practices
@@ -175,7 +177,7 @@ rules:
   padded-blocks: 0
   quote-props: 0
   quotes: 0
-  require-jsdoc: 0
+  require-jsdoc: 1
   semi-spacing: 0
   semi: 0
   sort-vars: 0
@@ -209,3 +211,17 @@ rules:
   prefer-spread: 0
   prefer-template: 0
   require-yield: 0
+
+  # jsdoc
+  jsdoc/check-param-names: 1
+  jsdoc/check-tag-names: 1
+  jsdoc/check-types: 1
+  jsdoc/newline-after-description: 1
+  jsdoc/require-description-complete-sentence: 1
+  jsdoc/require-example: 1
+  jsdoc/require-hyphen-before-param-description: 1
+  jsdoc/require-param: 1
+  jsdoc/require-param-description: 1
+  jsdoc/require-param-type: 1
+  jsdoc/require-returns-description: 1
+  jsdoc/require-returns-type: 1

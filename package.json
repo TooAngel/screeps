@@ -7,6 +7,8 @@
   "dependencies": {},
   "devDependencies": {
     "chai": "3.5.0",
+    "eslint-plugin-jsdoc": "^3.1.1",
+    "eslint-plugin-require-jsdoc": "^1.0.4",
     "grunt": "1.0.1",
     "grunt-contrib-clean": "1.0.0",
     "grunt-contrib-copy": "1.0.0",
