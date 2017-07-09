@@ -72,7 +72,7 @@ roles.carry.handleMisplacedSpawn = function(creep) {
         filter: object => object.energy < object.energyCapacity
       });
       creep.moveTo(structure, {
-        ignoreCreeps: true,
+        ignoreCreeps: true
       });
       creep.transfer(structure, RESOURCE_ENERGY);
     } else {

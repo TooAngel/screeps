@@ -173,12 +173,12 @@ global.utils = {
       R: RANGED_ATTACK,
       T: TOUGH,
       H: HEAL,
-      K: CLAIM,
+      K: CLAIM
     };
     let arrayParts = [];
     for (let i = 0; i < stringParts.length; i++) {
       arrayParts.push(partsConversion[stringParts.charAt(i)]);
     }
     return arrayParts;
-  },
+  }
 };

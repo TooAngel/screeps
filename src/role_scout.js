@@ -9,7 +9,7 @@
 roles.scout = {};
 roles.scout.settings = {
   layoutString: 'M',
-  maxLayoutAmount: 1,
+  maxLayoutAmount: 1
 };
 
 function onBorder(creep) {

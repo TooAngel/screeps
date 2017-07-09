@@ -337,7 +337,7 @@ Room.prototype.handleUnreservedRoom = function() {
         let numRooms = config.room.reservedRCL;
         if (reservedRooms.length < numRooms[room.controller.level]) {
           this.memory.reservation = {
-            base: room.name,
+            base: room.name
           };
           this.memory.state = 'Reserved';
           break;
