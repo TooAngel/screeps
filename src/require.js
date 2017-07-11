@@ -59,3 +59,4 @@ require('role_storagefiller');
 require('role_structurer');
 require('role_towerfiller');
 require('role_upgrader');
+require('config_brain_calculations');
