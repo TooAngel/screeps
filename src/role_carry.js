@@ -16,16 +16,14 @@ roles.carry.flee = true;
 roles.carry.boostActions = ['capacity'];
 
 roles.carry.settings = {
-  param: ['controller.level'],
+  param: ['energyCapacityAvailable'],
   prefixString: {
-    1: 'MC',
-    3: 'WMC',
+    300: '',
+    550: 'W'
   },
   layoutString: 'MC',
-  amount: {
-    1: [1, 1],
-    3: [1, 2]
-  }
+  amount: config.carry.sizes,
+  maxLayoutAmount: 1
 };
 
 roles.carry.checkHelperEmptyStorage = function(creep) {
