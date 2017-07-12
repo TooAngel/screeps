@@ -372,7 +372,7 @@ let filterTransferrables = function(creep, object) {
     return false;
   }
 
-  if (object.energy === object.energyCapacity) {
+  if (object.structureType !== STRUCTURE_STORAGE && object.energy === object.energyCapacity) {
     return false;
   }
 
@@ -476,7 +476,6 @@ Creep.prototype.harvestSource = function(source) {
 
 Creep.prototype.getEnergyFromSource = function() {
   let source = this.pos.getClosestSource();
-
   let range = this.pos.getRangeTo(source);
   if (this.carry.energy > 0 && range > 1) {
     this.memory.hasEnergy = true; // Stop looking and spend the energy.

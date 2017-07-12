@@ -85,7 +85,13 @@ Room.prototype.getCostMatrix = function() {
   for (let lair of lairs) {
     for (let dx = -config.layout.skLairAvoidRadius; dx <= config.layout.skLairAvoidRadius; dx++) {
       for (let dy = -config.layout.skLairAvoidRadius; dy <= config.layout.skLairAvoidRadius; dy++) {
-        this.increaseCostMatrixValue(costMatrix, {x: lair.pos.x + dx, y: lair.pos.y + dy}, config.layout.skLairAvoid);
+        this.increaseCostMatrixValue(
+          costMatrix, {
+            x: lair.pos.x + dx,
+            y: lair.pos.y + dy
+          },
+          config.layout.skLairAvoid
+        );
       }
     }
   }

@@ -180,7 +180,7 @@ global.config = {
     structureAvoid: 0xFF,
     creepAvoid: 0xFF,
     wallThickness: 1,
-    version: 17,
+    version: 18,
   },
 
   mineral: {

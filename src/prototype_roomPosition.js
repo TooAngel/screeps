@@ -1,5 +1,20 @@
 'use strict';
 
+RoomPosition.prototype.checkTowerFillerPos = function() {
+  if (this.isBorder(3)) {
+    return false;
+  }
+
+  if (this.inPositions()) {
+    return false;
+  }
+
+  if (this.inPath()) {
+    return false;
+  }
+  return true;
+};
+
 RoomPosition.prototype.clearPosition = function(target) {
   let structures = this.lookFor('structure');
   for (let structureId in structures) {
@@ -113,8 +128,9 @@ RoomPosition.prototype.inPositions = function() {
   return false;
 };
 
-RoomPosition.prototype.isExit = function() {
-  if (this.x <= 1 || this.x >= 48 || this.y <= 1 || this.y >= 48) {
+RoomPosition.prototype.isBorder = function(offset) {
+  offset = offset || 0;
+  if (this.x <= 1 + offset || this.x >= 48 - offset || this.y <= 1 + offset || this.y >= 48 - offset) {
     return true;
   }
   return false;
@@ -131,7 +147,7 @@ RoomPosition.prototype.isValid = function() {
 };
 
 RoomPosition.prototype.validPosition = function() {
-  if (this.isExit()) {
+  if (this.isBorder()) {
     return false;
   }
   if (this.checkForWall()) {
