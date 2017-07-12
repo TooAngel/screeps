@@ -43,8 +43,18 @@ Creep.prototype.handleSourcer = function() {
 };
 
 Creep.prototype.spawnCarry = function() {
-  var energyThreshold = Game.rooms[this.memory.base].controller.level * config.sourcer.spawnCarryLevelMultiplier;
-  var waitTime = config.sourcer.spawnCarryWaitTime;
+  if (this.memory.wait > 0) {
+    this.memory.wait -= 1;
+    return false;
+  }
+
+  const foundKey = Object.keys(config.carry.sizes).reverse()
+    .find(key => (key <= Game.rooms[this.memory.base].energyCapacityAvailable));
+  let carryCapacity = config.carry.sizes[foundKey][1] * CARRY_CAPACITY;
+
+  const workParts = this.body.filter(part => part.type === WORK).length;
+
+  let waitTime = carryCapacity / (HARVEST_POWER * workParts);
 
   var spawn = {
     role: 'carry',
@@ -54,36 +64,20 @@ Creep.prototype.spawnCarry = function() {
     }
   };
 
-  // Spawn carry
-  var energies = this.pos.lookFor(LOOK_ENERGY);
-  if (energies.length === 0) {
-    const containers = this.pos.findInRangePropertyFilter(FIND_STRUCTURES, 0, 'structureType', [STRUCTURE_CONTAINER], false, {
-      // TODO hardcoded for now, half of the container? Good idea?
-      filter: container => container.store.energy >= 1000
-    });
-    if (containers.length === 0) {
-      return false;
-    }
+  let resourceAtPosition = 0;
+  var resources = this.pos.lookFor(LOOK_RESOURCES);
+  for (let resource of resources) {
+    resourceAtPosition += resource.amount;
   }
 
-  if (energies.length > 0 && energies[0].amount < 50) {
-    return false;
+  let containers = this.pos.findInRangeStructures(FIND_STRUCTURES, 0, STRUCTURE_CONTAINER);
+
+  for (let container of containers) {
+    resourceAtPosition += _.sum(container.store);
   }
 
-  if (this.inBase()) {
-    if (energies.length > 0 && energies[0].amount < energyThreshold) {
-      return false;
-    }
+  if (resourceAtPosition > carryCapacity) {
+    Game.rooms[this.memory.base].checkRoleToSpawn('carry', config.carry.maxPerTargetPerRoom, this.memory.routing.targetId, this.memory.routing.targetRoom);
   }
-
-  if (!existInArray(Game.rooms[this.memory.base].memory.queue, spawn)) {
-    if (typeof(this.memory.wait) === 'undefined') {
-      this.memory.wait = 0;
-    }
-    if (this.memory.wait <= 0) {
-      Game.rooms[this.memory.base].checkRoleToSpawn('carry', config.carry.maxPerTargetPerRoom, this.memory.routing.targetId, this.memory.routing.targetRoom);
-      this.memory.wait = waitTime;
-    }
-  }
-  this.memory.wait -= 1;
+  this.memory.wait = waitTime;
 };

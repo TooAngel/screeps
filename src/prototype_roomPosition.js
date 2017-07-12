@@ -32,7 +32,7 @@ RoomPosition.prototype.clearPosition = function(target) {
 };
 
 RoomPosition.prototype.getClosestSource = function(filter) {
-  let source = this.findClosestByPath(FIND_SOURCES_ACTIVE, {filter});
+  let source = this.findClosestByPath(FIND_SOURCES_ACTIVE, { filter });
   if (source === null) {
     source = this.findClosestByRange(FIND_SOURCES_ACTIVE);
   }

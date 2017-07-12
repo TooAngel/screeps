@@ -14,25 +14,24 @@
 roles.sourcer = {};
 
 roles.sourcer.settings = {
-  param: ['controller.level'],
+  param: ['energyCapacityAvailable'],
   prefixString: {
-    1: 'MW',
-    3: 'MWC'
+    300: 'MW',
+    600: 'MWC'
   },
   layoutString: {
-    2: 'W',
-    3: 'MW',
-    5: 'MW'
+    300: 'W',
+    650: 'MW'
   },
   amount: {
-    2: [1],
-    3: [1, 1],
-    5: [2, 4]
+    300: [1],
+    650: [1, 4],
+    700: [2, 4]
   },
   maxLayoutAmount: {
-    1: 4,
-    5: 1,
-  },
+    300: 4,
+    650: 1
+  }
 };
 
 roles.sourcer.buildRoad = true;
