@@ -38,6 +38,9 @@ Room.prototype.destroyStructure = function(structure) {
         }
       }
     }
+    if (Object.edgeCheck(structure)) {
+      return false;
+    }
     this.log('destroyStructure: wall not found in memory, destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
     structure.destroy();
     return true;
