@@ -141,7 +141,7 @@ global.config = {
     reserverDefender: true,
     energyFromStorageThreshold: 2000,
     sortParts: true,
-    swarmSourceHarvestingMaxParts: 10,
+    swarmSourceHarvestingMaxParts: 10
   },
 
   room: {
