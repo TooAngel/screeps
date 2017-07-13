@@ -1,5 +1,6 @@
 # TooAngel Artificial intelligence for screeps
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7cdc61c18abf4b3b89ad6a2f12ca7990)](https://www.codacy.com/app/TooAngel/screeps?utm_source=github.com&utm_medium=referral&utm_content=TooAngel/screeps&utm_campaign=badger)
 [![CircleCI](https://circleci.com/gh/TooAngel/screeps.svg?style=svg)](https://circleci.com/gh/TooAngel/screeps)
 [![Code Climate](https://codeclimate.com/github/TooAngel/screeps/badges/gpa.svg)](https://codeclimate.com/github/TooAngel/screeps)
 [![npm version](https://badge.fury.io/js/screeps-bot-tooangel.svg)](https://badge.fury.io/js/screeps-bot-tooangel)
