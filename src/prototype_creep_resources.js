@@ -90,7 +90,9 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
     return reverse;
   }
 
-  let resources = this.room.find(FIND_DROPPED_RESOURCES, {filter: Creep.pickableResources(this)});
+  let resources = this.room.find(FIND_DROPPED_RESOURCES, {
+    filter: Creep.pickableResources(this)
+  });
 
   if (resources.length > 0) {
     let resource = resources[0];
@@ -605,7 +607,10 @@ let callStructurer = function(creep) {
   if (structurers.length > 0) {
     return false;
   }
-  const resource_structures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
+  const resource_structures = creep.room.findPropertyFilter(
+    FIND_STRUCTURES,
+    'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER],
+    true);
   if (resource_structures.length > 0 && !creep.room.controller.my) {
     creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resource_structures[0].structureType);
     Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, creep.room.name);

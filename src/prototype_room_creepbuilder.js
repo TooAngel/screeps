@@ -305,7 +305,10 @@ Room.prototype.getPartConfig = function(creep) {
 };
 
 Room.prototype.getSpawnableSpawns = function() {
-  let spawnsNotSpawning = this.find(FIND_MY_SPAWNS, {filter: spawn => !spawn.spawning});
+  let spawnsNotSpawning = this.find(
+    FIND_MY_SPAWNS, {
+      filter: spawn => !spawn.spawning
+    });
   return spawnsNotSpawning;
 };
 
@@ -374,7 +377,12 @@ Room.prototype.checkAndSpawnSourcer = function() {
   let source;
   let isSourcer = object => object.memory.routing.targetId === source.id && object.memory.routing.targetRoom === source.pos.roomName;
   for (source of sources) {
-    let sourcers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer'], false, {filter: isSourcer});
+    let sourcers = this.findPropertyFilter(
+      FIND_MY_CREEPS,
+      'memory.role', ['sourcer'],
+      false, {
+        filter: isSourcer
+      });
     if (sourcers.length === 0) {
       //      this.log(source.id);
       this.checkRoleToSpawn('sourcer', 1, source.id, this.name);

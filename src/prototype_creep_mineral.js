@@ -199,7 +199,12 @@ Creep.prototype.handleMineralCreep = function() {
     let labEmpty = object => !object.mineralType || object.mineralType === null;
 
     for (mineral in room.memory.boosting) {
-      let labs = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, {filter: labForMineral});
+      let labs = room.findPropertyFilter(
+        FIND_STRUCTURES,
+        'structureType', [STRUCTURE_LAB],
+        false, {
+          filter: labForMineral
+        });
       if (labs.length > 0) {
         if (labs[0].mineralAmount === labs[0].mineralsCapacity) {
           if (labs[0].energy === labs[0].energyCapacity) {
@@ -213,7 +218,12 @@ Creep.prototype.handleMineralCreep = function() {
         return true;
       }
 
-      labs = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, {filter: labEmpty});
+      labs = room.findPropertyFilter(
+        FIND_STRUCTURES,
+        'structureType', [STRUCTURE_LAB],
+        false, {
+          filter: labEmpty
+        });
       if (labs.length > 0) {
         creep.memory.boostAction = {
           mineral: mineral,
@@ -499,7 +509,12 @@ Creep.prototype.boost = function() {
       for (let action in BOOSTS[part][boost]) {
         this.log('boost: ' + part + ' ' + boost + ' ' + action);
         if (unit.boostActions.indexOf(action) > -1) {
-          const labs = this.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, {filter: findLabs});
+          const labs = this.room.findPropertyFilter(
+            FIND_STRUCTURES,
+            'structureType', [STRUCTURE_LAB],
+            false, {
+              filter: findLabs
+            });
           if (this.room.terminal.store[boost] || labs.length > 0) {
             //            this.log('Could boost with: ' + part + ' ' + boost + ' ' + action + ' terminal: ' + this.room.terminal.store[boost] + ' lab: ' + JSON.stringify(labs));
             let room = Game.rooms[this.room.name];
