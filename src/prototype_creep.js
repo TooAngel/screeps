@@ -220,7 +220,7 @@ Creep.prototype.buildRoad = function() {
   if (
     constructionSites.length <= config.buildRoad.maxConstructionSitesRoom &&
     Object.keys(Game.constructionSites).length < config.buildRoad.maxConstructionSitesTotal
-  //&& this.pos.inPath()
+    //&& this.pos.inPath()
   ) {
     let returnCode = this.pos.createConstructionSite(STRUCTURE_ROAD);
     if (returnCode === OK) {
