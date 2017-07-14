@@ -39,18 +39,7 @@ roles.repairer.execute = function(creep) {
     }
 
     if (creep.memory.step <= 0) {
-      structures = creep.room.find(FIND_STRUCTURES, {
-        filter: function(object) {
-          if (object.structureType === 'constructedWall') {
-            return true;
-          }
-
-          if (object.structureType === 'rampart') {
-            return true;
-          }
-          return false;
-        }
-      });
+      structures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_WALL, STRUCTURE_RAMPART]);
       if (structures.length > 0) {
         var min = structures[0].hits;
 

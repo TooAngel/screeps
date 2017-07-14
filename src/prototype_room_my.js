@@ -6,7 +6,6 @@ Room.prototype.myHandleRoom = function() {
   }
   this.memory.lastSeen = Game.time;
   this.memory.constructionSites = this.find(FIND_CONSTRUCTION_SITES);
-  this.memory.droppedResources = this.find(FIND_DROPPED_RESOURCES);
   let room = this;
 
   // TODO Fix for after `delete Memory.rooms`
@@ -65,16 +64,8 @@ Room.prototype.handleLinks = function() {
     return;
   }
 
-  var links = this.find(FIND_MY_STRUCTURES, {
-    filter: function(object) {
-      if (object.id === linkStorage.id) {
-        return false;
-      }
-      if (object.structureType != STRUCTURE_LINK) {
-        return false;
-      }
-      return true;
-    }
+  const links = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LINK], false, {
+    filter: link => link.id !== linkStorage.id
   });
 
   if (links.length > 0) {
@@ -102,11 +93,11 @@ Room.prototype.handleLinks = function() {
 };
 
 Room.prototype.handlePowerSpawn = function() {
-  let powerSpawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_POWER_SPAWN]);
+  const powerSpawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_POWER_SPAWN]);
   if (powerSpawns.length === 0) {
     return false;
   }
-  var powerSpawn = powerSpawns[0];
+  const powerSpawn = powerSpawns[0];
   if (powerSpawn.power > 0) {
     powerSpawn.processPower();
   }
@@ -275,8 +266,8 @@ Room.prototype.executeRoom = function() {
   let cpuUsed = Game.cpu.getUsed();
   this.buildBase();
   this.memory.attackTimer = this.memory.attackTimer || 0;
-  var spawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
-  var hostiles = this.find(FIND_HOSTILE_CREEPS, {
+  const spawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+  const hostiles = this.find(FIND_HOSTILE_CREEPS, {
     filter: this.findAttackCreeps
   });
   if (hostiles.length === 0) {
@@ -298,20 +289,13 @@ Room.prototype.executeRoom = function() {
     this.memory.active = true;
   }
 
-  var room = this;
-
-  var nextroomers = this.find(FIND_MY_CREEPS, {
-    filter: function(object) {
-      if (object.memory.role === 'nextroomer') {
-        return object.memory.base != room.name;
-      }
-      return false;
-    }
+  const nextroomers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['nextroomer'], false, {
+    filter: object => object.memory.base !== this.name
   });
-  var building = nextroomers.length > 0 && this.controller.level < 5;
+  const building = nextroomers.length > 0 && this.controller.level < 5;
 
-  var creepsInRoom = this.find(FIND_MY_CREEPS);
-  var spawn;
+  const creepsInRoom = this.find(FIND_MY_CREEPS);
+  let spawn;
   if (!building) {
     let amount = 1;
     if (!this.storage) {
@@ -326,11 +310,7 @@ Room.prototype.executeRoom = function() {
 
   if (this.memory.attackTimer > 100) {
     // TODO better metric for SafeMode
-    let enemies = this.find(FIND_HOSTILE_CREEPS, {
-      filter: function(object) {
-        return object.owner.username != 'Invader';
-      }
-    });
+    let enemies = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], true);
     if (enemies > 0) {
       this.controller.activateSafeMode();
     }
@@ -352,11 +332,7 @@ Room.prototype.executeRoom = function() {
     }
   }
 
-  let idiotCreeps = this.find(FIND_HOSTILE_CREEPS, {
-    filter: function(object) {
-      return object.owner.username != 'Invader';
-    }
-  });
+  let idiotCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], true);
   if (idiotCreeps.length > 0) {
     for (let idiotCreep of idiotCreeps) {
       brain.increaseIdiot(idiotCreep.owner.username);
@@ -512,11 +488,7 @@ Room.prototype.setRoomInactive = function() {
     addToIdiot = Math.max(addToIdiot, tokens[0].price);
   }
   this.log('Increase idiot by subscription token');
-  let idiotCreeps = this.find(FIND_HOSTILE_CREEPS, {
-    filter: function(object) {
-      return object.owner.username !== 'Invader';
-    }
-  });
+  let idiotCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], true);
   if (idiotCreeps.length > 0) {
     for (let idiotCreep of idiotCreeps) {
       brain.increaseIdiot(idiotCreep.owner.username, addToIdiot);

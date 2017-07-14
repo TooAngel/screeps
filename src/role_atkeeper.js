@@ -71,16 +71,8 @@ roles.atkeeper.action = function(creep) {
     }
 
     if (!target || target === null) {
-      var my_creep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-        filter: function(object) {
-          if (object.hits === object.hitsMax) {
-            return false;
-          }
-          if (object.memory.role === 'atkeeper') {
-            return false;
-          }
-          return true;
-        }
+      const my_creep = creep.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeeper'], true, {
+        filter: creep => creep.hits < creep.hitsMax
       });
       if (my_creep !== null) {
         creep.moveTo(my_creep);
@@ -88,18 +80,10 @@ roles.atkeeper.action = function(creep) {
         return true;
       }
 
-      var source_keepers = creep.room.find(FIND_STRUCTURES, {
-        filter: function(object) {
-          if (!object.owner) {
-            return false;
-          }
-          return object.owner.username === 'Source Keeper';
-        }
-      });
-      var min_spawn_time = 500;
-      var min_source_keeper = null;
-      for (var i in source_keepers) {
-        var source_keeper = source_keepers[i];
+      const source_keepers = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_KEEPER_LAIR]);
+      let min_spawn_time = 500;
+      let min_source_keeper = null;
+      for (let source_keeper of source_keepers) {
         if (source_keeper.ticksToSpawn < min_spawn_time) {
           min_spawn_time = source_keeper.ticksToSpawn;
           min_source_keeper = source_keeper;

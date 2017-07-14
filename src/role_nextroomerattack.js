@@ -24,28 +24,21 @@ roles.nextroomerattack.action = function(creep) {
     Game.notify(Game.time + ' ' + creep.room.name + ' Attacking');
     creep.memory.notified = true;
   }
-  var spawn = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
-    filter: function(object) {
-      if (object.structureType === 'spawn') {
-        return true;
-      }
-      return false;
-    }
-  });
+  const spawn = creep.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
 
   if (spawn === null) {
-    var hostileCreep = creep.pos.findClosestEnemy();
+    const hostileCreep = creep.pos.findClosestEnemy();
     if (hostileCreep !== null) {
       creep.moveTo(hostileCreep);
       creep.attack(hostileCreep);
     }
     return true;
   }
-  var path = creep.pos.findPathTo(spawn, {
+  const path = creep.pos.findPathTo(spawn, {
     ignoreDestructibleStructures: true
   });
   creep.attack(spawn);
-  var return_code = creep.moveByPath(path);
+  const return_code = creep.moveByPath(path);
   return true;
 };
 

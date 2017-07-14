@@ -86,11 +86,7 @@ Creep.recycleCreep = function(creep) {
     creep.room.buildStructures();
   }
 
-  let spawn = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-    filter: {
-      structureType: STRUCTURE_SPAWN
-    }
-  });
+  let spawn = creep.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
   if (!spawn) {
     spawn = Game.rooms[creep.memory.base].findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN])[0];
   }
@@ -227,13 +223,8 @@ Creep.prototype.repairStructure = function() {
   }
 
   // Repair low ramparts
-  let lowRamparts = this.pos.findInRange(FIND_STRUCTURES, 4, {
-    filter: function(object) {
-      if (object.structureType === STRUCTURE_RAMPART && object.hits < 10000) {
-        return true;
-      }
-      return false;
-    }
+  const lowRamparts = this.pos.findInRangePropertyFilter(FIND_STRUCTURES, 4, 'structureType', [STRUCTURE_RAMPART], false, {
+    filter: rampart => rampart.hits < 10000
   });
 
   if (lowRamparts.length > 0) {
@@ -249,17 +240,7 @@ Creep.prototype.repairStructure = function() {
   }
 
   // Build construction sites
-  let target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
-    filter: function(object) {
-      if (object.structureType === 'constructedWall') {
-        return true;
-      }
-      if (object.structureType === 'rampart') {
-        return true;
-      }
-      return false;
-    }
-  });
+  let target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL]);
 
   if (target !== null) {
     let range = this.pos.getRangeTo(target);
@@ -267,19 +248,8 @@ Creep.prototype.repairStructure = function() {
     if (range <= 3) {
       this.build(target);
       this.memory.step = 0;
-      let targetNew = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
-        filter: function(object) {
-          if (object.id === target.id) {
-            return false;
-          }
-          if (object.structureType === 'constructedWall') {
-            return true;
-          }
-          if (object.structureType === 'rampart') {
-            return true;
-          }
-          return false;
-        }
+      const targetNew = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], false, {
+        filter: object => object.id !== target.id
       });
       if (targetNew !== null) {
         target = targetNew;
@@ -302,26 +272,9 @@ Creep.prototype.repairStructure = function() {
   }
 
   let creep = this;
-  structure = this.pos.findClosestByRange(FIND_STRUCTURES, {
-    filter: function(object) {
-      // Newbie zone walls have no hits
-      if (!object.hits) {
-        return false;
-      }
-
-      if (object.hits >= Math.min(creep.memory.step, object.hitsMax)) {
-        return false;
-      }
-
-      if (object.structureType === 'constructedWall') {
-        return true;
-      }
-
-      if (object.structureType === 'rampart') {
-        return true;
-      }
-      return false;
-    }
+  structure = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], false, {
+    // Newbie zone walls have no hits
+    filter: object => object.hits && object.hits < Math.min(creep.memory.step, object.hitsMax)
   });
   if (structure && structure !== null) {
     this.memory.target = structure.id;
@@ -347,17 +300,15 @@ Creep.prototype.pickupOrWithdrawFromSourcer = function(target) {
   let pickedUp = 0;
   // this.log('pickupOrWithdrawFromSourcer free '+creepFreeSpace+' '+target+' '+target.amount)
   if (target.amount < creepFreeSpace) {
-    let container = target.pos.lookFor(LOOK_STRUCTURES).find(function(structure) {
-      return structure.structureType === STRUCTURE_CONTAINER && structure.store[target.resourceType] > 0 && _.sum(structure.store) === structure.storeCapacity;
-    });
+    let container = target.pos.lookFor(LOOK_STRUCTURES)
+      .find(structure => structure.structureType === STRUCTURE_CONTAINER && structure.store[target.resourceType] > 0 && _.sum(structure.store) === structure.storeCapacity);
     if (container) {
       const toWithdraw = Math.min(creepFreeSpace - target.amount, container.store[target.resourceType]);
       this.withdraw(container, target.resourceType, toWithdraw);
       pickedUp += toWithdraw;
     } else {
-      let sourcer = target.pos.lookFor(LOOK_CREEPS).find(function(creep) {
-        return creep.memory && creep.memory.role === 'sourcer' && creep.carry[target.resourceType] > 0 && _.sum(creep.carry) === creep.carryCapacity;
-      });
+      let sourcer = target.pos.lookFor(LOOK_CREEPS)
+        .find(creep => creep.memory && creep.memory.role === 'sourcer' && creep.carry[target.resourceType] > 0 && _.sum(creep.carry) === creep.carryCapacity);
       if (sourcer) {
         const toWithdraw = Math.min(creepFreeSpace - target.amount, sourcer.carry[target.resourceType]);
         sourcer.transfer(this, target.resourceType, toWithdraw);
@@ -371,10 +322,8 @@ Creep.prototype.pickupOrWithdrawFromSourcer = function(target) {
 };
 
 Creep.prototype.getDroppedEnergy = function() {
-  let target = this.pos.findClosestByRange(FIND_DROPPED_RESOURCES, {
-    filter: function(object) {
-      return 0 < object.amount && object.resourceType === RESOURCE_ENERGY;
-    }
+  let target = this.pos.findClosestByRangePropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], false, {
+    filter: object => object.amount > 0
   });
   if (target !== null) {
     let energyRange = this.pos.getRangeTo(target.pos);

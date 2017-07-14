@@ -31,28 +31,14 @@ Room.prototype.reactions = function() {
       return;
     }
 
-    let labsAll = this.find(FIND_MY_STRUCTURES, {
-      filter: function(object) {
-        if (object.structureType != STRUCTURE_LAB) {
-          return false;
-        }
-        if (!object.mineralType) {
-          return true;
-        }
-        if (object.mineralType === result.result) {
-          return true;
-        }
-        return false;
-      }
+    let labsAll = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, {
+      filter: object => !object.mineralType || object.mineralType === result.result
     });
 
     let lab;
     let labs = [];
     let getNearLabs = function(object) {
       if (object.id === lab.id) {
-        return false;
-      }
-      if (object.structureType != STRUCTURE_LAB) {
         return false;
       }
       if (!object.mineralType) {
@@ -68,7 +54,7 @@ Room.prototype.reactions = function() {
     };
 
     for (lab of labsAll) {
-      let labsNear = lab.pos.findInRange(FIND_MY_STRUCTURES, 2, {
+      let labsNear = lab.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 2, 'structureType', [STRUCTURE_LAB], false, {
         filter: getNearLabs
       });
 

@@ -49,13 +49,7 @@ roles.powertransporter.action = function(creep) {
       return true;
     }
 
-    var resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES, {
-      filter: function(object) {
-        if (object.resourceType === 'power') {
-          return true;
-        }
-      }
-    });
+    const resource = creep.pos.findClosestByRangePropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_POWER]);
     if (resource === null) {
       if (creep.carry.power > 0) {
         return false;

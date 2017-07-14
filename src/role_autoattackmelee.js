@@ -41,29 +41,15 @@ roles.autoattackmelee.action = function(creep) {
     return true;
   }
 
-  var spawn = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
-    filter: function(object) {
-      if (object.structureType === STRUCTURE_SPAWN) {
-        return true;
-      }
-      return false;
-    }
-  });
+  const spawn = creep.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
 
   if (spawn === null) {
-    var hostileCreep = creep.findClosestEnemy();
+    const hostileCreep = creep.findClosestEnemy();
     if (hostileCreep === null) {
-      let structures = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
-        filter: function(object) {
-          if (object.structureType === STRUCTURE_CONTROLLER) {
-            return false;
-          }
-          return true;
-        }
-      });
+      const structures = creep.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER], true);
 
       if (structures === null) {
-        var constructionSites = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+        const constructionSites = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
         creep.moveTo(constructionSites);
         return true;
       }

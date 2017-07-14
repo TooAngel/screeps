@@ -39,11 +39,7 @@ roles.nextroomer.checkForRampart = function(coords) {
 };
 
 roles.nextroomer.buildRamparts = function(creep) {
-  let ramparts = creep.pos.findInRange(FIND_STRUCTURES, 1, {
-    filter: {
-      structureType: STRUCTURE_RAMPART
-    }
-  });
+  let ramparts = creep.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_RAMPART]);
 
   // TODO Guess roles.nextroomer should be higher
   let rampartMinHits = 10000;
@@ -66,11 +62,7 @@ roles.nextroomer.buildRamparts = function(creep) {
     linkPosMem = room.memory.position.structure.link[2];
   }
 
-  let links = creep.pos.findInRange(FIND_STRUCTURES, 1, {
-    filter: function(object) {
-      return object.structureType === STRUCTURE_LINK;
-    }
-  });
+  let links = creep.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
   if (links.length) {
     creep.say('dismantle');
     creep.log(JSON.stringify(links));
@@ -104,11 +96,7 @@ roles.nextroomer.defendTower = function(creep, source) {
     return true;
   }
 
-  let towers = creep.pos.findInRange(FIND_STRUCTURES, 1, {
-    filter: {
-      structureType: STRUCTURE_TOWER
-    }
-  });
+  let towers = creep.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER]);
 
   if (towers.length > 0) {
     if (roles.nextroomer.buildRamparts(creep)) {
@@ -155,11 +143,7 @@ roles.nextroomer.stayAtSource = function(creep, source) {
     let returnCode = creep.harvest(source);
     if (returnCode === OK) {
       if (creep.carry.energy >= 0) {
-        var creepWithoutEnergy = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-          filter: function(object) {
-            return (object.carry.energy === 0 && object.id !== creep.id);
-          }
-        });
+        const creepWithoutEnergy = creep.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'carry.energy', [0]);
         let range = creep.pos.getRangeTo(creepWithoutEnergy);
 
         if (range === 1) {
@@ -222,11 +206,8 @@ roles.nextroomer.settle = function(creep) {
   }
 
   if (creep.carry.energy > 0) {
-    var towers = creep.room.find(FIND_STRUCTURES, {
-      filter: function(object) {
-        return (object.structureType === STRUCTURE_TOWER &&
-          object.energy < 10);
-      }
+    const towers = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER], false, {
+      filter: object => object.energy < 10
     });
     if (towers.length) {
       creep.moveTo(towers[0]);
