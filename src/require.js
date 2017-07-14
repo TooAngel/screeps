@@ -16,7 +16,6 @@ require('prototype_roomPosition_structures');
 require('prototype_room');
 require('prototype_room_attack');
 require('prototype_room_basebuilder');
-require('prototype_room_cached');
 require('prototype_room_controller');
 require('prototype_room_creepbuilder');
 require('prototype_room_defense');

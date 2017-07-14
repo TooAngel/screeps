@@ -32,10 +32,6 @@ Room.prototype.setMemoryCostMatrix = function(costMatrix) {
 
 Room.prototype.checkCache = function() {
   this.memory.routing = this.memory.routing || {};
-  // cache.rooms[this.name] = cache.rooms[this.name] || {};
-  // cache.rooms[this.name].find = cache.rooms[this.name].find || {};
-  // cache.rooms[this.name].routing = cache.rooms[this.name].routing || {};
-  // cache.rooms[this.name].costMatrix = cache.rooms[this.name].costMatrix || {};
 
   cache.rooms[this.name] = cache.rooms[this.name] || {
     find: {},
@@ -172,4 +168,32 @@ Room.prototype.setMemoryPath = function(name, path, fixed) {
     };
     this.memory.routing[name] = memoryData;
   }
+};
+
+/**
+ * Returns the constructionSites from cache, if not cached get it from the room
+ */
+Room.prototype.getConstructionSites = function() {
+  this.checkCache();
+  if (!cache.rooms[this.name].constructionSites || cache.rooms[this.name].constructionSites.tick < Game.time) {
+    cache.rooms[this.name].constructionSite = {
+      objects: this.find(FIND_CONSTRUCTION_SITES),
+      tick: Game.time
+    };
+  }
+  return cache.rooms[this.name].constructionSite.objects;
+};
+
+/**
+ * Returns the constructionSites from cache, if not cached get it from the room
+ */
+Room.prototype.getDroppedResources = function() {
+  this.checkCache();
+  if (!cache.rooms[this.name].droppedResources || cache.rooms[this.name].droppedResources.tick < Game.time) {
+    cache.rooms[this.name].droppedResources = {
+      objects: this.find(FIND_DROPPED_RESOURCES),
+      tick: Game.time
+    };
+  }
+  return cache.rooms[this.name].droppedResources.objects;
 };
