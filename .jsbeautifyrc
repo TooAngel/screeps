@@ -15,5 +15,5 @@
   "eval_code": false,
   "unescape_strings": false,
   "wrap_line_length": 0,
-  "jslint_happy": false
+  "spaceInParen": false
 }
