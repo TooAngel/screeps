@@ -90,7 +90,7 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
     return reverse;
   }
 
-  let resources = this.room.find(FIND_DROPPED_RESOURCES, {filter: Creep.pickableResources(this)});
+  let resources = this.room.find(FIND_DROPPED_RESOURCES, { filter: Creep.pickableResources(this) });
 
   if (resources.length > 0) {
     let resource = resources[0];

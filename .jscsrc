@@ -1,5 +1,6 @@
 {
-	"preset": "google",
-        "maximumLineLength": 240,
-        "requireCamelCaseOrUpperCaseIdentifiers": false
+  "preset": "google",
+  "maximumLineLength": 240,
+  "requireCamelCaseOrUpperCaseIdentifiers": false,
+  "disallowSpacesInsideObjectBrackets": false
 }
