@@ -72,7 +72,7 @@ roles.sourcer.preMove = function(creep, directions) {
 
   // TODO Check if this is working
   if (directions) {
-    let pos = creep.pos.buildRoomPosition(directions.direction);
+    let pos = creep.pos.getAdjacentPosition(directions.direction);
     creep.moveCreep(pos, (directions.direction + 3) % 8 + 1);
   }
 

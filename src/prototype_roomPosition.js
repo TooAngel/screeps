@@ -31,8 +31,11 @@ RoomPosition.prototype.clearPosition = function(target) {
   }
 };
 
-RoomPosition.prototype.getClosestSource = function() {
-  let source = this.findClosestByRange(FIND_SOURCES_ACTIVE);
+RoomPosition.prototype.getClosestSource = function(filter) {
+  let source = this.findClosestByPath(FIND_SOURCES_ACTIVE, {filter});
+  if (source === null) {
+    source = this.findClosestByRange(FIND_SOURCES_ACTIVE);
+  }
   if (source === null) {
     source = this.findClosestByRange(FIND_SOURCES);
   }
@@ -48,7 +51,7 @@ RoomPosition.prototype.findClosestStructure = function(structures, structureType
 };
 
 RoomPosition.prototype.getAdjacentPosition = function(direction) {
-  var adjacentPos = [
+  const adjacentPos = [
     [0, 0],
     [0, -1],
     [1, -1],
@@ -59,7 +62,37 @@ RoomPosition.prototype.getAdjacentPosition = function(direction) {
     [-1, 0],
     [-1, -1]
   ];
+  if (direction > 8) {
+    direction = (direction - 1) % 8 + 1;
+  }
   return new RoomPosition(this.x + adjacentPos[direction][0], this.y + adjacentPos[direction][1], this.roomName);
+};
+
+RoomPosition.prototype.getAllAdjacentPositions = function*() {
+  for (let direction = 1; direction <= 8; direction++) {
+    yield this.getAdjacentPosition(direction);
+  }
+};
+
+RoomPosition.prototype.getAllPositionsInRange = function*(range) {
+  for (let x = -range; x <= range; ++x) {
+    for (let y = -range; y <= range; ++y) {
+      yield new RoomPosition(this.x + x, this.y + y, this.roomName);
+    }
+  }
+};
+
+RoomPosition.prototype.hasNonObstacleAdjacentPosition = function() {
+  for (let pos of this.getAllPositionsInRange(1)) {
+    if (!pos.checkForWall() && !pos.checkForObstacleStructure() && !pos.checkForCreep()) {
+      return true;
+    }
+  }
+  return false;
+};
+
+RoomPosition.prototype.checkForCreep = function() {
+  return this.lookFor(LOOK_CREEPS).length > 0;
 };
 
 RoomPosition.prototype.checkForWall = function() {
@@ -154,26 +187,15 @@ RoomPosition.prototype.validPosition = function() {
   return true;
 };
 
-RoomPosition.prototype.buildRoomPosition = function(direction, distance) {
-  if (distance > 1) {
-    console.log('!!!! Distance > 1 not yet implemented');
-  }
-  return this.getAdjacentPosition((direction - 1) % 8 + 1);
-};
-
 RoomPosition.prototype.findNearPosition = function*() {
-  let distanceMax = 1;
-  for (let distance = 1; distance <= distanceMax; distance++) {
-    for (let direction = 1; direction <= 8 * distance; direction++) {
-      let posNew = this.buildRoomPosition(direction, distance);
-      if (!posNew.validPosition()) {
-        //        console.log(posNew + ' - invalid');
-        continue;
-      }
-      // Single position or array
-      // Array?, because path and structures are arrays?
-      yield posNew;
+  for (let posNew of this.getAllAdjacentPositions()) {
+    if (!posNew.validPosition()) {
+      //        console.log(posNew + ' - invalid');
+      continue;
     }
+    // Single position or array
+    // Array?, because path and structures are arrays?
+    yield posNew;
   }
 };
 

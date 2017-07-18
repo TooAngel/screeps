@@ -178,8 +178,7 @@ Room.prototype.setTowerFillerIterate = function(roomName, offsetDirection) {
 
     let directionNext = posPathObject.getDirectionTo(posPathNext.x, posPathNext.y, posPathNext.roomName);
 
-    let offset = (directionNext + offsetDirection - 1) % 8 + 1;
-    let pos = posPathObject.buildRoomPosition(offset);
+    let pos = posPathObject.getAdjacentPosition(directionNext + offsetDirection);
 
     if (!pos.checkTowerFillerPos()) {
       continue;
