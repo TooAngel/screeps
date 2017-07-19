@@ -343,16 +343,15 @@ Room.prototype.executeRoom = function() {
     this.memory.attackTimer++;
 
     if (this.memory.attackTimer > 15) {
-      var defender = {
-        role: 'defendranged'
-      };
+      let role = 'defendranged';
       if (this.memory.attackTimer > 300) {
-        defender.role = 'defendmelee';
+        role = 'defendmelee';
       }
-      if (this.exectueEveryTicks(250) && !this.inQueue(defender)) {
-        this.memory.queue.push(defender);
+      if (this.exectueEveryTicks(250)) {
+        this.checkRoleToSpawn(role, 1, undefined, this.name, 1, this.name);
       }
     }
+
     if (this.exectueEveryTicks(10)) {
       this.log('Under attack from ' + hostiles[0].owner.username);
     }
