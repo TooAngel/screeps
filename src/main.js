@@ -19,6 +19,8 @@ if (config.profiler.enabled) {
     for (let role of _.keys(roles)) {
       profiler.registerObject(roles[role], 'Role_' + role);
     }
+    profiler.registerObject(PathFinder, 'PathFinder');
+    profiler.registerObject(brain, 'Brain');
     profiler.enable();
   } catch (e) {
     console.log('screeps-profiler not found');
