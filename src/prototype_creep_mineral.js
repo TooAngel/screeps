@@ -1,5 +1,60 @@
 'use strict';
 
+Creep.prototype.checkStorageMinerals = function() {
+  let resourceInStorage = false;
+  for (let resource in this.room.storage.store) {
+    if (resource === 'energy' || resource === 'power') {
+      continue;
+    }
+    resourceInStorage = true;
+    break;
+  }
+
+  if (!resourceInStorage) {
+    return false;
+  }
+  this.say('checkStorage');
+
+  if (_.sum(this.carry) > 0) {
+    this.moveToMy(this.room.terminal.pos);
+
+    for (let transfer in this.carry) {
+      let resource = this.transfer(this.room.terminal, transfer);
+    }
+    return true;
+  }
+  this.moveToMy(this.room.storage.pos);
+  for (let resource in this.room.storage.store) {
+    if (resource === 'energy' || resource === 'power') {
+      continue;
+    }
+    this.withdraw(this.room.storage, resource);
+  }
+  return true;
+};
+
+Creep.prototype.checkTerminalEnergy = function() {
+  if (this.room.storage.store.energy + _.sum(this.carry) < config.terminal.storageMinEnergyAmount) {
+    return false;
+  }
+  if (this.room.terminal.store.energy + _.sum(this.carry) > config.terminal.energyAmount) {
+    return false;
+  }
+
+  this.say('terminal', true);
+
+  if (_.sum(this.carry) > 0) {
+    this.moveToMy(this.room.terminal.pos);
+    for (let resource in this.carry) {
+      this.transfer(this.room.terminal, resource);
+    }
+    return true;
+  }
+  this.moveToMy(this.room.storage.pos);
+  this.withdraw(this.room.storage, RESOURCE_ENERGY);
+  return true;
+};
+
 // TODO totally ugly copy&paste from creep_mineral to migrate to role_mineral
 Creep.prototype.handleMineralCreep = function() {
   let states = [{
@@ -280,60 +335,6 @@ Creep.prototype.handleMineralCreep = function() {
     return false;
   }
 
-  function checkTerminal(creep) {
-    if (creep.room.terminal.store.energy + creep.carry.energy < 100000) {
-      return false;
-    }
-
-    // TODO Transfer to structures
-
-    if (creep.carry.energy === 0) {
-      let returnCode = creep.moveToMy(creep.room.terminal.pos);
-      for (let resource in creep.carry) {
-        creep.transfer(creep.room.terminal, resource);
-      }
-      creep.withdraw(creep.room.terminal, RESOURCE_ENERGY);
-      return true;
-    }
-    let returnCode = creep.moveToMy(creep.room.storage.pos);
-
-    creep.transfer(creep.room.storage, RESOURCE_ENERGY);
-    return true;
-  }
-
-  function checkStorage(creep) {
-    let resource;
-    for (resource in creep.room.storage.store) {
-      if (resource === 'energy' || resource === 'power') {
-        resource = undefined;
-        continue;
-      }
-      break;
-    }
-
-    if (!resource) {
-      return false;
-    }
-    creep.say('checkStorage');
-
-    if (_.sum(creep.carry) > 0) {
-      let returnCode = creep.moveToMy(creep.room.terminal.pos);
-
-      for (let transfer in creep.carry) {
-        let returnCode = creep.transfer(creep.room.terminal, transfer);
-        if (returnCode === OK || returnCode === ERR_NOT_IN_RANGE) {
-          continue;
-        }
-        //      creep.log('checkStorage.transferto terminal: ' + transfer + ' returnCode: ' + returnCode);
-      }
-      return true;
-    }
-    let returnCode = creep.moveToMy(creep.room.storage.pos);
-
-    creep.withdraw(creep.room.storage, resource);
-    return true;
-  }
-
   function checkNuke(creep) {
     if (creep.room.terminal.store[RESOURCE_GHODIUM] > 500 || creep.carry[RESOURCE_GHODIUM]) {
       let nukers = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_NUKER]);
@@ -358,6 +359,14 @@ Creep.prototype.handleMineralCreep = function() {
   let execute = function(creep) {
     if (!creep.room.terminal) {
       creep.suicide();
+      return true;
+    }
+
+    if (creep.checkTerminalEnergy()) {
+      return true;
+    }
+
+    if (creep.checkStorageMinerals()) {
       return true;
     }
 
@@ -403,14 +412,6 @@ Creep.prototype.handleMineralCreep = function() {
     }
 
     if (checkNuke(creep)) {
-      return true;
-    }
-
-    if (checkTerminal(creep)) {
-      return true;
-    }
-
-    if (checkStorage(creep)) {
       return true;
     }
 
@@ -466,6 +467,7 @@ Creep.prototype.handleMineralCreep = function() {
 
     return true;
   };
+
   execute(this);
 };
 

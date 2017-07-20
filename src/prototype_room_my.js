@@ -402,7 +402,7 @@ Room.prototype.executeRoom = function() {
       }
     }
   }
-  if (config.mineral.enabled && this.terminal && ((this.memory.mineralBuilds && Object.keys(this.memory.mineralBuilds).length > 0) || this.memory.reaction || this.memory.mineralOrder)) {
+  if (config.mineral.enabled && this.terminal) {
     this.checkRoleToSpawn('mineral');
   }
 

@@ -21,5 +21,6 @@ roles.mineral.action = function(creep) {
 };
 
 roles.mineral.execute = function(creep) {
+  creep.log('EXECUTE');
   return creep.handleMineralCreep();
 };

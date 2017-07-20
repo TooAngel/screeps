@@ -191,6 +191,11 @@ global.config = {
     version: 18,
   },
 
+  terminal: {
+    energyAmount: 100000,
+    storageMinEnergyAmount: 20000
+  },
+
   mineral: {
     enabled: false,
     storage: 100000,
