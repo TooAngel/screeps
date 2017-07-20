@@ -134,6 +134,7 @@
     "RawVisual": false,
     "LOOK_CREEPS": false,
     "STRUCTURE_KEEPER_LAIR": false,
+    "CARRY_CAPACITY": false,
     "OBSTACLE_OBJECT_TYPES": false
   },
   "node": true
