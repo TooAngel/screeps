@@ -37,8 +37,14 @@ Creep.prototype.handleSourcer = function() {
       }
     }
 
-    let link = Game.getObjectById(this.memory.link);
-    this.transfer(link, RESOURCE_ENERGY);
+    const link = Game.getObjectById(this.memory.link);
+    if (link) {
+      this.transfer(link, RESOURCE_ENERGY);
+      const resources = this.pos.findInRangePropertyFilter(FIND_DROPPED_RESOURCES, 1, 'resourceType', [RESOURCE_ENERGY]);
+      if (resources.length > 0) {
+        this.pickup(resources);
+      }
+    }
   }
 };
 
