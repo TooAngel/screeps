@@ -167,9 +167,12 @@ Creep.prototype.stayInRoom = function() {
 };
 
 Creep.prototype.buildRoad = function() {
-  if (this.room.controller && this.room.controller.my && this.pos.lookFor(LOOK_TERRAIN)[0] !== 'swamp' &&
-    (this.room.controller.level < 4 || this.room.memory.misplacedSpawn)) {
-    return false;
+  if (this.room.controller && this.room.controller.my) {
+
+    if (this.pos.lookFor(LOOK_TERRAIN)[0] !== 'swamp' &&
+      (this.room.controller.level < 3 || this.room.memory.misplacedSpawn)) {
+      return false;
+    }
   }
 
   // TODO as creep variable

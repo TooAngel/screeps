@@ -134,7 +134,10 @@
     "RawVisual": false,
     "LOOK_CREEPS": false,
     "STRUCTURE_KEEPER_LAIR": false,
-    "OBSTACLE_OBJECT_TYPES": false
+    "OBSTACLE_OBJECT_TYPES": false,
+    "CARRY_CAPACITY": false,
+    "HARVEST_POWER": false,
+    "LOOK_RESOURCES": false
   },
   "node": true
 }
