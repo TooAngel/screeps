@@ -138,7 +138,8 @@
     "CARRY_CAPACITY": false,
     "HARVEST_POWER": false,
     "RoomVisual": false,
-    "LOOK_RESOURCES": false
+    "LOOK_RESOURCES": false,
+    "TOUGH": false
   },
   "node": true
 }

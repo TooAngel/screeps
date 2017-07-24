@@ -10,12 +10,36 @@ roles.squadheal = {};
 
 roles.squadheal.settings = {
   layoutString: 'MH',
-  amount: [17, 17]
+  amount: [1, 1]
+};
+
+roles.squadheal.healClosestCreep = function(creep) {
+  var myCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
+    filter: function(object) {
+      if (object.hits < object.hitsMax) {
+        return true;
+      }
+      return false;
+    }
+  });
+  if (myCreep !== null) {
+    creep.say('heal', true);
+    let range = creep.pos.getRangeTo(myCreep);
+    if (range <= 1) {
+      creep.heal(myCreep);
+    } else {
+      creep.moveTo(myCreep);
+      creep.rangedHeal(myCreep);
+    }
+    return true;
+  }
+  return false;
 };
 
 roles.squadheal.preMove = function(creep, directions) {
+  creep.log('preMove');
   if (creep.hits < creep.hitsMax) {
-    console.log('preMove heal');
+    creep.log('preMove heal');
     creep.heal(creep);
     creep.memory.routing.reverse = true;
     if (directions) {
@@ -26,23 +50,7 @@ roles.squadheal.preMove = function(creep, directions) {
     creep.memory.routing.reverse = false;
   }
 
-  var myCreeps = creep.room.find(FIND_MY_CREEPS, {
-    filter: function(object) {
-      if (object.hits < object.hitsMax) {
-        return true;
-      }
-      return false;
-    }
-  });
-  if (myCreeps.length > 0) {
-    creep.say('heal', true);
-    creep.moveTo(myCreeps[0]);
-    let range = creep.pos.getRangeTo(myCreeps[0]);
-    if (range <= 1) {
-      creep.heal(myCreeps[0]);
-    } else {
-      creep.rangedHeal(myCreeps[0]);
-    }
+  if (roles.squadheal.healClosestCreep(creep)) {
     return true;
   }
 
@@ -54,16 +62,8 @@ roles.squadheal.preMove = function(creep, directions) {
     }
     let reverse = false;
     if (squad.action === 'move') {
-      if (creep.room.name === squad.moveTarget) {
-        let nextExits = creep.room.find(creep.memory.route[creep.memory.routePos].exit);
-        let nextExit = nextExits[Math.floor(nextExits.length / 2)];
-        let range = creep.pos.getRangeTo(nextExit.x, nextExit.y);
-        if (range < 4) {
-          Memory.squads[creep.memory.squad].heal[creep.id].waiting = true;
-          //        if (Math.random() > 0.5 * (range - 2)) {
-          //          reverse = true;
-          //        }
-        }
+      if (creep.squadMove(squad, 4, false, 'heal')) {
+        return true;
       }
     }
   }
@@ -71,6 +71,38 @@ roles.squadheal.preMove = function(creep, directions) {
 
 // TODO need to check if it works
 roles.squadheal.action = function(creep) {
+  creep.heal(creep);
+
+  if (creep.room.name != creep.memory.routing.targetRoom) {
+    // creep.log('Not in room');
+    if (creep.hits < creep.hitsMax) {
+      creep.moveRandom();
+    } else {
+      // creep.log('delete?');
+      delete creep.memory.routing.reached;
+    }
+    return true;
+  } else {
+    creep.log('In room');
+    // TODO calculate if we would to flip directly back to the previous room
+    // get all towers and calculate their potential damage
+    // the damage is applied after the first tick
+    if (creep.hits < creep.hitsMax) {
+      creep.log('action heal');
+      creep.heal(creep);
+      creep.say('exit');
+      let exit = creep.pos.findClosestByRange(FIND_EXIT);
+      creep.moveTo(exit);
+    } else {
+      creep.log('mrandom');
+      creep.moveRandom();
+      creep.squadHeal();
+    }
+  }
+
+  if (true) {
+    return true;
+  }
   if (creep.hits < creep.hitsMax) {
     creep.log('action heal');
     creep.heal(creep);
@@ -114,5 +146,7 @@ roles.squadheal.action = function(creep) {
 };
 
 roles.squadheal.execute = function(creep) {
-  //  creep.log('Execute!!!');
+  creep.log('Execute!!!');
+  creep.heal(creep);
+  creep.moveRandom();
 };
