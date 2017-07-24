@@ -85,12 +85,14 @@ roles.harvester.preMove = function(creep, directions) {
     }
   }
 
-  // TODO Decide between, transfered no more energy (reverse), transferred other structures to transfer available (stay still), transferred no more structures (forward)
   let transferred = creep.transferToStructures();
-  if (!reverse && transferred) {
-    if (transferred.moreStructures) {
+  if (transferred) {
+    if (transferred.transferred >= _.sum(creep.carry)) {
       reverse = true;
-      return true;
+    } else {
+      if (transferred.moreStructures) {
+        return true;
+      }
     }
   }
   creep.memory.routing.reverse = reverse || !creep.memory.move_forward_direction;
