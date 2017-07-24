@@ -22,8 +22,8 @@ Creep.prototype.fleeFromHostile = function(hostile) {
   for (let offset = 0, dir, pos; offset < 8; offset++) {
     let dir = (direction + offset) % 8 + 1;
     let pos = this.pos.getAdjacentPosition(dir);
-    if (pos.lookFor(LOOK_TERRAIN)[0] !== STRUCTURE_WALL && pos.lookFor(LOOK_CREEPS).length === 0) {
-      direction = direction + offset;
+    if (!pos.checkForWall() && pos.lookFor(LOOK_CREEPS).length === 0) {
+      direction = (direction + offset) % 8 + 1;
       break;
     }
   }
@@ -171,6 +171,16 @@ Creep.prototype.fightRampart = function(target) {
   if (range > 3) {
     return false;
   }
+
+  const targets = this.pos.findInRange(FIND_HOSTILE_CREEPS, 3, {
+    filter: this.room.findAttackCreeps
+  });
+  if (targets.length > 1) {
+    this.rangedMassAttack();
+  } else {
+    this.rangedAttack(target);
+  }
+
   const returnCode = this.moveToMy(rampart.pos, 0);
   if (returnCode === OK) {
     return true;
@@ -181,14 +191,6 @@ Creep.prototype.fightRampart = function(target) {
 
   this.log('creep_fight.fightRampart returnCode: ' + returnCode);
 
-  const targets = this.pos.findInRange(FIND_HOSTILE_CREEPS, 3, {
-    filter: this.room.findAttackCreeps
-  });
-  if (targets.length > 1) {
-    this.rangedMassAttack();
-  } else {
-    this.rangedAttack(target);
-  }
   return true;
 };
 
@@ -236,7 +238,8 @@ Creep.prototype.siege = function() {
   this.memory.hitsLost = this.memory.hitsLast - this.hits;
   this.memory.hitsLast = this.hits;
 
-  if (this.hits - this.memory.hitsLost < this.hits / 2) {
+  // if (this.hits - this.memory.hitsLost < this.hits / 2) {
+  if (this.hits < 0.7 * this.hitsMax) {
     let exitNext = this.pos.findClosestByRange(FIND_EXIT);
     this.moveTo(exitNext);
     return true;
@@ -289,24 +292,7 @@ Creep.prototype.siege = function() {
 
 Creep.prototype.squadHeal = function() {
   var range;
-  var creepToHeal = this.pos.findClosestByRange(FIND_MY_CREEPS, {
-    filter: function(object) {
-      return object.hits < object.hitsMax / 1.5;
-    }
-  });
-
-  if (creepToHeal !== null) {
-    range = this.pos.getRangeTo(creepToHeal);
-    if (range <= 1) {
-      this.heal(creepToHeal);
-    } else {
-      this.rangedHeal(creepToHeal);
-      this.moveTo(creepToHeal);
-    }
-    return true;
-  }
-
-  creepToHeal = this.pos.findClosestByRange(FIND_MY_CREEPS, {
+  let creepToHeal = this.pos.findClosestByRange(FIND_MY_CREEPS, {
     filter: function(object) {
       return object.hits < object.hitsMax;
     }

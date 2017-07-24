@@ -65,6 +65,7 @@ global.config = {
     healMyCreeps: false,
     repairStructures: false
   },
+
   autoattack: {
     disabled: false,
     notify: false
@@ -79,7 +80,7 @@ global.config = {
   nextRoom: {
     boostToControllerLevel: 4,
     scoutMinControllerLevel: 4,
-    ttlPerRoomForScout: 500,
+    ttlPerRoomForScout: 1500,
     numberOfNextroomers: 10,
     nextroomerInterval: 500,
     maxRooms: 20,
@@ -127,7 +128,8 @@ global.config = {
   },
 
   external: {
-    distance: 3
+    distance: 3,
+    defendDistance: 1
   },
 
   carry: {
