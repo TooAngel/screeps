@@ -117,6 +117,12 @@ roles.scout.execute = function(creep) {
       // }
       return false;
     }
+
+    if (creep.pos.roomName !== creep.memory.last.pos3.roomName) {
+      creep.moveTo(creep.room.controller.pos);
+      return true;
+    }
+
     if (creep.isStuck()) {
       creep.moveRandom();
       creep.say('ImStuck', true);
