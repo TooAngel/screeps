@@ -5,6 +5,9 @@ env:
   jquery: true
   node: true
 
+parserOptions:
+  ecmaVersion: 8
+
 # http://eslint.org/docs/rules/
 rules:
   # Possible Errors
