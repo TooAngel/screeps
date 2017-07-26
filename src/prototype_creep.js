@@ -6,8 +6,23 @@ function getOppositeDirection(direction) {
 }
 
 Creep.prototype.mySignController = function() {
-  if (config.info.signController && !this.room.controller.sign) {
-    let returnCode = this.signController(this.room.controller, config.info.signText);
+  if (config.info.signController && this.room.exectueEveryTicks(config.info.resignInterval)) {
+    let text = config.info.signText;
+    if (config.quests.enabled && this.memory.role === 'reserver') {
+      if (Math.random() < config.quests.signControllerPercentage) {
+        let quest = {
+          id: Math.random(),
+          origin: this.memory.base,
+          type: 'Quest',
+          //info: 'http://tooangel.github.io/screeps/doc/Quests.html'
+          info: 'https://goo.gl/QEyNzG' // Pointing to the workspace branch doc
+        };
+        this.log('Attach quest');
+        text = JSON.stringify(quest);
+      }
+    }
+
+    let returnCode = this.signController(this.room.controller, text);
     this.log(returnCode);
   }
 };

@@ -27,9 +27,15 @@ global.config = {
     refresh: true,
   },
 
+  quests: {
+    enabled: true,
+    signControllerPercentage: 0.1
+  },
+
   info: {
     signController: true,
     signText: 'Fully automated TooAngel bot: http://tooangel.github.io/screeps/',
+    resignInterval: 500
   },
 
   // Due to newly introduces via global variable caching this can be removed

@@ -36,6 +36,8 @@ var main = function() {
   brain.handleNextroom();
   brain.handleSquadmanager();
   brain.handleIncomingTransactions();
+  brain.handleQuests();
+
   brain.stats.addRoot();
   Memory.myRooms = _(Game.rooms).filter(r => r.execute()).map(r => r.name).value();
 
