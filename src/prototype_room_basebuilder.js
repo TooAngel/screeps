@@ -50,7 +50,7 @@ Room.prototype.destroyStructure = function(structure) {
         }
       }
     }
-    this.log('destroyStructure: road not found in paths, destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
+    this.log('destroyStructure: not found in paths, destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos) + ' ' + JSON.stringify(Object.keys(this.getMemoryPaths())));
     structure.destroy();
     return true;
   }
