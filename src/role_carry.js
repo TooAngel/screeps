@@ -159,6 +159,9 @@ roles.carry.preMove = function(creep, directions) {
     if (structure.structureType === STRUCTURE_STORAGE && structure.my) {
       continue;
     }
+    if (structure.structureType === STRUCTURE_LINK && structure.my) {
+      continue;
+    }
 
     creep.dismantle(structure);
     creep.say('dismantle');
