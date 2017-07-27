@@ -119,7 +119,7 @@ roles.scout.execute = function(creep) {
     }
 
     if (creep.pos.roomName !== creep.memory.last.pos3.roomName) {
-      creep.moveTo(creep.room.controller.pos);
+      creep.moveTo(25, 25);
       return true;
     }
 
