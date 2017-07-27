@@ -276,6 +276,14 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     }
   }
 
+  // build roads
+  if (unit.buildRoad) {
+    const target = Game.getObjectById(this.memory.routing.targetId);
+    if (config.buildRoad.buildToOtherMyRoom || !target || target.structureType !== STRUCTURE_STORAGE) {
+      this.buildRoad();
+    }
+  }
+
   let directions = this.getDirections(path, pathPos);
 
   if (!directions) {
