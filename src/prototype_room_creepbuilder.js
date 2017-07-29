@@ -316,7 +316,7 @@ Room.prototype.getPartConfig = function(creep) {
     parts = parts.concat(sufix.parts);
   }
   if (config.debug.spawn) {
-    this.log('Spawning ' + creep.role + ' - - - Body: ' + JSON.stringify(prefix.parts) + ' - ' + maxRepeat + ' * ' + JSON.stringify(layout.parts) + ' - ' + JSON.stringify(sufix.parts));
+    this.log('Spawning ' + creep.role + ' - - - Body: ' + JSON.stringify(prefix.parts) + ' - ' + maxRepeat + ' * ' + JSON.stringify(layout.parts) + ' - ' + JSON.stringify(sufix.parts) + ' - parts: ' + JSON.stringify(parts));
   }
   return config.creep.sortParts ? this.sortParts(parts, layout) : parts;
 };
