@@ -293,11 +293,7 @@ Room.prototype.executeRoom = function() {
     filter: this.findAttackCreeps
   });
   if (hostiles.length === 0) {
-    this.memory.attackTimer = Math.max(this.memory.attackTimer - 5, 0);
-    // Make sure we don't spawn towerFiller on reducing again
-    if (this.memory.attackTimer % 5 === 0) {
-      this.memory.attackTimer--;
-    }
+    this.memory.attackTimer = Math.max(this.memory.attackTimer - 0.5, 0);
   }
 
   if (spawns.length === 0) {
@@ -329,22 +325,6 @@ Room.prototype.executeRoom = function() {
     let enemies = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], true);
     if (enemies > 0) {
       this.controller.activateSafeMode();
-    }
-  }
-  if (this.memory.attackTimer >= 50 && this.controller.level > 6) {
-    let towers = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER]);
-    if (towers.length === 0) {
-      this.memory.attackTimer = 47;
-    } else {
-      if (this.memory.attackTimer === 50 && this.memory.position.creep.towerFiller) {
-        for (let towerFillerPos of this.memory.position.creep.towerFiller) {
-          this.log('Spawning towerfiller: ' + this.memory.attackTimer);
-          this.memory.queue.push({
-            role: 'towerfiller',
-            target_id: towerFillerPos
-          });
-        }
-      }
     }
   }
 

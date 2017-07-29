@@ -6,13 +6,14 @@ Room.prototype.exectueEveryTicks = function(ticks) {
 
 Room.prototype.handle = function() {
   if (this.controller && this.controller.my) {
-    return this.myHandleRoom();
+    this.myHandleRoom();
+    return true;
   }
-  return this.externalHandleRoom();
+  this.externalHandleRoom();
+  return false;
 };
 
 Room.prototype.execute = function() {
-
   this.memory.lastSeen = Game.time;
   try {
     let returnCode = this.handle();

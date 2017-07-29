@@ -1,3 +1,22 @@
+/*
+ * This modules contains method for handling external rooms, so all rooms
+ * where the controller is not controller by us.
+ *
+ * There are different types and states:
+ * Types:
+ *  - Highway
+ *  - Source Keeper
+ *  - Standard
+ *
+ * State:
+ *  - Blocked: The path is blocked by walls
+ *  - Reserved: The room is used for external harvesting
+ *  - Occupied: Controlled by another player
+ */
+
+/*
+ * Checks if the middle position of all exit directions can be reached from each
+ */
 Room.prototype.checkBlocked = function() {
   let exits = Game.map.describeExits(this.name);
   let callerRoom = this;
@@ -8,7 +27,7 @@ Room.prototype.checkBlocked = function() {
     room.setCostMatrixStructures(costMatrix, structures, 255);
     return costMatrix;
   };
-  for (let fromDirection in exits) {
+  for (let fromDirection of Object.keys(exits)) {
     let fromExitDirection = this.findExitTo(exits[fromDirection]);
     let fromExitPoss = this.find(fromExitDirection);
     let fromNextExit = fromExitPoss[Math.floor(fromExitPoss.length / 2)];
@@ -33,22 +52,10 @@ Room.prototype.checkBlocked = function() {
   return false;
 };
 
-Room.prototype.externalHandleRoom = function() {
-  if (!this.controller) {
-    var nameSplit = this.splitRoomName();
-    if (nameSplit[2] % 10 === 0 || nameSplit[4] % 10 === 0) {
-      return this.externalHandleHighwayRoom();
-    }
-  } else {
-    if (this.controller.owner) {
-      return this.handleOccupiedRoom();
-    }
-
-    if (this.controller.reservation && this.controller.reservation.username === Memory.username) {
-      return this.handleReservedRoom();
-    }
-  }
-
+/*
+ * Checks if a room is blocked in a certain interval
+ */
+Room.prototype.handleBlockedRooms = function() {
   if (!this.memory.blockedCheck || Game.time - this.memory.blockedCheck > 100000) {
     this.memory.blockedCheck = Game.time;
     let blocked = this.checkBlocked();
@@ -57,19 +64,56 @@ Room.prototype.externalHandleRoom = function() {
       this.memory.state = 'Blocked';
     }
   }
+};
 
-  if (this.controller && !this.controller.reservation) {
-    if (this.handleUnreservedRoom()) {
-      return false;
-    }
+/*
+ * Handle the different kind of rooms with a  controller
+ */
+Room.prototype.externalHandleRoomWithController = function() {
+  if (this.controller.owner) {
+    return this.handleOccupiedRoom();
   }
 
-  if (!this.controller) {
-    const sourceKeepers = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'owner.username', ['Source Keeper']);
-    if (sourceKeepers.length > 0) {
-      this.memory.lastSeen = Game.time;
-      this.handleSourceKeeperRoom();
-      return false;
+  if (this.controller.reservation && this.controller.reservation.username === Memory.username) {
+    return this.handleReservedRoom();
+  }
+
+  this.handleBlockedRooms();
+
+  if (!this.controller.reservation) {
+    if (this.handleUnreservedRoom()) {
+      return true;
+    }
+  }
+};
+
+/*
+ * Handle rooms without a controller
+ */
+Room.prototype.externalHandleRoomWithoutController = function() {
+  var nameSplit = this.splitRoomName();
+  if (nameSplit[2] % 10 === 0 || nameSplit[4] % 10 === 0) {
+    return this.externalHandleHighwayRoom();
+  }
+
+  const sourceKeepers = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'owner.username', ['Source Keeper']);
+  if (sourceKeepers.length > 0) {
+    this.memory.lastSeen = Game.time;
+    return this.handleSourceKeeperRoom();
+  }
+};
+
+/*
+ * Handle all kind of external rooms
+ */
+Room.prototype.externalHandleRoom = function() {
+  if (this.controller) {
+    if (this.externalHandleRoomWithController()) {
+      return true;
+    }
+  } else {
+    if (this.externalHandleRoomWithoutController()) {
+      return true;
     }
   }
 
@@ -77,96 +121,122 @@ Room.prototype.externalHandleRoom = function() {
   return false;
 };
 
-Room.prototype.externalHandleHighwayRoom = function() {
-  if (config.power.disabled) {
+/*
+ * Handle an highway room with powerBank, where the power bank is known
+ * and the process is already started
+ */
+
+Room.prototype.externalHandleKnownPowerBank = function() {
+  if (Memory.powerBanks[this.name]) {
+    if (Memory.powerBanks[this.name].transporter_called) {
+      return true;
+    }
+    if (structures[0].hits < 300000) {
+      for (var i = 0; i < Math.ceil(structures[0].power / 1000); i++) {
+        this.log('Adding powertransporter at ' + Memory.powerBanks[this.name].target);
+        Game.rooms[Memory.powerBanks[this.name].target].memory.queue.push({
+          role: 'powertransporter',
+          routing: {
+            targetRoom: this.name
+          }
+        });
+      }
+
+      Memory.powerBanks[this.name].transporter_called = true;
+    }
+    return true;
+  }
+  return false;
+};
+
+/*
+ * Set powerBank in memmory and spawn harvesting creeps
+ */
+let prepareTargetRoom = function(room, target, minRoute) {
+  Memory.powerBanks[room.name] = {
+    target: target.name,
+    minRoute: minRoute
+  };
+  room.log('--------------> Start power harvesting in: ' + target.name + ' <----------------');
+  for (let role of ['powerattacker', 'powerhealer', 'powerhealer']) {
+    Game.rooms[target.name].memory.queue.push({
+      role: role,
+      routing: {
+        targetRoom: room.name
+      }
+    });
+  }
+};
+
+let checkBaseForPowerHarvesting = function(roomName, minRoute) {
+  var room = Game.rooms[Memory.myRooms[roomName]];
+  if (!room || !room.storage || room.storage.store.energy < config.power.energyForCreeps) {
     return false;
   }
+  let routeToTest = Game.map.findRoute(this.name, room.name);
+  return routeToTest.length < minRoute;
+};
 
-  const structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
-  if (structures.length === 0) {
-    if (Memory.powerBanks) {
-      delete Memory.powerBanks[this.name];
+/*
+ * Search for a room close by and queue harvesting creeps
+ */
+Room.prototype.externalHandleNewPowerBank = function() {
+  let minRoute = 6;
+  let target = null;
+  for (var roomName in Memory.myRooms) {
+    if (checkBaseForPowerHarvesting(roomName), minRoute) {
+      minRoute = routeToTest.length;
+      target = room;
     }
-    return false;
   }
 
-  if (Memory.powerBanks && Memory.powerBanks[this.name]) {
-    if (Memory.powerBanks[this.name].target && Memory.powerBanks[this.name] !== null) {
-      if (Memory.powerBanks[this.name].transporter_called) {
-        return;
-      }
-      if (structures[0].hits < 300000) {
-        for (var i = 0; i < Math.ceil(structures[0].power / 1000); i++) {
-          this.log('Adding powertransporter at ' + Memory.powerBanks[this.name].target);
-          Game.rooms[Memory.powerBanks[this.name].target].memory.queue.push({
-            role: 'powertransporter',
-            routing: {
-              targetRoom: this.name
-            }
-          });
-        }
-
-        Memory.powerBanks[this.name].transporter_called = true;
-      }
-    }
-    return;
-  }
-
-  if (structures[0].ticksToDecay < 3000) {
+  if (target === null) {
     Memory.powerBanks[this.name] = {
       target: null
     };
     return true;
-  } else {
-    var min_route = 6;
-    var target = null;
-    var route;
-    for (var room_id in Memory.myRooms) {
-      var room = Game.rooms[Memory.myRooms[room_id]];
-      if (!room || !room.storage || room.storage.store.energy < config.power.energyForCreeps) {
-        continue;
-      }
-      var route_to_test = Game.map.findRoute(this.name, room.name);
-      if (route_to_test.length < min_route) {
-        min_route = route_to_test.length;
-        target = room;
-        route = route_to_test;
-      }
-    }
-
-    if (!Memory.powerBanks) {
-      Memory.powerBanks = {};
-    }
-    if (target !== null) {
-      Memory.powerBanks[this.name] = {
-        target: target.name,
-        min_route: min_route
-      };
-      this.log('--------------> Start power harvesting in: ' + target.name + ' <----------------');
-      Game.rooms[target.name].memory.queue.push({
-        role: 'powerattacker',
-        routing: {
-          targetRoom: this.name
-        }
-      });
-      Game.rooms[target.name].memory.queue.push({
-        role: 'powerhealer',
-        routing: {
-          targetRoom: this.name
-        }
-      });
-      Game.rooms[target.name].memory.queue.push({
-        role: 'powerhealer',
-        routing: {
-          targetRoom: this.name
-        }
-      });
-    } else {
-      Memory.powerBanks[this.name] = {
-        target: null
-      };
-    }
   }
+  prepareTargetRoom(this, target, minRoute);
+};
+
+/*
+ * Checks for powerBanks, if these are active, if these can be handled or
+ * decays.
+ */
+Room.prototype.checkHandledPowerBank = function() {
+  const structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
+  if (structures.length === 0) {
+    delete Memory.powerBanks[this.name];
+    return true;
+  }
+
+  if (Memory.powerBanks[this.name] && Memory.powerBanks[this.name].target === null) {
+    return true;
+  }
+
+  if (this.externalHandleKnownPowerBank()) {
+    return true;
+  }
+
+  if (structures[0].ticksToDecay < 3000) {
+    return true;
+  }
+  return false;
+};
+
+/*
+ * Handle highway rooms especially search for power harvesting
+ */
+Room.prototype.externalHandleHighwayRoom = function() {
+  if (config.power.disabled) {
+    return true;
+  }
+  Memory.powerBanks = Memory.powerBanks || {};
+  if (this.checkHandledPowerBank()) {
+    return true;
+  }
+
+  this.externalHandleNewPowerBank();
 };
 
 Room.prototype.handleOccupiedRoom = function() {
@@ -193,73 +263,85 @@ Room.prototype.handleOccupiedRoom = function() {
   }
 };
 
-Room.prototype.checkBlockedPath = function() {
-  for (let pathName in this.getMemoryPaths()) {
-    let path = this.getMemoryPath(pathName) || {};
-    for (let pos of path) {
-      let roomPos = new RoomPosition(pos.x, pos.y, this.name);
-      let structures = roomPos.lookFor('structure');
+/*
+ * Check Position for structures except ROAD, RAMPART and CONTAINER
+ */
+Room.prototype.checkPositionForBlockingStructures = function(pos) {
+  let roomPos = new RoomPosition(pos.x, pos.y, this.name);
+  let structures = roomPos.lookFor('structure');
 
-      for (let structure of structures) {
-        if (structure.structureType === STRUCTURE_ROAD) {
-          continue;
-        }
-        if (structure.structureType === STRUCTURE_RAMPART) {
-          continue;
-        }
-        if (structure.structureType === STRUCTURE_CONTAINER) {
-          continue;
-        }
-        this.log(`Path ${pathName} blocked on ${pos} due to ${structure.structureType}`);
+  for (let structure of structures) {
+    if (structure.structureType === STRUCTURE_ROAD) {
+      continue;
+    }
+    if (structure.structureType === STRUCTURE_RAMPART) {
+      continue;
+    }
+    if (structure.structureType === STRUCTURE_CONTAINER) {
+      continue;
+    }
+    this.log(`Path ${pathName} blocked on ${pos} due to ${structure.structureType}`);
+    return true;
+  }
+  return false;
+};
+
+/*
+ * Check if any of the precalculated paths is blocked by structures
+ */
+Room.prototype.checkBlockedPath = function() {
+  let paths = this.getMemoryPaths();
+  for (let pathName of Object.keys(paths)) {
+    let path = paths[pathName] || {};
+    for (let pos of path) {
+      if (this.checkPositionForBlockingStructures(pos)) {
         return true;
       }
     }
   }
 };
 
-Room.prototype.checkAndSpawnReserver = function() {
-  let reservation = this.memory.reservation;
+/*
+ * Check if the room has a valid reservation in memory
+ */
+Room.prototype.checkExternalRoomMemoryForReservation = function(reservation) {
   if (reservation === undefined) {
     // TODO Check the closest room and set reservation
     this.log('No reservation');
-    return false;
+    return true;
   }
 
   let baseRoom = Game.rooms[reservation.base];
   if (baseRoom === undefined) {
     delete this.memory.reservation;
+    return true;
+  }
+  if (baseRoom.misplacedSpawn) {
+    return true;
+  }
+  return false;
+};
+
+/*
+ * Check rooms memory for reservation
+ * Checks path to spawn structurer
+ * Call reserver if needed
+ */
+Room.prototype.checkAndSpawnReserver = function() {
+  let reservation = this.memory.reservation;
+  if (this.checkExternalRoomMemoryForReservation()) {
     return false;
   }
-
+  let baseRoom = Game.rooms[reservation.base];
   if (this.checkBlockedPath()) {
     if (this.exectueEveryTicks(config.creep.structurerInterval)) {
       this.log('Call structurer from ' + baseRoom.name);
-      Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, this.name);
+      baseRoom.checkRoleToSpawn('structurer', 1, undefined, this.name);
       return;
     }
   }
 
-  let reserverSpawn = {
-    role: 'reserver',
-    level: 2,
-    routing: {
-      targetRoom: this.name,
-      targetId: this.controller.id,
-      reached: false,
-      routePos: 0,
-      pathPos: 0
-    }
-  };
-  // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
-  let energyNeeded = 1300;
-  if (baseRoom.misplacedSpawn) {
-    energyNeeded += 300;
-  }
-  if (baseRoom.getEnergyCapacityAvailable() >= energyNeeded) {
-    if (!baseRoom.inQueue(reserverSpawn)) {
-      baseRoom.checkRoleToSpawn('reserver', 1, this.controller.id, this.name, 2);
-    }
-  }
+  baseRoom.checkRoleToSpawn('reserver', 1, this.controller.id, this.name, 2);
 };
 
 Room.prototype.handleReservedRoom = function() {
@@ -285,6 +367,26 @@ Room.prototype.handleReservedRoom = function() {
   return false;
 };
 
+/*
+ * Check if rooms on the route are owned or reserved by us
+ */
+let checkRouteForOwnedAndReservedRooms = function(route) {
+  for (let routeEntry of route) {
+    let routeRoomName = routeEntry.room;
+    if (Game.rooms[routeRoomName] === undefined) {
+      return true;
+    }
+    let routeRoom = Game.rooms[routeRoomName];
+    if (routeRoom.controller === undefined) {
+      return true;
+    }
+    if (!routeRoom.controller.my && routeRoom.memory.state !== 'Reserved') {
+      return true;
+    }
+  }
+  return false;
+};
+
 Room.prototype.handleUnreservedRoom = function() {
   this.memory.state = 'Unreserved';
   this.memory.lastSeen = Game.time;
@@ -302,7 +404,7 @@ Room.prototype.handleUnreservedRoom = function() {
           roomMemory.reservation.base === roomName;
       };
     };
-    checkRoomsLabel: for (let roomName of Memory.myRooms) {
+    for (let roomName of Memory.myRooms) {
       let room = Game.rooms[roomName];
       if (!room) {
         continue;
@@ -317,18 +419,8 @@ Room.prototype.handleUnreservedRoom = function() {
         continue;
       }
       // Only allow pathing through owned rooms or already reserved rooms.
-      for (let routeEntry of route) {
-        let routeRoomName = routeEntry.room;
-        if (Game.rooms[routeRoomName] === undefined) {
-          continue checkRoomsLabel;
-        }
-        let routeRoom = Game.rooms[routeRoomName];
-        if (routeRoom.controller === undefined) {
-          continue checkRoomsLabel;
-        }
-        if (!routeRoom.controller.my && routeRoom.memory.state !== 'Reserved') {
-          continue checkRoomsLabel;
-        }
+      if (checkRouteForOwnedAndReservedRooms(route)) {
+        continue;
       }
       if (room.memory.queue && room.memory.queue.length === 0 &&
         room.energyAvailable >= room.getEnergyCapacityAvailable()) {
