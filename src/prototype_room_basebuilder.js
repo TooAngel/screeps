@@ -67,7 +67,7 @@ Room.prototype.destroyStructure = function(structure) {
     structuresMin = 1;
   }
 
-  if (structures.length > structuresMin) {
+  if (structures.length > structuresMin && (structure.my || Room.structureIsEmpty(structure))) {
     this.log('Destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
     structure.destroy();
     return true;
