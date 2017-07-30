@@ -26,6 +26,23 @@ roles.carry.settings = {
   maxLayoutAmount: 1
 };
 
+roles.carry.updateSettings = function(room, creep) {
+  if (creep.helper) {
+    return {
+      prefixString: config.buildRoad.buildToOtherMyRoom ? 'W' : '',
+      layoutString: 'MC',
+      amount: {
+        0: [3, 3], // RCL 1
+        550: [4, 4], // RCL 2
+        800: [6, 6], // RCL 3
+        1300: [11, 11], // RCL 4
+        1800: [15, 15], // RCL 5
+        2300: [21, 21], // RCL 6
+      }
+    };
+  }
+};
+
 roles.carry.checkHelperEmptyStorage = function(creep) {
   // Fix blocked helpers due to empty structure in the room where we get the energy from
   if (creep.room.name === creep.memory.routing.targetRoom) {

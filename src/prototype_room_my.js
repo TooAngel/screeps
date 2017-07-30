@@ -227,7 +227,7 @@ Room.prototype.checkCanHelp = function() {
       return 'no';
     }
     this.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, this.storage.id,
-      this.name, undefined, nearestRoom);
+      this.name, undefined, nearestRoom, {helper: true});
     this.memory.energyAvailableSum = 0;
     return '---!!! ' + this.name + ' send energy to: ' + nearestRoom + ' !!!---';
   }
