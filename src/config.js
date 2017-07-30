@@ -179,16 +179,17 @@ global.config = {
 
   layout: {
     plainCost: 5,
-    swampCost: 5,
+    swampCost: 8,
     borderAvoid: 20,
     skLairAvoidRadius: 5,
     skLairAvoid: 30,
     wallAvoid: 10,
+    sourceAvoid: 20,
     pathAvoid: 1,
     structureAvoid: 0xFF,
     creepAvoid: 0xFF,
     wallThickness: 1,
-    version: 18,
+    version: 19,
   },
 
   mineral: {

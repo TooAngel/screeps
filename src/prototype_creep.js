@@ -35,7 +35,9 @@ Creep.prototype.moveToMy = function(target, range) {
       range: range
     }, {
       roomCallback: this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName),
-      maxRooms: 0
+      maxRooms: 0,
+      swampCost: config.layout.swampCost,
+      plainCost: config.layout.plainCost
     }
   );
 
