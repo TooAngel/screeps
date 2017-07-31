@@ -18,15 +18,21 @@ roles.upgrader.settings = {
     4: 'W'
   },
   maxLayoutAmount: {
+    6: {
+      0: 1,
+      50000: 20,
+      800000: undefined
+    },
     7: {
+      0: 1,
       50000: 20,
       800000: undefined,
     },
     8: {
+      0: 1,
       50000: 1,
-      800000: undefined,
+      800000: 14
     }
-
   }
 };
 roles.upgrader.stayInRoom = true;
