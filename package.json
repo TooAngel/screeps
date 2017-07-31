@@ -18,6 +18,8 @@
     "grunt-screeps": "1.2.1",
     "grunt-sync": "0.6.2",
     "mocha": "3.2.0",
+    "request": "^2.81.0",
+    "request-promise-native": "^1.0.4",
     "screeps-profiler": "1.2.1",
     "uglify-js-harmony": "2.6.2"
   },
