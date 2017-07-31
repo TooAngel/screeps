@@ -27,7 +27,7 @@ roles.harvester.settings = {
       400: [1, 1, 1]
     }
   },
-  maxLayoutAmount: 6,
+  maxLayoutAmount: 6
 };
 roles.harvester.updateSettings = function(room, creep) {
   if (room.storage && room.storage.store.energy > config.creep.energyFromStorageThreshold) {
@@ -58,7 +58,7 @@ roles.harvester.preMove = function(creep, directions) {
   creep.setNextSpawn();
   creep.spawnReplacement(1);
 
-  if (!creep.room.storage || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
+  if (!creep.room.storage || creep.room.memory.misplacedSpawn || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
     creep.harvesterBeforeStorage();
     creep.memory.routing.reached = true;
     return true;
