@@ -216,9 +216,13 @@ Room.prototype.closeExitsByPath = function() {
 
       var structure = STRUCTURE_WALL;
       let costMatrixBase = this.getMemoryCostMatrix();
-      if (pathPos.inPath() || pathPos.inPositions()) {
+      if (pathPos.inPath()) {
         structure = STRUCTURE_RAMPART;
         costMatrixBase.set(pathPos.x, pathPos.y, 0);
+        this.memory.walls.ramparts.push(pathPos);
+      } else if (pathPos.inPositions()) {
+        structure = STRUCTURE_RAMPART;
+        this.log('pathPos in Positions: ' + pathPos);
         this.memory.walls.ramparts.push(pathPos);
       } else {
         costMatrixBase.set(pathPos.x, pathPos.y, 0xff);
