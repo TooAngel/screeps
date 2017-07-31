@@ -105,6 +105,16 @@ roles.carry.preMove = function(creep, directions) {
   let reverse = false;
   if (!creep.memory.routing.reverse) {
     reverse = creep.checkForTransfer(directions.forwardDirection);
+    if (!reverse && creep.isStuck() && directions.backwardDirection) {
+      let adjacentPos = creep.pos.getAdjacentPosition(directions.backwardDirection);
+      if (adjacentPos.isValid()) {
+        let creeps = adjacentPos.lookFor(LOOK_CREEPS);
+        if (creeps.length > 0 && creeps[0].memory && creeps[0].memory.routing && creeps[0].memory.routing.targetId !== creep.memory.routing.targetId) {
+          creep.say('give way');
+          reverse = true;
+        }
+      }
+    }
   }
 
   if (creep.checkEnergyTransfer()) {
