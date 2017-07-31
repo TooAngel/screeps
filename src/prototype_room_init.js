@@ -84,6 +84,8 @@ Room.prototype.setFillerArea = function(storagePos, route) {
     let linkStoragePosIterator = fillerPos.findNearPosition();
     for (let linkStoragePos of linkStoragePosIterator) {
       this.memory.position.structure.link.unshift(linkStoragePos);
+      costMatrix.set(linkStoragePos.x, linkStoragePos.y, config.layout.structureAvoid);
+      this.setMemoryCostMatrix(costMatrix);
 
       let powerSpawnPosIterator = fillerPos.findNearPosition();
       for (let powerSpawnPos of powerSpawnPosIterator) {
@@ -472,6 +474,7 @@ Room.prototype.setup = function() {
   });
   let paths_sorted = _.sortBy(paths_controller, sorter);
   let path = this.getMemoryPath(paths_sorted[paths_sorted.length - 1].name);
+  // TODO This is the path to the extractor, we should change this to getting the right path via ID (e.g. if there are more than two sources this could change)
   let pathLB = this.getMemoryPath(paths_controller[4].name);
   let pathL = this.setLabsTerminal(pathLB);
   let pathI = this.setStructures(path);
