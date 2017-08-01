@@ -174,6 +174,7 @@ global.config = {
     scoutSkipWhenStuck: true, // Useful for novice areas.
     scout: true, // TODO somehow broken ?? Is it broken ??
     upgraderMinStorage: 0,
+    upgraderStorageFactor: 2,
     lastSeenThreshold: 1000000,
     notify: false,
   },
