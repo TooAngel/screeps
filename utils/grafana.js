@@ -1,3 +1,5 @@
+'use strict';
+
 var rp = require('request-promise-native');
 var fs = require('fs');
 
