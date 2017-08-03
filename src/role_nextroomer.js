@@ -216,28 +216,6 @@ roles.nextroomer.settle = function(creep) {
     }
   }
 
-  if (_.sum(creep.carry) === 0) {
-    let hostileStructures = creep.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_WALL, STRUCTURE_CONTROLLER], true);
-    if (hostileStructures.length) {
-      let structure = _.max(hostileStructures, s => s.structureType === STRUCTURE_STORAGE);
-
-      if (structure.structureType === STRUCTURE_STORAGE) {
-        if (structure.store.energy === 0) {
-          structure.destroy();
-          return true;
-        }
-      } else if (!structure.energy) {
-        structure.destroy();
-        return true;
-      }
-      creep.say('ho: ' + structure.pos, true);
-      creep.log(structure.structureType);
-      creep.moveTo(structure);
-      creep.withdraw(structure, RESOURCE_ENERGY);
-      return true;
-    }
-  }
-
   if (creep.room.energyCapacityAvailable < 300) {
     let constructionSites = creep.room.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_LAB, STRUCTURE_NUKER, STRUCTURE_TERMINAL]);
     for (let cs of constructionSites) {
