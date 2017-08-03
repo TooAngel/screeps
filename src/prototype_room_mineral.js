@@ -1,5 +1,9 @@
 'use strict';
 
+Room.prototype.isMineralInStorage = function() {
+  return Object.keys(this.storage.store).some(resource => resource !== RESOURCE_ENERGY && resource !== RESOURCE_POWER);
+};
+
 Room.prototype.getNextReaction = function() {
   for (let mineralFirst in this.terminal.store) {
     if (!REACTIONS[mineralFirst]) {
