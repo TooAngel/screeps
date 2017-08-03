@@ -53,6 +53,7 @@ require('role_reserver');
 require('role_repairer');
 require('role_scout');
 require('role_scoutnextroom');
+require('role_signer');
 require('role_sourcer');
 require('role_squadsiege');
 require('role_squadheal');
