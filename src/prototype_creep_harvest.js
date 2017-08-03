@@ -85,5 +85,5 @@ Creep.prototype.spawnCarry = function() {
   if (resourceAtPosition > carryCapacity) {
     Game.rooms[this.memory.base].checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom);
   }
-  this.memory.wait = waitTime;
+  this.memory.wait = Math.max(waitTime, config.carry.minSpawnRate);
 };

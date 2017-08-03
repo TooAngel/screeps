@@ -133,6 +133,7 @@ global.config = {
       1800: [8, 15], // RCL 5
       2300: [11, 21], // RCL 6
     },
+    minSpawnRate: 50,
     // Percentage should increase from base to target room. Decrease may cause stack on border
     carryPercentageBase: 0.1,
     carryPercentageHighway: 0.2,
