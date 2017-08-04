@@ -123,10 +123,12 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
  * @param  {string} targetRoom the targeted room name (base)
  * @param  {number} level      the level of creeps. required by some functions.
  * @param  {string} base       the room which will spawn creep
+ * @param  {object} additionalMemory
  * @return {boolean}           if the spawn is not allow, it will return false.
  */
-Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, level, base) {
-  var creepMemory = this.creepMem(role, targetId, targetRoom, level, base);
+Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, level, base, additionalMemory = {}) {
+  const creepMemory = this.creepMem(role, targetId, targetRoom, level, base);
+  Object.assign(creepMemory, additionalMemory);
   if (this.inQueue(creepMemory) || this.inRoom(creepMemory, amount)) { return false; }
 
   if (config.debug.queue) {

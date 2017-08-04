@@ -73,8 +73,7 @@ Creep.prototype.handle = function() {
     // TODO this happens when the creep is not on the path (maybe pathPos check will solve)
     if (unit.buildRoad) {
       if (this.memory.routing && !this.memory.routing.reached) {
-        const target = Game.getObjectById(this.memory.routing.targetId);
-        if (config.buildRoad.buildToOtherMyRoom || !target || target.structureType !== STRUCTURE_STORAGE) {
+        if (config.buildRoad.buildToOtherMyRoom || !this.memory.helper) {
           this.buildRoad();
         }
       }
