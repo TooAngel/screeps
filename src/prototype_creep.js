@@ -57,6 +57,11 @@ Creep.prototype.handle = function() {
     return;
   }
 
+  if (this.memory.recycle) {
+    Creep.recycleCreep(this);
+    return;
+  }
+
   let role = this.memory.role;
   if (!role) {
     this.log('Creep role not defined for: ' + this.id + ' ' + this.name.split('-')[0].replace(/[0-9]/g, ''));

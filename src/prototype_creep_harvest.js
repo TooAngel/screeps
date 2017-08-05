@@ -84,6 +84,13 @@ Creep.prototype.spawnCarry = function() {
 
   if (resourceAtPosition > carryCapacity) {
     Game.rooms[this.memory.base].checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom);
+  } else if (resourceAtPosition <= HARVEST_POWER * workParts) {
+    const nearCarries = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 2, 'memory.role', ['carry'], false, {
+      filter: creep => creep.memory.routing.targetId === this.memory.routing.targetId
+    });
+    if (nearCarries.length > 1) {
+      nearCarries[0].memory.recycle = true;
+    }
   }
   this.memory.wait = Math.max(waitTime, config.carry.minSpawnRate);
 };
