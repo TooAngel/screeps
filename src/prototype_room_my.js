@@ -308,6 +308,9 @@ Room.prototype.executeRoom = function() {
       if (this.storage.store.energy < config.creep.energyFromStorageThreshold && this.controller.level < 5) {
         amount = 3;
       }
+      if (!this.storage.my) {
+        amount = 10;
+      }
     }
 
     this.checkRoleToSpawn('harvester', amount, 'harvester');
@@ -369,11 +372,11 @@ Room.prototype.executeRoom = function() {
 
   this.checkAndSpawnSourcer();
 
-  if (this.controller.level >= 4 && this.storage) {
+  if (this.controller.level >= 4 && this.storage && this.storage.my) {
     this.checkRoleToSpawn('storagefiller', 1, 'filler');
   }
 
-  if (this.storage && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
+  if (this.storage && this.storage.my && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
     this.checkRoleToSpawn('upgrader', 1, this.controller.id);
   }
 

@@ -143,7 +143,7 @@ roles.carry.preMove = function(creep, directions) {
           return true;
         }
         reverse = creep.carry.energy - transferred.transferred > 0;
-      } else if (!creep.room.storage && creep.memory.routing.pathPos === 0) {
+      } else if (!(creep.room.storage && creep.room.storage.my) && creep.memory.routing.pathPos === 0) {
         creep.say('Drop');
         creep.drop(RESOURCE_ENERGY);
         reverse = false;
