@@ -190,7 +190,7 @@ roles.nextroomer.underSiege = function(creep) {
 roles.nextroomer.settle = function(creep) {
   let room = Game.rooms[creep.room.name];
   let hostileCreeps = room.find(FIND_HOSTILE_CREEPS, {
-    filter: creep => !room.controller.safeMode || creep.ticksToLive > room.controller.safeMode
+    filter: creep => (!room.controller.safeMode || creep.ticksToLive > room.controller.safeMode) && !brain.isFriend(creep.owner.username)
   });
   if (hostileCreeps.length) {
     room.memory.underSiege = true;

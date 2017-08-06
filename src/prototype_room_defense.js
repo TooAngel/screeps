@@ -78,7 +78,9 @@ Room.prototype.handleTower = function() {
   if (towers.length === 0) {
     return false;
   }
-  const hostileCreeps = this.find(FIND_HOSTILE_CREEPS);
+  const hostileCreeps = this.find(FIND_HOSTILE_CREEPS, {
+    filter: object => !brain.isFriend(object.owner.username)
+  });
   if (hostileCreeps.length > 0) {
     let tower;
     let hostileOffset = {};
