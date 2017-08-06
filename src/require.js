@@ -59,5 +59,6 @@ require('role_squadsiege');
 require('role_squadheal');
 require('role_storagefiller');
 require('role_structurer');
+require('role_towerdrainer');
 require('role_towerfiller');
 require('role_upgrader');
