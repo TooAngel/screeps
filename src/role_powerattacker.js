@@ -9,7 +9,8 @@
 roles.powerattacker = {};
 roles.powerattacker.settings = {
   layoutString: 'MA',
-  amount: [5, 5]
+  amount: [5, 5],
+  fillTough: true
 };
 
 roles.powerattacker.action = function(creep) {

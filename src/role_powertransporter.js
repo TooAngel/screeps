@@ -9,7 +9,8 @@
 roles.powertransporter = {};
 roles.powertransporter.settings = {
   layoutString: 'MC',
-  maxLayoutAmount: 20
+  maxLayoutAmount: 20,
+  fillTough: true
 };
 
 roles.powertransporter.action = function(creep) {
