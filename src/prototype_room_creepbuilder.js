@@ -325,20 +325,15 @@ Room.prototype.getCreepConfig = function(creep) {
   var name = role + '-' + id;
   var partConfig = this.getPartConfig(creep);
   if (!partConfig) { return; }
-  let memory = {
-    role: role,
+  let memory = Object.assign({}, creep, {
     number: id,
     step: 0,
     base: creep.base || this.name,
     born: Game.time,
-    heal: creep.heal,
-    level: creep.level,
-    squad: creep.squad,
     killPrevious: unit.killPrevious,
     flee: unit.flee,
-    buildRoad: unit.buildRoad,
-    routing: creep.routing
-  };
+    buildRoad: unit.buildRoad
+  });
   return {
     name: name,
     memory: memory,
