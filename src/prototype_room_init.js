@@ -3,7 +3,7 @@
 Room.prototype.initSetController = function() {
   if (this.controller) {
     let costMatrix = this.getMemoryCostMatrix();
-    let upgraderPos = this.controller.pos.findNearPosition().next().value;
+    let upgraderPos = this.controller.pos.getBestNearPosition();
     this.memory.position.creep[this.controller.id] = upgraderPos;
     costMatrix.set(upgraderPos.x, upgraderPos.y, config.layout.creepAvoid);
     this.setMemoryCostMatrix(costMatrix);
@@ -14,11 +14,11 @@ Room.prototype.initSetSources = function() {
   let sources = this.find(FIND_SOURCES);
   let costMatrix = this.getMemoryCostMatrix();
   for (let source of sources) {
-    let sourcer = source.pos.findNearPosition().next().value;
+    let sourcer = source.pos.getFirstNearPosition();
     this.memory.position.creep[source.id] = sourcer;
     // TODO E.g. E11S8 it happens that sourcer has no position
     if (sourcer) {
-      let link = sourcer.findNearPosition().next().value;
+      let link = sourcer.getFirstNearPosition();
       this.memory.position.structure.link.push(link);
       costMatrix.set(link.x, link.y, config.layout.structureAvoid);
       this.setMemoryCostMatrix(costMatrix);
@@ -30,7 +30,7 @@ Room.prototype.initSetMinerals = function() {
   let costMatrix = this.getMemoryCostMatrix();
   let minerals = this.find(FIND_MINERALS);
   for (let mineral of minerals) {
-    let extractor = mineral.pos.findNearPosition().next().value;
+    let extractor = mineral.pos.getFirstNearPosition();
     this.memory.position.creep[mineral.id] = extractor;
     this.memory.position.structure.extractor.push(mineral.pos);
     costMatrix.set(extractor.x, extractor.y, config.layout.creepAvoid);
@@ -40,13 +40,13 @@ Room.prototype.initSetMinerals = function() {
 
 Room.prototype.initSetStorageAndPathStart = function() {
   let costMatrix = this.getMemoryCostMatrix();
-  let storagePos = this.memory.position.creep[this.controller.id].findNearPosition().next().value;
+  let storagePos = this.memory.position.creep[this.controller.id].getBestNearPosition();
   this.memory.position.structure.storage.push(storagePos);
   // TODO should also be done for the other structures
   costMatrix.set(storagePos.x, storagePos.y, config.layout.structureAvoid);
   this.setMemoryCostMatrix(costMatrix);
 
-  this.memory.position.creep.pathStart = storagePos.findNearPosition().next().value;
+  this.memory.position.creep.pathStart = storagePos.getFirstNearPosition();
 
   let route = [{
     room: this.name
@@ -68,42 +68,40 @@ Room.prototype.initSetStorageAndPathStart = function() {
 
 Room.prototype.setFillerArea = function(storagePos, route) {
   let costMatrix = this.getMemoryCostMatrix();
-  let fillerPosIterator = storagePos.findNearPosition();
-  for (let fillerPos of fillerPosIterator) {
-    // TODO reset all values if the first doesn't fit
-    this.log('Testing fillerPos' + JSON.stringify(fillerPos));
-    this.deleteMemoryPath('pathStart-filler');
-    this.memory.position.creep.filler = fillerPos;
-    costMatrix.set(fillerPos.x, fillerPos.y, config.layout.creepAvoid);
+  let fillerPos = storagePos.getBestNearPosition();
+  // TODO reset all values if the first doesn't fit
+  this.log('Testing fillerPos' + JSON.stringify(fillerPos));
+  this.deleteMemoryPath('pathStart-filler');
+  this.memory.position.creep.filler = fillerPos;
+  costMatrix.set(fillerPos.x, fillerPos.y, config.layout.creepAvoid);
+  this.setMemoryCostMatrix(costMatrix);
+  let pathFiller = this.getPath(route, 0, 'pathStart', 'filler', true);
+  for (let pos of pathFiller) {
+    this.increaseCostMatrixValue(costMatrix, pos, config.layout.pathAvoid);
+  }
+  this.setMemoryCostMatrix(costMatrix);
+  let linkStoragePosIterator = fillerPos.findNearPosition();
+  for (let linkStoragePos of linkStoragePosIterator) {
+    this.memory.position.structure.link.unshift(linkStoragePos);
+    costMatrix.set(linkStoragePos.x, linkStoragePos.y, config.layout.structureAvoid);
     this.setMemoryCostMatrix(costMatrix);
-    let pathFiller = this.getPath(route, 0, 'pathStart', 'filler', true);
-    for (let pos of pathFiller) {
-      this.increaseCostMatrixValue(costMatrix, pos, config.layout.pathAvoid);
-    }
-    this.setMemoryCostMatrix(costMatrix);
-    let linkStoragePosIterator = fillerPos.findNearPosition();
-    for (let linkStoragePos of linkStoragePosIterator) {
-      this.memory.position.structure.link.unshift(linkStoragePos);
-      costMatrix.set(linkStoragePos.x, linkStoragePos.y, config.layout.structureAvoid);
+
+    let powerSpawnPosIterator = fillerPos.findNearPosition();
+    for (let powerSpawnPos of powerSpawnPosIterator) {
+      this.memory.position.structure.powerSpawn.push(powerSpawnPos);
+      costMatrix.set(powerSpawnPos.x, powerSpawnPos.y, config.layout.structureAvoid);
       this.setMemoryCostMatrix(costMatrix);
 
-      let powerSpawnPosIterator = fillerPos.findNearPosition();
-      for (let powerSpawnPos of powerSpawnPosIterator) {
-        this.memory.position.structure.powerSpawn.push(powerSpawnPos);
-        costMatrix.set(powerSpawnPos.x, powerSpawnPos.y, config.layout.structureAvoid);
+      let towerPosIterator = fillerPos.findNearPosition();
+      for (let towerPos of towerPosIterator) {
+        this.memory.position.structure.tower.push(towerPos);
+        costMatrix.set(towerPos.x, towerPos.y, config.layout.structureAvoid);
         this.setMemoryCostMatrix(costMatrix);
-
-        let towerPosIterator = fillerPos.findNearPosition();
-        for (let towerPos of towerPosIterator) {
-          this.memory.position.structure.tower.push(towerPos);
-          costMatrix.set(towerPos.x, towerPos.y, config.layout.structureAvoid);
-          this.setMemoryCostMatrix(costMatrix);
-          return;
-        }
-        this.memory.position.structure.powerSpawn.pop();
+        return;
       }
-      this.memory.position.structure.link.shift();
+      this.memory.position.structure.powerSpawn.pop();
     }
+    this.memory.position.structure.link.shift();
   }
 };
 

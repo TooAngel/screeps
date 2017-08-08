@@ -26,7 +26,7 @@ RoomPosition.prototype.clearPosition = function(target) {
         return true;
       }
     }
-    this.log('Destroying: ' + structure.structureType);
+    console.log('Destroying: ' + structure.structureType);
     structure.destroy();
   }
 };
@@ -187,7 +187,15 @@ RoomPosition.prototype.validPosition = function() {
   return true;
 };
 
-RoomPosition.prototype.findNearPosition = function*() {
+RoomPosition.prototype.getFirstNearPosition = function() {
+  return this.findNearPosition().next().value;
+};
+
+RoomPosition.prototype.getBestNearPosition = function() {
+  return _.max(Array.from(this.findNearPosition()), pos => Array.from(pos.findNearPosition()).length);
+};
+
+RoomPosition.prototype.findNearPosition = function* () {
   for (let posNew of this.getAllAdjacentPositions()) {
     if (!posNew.validPosition()) {
       //        console.log(posNew + ' - invalid');
