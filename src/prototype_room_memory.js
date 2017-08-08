@@ -30,18 +30,22 @@ Room.prototype.setMemoryCostMatrix = function(costMatrix) {
   cache.rooms[this.name].costMatrix.base = costMatrix;
 };
 
+Room.prototype.clearMemory = function() {
+  this.memory = {invalidated: Game.time};
+};
+
 Room.prototype.checkCache = function() {
   this.memory.routing = this.memory.routing || {};
-  // cache.rooms[this.name] = cache.rooms[this.name] || {};
-  // cache.rooms[this.name].find = cache.rooms[this.name].find || {};
-  // cache.rooms[this.name].routing = cache.rooms[this.name].routing || {};
-  // cache.rooms[this.name].costMatrix = cache.rooms[this.name].costMatrix || {};
+  if (!cache.rooms[this.name] || !cache.rooms[this.name].created ||
+    this.memory.invalidated && cache.rooms[this.name].created < this.memory.invalidated) {
 
-  cache.rooms[this.name] = cache.rooms[this.name] || {
-    find: {},
-    routing: {},
-    costMatrix: {}
-  };
+    cache.rooms[this.name] = {
+      find: {},
+      routing: {},
+      costMatrix: {},
+      created: Game.time
+    };
+  }
 };
 
 /**
@@ -92,7 +96,7 @@ Room.prototype.getMemoryPaths = function() {
 /**
  * Returns the path for the given name. Checks for validity and populated
  * cache if missing.
-^
+ *
  * @param {String} name - the name of the path
  */
 Room.prototype.getMemoryPath = function(name) {
