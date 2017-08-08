@@ -127,7 +127,6 @@ roles.carry.preMove = function(creep, directions) {
       if (adjacentPos.isValid()) {
         let creeps = adjacentPos.lookFor(LOOK_CREEPS);
         if (creeps.length > 0 && creeps[0].memory && creeps[0].memory.routing && creeps[0].memory.routing.targetId !== creep.memory.routing.targetId) {
-          creep.say('give way');
           reverse = true;
         }
       }
@@ -143,8 +142,7 @@ roles.carry.preMove = function(creep, directions) {
           return true;
         }
         reverse = creep.carry.energy - transferred.transferred > 0;
-      } else if (!(creep.room.storage && creep.room.storage.my) && creep.memory.routing.pathPos === 0) {
-        creep.say('Drop');
+      } else if (creep.memory.routing.pathPos === 0 && !(creep.room.storage && creep.room.storage.my && creep.room.storage.isActive())) {
         creep.drop(RESOURCE_ENERGY);
         reverse = false;
       }
