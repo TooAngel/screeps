@@ -4,11 +4,11 @@
  * Towerdrainer is used to drain energy from hostile towers
  *
  * Moves to the border between routing targetRoom and attackRoom,
- * step for one tick into attackRoom, then step out ang heals
+ * step for one tick into attackRoom, then step out and heals
  *
  * You need 13 towerdrainers to drain at maximum speed
  *
- * Towerdrainers doesn't called now from anywhere. Call tehm manually:
+ * Towerdrainers doesn't called now from anywhere. Call them manually:
  * @example
  * Game.rooms.E17N1.memory.queue.push({role: 'towerdrainer', routing: {targetRoom: 'E16N0'}, attackRoom: 'E16N1'})
  */
@@ -19,35 +19,38 @@ roles.towerdrainer.settings = {
   layoutString: 'TMH',
   amount: [3, 5, 2], // attack RCL 5
   // amount: [2, 3, 1], // attack RCL 3
-  maxLayoutAmount: 1,
+  maxLayoutAmount: 1
 };
 
-roles.towerdrainer.action = function(creep) {
+roles.towerdrainer.getRestPosition = function(creep) {
   const restRoom = creep.memory.routing.targetRoom;
   const attackRoom = creep.memory.attackRoom;
-
   if (!creep.memory.restPosition) {
     creep.notifyWhenAttacked(false);
     const room = Game.rooms[restRoom];
-    const attackDirrection = room.findExitTo(attackRoom);
-    const restDirrection = (attackDirrection + 3) % 8 + 1;
+    const attackDirection = room.findExitTo(attackRoom);
+    const restDirection = (attackDirection + 3) % 8 + 1;
     const occupiedPositions = {};
     _.filter(Game.creeps, c => c.memory.role === 'towerdrainer' && c.memory.restPosition).forEach(c => {
       occupiedPositions[c.memory.restPosition.x + c.memory.restPosition.y] = c.id;
     });
-    const attackExits = room.find(attackDirrection);
+    const attackExits = room.find(attackDirection);
     for (let exit of attackExits) {
-      const pos = exit.getAdjacentPosition(restDirrection);
+      const pos = exit.getAdjacentPosition(restDirection);
       if (!pos.checkForWall() && !pos.checkForObstacleStructure() && !occupiedPositions[pos.x + pos.y]) {
         creep.memory.restPosition = pos;
-        creep.memory.attackDirrection = attackDirrection;
-        creep.memory.restDirrection = restDirrection;
+        creep.memory.attackDirrection = attackDirection;
+        creep.memory.restDirrection = restDirection;
         break;
       }
     }
   }
+  return creep.memory.restPosition;
+};
 
-  const restPos = creep.memory.restPosition;
+roles.towerdrainer.action = function(creep) {
+  const attackRoom = creep.memory.attackRoom;
+  const restPos = this.getRestPosition(creep);
   if (!restPos) {
     creep.log('no position');
     creep.moveRandom();
@@ -66,8 +69,4 @@ roles.towerdrainer.action = function(creep) {
   }
 
   return true;
-};
-
-roles.towerdrainer.execute = function(creep) {
-  creep.log('Execute!!!');
 };
