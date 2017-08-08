@@ -185,6 +185,10 @@ roles.scoutnextroom.execute = function(creep) {
     }
   );
 
+  if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+    visualizer.showSearch(search);
+  }
+
   if (search.incomplete || search.path.length === 0) {
     creep.say('incomplete');
     if (creep.isStuck()) {

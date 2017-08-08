@@ -93,6 +93,10 @@ roles.squadheal.action = function(creep) {
       }
     );
 
+    if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+      visualizer.showSearch(search);
+    }
+
     if (search.incomplete) {
       creep.say('incomplete');
       creep.log(creep.pos.getDirectionTo(exit.x, exit.y));

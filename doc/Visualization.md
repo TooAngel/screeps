@@ -9,8 +9,10 @@ Different options are available
 
  - `showRoomPaths` Fixed room paths
  - `showCreepPaths` Cached path per creep shown in red
+ - `showPathSearches` Results of `PathFinder.search`
  - `showStructures` Position of structures
  - `showCreeps` Position of fixed creeps
- - `refresh` Refresh the layout regular
+ - `showBlockers` Position of walls and ramparts 
+ - `showCostMatrixes` Stored cost matrixes
 
 The default values shown in `config.js`.

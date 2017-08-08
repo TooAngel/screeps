@@ -93,6 +93,10 @@ roles.scout.execute = function(creep) {
         }
       );
 
+      if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+        visualizer.showSearch(search);
+      }
+
     } catch (e) {
       if (e !== null) {
         creep.log(`search: ${targetPosObject} ${e} ${e.stack}`);

@@ -43,7 +43,7 @@ var main = function() {
   brain.stats.addRoot();
   Memory.myRooms = _(Game.rooms).filter(r => r.execute()).map(r => r.name).value();
 
-  if (config.visualizer.enabled && config.visualizer.refresh) {
+  if (config.visualizer.enabled) {
     visualizer.render();
   }
   brain.stats.add(['cpu'], {

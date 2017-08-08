@@ -41,6 +41,10 @@ Creep.prototype.moveToMy = function(target, range) {
     }
   );
 
+  if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+    visualizer.showSearch(search);
+  }
+
   if (search.incomplete) {
     this.moveRandom();
     return false;
