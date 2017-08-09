@@ -109,10 +109,9 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
   if (this.carry.energy) {
     return false;
   }
-  let hostileStructures = this.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType',
-    [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_OBSERVER], true, {
-      filter: Room.structureHasEnergy
-    });
+  let hostileStructures = this.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_OBSERVER], true, {
+    filter: Room.structureHasEnergy
+  });
   if (!hostileStructures.length) {
     return false;
   }
