@@ -11,4 +11,4 @@ deployment:
     commands:
       - npm run deploy
       - npm publish || true
-      - nodejs utils/grafana.js
+      - node utils/grafana.js
