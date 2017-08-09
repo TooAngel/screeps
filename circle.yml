@@ -11,12 +11,4 @@ deployment:
     commands:
       - npm run deploy
       - npm publish || true
-      - node utils/grafana.js
-  workspace:
-    branch: workspace
-    commands:
-      - npm run deploy
-  grafana:
-    branch: grafana
-    commands:
-      - node utils/grafana.js
+      - nodejs utils/grafana.js
