@@ -325,7 +325,7 @@ Room.prototype.getPartConfig = function(creep) {
   if (fillTough && parts.length < MAX_CREEP_SIZE) {
     let tough = this.getPartsStringDatas('T', energyAvailable);
     if (!tough.fail && !tough.null) {
-      let maxTough = Math.floor(Math.min(energyAvailable / tough.cost, MAX_CREEP_SIZE - parts.length));
+      let maxTough = Math.floor(Math.min(energyAvailable / tough.cost, MAX_CREEP_SIZE - parts.length, parts.filter(p => p === MOVE).length));
       parts = _.flatten(Array(maxTough).fill(tough.parts)).concat(parts);
     }
   }
