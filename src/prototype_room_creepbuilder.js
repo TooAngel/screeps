@@ -151,9 +151,16 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
  */
 
 Room.prototype.getPartsStringDatas = function(parts, energyAvailable) {
-  if (!_.isString(parts) || parts === '') {
+  if (!_.isString(parts)) {
     return {
       null: true
+    };
+  }
+  if (parts === '') {
+    return {
+      cost: 0,
+      parts: [],
+      len: 0,
     };
   }
   let ret = {};
@@ -233,7 +240,7 @@ Room.prototype.applyAmount = function(input, amount) {
   if (!input) {
     return '';
   }
-  if (!amount) {
+  if (typeof amount === undefined) {
     return input;
   }
   let cost = 0;
@@ -293,10 +300,15 @@ Room.prototype.getPartConfig = function(creep) {
   if (layout.fail || layout.null) { return false; }
   let parts = prefix.parts || [];
   let maxRepeat = Math.floor(Math.min(energyAvailable / layout.cost, maxBodyLength / layout.len));
+  if (layout.len === 0) {
+    maxRepeat = 0;
+  }
   if (maxLayoutAmount) {
     maxRepeat = Math.min(maxLayoutAmount, maxRepeat);
   }
-  parts = parts.concat(_.flatten(Array(maxRepeat).fill(layout.parts)));
+  if (maxRepeat > 0) {
+    parts = parts.concat(_.flatten(Array(maxRepeat).fill(layout.parts)));
+  }
   energyAvailable -= layout.cost * maxRepeat;
 
   let sufix = this.getPartsStringDatas(sufixString, energyAvailable);
