@@ -22,6 +22,10 @@ Creep.prototype.handleStructurer = function() {
     }
   );
 
+  if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+    visualizer.showSearch(search);
+  }
+
   let pos = search.path[0];
   let returnCode = this.move(this.pos.getDirectionTo(pos));
 
@@ -50,6 +54,9 @@ Creep.prototype.cleanController = function() {
       maxRooms: 1
     }
   );
+  if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+    visualizer.showSearch(search);
+  }
   for (let pos of search.path) {
     const posObject = new RoomPosition(pos.x, pos.y, this.room.name);
     const structures = posObject.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true, {

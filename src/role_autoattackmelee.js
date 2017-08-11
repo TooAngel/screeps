@@ -73,6 +73,9 @@ roles.autoattackmelee.action = function(creep) {
       maxRooms: 1
     }
   );
+  if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+    visualizer.showSearch(search);
+  }
   creep.move(creep.pos.getDirectionTo(search.path[0]));
   if (creep.pos.getRangeTo(spawn.pos) <= 1) {
     creep.attack(spawn);

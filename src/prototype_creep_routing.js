@@ -232,6 +232,10 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
       }
     );
 
+    if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+      visualizer.showSearch(search);
+    }
+
     if (search.incomplete) {
       this.moveTo(posFirst);
       return true;

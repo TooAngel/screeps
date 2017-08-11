@@ -22,9 +22,11 @@ global.config = {
     enabled: false,
     showRoomPaths: true,
     showCreepPaths: true,
+    showPathSearches: true,
     showStructures: true,
     showCreeps: true,
-    refresh: true,
+    showBlockers: true,
+    showCostMatrixes: false
   },
 
   quests: {
