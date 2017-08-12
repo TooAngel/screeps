@@ -147,6 +147,16 @@ roles.carry.preMove = function(creep, directions) {
         creep.say('Drop');
         creep.drop(RESOURCE_ENERGY);
         reverse = false;
+
+        let resourceAtPosition = 0;
+        var resources = creep.pos.lookFor(LOOK_RESOURCES);
+        for (let resource of resources) {
+          resourceAtPosition += resource.amount;
+        }
+        let amount = creep.room.getHarvesterAmount();
+        amount += Math.floor(resourceAtPosition / config.carry.callHarvesterPerResources);
+        creep.room.checkRoleToSpawn('harvester', amount, 'harvester');
+
       }
     }
     if (directions.backwardDirection && directions.backwardDirection !== null) {

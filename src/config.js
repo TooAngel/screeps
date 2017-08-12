@@ -139,7 +139,8 @@ global.config = {
     // Percentage should increase from base to target room. Decrease may cause stack on border
     carryPercentageBase: 0.1,
     carryPercentageHighway: 0.2,
-    carryPercentageExtern: 0.5
+    carryPercentageExtern: 0.5,
+    callHarvesterPerResources: 1000
   },
 
   creep: {
