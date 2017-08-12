@@ -311,7 +311,7 @@ Room.prototype.executeRoom = function() {
   const nextroomers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['nextroomer'], false, {
     filter: object => object.memory.base !== this.name
   });
-  const building = nextroomers.length > 0 && this.controller.level < 5;
+  const building = nextroomers.length > 0 && this.controller.level < 4;
 
   const creepsInRoom = this.find(FIND_MY_CREEPS);
   let spawn;

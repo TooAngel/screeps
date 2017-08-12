@@ -79,6 +79,9 @@ Room.prototype.destroyStructure = function(structure) {
         let planers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['planer']);
         if (planers.length > 3) {
           this.log('Destroying to rebuild spawn: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
+          this.log('-----------------------------------------');
+          this.log('ATTENTION: The last spawn is destroyed, a new one will be build automatically, DO NOT RESPAWN');
+          this.log('-----------------------------------------');
           structure.destroy();
           delete this.memory.misplacedSpawn;
           this.memory.controllerLevel.checkWrongStructureInterval = 1;

@@ -31,12 +31,15 @@ roles.upgrader.updateSettings = function(room, creep) {
   // 3000 energy will be put in the controller
   let workParts = Math.floor((room.storage.store.energy + 1) / (CREEP_LIFE_TIME * config.room.upgraderStorageFactor));
   workParts = Math.min(workParts, 47);
-  console.log('workParts', Math.max(0, workParts - 1));
   if (room.controller.level === 8) {
     workParts = Math.min(workParts, 15);
   }
+  const maxLayoutAmount = Math.max(0, workParts - 1);
+  if (config.debug.upgrader) {
+    room.log(`upgrader updateSettings - storage.energy: ${room.storage.store.energy} upgraderStorageFactor: ${config.room.upgraderStorageFactor} workParts: ${workParts} maxLayoutAmount: ${maxLayoutAmount}`);
+  }
   return {
-    maxLayoutAmount: Math.max(0, workParts - 1)
+    maxLayoutAmount: maxLayoutAmount
   };
 };
 

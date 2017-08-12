@@ -15,7 +15,8 @@ roles.storagefiller.killPrevious = true;
 
 roles.storagefiller.settings = {
   layoutString: 'MC',
-  amount: [1, 4]
+  amount: [1, 4],
+  maxLayoutAmount: 1
 };
 
 roles.storagefiller.action = function(creep) {
