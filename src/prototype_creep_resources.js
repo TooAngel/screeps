@@ -373,7 +373,11 @@ Creep.prototype.transferAllResources = function(structure) {
     }
     let returnCode = this.transfer(structure, resource);
     if (returnCode === OK) {
-      transferred = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
+      let transferableEnergy = structure.energyCapacity - structure.energy;
+      if (structure.structureType === STRUCTURE_STORAGE) {
+        transferableEnergy = structure.storeCapacity - _.sum(structure.store);
+      }
+      transferred = Math.min(this.carry[resource], transferableEnergy);
     }
   }
   return transferred;
