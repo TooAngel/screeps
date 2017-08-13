@@ -1,21 +1,29 @@
 'use strict';
 
-brain.setMarketOrdersBuy = function() {
-  Memory.mineralSystemPrice = {};
-  Memory.ordersBuy = _.filter(Game.market.getAllOrders(), function(object) {
-    if (object.type != ORDER_BUY) {
-      return false;
+brain.setMarketOrders = function() {
+  Memory.orders = {};
+  Memory.orders[ORDER_BUY] = {};
+  Memory.orders[ORDER_SELL] = {};
+  for (let order of Game.market.getAllOrders()) {
+    if (order.resourceType === SUBSCRIPTION_TOKEN || Memory.myRooms.includes(order.roomName)) {
+      continue;
     }
-    if (object.resourceType === 'token') {
-      return false;
+    let category = Memory.orders[order.type][order.resourceType];
+    if (!category) {
+      Memory.orders[order.type][order.resourceType] = category = {
+        min: order.price,
+        max: order.price,
+        totalPrice: 0,
+        totalAmount: 0,
+        orders: []
+      };
     }
-    var patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
-    var result = patt.exec(object.roomName);
-    if (result[2] % 10 !== 0 && result[4] % 10 !== 0) {
-      return false;
-    }
-    return true;
-  });
+    category.min = Math.min(category.min, order.price);
+    category.max = Math.max(category.max, order.price);
+    category.totalPrice += order.price * order.remainingAmount;
+    category.totalAmount += order.remainingAmount;
+    category.orders.push(order);
+  }
 };
 
 brain.setConstructionSites = function() {
@@ -190,7 +198,7 @@ Upgrade less: ${strings.upgradeLess}
 
 brain.prepareMemory = function() {
   Memory.username = Memory.username || _.chain(Game.rooms).map('controller').flatten().filter('my').map('owner.username').first().value();
-  brain.setMarketOrdersBuy();
+  brain.setMarketOrders();
   brain.setConstructionSites();
   brain.cleanCreeps();
   brain.cleanSquads();
