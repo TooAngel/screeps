@@ -34,6 +34,10 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
       // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
       let structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
       this.setCostMatrixStructures(costMatrix, structures, config.layout.structureAvoid);
+
+      // TODO repairer got stuck at walls, why?
+      let constructionSites = room.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
+      this.setCostMatrixStructures(costMatrix, constructionSites, config.layout.structureAvoid);
     }
 
     if (allowExits) {

@@ -319,20 +319,3 @@ Creep.prototype.pickupOrWithdrawFromSourcer = function(target) {
   pickedUp += target.amount;
   return Math.min(pickedUp, creepFreeSpace);
 };
-
-Creep.prototype.getDroppedEnergy = function() {
-  let target = this.pos.findClosestByRangePropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], false, {
-    filter: object => object.amount > 0
-  });
-  if (target !== null) {
-    let energyRange = this.pos.getRangeTo(target.pos);
-    if (energyRange <= 1) {
-      this.pickupOrWithdrawFromSourcer(target);
-      return true;
-    }
-    if (target.energy > (energyRange * 10) * (this.carry.energy + 1)) {
-      return this.moveToMy(target.pos, 1) !== false;
-    }
-  }
-  return false;
-};

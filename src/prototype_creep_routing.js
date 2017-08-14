@@ -193,12 +193,12 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
 
   let pathPos = this.getPathPos(route, routePos, path);
   if (pathPos < 0) {
-    this.say('R:pos -1');
+    // this.say('R:pos -1');
     this.memory.routing.pathPos = pathPos;
     // TODO this is duplicated, find a better order? Or have another method
     if (!skipPreMove) {
       if (unit.preMove) {
-        this.say('R:-1 pre');
+        // this.say('R:-1 pre');
         if (unit.preMove(this)) {
           return true;
         }
