@@ -10,7 +10,7 @@ roles.defendmelee = {};
 
 roles.defendmelee.settings = {
   layoutString: 'MA',
-  amount: [5, 5],
+  amount: [5, 5]
 };
 
 roles.defendmelee.execute = function(creep) {

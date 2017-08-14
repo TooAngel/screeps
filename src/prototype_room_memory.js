@@ -31,7 +31,7 @@ Room.prototype.setMemoryCostMatrix = function(costMatrix) {
 };
 
 Room.prototype.clearMemory = function() {
-  this.memory = {invalidated: Game.time};
+  this.memory = { invalidated: Game.time };
 };
 
 Room.prototype.checkCache = function() {

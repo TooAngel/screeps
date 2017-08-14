@@ -14,7 +14,7 @@ roles.reserver.flee = false;
 
 roles.reserver.settings = {
   layoutString: 'MK',
-  maxLayoutAmount: 1,
+  maxLayoutAmount: 1
 };
 roles.reserver.updateSettings = function(room, creep) {
   let level = creep.level ? creep.level : 1;

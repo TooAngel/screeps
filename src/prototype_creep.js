@@ -133,7 +133,7 @@ Creep.prototype.handle = function() {
     this.memory.last = {
       pos1: this.pos,
       pos2: last.pos1,
-      pos3: last.pos2,
+      pos3: last.pos2
     };
   }
 };
@@ -346,7 +346,7 @@ Creep.prototype.respawnMe = function() {
   let routing = {
     targetRoom: this.memory.routing.targetRoom,
     targetId: this.memory.routing.targetId,
-    route: this.memory.routing.route,
+    route: this.memory.routing.route
   };
   var spawn = {
     role: this.memory.role,

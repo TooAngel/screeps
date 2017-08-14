@@ -147,7 +147,7 @@ if (config.visualizer.enabled) {
           return rv[pos.roomName];
         };
         let prevPos = search.path[0];
-        let style = {color: search.incomplete ? 'red' : 'green'};
+        let style = { color: search.incomplete ? 'red' : 'green' };
         for (let pi of search.path) {
           if (prevPos.roomName === pi.roomName) {
             getRV(pi).line(prevPos, pi, style);

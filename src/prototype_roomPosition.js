@@ -195,7 +195,7 @@ RoomPosition.prototype.getBestNearPosition = function() {
   return _.max(Array.from(this.findNearPosition()), pos => Array.from(pos.findNearPosition()).length);
 };
 
-RoomPosition.prototype.findNearPosition = function* () {
+RoomPosition.prototype.findNearPosition = function*() {
   for (let posNew of this.getAllAdjacentPositions()) {
     if (!posNew.validPosition()) {
       //        console.log(posNew + ' - invalid');

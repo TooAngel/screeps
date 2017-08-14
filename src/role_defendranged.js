@@ -9,7 +9,7 @@
 roles.defendranged = {};
 
 roles.defendranged.settings = {
-  layoutString: 'MR',
+  layoutString: 'MR'
 };
 
 // TODO This overwrites the target so redo and enable again

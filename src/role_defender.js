@@ -14,7 +14,7 @@ roles.defender.settings = {
   layoutString: 'MRH',
   amount: {
     1: [2, 1, 1],
-    8: [4, 1, 1],
+    8: [4, 1, 1]
   }
 };
 

@@ -66,7 +66,7 @@ Creep.prototype.spawnCarry = function() {
     role: 'carry',
     routing: {
       targetRoom: this.memory.routing.targetRoom,
-      targetId: this.memory.routing.targetId,
+      targetId: this.memory.routing.targetId
     }
   };
 

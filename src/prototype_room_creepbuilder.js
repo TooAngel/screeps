@@ -5,10 +5,10 @@ Room.prototype.creepMem = function(role, targetId, targetRoom, level, base) {
     role: role,
     routing: {
       targetRoom: targetRoom || this.name,
-      targetId: targetId,
+      targetId: targetId
     },
     level: level,
-    base: base,
+    base: base
   };
 };
 
@@ -286,7 +286,7 @@ Room.prototype.getPartConfig = function(creep) {
     layoutString,
     amount,
     maxLayoutAmount,
-    sufixString,
+    sufixString
   } = this.getSettings(creep);
   let maxBodyLength = MAX_CREEP_SIZE;
   if (prefixString) { maxBodyLength -= prefixString.length; }
