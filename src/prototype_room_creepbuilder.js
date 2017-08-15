@@ -240,7 +240,7 @@ Room.prototype.applyAmount = function(input, amount) {
   if (!input) {
     return '';
   }
-  if (typeof amount === undefined) {
+  if (amount === undefined) {
     return input;
   }
   let cost = 0;
