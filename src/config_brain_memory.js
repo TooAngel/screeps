@@ -51,19 +51,23 @@ brain.addToStats = function(name) {
 
 brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
   console.log(Game.time, name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
-  // creeps died fast or  without a creepMemory.role or a roles[creepMemory.role]
-  if (Game.time - creepMemory.born < 20 || !creepMemory.role || !roles[creepMemory.role]) {
-    if (!creepMemory.role || !roles[creepMemory.role]) {
-      delete Memory.creeps[name];
-    }
+  // creeps died fast
+  if (Game.time - creepMemory.born < 20) {
+    return false;
+  }
+
+  // creeps died without a creepMemory.role or a roles[creepMemory.role]
+  if (!creepMemory.role || !roles[creepMemory.role]) {
+    delete Memory.creeps[name];
     return false;
   }
 
   let unit = roles[creepMemory.role];
   if (unit.died) {
-    if (typeof unit.died === 'boolean') {
+    if (typeof unit.died === 'boolean' && unit.died === true) {
       console.log('--->', name, JSON.stringify(creepMemory), 'Died naturally?');
-    } else if (typeof unit.died === 'function') {
+    }
+    if (typeof unit.died === 'function') {
       unit.died(name, creepMemory);
     }
   }
