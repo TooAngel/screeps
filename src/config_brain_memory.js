@@ -49,29 +49,45 @@ brain.addToStats = function(name) {
   brain.stats.modifyRoleAmount(role, -1);
 };
 
+brain.handleDiedFastCreep = function(creepMemory) {
+  return Game.time - creepMemory.born < 20;
+};
+
+brain.handleDiedNoRoleCreep = function(creepMemory) {
+  return !!(!creepMemory.role || !roles[creepMemory.role]);
+};
+
+brain.handleDiedCreep = function(name, creepMemory) {
+  let role = roles[creepMemory.role];
+  if (role.died) {
+    if (typeof role.died === 'boolean' && role.died === true) {
+      console.log('--->', name, JSON.stringify(creepMemory), 'Died naturally?');
+    }
+    if (typeof role.died === 'function') {
+      role.died(name, creepMemory);
+    }
+  }
+};
+
 brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
-  console.log(Game.time, name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
-  // creeps died fast
-  if (Game.time - creepMemory.born < 20) {
+  let baseRoomName = Memory.creeps[name].base;
+  let baseRoom = Game.rooms[baseRoomName];
+  if (baseRoom) {
+    baseRoom.log(Game.time, name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
+  } else {
+    console.log(Game.time, name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
+  }
+
+  if (brain.handleDiedFastCreep(creepMemory)) {
     return false;
   }
 
-  // creeps died without a creepMemory.role or a roles[creepMemory.role]
-  if (!creepMemory.role || !roles[creepMemory.role]) {
+  if (brain.handleDiedNoRoleCreep(creepMemory)) {
     delete Memory.creeps[name];
     return false;
   }
 
-  let unit = roles[creepMemory.role];
-  if (unit.died) {
-    if (typeof unit.died === 'boolean' && unit.died === true) {
-      console.log('--->', name, JSON.stringify(creepMemory), 'Died naturally?');
-    }
-    if (typeof unit.died === 'function') {
-      unit.died(name, creepMemory);
-    }
-  }
-
+  brain.handleDiedCreep(name, creepMemory);
   delete Memory.creeps[name];
   return false;
 };
