@@ -66,10 +66,11 @@ brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
     return;
   }
   if (unit.died) {
-    if (unit.died(name, creepMemory)) {
-      delete Memory.creeps[name];
+    if (typeof unit.died === 'boolean') {
+      console.log('--->', name, JSON.stringify(creepMemory), 'Died naturally?');
+    } else if (typeof unit.died === 'function') {
+      unit.died(name, creepMemory);
     }
-  } else {
     delete Memory.creeps[name];
   }
 };

@@ -13,10 +13,7 @@ roles.nextroomerattack.settings = {
   amount: [5, 5]
 };
 
-roles.nextroomerattack.died = function(name, memory) {
-  console.log('--->', name, JSON.stringify(memory), 'Died naturally?');
-  delete Memory.creeps[name];
-};
+roles.nextroomerattack.died = true;
 
 roles.nextroomerattack.action = function(creep) {
   if (!creep.memory.notified) {

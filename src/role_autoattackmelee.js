@@ -14,10 +14,7 @@ roles.autoattackmelee.settings = {
 
 };
 
-roles.autoattackmelee.died = function(name, memory) {
-  console.log('--->', name, JSON.stringify(memory), 'Died naturally?');
-  delete Memory.creeps[name];
-};
+roles.autoattackmelee.died = true;
 
 roles.autoattackmelee.preMove = function(creep) {
   if (creep.room.exectueEveryTicks(25)) {

@@ -101,10 +101,7 @@ roles.sourcer.preMove = function(creep, directions) {
   }
 };
 
-roles.sourcer.died = function(name, memory) {
-  console.log('--->', name, JSON.stringify(memory), 'Died naturally?');
-  delete Memory.creeps[name];
-};
+roles.sourcer.died = true;
 
 roles.sourcer.action = function(creep) {
   // TODO check source keeper structure for ticksToSpawn
