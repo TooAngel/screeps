@@ -103,8 +103,8 @@ Room.prototype.reactions = function() {
 };
 
 Room.prototype.orderMinerals = function() {
-  let minerals = this.find(FIND_MINERALS);
-  let resource = minerals[0].mineralType;
+  //let minerals = this.find(FIND_MINERALS);
+  //let resource = minerals[0].mineralType;
 
   if (this.exectueEveryTicks(20)) {
     let baseMinerals = [
@@ -177,7 +177,7 @@ Room.prototype.handleTerminal = function() {
   }
 
   let roomOtherName = Object.keys(this.memory.mineralOrder)[0];
-  let roomOther = Game.rooms[roomOtherName];
+  //let roomOther = Game.rooms[roomOtherName];
   let order = this.memory.mineralOrder[roomOtherName];
   let linearDistanceBetweenRooms = Game.map.getRoomLinearDistance(this.name, roomOtherName);
   let energy = Math.ceil(0.1 * order * linearDistanceBetweenRooms);

@@ -59,7 +59,7 @@ roles.scoutnextroom.execute = function(creep) {
         return false;
       }
 
-      var targets = [];
+      //var targets = [];
       if (!creep.room.controller) {
         creep.log('No controller');
         return false;
@@ -200,5 +200,6 @@ roles.scoutnextroom.execute = function(creep) {
     return true;
   }
   creep.say(creep.memory.target.goalRoom);
-  let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
+  //let returnCode =
+  creep.move(creep.pos.getDirectionTo(search.path[0]));
 };

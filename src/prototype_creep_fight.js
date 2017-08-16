@@ -20,8 +20,8 @@ Creep.prototype.fleeFromHostile = function(hostile) {
     return true;
   }
   for (let offset = 0, dir, pos; offset < 8; offset++) {
-    let dir = (direction + offset) % 8 + 1;
-    let pos = this.pos.getAdjacentPosition(dir);
+    dir = (direction + offset) % 8 + 1;
+    pos = this.pos.getAdjacentPosition(dir);
     if (pos.lookFor(LOOK_TERRAIN)[0] !== STRUCTURE_WALL && pos.lookFor(LOOK_CREEPS).length === 0) {
       direction = direction + offset;
       break;
@@ -32,12 +32,13 @@ Creep.prototype.fleeFromHostile = function(hostile) {
 };
 
 Creep.prototype.attackHostile = function(hostile) {
-  let range;
+  //let range;
   if (this.hits < 0.5 * this.hitsMax || this.pos.getRangeTo(hostile) < 3) {
     return this.fleeFromHostile(hostile);
   }
 
-  let returnCode = this.moveToMy(hostile.pos);
+  //let returnCode =
+  this.moveToMy(hostile.pos);
   this.rangedAttack(hostile);
   return true;
 
@@ -105,7 +106,8 @@ Creep.prototype.moveToHostileConstructionSites = function() {
   if (constructionSite !== null) {
     this.say('kcs');
     this.log('Kill constructionSite: ' + JSON.stringify(constructionSite));
-    let returnCode = this.moveToMy(constructionSite.pos, 0);
+    //let returnCode =
+    this.moveToMy(constructionSite.pos, 0);
     return true;
   }
   return false;
@@ -152,7 +154,8 @@ Creep.prototype.waitRampart = function() {
     this.moveRandom();
     return true;
   }
-  const returnCode = this.moveToMy(rampart.pos, 0);
+  //const returnCode =
+  this.moveToMy(rampart.pos, 0);
   return true;
 };
 
@@ -209,19 +212,19 @@ Creep.prototype.fightRanged = function(target) {
   if (this.hits < 0.5 * this.hitsMax) {
     return this.flee(target);
   }
-
+  let returnCode;
   var range = this.pos.getRangeTo(target);
-  var direction = null;
+  //var direction = null;
 
   if (range <= 2) {
     return this.flee(target);
   }
   if (range <= 3) {
-    let returnCode = this.rangedAttack(target);
+    returnCode = this.rangedAttack(target);
     return true;
   }
 
-  let returnCode = this.moveToMy(target.pos, 3);
+  returnCode = this.moveToMy(target.pos, 3);
   if (returnCode === OK) {
     return true;
   }

@@ -22,7 +22,7 @@ roles.upgrader.settings = {
   }
 };
 
-roles.upgrader.updateSettings = function(room, creep) {
+roles.upgrader.updateSettings = function(room) {
   // One work part one energy per tick multiplied by config value with  lifetime
   // So have at least a specific amount of energy in storage that the upgrader
   // can use.

@@ -14,13 +14,12 @@ roles.autoattackmelee.settings = {
 
 };
 
-roles.autoattackmelee.died = function(name, memory) {
-  console.log('--->', name, 'Died naturally?');
-  delete Memory.creeps[name];
-};
+roles.autoattackmelee.died = true;
 
 roles.autoattackmelee.preMove = function(creep) {
-  //  creep.log('!!!!!!!!!!!!!!!! Autoattacking');
+  if (creep.room.exectueEveryTicks(25)) {
+    creep.log('Autoattacking in ' + creep.memory.routing.targetRoom + '!');
+  }
 };
 
 roles.autoattackmelee.action = function(creep) {
@@ -82,7 +81,8 @@ roles.autoattackmelee.action = function(creep) {
   } else {
     let structures = creep.pos.findInRange(FIND_STRUCTURES, 1);
     creep.cancelOrder('attack');
-    let returnCode = creep.attack(structures[0]);
+    //let returnCode =
+    creep.attack(structures[0]);
   }
   return true;
 };

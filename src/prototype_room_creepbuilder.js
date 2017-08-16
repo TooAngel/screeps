@@ -193,6 +193,7 @@ Room.prototype.getPartsStringDatas = function(parts, energyAvailable) {
  */
 Room.prototype.getSettings = function(creep) {
   let role = creep.role;
+  let room = this;
   let updateSettings = roles[role].updateSettings && roles[role].updateSettings(this, creep);
   let settings = _.merge(roles[role].settings, updateSettings);
   if (!settings) {
@@ -225,6 +226,7 @@ Room.prototype.getSettings = function(creep) {
       }
       setting = setting[foundKey];
     }
+    room.log(settingName, setting);
     return setting;
   });
 };
@@ -243,8 +245,8 @@ Room.prototype.applyAmount = function(input, amount) {
   if (amount === undefined) {
     return input;
   }
-  let cost = 0;
-  let parts = [];
+  //let cost = 0;
+  //let parts = [];
   let output = '';
   _.forEach(amount, function(element, index) {
     output += _.repeat(input.charAt(index), element);

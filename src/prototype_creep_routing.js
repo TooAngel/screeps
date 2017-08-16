@@ -13,7 +13,7 @@ Creep.prototype.getRoute = function() {
 
   // Add room avoidance
   let route = [];
-  let creep = this;
+  //let creep = this;
   if (this.memory.base != this.memory.routing.targetRoom) {
     route = this.room.findRoute(this.memory.base, this.memory.routing.targetRoom);
   }
@@ -159,7 +159,7 @@ Creep.prototype.followPath = function(action) {
   // return false;
   // }
 
-  let unit = roles[this.memory.role];
+  //let unit = roles[this.memory.role];
 
   if (!this.memory.routing.targetId && this.room.name === this.memory.routing.targetRoom) {
     this.memory.routing.reached = true;
@@ -282,7 +282,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
 
   // build roads
   if (unit.buildRoad) {
-    const target = Game.getObjectById(this.memory.routing.targetId);
+    target = Game.getObjectById(this.memory.routing.targetId);
     if (config.buildRoad.buildToOtherMyRoom || !target || target.structureType !== STRUCTURE_STORAGE) {
       this.buildRoad();
     }

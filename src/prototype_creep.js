@@ -213,7 +213,7 @@ Creep.prototype.buildRoad = function() {
     return false;
   }
 
-  var i;
+  //var i;
 
   if (this.room.controller && !this.room.controller.my && this.room.controller.owner) {
     return false;
