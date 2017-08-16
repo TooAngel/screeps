@@ -24,7 +24,7 @@ if (config.visualizer.enabled) {
     /**
      * draw fixed paths in room
      */
-    showRoomPaths() {
+      showRoomPaths() {
       for (let room of _.values(Game.rooms)) {
         const rv = room.visual;
         let paths = room.getMemoryPaths();
@@ -37,7 +37,7 @@ if (config.visualizer.enabled) {
     /**
      * draw creep paths from using moveTo
      */
-    showCreepPaths() {
+      showCreepPaths() {
       for (let creep of _.values(Game.creeps)) {
         const rv = creep.room.visual;
         if (creep.memory._move) {
@@ -50,7 +50,7 @@ if (config.visualizer.enabled) {
     /**
      * draw structures
      */
-    showStructures() {
+      showStructures() {
       for (let room of _.values(Game.rooms)) {
         const rv = room.visual;
         if (room.memory.position && room.memory.position.structure) {
@@ -94,7 +94,7 @@ if (config.visualizer.enabled) {
     /**
      * draw creep positions
      */
-    showCreeps() {
+      showCreeps() {
       for (let room of _.values(Game.rooms)) {
         const rv = room.visual;
         if (room.memory.position) {
@@ -147,7 +147,7 @@ if (config.visualizer.enabled) {
           return rv[pos.roomName];
         };
         let prevPos = search.path[0];
-        let style = { color: search.incomplete ? 'red' : 'green' };
+        let style = {color: search.incomplete ? 'red' : 'green'};
         for (let pi of search.path) {
           if (prevPos.roomName === pi.roomName) {
             getRV(pi).line(prevPos, pi, style);

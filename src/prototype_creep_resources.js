@@ -90,7 +90,7 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
     return reverse;
   }
 
-  let resources = this.room.find(FIND_DROPPED_RESOURCES, { filter: Creep.pickableResources(this) });
+  let resources = this.room.find(FIND_DROPPED_RESOURCES, {filter: Creep.pickableResources(this)});
 
   if (resources.length > 0) {
     let resource = resources[0];
@@ -120,7 +120,7 @@ Creep.prototype.handleExtractor = function() {
       if (this.carry[key] === 0) {
         continue;
       }
-      let returnCode = this.transfer(this.room.terminal, key);
+      returnCode = this.transfer(this.room.terminal, key);
       return true;
     }
   }
@@ -129,7 +129,8 @@ Creep.prototype.handleExtractor = function() {
   if (minerals.length > 0) {
     let posMem = this.room.memory.position.creep[minerals[0].id];
     let pos = new RoomPosition(posMem.x, posMem.y, posMem.roomName);
-    let returnCode = this.moveToMy(pos, 0);
+    //let returnCode =
+    this.moveToMy(pos, 0);
     this.harvest(minerals[0]);
   }
   return true;
@@ -441,7 +442,8 @@ Creep.prototype.moveToSource = function(source, swarm = false) {
 };
 
 Creep.prototype.harvestSource = function(source) {
-  let returnCode = this.harvest(source);
+  //let returnCode =
+  this.harvest(source);
   if (this.carry.energy === this.carryCapacity && this.carryCapacity > 0) {
     const creeps_without_energy = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'carry.energy', [0]);
     if (creeps_without_energy.length > 0) {
@@ -522,7 +524,8 @@ Creep.prototype.getDroppedEnergy = function() {
   }
   if (target.energy > (energyRange * 10) * (this.carry.energy + 1)) {
     this.say('dropped');
-    let returnCode = this.moveToMy(target.pos, 1);
+    //let returnCode =
+    this.moveToMy(target.pos, 1);
     return true;
   }
   return false;

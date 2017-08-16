@@ -1,6 +1,6 @@
 'use strict';
 
-brain.handleQuests = function(transaction) {
+brain.handleQuests = function() {
   Memory.quests = Memory.quests || {};
   for (let id of Object.keys(Memory.quests)) {
     const quest = Memory.quests[id];

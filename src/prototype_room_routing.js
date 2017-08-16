@@ -36,8 +36,8 @@ Room.prototype.getCreepPositionForId = function(to) {
     return;
   }
   this.memory.position = this.memory.position || {
-    creep: {}
-  };
+      creep: {}
+    };
   this.memory.position.creep[to] = target.pos.findNearPosition().next().value;
 
   let pos = this.memory.position.creep[to];
@@ -49,7 +49,7 @@ Room.prototype.getCreepPositionForId = function(to) {
 };
 
 Room.prototype.findRoute = function(from, to) {
-  let routeCallback = function(roomName, fromRoomName) {
+  let routeCallback = function(roomName) {
     if (roomName === to) {
       return 1;
     }

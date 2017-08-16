@@ -28,6 +28,7 @@ roles.defendmelee.execute = function(creep) {
   }
   let direction = creep.pos.getDirectionTo(search.path[0]);
   creep.moveCreep(search.path[0], (direction + 3) % 8 + 1);
-  let returnCode = creep.move(direction);
+  //let returnCode =
+  creep.move(direction);
   creep.attack(hostile);
 };
