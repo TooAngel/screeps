@@ -29,7 +29,7 @@ roles.harvester.settings = {
   maxLayoutAmount: 6
 };
 roles.harvester.updateSettings = function(room, creep) {
-  if (room.storage && room.storage.my && room.storage.store.energy > config.creep.energyFromStorageThreshold && room.energyAvailable > 300 && !room.memory.misplacedSpawn) {
+  if (room.storage && room.storage.my && room.storage.store.energy > config.creep.energyFromStorageThreshold && room.energyAvailable > 350 && !room.memory.misplacedSpawn) {
     return {
       prefixString: 'WMC',
       layoutString: 'MC',
