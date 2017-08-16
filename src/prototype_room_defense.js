@@ -129,8 +129,8 @@ Room.prototype.handleTower = function() {
 
   let repairable_structures = object => object.hits !== object.hitsMax;
 
-  let repair_min = this.memory.repair_min;
-  let repairable_blockers = object => object.hits < Math.min(repair_min, object.hitsMax);
+  //let repair_min = this.memory.repair_min;
+  //let repairable_blockers = object => object.hits < Math.min(repair_min, object.hitsMax);
 
   for (let tower of towers) {
     if (tower.energy === 0) {

@@ -61,7 +61,7 @@ Room.prototype.findPropertyFilter = function(findTarget, property, properties, w
     // this.log(`Found ${key} ${cache.rooms[this.name].find[key]}`);
     result = cache.rooms[this.name].find[key].result;
   } else {
-    const opts = Room.getPropertyFilterOptsObj(property, properties, without);
+    opts = Room.getPropertyFilterOptsObj(property, properties, without);
     result = this.find(findTarget, opts);
     cache.rooms[this.name].find[key] = {
       time: Game.time,

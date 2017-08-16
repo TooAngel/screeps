@@ -1,22 +1,13 @@
 'use strict';
 
-function existInArray(array, item) {
-  for (var i in array) {
-    if (array[i].role === item.role) {
-      return true;
-    }
-  }
-  return false;
-}
-
 Creep.prototype.handleSourcer = function() {
   this.setNextSpawn();
   this.spawnReplacement();
-  let room = Game.rooms[this.room.name];
+  //let room = Game.rooms[this.room.name];
   let targetId = this.memory.routing.targetId;
   var source = Game.getObjectById(targetId);
 
-  let target = source;
+  //let target = source;
   let returnCode = this.harvest(source);
   if (returnCode != OK && returnCode != ERR_NOT_ENOUGH_RESOURCES) {
     this.log('harvest: ' + returnCode);
@@ -62,13 +53,13 @@ Creep.prototype.spawnCarry = function() {
 
   let waitTime = carryCapacity / (HARVEST_POWER * workParts);
 
-  var spawn = {
-    role: 'carry',
-    routing: {
-      targetRoom: this.memory.routing.targetRoom,
-      targetId: this.memory.routing.targetId
-    }
-  };
+  //var spawn = {
+  //  role: 'carry',
+  //  routing: {
+  //    targetRoom: this.memory.routing.targetRoom,
+  //    targetId: this.memory.routing.targetId
+  //  }
+  //};
 
   let resourceAtPosition = 0;
   var resources = this.pos.lookFor(LOOK_RESOURCES);

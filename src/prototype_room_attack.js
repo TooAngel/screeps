@@ -66,7 +66,7 @@ Room.prototype.attackRoom = function() {
     return true;
   }
 
-  function attack1(room) {}
+  //function attack1(room) {}
 
   if (config.autoattack.disabled) {
     return true;

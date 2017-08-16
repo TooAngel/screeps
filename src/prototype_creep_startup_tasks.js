@@ -159,7 +159,7 @@ Creep.prototype.getEnergyFromStorage = function() {
 
 Creep.prototype.repairStructure = function() {
   let structure = null;
-  let i = null;
+  //let i = null;
   let structures = null;
 
   if (this.memory.target) {

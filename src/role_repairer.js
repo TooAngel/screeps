@@ -29,7 +29,7 @@ roles.repairer.boostActions = ['repair'];
 roles.repairer.execute = function(creep) {
   let execute = function(creep) {
     var structures;
-    var structure;
+    //var structure;
     var i;
 
     creep.setNextSpawn();

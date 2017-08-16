@@ -29,7 +29,7 @@ roles.quester.questWon = function(creep, quest) {
     reputation: Memory.players[name].reputation,
     result: 'won'
   };
-  const room = Game.rooms[quest.origin];
+  //const room = Game.rooms[quest.origin];
   creep.room.terminal.send(RESOURCE_ENERGY, 100, quest.player.room, JSON.stringify(response));
   delete Memory.quests[creep.memory.level];
   creep.suicide();

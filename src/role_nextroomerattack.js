@@ -14,7 +14,7 @@ roles.nextroomerattack.settings = {
 };
 
 roles.nextroomerattack.died = function(name, memory) {
-  console.log('--->', name, 'Died naturally?');
+  console.log('--->', name, JSON.stringify(memory), 'Died naturally?');
   delete Memory.creeps[name];
 };
 
@@ -38,7 +38,8 @@ roles.nextroomerattack.action = function(creep) {
     ignoreDestructibleStructures: true
   });
   creep.attack(spawn);
-  const return_code = creep.moveByPath(path);
+  //const return_code =
+  creep.moveByPath(path);
   return true;
 };
 
