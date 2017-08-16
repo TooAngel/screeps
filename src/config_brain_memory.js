@@ -69,14 +69,17 @@ brain.handleDiedCreep = function(name, creepMemory) {
   }
 };
 
-brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
+brain.handleDiedCreepLog = function(name, creepMemory) {
   let baseRoomName = Memory.creeps[name].base;
   let baseRoom = Game.rooms[baseRoomName];
-  if (baseRoom) {
-    baseRoom.log(Game.time, name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
-  } else {
-    console.log(Game.time, name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
+  if (!baseRoom) {
+    baseRoom = console;
   }
+  baseRoom.log(Game.time, name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
+};
+
+brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
+  brain.handleDiedCreepLog(name, creepMemory);
 
   if (brain.handleDiedFastCreep(creepMemory)) {
     return false;
