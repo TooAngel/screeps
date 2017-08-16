@@ -35,6 +35,6 @@ global.runAgent = function() {
   </SCRIPT>`;
   console.log(output.split('\n').map((s) => s.trim()).join(''));
 };
-if (config.stats.enabled && config.stats.screepsPlusEnabled && config.stats.screepsPlusToken ) {
+if (config.stats.enabled && config.stats.screepsPlusEnabled && config.stats.screepsPlusToken) {
   runAgent();
 }
