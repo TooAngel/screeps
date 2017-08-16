@@ -111,7 +111,7 @@ brain.cleanRooms = function() {
   if (Game.time % 300 === 0) {
     for (let name in Memory.rooms) {
       // Check for reserved rooms
-      let memory = Memory.rooms[name];
+      //let memory = Memory.rooms[name];
       if (!Memory.rooms[name].lastSeen) {
         console.log('Deleting ' + name + ' from memory no `last_seen` value');
         delete Memory.rooms[name];

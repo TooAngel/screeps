@@ -3,8 +3,12 @@
 Creep.prototype.transferAllMineralsToTerminal = function() {
   this.moveToMy(this.room.terminal.pos);
   for (let transfer of Object.keys(this.carry)) {
-    let resource = this.transfer(this.room.terminal, transfer);
+    let returnCode = this.transfer(this.room.terminal, transfer);
+    if (returnCode === OK) {
+      return true;
+    }
   }
+  return false;
 };
 
 Creep.prototype.withdrawAllMineralsFromStorage = function() {
@@ -189,13 +193,15 @@ Creep.prototype.handleMineralCreep = function() {
     creep.say('cleanup');
     if (_.sum(creep.carry) > 0) {
 
-      let returnCode = creep.moveToMy(creep.room.terminal.pos);
+      //let returnCode =
+      creep.moveToMy(creep.room.terminal.pos);
 
       for (let resource in creep.carry) {
         if (creep.carry[resource] === 0) {
           continue;
         }
-        let returnCode = creep.transfer(creep.room.terminal, resource);
+        //let returnCode =
+        creep.transfer(creep.room.terminal, resource);
         //      creep.log(returnCode + ' ' + resource + ' ' + JSON.stringify(resource));
         break;
       }
@@ -208,9 +214,11 @@ Creep.prototype.handleMineralCreep = function() {
         creep.moveRandom();
         return false;
       }
-      let returnCode = creep.moveToMy(lab.pos);
+      //let returnCode =
+      creep.moveToMy(lab.pos);
 
-      returnCode = creep.withdraw(lab, lab.mineralType);
+      //returnCode =
+      creep.withdraw(lab, lab.mineralType);
       //    creep.log(returnCode + ' ' + lab.mineralType + ' ' + JSON.stringify(lab));
     }
   }
@@ -258,7 +266,7 @@ Creep.prototype.handleMineralCreep = function() {
     let labEmpty = object => !object.mineralType || object.mineralType === null;
 
     for (mineral in room.memory.boosting) {
-      let labs = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, { filter: labForMineral });
+      let labs = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, {filter: labForMineral});
       if (labs.length > 0) {
         if (labs[0].mineralAmount === labs[0].mineralsCapacity) {
           if (labs[0].energy === labs[0].energyCapacity) {
@@ -272,7 +280,7 @@ Creep.prototype.handleMineralCreep = function() {
         return true;
       }
 
-      labs = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, { filter: labEmpty });
+      labs = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, {filter: labEmpty});
       if (labs.length > 0) {
         creep.memory.boostAction = {
           mineral: mineral,
@@ -299,18 +307,21 @@ Creep.prototype.handleMineralCreep = function() {
     if (lab.energy < lab.energyCapacity) {
       creep.say('boost');
       if (creep.carry.energy > 0) {
-        let returnCode = creep.moveToMy(lab.pos);
+        //let returnCode =
+        creep.moveToMy(lab.pos);
         creep.transfer(lab, RESOURCE_ENERGY);
         return true;
       } else {
-        let returnCode = creep.moveToMy(creep.room.storage.pos);
+        //let returnCode =
+        creep.moveToMy(creep.room.storage.pos);
 
         if (_.sum(creep.carry) > 0) {
           for (let resource in creep.carry) {
             creep.transfer(creep.room.storage, resource);
           }
         }
-        returnCode = creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
+        //returnCode =
+        creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
         return true;
       }
     }
@@ -318,7 +329,8 @@ Creep.prototype.handleMineralCreep = function() {
     if (lab.mineralAmount < lab.mineralCapacity) {
       creep.say('mineral');
       if (creep.carry[creep.memory.boostAction.mineral] > 0) {
-        let returnCode = creep.moveToMy(lab.pos);
+        //let returnCode =
+        creep.moveToMy(lab.pos);
 
         creep.transfer(lab, creep.memory.boostAction.mineral);
         return true;
@@ -328,7 +340,8 @@ Creep.prototype.handleMineralCreep = function() {
           return false;
         }
 
-        let returnCode = creep.moveToMy(creep.room.terminal.pos);
+        //let returnCode =
+        creep.moveToMy(creep.room.terminal.pos);
 
         creep.withdraw(creep.room.terminal, creep.memory.boostAction.mineral);
         return true;
@@ -346,11 +359,12 @@ Creep.prototype.handleMineralCreep = function() {
         let nuker = nukers[0];
         if (nuker.ghodium < nuker.ghodiumCapacity) {
           if (creep.carry[RESOURCE_GHODIUM] > 0) {
-            let returnCode = creep.moveToMy(nuker.pos);
+            //let returnCode =
+            creep.moveToMy(nuker.pos);
             creep.transfer(nuker, RESOURCE_GHODIUM);
           } else {
-            let returnCode = creep.moveToMy(creep.room.terminal.pos);
-
+            //let returnCode =
+            creep.moveToMy(creep.room.terminal.pos);
             creep.withdraw(creep.room.terminal, RESOURCE_GHODIUM);
           }
           return true;
@@ -423,7 +437,8 @@ Creep.prototype.handleMineralCreep = function() {
 
     if (room.memory.terminalTooLessEnergy) {
       if (_.sum(creep.carry) - creep.carry.energy > 0) {
-        let returnCode = creep.moveToMy(creep.room.terminal.pos);
+        //let returnCode =
+        creep.moveToMy(creep.room.terminal.pos);
 
         for (let resource in creep.carry) {
           creep.transfer(room.terminal, resource);
@@ -436,7 +451,8 @@ Creep.prototype.handleMineralCreep = function() {
       if (creep.carry.energy > 0) {
         target = creep.room.terminal;
       }
-      let returnCode = creep.moveToMy(target.pos);
+      //let returnCode =
+      creep.moveToMy(target.pos);
       creep.transfer(target, RESOURCE_ENERGY);
       return true;
     }
@@ -505,7 +521,7 @@ Creep.prototype.boost = function() {
       for (let action in BOOSTS[part][boost]) {
         this.log('boost: ' + part + ' ' + boost + ' ' + action);
         if (unit.boostActions.indexOf(action) > -1) {
-          const labs = this.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, { filter: findLabs });
+          const labs = this.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, {filter: findLabs});
           if (this.room.terminal.store[boost] || labs.length > 0) {
             //            this.log('Could boost with: ' + part + ' ' + boost + ' ' + action + ' terminal: ' + this.room.terminal.store[boost] + ' lab: ' + JSON.stringify(labs));
             let room = Game.rooms[this.room.name];

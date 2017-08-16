@@ -39,7 +39,7 @@ roles.nextroomer.checkForRampart = function(coords) {
 };
 
 roles.nextroomer.buildRamparts = function(creep) {
-  let ramparts = creep.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_RAMPART]);
+  //let ramparts = creep.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_RAMPART]);
 
   // TODO Guess roles.nextroomer should be higher
   let rampartMinHits = 10000;
@@ -86,7 +86,7 @@ roles.nextroomer.buildRamparts = function(creep) {
   return false;
 };
 
-roles.nextroomer.defendTower = function(creep, source) {
+roles.nextroomer.defendTower = function(creep) {
   let room = Game.rooms[creep.room.name];
   let constructionSites = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 1);
   if (constructionSites.length > 0) {

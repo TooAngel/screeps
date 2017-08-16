@@ -243,8 +243,8 @@ Room.prototype.applyAmount = function(input, amount) {
   if (amount === undefined) {
     return input;
   }
-  let cost = 0;
-  let parts = [];
+  //let cost = 0;
+  //let parts = [];
   let output = '';
   _.forEach(amount, function(element, index) {
     output += _.repeat(input.charAt(index), element);
