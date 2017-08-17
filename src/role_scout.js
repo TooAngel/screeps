@@ -149,7 +149,8 @@ roles.scout.execute = function(creep) {
       //if (search.path.length > 0) {
       //creep.move(creep.pos.getDirectionTo(search.path[0]));
       //} else {
-      let returnCode = creep.moveTo(targetPosObject, {
+      //let returnCode =
+      creep.moveTo(targetPosObject, {
         ignoreCreeps: true,
         costCallback: creep.room.getCostMatrixCallback()
       });
@@ -157,7 +158,8 @@ roles.scout.execute = function(creep) {
       return true;
     }
     creep.say(creep.pos.getDirectionTo(search.path[0]));
-    let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
+    //let returnCode =
+    creep.move(creep.pos.getDirectionTo(search.path[0]));
   };
 
   creep.notifyWhenAttacked(false);

@@ -13,10 +13,7 @@ roles.nextroomerattack.settings = {
   amount: [5, 5]
 };
 
-roles.nextroomerattack.died = function(name, memory) {
-  console.log('--->', name, 'Died naturally?');
-  delete Memory.creeps[name];
-};
+roles.nextroomerattack.died = true;
 
 roles.nextroomerattack.action = function(creep) {
   if (!creep.memory.notified) {
@@ -38,7 +35,8 @@ roles.nextroomerattack.action = function(creep) {
     ignoreDestructibleStructures: true
   });
   creep.attack(spawn);
-  const return_code = creep.moveByPath(path);
+  //const return_code =
+  creep.moveByPath(path);
   return true;
 };
 

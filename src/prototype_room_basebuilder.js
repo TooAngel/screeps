@@ -98,9 +98,9 @@ Room.prototype.destroyStructure = function(structure) {
     if (config.layout.wallThickness > 1) {
       let costMatrixBase = this.getMemoryCostMatrix();
       let spawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
-      let getWalls = function(object) {
-        return object.structureType === STRUCTURE_WALL;
-      };
+      //let getWalls = function(object) {
+      //  return object.structureType === STRUCTURE_WALL;
+      //};
 
       for (let spawn of spawns) {
         for (let x = -1; x < 2; x++) {
@@ -129,9 +129,9 @@ Room.prototype.checkPath = function() {
     this.log('Skipping checkPath, routing not initialized');
     return false;
   }
-  let filterSpawns = function(object) {
-    return object.structureType === STRUCTURE_SPAWN;
-  };
+  //let filterSpawns = function(object) {
+  //  return object.structureType === STRUCTURE_SPAWN;
+  //};
   for (let pos of path) {
     let roomPos = new RoomPosition(pos.x, pos.y, this.name);
     let structures = roomPos.lookFor('structure');
@@ -224,7 +224,7 @@ Room.prototype.setupStructure = function(structure) {
     return false;
   }
 
-  var max = CONTROLLER_STRUCTURES[structure][this.controller.level];
+  //var max = CONTROLLER_STRUCTURES[structure][this.controller.level];
   for (let pos of (this.memory.position.structure[structure] || [])) {
     // TODO special case e.g. when powerSpawn can't be set on costmatrix.setup - need to be fixed there
     if (!pos) {

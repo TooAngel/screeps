@@ -97,17 +97,17 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
       continue;
     }
     if (creepMemory.role === iMem.role && (!iMem.routing ||
-        (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
-          creepMemory.routing.targetId === iMem.routing.targetId))) {
+      (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
+      creepMemory.routing.targetId === iMem.routing.targetId))) {
       j++;
     }
     if (j >= amount) {
       this.memory.roles[creepMemory.role] = true;
       /**
-      if (config.debug.queue) {
+       if (config.debug.queue) {
         this.log('Already enough ' + creepMemory.role);
       }
-      **/
+       **/
       return true;
     }
   }
@@ -193,6 +193,7 @@ Room.prototype.getPartsStringDatas = function(parts, energyAvailable) {
  */
 Room.prototype.getSettings = function(creep) {
   let role = creep.role;
+  let room = this;
   let updateSettings = roles[role].updateSettings && roles[role].updateSettings(this, creep);
   let settings = _.merge(roles[role].settings, updateSettings);
   if (!settings) {
@@ -225,6 +226,7 @@ Room.prototype.getSettings = function(creep) {
       }
       setting = setting[foundKey];
     }
+    room.log(settingName, setting);
     return setting;
   });
 };
@@ -243,8 +245,8 @@ Room.prototype.applyAmount = function(input, amount) {
   if (amount === undefined) {
     return input;
   }
-  let cost = 0;
-  let parts = [];
+  //let cost = 0;
+  //let parts = [];
   let output = '';
   _.forEach(amount, function(element, index) {
     output += _.repeat(input.charAt(index), element);
@@ -287,7 +289,7 @@ Room.prototype.getPartConfig = function(creep) {
     amount,
     maxLayoutAmount,
     sufixString
-  } = this.getSettings(creep);
+    } = this.getSettings(creep);
   let maxBodyLength = MAX_CREEP_SIZE;
   if (prefixString) { maxBodyLength -= prefixString.length; }
   if (sufixString) { maxBodyLength -= sufixString.length; }
@@ -322,7 +324,7 @@ Room.prototype.getPartConfig = function(creep) {
 };
 
 Room.prototype.getSpawnableSpawns = function() {
-  let spawnsNotSpawning = this.find(FIND_MY_SPAWNS, { filter: spawn => !spawn.spawning });
+  let spawnsNotSpawning = this.find(FIND_MY_SPAWNS, {filter: spawn => !spawn.spawning});
   return spawnsNotSpawning;
 };
 
@@ -386,7 +388,7 @@ Room.prototype.checkAndSpawnSourcer = function() {
   let source;
   let isSourcer = object => object.memory.routing.targetId === source.id && object.memory.routing.targetRoom === source.pos.roomName;
   for (source of sources) {
-    let sourcers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer'], false, { filter: isSourcer });
+    let sourcers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer'], false, {filter: isSourcer});
     if (sourcers.length === 0) {
       //      this.log(source.id);
       this.checkRoleToSpawn('sourcer', 1, source.id, this.name);

@@ -77,11 +77,13 @@ Room.prototype.handleLinks = function() {
         for (let i = 1; i < 3; i++) {
           let linkSourcer = this.memory.position.structure.link[i];
           if (links[link].pos.isEqualTo(linkSourcer.x, linkSourcer.y)) {
-            let returnCode = links[link].transferEnergy(linkStorage);
+            //let returnCode =
+            links[link].transferEnergy(linkStorage);
             return true;
           }
         }
-        let returnCode = linkStorage.transferEnergy(links[link]);
+        //let returnCode =
+        linkStorage.transferEnergy(links[link]);
       } else {
         let returnCode = links[link].transferEnergy(linkStorage);
         if (returnCode != OK && returnCode != ERR_NOT_ENOUGH_RESOURCES && returnCode != ERR_TIRED) {
@@ -151,7 +153,7 @@ Room.prototype.handleObserver = function() {
 
     let roomObserve = xDir + xPos + yDir + yPos;
 
-    var observe_room = this.memory.observe_rooms[Game.time % this.memory.observe_rooms.length];
+    //var observe_room = this.memory.observe_rooms[Game.time % this.memory.observe_rooms.length];
     //this.log(observe_room);
     //     observers[0].observeRoom(observe_room);
     let returnCode = observers[0].observeRoom(roomObserve);
@@ -227,7 +229,7 @@ Room.prototype.checkCanHelp = function() {
       return 'no';
     }
     this.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, this.storage.id,
-      this.name, undefined, nearestRoom, { helper: true });
+      this.name, undefined, nearestRoom, {helper: true});
     this.memory.energyAvailableSum = 0;
     return '---!!! ' + this.name + ' send energy to: ' + nearestRoom + ' !!!---';
   }
@@ -316,8 +318,8 @@ Room.prototype.executeRoom = function() {
   });
   const building = nextroomers.length > 0 && this.controller.level < 4;
 
-  const creepsInRoom = this.find(FIND_MY_CREEPS);
-  let spawn;
+  //const creepsInRoom = this.find(FIND_MY_CREEPS);
+  //let spawn;
   if (!building) {
     const amount = this.getHarvesterAmount();
 
@@ -420,7 +422,7 @@ Room.prototype.executeRoom = function() {
   if (!building && nextroomers.length === 0) {
     this.handleScout();
   }
-  let constructionSitesBlocker = this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL]);
+  //let constructionSitesBlocker = this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL]);
   this.handleTower();
   if (this.controller.level > 1 && this.memory.walls && this.memory.walls.finished) {
     this.checkRoleToSpawn('repairer');
@@ -517,7 +519,7 @@ Room.prototype.setRoomInactive = function() {
 
 Room.prototype.reviveRoom = function() {
   let nextRoomers = _.filter(Game.creeps, c => c.memory.role === 'nextroomer' &&
-    c.memory.routing.targetRoom === this.name).length;
+  c.memory.routing.targetRoom === this.name).length;
   if (this.controller.level >= config.nextRoom.boostToControllerLevel &&
     this.controller.ticksToDowngrade >
     (CONTROLLER_DOWNGRADE[this.controller.level] * config.nextRoom.minDowngradPercent / 100) &&

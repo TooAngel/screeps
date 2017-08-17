@@ -81,7 +81,8 @@ roles.carry.handleMisplacedSpawn = function(creep) {
       var source = creep.room.memory.position.creep[targetId];
       // TODO better the position from the room memory
       if (source !== null) {
-        let returnCode = creep.moveTo(source, {
+        //let returnCode =
+        creep.moveTo(source, {
           ignoreCreeps: true
         });
         if (creep.pos.getRangeTo(source) > 1) {
@@ -224,7 +225,8 @@ roles.carry.action = function(creep) {
       creep.memory.routing.targetId = resource.id;
       // TODO Use pathfinder
       creep.moveTo(resource);
-      let returnCode = creep.pickup(resource, resource.amount - 1);
+      //let returnCode =
+      creep.pickup(resource, resource.amount - 1);
       return true;
     }
   }

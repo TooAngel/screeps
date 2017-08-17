@@ -211,7 +211,8 @@ Room.prototype.setTowerFiller = function() {
   let exits = _.map(Game.map.describeExits(this.name));
 
   this.memory.position.creep.towerfiller = [];
-  let costMatrix = this.getMemoryCostMatrix();
+  //let costMatrix =
+  this.getMemoryCostMatrix();
   for (let index = 0; index < CONTROLLER_STRUCTURES.tower[8] - 1; index++) {
     let roomName = exits[index % exits.length];
     if (!roomName) {
@@ -458,7 +459,8 @@ Room.prototype.setup = function() {
   this.memory.controllerLevel = {};
   this.updatePosition();
 
-  let costMatrix = this.getMemoryCostMatrix();
+  //let costMatrix =
+  this.getMemoryCostMatrix();
   let exits = Game.map.describeExits(this.name);
   if (this.controller) {
     this.costMatrixSetMineralPath();
@@ -474,7 +476,8 @@ Room.prototype.setup = function() {
   let path = this.getMemoryPath(paths_sorted[paths_sorted.length - 1].name);
   // TODO This is the path to the extractor, we should change this to getting the right path via ID (e.g. if there are more than two sources this could change)
   let pathLB = this.getMemoryPath(paths_controller[4].name);
-  let pathL = this.setLabsTerminal(pathLB);
+  //let pathL =
+  this.setLabsTerminal(pathLB);
   let pathI = this.setStructures(path);
   this.log('path: ' + paths_sorted[paths_sorted.length - 1].name + ' pathI: ' + pathI + ' length: ' + path.length);
   if (pathI === -1) {

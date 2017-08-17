@@ -43,13 +43,13 @@ Room.prototype.checkExitsAreReachable = function() {
 
   let exits = this.find(FIND_EXIT);
   let room = this;
-  var callbackNew = function(roomName) {
+  var callbackNew = function() {
     let costMatrix = room.getMemoryCostMatrix();
     return costMatrix;
   };
   for (let exit of exits) {
     //     console.log(exit);
-    let room = this;
+    //let room = this;
 
     let targets = [{
       pos: this.controller.pos,

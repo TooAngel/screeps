@@ -22,17 +22,17 @@ Room.prototype.attack42 = function(roomName, spawn) {
       role: 'squadheal'
     },
 
-    {
-      creep: 2,
-      role: 'autoattackmelee'
-    }, {
-      creep: 2,
-      role: 'defender'
-    }, {
-      creep: 2,
-      role: 'squadheal'
-    }
-  ];
+      {
+        creep: 2,
+        role: 'autoattackmelee'
+      }, {
+        creep: 2,
+        role: 'defender'
+      }, {
+        creep: 2,
+        role: 'squadheal'
+      }
+    ];
 
   let closestSpawn = this.closestSpawn(roomName);
   // this.log('closestSpawn ' + JSON.stringify(closestSpawn, null, 2));
@@ -66,7 +66,7 @@ Room.prototype.attackRoom = function() {
     return true;
   }
 
-  function attack1(room) {}
+  //function attack1(room) {}
 
   if (config.autoattack.disabled) {
     return true;
