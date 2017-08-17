@@ -588,7 +588,7 @@ Creep.prototype.construct = function() {
   return true;
 };
 
-Creep.prototype.getTransferTarget = function() {
+Creep.prototype.getTransferTargetStructure = function() {
   const structure = this.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER], false, {
     filter: structure => structure.energy < structure.energyCapacity
   });
@@ -605,7 +605,7 @@ Creep.prototype.getTransferTarget = function() {
 
 Creep.prototype.getTransferTarget = function() {
   if (!this.memory.targetEnergyMy) {
-    this.getTransferTarget();
+    this.getTransferTargetStructure();
     if (!this.memory.targetEnergyMy) {
       return false;
     }
