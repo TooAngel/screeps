@@ -9,6 +9,7 @@
 roles.scout = {};
 roles.scout.settings = {
   layoutString: 'M',
+  amount: [1],
   maxLayoutAmount: 1
 };
 
