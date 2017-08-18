@@ -105,7 +105,8 @@ let breadthFirstSearch = function(creep) {
     }
   }
 
-  if (creep.memory.last && creep.memory.last.pos3 && creep.pos.roomName !== creep.memory.last.pos3.roomName) {
+  if (creep.isStuck()) {
+    creep.say('stuck');
     creep.moveTo(25, 25);
     return true;
   }
@@ -117,78 +118,63 @@ let breadthFirstSearch = function(creep) {
   }
   let targetPosObject = new RoomPosition(25, 25, creep.memory.search.target);
 
-  let search;
-
-  try {
-    search = PathFinder.search(
-      creep.pos, {
-        pos: targetPosObject,
-        range: 20
-      }, {
-        roomCallback: creep.room.getCostMatrixCallback(targetPosObject, true, false, true)
-      }
-    );
-
-  } catch (e) {
-    if (e !== null) {
-      creep.log(`search: ${targetPosObject} ${e} ${e.stack}`);
-    } else {
-      creep.log(`search: ${targetPosObject} ${e}`);
-    }
-    // creep.memory.search.seen.push(creep.memory.search.target);
-    // // TODO extract to a method
-    // if (!setNewTarget(creep)) {
-    //   creep.memory.search.levels.push([]);
-    //   for (let room of creep.memory.search.levels[creep.memory.search.level]) {
-    //     let rooms = Game.map.describeExits(room);
-    //     for (let direction in rooms) {
-    //       let roomNext = rooms[direction];
-    //       if (haveNotSeen(creep, roomNext)) {
-    //         creep.memory.search.levels[creep.memory.search.level + 1].push(roomNext);
-    //         creep.memory.search.target = roomNext;
-    //       }
-    //     }
-    //   }
-    //   creep.memory.search.level++;
-    // }
-    return false;
-  }
-
-  if (creep.memory.last && creep.memory.last.pos3 && creep.pos.roomName !== creep.memory.last.pos3.roomName) {
-    creep.moveTo(25, 25);
-    return true;
-  }
-
-  if (creep.isStuck()) {
-    creep.moveRandom();
-    creep.say('ImStuck', true);
-    creep.log('Scout Stuck, Randomly Moving: ' + JSON.stringify(creep.memory.last) + ' ' + JSON.stringify(creep.isStuck()));
-    return true;
-  }
-
-  if (search.path.length === 0 || (creep.inBase() && creep.room.memory.misplacedSpawn)) {
-    creep.say('hello', true);
-    //       creep.log(creep.pos + ' ' + targetPosObject + ' ' + JSON.stringify(search));
-    if (creep.isStuck() && onBorder(creep)) {
-      creep.say('imstuck at the border', true);
-      if (config.room.scoutSkipWhenStuck) {
-        creep.say('skipping', true);
-        creep.memory.scoutSkip = true;
-        delete creep.memory.last; // Delete to reset stuckness.
-      }
-    }
-    //if (search.path.length > 0) {
-    //creep.move(creep.pos.getDirectionTo(search.path[0]));
-    //} else {
-    let returnCode = creep.moveTo(targetPosObject, {
-      ignoreCreeps: true,
-      costCallback: creep.room.getCostMatrixCallback()
-    });
-    //}
-    return true;
-  }
-  creep.say(creep.pos.getDirectionTo(search.path[0]));
-  let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
+  creep.moveToMy(targetPosObject, 20, true);
+  // try {
+  //   search = PathFinder.search(
+  //     creep.pos, {
+  //       pos: targetPosObject,
+  //       range: 20
+  //     }, {
+  //       roomCallback: creep.room.getCostMatrixCallback(targetPosObject, true, false, true)
+  //     }
+  //   );
+  //
+  // } catch (e) {
+  //   if (e !== null) {
+  //     creep.log(`search: ${targetPosObject} ${e} ${e.stack}`);
+  //   } else {
+  //     creep.log(`search: ${targetPosObject} ${e}`);
+  //   }
+  //   return false;
+  // }
+  // if (creep.name == 'scout-7571') {
+  //   creep.log(targetPosObject);
+  // }
+  // if (creep.isStuck()) {
+  //   creep.moveTo(25, 25);
+  //   return true;
+  // }
+  //
+  // if (creep.isStuck()) {
+  //   creep.moveRandom();
+  //   creep.say('ImStuck', true);
+  //   creep.log('Scout Stuck, Randomly Moving: ' + JSON.stringify(creep.memory.last) + ' ' + JSON.stringify(creep.isStuck()));
+  //   return true;
+  // }
+  //
+  // if (search.path.length === 0 || (creep.inBase() && creep.room.memory.misplacedSpawn)) {
+  //   creep.say('hello', true);
+  //   //       creep.log(creep.pos + ' ' + targetPosObject + ' ' + JSON.stringify(search));
+  //   if (creep.isStuck() && onBorder(creep)) {
+  //     creep.say('imstuck at the border', true);
+  //     if (config.room.scoutSkipWhenStuck) {
+  //       creep.say('skipping', true);
+  //       creep.memory.scoutSkip = true;
+  //       delete creep.memory.last; // Delete to reset stuckness.
+  //     }
+  //   }
+  //   //if (search.path.length > 0) {
+  //   //creep.move(creep.pos.getDirectionTo(search.path[0]));
+  //   //} else {
+  //   let returnCode = creep.moveTo(targetPosObject, {
+  //     ignoreCreeps: true,
+  //     costCallback: creep.room.getCostMatrixCallback()
+  //   });
+  //   //}
+  //   return true;
+  // }
+  // creep.say(creep.pos.getDirectionTo(search.path[0]));
+  // let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
 };
 
 roles.scout.execute = function(creep) {

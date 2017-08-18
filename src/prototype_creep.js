@@ -26,14 +26,14 @@ Creep.prototype.mySignController = function() {
   }
 };
 
-Creep.prototype.moveToMy = function(target, range) {
+Creep.prototype.moveToMy = function(target, range, allowExits) {
   range = range || 1;
   let search = PathFinder.search(
     this.pos, {
       pos: target,
       range: range
     }, {
-      roomCallback: this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName),
+      roomCallback: this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName, allowExits),
       maxRooms: 0,
       swampCost: config.layout.swampCost,
       plainCost: config.layout.plainCost
