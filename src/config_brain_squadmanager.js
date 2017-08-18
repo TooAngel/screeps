@@ -19,7 +19,10 @@ brain.handleIncomingTransactions = function() {
     let prices = _.sortBy(orders, function(object) {
       return object.price;
     });
-    let price = prices[0].price;
+    let price = 0;
+    if (prices.length > 0) {
+      price = prices[0].price;
+    }
     let value = -1 * transaction.amount * price;
     console.log(`Incoming transaction from ${sender} with ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
     brain.increaseIdiot(sender, value);

@@ -110,8 +110,8 @@ let breadthFirstSearch = function(creep) {
     return true;
   }
   let targetPosObject = new RoomPosition(25, 25, creep.memory.search.target);
-  creep.log(targetPosObject);
-  creep.moveToMy(targetPosObject, 20, true);
+  // creep.log(targetPosObject);
+  creep.moveToMy(targetPosObject, 24, true);
 };
 
 roles.scout.execute = function(creep) {

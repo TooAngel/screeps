@@ -82,9 +82,9 @@ Creep.prototype.moveToMy = function(target, range, allowExits) {
     return OK;
   }
   let returnCode = this.move(this.pos.getDirectionTo(search.path[0].x, search.path[0].y));
-  this.say(returnCode);
+  // this.say(returnCode);
   // if (this.name.startsWith('scout')) {
-  //   this.log(JSON.stringify(search.path));
+  //   this.log(JSON.stringify(search));
   // }
   return returnCode;
 };
