@@ -26,8 +26,7 @@ Creep.prototype.mySignController = function() {
   }
 };
 
-Creep.prototype.moveToMy = function(target, range, allowExits) {
-  range = range || 1;
+Creep.prototype.moveToMySearchAndStorePath = function(target, range, allowExits) {
   let search = PathFinder.search(
     this.pos, {
       pos: target,
@@ -39,18 +38,55 @@ Creep.prototype.moveToMy = function(target, range, allowExits) {
       plainCost: config.layout.plainCost
     }
   );
+  this.memory.moveToMy = {
+    born: Game.time,
+    search: search
+  };
+  return search;
+};
+
+Creep.prototype.moveToMy = function(target, range, allowExits) {
+  range = range || 1;
+
+  let search;
+
+  if (this.memory.moveToMy) {
+    let searchMemory = this.memory.moveToMy;
+    if (Game.time > searchMemory.born + config.creep.cacheMoveToMy) {
+      search = this.moveToMySearchAndStorePath(target, range, allowExits);
+    }
+    search = searchMemory.search;
+  } else {
+    search = this.moveToMySearchAndStorePath(target, range, allowExits);
+  }
 
   if (config.visualizer.enabled && config.visualizer.showPathSearches) {
     visualizer.showSearch(search);
   }
 
+  if (search.path.length === 0 && !search.incomplete) {
+    return OK;
+  }
+
   // Fallback to moveTo when the path is incomplete and the creep is only switching positions
   if (search.path.length < 2 && search.incomplete) {
     this.log(`fallback ${JSON.stringify(target)} ${JSON.stringify(search)}`);
-    this.moveTo(target);
-    return false;
+    return this.moveTo(target);
   }
-  return this.move(this.pos.getDirectionTo(search.path[0] || target.pos || target));
+  // this.log(JSON.stringify(search.path));
+
+  if (search.path[0].x === this.pos.x && search.path[0].y === this.pos.y) {
+    search.path.shift();
+  }
+  if (search.path.length === 0 && !search.incomplete) {
+    return OK;
+  }
+  let returnCode = this.move(this.pos.getDirectionTo(search.path[0].x, search.path[0].y));
+  this.say(returnCode);
+  // if (this.name.startsWith('scout')) {
+  //   this.log(JSON.stringify(search.path));
+  // }
+  return returnCode;
 };
 
 Creep.prototype.inBase = function() {
