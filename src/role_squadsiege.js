@@ -57,7 +57,7 @@ roles.squadsiege.action = function(creep) {
   creep.say('action');
   if (creep.room.name !== creep.memory.routing.targetRoom) {
     if (creep.hits < creep.hitsMax) {
-      creep.moveRanom();
+      creep.moveRandom();
     } else {
       delete creep.memory.routing.reached;
     }

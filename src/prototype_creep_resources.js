@@ -168,7 +168,7 @@ Creep.prototype.upgraderUpdateStats = function() {
 };
 
 Creep.prototype.handleUpgrader = function() {
-  this.sayIdiotList();
+  //this.sayIdiotList();
   this.spawnReplacement(1);
   if (this.room.memory.attackTimer > 50 && this.room.controller.level > 6) {
     if (this.room.controller.ticksToDowngrade > 10000) {

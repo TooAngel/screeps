@@ -68,7 +68,8 @@ global.config = {
 
   autoattack: {
     disabled: false,
-    notify: false
+    notify: false,
+    timeBetweenAttacks: 2000
   },
 
   revive: {
