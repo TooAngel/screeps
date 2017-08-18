@@ -16,7 +16,7 @@ try {
 
 global.config = {
   profiler: {
-    enabled: false,
+    enabled: false
   },
   visualizer: {
     enabled: false,
@@ -43,12 +43,15 @@ global.config = {
   // Due to newly introduces via global variable caching this can be removed
   performance: {
     serializePath: true,
-    costMatrixMemoryMaxGCL: 15,
+    costMatrixMemoryMaxGCL: 15
   },
 
+  // use username `tooangels` and password `tooSecretPassword` at https://screepspl.us/grafana
   stats: {
+    screepsPlusEnabled: false,
+    screepsPlusToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRvb2FuZ2VscyIsImlhdCI6MTQ4MzU2MTU3OSwiYXVkIjoic2NyZWVwc3BsLnVzIiwiaXNzIjoic2NyZWVwc3BsLnVzIn0.NhobT7Jg8bOAg-MYqrYsgeMgXEVXGVYG9s3G9Qpfm-o',
     enabled: true,
-    summary: false,
+    summary: false
   },
 
   debug: {
@@ -63,7 +66,7 @@ global.config = {
   },
   autoattack: {
     disabled: false,
-    notify: false,
+    notify: false
   },
 
   revive: {
@@ -84,7 +87,7 @@ global.config = {
     minNewRoomDistance: 2,
     minEnergyForActive: 1000,
     minDowngradPercent: 90,
-    notify: false,
+    notify: false
   },
 
   carryHelpers: {
@@ -99,31 +102,31 @@ global.config = {
   power: {
     disabled: false,
     energyForCreeps: 800000,
-    energyForSpawn: 250000,
+    energyForSpawn: 250000
   },
 
   buildRoad: {
     maxConstructionSitesTotal: 80,
     maxConstructionSitesRoom: 3,
-    buildToOtherMyRoom: false,
+    buildToOtherMyRoom: false
   },
 
   constructionSite: {
-    maxIdleTime: 5000,
+    maxIdleTime: 5000
   },
 
   hostile: {
-    remeberInRoom: 1500,
+    remeberInRoom: 1500
   },
 
   path: {
     refresh: 2000000,
     allowRoutingThroughFriendRooms: false,
-    pathfindIncomplete: true,
+    pathfindIncomplete: true
   },
 
   external: {
-    distance: 3,
+    distance: 3
   },
 
   carry: {
@@ -139,7 +142,8 @@ global.config = {
     // Percentage should increase from base to target room. Decrease may cause stack on border
     carryPercentageBase: 0.1,
     carryPercentageHighway: 0.2,
-    carryPercentageExtern: 0.5
+    carryPercentageExtern: 0.5,
+    callHarvesterPerResources: 1000
   },
 
   creep: {
@@ -164,7 +168,7 @@ global.config = {
       5: 1,
       6: 1,
       7: 1,
-      8: 1,
+      8: 1
     },
     revive: true,
     rebuildLayout: 7654,
@@ -178,7 +182,7 @@ global.config = {
     upgraderMinStorage: 0,
     upgraderStorageFactor: 2,
     lastSeenThreshold: 1000000,
-    notify: false,
+    notify: false
   },
 
   layout: {

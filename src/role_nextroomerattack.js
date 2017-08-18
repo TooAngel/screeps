@@ -10,7 +10,7 @@ roles.nextroomerattack = {};
 
 roles.nextroomerattack.settings = {
   layoutString: 'MA',
-  amount: [5, 5],
+  amount: [5, 5]
 };
 
 roles.nextroomerattack.died = function(name, memory) {

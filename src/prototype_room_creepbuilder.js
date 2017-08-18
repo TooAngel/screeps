@@ -5,10 +5,10 @@ Room.prototype.creepMem = function(role, targetId, targetRoom, level, base) {
     role: role,
     routing: {
       targetRoom: targetRoom || this.name,
-      targetId: targetId,
+      targetId: targetId
     },
     level: level,
-    base: base,
+    base: base
   };
 };
 
@@ -117,14 +117,14 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
 /**
  * First function call for ask a creep spawn. Add it in queue after check if spawn is allow.
  *
- * @param  {string} role       the role of the creeps to spawn.
- * @param  {number} amount     the amount of creeps asked for (1).
- * @param  {string} targetId   the id of targeted object by creeps (null).
- * @param  {string} targetRoom the targeted room name (base)
- * @param  {number} level      the level of creeps. required by some functions.
- * @param  {string} base       the room which will spawn creep
- * @param  {object} additionalMemory
- * @return {boolean}           if the spawn is not allow, it will return false.
+ * @param  {string} role                the role of the creeps to spawn.
+ * @param  {number} [amount]            the amount of creeps asked for (1).
+ * @param  {string} [targetId]          the id of targeted object by creeps (null).
+ * @param  {string} [targetRoom]        the targeted room name (base)
+ * @param  {number} [level]             the level of creeps. required by some functions.
+ * @param  {string} [base]              the room which will spawn creep
+ * @param  {object} [additionalMemory]  add this object to creep memory
+ * @return {boolean}                    if the spawn is not allow, it will return false.
  */
 Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, level, base, additionalMemory = {}) {
   const creepMemory = this.creepMem(role, targetId, targetRoom, level, base);
@@ -240,7 +240,7 @@ Room.prototype.applyAmount = function(input, amount) {
   if (!input) {
     return '';
   }
-  if (typeof amount === undefined) {
+  if (amount === undefined) {
     return input;
   }
   let cost = 0;
@@ -286,7 +286,7 @@ Room.prototype.getPartConfig = function(creep) {
     layoutString,
     amount,
     maxLayoutAmount,
-    sufixString,
+    sufixString
   } = this.getSettings(creep);
   let maxBodyLength = MAX_CREEP_SIZE;
   if (prefixString) { maxBodyLength -= prefixString.length; }
@@ -303,7 +303,7 @@ Room.prototype.getPartConfig = function(creep) {
   if (layout.len === 0) {
     maxRepeat = 0;
   }
-  if (maxLayoutAmount) {
+  if (maxLayoutAmount !== undefined) {
     maxRepeat = Math.min(maxLayoutAmount, maxRepeat);
   }
   if (maxRepeat > 0) {
@@ -313,10 +313,10 @@ Room.prototype.getPartConfig = function(creep) {
 
   let sufix = this.getPartsStringDatas(sufixString, energyAvailable);
   if (!sufix.fail && !sufix.null) {
-    parts = parts.concat(sufix.parts);
+    parts = parts.concat(sufix.parts || []);
   }
   if (config.debug.spawn) {
-    this.log('Spawning ' + creep.role + ' - - - Body: ' + JSON.stringify(prefix.parts) + ' - ' + maxRepeat + ' * ' + JSON.stringify(layout.parts) + ' - ' + JSON.stringify(sufix.parts));
+    this.log('Spawning ' + creep.role + ' - - - Body: ' + JSON.stringify(prefix.parts) + ' - ' + maxRepeat + ' * ' + JSON.stringify(layout.parts) + ' - ' + JSON.stringify(sufix.parts) + ' - parts: ' + JSON.stringify(parts));
   }
   return config.creep.sortParts ? this.sortParts(parts, layout) : parts;
 };

@@ -15,7 +15,7 @@ roles.repairer.stayInRoom = true;
 
 roles.repairer.settings = {
   layoutString: 'MWC',
-  amount: [2, 1, 1],
+  amount: [2, 1, 1]
   //if (room.storage) {datas.maxEnergyUsed = (room.storage.store.energy / 10000) * 250;}
 };
 

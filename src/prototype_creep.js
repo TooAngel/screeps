@@ -45,8 +45,10 @@ Creep.prototype.moveToMy = function(target, range) {
     visualizer.showSearch(search);
   }
 
-  if (search.incomplete) {
-    this.moveRandom();
+  // Fallback to moveTo when the path is incomplete and the creep is only switching positions
+  if (search.path.length < 2 && search.incomplete) {
+    this.log(`fallback ${JSON.stringify(target)} ${JSON.stringify(search)}`);
+    this.moveTo(target);
     return false;
   }
   return this.move(this.pos.getDirectionTo(search.path[0] || target.pos || target));
@@ -133,15 +135,27 @@ Creep.prototype.handle = function() {
     this.memory.last = {
       pos1: this.pos,
       pos2: last.pos1,
-      pos3: last.pos2,
+      pos3: last.pos2
     };
   }
 };
 
 Creep.prototype.isStuck = function() {
-  return this.memory.last !== undefined &&
-    this.memory.last.pos3 !== undefined &&
-    this.pos.isEqualTo(this.memory.last.pos3.x, this.memory.last.pos3.y);
+  if (!this.memory.last) {
+    return false;
+  }
+  if (!this.memory.last.pos2) {
+    return false;
+  }
+  if (!this.memory.last.pos3) {
+    return false;
+  }
+  for (let pos = 1; pos < 4; pos++) {
+    if (!this.pos.isEqualTo(this.memory.last['pos' + pos].x, this.memory.last['pos' + pos].y)) {
+      return false;
+    }
+  }
+  return true;
 };
 
 Creep.prototype.getEnergyFromStructure = function() {
@@ -184,7 +198,6 @@ Creep.prototype.stayInRoom = function() {
 
 Creep.prototype.buildRoad = function() {
   if (this.room.controller && this.room.controller.my) {
-
     if (this.pos.lookFor(LOOK_TERRAIN)[0] !== 'swamp' &&
       (this.room.controller.level < 3 || this.room.memory.misplacedSpawn)) {
       return false;
@@ -346,7 +359,7 @@ Creep.prototype.respawnMe = function() {
   let routing = {
     targetRoom: this.memory.routing.targetRoom,
     targetId: this.memory.routing.targetId,
-    route: this.memory.routing.route,
+    route: this.memory.routing.route
   };
   var spawn = {
     role: this.memory.role,

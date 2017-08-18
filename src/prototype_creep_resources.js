@@ -24,7 +24,7 @@ Creep.prototype.harvesterBeforeStorage = function() {
   } else {
     methods.push(Creep.repairStructure);
   }
-  this.say('startup', true);
+  // this.say('startup', true);
   Creep.execute(this, methods);
   return true;
 };
@@ -508,6 +508,26 @@ Creep.prototype.setHasEnergy = function() {
   }
 };
 
+Creep.prototype.getDroppedEnergy = function() {
+  let target = this.pos.findClosestByRangePropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], false, {
+    filter: object => object.amount > 0
+  });
+  if (target === null) {
+    return false;
+  }
+  let energyRange = this.pos.getRangeTo(target.pos);
+  if (energyRange <= 1) {
+    this.pickupOrWithdrawFromSourcer(target);
+    return true;
+  }
+  if (target.energy > (energyRange * 10) * (this.carry.energy + 1)) {
+    this.say('dropped');
+    let returnCode = this.moveToMy(target.pos, 1);
+    return true;
+  }
+  return false;
+};
+
 Creep.prototype.getEnergy = function() {
   /* State machine:
    * No energy, goes to collect energy until full.
@@ -568,7 +588,7 @@ Creep.prototype.construct = function() {
   return true;
 };
 
-Creep.prototype.getTransferTarget = function() {
+Creep.prototype.getTransferTargetStructure = function() {
   const structure = this.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER], false, {
     filter: structure => structure.energy < structure.energyCapacity
   });
@@ -583,18 +603,26 @@ Creep.prototype.getTransferTarget = function() {
   }
 };
 
-Creep.prototype.transferEnergyMy = function() {
+Creep.prototype.getTransferTarget = function() {
   if (!this.memory.targetEnergyMy) {
-    this.getTransferTarget();
+    this.getTransferTargetStructure();
     if (!this.memory.targetEnergyMy) {
       return false;
     }
   }
 
-  var target = Game.getObjectById(this.memory.targetEnergyMy);
-  if (!target) {
+  const target = Game.getObjectById(this.memory.targetEnergyMy);
+  if (!target || (target.structureType !== STRUCTURE_STORAGE && target.energy === target.energyCapacity)) {
     this.log(`transferEnergyMy: Can not find target ${this.memory.targetEnergyMy}`);
     delete this.memory.targetEnergyMy;
+    return false;
+  }
+  return target;
+};
+
+Creep.prototype.transferEnergyMy = function() {
+  const target = this.getTransferTarget();
+  if (!target) {
     return false;
   }
   var range = this.pos.getRangeTo(target);

@@ -89,7 +89,7 @@ module.exports = [{
     '*.js'
   ],
   dest: '$HOME/.config/Screeps/scripts/SERVER/default',
-}
+}];
 ```
 
     grunt local

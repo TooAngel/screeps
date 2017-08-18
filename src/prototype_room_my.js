@@ -262,6 +262,28 @@ Room.prototype.checkForEnergyTransfer = function() {
   this.memory.energyAvailableSum = 0;
 };
 
+Room.prototype.getHarvesterAmount = function() {
+  let amount = 1;
+  if (!this.storage) {
+    amount = 2;
+    // TODO maybe better spawn harvester when a carry recognize that the dropped energy > threshold
+    if (this.controller.level === 2 || this.controller.level === 3) {
+      amount = 5;
+    }
+  } else {
+    if (this.storage.store.energy < config.creep.energyFromStorageThreshold && this.controller.level < 5) {
+      amount = 3;
+    }
+    if (this.storage.store.energy > 2 * config.creep.energyFromStorageThreshold && this.controller.level > 6) {
+      amount = 2;
+    }
+    if (!this.storage.my) {
+      amount = 10;
+    }
+  }
+  return amount;
+};
+
 Room.prototype.executeRoom = function() {
   let cpuUsed = Game.cpu.getUsed();
   this.buildBase();
@@ -292,26 +314,12 @@ Room.prototype.executeRoom = function() {
   const nextroomers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['nextroomer'], false, {
     filter: object => object.memory.base !== this.name
   });
-  const building = nextroomers.length > 0 && this.controller.level < 5;
+  const building = nextroomers.length > 0 && this.controller.level < 4;
 
   const creepsInRoom = this.find(FIND_MY_CREEPS);
   let spawn;
   if (!building) {
-    let amount = 1;
-    if (!this.storage) {
-      amount = 2;
-      // TODO maybe better spawn harvester when a carry recognize that the dropped energy > threshold
-      if (this.controller.level === 2 || this.controller.level === 3) {
-        amount = 5;
-      }
-    } else {
-      if (this.storage.store.energy < config.creep.energyFromStorageThreshold && this.controller.level < 5) {
-        amount = 3;
-      }
-      if (!this.storage.my) {
-        amount = 10;
-      }
-    }
+    const amount = this.getHarvesterAmount();
 
     this.checkRoleToSpawn('harvester', amount, 'harvester');
   }
