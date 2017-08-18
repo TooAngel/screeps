@@ -101,6 +101,10 @@ Room.prototype.getOwnerName = function() {
 };
 
 Room.prototype.launchAutoAttack = function(player) {
+  const lastAttacked = player.lastAttacked || Game.time;
+  if (Game.time < lastAttacked + config.autoattack.timeBetweenAttacks) {
+    return false;
+  }
   this.log(`Queuing level ${player.level} attack`);
   if (config.autoattack.notify) {
     Game.notify(Game.time + ' ' + this.name + ' Queuing autoattacker');
