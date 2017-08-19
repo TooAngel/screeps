@@ -49,7 +49,7 @@ Creep.prototype.checkTerminalEnergy = function() {
   this.say('terminal', true);
   let from = this.room.storage;
   let to = this.room.terminal;
-  if (this.checkEnergyThreshold(STRUCTURE_TERMINAL, config.terminal.maxEnergyAmount)) {
+  if (this.checkEnergyThreshold(STRUCTURE_TERMINAL, config.terminal.maxEnergyAmount) && (this.carry.energy > 0 || _.sum(this.carry) === 0)) {
     from = this.room.terminal;
     to = this.room.storage;
   }

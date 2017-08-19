@@ -54,6 +54,7 @@ Creep.prototype.moveToMy = function(target, range, allowExits, cache) {
         search: search
       };
       this.memory.moveToMy = memory;
+      // this.log(JSON.stringify(search));
     }
     search = memory.search;
   } else {
@@ -65,12 +66,14 @@ Creep.prototype.moveToMy = function(target, range, allowExits, cache) {
   }
 
   if (search.path.length === 0 && !search.incomplete) {
+    this.say('mtm 0');
     this.move(this.pos.getDirectionTo(target));
     return OK;
   }
 
   // Fallback to moveTo when the path is incomplete and the creep is only switching positions
   if (search.path.length < 2 && search.incomplete) {
+    // this.log(`Fallback ${JSON.stringify(search)} ${target}`);
     let searchNew = PathFinder.search(
       this.pos, {
         pos: target,
@@ -87,7 +90,7 @@ Creep.prototype.moveToMy = function(target, range, allowExits, cache) {
   // let returnCode = this.moveByPath(search.path);
   let returnCode = this.move(this.pos.getDirectionTo(search.path[0].x, search.path[0].y));
 
-  this.say(returnCode);
+  this.say(this.pos.getDirectionTo(search.path[0].x, search.path[0].y));
   if (returnCode === ERR_TIRED) {
     return returnCode;
   }

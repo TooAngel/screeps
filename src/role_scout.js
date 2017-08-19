@@ -112,11 +112,6 @@ let breadthFirstSearch = function(creep) {
   let targetPosObject = new RoomPosition(25, 25, creep.memory.search.target);
   // creep.log(targetPosObject);
   let returnCode = creep.moveToMy(targetPosObject, 24, true, true);
-  if (returnCode !== OK) {
-    if (!setNewTarget(creep)) {
-      increaseSearchLevel(creep);
-    }
-  }
 };
 
 roles.scout.execute = function(creep) {
