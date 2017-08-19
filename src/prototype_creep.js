@@ -26,7 +26,7 @@ Creep.prototype.mySignController = function() {
   }
 };
 
-Creep.prototype.moveToMySearchAndStorePath = function(target, range, allowExits) {
+Creep.prototype.moveToMySearch = function(target, range, allowExits) {
   let search = PathFinder.search(
     this.pos, {
       pos: target,
@@ -38,26 +38,26 @@ Creep.prototype.moveToMySearchAndStorePath = function(target, range, allowExits)
       plainCost: config.layout.plainCost
     }
   );
-  this.memory.moveToMy = {
-    born: Game.time,
-    search: search
-  };
   return search;
 };
 
-Creep.prototype.moveToMy = function(target, range, allowExits) {
+Creep.prototype.moveToMy = function(target, range, allowExits, cache) {
   range = range || 1;
 
   let search;
-
-  if (this.memory.moveToMy) {
-    let searchMemory = this.memory.moveToMy;
-    if (Game.time > searchMemory.born + config.creep.cacheMoveToMy) {
-      search = this.moveToMySearchAndStorePath(target, range, allowExits);
+  if (cache) {
+    let memory = this.memory.moveToMy;
+    if (!memory || Game.time > memory.born + config.creep.cacheMoveToMy) {
+      search = this.moveToMySearch(target, range, allowExits);
+      memory = {
+        born: Game.time,
+        search: search
+      };
+      this.memory.moveToMy = memory;
     }
-    search = searchMemory.search;
+    search = memory.search;
   } else {
-    search = this.moveToMySearchAndStorePath(target, range, allowExits);
+    search = this.moveToMySearch(target, range, allowExits);
   }
 
   if (config.visualizer.enabled && config.visualizer.showPathSearches) {
@@ -65,26 +65,42 @@ Creep.prototype.moveToMy = function(target, range, allowExits) {
   }
 
   if (search.path.length === 0 && !search.incomplete) {
+    this.move(this.pos.getDirectionTo(target));
     return OK;
   }
 
   // Fallback to moveTo when the path is incomplete and the creep is only switching positions
   if (search.path.length < 2 && search.incomplete) {
-    this.log(`fallback ${JSON.stringify(target)} ${JSON.stringify(search)}`);
-    return this.moveTo(target);
+    let searchNew = PathFinder.search(
+      this.pos, {
+        pos: target,
+        range: range
+      }
+    );
+    return this.moveByPath(searchNew.path);
   }
-  // this.log(JSON.stringify(search.path));
 
-  if (search.path[0].x === this.pos.x && search.path[0].y === this.pos.y) {
+  if (this.pos.isEqualTo(search.path[0].x, search.path[0].y)) {
     search.path.shift();
   }
-  if (search.path.length === 0 && !search.incomplete) {
-    return OK;
-  }
+
+  // let returnCode = this.moveByPath(search.path);
   let returnCode = this.move(this.pos.getDirectionTo(search.path[0].x, search.path[0].y));
-  // this.say(returnCode);
+
+  this.say(returnCode);
+  if (returnCode === ERR_TIRED) {
+    return returnCode;
+  }
+  if (returnCode === ERR_NOT_FOUND) {
+    this.log(`NOT FOUND: ${JSON.stringify(search)}`);
+    // this.move(this.pos.getDirectionTo(search.path[1].x, search.path[1].y));
+    return returnCode;
+  }
+  if (returnCode !== OK) {
+    this.log(`MoveToMy: Error moveByPath ${returnCode} ${JSON.stringify(search)}`);
+  }
   // if (this.name.startsWith('scout')) {
-  //   this.log(JSON.stringify(search));
+  //   this.log(this.pos, JSON.stringify(search));
   // }
   return returnCode;
 };

@@ -150,7 +150,7 @@ global.config = {
   },
 
   creep: {
-    cacheMoveToMy: 1,
+    cacheMoveToMy: 5,
     renewOffset: 0,
     queueTtl: 100,
     structurer: true,
