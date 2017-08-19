@@ -37,8 +37,14 @@ Creep.prototype.handleSourcer = function() {
       }
     }
 
-    let link = Game.getObjectById(this.memory.link);
-    this.transfer(link, RESOURCE_ENERGY);
+    const link = Game.getObjectById(this.memory.link);
+    if (link) {
+      this.transfer(link, RESOURCE_ENERGY);
+      const resources = this.pos.findInRangePropertyFilter(FIND_DROPPED_RESOURCES, 1, 'resourceType', [RESOURCE_ENERGY]);
+      if (resources.length > 0) {
+        this.pickup(resources);
+      }
+    }
   }
 };
 
@@ -60,7 +66,7 @@ Creep.prototype.spawnCarry = function() {
     role: 'carry',
     routing: {
       targetRoom: this.memory.routing.targetRoom,
-      targetId: this.memory.routing.targetId,
+      targetId: this.memory.routing.targetId
     }
   };
 
@@ -77,7 +83,14 @@ Creep.prototype.spawnCarry = function() {
   }
 
   if (resourceAtPosition > carryCapacity) {
-    Game.rooms[this.memory.base].checkRoleToSpawn('carry', config.carry.maxPerTargetPerRoom, this.memory.routing.targetId, this.memory.routing.targetRoom);
+    Game.rooms[this.memory.base].checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom);
+  } else if (resourceAtPosition <= HARVEST_POWER * workParts) {
+    const nearCarries = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 2, 'memory.role', ['carry'], false, {
+      filter: creep => creep.memory.routing.targetId === this.memory.routing.targetId
+    });
+    if (nearCarries.length > 1) {
+      nearCarries[0].memory.recycle = true;
+    }
   }
-  this.memory.wait = waitTime;
+  this.memory.wait = Math.max(waitTime, config.carry.minSpawnRate);
 };

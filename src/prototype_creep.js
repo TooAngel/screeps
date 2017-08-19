@@ -6,8 +6,23 @@ function getOppositeDirection(direction) {
 }
 
 Creep.prototype.mySignController = function() {
-  if (config.info.signController && !this.room.controller.sign) {
-    let returnCode = this.signController(this.room.controller, config.info.signText);
+  if (config.info.signController && this.room.exectueEveryTicks(config.info.resignInterval)) {
+    let text = config.info.signText;
+    if (config.quests.enabled && this.memory.role === 'reserver') {
+      if (Math.random() < config.quests.signControllerPercentage) {
+        let quest = {
+          id: Math.random(),
+          origin: this.memory.base,
+          type: 'Quest',
+          //info: 'http://tooangel.github.io/screeps/doc/Quests.html'
+          info: 'https://goo.gl/QEyNzG' // Pointing to the workspace branch doc
+        };
+        this.log('Attach quest');
+        text = JSON.stringify(quest);
+      }
+    }
+
+    let returnCode = this.signController(this.room.controller, text);
     this.log(returnCode);
   }
 };
@@ -20,12 +35,20 @@ Creep.prototype.moveToMy = function(target, range) {
       range: range
     }, {
       roomCallback: this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName),
-      maxRooms: 0
+      maxRooms: 0,
+      swampCost: config.layout.swampCost,
+      plainCost: config.layout.plainCost
     }
   );
 
-  if (search.incomplete) {
-    this.moveRandom();
+  if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+    visualizer.showSearch(search);
+  }
+
+  // Fallback to moveTo when the path is incomplete and the creep is only switching positions
+  if (search.path.length < 2 && search.incomplete) {
+    this.log(`fallback ${JSON.stringify(target)} ${JSON.stringify(search)}`);
+    this.moveTo(target);
     return false;
   }
   return this.move(this.pos.getDirectionTo(search.path[0] || target.pos || target));
@@ -37,6 +60,11 @@ Creep.prototype.inBase = function() {
 
 Creep.prototype.handle = function() {
   if (this.spawning) {
+    return;
+  }
+
+  if (this.memory.recycle) {
+    Creep.recycleCreep(this);
     return;
   }
 
@@ -52,16 +80,6 @@ Creep.prototype.handle = function() {
     if (unit.stayInRoom) {
       if (this.stayInRoom()) {
         return;
-      }
-    }
-
-    // TODO this happens when the creep is not on the path (maybe pathPos check will solve)
-    if (unit.buildRoad) {
-      if (this.memory.routing && !this.memory.routing.reached) {
-        const target = Game.getObjectById(this.memory.routing.targetId);
-        if (config.buildRoad.buildToOtherMyRoom || !target || target.structureType !== STRUCTURE_STORAGE) {
-          this.buildRoad();
-        }
       }
     }
 
@@ -117,15 +135,27 @@ Creep.prototype.handle = function() {
     this.memory.last = {
       pos1: this.pos,
       pos2: last.pos1,
-      pos3: last.pos2,
+      pos3: last.pos2
     };
   }
 };
 
 Creep.prototype.isStuck = function() {
-  return this.memory.last !== undefined &&
-    this.memory.last.pos3 !== undefined &&
-    this.pos.isEqualTo(this.memory.last.pos3.x, this.memory.last.pos3.y);
+  if (!this.memory.last) {
+    return false;
+  }
+  if (!this.memory.last.pos2) {
+    return false;
+  }
+  if (!this.memory.last.pos3) {
+    return false;
+  }
+  for (let pos = 1; pos < 4; pos++) {
+    if (!this.pos.isEqualTo(this.memory.last['pos' + pos].x, this.memory.last['pos' + pos].y)) {
+      return false;
+    }
+  }
+  return true;
 };
 
 Creep.prototype.getEnergyFromStructure = function() {
@@ -168,7 +198,6 @@ Creep.prototype.stayInRoom = function() {
 
 Creep.prototype.buildRoad = function() {
   if (this.room.controller && this.room.controller.my) {
-
     if (this.pos.lookFor(LOOK_TERRAIN)[0] !== 'swamp' &&
       (this.room.controller.level < 3 || this.room.memory.misplacedSpawn)) {
       return false;
@@ -330,7 +359,7 @@ Creep.prototype.respawnMe = function() {
   let routing = {
     targetRoom: this.memory.routing.targetRoom,
     targetId: this.memory.routing.targetId,
-    route: this.memory.routing.route,
+    route: this.memory.routing.route
   };
   var spawn = {
     role: this.memory.role,

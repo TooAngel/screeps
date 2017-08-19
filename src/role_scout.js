@@ -9,7 +9,8 @@
 roles.scout = {};
 roles.scout.settings = {
   layoutString: 'M',
-  maxLayoutAmount: 1,
+  amount: [1],
+  maxLayoutAmount: 1
 };
 
 function onBorder(creep) {
@@ -93,6 +94,10 @@ roles.scout.execute = function(creep) {
         }
       );
 
+      if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+        visualizer.showSearch(search);
+      }
+
     } catch (e) {
       if (e !== null) {
         creep.log(`search: ${targetPosObject} ${e} ${e.stack}`);
@@ -117,6 +122,12 @@ roles.scout.execute = function(creep) {
       // }
       return false;
     }
+
+    if (creep.memory.last && creep.memory.last.pos3 && creep.pos.roomName !== creep.memory.last.pos3.roomName) {
+      creep.moveTo(25, 25);
+      return true;
+    }
+
     if (creep.isStuck()) {
       creep.moveRandom();
       creep.say('ImStuck', true);

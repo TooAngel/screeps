@@ -17,18 +17,32 @@ roles.upgrader.settings = {
     1: 'MWW',
     4: 'W'
   },
-  maxLayoutAmount: {
-    7: {
-      50000: 20,
-      800000: undefined,
-    },
-    8: {
-      50000: 1,
-      800000: undefined,
-    }
-
+  amount: {
+    4: [1]
   }
 };
+
+roles.upgrader.updateSettings = function(room, creep) {
+  // One work part one energy per tick multiplied by config value with  lifetime
+  // So have at least a specific amount of energy in storage that the upgrader
+  // can use.
+  // Example with upgraderStorageFactor 2:
+  // 6453 energy in storage are 2 workParts
+  // 3000 energy will be put in the controller
+  let workParts = Math.floor((room.storage.store.energy + 1) / (CREEP_LIFE_TIME * config.room.upgraderStorageFactor));
+  workParts = Math.min(workParts, 47);
+  if (room.controller.level === 8) {
+    workParts = Math.min(workParts, 15);
+  }
+  const maxLayoutAmount = Math.max(0, workParts - 1);
+  if (config.debug.upgrader) {
+    room.log(`upgrader updateSettings - storage.energy: ${room.storage.store.energy} upgraderStorageFactor: ${config.room.upgraderStorageFactor} workParts: ${workParts} maxLayoutAmount: ${maxLayoutAmount}`);
+  }
+  return {
+    maxLayoutAmount: maxLayoutAmount
+  };
+};
+
 roles.upgrader.stayInRoom = true;
 // TODO disabled because the upgrader took energy from the extension
 roles.upgrader.buildRoad = false;

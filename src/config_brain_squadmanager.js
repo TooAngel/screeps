@@ -8,6 +8,10 @@ brain.handleIncomingTransactions = function() {
 
   for (let transaction of current) {
     let sender = transaction.sender.username;
+    // TODO for testing disabled
+    // if (sender === Memory.username) {
+    //   continue;
+    // }
     let orders = Game.market.getAllOrders({
       type: ORDER_SELL,
       resourceType: transaction.resourceType
@@ -19,6 +23,21 @@ brain.handleIncomingTransactions = function() {
     let value = -1 * transaction.amount * price;
     console.log(`Incoming transaction from ${sender} with ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
     brain.increaseIdiot(sender, value);
+
+    brain.checkQuestForAcceptance(transaction);
+  }
+};
+
+brain.initPlayer = function(name) {
+  if (!Memory.players[name]) {
+    Memory.players[name] = {
+      name: name,
+      rooms: {},
+      level: 0,
+      counter: 0,
+      idiot: 0,
+      reputation: 0
+    };
   }
 };
 
@@ -30,15 +49,7 @@ brain.increaseIdiot = function(name, value) {
   value = value || 1;
   Memory.players = Memory.players || {};
 
-  if (!Memory.players[name]) {
-    Memory.players[name] = {
-      name: name,
-      rooms: {},
-      level: 0,
-      counter: 0,
-      idiot: 0
-    };
-  }
+  brain.initPlayer(name);
 
   if (!Memory.players[name].idiot) {
     Memory.players[name].idiot = 0;

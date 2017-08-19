@@ -10,7 +10,7 @@ roles.squadheal = {};
 
 roles.squadheal.settings = {
   layoutString: 'MH',
-  amount: [17, 17],
+  amount: [17, 17]
 };
 
 roles.squadheal.preMove = function(creep, directions) {
@@ -92,6 +92,10 @@ roles.squadheal.action = function(creep) {
         maxRooms: 1
       }
     );
+
+    if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+      visualizer.showSearch(search);
+    }
 
     if (search.incomplete) {
       creep.say('incomplete');

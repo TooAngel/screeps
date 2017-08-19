@@ -91,7 +91,12 @@ Creep.recycleCreep = function(creep) {
     spawn = Game.rooms[creep.memory.base].findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN])[0];
   }
   if (spawn) {
-    creep.moveTo(spawn);
+    if (creep.room === spawn.room) {
+      creep.moveToMy(spawn.pos);
+    } else {
+      creep.moveTo(spawn);
+    }
+    creep.say('recycle');
     spawn.recycleCreep(creep);
   }
   return true;
@@ -109,39 +114,33 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
   if (this.carry.energy) {
     return false;
   }
-  let hostileStructures = this.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR]);
+  let hostileStructures = this.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_OBSERVER], true, {
+    filter: Room.structureHasEnergy
+  });
   if (!hostileStructures.length) {
     return false;
   }
 
   this.say('hostile');
-  hostileStructures = _.sortBy(hostileStructures, function(object) {
-    if (object.structureType === STRUCTURE_STORAGE) {
-      return 1;
-    }
-    return 2;
-  });
+  // Get energy from the structure with lowest amount first, so we can safely remove it
+  const getEnergy = object => object.energy || object.store.energy;
+  hostileStructures = _.sortBy(hostileStructures, [getEnergy, object => object.pos.getRangeTo(this)]);
 
-  let structure = _.max(hostileStructures, s => s.structureType === STRUCTURE_STORAGE);
-  this.log(JSON.stringify(structure));
-  if (structure.structureType === STRUCTURE_STORAGE) {
-    if (structure.store.energy === 0) {
-      structure.destroy();
-      return true;
-    }
-  } else if (!structure.energy) {
-    structure.destroy();
-    return true;
-  }
-
+  let structure = hostileStructures[0];
   let range = this.pos.getRangeTo(structure);
-  this.moveToMy(structure.pos);
-  this.withdraw(structure, RESOURCE_ENERGY);
+  if (range > 1) {
+    this.moveToMy(structure.pos);
+  } else {
+    const res_code = this.withdraw(structure, RESOURCE_ENERGY);
+    if (res_code === OK && getEnergy(structure) <= this.carryCapacity) {
+      structure.destroy();
+    }
+  }
   return true;
 };
 
 Creep.prototype.getEnergyFromStorage = function() {
-  if (!this.room.storage || this.room.storage.store.energy < config.creep.energyFromStorageThreshold) {
+  if (!this.room.storage || !this.room.storage.my || this.room.storage.store.energy < config.creep.energyFromStorageThreshold) {
     return false;
   }
 
@@ -319,21 +318,4 @@ Creep.prototype.pickupOrWithdrawFromSourcer = function(target) {
   this.pickup(target);
   pickedUp += target.amount;
   return Math.min(pickedUp, creepFreeSpace);
-};
-
-Creep.prototype.getDroppedEnergy = function() {
-  let target = this.pos.findClosestByRangePropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], false, {
-    filter: object => object.amount > 0
-  });
-  if (target !== null) {
-    let energyRange = this.pos.getRangeTo(target.pos);
-    if (energyRange <= 1) {
-      this.pickupOrWithdrawFromSourcer(target);
-      return true;
-    }
-    if (target.energy > (energyRange * 10) * (this.carry.energy + 1)) {
-      return this.moveToMy(target.pos, 1) !== false;
-    }
-  }
-  return false;
 };

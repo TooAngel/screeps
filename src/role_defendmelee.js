@@ -10,7 +10,7 @@ roles.defendmelee = {};
 
 roles.defendmelee.settings = {
   layoutString: 'MA',
-  amount: [5, 5],
+  amount: [5, 5]
 };
 
 roles.defendmelee.execute = function(creep) {
@@ -23,6 +23,9 @@ roles.defendmelee.execute = function(creep) {
     hostile.pos, {
       roomCallback: creep.room.getCostMatrixCallback(hostile.pos)
     });
+  if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+    visualizer.showSearch(search);
+  }
   let direction = creep.pos.getDirectionTo(search.path[0]);
   creep.moveCreep(search.path[0], (direction + 3) % 8 + 1);
   let returnCode = creep.move(direction);

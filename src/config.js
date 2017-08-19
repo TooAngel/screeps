@@ -16,31 +16,42 @@ try {
 
 global.config = {
   profiler: {
-    enabled: false,
+    enabled: false
   },
   visualizer: {
     enabled: false,
     showRoomPaths: true,
     showCreepPaths: true,
+    showPathSearches: true,
     showStructures: true,
     showCreeps: true,
-    refresh: true,
+    showBlockers: true,
+    showCostMatrixes: false
+  },
+
+  quests: {
+    enabled: true,
+    signControllerPercentage: 0.1
   },
 
   info: {
     signController: true,
     signText: 'Fully automated TooAngel bot: http://tooangel.github.io/screeps/',
+    resignInterval: 500
   },
 
   // Due to newly introduces via global variable caching this can be removed
   performance: {
     serializePath: true,
-    costMatrixMemoryMaxGCL: 15,
+    costMatrixMemoryMaxGCL: 15
   },
 
+  // use username `tooangels` and password `tooSecretPassword` at https://screepspl.us/grafana
   stats: {
+    screepsPlusEnabled: false,
+    screepsPlusToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRvb2FuZ2VscyIsImlhdCI6MTQ4MzU2MTU3OSwiYXVkIjoic2NyZWVwc3BsLnVzIiwiaXNzIjoic2NyZWVwc3BsLnVzIn0.NhobT7Jg8bOAg-MYqrYsgeMgXEVXGVYG9s3G9Qpfm-o',
     enabled: true,
-    summary: false,
+    summary: false
   },
 
   debug: {
@@ -55,7 +66,7 @@ global.config = {
   },
   autoattack: {
     disabled: false,
-    notify: false,
+    notify: false
   },
 
   revive: {
@@ -76,7 +87,7 @@ global.config = {
     minNewRoomDistance: 2,
     minEnergyForActive: 1000,
     minDowngradPercent: 90,
-    notify: false,
+    notify: false
   },
 
   carryHelpers: {
@@ -91,31 +102,31 @@ global.config = {
   power: {
     disabled: false,
     energyForCreeps: 800000,
-    energyForSpawn: 250000,
+    energyForSpawn: 250000
   },
 
   buildRoad: {
     maxConstructionSitesTotal: 80,
     maxConstructionSitesRoom: 3,
-    buildToOtherMyRoom: false,
+    buildToOtherMyRoom: false
   },
 
   constructionSite: {
-    maxIdleTime: 5000,
+    maxIdleTime: 5000
   },
 
   hostile: {
-    remeberInRoom: 1500,
+    remeberInRoom: 1500
   },
 
   path: {
     refresh: 2000000,
     allowRoutingThroughFriendRooms: false,
-    pathfindIncomplete: true,
+    pathfindIncomplete: true
   },
 
   external: {
-    distance: 3,
+    distance: 3
   },
 
   carry: {
@@ -127,10 +138,12 @@ global.config = {
       1800: [8, 15], // RCL 5
       2300: [11, 21], // RCL 6
     },
+    minSpawnRate: 50,
     // Percentage should increase from base to target room. Decrease may cause stack on border
     carryPercentageBase: 0.1,
     carryPercentageHighway: 0.2,
-    carryPercentageExtern: 0.5
+    carryPercentageExtern: 0.5,
+    callHarvesterPerResources: 1000
   },
 
   creep: {
@@ -155,7 +168,7 @@ global.config = {
       5: 1,
       6: 1,
       7: 1,
-      8: 1,
+      8: 1
     },
     revive: true,
     rebuildLayout: 7654,
@@ -167,29 +180,36 @@ global.config = {
     scoutSkipWhenStuck: true, // Useful for novice areas.
     scout: true, // TODO somehow broken ?? Is it broken ??
     upgraderMinStorage: 0,
+    upgraderStorageFactor: 2,
     lastSeenThreshold: 1000000,
-    notify: false,
+    notify: false
   },
 
   layout: {
     plainCost: 5,
-    swampCost: 5,
+    swampCost: 8,
     borderAvoid: 20,
     skLairAvoidRadius: 5,
     skLairAvoid: 30,
     wallAvoid: 10,
+    sourceAvoid: 20,
     pathAvoid: 1,
     structureAvoid: 0xFF,
     creepAvoid: 0xFF,
     wallThickness: 1,
-    version: 18,
+    version: 19,
+  },
+
+  terminal: {
+    energyAmount: 100000,
+    storageMinEnergyAmount: 20000
   },
 
   mineral: {
-    enabled: false,
+    enabled: true,
     storage: 100000,
     minAmount: 5000,
-    minAmountForMarket: 100000,
+    minAmountForMarket: 100000
   },
 
   priorityQueue: {

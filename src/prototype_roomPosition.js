@@ -26,7 +26,7 @@ RoomPosition.prototype.clearPosition = function(target) {
         return true;
       }
     }
-    this.log('Destroying: ' + structure.structureType);
+    console.log('Destroying: ' + structure.structureType);
     structure.destroy();
   }
 };
@@ -185,6 +185,14 @@ RoomPosition.prototype.validPosition = function() {
     return false;
   }
   return true;
+};
+
+RoomPosition.prototype.getFirstNearPosition = function() {
+  return this.findNearPosition().next().value;
+};
+
+RoomPosition.prototype.getBestNearPosition = function() {
+  return _.max(Array.from(this.findNearPosition()), pos => Array.from(pos.findNearPosition()).length);
 };
 
 RoomPosition.prototype.findNearPosition = function*() {

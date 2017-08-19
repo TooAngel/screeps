@@ -1,5 +1,9 @@
 'use strict';
 
+Room.structureHasEnergy = structure => structure.store && structure.store.energy || structure.energy;
+
+Room.structureIsEmpty = structure => (!structure.store || _.sum(structure.store) === 0) && !structure.energy && !structure.mineralAmount && !structure.ghodium && !structure.power;
+
 Room.prototype.sortMyRoomsByLinearDistance = function(target) {
   let sortByLinearDistance = function(object) {
     return Game.map.getRoomLinearDistance(target, object);

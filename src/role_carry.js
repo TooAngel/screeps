@@ -26,6 +26,23 @@ roles.carry.settings = {
   maxLayoutAmount: 1
 };
 
+roles.carry.updateSettings = function(room, creep) {
+  if (creep.helper) {
+    return {
+      prefixString: config.buildRoad.buildToOtherMyRoom ? 'W' : '',
+      layoutString: 'MC',
+      amount: {
+        0: [3, 3], // RCL 1
+        550: [4, 4], // RCL 2
+        800: [6, 6], // RCL 3
+        1300: [11, 11], // RCL 4
+        1800: [15, 15], // RCL 5
+        2300: [21, 21], // RCL 6
+      }
+    };
+  }
+};
+
 roles.carry.checkHelperEmptyStorage = function(creep) {
   // Fix blocked helpers due to empty structure in the room where we get the energy from
   if (creep.room.name === creep.memory.routing.targetRoom) {
@@ -55,7 +72,7 @@ roles.carry.handleMisplacedSpawn = function(creep) {
         filter: object => object.energy < object.energyCapacity
       });
       creep.moveTo(structure, {
-        ignoreCreeps: true,
+        ignoreCreeps: true
       });
       creep.transfer(structure, RESOURCE_ENERGY);
     } else {
@@ -105,6 +122,15 @@ roles.carry.preMove = function(creep, directions) {
   let reverse = false;
   if (!creep.memory.routing.reverse) {
     reverse = creep.checkForTransfer(directions.forwardDirection);
+    if (!reverse && creep.isStuck() && directions.backwardDirection) {
+      let adjacentPos = creep.pos.getAdjacentPosition(directions.backwardDirection);
+      if (adjacentPos.isValid()) {
+        let creeps = adjacentPos.lookFor(LOOK_CREEPS);
+        if (creeps.length > 0 && creeps[0].memory && creeps[0].memory.routing && creeps[0].memory.routing.targetId !== creep.memory.routing.targetId) {
+          reverse = true;
+        }
+      }
+    }
   }
 
   if (creep.checkEnergyTransfer()) {
@@ -116,10 +142,19 @@ roles.carry.preMove = function(creep, directions) {
           return true;
         }
         reverse = creep.carry.energy - transferred.transferred > 0;
-      } else if (!creep.room.storage && creep.memory.routing.pathPos === 0) {
-        creep.say('Drop');
+      } else if (creep.memory.routing.pathPos === 0 && !(creep.room.storage && creep.room.storage.my && creep.room.storage.isActive())) {
         creep.drop(RESOURCE_ENERGY);
         reverse = false;
+
+        let resourceAtPosition = 0;
+        var resources = creep.pos.lookFor(LOOK_RESOURCES);
+        for (let resource of resources) {
+          resourceAtPosition += resource.amount;
+        }
+        let amount = creep.room.getHarvesterAmount();
+        amount += Math.floor(resourceAtPosition / config.carry.callHarvesterPerResources);
+        creep.room.checkRoleToSpawn('harvester', amount, 'harvester');
+
       }
     }
     if (directions.backwardDirection && directions.backwardDirection !== null) {
@@ -157,6 +192,9 @@ roles.carry.preMove = function(creep, directions) {
       continue;
     }
     if (structure.structureType === STRUCTURE_STORAGE && structure.my) {
+      continue;
+    }
+    if (structure.structureType === STRUCTURE_LINK && structure.my) {
       continue;
     }
 

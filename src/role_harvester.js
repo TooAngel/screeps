@@ -23,25 +23,28 @@ roles.harvester.settings = {
   amount: {
     1: [2, 1, 1],
     3: {
-      0: [2, 1, 1],
-      400: [1, 1, 1]
+      0: [2, 1, 1]
     }
   },
-  maxLayoutAmount: 6,
+  maxLayoutAmount: 6
 };
 roles.harvester.updateSettings = function(room, creep) {
-  if (room.storage && room.storage.store.energy > config.creep.energyFromStorageThreshold) {
+  if (room.storage && room.storage.my && room.storage.store.energy > config.creep.energyFromStorageThreshold && room.energyAvailable > 350 && !room.memory.misplacedSpawn) {
     return {
       prefixString: 'WMC',
       layoutString: 'MC',
-      amount: [1, 1],
+      amount: [1, 2],
       maxLayoutAmount: 12
+    };
+  } else if (room.storage && !room.storage.my) {
+    return {
+      maxLayoutAmount: 999
     };
   }
 };
 
 roles.harvester.stayInRoom = true;
-roles.harvester.buildRoad = false;
+roles.harvester.buildRoad = true;
 roles.harvester.boostActions = ['capacity'];
 
 roles.harvester.preMove = function(creep, directions) {
@@ -58,7 +61,7 @@ roles.harvester.preMove = function(creep, directions) {
   creep.setNextSpawn();
   creep.spawnReplacement(1);
 
-  if (!creep.room.storage || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
+  if (!creep.room.storage || !creep.room.storage.my || creep.room.memory.misplacedSpawn || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
     creep.harvesterBeforeStorage();
     creep.memory.routing.reached = true;
     return true;
@@ -85,12 +88,14 @@ roles.harvester.preMove = function(creep, directions) {
     }
   }
 
-  // TODO Decide between, transfered no more energy (reverse), transferred other structures to transfer available (stay still), transferred no more structures (forward)
   let transferred = creep.transferToStructures();
-  if (!reverse && transferred) {
-    if (transferred.moreStructures) {
+  if (transferred) {
+    if (transferred.transferred >= _.sum(creep.carry)) {
       reverse = true;
-      return true;
+    } else {
+      if (transferred.moreStructures) {
+        return true;
+      }
     }
   }
   creep.memory.routing.reverse = reverse || !creep.memory.move_forward_direction;
@@ -112,7 +117,7 @@ roles.harvester.action = function(creep) {
     creep.memory.routing.targetId = 'harvester';
   }
 
-  if (!creep.room.storage || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
+  if (!creep.room.storage || !creep.room.storage.my || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
     creep.harvesterBeforeStorage();
     creep.memory.routing.reached = false;
     return true;

@@ -29,7 +29,7 @@ roles.nextroomer.died = function(name, creepMemory) {
 
 roles.nextroomer.settings = {
   layoutString: 'MWC',
-  amount: [6, 3, 3],
+  amount: [6, 3, 3]
 };
 
 roles.nextroomer.checkForRampart = function(coords) {
@@ -190,7 +190,7 @@ roles.nextroomer.underSiege = function(creep) {
 roles.nextroomer.settle = function(creep) {
   let room = Game.rooms[creep.room.name];
   let hostileCreeps = room.find(FIND_HOSTILE_CREEPS, {
-    filter: creep => !room.controller.safeMode || creep.ticksToLive > room.controller.safeMode
+    filter: creep => (!room.controller.safeMode || creep.ticksToLive > room.controller.safeMode) && !brain.isFriend(creep.owner.username)
   });
   if (hostileCreeps.length) {
     room.memory.underSiege = true;
@@ -212,28 +212,6 @@ roles.nextroomer.settle = function(creep) {
     if (towers.length) {
       creep.moveTo(towers[0]);
       creep.transfer(towers[0], RESOURCE_ENERGY);
-      return true;
-    }
-  }
-
-  if (_.sum(creep.carry) === 0) {
-    let hostileStructures = creep.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_WALL, STRUCTURE_CONTROLLER]);
-    if (hostileStructures.length) {
-      let structure = _.max(hostileStructures, s => s.structureType === STRUCTURE_STORAGE);
-
-      if (structure.structureType === STRUCTURE_STORAGE) {
-        if (structure.store.energy === 0) {
-          structure.destroy();
-          return true;
-        }
-      } else if (!structure.energy) {
-        structure.destroy();
-        return true;
-      }
-      creep.say('ho: ' + structure.pos, true);
-      creep.log(structure.structureType);
-      creep.moveTo(structure);
-      creep.withdraw(structure, RESOURCE_ENERGY);
       return true;
     }
   }

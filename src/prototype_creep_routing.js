@@ -193,12 +193,12 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
 
   let pathPos = this.getPathPos(route, routePos, path);
   if (pathPos < 0) {
-    this.say('R:pos -1');
+    // this.say('R:pos -1');
     this.memory.routing.pathPos = pathPos;
     // TODO this is duplicated, find a better order? Or have another method
     if (!skipPreMove) {
       if (unit.preMove) {
-        this.say('R:-1 pre');
+        // this.say('R:-1 pre');
         if (unit.preMove(this)) {
           return true;
         }
@@ -226,9 +226,15 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
         range: 0
       }, {
         roomCallback: this.room.getCostMatrixCallback(posFirst, true),
-        maxRooms: 1
+        maxRooms: 1,
+        swampCost: config.layout.swampCost,
+        plainCost: config.layout.plainCost
       }
     );
+
+    if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+      visualizer.showSearch(search);
+    }
 
     if (search.incomplete) {
       this.moveTo(posFirst);
@@ -271,6 +277,14 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
         this.memory.routing.reached = true;
         return action(this);
       }
+    }
+  }
+
+  // build roads
+  if (unit.buildRoad) {
+    const target = Game.getObjectById(this.memory.routing.targetId);
+    if (config.buildRoad.buildToOtherMyRoom || !target || target.structureType !== STRUCTURE_STORAGE) {
+      this.buildRoad();
     }
   }
 

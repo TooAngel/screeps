@@ -10,7 +10,7 @@ roles.powerdefender = {};
 
 roles.powerdefender.settings = {
   layoutString: 'MR',
-  maxLayoutAmount: 16,
+  maxLayoutAmount: 16
 };
 
 roles.powerdefender.action = function(creep) {

@@ -19,6 +19,8 @@ if (config.profiler.enabled) {
     for (let role of _.keys(roles)) {
       profiler.registerObject(roles[role], 'Role_' + role);
     }
+    profiler.registerObject(PathFinder, 'PathFinder');
+    profiler.registerObject(brain, 'Brain');
     profiler.enable();
   } catch (e) {
     console.log('screeps-profiler not found');
@@ -36,10 +38,12 @@ var main = function() {
   brain.handleNextroom();
   brain.handleSquadmanager();
   brain.handleIncomingTransactions();
+  brain.handleQuests();
+
   brain.stats.addRoot();
   Memory.myRooms = _(Game.rooms).filter(r => r.execute()).map(r => r.name).value();
 
-  if (config.visualizer.enabled && config.visualizer.refresh) {
+  if (config.visualizer.enabled) {
     visualizer.render();
   }
   brain.stats.add(['cpu'], {

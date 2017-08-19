@@ -138,17 +138,21 @@ Creep.prototype.handleDefender = function() {
   return true;
 };
 
+Creep.prototype.findClosestRampart = function() {
+  return this.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], false, {
+    filter: rampart => this.pos.getRangeTo(rampart) > 0 && !rampart.pos.checkForObstacleStructure()
+  });
+};
+
 Creep.prototype.waitRampart = function() {
   this.say('waitRampart');
-  const structure = this.pos.findClosestByPathPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], false, {
-    filter: rampart => this.pos.getRangeTo(rampart) > 0
-  });
+  const rampart = this.findClosestRampart();
 
-  if (!structure) {
+  if (!rampart) {
     this.moveRandom();
     return true;
   }
-  let returnCode = this.moveToMy(structure.pos, 0);
+  const returnCode = this.moveToMy(rampart.pos, 0);
   return true;
 };
 
@@ -157,17 +161,17 @@ Creep.prototype.fightRampart = function(target) {
     return false;
   }
 
-  const position = target.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_RAMPART]);
+  const rampart = target.findClosestRampart();
 
-  if (position === null) {
+  if (rampart === null) {
     return false;
   }
 
-  let range = target.pos.getRangeTo(position);
+  const range = target.pos.getRangeTo(rampart);
   if (range > 3) {
     return false;
   }
-  let returnCode = this.moveToMy(position.pos, 0);
+  const returnCode = this.moveToMy(rampart.pos, 0);
   if (returnCode === OK) {
     return true;
   }
@@ -177,7 +181,7 @@ Creep.prototype.fightRampart = function(target) {
 
   this.log('creep_fight.fightRampart returnCode: ' + returnCode);
 
-  let targets = this.pos.findInRange(FIND_HOSTILE_CREEPS, 3, {
+  const targets = this.pos.findInRange(FIND_HOSTILE_CREEPS, 3, {
     filter: this.room.findAttackCreeps
   });
   if (targets.length > 1) {

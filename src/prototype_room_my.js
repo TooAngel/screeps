@@ -227,7 +227,7 @@ Room.prototype.checkCanHelp = function() {
       return 'no';
     }
     this.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, this.storage.id,
-      this.name, undefined, nearestRoom);
+      this.name, undefined, nearestRoom, { helper: true });
     this.memory.energyAvailableSum = 0;
     return '---!!! ' + this.name + ' send energy to: ' + nearestRoom + ' !!!---';
   }
@@ -262,6 +262,28 @@ Room.prototype.checkForEnergyTransfer = function() {
   this.memory.energyAvailableSum = 0;
 };
 
+Room.prototype.getHarvesterAmount = function() {
+  let amount = 1;
+  if (!this.storage) {
+    amount = 2;
+    // TODO maybe better spawn harvester when a carry recognize that the dropped energy > threshold
+    if (this.controller.level === 2 || this.controller.level === 3) {
+      amount = 5;
+    }
+  } else {
+    if (this.storage.store.energy < config.creep.energyFromStorageThreshold && this.controller.level < 5) {
+      amount = 3;
+    }
+    if (this.storage.store.energy > 2 * config.creep.energyFromStorageThreshold && this.controller.level > 6) {
+      amount = 2;
+    }
+    if (!this.storage.my) {
+      amount = 10;
+    }
+  }
+  return amount;
+};
+
 Room.prototype.executeRoom = function() {
   let cpuUsed = Game.cpu.getUsed();
   this.buildBase();
@@ -292,23 +314,13 @@ Room.prototype.executeRoom = function() {
   const nextroomers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['nextroomer'], false, {
     filter: object => object.memory.base !== this.name
   });
-  const building = nextroomers.length > 0 && this.controller.level < 5;
+  const building = nextroomers.length > 0 && this.controller.level < 4;
 
   const creepsInRoom = this.find(FIND_MY_CREEPS);
   let spawn;
   if (!building) {
-    let amount = 1;
-    if (!this.storage) {
-      amount = 2;
-      // TODO maybe better spawn harvester when a carry recognize that the dropped energy > threshold
-      if (this.controller.level === 2 || this.controller.level === 3) {
-        amount = 5;
-      } else {
-        if (this.storage.store.energy < config.creep.energyFromStorageThreshold && this.controller.level < 5) {
-          amount = 3;
-        }
-      }
-    }
+    const amount = this.getHarvesterAmount();
+
     this.checkRoleToSpawn('harvester', amount, 'harvester');
   }
 
@@ -347,16 +359,15 @@ Room.prototype.executeRoom = function() {
     this.memory.attackTimer++;
 
     if (this.memory.attackTimer > 15) {
-      var defender = {
-        role: 'defendranged'
-      };
+      let role = 'defendranged';
       if (this.memory.attackTimer > 300) {
-        defender.role = 'defendmelee';
+        role = 'defendmelee';
       }
-      if (this.exectueEveryTicks(250) && !this.inQueue(defender)) {
-        this.memory.queue.push(defender);
+      if (this.exectueEveryTicks(250)) {
+        this.checkRoleToSpawn(role, 1, undefined, this.name, 1, this.name);
       }
     }
+
     if (this.exectueEveryTicks(10)) {
       this.log('Under attack from ' + hostiles[0].owner.username);
     }
@@ -369,11 +380,11 @@ Room.prototype.executeRoom = function() {
 
   this.checkAndSpawnSourcer();
 
-  if (this.controller.level >= 4 && this.storage) {
+  if (this.controller.level >= 4 && this.storage && this.storage.my) {
     this.checkRoleToSpawn('storagefiller', 1, 'filler');
   }
 
-  if (this.storage && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
+  if (this.storage && this.storage.my && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
     this.checkRoleToSpawn('upgrader', 1, this.controller.id);
   }
 
@@ -402,7 +413,7 @@ Room.prototype.executeRoom = function() {
       }
     }
   }
-  if (config.mineral.enabled && this.terminal && ((this.memory.mineralBuilds && Object.keys(this.memory.mineralBuilds).length > 0) || this.memory.reaction || this.memory.mineralOrder)) {
+  if (config.mineral.enabled && this.terminal) {
     this.checkRoleToSpawn('mineral');
   }
 
