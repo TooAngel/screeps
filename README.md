@@ -8,6 +8,9 @@
 
 https://screeps.com/
 
+See rendered version:
+http://tooangel.github.io/screeps/
+
 ## For in game room visitors:
 
 Happy to see you visiting one of our rooms. [Visit FAQ to find answers](doc/FAQ.md)
@@ -25,7 +28,7 @@ The AI is deployable on a private screeps server, follow the information on
 
 This is not a good example for code quality or structure, most LOCs written
 while fighting or other occasions which needed quick fixes or in the ingame
-editor. But I think there are a couple of funny ideas. Every contribution is
+editor (getting better :-)). But I think there are a couple of funny ideas. Every contribution is
 welcome.
 
 ## Features
@@ -40,6 +43,7 @@ welcome.
  - [Layout visualization](doc/Visualization.md)
  - [Manual commands](doc/Manual.md)
  - [Alliance](doc/Alliance.md)
+ - [Graphs](doc/Graphs.md)
 
 ## Tweaking
 
