@@ -136,7 +136,7 @@ Room.prototype.attackRoom = function() {
 
   addRoom(player, this);
 
-  if (player.level < 3) {
+  if (player.level < 2) {
     this.launchAutoAttack(player);
   }
   return true;
