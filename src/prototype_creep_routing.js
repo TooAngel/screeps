@@ -251,7 +251,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     // }), {
     //   reusePath: 0
     // });
-    let returnCode = this.moveToMy(closestPathPos.x, closestPathPos.y);
+    let returnCode = this.moveToMy(closestPathPos);
     if (returnCode == OK) {
       return true;
     }

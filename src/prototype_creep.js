@@ -66,7 +66,8 @@ Creep.prototype.moveToMy = function(target, range, allowExits, cache) {
   }
 
   if (search.path.length === 0 && !search.incomplete) {
-    this.say('mtm 0');
+    // this.say('mtm 0');
+    // this.log(`mtm 0: ${target} ${JSON.stringify(search)}`);
     this.move(this.pos.getDirectionTo(target));
     return OK;
   }
@@ -74,13 +75,16 @@ Creep.prototype.moveToMy = function(target, range, allowExits, cache) {
   // Fallback to moveTo when the path is incomplete and the creep is only switching positions
   if (search.path.length < 2 && search.incomplete) {
     // this.log(`Fallback ${JSON.stringify(search)} ${target}`);
-    let searchNew = PathFinder.search(
-      this.pos, {
-        pos: target,
-        range: range
-      }
-    );
-    return this.moveByPath(searchNew.path);
+    // let searchNew = PathFinder.search(
+    //   this.pos, {
+    //     pos: target,
+    //     range: range
+    //   }
+    // );
+    // this.log(`mtm incomplete: ${target} ${JSON.stringify(search)} ${JSON.stringify(searchNew)}`);
+    // this.log(`mtm incomplete: ${target} ${JSON.stringify(search)}`);
+    // return this.moveByPath(searchNew.path);
+    return this.moveTo(target);
   }
 
   if (this.pos.isEqualTo(search.path[0].x, search.path[0].y)) {
@@ -102,7 +106,7 @@ Creep.prototype.moveToMy = function(target, range, allowExits, cache) {
   if (returnCode !== OK) {
     this.log(`MoveToMy: Error moveByPath ${returnCode} ${JSON.stringify(search)}`);
   }
-  // if (this.name.startsWith('scout')) {
+  // if (this.name.startsWith('mineral')) {
   //   this.log(this.pos, JSON.stringify(search));
   // }
   return returnCode;

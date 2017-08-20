@@ -58,7 +58,8 @@ global.config = {
     getPartsConfLogs: false,
     queue: false,
     spawn: false,
-    mineral: false
+    mineral: false,
+    moveToMy: false
   },
 
   tower: {
