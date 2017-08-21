@@ -208,8 +208,16 @@ global.config = {
   mineral: {
     enabled: true,
     storage: 100000,
-    minAmount: 5000,
-    minAmountForMarket: 100000
+    minAmount: 5000
+  },
+
+  market: {
+    minAmount: 100000,
+    energyCreditEquivalent: 1,
+    trySellOrders: true,
+    sellOrderMaxAmount: 100,
+    sellOrderReserve: 2000,
+    sellOrderPriceMultiplicator: 5
   },
 
   priorityQueue: {
