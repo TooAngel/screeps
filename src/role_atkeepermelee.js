@@ -10,7 +10,8 @@
 roles.atkeepermelee = {};
 roles.atkeepermelee.settings = {
   layoutString: 'MAH',
-  amount: [25, 19, 6]
+  amount: [25, 19, 6],
+  fillTough: true
 };
 
 roles.atkeepermelee.action = function(creep) {

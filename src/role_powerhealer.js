@@ -10,7 +10,8 @@ roles.powerhealer = {};
 
 roles.powerhealer.settings = {
   layoutString: 'MH',
-  maxLayoutAmount: 21
+  maxLayoutAmount: 21,
+  fillTough: true
 };
 
 roles.powerhealer.action = function(creep) {

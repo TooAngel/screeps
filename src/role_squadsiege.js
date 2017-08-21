@@ -10,7 +10,8 @@ roles.squadsiege = {};
 
 roles.squadsiege.settings = {
   layoutString: 'MW',
-  maxLayoutAmount: 21
+  maxLayoutAmount: 21,
+  fillTough: true
 };
 
 roles.squadsiege.preMove = function(creep, directions) {

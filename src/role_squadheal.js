@@ -10,7 +10,8 @@ roles.squadheal = {};
 
 roles.squadheal.settings = {
   layoutString: 'MH',
-  amount: [17, 17]
+  amount: [17, 17],
+  fillTough: true
 };
 
 roles.squadheal.preMove = function(creep, directions) {

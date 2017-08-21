@@ -48,6 +48,7 @@
     "FIND_DROPPED_RESOURCES": false,
     "RESOURCE_POWER": false,
     "CLAIM": false,
+    "TOUGH": false,
     "FIND_EXIT": false,
     "FIND_EXIT_TOP": false,
     "FIND_EXIT_RIGHT": false,
