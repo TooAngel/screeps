@@ -51,7 +51,7 @@ Creep.prototype.checkEnergyTransfer = function(otherCreep) {
 Creep.prototype.findCreepWhichCanTransfer = function(creeps) {
   for (let i = 0; i < creeps.length; i++) {
     let otherCreep = creeps[i];
-    if (!Game.creeps[otherCreep.name] || otherCreep.carry.energy < 50) {
+    if (!Game.creeps[otherCreep.name] || otherCreep.carry.energy < 50 || otherCreep.memory.recycle) {
       continue;
     }
 
