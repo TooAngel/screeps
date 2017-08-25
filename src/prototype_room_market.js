@@ -58,6 +58,10 @@ Room.prototype.handleMarket = function() {
     return true;
   }
 
+  if (!Memory.orders[ORDER_BUY][resource]) {
+    return false;
+  }
+
   const sortByEnergyCostAndPrice = order => Game.market.calcTransactionCost(sellAmount, this.name, order.roomName) +
     -order.price * sellAmount / config.market.energyCreditEquivalent;
 
