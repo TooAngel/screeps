@@ -34,6 +34,8 @@ var main = function() {
     return;
   }
 
+  Memory.myRooms = _(Game.rooms).filter(r => r.execute()).map(r => r.name).value();
+
   brain.prepareMemory();
   brain.handleNextroom();
   brain.handleSquadmanager();
@@ -41,7 +43,6 @@ var main = function() {
   brain.handleQuests();
 
   brain.stats.addRoot();
-  Memory.myRooms = _(Game.rooms).filter(r => r.execute()).map(r => r.name).value();
 
   if (config.visualizer.enabled) {
     visualizer.render();
