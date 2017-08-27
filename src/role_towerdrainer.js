@@ -50,7 +50,7 @@ roles.towerdrainer.getRestPosition = function(creep) {
 
 roles.towerdrainer.action = function(creep) {
   const attackRoom = creep.memory.attackRoom;
-  const restPos = this.getRestPosition(creep);
+  const restPos = roles.towerdrainer.getRestPosition(creep);
   if (!restPos) {
     creep.log('no position');
     creep.moveRandom();
