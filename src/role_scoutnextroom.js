@@ -14,7 +14,7 @@ roles.scoutnextroom.settings = {
   maxLayoutAmount: 1
 };
 
-roles.scoutnextroom.execute = function(creep) {
+roles.scoutnextroom.action = function(creep) {
   creep.notifyWhenAttacked(false);
   if (creep.memory.claimRoom) {
     creep.moveTo(creep.room.controller);
