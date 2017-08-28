@@ -371,7 +371,7 @@ Room.prototype.executeRoom = function() {
     if (this.exectueEveryTicks(10)) {
       this.log('Under attack from ' + hostiles[0].owner.username);
     }
-    if (hostiles[0].owner.username != 'Invader') {
+    if (hostiles[0].owner.username !== 'Invader' && !brain.isFriend(hostiles[0].owner.username)) {
       Game.notify(this.name + ' Under attack from ' + hostiles[0].owner.username + ' at ' + Game.time);
     }
   }
