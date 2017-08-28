@@ -212,12 +212,17 @@ global.config = {
   },
 
   market: {
-    minAmount: 100000,
+    minAmountToSell: 100000,
+    minSellPrice: 0.6,
     energyCreditEquivalent: 1,
-    trySellOrders: true,
+    sellByOwnOrders: true,
     sellOrderMaxAmount: 100,
     sellOrderReserve: 2000,
-    sellOrderPriceMultiplicator: 5
+    sellOrderPriceMultiplicator: 5,
+    maxAmountToBuy: 1000,
+    maxBuyPrice: 0.5,
+    // buyByOwnOrders: true,
+    buyOrderPriceMultiplicator: 0.5
   },
 
   priorityQueue: {
