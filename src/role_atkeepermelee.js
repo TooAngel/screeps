@@ -11,32 +11,32 @@ roles.atkeepermelee = {};
 roles.atkeepermelee.settings = {
   layoutString: 'MAH',
   amount: [25, 19, 6],
-  fillTough: true
+  fillTough: true,
 };
 
 roles.atkeepermelee.action = function(creep) {
-  //TODO Untested
+  // TODO Untested
   creep.spawnReplacement();
   creep.setNextSpawn();
 
-  let getNextSourceKeeper = function(creep) {
+  const getNextSourceKeeper = function(creep) {
     const sourceKeeper = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_KEEPER_LAIR]);
-    const sourceKeeperNext = _.sortBy(sourceKeeper, object => object.ticksToSpawn);
+    const sourceKeeperNext = _.sortBy(sourceKeeper, (object) => object.ticksToSpawn);
     return sourceKeeperNext[0];
   };
 
-  let heal = function(creep) {
+  const heal = function(creep) {
     creep.say('heal');
-    var target = creep.findClosestSourceKeeper();
+    let target = creep.findClosestSourceKeeper();
     if (target === null) {
       target = getNextSourceKeeper(creep);
       creep.log('heal: ' + JSON.stringify(target));
     }
-    var range = creep.pos.getRangeTo(target);
+    const range = creep.pos.getRangeTo(target);
     if (range > 1) {
       if (range > 7) {
-        let sourcers = creep.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 3, 'memory.role', ['sourcer'], false, {
-          filter: target => target.hits < target.hitsMax
+        const sourcers = creep.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 3, 'memory.role', ['sourcer'], false, {
+          filter: (target) => target.hits < target.hitsMax,
         });
 
         if (sourcers.length > 0) {
@@ -47,8 +47,8 @@ roles.atkeepermelee.action = function(creep) {
 
       creep.heal(creep);
       if (creep.hits === creep.hitsMax || range > 5 || range < 5) {
-        let returnCode = creep.moveTo(target);
-        if (returnCode != OK) {
+        const returnCode = creep.moveTo(target);
+        if (returnCode !== OK) {
           creep.log(`heal.move returnCode: ${returnCode}`);
         }
       }
@@ -57,9 +57,9 @@ roles.atkeepermelee.action = function(creep) {
     return false;
   };
 
-  let attack = function(creep) {
+  const attack = function(creep) {
     creep.say('attack');
-    var target = creep.findClosestSourceKeeper();
+    let target = creep.findClosestSourceKeeper();
     if (target === null) {
       target = getNextSourceKeeper(creep);
     }

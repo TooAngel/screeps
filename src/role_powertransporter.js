@@ -10,7 +10,7 @@ roles.powertransporter = {};
 roles.powertransporter.settings = {
   layoutString: 'MC',
   maxLayoutAmount: 20,
-  fillTough: true
+  fillTough: true,
 };
 
 roles.powertransporter.action = function(creep) {
@@ -24,28 +24,28 @@ roles.powertransporter.action = function(creep) {
   if (creep.memory.reverse && creep.inBase()) {
     creep.log('Fill storage');
     creep.moveToMy(creep.room.storage);
-    var return_code = creep.transfer(creep.room.storage, RESOURCE_POWER);
-    if (return_code === OK) {
+    const returnCode = creep.transfer(creep.room.storage, RESOURCE_POWER);
+    if (returnCode === OK) {
       creep.memory.target = creep.memory.old_target;
       creep.suicide();
     }
     return true;
   }
 
-  let getResource = function(creep) {
+  const getResource = function(creep) {
     if (creep.carry.power > 0) {
       creep.log(creep.memory.route[creep.memory.route.length - 2].room);
-      let exitDirection = creep.room.findExitTo(creep.memory.route[creep.memory.route.length - 2].room);
-      let nextExits = creep.room.find(exitDirection);
-      let nextExit = nextExits[Math.floor(nextExits.length / 2)];
+      const exitDirection = creep.room.findExitTo(creep.memory.route[creep.memory.route.length - 2].room);
+      const nextExits = creep.room.find(exitDirection);
+      const nextExit = nextExits[Math.floor(nextExits.length / 2)];
       creep.moveTo(nextExit);
       return true;
     }
-    var power_bank = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
-    if (power_bank.length > 0) {
-      var range = creep.pos.getRangeTo(power_bank[0]);
+    const powerBank = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
+    if (powerBank.length > 0) {
+      const range = creep.pos.getRangeTo(powerBank[0]);
       if (range > 3) {
-        creep.moveTo(power_bank[0]);
+        creep.moveTo(powerBank[0]);
       }
       return true;
     }
@@ -61,10 +61,10 @@ roles.powertransporter.action = function(creep) {
     }
 
     creep.moveTo(resource, {
-      ignoreCreeps: true
+      ignoreCreeps: true,
     });
-    var return_code = creep.pickup(resource);
-    if (return_code === OK) {
+    const returnCode = creep.pickup(resource);
+    if (returnCode === OK) {
       creep.memory.reverse = true;
     }
     return true;

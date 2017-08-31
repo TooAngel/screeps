@@ -9,32 +9,38 @@
  * Author: SemperRabbit (special thanks to ags131 for assisting)
  */
 
-global.runAgent = function() {
+function runAgent() {
   Memory.screepsplusToken = config.stats.screepsPlusToken;
-  let output = `<SCRIPT>
-  if(!document.pushStats){
-    document.pushStats = function(){
+  const output = `<SCRIPT>
+  if (!document.pushStats) {
+    document.pushStats = function() {
       let el = angular.element($('body'));
       let conn = el.injector().get('Connection');
       Promise.all([
-        conn.getMemoryByPath('','screepsplusToken'),
-        conn.getMemoryByPath('','stats'),
-      ]).then(function(data){
+        conn.getMemoryByPath('', 'screepsplusToken'),
+        conn.getMemoryByPath('', 'stats'),
+      ]).then(function(data) {
         let [token, stats] = data;
-        let xhr=new XMLHttpRequest();
+        let xhr = new XMLHttpRequest();
         xhr.open('POST', 'https://screepspl.us/api/stats/submit', true);
-        xhr.setRequestHeader('Authorization','JWT ' + token);
+        xhr.setRequestHeader('Authorization', 'JWT ' + token);
         xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-        xhr.onreadystatechange=function(){if(xhr.readyState===XMLHttpRequest.DONE&&xhr.status===200){console.log('resp',xhr.responseText);}};
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+            console.log('resp', xhr.responseText);
+          }
+        };
         xhr.send(JSON.stringify(stats));
-      }).catch(function(){});
+      }).catch(function() {
+      });
     };
     document.pushStats();
     setInterval(document.pushStats, 15000);
   }
   </SCRIPT>`;
   console.log(output.split('\n').map((s) => s.trim()).join(''));
-};
+}
+
 if (config.stats.enabled && config.stats.screepsPlusEnabled && config.stats.screepsPlusToken) {
   runAgent();
 }

@@ -7,23 +7,25 @@ global.utils = {
    * return object.length if exist else return _.size
    *
    * @param {Array} object
-   * @returns {*}
+   * @return {Number}
    */
   returnLength: function returnLength(object) {
     return (object && object.length) ? object.length : _.size(object);
   },
 
   showIdiots: function() {
-    let idiots = _.sortBy(Memory.players, function(o) { return -o.idiot; });
+    const idiots = _.sortBy(Memory.players, (o) => {
+      return -o.idiot;
+    });
     for (let i = 0; i < idiots.length; i++) {
-      idiot = idiots[i];
+      const idiot = idiots[i];
       console.log(idiot.name, idiot.idiot, idiot.level, idiot.counter);
     }
   },
 
   checkPlayers: function() {
-    for (let name in Memory.players) {
-      let player = Memory.players[name];
+    for (const name of Object.keys(Memory.players)) {
+      const player = Memory.players[name];
       if (player.name === undefined) {
         player.name = name;
         console.log(`Missing name: ${name}`);
@@ -45,7 +47,7 @@ global.utils = {
   },
 
   roomCheck: function() {
-    for (let roomName in Memory.rooms) {
+    for (const roomName in Memory.rooms) {
       if (Memory.rooms[roomName].state === 'Occupied') {
         console.log(`${roomName} ${Memory.rooms[roomName].player}`);
       }
@@ -54,8 +56,8 @@ global.utils = {
 
   terminals: function() {
     console.log('Terminals:');
-    for (let roomName of Memory.myRooms) {
-      let room = Game.rooms[roomName];
+    for (const roomName of Memory.myRooms) {
+      const room = Game.rooms[roomName];
       if (room.terminal) {
         console.log(`${roomName} ${JSON.stringify(room.terminal.store)}`);
       }
@@ -63,35 +65,35 @@ global.utils = {
   },
 
   csstats: function() {
-    let aggregate = function(result, value, key) {
+    const aggregate = function(result, value, key) {
       result[value.pos.roomName] = (result[value.pos.roomName] || (result[value.pos.roomName] = 0)) + 1;
       return result;
     };
-    let resultReduce = _.reduce(Game.constructionSites, aggregate, {});
+    const resultReduce = _.reduce(Game.constructionSites, aggregate, {});
     console.log(JSON.stringify(resultReduce));
   },
 
   memory: function() {
-    for (let keys in Memory) {
+    for (const keys of Object.keys(Memory)) {
       console.log(keys, JSON.stringify(Memory[keys]).length);
     }
   },
 
   memoryRooms: function() {
-    for (let keys in Memory.rooms) {
+    for (const keys of Object.keys(Memory.rooms)) {
       console.log(keys, JSON.stringify(Memory.rooms[keys]).length);
     }
   },
 
   memoryRoom: function(roomName) {
-    for (let keys in Memory.rooms[roomName]) {
+    for (const keys of Object.keys(Memory.rooms[roomName])) {
       console.log(keys, JSON.stringify(Memory.rooms[roomName][keys]).length);
     }
   },
 
   showReserveredRooms: function() {
-    for (let roomName in Memory.rooms) {
-      let room = Memory.rooms[roomName];
+    for (const roomName of Object.keys(Memory.rooms)) {
+      const room = Memory.rooms[roomName];
       if (room.state === 'Reserved') {
         console.log(roomName, JSON.stringify(room.reservation));
       }
@@ -99,12 +101,12 @@ global.utils = {
   },
 
   checkMinerals: function() {
-    let minerals = {};
-    for (let name of Memory.myRooms) {
-      let room = Game.rooms[name];
+    const minerals = {};
+    for (const name of Memory.myRooms) {
+      const room = Game.rooms[name];
       if (room.terminal) {
         console.log(name, JSON.stringify(room.terminal.store));
-        for (let mineral in room.terminal.store) {
+        for (const mineral in room.terminal.store) {
           if (mineral === 'U') {
             console.log(room.name, room.terminal.store[mineral]);
           }
@@ -122,15 +124,15 @@ global.utils = {
   },
 
   findRoomsWithMineralsToTransfer: function() {
-    let minerals = {};
-    for (let name of Memory.myRooms) {
-      let room = Game.rooms[name];
+    const minerals = {};
+    for (const name of Memory.myRooms) {
+      const room = Game.rooms[name];
       if (room.terminal) {
         if (room.terminal.store.energy < 10000) {
           continue;
         }
         console.log(name, JSON.stringify(room.terminal.store));
-        for (let mineral in room.terminal.store) {
+        for (const mineral in room.terminal.store) {
           if (mineral === 'U') {
             console.log(room.name, room.terminal.store[mineral]);
           }
@@ -150,13 +152,13 @@ global.utils = {
   queueCheck: function(roomName) {
     // todo move to global.utils
     // todo save functions by prop so creation should only be once
-    let prop = function(prop) {
+    const prop = function(prop) {
       return function(object) {
         return object[prop];
       };
     };
 
-    var found = _.countBy(Memory.rooms[roomName].queue, prop('role'));
+    const found = _.countBy(Memory.rooms[roomName].queue, prop('role'));
     console.log(JSON.stringify(found));
     return found;
   },
@@ -165,7 +167,7 @@ global.utils = {
     if (!stringParts || typeof(stringParts) !== 'string') {
       return;
     }
-    let partsConversion = {
+    const partsConversion = {
       M: MOVE,
       C: CARRY,
       A: ATTACK,
@@ -173,12 +175,12 @@ global.utils = {
       R: RANGED_ATTACK,
       T: TOUGH,
       H: HEAL,
-      K: CLAIM
+      K: CLAIM,
     };
-    let arrayParts = [];
+    const arrayParts = [];
     for (let i = 0; i < stringParts.length; i++) {
       arrayParts.push(partsConversion[stringParts.charAt(i)]);
     }
     return arrayParts;
-  }
+  },
 };

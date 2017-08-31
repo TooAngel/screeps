@@ -11,22 +11,22 @@ roles.powerdefender = {};
 roles.powerdefender.settings = {
   layoutString: 'MR',
   maxLayoutAmount: 16,
-  fillTough: true
+  fillTough: true,
 };
 
 roles.powerdefender.action = function(creep) {
   if (creep.hits < 200) {
     return false;
   }
-  let hostileCreeps = creep.room.getEnemys();
+  const hostileCreeps = creep.room.getEnemys();
   if (hostileCreeps.length > 0) {
     creep.moveTo(hostileCreeps[0]);
     creep.rangedAttack(hostileCreeps[0]);
     return true;
   }
-  var powerBank = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
+  const powerBank = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
   if (powerBank.length === 0) {
-    let hostileCreep = creep.findClosestEnemy();
+    const hostileCreep = creep.findClosestEnemy();
     if (hostileCreep !== null) {
       creep.moveTo(hostileCreep);
       creep.rangedAttack(hostileCreep);

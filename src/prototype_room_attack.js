@@ -12,33 +12,33 @@
  */
 Room.prototype.attack42 = function(roomName, spawn) {
   spawn = spawn || [{
-      creep: 1,
-      role: 'autoattackmelee'
-    }, {
-      creep: 1,
-      role: 'defender'
-    }, {
-      creep: 1,
-      role: 'squadheal'
-    },
+    creep: 1,
+    role: 'autoattackmelee',
+  }, {
+    creep: 1,
+    role: 'defender',
+  }, {
+    creep: 1,
+    role: 'squadheal',
+  },
 
-    {
-      creep: 2,
-      role: 'autoattackmelee'
-    }, {
-      creep: 2,
-      role: 'defender'
-    }, {
-      creep: 2,
-      role: 'squadheal'
-    }
+  {
+    creep: 2,
+    role: 'autoattackmelee',
+  }, {
+    creep: 2,
+    role: 'defender',
+  }, {
+    creep: 2,
+    role: 'squadheal',
+  },
   ];
 
-  let closestSpawn = this.closestSpawn(roomName);
+  const closestSpawn = this.closestSpawn(roomName);
   // this.log('closestSpawn ' + JSON.stringify(closestSpawn, null, 2));
   if (closestSpawn && closestSpawn.id) {
     brain.startMeleeSquad(closestSpawn.room, roomName
-      //, spawn
+      // , spawn
     );
   }
 };
@@ -50,28 +50,26 @@ Room.prototype.attackRoom = function() {
       Game.notify(Game.time + ' ' + room.name + ' Queuing autoattacker');
     }
 
-    let sortByDistance = function(object) {
+    const sortByDistance = function(object) {
       return Game.map.getRoomLinearDistance(room.name, object);
     };
 
-    let roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
+    const roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
 
     Game.rooms[roomsMy[0]].memory.queue.push({
       role: 'autoattackmelee',
       routing: {
-        targetRoom: room.name
-      }
+        targetRoom: room.name,
+      },
     });
 
     return true;
   }
 
-  function attack1(room) {}
-
   if (config.autoattack.disabled) {
     return true;
   }
-  var name;
+  let name;
   if (this.controller.owner) {
     name = this.controller.owner.username;
   } else {
@@ -87,20 +85,20 @@ Room.prototype.attackRoom = function() {
     return true;
   }
 
-  let getPlayer = function(name) {
+  const getPlayer = function(name) {
     brain.increaseIdiot(name, 0);
     return Memory.players[name];
   };
 
-  var player = getPlayer(name);
+  const player = getPlayer(name);
 
-  let addRoom = function(player, room) {
+  const addRoom = function(player, room) {
     if (!player.rooms) {
       player.rooms = {};
     }
     if (!player.rooms[room.name]) {
       player.rooms[room.name] = {
-        visited: Game.time
+        visited: Game.time,
       };
       Memory.players[player.name] = player;
     }

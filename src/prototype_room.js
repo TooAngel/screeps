@@ -12,11 +12,10 @@ Room.prototype.handle = function() {
 };
 
 Room.prototype.execute = function() {
-
   this.memory.lastSeen = Game.time;
   try {
-    let returnCode = this.handle();
-    for (var creep of this.find(FIND_MY_CREEPS)) {
+    const returnCode = this.handle();
+    for (const creep of this.find(FIND_MY_CREEPS)) {
       creep.handle();
     }
     delete this.transferableStructures;

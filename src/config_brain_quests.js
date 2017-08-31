@@ -2,7 +2,7 @@
 
 brain.handleQuests = function(transaction) {
   Memory.quests = Memory.quests || {};
-  for (let id of Object.keys(Memory.quests)) {
+  for (const id of Object.keys(Memory.quests)) {
     const quest = Memory.quests[id];
     console.log(JSON.stringify(quest), quest.end - Game.time);
 
@@ -32,7 +32,7 @@ brain.getQuest = function(transaction, data) {
   info.id = data.id;
   info.player = {
     name: transaction.sender.username,
-    room: transaction.from
+    room: transaction.from,
   };
   info.origin = transaction.to;
 
@@ -58,7 +58,7 @@ brain.getQuestFromTransactionDescription = function(description) {
     return false;
   }
   console.log(data);
-  for (let key of ['type', 'room', 'id']) {
+  for (const key of ['type', 'room', 'id']) {
     if (!data[key]) {
       console.log(`Incoming transaction no Quest: No ${key}`);
       return false;
@@ -87,7 +87,7 @@ brain.checkQuestForAcceptance = function(transaction) {
     id: quest.id,
     room: quest.room,
     quest: quest.quest,
-    end: quest.end
+    end: quest.end,
   };
   const room = Game.rooms[transaction.to];
   room.terminal.send(RESOURCE_ENERGY, 100, transaction.from, JSON.stringify(response));

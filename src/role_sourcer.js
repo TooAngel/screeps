@@ -17,11 +17,11 @@ roles.sourcer.settings = {
   param: ['energyCapacityAvailable'],
   prefixString: {
     300: 'MW',
-    600: 'MWC'
+    600: 'MWC',
   },
   layoutString: {
     300: 'W',
-    650: 'MW'
+    650: 'MW',
   },
   amount: {
     300: [1],
@@ -29,11 +29,11 @@ roles.sourcer.settings = {
     450: [3],
     550: [4],
     650: [1, 4],
-    700: [2, 4]
+    700: [2, 4],
   },
   maxLayoutAmount: {
-    300: 1
-  }
+    300: 1,
+  },
 };
 
 roles.sourcer.buildRoad = true;
@@ -45,13 +45,13 @@ roles.sourcer.flee = false;
 roles.sourcer.preMove = function(creep, directions) {
   // Misplaced spawn
   if (creep.inBase() && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
-    //creep.say('smis', true);
-    let targetId = creep.memory.routing.targetId;
+    // creep.say('smis', true);
+    const targetId = creep.memory.routing.targetId;
 
-    var source = creep.room.memory.position.creep[targetId];
+    const source = creep.room.memory.position.creep[targetId];
     // TODO better the position from the room memory
     creep.moveTo(source, {
-      ignoreCreeps: true
+      ignoreCreeps: true,
     });
     if (creep.pos.getRangeTo(source) > 1) {
       return true;
@@ -59,9 +59,9 @@ roles.sourcer.preMove = function(creep, directions) {
   }
 
   if (!creep.room.controller) {
-    var target = creep.findClosestSourceKeeper();
+    const target = creep.findClosestSourceKeeper();
     if (target !== null) {
-      let range = creep.pos.getRangeTo(target);
+      const range = creep.pos.getRangeTo(target);
       if (range > 6) {
         creep.memory.routing.reverse = false;
       }
@@ -73,7 +73,7 @@ roles.sourcer.preMove = function(creep, directions) {
 
   // TODO Check if this is working
   if (directions) {
-    let pos = creep.pos.getAdjacentPosition(directions.direction);
+    const pos = creep.pos.getAdjacentPosition(directions.direction);
     creep.moveCreep(pos, (directions.direction + 3) % 8 + 1);
   }
 
@@ -84,9 +84,9 @@ roles.sourcer.preMove = function(creep, directions) {
   }
   // TODO when is the forwardDirection missing?
   if (directions.forwardDirection) {
-    let posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
-    let structures = posForward.lookFor(LOOK_STRUCTURES);
-    for (let structure of structures) {
+    const posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
+    const structures = posForward.lookFor(LOOK_STRUCTURES);
+    for (const structure of structures) {
       if (structure.structureType === STRUCTURE_ROAD) {
         continue;
       }
@@ -104,16 +104,16 @@ roles.sourcer.preMove = function(creep, directions) {
 };
 
 roles.sourcer.died = function(name, memory) {
-  //console.log(name, 'died', JSON.stringify(memory));
+  // console.log(name, 'died', JSON.stringify(memory));
   delete Memory.creeps[name];
 };
 
 roles.sourcer.action = function(creep) {
   // TODO check source keeper structure for ticksToSpawn
   if (!creep.room.controller) {
-    var target = creep.findClosestSourceKeeper();
+    const target = creep.findClosestSourceKeeper();
     if (target !== null) {
-      let range = creep.pos.getRangeTo(target);
+      const range = creep.pos.getRangeTo(target);
       if (range < 5) {
         delete creep.memory.routing.reached;
         creep.memory.routing.reverse = true;

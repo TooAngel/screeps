@@ -13,7 +13,7 @@ roles.extractor.boostActions = ['harvest', 'capacity'];
 roles.extractor.settings = {
   layoutString: 'MCW',
   amount: [5, 1, 4],
-  maxLayoutAmount: 5
+  maxLayoutAmount: 5,
 };
 
 function executeExtractor(creep) {

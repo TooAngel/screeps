@@ -1,7 +1,9 @@
 'use strict';
 
+/* eslint-disable no-extend-native */
+
 String.prototype.rpad = function(padString, length) {
-  var str = this;
+  let str = this;
   while (str.length < length) {
     str = str + padString;
   }
@@ -9,7 +11,7 @@ String.prototype.rpad = function(padString, length) {
 };
 
 String.prototype.lpad = function(padString, length) {
-  var str = this;
+  let str = this;
   while (str.length < length) {
     str = padString + str;
   }

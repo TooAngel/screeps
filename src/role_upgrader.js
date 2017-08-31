@@ -11,15 +11,15 @@ roles.upgrader = {};
 roles.upgrader.settings = {
   param: ['controller.level', 'storage.store.energy', 'memory.enemies.length'],
   prefixString: {
-    1: 'MCW'
+    1: 'MCW',
   },
   layoutString: {
     1: 'MWW',
-    4: 'W'
+    4: 'W',
   },
   amount: {
-    4: [1]
-  }
+    4: [1],
+  },
 };
 
 roles.upgrader.updateSettings = function(room, creep) {
@@ -39,7 +39,7 @@ roles.upgrader.updateSettings = function(room, creep) {
     room.log(`upgrader updateSettings - storage.energy: ${room.storage.store.energy} upgraderStorageFactor: ${config.room.upgraderStorageFactor} workParts: ${workParts} maxLayoutAmount: ${maxLayoutAmount}`);
   }
   return {
-    maxLayoutAmount: maxLayoutAmount
+    maxLayoutAmount: maxLayoutAmount,
   };
 };
 

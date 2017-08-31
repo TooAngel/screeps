@@ -19,7 +19,7 @@ roles.towerdrainer.settings = {
   layoutString: 'TMH',
   amount: [3, 5, 2], // attack RCL 5
   // amount: [2, 3, 1], // attack RCL 3
-  maxLayoutAmount: 1
+  maxLayoutAmount: 1,
 };
 
 roles.towerdrainer.getRestPosition = function(creep) {
@@ -31,11 +31,11 @@ roles.towerdrainer.getRestPosition = function(creep) {
     const attackDirection = room.findExitTo(attackRoom);
     const restDirection = (attackDirection + 3) % 8 + 1;
     const occupiedPositions = {};
-    _.filter(Game.creeps, c => c.memory.role === 'towerdrainer' && c.memory.restPosition).forEach(c => {
+    _.filter(Game.creeps, (c) => c.memory.role === 'towerdrainer' && c.memory.restPosition).forEach((c) => {
       occupiedPositions[c.memory.restPosition.x + c.memory.restPosition.y] = c.id;
     });
     const attackExits = room.find(attackDirection);
-    for (let exit of attackExits) {
+    for (const exit of attackExits) {
       const pos = exit.getAdjacentPosition(restDirection);
       if (!pos.checkForWall() && !pos.checkForObstacleStructure() && !occupiedPositions[pos.x + pos.y]) {
         creep.memory.restPosition = pos;
