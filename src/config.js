@@ -59,7 +59,8 @@ global.config = {
     queue: false,
     spawn: false,
     mineral: false,
-    moveToMy: false
+    moveToMy: false,
+    market: true
   },
 
   tower: {

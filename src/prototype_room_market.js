@@ -18,11 +18,15 @@ Room.prototype.sellByOwnOrders = function(resource, sellAmount) {
     } else {
       const amount = Math.min(config.market.sellOrderMaxAmount, sellAmount);
       const retType = Game.market.createOrder(ORDER_SELL, resource, mySellPrice, amount, this.name);
-      this.log('market.createOrder', ORDER_SELL, resource, mySellPrice, amount, this.name);
+      if (config.debug.market) {
+        this.log('market.createOrder', ORDER_SELL, resource, mySellPrice, amount, this.name);
+      }
       if (retType === OK) {
         sellAmount -= amount;
       } else {
-        this.log('market.createOrder: ', retType);
+        if (config.debug.market) {
+          this.log('market.createOrder: ', retType);
+        }
       }
     }
     sellAmount -= config.market.sellOrderReserve;

@@ -82,6 +82,9 @@ Creep.prototype.checkForTransfer = function(direction) {
 };
 
 Creep.prototype.pickupWhileMoving = function(reverse) {
+  if (reverse) {
+    return reverse;
+  }
   if (this.inBase() && this.memory.routing.pathPos < 2) {
     return reverse;
   }

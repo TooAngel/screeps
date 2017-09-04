@@ -27,40 +27,33 @@ roles.repairer.boostActions = ['repair'];
 //};
 
 roles.repairer.execute = function(creep) {
-  let execute = function(creep) {
-    var structures;
-    var structure;
-    var i;
+  var structures;
+  var structure;
+  var i;
 
-    creep.setNextSpawn();
-    creep.spawnReplacement(1);
-    if (!creep.memory.move_wait) {
-      creep.memory.move_wait = 0;
-    }
+  creep.setNextSpawn();
+  creep.spawnReplacement(1);
 
-    if (creep.memory.step <= 0) {
-      structures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_WALL, STRUCTURE_RAMPART]);
-      if (structures.length > 0) {
-        var min = structures[0].hits;
+  if (creep.memory.step <= 0) {
+    structures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_WALL, STRUCTURE_RAMPART]);
+    if (structures.length > 0) {
+      var min = structures[0].hits;
 
-        for (i in structures) {
-          if (min > structures[i].hits) {
-            min = structures[i].hits;
-          }
+      for (i in structures) {
+        if (min > structures[i].hits) {
+          min = structures[i].hits;
         }
-        creep.memory.step = min;
       }
+      creep.memory.step = min;
     }
+  }
 
-    var methods = [Creep.getEnergy];
-    methods.push(Creep.repairStructure);
-    methods.push(Creep.constructTask);
+  var methods = [Creep.getEnergy];
+  methods.push(Creep.repairStructure);
+  methods.push(Creep.constructTask);
 
-    if (Creep.execute(creep, methods)) {
-      return true;
-    }
+  if (Creep.execute(creep, methods)) {
     return true;
-  };
-
-  return execute(creep);
+  }
+  return true;
 };

@@ -233,7 +233,7 @@ Creep.prototype.repairStructure = function() {
       this.repair(lowRampart);
       this.moveRandomWithin(lowRampart);
     } else {
-      this.moveToMy(lowRampart.pos, 3);
+      this.moveToMy(lowRampart.pos, 3, false, 10);
     }
     return true;
   }
