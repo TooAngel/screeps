@@ -34,11 +34,16 @@ var main = function() {
     return;
   }
 
-  brain.prepareMemory();
-  brain.handleNextroom();
-  brain.handleSquadmanager();
-  brain.handleIncomingTransactions();
-  brain.handleQuests();
+  Memory.myRooms = Memory.myRooms = [];
+  try {
+    brain.prepareMemory();
+    brain.handleNextroom();
+    brain.handleSquadmanager();
+    brain.handleIncomingTransactions();
+    brain.handleQuests();
+  } catch (e) {
+    console.log('Exeception', e);
+  }
 
   brain.stats.addRoot();
   Memory.myRooms = _(Game.rooms).filter(r => r.execute()).map(r => r.name).value();
