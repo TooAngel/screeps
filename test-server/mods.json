@@ -1,0 +1,6 @@
+{
+  "mods": [],
+  "bots": {
+    "screeps-bot-tooangel": "../src"
+  }
+}

@@ -26,6 +26,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-sync');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-exec');
 
   grunt.initConfig({
     screeps: {
@@ -229,12 +230,16 @@ module.exports = function(grunt) {
         compareUsing: 'md5',
       },
     },
+
+    exec: {
+      test_on_private_server: './utils/test-private-server.sh',
+    },
   });
 
   grunt.registerTask('default', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'copy:visualizer', 'screeps']);
   grunt.registerTask('release', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
   grunt.registerTask('local', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'copy:visualizer', 'sync']);
-  grunt.registerTask('test', ['eslint:check', 'jshint', 'jscs']);
+  grunt.registerTask('test', ['eslint:check', 'jshint', 'jscs', 'exec:test_on_private_server']);
   grunt.registerTask('dev', ['eslint:fix', 'jshint', 'jscs']);
   grunt.registerTask('deploy', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'copy:visualizer', 'screeps']);
   grunt.registerTask('requireFile', 'Creates an empty file', () => {
