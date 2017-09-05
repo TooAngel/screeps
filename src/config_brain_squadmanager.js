@@ -3,27 +3,22 @@
 brain.handleIncomingTransactions = function() {
   let transactions = Game.market.incomingTransactions;
   let current = _.filter(transactions, function(object) {
+    // TODO save last checked value, so we will see all transactions even in case of CPU-skipped ticks
     return object.time >= Game.time - 1;
   });
 
   for (let transaction of current) {
-    let sender = transaction.sender.username;
-    // TODO for testing disabled
-    // if (sender === Memory.username) {
-    //   continue;
-    // }
-    let orders = Game.market.getAllOrders({
-      type: ORDER_SELL,
-      resourceType: transaction.resourceType
-    });
-    let prices = _.sortBy(orders, function(object) {
-      return object.price;
-    });
-    let price = prices[0].price;
-    let value = -1 * transaction.amount * price;
-    console.log(`Incoming transaction from ${sender} with ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
-    brain.increaseIdiot(sender, value);
-
+    if (transaction.sender) {
+      let sender = transaction.sender.username;
+      // TODO for testing disabled
+      // if (sender === Memory.username) {
+      //   continue;
+      // }
+      let price = brain.getMarketOrder(ORDER_SELL, transaction.resourceType, 'min') || brain.getMarketOrder(ORDER_BUY, transaction.resourceType, 'max') || 1;
+      let value = -1 * transaction.amount * price;
+      console.log(`Incoming transaction from ${sender} with ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
+      brain.increaseIdiot(sender, value);
+    }
     brain.checkQuestForAcceptance(transaction);
   }
 };

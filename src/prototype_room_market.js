@@ -1,9 +1,7 @@
-const getAverage = (type, resource) => Memory.orders[type][resource] && Memory.orders[type][resource].totalPrice ? Memory.orders[type][resource].totalPrice / Memory.orders[type][resource].totalAmount : null;
-
-Room.prototype.trySellOrders = function(resource, sellAmount) {
-  const avgBuyPrice = getAverage(ORDER_BUY, resource);
-  const avgSellPrice = getAverage(ORDER_SELL, resource);
-  const mySellPrice = (avgBuyPrice || 1) * config.market.sellOrderPriceMultiplicator;
+Room.prototype.sellByOwnOrders = function(resource, sellAmount) {
+  const avgBuyPrice = brain.getMarketOrderAverage(ORDER_BUY, resource);
+  const avgSellPrice = brain.getMarketOrderAverage(ORDER_SELL, resource);
+  const mySellPrice = Math.max((avgBuyPrice || 1) * config.market.sellOrderPriceMultiplicator, config.market.minSellPrice);
   if (!avgSellPrice || mySellPrice <= avgSellPrice) {
     const sellOrders = _.filter(Game.market.orders, order => order.type === ORDER_SELL && order.roomName === this.name && order.resourceType === resource);
     if (sellOrders.length > 0) {
@@ -32,11 +30,29 @@ Room.prototype.trySellOrders = function(resource, sellAmount) {
   return sellAmount;
 };
 
-Room.prototype.handleMarket = function() {
-  if (!this.terminal) {
-    return false;
+Room.prototype.sellByOthersOrders = function(sellAmount, resource) {
+  const sortByEnergyCostAndPrice = order => Game.market.calcTransactionCost(sellAmount, this.name, order.roomName) +
+    -order.price * sellAmount / config.market.energyCreditEquivalent;
+  if (Memory.orders[ORDER_BUY][resource]) {
+    const orders = _.sortBy(Memory.orders[ORDER_BUY][resource].orders, sortByEnergyCostAndPrice);
+    for (let order of orders) {
+      const amount = Math.min(sellAmount, order.remainingAmount);
+      if (amount > 0 && order.price >= config.market.minSellPrice) {
+        if (Game.market.calcTransactionCost(amount, this.name, order.roomName) > this.terminal.store.energy) {
+          break;
+        }
+        this.log(order.id, this.name, amount, order.price);
+        let returnCode = Game.market.deal(order.id, amount, this.name);
+        this.log('market.deal:', resource, returnCode);
+        if (returnCode === OK) {
+          break;
+        }
+      }
+    }
   }
+};
 
+Room.prototype.sellOwnMineral = function() {
   const minerals = this.find(FIND_MINERALS);
   const resource = minerals[0].mineralType;
 
@@ -44,35 +60,39 @@ Room.prototype.handleMarket = function() {
     return false;
   }
 
-  if (this.terminal.store[resource] <= config.market.minAmount) {
+  if (this.terminal.store[resource] <= config.market.minAmountToSell) {
     return false;
   }
 
-  let sellAmount = this.terminal.store[resource] - config.market.minAmount;
+  let sellAmount = this.terminal.store[resource] - config.market.minAmountToSell;
 
-  if (config.market.trySellOrders) {
-    sellAmount = this.trySellOrders(resource, sellAmount);
+  if (config.market.sellByOwnOrders) {
+    sellAmount = this.sellByOwnOrders(resource, sellAmount);
   }
 
   if (sellAmount <= 0) {
     return true;
   }
+  this.sellByOthersOrders(sellAmount, resource);
+  return true;
+};
 
-  if (!Memory.orders[ORDER_BUY][resource]) {
-    return false;
-  }
+Room.prototype.buyByOthersOrders = function(resource) {
+  const avgBuyPrice = brain.getMarketOrderAverage(ORDER_BUY, resource);
+  const avgSellPrice = brain.getMarketOrderAverage(ORDER_SELL, resource);
+  const myBuyPrice = Math.min((avgBuyPrice || 1) * config.market.buyOrderPriceMultiplicator, config.market.maxBuyPrice);
+  let buyAmount = config.market.maxAmountToBuy - (this.terminal.store[resource] || 0);
 
-  const sortByEnergyCostAndPrice = order => Game.market.calcTransactionCost(sellAmount, this.name, order.roomName) +
-    -order.price * sellAmount / config.market.energyCreditEquivalent;
+  const sortByEnergyCost = order => Game.market.calcTransactionCost(buyAmount, this.name, order.roomName);
+  const orders = _.sortBy(_.filter(Memory.orders[ORDER_SELL][resource].orders, o => o.price <= myBuyPrice), sortByEnergyCost);
 
-  const orders = _.sortBy(Memory.orders[ORDER_BUY][resource].orders, sortByEnergyCostAndPrice);
   for (let order of orders) {
-    const amount = Math.min(sellAmount, order.remainingAmount);
+    const amount = Math.min(buyAmount, order.remainingAmount);
     if (amount > 0) {
       if (Game.market.calcTransactionCost(amount, this.name, order.roomName) > this.terminal.store.energy) {
         break;
       }
-      this.log(order.id, this.name, amount, order.price);
+      this.log('BUY', order.id, this.name, amount, order.price);
       let returnCode = Game.market.deal(order.id, amount, this.name);
       this.log('market.deal:', resource, returnCode);
       if (returnCode === OK) {
@@ -80,5 +100,23 @@ Room.prototype.handleMarket = function() {
       }
     }
   }
-  return true;
+
+};
+
+Room.prototype.buyLowResources = function() {
+  for (let resource in Memory.orders[ORDER_SELL]) {
+    if (!this.terminal[resource] || this.terminal[resource] < config.market.maxAmountToBuy) {
+      // this.buyByOwnOrders(resource);
+      this.buyByOthersOrders(resource);
+    }
+  }
+};
+
+Room.prototype.handleMarket = function() {
+  if (!this.terminal) {
+    return false;
+  }
+
+  this.sellOwnMineral();
+  this.buyLowResources();
 };
