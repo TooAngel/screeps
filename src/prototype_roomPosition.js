@@ -106,19 +106,8 @@ RoomPosition.prototype.checkForObstacleStructure = function() {
 };
 
 RoomPosition.prototype.inPath = function() {
-  // if (true) {
-  //   throw new Error();
-  // }
   const room = this.getRoom();
-  for (const pathName of Object.keys(room.getMemoryPaths())) {
-    const path = room.getMemoryPath(pathName);
-    for (const pos of path) {
-      if (this.isEqualTo(pos.x, pos.y)) {
-        return true;
-      }
-    }
-  }
-  return false;
+  return room.getMemoryPathsSet()[`${this.x} ${this.y}`];
 };
 
 RoomPosition.prototype.inPositions = function() {
@@ -227,6 +216,19 @@ RoomPosition.wrapFindMethod = (methodName, extraParamsCount) => function(findTar
     return this[methodName](findTarget, ...extraParams, Room.getPropertyFilterOptsObj(...propertyFilterParams));
   }
   /* eslint-enable no-invalid-this */
+};
+
+/**
+ * Restore RoomPosition object after JSON serialisation.
+ *
+ * @param {object} json JSON object
+ * @param {number} json.x X coordinate
+ * @param {number} json.y Y coordinate
+ * @param {string} json.roomName Name of the room
+ * @return {RoomPosition} RoomPosition object
+ */
+RoomPosition.fromJSON = function(json) {
+  return new RoomPosition(json.x, json.y, json.roomName);
 };
 
 /**

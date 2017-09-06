@@ -61,7 +61,6 @@ Room.prototype.setCostMatrixPath = function(costMatrix, path) {
     const pos = path[i];
     costMatrix.set(pos.x, pos.y, config.layout.pathAvoid);
   }
-  this.setCostMatrixAvoidSources(costMatrix);
 };
 
 Room.prototype.increaseCostMatrixValue = function(costMatrix, pos, value) {

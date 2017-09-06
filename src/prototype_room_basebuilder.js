@@ -323,13 +323,14 @@ Room.prototype.buildStructures = function() {
     return true;
   }
 
+  if (this.setupStructure(STRUCTURE_TERMINAL)) {
+    return true;
+  }
+
   if (this.setupStructure(STRUCTURE_LAB)) {
     return true;
   }
 
-  if (this.setupStructure(STRUCTURE_TERMINAL)) {
-    return true;
-  }
   if (this.setupStructure(STRUCTURE_NUKER)) {
     return true;
   }
