@@ -6,18 +6,27 @@ Room.prototype.isMineralInStorage = function() {
 
 Room.prototype.getNextReaction = function() {
   for (let mineralFirst in this.terminal.store) {
-    if (!REACTIONS[mineralFirst]) {
+    if (!REACTIONS[mineralFirst] || this.terminal.store[mineralFirst] < LAB_REACTION_AMOUNT) {
       continue;
     }
     for (let mineralSecond in this.terminal.store) {
-      if (!REACTIONS[mineralFirst][mineralSecond]) {
+      if (!REACTIONS[mineralFirst][mineralSecond] || this.terminal.store[mineralSecond] < LAB_REACTION_AMOUNT) {
         continue;
       }
-      let result = REACTIONS[mineralFirst][mineralSecond];
-      if (this.terminal.store[result] > config.mineral.minAmount) {
+      const result = REACTIONS[mineralFirst][mineralSecond];
+      const resultOH = REACTIONS[RESOURCE_HYDROXIDE][result];
+      const resultXOH = REACTIONS[RESOURCE_CATALYST][resultOH];
+      const resultX = REACTIONS[RESOURCE_CATALYST][result];
+      let amount = this.terminal.store[result];
+      amount += this.terminal.store[resultOH] || 0;
+      amount += this.terminal.store[resultXOH] || 0;
+      amount += this.terminal.store[resultX] || 0;
+      if (amount > config.mineral.minAmount) {
         continue;
       }
-      //this.log('Could build: ' + mineralFirst + ' ' + mineralSecond + ' ' + result);
+      if (config.debug.mineral) {
+        this.log('Could build: ' + mineralFirst + ' ' + mineralSecond + ' ' + result, amount);
+      }
       return {
         result: result,
         first: mineralFirst,
@@ -103,9 +112,6 @@ Room.prototype.reactions = function() {
 };
 
 Room.prototype.orderMinerals = function() {
-  let minerals = this.find(FIND_MINERALS);
-  let resource = minerals[0].mineralType;
-
   if (this.exectueEveryTicks(20)) {
     let baseMinerals = [
       RESOURCE_HYDROGEN,
@@ -115,6 +121,9 @@ Room.prototype.orderMinerals = function() {
       RESOURCE_KEANIUM,
       RESOURCE_ZYNTHIUM,
       RESOURCE_CATALYST,
+      RESOURCE_HYDROXIDE,
+      RESOURCE_UTRIUM_LEMERGITE,
+      RESOURCE_ZYNTHIUM_KEANITE,
       RESOURCE_GHODIUM
     ];
 
@@ -124,7 +133,7 @@ Room.prototype.orderMinerals = function() {
     };
 
     for (let mineral of baseMinerals) {
-      if (!this.terminal.store[mineral]) {
+      if (!this.terminal.store[mineral] || this.terminal.store[mineral] < 1000) {
         let roomsOther = _.sortBy(Memory.myRooms, orderByDistance);
 
         for (let roomOtherName of roomsOther) {
@@ -135,23 +144,18 @@ Room.prototype.orderMinerals = function() {
           if (!roomOther || roomOther === null) {
             continue;
           }
-          let minerals = roomOther.find(FIND_MINERALS);
-          if (minerals.length === 0) {
+          if (!roomOther.terminal || !roomOther.terminal.store[mineral] || roomOther.terminal.store[mineral] < 2000) {
             continue;
           }
-          let mineralType = minerals[0].mineralType;
-          if (!roomOther.terminal || roomOther.terminal[minerals[0].mineralType] < config.mineral.minAmount) {
-            continue;
-          }
-          if (mineralType === mineral) {
-            roomOther.memory.mineralOrder = roomOther.memory.mineralOrder || {};
-            if (roomOther.memory.mineralOrder[room.name]) {
-              break;
-            }
-            roomOther.memory.mineralOrder[room.name] = 1000;
-            //            room.log('Ordering ' + mineralType + ' from ' + roomOther.name);
+          roomOther.memory.mineralOrder = roomOther.memory.mineralOrder || {};
+          if (roomOther.memory.mineralOrder[room.name]) {
             break;
           }
+          roomOther.memory.mineralOrder[room.name] = {type: mineral, amount: 1000};
+          if (config.debug.mineral) {
+            room.log('Ordering ' + mineral + ' from ' + roomOther.name);
+          }
+          break;
         }
       }
     }
@@ -159,12 +163,6 @@ Room.prototype.orderMinerals = function() {
 };
 
 Room.prototype.handleTerminal = function() {
-  let minerals = this.find(FIND_MINERALS);
-  if (minerals.length === 0) {
-    return false;
-  }
-  let resource = minerals[0].mineralType;
-
   if (!this.terminal) {
     return false;
   }
@@ -180,7 +178,7 @@ Room.prototype.handleTerminal = function() {
   let roomOther = Game.rooms[roomOtherName];
   let order = this.memory.mineralOrder[roomOtherName];
   let linearDistanceBetweenRooms = Game.map.getRoomLinearDistance(this.name, roomOtherName);
-  let energy = Math.ceil(0.1 * order * linearDistanceBetweenRooms);
+  let energy = Math.ceil(0.1 * order.amount * linearDistanceBetweenRooms);
 
   if (this.terminal.store.energy < energy) {
     //this.log('Terminal not enough energy');
@@ -190,10 +188,10 @@ Room.prototype.handleTerminal = function() {
 
   this.memory.terminalTooLessEnergy = false;
 
-  if (this.terminal.store[resource] < order) {
+  if (this.terminal.store[order.type] < order.amount) {
     return false;
   }
-  this.terminal.send(resource, order, roomOtherName);
+  this.terminal.send(order.type, order.amount, roomOtherName);
   delete this.memory.mineralOrder[roomOtherName];
   return true;
 };

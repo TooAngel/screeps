@@ -57,7 +57,8 @@ global.config = {
   debug: {
     getPartsConfLogs: false,
     queue: false,
-    spawn: false
+    spawn: false,
+    mineral: false
   },
 
   tower: {
@@ -202,6 +203,7 @@ global.config = {
 
   terminal: {
     energyAmount: 100000,
+    energyMax: 200000,
     storageMinEnergyAmount: 20000
   },
 
