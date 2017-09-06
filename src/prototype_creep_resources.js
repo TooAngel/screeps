@@ -439,9 +439,7 @@ Creep.prototype.moveToSource = function(source, swarm = false) {
     // TODO should be `moveToMy`, but that hangs in W5N1 spawn (10,9)
     this.moveTo(source.pos);
   } else {
-    this.moveByPathMy([{
-      'name': this.room.name,
-    }], 0, 'pathStart', source.id, true, undefined);
+    this.moveByPathMy([{'name': this.room.name}], 0, 'pathStart', source.id);
   }
   return true;
 };
