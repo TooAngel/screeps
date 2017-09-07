@@ -159,6 +159,11 @@ global.config = {
     swarmSourceHarvestingMaxParts: 10
   },
 
+  scout: {
+    amount: [1,2,3,4,5,6,7,8],   // by RCL
+    intervalBetweenRoomVisit: 500,
+    scoutSkipWhenStuck: true, // Useful for novice areas.
+  },
   room: {
     reservedRCL: {
       0: 1,
@@ -177,9 +182,6 @@ global.config = {
     reviveEnergyCapacity: 1000,
     reviveEnergyAvailable: 1000,
     reviveStorageAvailable: 3000,
-    scoutInterval: 1499,
-    scoutSkipWhenStuck: true, // Useful for novice areas.
-    scout: true, // TODO somehow broken ?? Is it broken ??
     upgraderMinStorage: 0,
     upgraderStorageFactor: 2,
     lastSeenThreshold: 1000000,
@@ -236,6 +238,7 @@ global.config = {
       carry: 5
     },
     otherRoom: {
+      scout: 10,
       harvester: 11,
       defender: 12,
       defendranged: 13,

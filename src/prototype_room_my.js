@@ -165,19 +165,9 @@ Room.prototype.handleScout = function() {
   if (this.name === 'sim') {
     return false;
   }
-  let shouldSpawn = (
-    this.exectueEveryTicks(config.room.scoutInterval) &&
-    this.controller.level >= 2 &&
-    this.memory.queue.length === 0 &&
-    config.room.scout
-  );
-  if (shouldSpawn) {
-    let scout_spawn = {
-      role: 'scout'
-    };
-    if (!this.inQueue(scout_spawn)) {
-      this.memory.queue.push(scout_spawn);
-    }
+  let amountNeeded = config.scout.amount[this.controller.level - 1];
+  if (amountNeeded && this.exectueEveryTicks(Math.ceil(1500 / amountNeeded))) {
+    this.checkRoleToSpawn('scout', 1, undefined, undefined, 0, this.name);
   }
 };
 
