@@ -66,6 +66,7 @@ roles.carry.handleMisplacedSpawn = function(creep) {
   // Misplaced spawn
   // TODO Somehow ugly and maybe better somewhere else
   if (creep.inBase() && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
+    const stuck = creep.isStuck();
     //     creep.say('cmis', true);
     if (creep.carry.energy > 0) {
       const structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
@@ -73,7 +74,7 @@ roles.carry.handleMisplacedSpawn = function(creep) {
       });
       if (structure) {
         creep.moveTo(structure, {
-          ignoreCreeps: true,
+          ignoreCreeps: !stuck,
         });
         creep.transfer(structure, RESOURCE_ENERGY);
         return true;
@@ -86,7 +87,7 @@ roles.carry.handleMisplacedSpawn = function(creep) {
       if (source !== null) {
         const sourcePos = new RoomPosition(source.x, source.y, source.roomName);
         creep.moveTo(sourcePos, {
-          ignoreCreeps: true,
+          ignoreCreeps: !stuck,
         });
         if (creep.pos.getRangeTo(sourcePos) > 1) {
           return true;

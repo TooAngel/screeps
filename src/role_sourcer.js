@@ -82,9 +82,12 @@ roles.sourcer.preMove = function(creep, directions) {
   // TODO when is the forwardDirection missing?
   if (directions.forwardDirection) {
     const posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
+    let terrain = posForward.lookFor(LOOK_TERRAIN);
     const structures = posForward.lookFor(LOOK_STRUCTURES);
-    for (const structure of structures) {
+    let structure;
+    for (structure of structures) {
       if (structure.structureType === STRUCTURE_ROAD) {
+        terrain = ['road'];
         continue;
       }
       if (structure.structureType === STRUCTURE_RAMPART && structure.my) {
@@ -96,6 +99,12 @@ roles.sourcer.preMove = function(creep, directions) {
       creep.dismantle(structure);
       creep.say('dismantle', true);
       break;
+    }
+    if (creep.pos.x !== creep.memory.last.pos1.x || creep.pos.y !== creep.memory.last.pos1.y) {
+      if (!creep.memory.pathDatas) {
+        creep.memory.pathDatas = {swamp: 0, plain: 0, road: 0};
+      }
+      creep.memory.pathDatas[terrain[0]]++;
     }
   }
 };
