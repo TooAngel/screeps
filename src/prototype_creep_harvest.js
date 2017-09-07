@@ -49,7 +49,15 @@ Creep.prototype.spawnCarry = function() {
 
   const workParts = this.body.filter((part) => part.type === WORK).length;
 
-  const waitTime = carryCapacity / (HARVEST_POWER * workParts);
+  let waitTime = carryCapacity / (HARVEST_POWER * workParts);
+
+  var spawn = {
+    role: 'carry',
+    routing: {
+      targetRoom: this.memory.routing.targetRoom,
+      targetId: this.memory.routing.targetId
+    }
+  };
 
   let resourceAtPosition = 0;
   const resources = this.pos.lookFor(LOOK_RESOURCES);

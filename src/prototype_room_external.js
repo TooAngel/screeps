@@ -249,14 +249,14 @@ Room.prototype.checkAndSpawnReserver = function() {
     },
   };
   // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
+  /** TODO look if it bug. if yeah, cf garbage solution (Nevrdid)
   let energyNeeded = 1300;
   if (baseRoom.misplacedSpawn) {
     energyNeeded += 300;
   }
-  if (baseRoom.getEnergyCapacityAvailable() >= energyNeeded) {
-    if (!baseRoom.inQueue(reserverSpawn)) {
-      baseRoom.checkRoleToSpawn('reserver', 1, this.controller.id, this.name, 2);
-    }
+  **/
+  if (!baseRoom.inQueue(reserverSpawn)) {
+    baseRoom.checkRoleToSpawn('reserver', 1, this.controller.id, this.name, undefined, baseRoom.name);
   }
 };
 
@@ -328,12 +328,11 @@ Room.prototype.handleUnreservedRoom = function() {
           continue checkRoomsLabel;
         }
       }
-      if (room.memory.queue && room.memory.queue.length === 0 &&
-        room.energyAvailable >= room.getEnergyCapacityAvailable()) {
-        const reservedRooms = _.filter(Memory.rooms, isReservedBy(room.name));
+      if (room.memory.queue && room.memory.queue.length === 0) {
+        let reservedRooms = _.filter(Memory.rooms, isReservedBy(room.name));
         // RCL: target reserved rooms
-        const numRooms = config.room.reservedRCL;
-        if (reservedRooms.length < numRooms[room.controller.level]) {
+        let numRooms = config.room.reservedRCL;
+        if (reservedRooms.length < numRooms[room.controller.level - 1]) {
           this.memory.reservation = {
             base: room.name,
           };

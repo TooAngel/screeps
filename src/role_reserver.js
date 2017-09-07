@@ -13,17 +13,17 @@ roles.reserver.killPrevious = true;
 roles.reserver.flee = false;
 
 roles.reserver.settings = {
+  param: ['energyCapacityAvailable'],
   layoutString: 'MK',
-  maxLayoutAmount: 1,
+  amount: {
+    0: [1,0],
+    650: [1,1],
+    1300: [2,2]
+  },
+  maxLayoutAmount: 1
 };
 roles.reserver.updateSettings = function(room, creep) {
-  const level = creep.level ? creep.level : 1;
-  if (level === 2) {
-    return {
-      amount: [2, 2],
-    };
-  }
-  if (level === 5) {
+  if (creep.level === 5) {
     room.log('Build super reserver');
     return {
       amount: [5, 5],
@@ -41,10 +41,32 @@ roles.reserver.action = function(creep) {
     }
   }
 
-  // TODO this should be enabled, because the reserver should flee without being attacked
-  creep.notifyWhenAttacked(false);
+  creep.say('Reserver -> ' + creep.memory.routing.targetRoom);
 
-  creep.handleReserver();
+  // TODO this should be enabled, because the reserver should flee without being attacked
+  if (!creep.memory.notifDisabled) {
+    creep.notifyWhenAttacked(false);
+    creep.memory.notifDisabled = true;
+  }
+
+  if (creep.room.name !== creep.memory.routing.targetRoom) {
+    creep.memory.routing.reached = false;
+    return false;
+  }
+  creep.reserverSetLevel();
+  creep.spawnReplacement(1);
+
+  creep.callCleaner();
+
+  if (creep.room.exectueEveryTicks(100)) {
+    creep.checkSourcer();
+  }
+
+  if (config.creep.reserverDefender) {
+    creep.callDefender();
+  }
+
+  creep.interactWithController();
   return true;
 };
 

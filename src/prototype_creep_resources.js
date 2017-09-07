@@ -645,7 +645,7 @@ Creep.prototype.transferEnergyMy = function() {
 
 Creep.prototype.reserverSetLevel = function() {
   this.memory.level = 2;
-  if (this.room.controller.reservation && this.room.controller.reservation.ticksToEnd > 4500) {
+  if (this.room.controller.reservation && (Game.rooms[this.memory.base].energyCapacityAvailable < 1300 || this.room.controller.reservation.ticksToEnd > 4500)) {
     this.memory.level = 1;
   }
   if (!this.room.controller.my && this.room.controller.reservation && this.room.controller.reservation.username !== Memory.username) {
@@ -653,34 +653,26 @@ Creep.prototype.reserverSetLevel = function() {
   }
 };
 
-const callStructurer = function(creep) {
-  const structurers = creep.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['structurer']);
+Creep.prototype.callStructurer = function() {
+  const structurers = this.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['structurer']);
   if (structurers.length > 0) {
     return false;
   }
-  const resourceStructures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
-  if (resourceStructures.length > 0 && !creep.room.controller.my) {
-    creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resourceStructures[0].structureType);
-    Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, creep.room.name);
+  const resource_structures = this.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
+  if (resource_structures.length > 0 && !this.room.controller.my) {
+    this.log('Call structurer from ' + this.memory.base + ' because of ' + resource_structures[0].structureType);
+    Game.rooms[this.memory.base].checkRoleToSpawn('structurer', 1, undefined, this.room.name);
     return true;
   }
 };
 
-const callCleaner = function(creep) {
-  if (creep.inBase()) {
-    return false;
-  }
-
-  if (!Game.rooms[creep.memory.base].storage) {
-    return false;
-  }
-
-  if (!creep.room.exectueEveryTicks(1000)) {
+Creep.prototype.callCleaner = function() {
+  if (this.inBase() || !Game.rooms[this.memory.base].storage || !this.room.exectueEveryTicks(1000)) {
     return false;
   }
 
   if (config.creep.structurer) {
-    callStructurer(creep);
+    this.callStructurer();
   }
 };
 
@@ -694,14 +686,14 @@ const checkSourcerMatch = function(sourcers, sourceId) {
   return false;
 };
 
-const checkSourcer = function(creep) {
-  const sources = creep.room.find(FIND_SOURCES);
-  const sourcers = creep.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer']);
+Creep.prototype.checkSourcer = function() {
+  const sources = this.room.find(FIND_SOURCES);
+  const sourcers = this.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer']);
 
   if (sourcers.length < sources.length) {
-    const sourceParse = function(source) {
+    let sourceParse = source => {
       if (!checkSourcerMatch(sourcers, source.pos)) {
-        Game.rooms[creep.memory.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
+        Game.rooms[this.memory.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
       }
     };
     _.each(sources, (sourceParse));
@@ -758,26 +750,4 @@ Creep.prototype.interactWithController = function() {
   }
 
   this.log('reserver: ' + returnCode);
-};
-
-Creep.prototype.handleReserver = function() {
-  if (this.room.name !== this.memory.routing.targetRoom) {
-    this.memory.routing.reached = false;
-    return false;
-  }
-  this.reserverSetLevel();
-  this.spawnReplacement(1);
-
-  callCleaner(this);
-
-  if (this.room.exectueEveryTicks(100) && this.room.controller.reservation && this.room.controller.reservation.username === Memory.username) {
-    checkSourcer(this);
-  }
-
-  if (config.creep.reserverDefender) {
-    this.callDefender();
-  }
-
-  this.interactWithController();
-  return true;
 };
