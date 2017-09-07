@@ -180,6 +180,7 @@ global.config = {
     scoutInterval: 1499,
     scoutSkipWhenStuck: true, // Useful for novice areas.
     scout: true, // TODO somehow broken ?? Is it broken ??
+    upgraderWordDuration: 10,
     upgraderMinStorage: 0,
     upgraderStorageFactor: 2,
     lastSeenThreshold: 1000000,
