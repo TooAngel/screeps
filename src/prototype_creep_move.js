@@ -47,7 +47,7 @@ Creep.prototype.moveRandomWithin = function(goal, dist = 3) {
 };
 
 Creep.prototype.moveCreep = function(position, direction) {
-  if (position.x <= 0 || position.x >= 49 || position.y <= 0 || position.y >= 49) {
+  if (!position || position.x <= 0 || position.x >= 49 || position.y <= 0 || position.y >= 49) {
     return false;
   }
 

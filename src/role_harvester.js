@@ -102,6 +102,10 @@ roles.harvester.preMove = function(creep, directions) {
   if (directions && creep.memory.routing.reverse) {
     directions.direction = directions.backwardDirection;
   }
+  if (directions.backwardDirection) {
+    let transferred = creep.transferToCreep(directions.backwardDirection);
+    reverse = !transferred;
+  }
 
   if (creep.room.memory.position.pathEndLevel) {
     if (creep.memory.routing.pathPos >= creep.room.memory.position.pathEndLevel[creep.room.controller.level]) {
