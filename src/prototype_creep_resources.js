@@ -15,7 +15,7 @@ Creep.prototype.harvesterBeforeStorage = function() {
 
   methods.push(Creep.transferEnergy);
   let structures = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_CONTROLLER], true);
-  if (structures.length > 0) {
+  if (structures.length > 0 && this.room.memory.queue.length === 0) {
     methods.push(Creep.constructTask);
   }
 
