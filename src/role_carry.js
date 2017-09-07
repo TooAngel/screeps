@@ -43,6 +43,23 @@ roles.carry.updateSettings = function(room, creep) {
   }
 };
 
+roles.carry.reset = function(creep) {
+  // TODO check new routing. if carry is on the new path, reset carry, otherwise move to pathStart
+  const queue = Memory.rooms[creep.memory.base].queue || [];
+  for (let i = 0; i < queue.length; i++) {
+    if (queue[i].role === 'carry' && !queue[i].helper) {
+      creep.memory.routing = queue[i].routing;
+      queue.splice(i, 1);
+      return true;
+    }
+  }
+  return false;
+};
+
+roles.carry.checkOnPathStart = function(creep) {
+  return creep.pos.isEqualTo(creep.room.memory.position.creep.pathStart.x, creep.room.memory.position.creep.pathStart.y);
+};
+
 roles.carry.checkHelperEmptyStorage = function(creep) {
   // Fix blocked helpers due to empty structure in the room where we get the energy from
   if (creep.room.name === creep.memory.routing.targetRoom) {
@@ -67,6 +84,8 @@ roles.carry.handleMisplacedSpawn = function(creep) {
   // TODO Somehow ugly and maybe better somewhere else
   if (creep.inBase() && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
     //     creep.say('cmis', true);
+    // don't recycle carry
+    creep.memory.recycle = false;
     if (creep.carry.energy > 0) {
       const structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
         filter: (object) => object.energy < object.energyCapacity,
@@ -122,7 +141,9 @@ roles.carry.preMove = function(creep, directions) {
 
   let reverse = false;
   if (!creep.memory.routing.reverse) {
-    reverse = creep.checkForTransfer(directions.forwardDirection);
+    if (config.carry.transferToCarry) {
+      reverse = creep.checkForTransfer(directions.forwardDirection);
+    }
     if (!reverse && creep.isStuck() && directions.backwardDirection) {
       const adjacentPos = creep.pos.getAdjacentPosition(directions.backwardDirection);
       if (adjacentPos.isValid()) {
@@ -143,7 +164,7 @@ roles.carry.preMove = function(creep, directions) {
           return true;
         }
         reverse = creep.carry.energy - transferred.transferred > 0;
-      } else if (creep.memory.routing.pathPos === 0 && !(creep.room.storage && creep.room.storage.my && creep.room.storage.isActive())) {
+      } else if (roles.carry.checkOnPathStart(creep) && !(creep.room.storage && creep.room.storage.my && creep.room.storage.isActive())) {
         creep.drop(RESOURCE_ENERGY);
         reverse = false;
 
@@ -164,6 +185,27 @@ roles.carry.preMove = function(creep, directions) {
   }
 
   reverse = creep.pickupWhileMoving(reverse);
+
+  // recycle carry
+  if (creep.memory.recycle) {
+    reverse = true;
+    creep.say('recycle');
+    if (creep.inBase()) {
+      if (creep.ticksToLive > config.carry.recycleThreshold && roles.carry.reset(creep)) {
+        creep.memory.recycle = false;
+      } else {
+        const spawn = creep.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+        if (spawn && spawn.recycleCreep(creep) === 'OK') {
+          return true;
+        }
+      }
+      if (roles.carry.checkOnPathStart(creep)) {
+        creep.memory.moveToSpawn = true;
+        return true;
+      }
+    }
+  }
+
   if (reverse) {
     //     creep.log('reverse');
     directions.direction = directions.backwardDirection;
@@ -249,6 +291,9 @@ roles.carry.action = function(creep) {
 
   creep.memory.routing.reached = false;
   creep.memory.routing.reverse = true;
+  if (creep.memory.checkRecycle) {
+    creep.memory.recycle = true;
+  }
 
   return true;
 };

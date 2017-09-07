@@ -142,6 +142,9 @@ global.config = {
       1800: [8, 15], // RCL 5
       2300: [11, 21], // RCL 6
     },
+    // when ticksToLive > recycleThreshold, reuse carry
+    recycleThreshold: 200,
+    transferToCarry: false,
     minSpawnRate: 50,
     // Percentage should increase from base to target room. Decrease may cause stack on border
     carryPercentageBase: 0.1,
@@ -243,9 +246,9 @@ global.config = {
       defender: 12,
       defendranged: 13,
       nextroomer: 15,
-      carry: 17,
+      reserver: 17,
       sourcer: 18,
-      reserver: 19,
+      carry: 19,
     },
   },
 };

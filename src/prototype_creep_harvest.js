@@ -43,13 +43,13 @@ Creep.prototype.spawnCarry = function() {
     return false;
   }
 
+  const baseRoom = Game.rooms[this.memory.base];
+
   const foundKey = Object.keys(config.carry.sizes).reverse()
-    .find((key) => (key <= Game.rooms[this.memory.base].energyCapacityAvailable));
+    .find((key) => (key <= baseRoom.energyCapacityAvailable));
   const carryCapacity = config.carry.sizes[foundKey][1] * CARRY_CAPACITY;
 
   const workParts = this.body.filter((part) => part.type === WORK).length;
-
-  const waitTime = carryCapacity / (HARVEST_POWER * workParts);
 
   let resourceAtPosition = 0;
   const resources = this.pos.lookFor(LOOK_RESOURCES);
@@ -63,15 +63,22 @@ Creep.prototype.spawnCarry = function() {
     resourceAtPosition += _.sum(container.store);
   }
 
+  const waitTime = carryCapacity / (HARVEST_POWER * workParts) *
+    Math.sqrt(carryCapacity / Math.max(resourceAtPosition, carryCapacity));
+
   if (resourceAtPosition > carryCapacity) {
-    Game.rooms[this.memory.base].checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom);
-  } else if (resourceAtPosition <= HARVEST_POWER * workParts) {
-    const nearCarries = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 2, 'memory.role', ['carry'], false, {
-      filter: (creep) => creep.memory.routing.targetId === this.memory.routing.targetId,
-    });
-    if (nearCarries.length > 1) {
-      nearCarries[0].memory.recycle = true;
-    }
+    baseRoom.checkRoleToSpawn('carry', 0, this.memory.routing.targetId,
+      this.memory.routing.targetRoom, undefined, undefined, {
+        checkRecycle: true,
+      });
   }
-  this.memory.wait = Math.max(waitTime, config.carry.minSpawnRate);
+
+  // low minSpawnRate helps carry recycling
+  let minSpawnRate = 10;
+
+  // higher minSpawnRate when RCL < 4
+  if (baseRoom.controller.level < 4) {
+    minSpawnRate = config.carry.minSpawnRate;
+  }
+  this.memory.wait = Math.max(waitTime, minSpawnRate);
 };

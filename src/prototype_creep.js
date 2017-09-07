@@ -63,7 +63,7 @@ Creep.prototype.handle = function() {
     return;
   }
 
-  if (this.memory.recycle) {
+  if (this.memory.recycle && this.memory.moveToSpawn) {
     Creep.recycleCreep(this);
     return;
   }

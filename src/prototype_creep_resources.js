@@ -297,6 +297,9 @@ const checkCreepForTransfer = function(creep) {
   if (Game.creeps[creep.name].memory.role === 'powertransporter') {
     return false;
   }
+  if (!config.carry.transferToCarry && Game.creeps[creep.name].memory.role === 'carry') {
+    return false;
+  }
   if (creep.carry.energy === creep.carryCapacity) {
     return false;
   }

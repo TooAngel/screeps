@@ -272,6 +272,10 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, action, 
         if (this.memory.killPrevious) {
           this.killPrevious();
         }
+        if (this.memory.checkRecycle && this.isStuck() && !this.memory.routing.reverse) {
+          // recycle carry
+          this.memory.recycle = true;
+        }
       }
       if (pathPos === path.length - 1 && !this.memory.routing.reverse) {
         // this.log('creep_routing.followPath reached: ' + pathPos + '
