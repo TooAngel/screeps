@@ -11,7 +11,7 @@ roles.nextroomerattack = {};
 roles.nextroomerattack.settings = {
   layoutString: 'MA',
   amount: [5, 5],
-  fillTough: true
+  fillTough: true,
 };
 
 roles.nextroomerattack.died = function(name, memory) {
@@ -36,10 +36,10 @@ roles.nextroomerattack.action = function(creep) {
     return true;
   }
   const path = creep.pos.findPathTo(spawn, {
-    ignoreDestructibleStructures: true
+    ignoreDestructibleStructures: true,
   });
   creep.attack(spawn);
-  const return_code = creep.moveByPath(path);
+  creep.moveByPath(path);
   return true;
 };
 

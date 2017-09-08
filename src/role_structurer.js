@@ -13,21 +13,21 @@ roles.structurer.boostActions = ['dismantle'];
 
 roles.structurer.settings = {
   layoutString: 'MW',
-  amount: [5, 5]
+  amount: [5, 5],
 };
 
 roles.structurer.preMove = function(creep, directions) {
   if (creep.room.name === creep.memory.routing.targetRoom) {
-    let target = Game.getObjectById(creep.memory.routing.targetId);
+    const target = Game.getObjectById(creep.memory.routing.targetId);
     if (target === null) {
       creep.log('Invalid target');
       delete creep.memory.routing.targetId;
     }
 
     if (directions && directions.forwardDirection) {
-      let posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
-      let structures = posForward.lookFor(LOOK_STRUCTURES);
-      for (let structure of structures) {
+      const posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
+      const structures = posForward.lookFor(LOOK_STRUCTURES);
+      for (const structure of structures) {
         if (structure.structureType === STRUCTURE_ROAD) {
           continue;
         }
@@ -44,7 +44,7 @@ roles.structurer.preMove = function(creep, directions) {
 
   // Routing would end within the wall - this is the fix for that
   if (creep.memory.routing.targetId && creep.room.name === creep.memory.routing.targetRoom) {
-    let target = Game.getObjectById(creep.memory.routing.targetId);
+    const target = Game.getObjectById(creep.memory.routing.targetId);
     if (target === null) {
       delete creep.memory.routing.targetId;
       return true;
@@ -58,7 +58,7 @@ roles.structurer.preMove = function(creep, directions) {
 roles.structurer.action = function(creep) {
   if (!creep.room.controller || !creep.room.controller.my) {
     const structure = creep.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD], true, {
-      filter: object => object.ticksToDecay !== null
+      filter: (object) => object.ticksToDecay !== null,
     });
     creep.dismantle(structure);
   }

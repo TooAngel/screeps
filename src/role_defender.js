@@ -14,9 +14,9 @@ roles.defender.settings = {
   layoutString: 'MRH',
   amount: {
     1: [2, 1, 1],
-    8: [4, 1, 1]
+    8: [4, 1, 1],
   },
-  fillTough: true
+  fillTough: true,
 };
 
 roles.defender.action = function(creep) {
@@ -25,7 +25,7 @@ roles.defender.action = function(creep) {
   }
   // TODO Better in premove
   if (!creep.inBase()) {
-    let walls = creep.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_WALL, STRUCTURE_RAMPART]);
+    const walls = creep.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_WALL, STRUCTURE_RAMPART]);
     if (walls.length > 0) {
       if (!creep.room.controller || !creep.room.controller.my) {
         creep.rangedAttack(walls[0]);
@@ -34,7 +34,7 @@ roles.defender.action = function(creep) {
   }
 
   creep.heal(creep);
-  var room = Game.rooms[creep.room.name];
+  const room = Game.rooms[creep.room.name];
   if (room.memory.hostile) {
     creep.handleDefender();
     return true;
@@ -46,7 +46,7 @@ roles.defender.action = function(creep) {
 
 roles.defender.preMove = function(creep, directions) {
   creep.heal(creep);
-  let target = creep.findClosestEnemy();
+  const target = creep.findClosestEnemy();
   if (target !== null) {
     creep.handleDefender();
     return true;

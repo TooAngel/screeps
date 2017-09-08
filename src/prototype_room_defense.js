@@ -5,8 +5,8 @@ Room.prototype.findAttackCreeps = function(object) {
     return false;
   }
 
-  for (var item in object.body) {
-    var part = object.body[item];
+  for (const item of Object.keys(object.body)) {
+    const part = object.body[item];
     if (part.energy === 0) {
       continue;
     }
@@ -36,32 +36,32 @@ Room.prototype.handleNukeAttack = function() {
     return false;
   }
 
-  let nukes = this.find(FIND_NUKES);
+  const nukes = this.find(FIND_NUKES);
   if (nukes.length === 0) {
     return false;
   }
 
-  let sorted = _.sortBy(nukes, function(object) {
+  const sorted = _.sortBy(nukes, (object) => {
     return object.timeToLand;
   });
   if (sorted[0].timeToLand < 100) {
     this.controller.activateSafeMode();
   }
 
-  let isRampart = function(object) {
+  const isRampart = function(object) {
     return object.structureType === STRUCTURE_RAMPART;
   };
 
-  for (let nuke of nukes) {
+  for (const nuke of nukes) {
     const structures = nuke.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 4, 'structureType', [STRUCTURE_ROAD, STRUCTURE_RAMPART, STRUCTURE_WALL], true);
     this.log('Nuke attack !!!!!');
-    for (let structure of structures) {
-      let lookConstructionSites = structure.pos.lookFor(LOOK_CONSTRUCTION_SITES);
+    for (const structure of structures) {
+      const lookConstructionSites = structure.pos.lookFor(LOOK_CONSTRUCTION_SITES);
       if (lookConstructionSites.length > 0) {
         continue;
       }
-      let lookStructures = structure.pos.lookFor(LOOK_STRUCTURES);
-      let lookRampart = _.findIndex(lookStructures, isRampart);
+      const lookStructures = structure.pos.lookFor(LOOK_STRUCTURES);
+      const lookRampart = _.findIndex(lookStructures, isRampart);
       if (lookRampart > -1) {
         continue;
       }
@@ -79,22 +79,22 @@ Room.prototype.handleTower = function() {
     return false;
   }
   const hostileCreeps = this.find(FIND_HOSTILE_CREEPS, {
-    filter: object => !brain.isFriend(object.owner.username)
+    filter: (object) => !brain.isFriend(object.owner.username),
   });
   if (hostileCreeps.length > 0) {
     let tower;
-    let hostileOffset = {};
-    let sortHostiles = function(object) {
+    const hostileOffset = {};
+    const sortHostiles = function(object) {
       return tower.pos.getRangeTo(object) + (hostileOffset[object.id] || 0);
     };
 
-    let towersAttacking = _.sortBy(towers, function(object) {
-      let hostile = object.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    const towersAttacking = _.sortBy(towers, (object) => {
+      const hostile = object.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
       return object.pos.getRangeTo(hostile);
     });
 
     for (tower of towersAttacking) {
-      let hostilesSorted = _.sortBy(hostileCreeps, sortHostiles);
+      const hostilesSorted = _.sortBy(hostileCreeps, sortHostiles);
       tower.attack(hostilesSorted[0]);
       hostileOffset[hostilesSorted[0].id] = 100;
     }
@@ -102,14 +102,14 @@ Room.prototype.handleTower = function() {
   }
 
   if (config.tower.healMyCreeps) {
-    const my_creeps = this.find(FIND_MY_CREEPS, {
+    const myCreeps = this.find(FIND_MY_CREEPS, {
       filter: function(object) {
         return object.hits < object.hitsMax;
-      }
+      },
     });
-    if (my_creeps.length > 0) {
-      for (let tower of towers) {
-        tower.heal(my_creeps[0]);
+    if (myCreeps.length > 0) {
+      for (const tower of towers) {
+        tower.heal(myCreeps[0]);
       }
       return true;
     }
@@ -127,12 +127,9 @@ Room.prototype.handleTower = function() {
     this.memory.repair_min = 0;
   }
 
-  let repairable_structures = object => object.hits < object.hitsMax / 2;
+  const repairableStructures = (object) => object.hits < object.hitsMax / 2;
 
-  let repair_min = this.memory.repair_min;
-  let repairable_blockers = object => object.hits < Math.min(repair_min, object.hitsMax);
-
-  for (let tower of towers) {
+  for (const tower of towers) {
     if (tower.energy === 0) {
       continue;
     }
@@ -142,26 +139,14 @@ Room.prototype.handleTower = function() {
       }
     }
 
-    const low_rampart = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], false, {
-      filter: rampart => rampart.hits < 10000
+    const lowRampart = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], false, {
+      filter: (rampart) => rampart.hits < 10000,
     });
 
-    let repair = low_rampart;
-    if (low_rampart === null) {
-      let to_repair = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [
-        STRUCTURE_WALL, STRUCTURE_RAMPART
-      ], true, { filter: repairable_structures });
-      // if (to_repair === null) {
-      //   to_repair = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_WALL, STRUCTURE_RAMPART], false, {
-      //     filter: repairable_blockers
-      //   });
-      // }
-      // if (to_repair === null) {
-      //   this.memory.repair_min += 10000;
-      //   this.log('Defense level: ' + this.memory.repair_min);
-      //   continue;
-      // }
-      repair = to_repair;
+    let repair = lowRampart;
+    if (lowRampart === null) {
+      repair = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType',
+        [STRUCTURE_WALL, STRUCTURE_RAMPART], true, {filter: repairableStructures});
       tower.repair(repair);
     }
   }

@@ -3,7 +3,7 @@
 Room.prototype.buildBlockers = function() {
   //   this.log('buildBlockers: ' + this.memory.controllerLevel.buildBlockersInterval);
 
-  var spawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+  const spawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
   if (spawns.length === 0) {
     return false;
   }
@@ -15,12 +15,12 @@ Room.prototype.buildBlockers = function() {
 };
 
 Room.prototype.checkRamparts = function() {
-  var room = Game.rooms[this.name];
+  const room = Game.rooms[this.name];
   if (!room.memory.walls) {
     return false;
   }
-  for (var rampart of room.memory.walls.ramparts) {
-    var pos = new RoomPosition(rampart.x, rampart.y, rampart.roomName);
+  for (const rampart of room.memory.walls.ramparts) {
+    const pos = new RoomPosition(rampart.x, rampart.y, rampart.roomName);
     pos.createConstructionSite(STRUCTURE_RAMPART);
   }
 };
@@ -28,10 +28,10 @@ Room.prototype.checkRamparts = function() {
 Room.prototype.checkExitsAreReachable = function() {
   // Make sure every exit is reachable
 
-  let inLayer = function(room, pos) {
+  const inLayer = function(room, pos) {
     for (let i = 0; i < room.memory.walls.layer_i; i++) {
-      for (let j in room.memory.walls.layer[i]) {
-        let position = room.memory.walls.layer[i][j];
+      for (const j of Object.keys(room.memory.walls.layer[i])) {
+        const position = room.memory.walls.layer[i][j];
         if (pos.x === position.x && pos.y === position.y) {
           return true;
         }
@@ -39,28 +39,25 @@ Room.prototype.checkExitsAreReachable = function() {
     }
     return false;
   };
-  let costMatrixBase = this.getMemoryCostMatrix();
+  const costMatrixBase = this.getMemoryCostMatrix();
 
-  let exits = this.find(FIND_EXIT);
-  let room = this;
-  var callbackNew = function(roomName) {
-    let costMatrix = room.getMemoryCostMatrix();
+  const exits = this.find(FIND_EXIT);
+  const room = this;
+  const callbackNew = function(roomName) {
+    const costMatrix = room.getMemoryCostMatrix();
     return costMatrix;
   };
-  for (let exit of exits) {
-    //     console.log(exit);
-    let room = this;
-
-    let targets = [{
+  for (const exit of exits) {
+    const targets = [{
       pos: this.controller.pos,
-      range: 1
+      range: 1,
     }];
 
     let search = PathFinder.search(
       exit,
       targets, {
         roomCallback: callbackNew,
-        maxRooms: 1
+        maxRooms: 1,
       }
     );
 
@@ -68,10 +65,10 @@ Room.prototype.checkExitsAreReachable = function() {
       search = PathFinder.search(
         exit,
         targets, {
-          maxRooms: 1
+          maxRooms: 1,
         }
       );
-      for (let pathPos of search.path) {
+      for (const pathPos of search.path) {
         if (inLayer(this, pathPos)) {
           this.memory.walls.ramparts.push(pathPos);
           costMatrixBase.set(pathPos.x, pathPos.y, 0);
@@ -83,10 +80,10 @@ Room.prototype.checkExitsAreReachable = function() {
 };
 
 Room.prototype.closeExitsByPath = function() {
-  let inLayer = function(room, pos) {
-    for (var i = 0; i < room.memory.walls.layer_i; i++) {
-      for (var j in room.memory.walls.layer[i]) {
-        var position = room.memory.walls.layer[i][j];
+  const inLayer = function(room, pos) {
+    for (let i = 0; i < room.memory.walls.layer_i; i++) {
+      for (const j of Object.keys(room.memory.walls.layer[i])) {
+        const position = room.memory.walls.layer[i][j];
         if (pos.isEqualTo(position.x, position.y)) {
           return true;
         }
@@ -107,8 +104,8 @@ Room.prototype.closeExitsByPath = function() {
       layer_i: 0,
       // TODO as array?
       layer: {
-        0: []
-      }
+        0: [],
+      },
     };
   }
   if (!this.memory.walls.layer[this.memory.walls.layer_i]) {
@@ -116,12 +113,12 @@ Room.prototype.closeExitsByPath = function() {
   }
   // this.log('closeExitsByPath layer: ' + this.memory.walls.layer_i + ' exit: ' + this.memory.walls.exit_i + ' walls: ' + this.memory.walls.layer[this.memory.walls.layer_i].length);
 
-  var ignores = [];
-  for (var i = 0; i < this.memory.walls.layer_i; i++) {
+  let ignores = [];
+  for (let i = 0; i < this.memory.walls.layer_i; i++) {
     ignores = ignores.concat(this.memory.walls.layer[i]);
   }
 
-  var exits = this.find(FIND_EXIT);
+  const exits = this.find(FIND_EXIT);
   if (this.memory.walls.exit_i >= exits.length) {
     this.memory.walls.exit_i = 0;
     this.memory.walls.layer_i++;
@@ -138,42 +135,42 @@ Room.prototype.closeExitsByPath = function() {
     return true;
   }
 
-  let room = this;
-  var callbackNew = function(roomName, costMatrix) {
+  const room = this;
+  const callbackNew = function(roomName, costMatrix) {
     if (!costMatrix) {
       costMatrix = new PathFinder.CostMatrix();
     }
-    for (let avoidIndex in room.memory.walls.ramparts) {
-      let avoidPos = room.memory.walls.ramparts[avoidIndex];
+    for (const avoidIndex of Object.keys(room.memory.walls.ramparts)) {
+      const avoidPos = room.memory.walls.ramparts[avoidIndex];
       costMatrix.set(avoidPos.x, avoidPos.y, 0xFF);
     }
-    for (let avoidIndex in room.memory.walls.layer[room.memory.walls.layer_i]) {
-      let avoidPos = room.memory.walls.layer[room.memory.walls.layer_i][avoidIndex];
+    for (const avoidIndex of Object.keys(room.memory.walls.layer[room.memory.walls.layer_i])) {
+      const avoidPos = room.memory.walls.layer[room.memory.walls.layer_i][avoidIndex];
       costMatrix.set(avoidPos.x, avoidPos.y, 0xFF);
     }
 
     return costMatrix;
   };
 
-  var exit = exits[this.memory.walls.exit_i];
+  const exit = exits[this.memory.walls.exit_i];
 
-  let targets = [{
+  const targets = [{
     pos: this.controller.pos,
-    range: 1
+    range: 1,
   }];
-  let sources = this.find(FIND_SOURCES);
-  for (let sourceId in sources) {
+  const sources = this.find(FIND_SOURCES);
+  for (const sourceId of Object.keys(sources)) {
     targets.push({
       pos: sources[sourceId].pos,
-      range: 1
+      range: 1,
     });
   }
 
-  let search = PathFinder.search(
+  const search = PathFinder.search(
     exit,
     targets, {
       roomCallback: callbackNew,
-      maxRooms: 1
+      maxRooms: 1,
     }
   );
 
@@ -182,13 +179,13 @@ Room.prototype.closeExitsByPath = function() {
     return true;
   }
 
-  var path = search.path;
-  var pos_last = path[path.length - 1];
-  let posLastObject = new RoomPosition(pos_last.x, pos_last.y, this.name);
+  const path = search.path;
+  const posLast = path[path.length - 1];
+  const posLastObject = new RoomPosition(posLast.x, posLast.y, this.name);
 
   // TODO check if incomplete just solves the issue
   let wayFound = false;
-  for (let targetId in targets) {
+  for (const targetId in targets) {
     if (posLastObject.getRangeTo(targets[targetId]) === 1) {
       wayFound = true;
       //      this.log('Way found true: ' + !search.incomplete);
@@ -201,21 +198,21 @@ Room.prototype.closeExitsByPath = function() {
     return true;
   }
 
-  let wallPlaceable = function(pos) {
-    let exit = pos.findClosestByRange(FIND_EXIT);
-    let range = pos.getRangeTo(exit);
+  const wallPlaceable = function(pos) {
+    const exit = pos.findClosestByRange(FIND_EXIT);
+    const range = pos.getRangeTo(exit);
     return range > 1;
   };
 
-  for (let pathPosPlain of path) {
-    var pathPos = new RoomPosition(pathPosPlain.x, pathPosPlain.y, this.name);
+  for (const pathPosPlain of path) {
+    const pathPos = new RoomPosition(pathPosPlain.x, pathPosPlain.y, this.name);
     if (wallPlaceable(pathPos)) {
       if (inLayer(this, pathPos)) {
         continue;
       }
 
-      var structure = STRUCTURE_WALL;
-      let costMatrixBase = this.getMemoryCostMatrix();
+      let structure = STRUCTURE_WALL;
+      const costMatrixBase = this.getMemoryCostMatrix();
       if (pathPos.inPath()) {
         structure = STRUCTURE_RAMPART;
         costMatrixBase.set(pathPos.x, pathPos.y, 0);
@@ -229,7 +226,7 @@ Room.prototype.closeExitsByPath = function() {
       }
       this.setMemoryCostMatrix(costMatrixBase);
       this.memory.walls.layer[this.memory.walls.layer_i].push(pathPos);
-      var returnCode = pathPos.createConstructionSite(structure);
+      const returnCode = pathPos.createConstructionSite(structure);
       if (returnCode === ERR_FULL) {
         return false;
       }

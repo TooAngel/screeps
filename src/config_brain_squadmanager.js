@@ -1,21 +1,21 @@
 'use strict';
 
 brain.handleIncomingTransactions = function() {
-  let transactions = Game.market.incomingTransactions;
-  let current = _.filter(transactions, function(object) {
+  const transactions = Game.market.incomingTransactions;
+  const current = _.filter(transactions, (object) => {
     // TODO save last checked value, so we will see all transactions even in case of CPU-skipped ticks
     return object.time >= Game.time - 1;
   });
 
-  for (let transaction of current) {
+  for (const transaction of current) {
     if (transaction.sender) {
-      let sender = transaction.sender.username;
+      const sender = transaction.sender.username;
       // TODO for testing disabled
       // if (sender === Memory.username) {
       //   continue;
       // }
-      let price = brain.getMarketOrder(ORDER_SELL, transaction.resourceType, 'min') || brain.getMarketOrder(ORDER_BUY, transaction.resourceType, 'max') || 1;
-      let value = -1 * transaction.amount * price;
+      const price = brain.getMarketOrder(ORDER_SELL, transaction.resourceType, 'min') || brain.getMarketOrder(ORDER_BUY, transaction.resourceType, 'max') || 1;
+      const value = -1 * transaction.amount * price;
       console.log(`Incoming transaction from ${sender} with ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
       brain.increaseIdiot(sender, value);
     }
@@ -31,7 +31,7 @@ brain.initPlayer = function(name) {
       level: 0,
       counter: 0,
       idiot: 0,
-      reputation: 0
+      reputation: 0,
     };
   }
 };
@@ -80,20 +80,20 @@ brain.isFriend = function(name) {
 };
 
 brain.handleSquadmanager = function() {
-  for (let squadIndex in Memory.squads) {
-    let squad = Memory.squads[squadIndex];
+  for (const squadIndex of Object.keys(Memory.squads)) {
+    const squad = Memory.squads[squadIndex];
     if (!squad.siege || Object.keys(squad.siege).length === 0) {
       return true;
     }
     if (squad.action === 'move') {
-      for (let siegeId in squad.siege) {
-        let siege = squad.siege[siegeId];
+      for (const siegeId of Object.keys(squad.siege)) {
+        const siege = squad.siege[siegeId];
         if (!siege.waiting) {
           return true;
         }
       }
-      for (let healId in squad.heal) {
-        let heal = squad.heal[healId];
+      for (const healId of Object.keys(squad.heal)) {
+        const heal = squad.heal[healId];
         if (!heal.waiting) {
           return true;
         }
@@ -116,29 +116,29 @@ brain.handleSquadmanager = function() {
  */
 brain.addToQueue = function(spawns, roomNameFrom, roomNameTarget, squadName, queueLimit) {
   queueLimit = queueLimit || false;
-  var outer = function(spawn) {
+  const outer = function(spawn) {
     return function _addToQueue(time) {
       if (queueLimit === false) {
         Game.rooms[roomNameFrom].memory.queue.push({
           role: spawn.role,
           routing: {
-            targetRoom: roomNameTarget
+            targetRoom: roomNameTarget,
           },
-          squad: squadName
+          squad: squadName,
         });
       } else if (Game.rooms[roomNameFrom].memory.queue.length < queueLimit) {
         Game.rooms[roomNameFrom].memory.queue.push({
           role: spawn.role,
           routing: {
-            targetRoom: roomNameTarget
+            targetRoom: roomNameTarget,
           },
-          squad: squadName
+          squad: squadName,
         });
       }
     };
   };
 
-  for (let spawn of spawns) {
+  for (const spawn of spawns) {
     _.times(spawn.creeps, outer(spawn));
   }
 };
@@ -149,20 +149,20 @@ brain.addToQueue = function(spawns, roomNameFrom, roomNameTarget, squadName, que
  * @param {String} roomNameAttack
  */
 brain.startSquad = function(roomNameFrom, roomNameAttack) {
-  let name = 'siegesquad-' + Math.random();
-  let route = Game.map.findRoute(roomNameFrom, roomNameAttack);
+  const name = 'siegesquad-' + Math.random();
+  const route = Game.map.findRoute(roomNameFrom, roomNameAttack);
   let target = roomNameFrom;
   if (route.length > 1) {
     target = route[route.length - 2].room;
   }
   Memory.squads = Memory.squads || {};
 
-  var siegeSpawns = [{
+  const siegeSpawns = [{
     creeps: 1,
-    role: 'squadsiege'
+    role: 'squadsiege',
   }, {
     creeps: 3,
-    role: 'squadheal'
+    role: 'squadheal',
   }];
   this.addToQueue(siegeSpawns, roomNameFrom, roomNameAttack, name);
 
@@ -174,7 +174,7 @@ brain.startSquad = function(roomNameFrom, roomNameAttack) {
     heal: {},
     route: route,
     action: 'move',
-    moveTarget: target
+    moveTarget: target,
   };
 };
 
@@ -186,26 +186,26 @@ brain.startSquad = function(roomNameFrom, roomNameAttack) {
  * @param {Array} [spawns]
  */
 brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
-  let name = 'meleesquad-' + Math.random();
-  let route = Game.map.findRoute(roomNameFrom, roomNameAttack);
+  const name = 'meleesquad-' + Math.random();
+  const route = Game.map.findRoute(roomNameFrom, roomNameAttack);
   let target = roomNameFrom;
   if (route.length > 1) {
     target = route[route.length - 2].room;
   }
   Memory.squads = Memory.squads || {};
   // TODO check for queue length
-  let meleeSpawn = [{
+  const meleeSpawn = [{
     creeps: 1,
-    role: 'autoattackmelee'
+    role: 'autoattackmelee',
   }, {
     creeps: 1,
-    role: 'squadheal'
+    role: 'squadheal',
   }, {
     creeps: 2,
-    role: 'autoattackmelee'
+    role: 'autoattackmelee',
   }, {
     creeps: 2,
-    role: 'squadheal'
+    role: 'squadheal',
   }];
 
   spawns = spawns || meleeSpawn;
@@ -219,6 +219,6 @@ brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
     heal: {},
     route: route,
     action: 'move',
-    moveTarget: target
+    moveTarget: target,
   };
 };
