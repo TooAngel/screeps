@@ -21,6 +21,9 @@ function posIsIn(pos, array) {
 
 Room.prototype.destroyStructure = function(structure) {
   if (structure.structureType === STRUCTURE_WALL) {
+    if (!structure.hits) {
+      return false;
+    }
     if (!this.memory.walls) {
       return false;
     }

@@ -35,7 +35,6 @@ const main = function() {
     return;
   }
 
-  Memory.myRooms = Memory.myRooms || [];
   try {
     brain.prepareMemory();
     brain.handleNextroom();
