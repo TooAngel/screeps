@@ -82,10 +82,12 @@ Room.prototype.destroyStructure = function(structure) {
           this.log('-----------------------------------------');
           this.log('ATTENTION: The last spawn is destroyed, a new one will be build automatically, DO NOT RESPAWN');
           this.log('-----------------------------------------');
-          structure.destroy();
-          delete this.memory.misplacedSpawn;
-          this.memory.controllerLevel.checkWrongStructureInterval = 1;
-          delete this.memory.walls;
+          let returnCode = structure.destroy();
+          if (returnCode === OK) {
+            delete this.memory.misplacedSpawn;
+            this.memory.controllerLevel.checkWrongStructureInterval = 1;
+            delete this.memory.walls;
+          }
           return true;
         }
       }
