@@ -10,16 +10,13 @@ roles.autoattackmelee = {};
 
 roles.autoattackmelee.settings = {
   layoutString: 'MA',
-  amount: [5, 5],
+  amount: [1, 1],
   fillTough: true,
 };
 
-roles.autoattackmelee.died = function(name, memory) {
-  console.log('--->', name, 'Died naturally?');
-  delete Memory.creeps[name];
-};
+roles.autoattackmelee.died = true;
 
-roles.autoattackmelee.preMove = function(creep) {
+roles.autoattackmelee.preMove = function() {
   //  creep.log('!!!!!!!!!!!!!!!! Autoattacking');
 };
 

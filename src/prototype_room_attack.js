@@ -50,20 +50,50 @@ Room.prototype.attackRoom = function() {
       Game.notify(Game.time + ' ' + room.name + ' Queuing autoattacker');
     }
 
-    const sortByDistance = function(object) {
-      return Game.map.getRoomLinearDistance(room.name, object);
-    };
+  const roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
+  return Game.rooms[roomsMy[0]];
+};
 
-    const roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
-
-    Game.rooms[roomsMy[0]].memory.queue.push({
-      role: 'autoattackmelee',
-      routing: {
-        targetRoom: room.name,
-      },
-    });
-
+const attacks = {
+  attack0: function(room) {
+    const origin = getClosestRoom(room.name);
+    origin.checkRoleToSpawn('autoattackmelee', 1, undefined, room.name);
     return true;
+  },
+
+  attack1: function(room) {
+    const origin = getClosestRoom(room.name);
+    brain.startSquad(origin.name, room.name);
+    return true;
+  },
+
+  attack2: function(room) {
+    const origin = getClosestRoom(room.name);
+    origin.attack42(room.name);
+    return true;
+  },
+};
+
+const addRoom = function(player, room) {
+  if (!player.rooms) {
+    player.rooms = {};
+  }
+  if (!player.rooms[room.name]) {
+    player.rooms[room.name] = {
+      visited: Game.time,
+    };
+    Memory.players[player.name] = player;
+  }
+};
+
+const getPlayer = function(name) {
+  brain.increaseIdiot(name, 0);
+  return Memory.players[name];
+};
+
+Room.prototype.getOwnerName = function() {
+  if (this.controller.owner) {
+    return this.controller.owner.username;
   }
 
   if (config.autoattack.disabled) {
@@ -75,9 +105,39 @@ Room.prototype.attackRoom = function() {
   } else {
     if (this.controller.reservation) {
       name = this.controller.reservation.username;
-    } else {
-      return;
     }
+  }
+  return name;
+};
+
+Room.prototype.launchAutoAttack = function(player) {
+  if (!player.lastAttacked) {
+    player.lastAttacked = Game.time;
+    Memory.players[player.name] = player;
+  }
+  if (Game.time < player.lastAttacked + config.autoattack.timeBetweenAttacks) {
+    return false;
+  }
+  this.log(`Queuing level ${player.level} attack`);
+  if (config.autoattack.notify) {
+    Game.notify(Game.time + ' ' + this.name + ' Queuing autoattacker');
+  }
+  attacks[`attack${player.level}`](this);
+  player.counter++;
+  if (player.counter > 10) {
+    player.level += 1;
+    player.counter = 0;
+  }
+  Memory.players[player.name] = player;
+};
+
+Room.prototype.attackRoom = function() {
+  if (config.autoattack.disabled) {
+    return true;
+  }
+  const name = this.getOwnerName();
+  if (!name) {
+    return;
   }
 
   // We only exclude players in the friends.js
@@ -85,35 +145,12 @@ Room.prototype.attackRoom = function() {
     return true;
   }
 
-  const getPlayer = function(name) {
-    brain.increaseIdiot(name, 0);
-    return Memory.players[name];
-  };
-
   const player = getPlayer(name);
-
-  const addRoom = function(player, room) {
-    if (!player.rooms) {
-      player.rooms = {};
-    }
-    if (!player.rooms[room.name]) {
-      player.rooms[room.name] = {
-        visited: Game.time,
-      };
-      Memory.players[player.name] = player;
-    }
-  };
 
   addRoom(player, this);
 
-  if (player.level === 0) {
-    attack0(this);
-    player.counter++;
-    if (player.counter > 5) {
-      player.level = 1;
-      player.counter = 0;
-    }
-    Memory.players[name] = player;
+  if (player.level < attacks.length) {
+    this.launchAutoAttack(player);
   }
   return true;
 };

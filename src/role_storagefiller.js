@@ -84,8 +84,3 @@ roles.storagefiller.action = function(creep) {
   }
   return true;
 };
-
-roles.storagefiller.execute = function(creep) {
-  //  creep.log('Execute called, why?');
-  //  creep.log(new Error().stack);
-};

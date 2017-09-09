@@ -61,29 +61,50 @@ brain.addToStats = function(name) {
   brain.stats.modifyRoleAmount(role, -1);
 };
 
-brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
-  console.log(name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
-  if (Game.time - creepMemory.born < 20) {
-    return;
-  }
+brain.handleDiedFastCreep = function(creepMemory) {
+  return Game.time - creepMemory.born < 20;
+};
 
-  if (!creepMemory.role) {
-    delete Memory.creeps[name];
-    return;
-  }
+brain.handleDiedNoRoleCreep = function(creepMemory) {
+  return !!(!creepMemory.role || !roles[creepMemory.role]);
+};
 
-  const unit = roles[creepMemory.role];
-  if (!unit) {
-    delete Memory.creeps[name];
-    return;
-  }
-  if (unit.died) {
-    if (unit.died(name, creepMemory)) {
-      delete Memory.creeps[name];
+brain.handleDiedCreep = function(name, creepMemory) {
+  const role = roles[creepMemory.role];
+  if (role.died) {
+    if (typeof role.died === 'boolean' && role.died === true) {
+      console.log('--->', name, JSON.stringify(creepMemory), 'Died naturally?');
     }
-  } else {
-    delete Memory.creeps[name];
+    if (typeof role.died === 'function') {
+      role.died(name, creepMemory);
+    }
   }
+};
+
+brain.handleDiedCreepLog = function(name, creepMemory) {
+  const baseRoomName = Memory.creeps[name].base;
+  let baseRoom = Game.rooms[baseRoomName];
+  if (!baseRoom) {
+    baseRoom = console;
+  }
+  baseRoom.log(Game.time, name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
+};
+
+brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
+  brain.handleDiedCreepLog(name, creepMemory);
+
+  if (brain.handleDiedFastCreep(creepMemory)) {
+    return false;
+  }
+
+  if (brain.handleDiedNoRoleCreep(creepMemory)) {
+    delete Memory.creeps[name];
+    return false;
+  }
+
+  brain.handleDiedCreep(name, creepMemory);
+  delete Memory.creeps[name];
+  return false;
 };
 
 brain.cleanCreeps = function() {
@@ -141,15 +162,15 @@ brain.getStorageStringForRoom = function(strings, room, interval) {
     strings[variable] += name + ':' + value + ' ';
   };
 
-  if (room.storage.store.energy < 200000) {
-    addToString('storageLowString', room.name, room.storage.store.energy);
-  } else if (room.storage.store.energy > 800000) {
-    addToString('storageHighString', room.name, room.storage.store.energy);
+  if (room.storage.store[RESOURCE_ENERGY] < 200000) {
+    addToString('storageLowString', room.name, room.storage.store[RESOURCE_ENERGY]);
+  } else if (room.storage.store[RESOURCE_ENERGY] > 800000) {
+    addToString('storageHighString', room.name, room.storage.store[RESOURCE_ENERGY]);
   } else {
-    addToString('storageMiddleString', room.name, room.storage.store.energy);
+    addToString('storageMiddleString', room.name, room.storage.store[RESOURCE_ENERGY]);
   }
-  if (room.storage.store.power && room.storage.store.power > 0) {
-    addToString('storagePower', room.name, room.storage.store.power);
+  if (room.storage.store[RESOURCE_POWER] && room.storage.store[RESOURCE_POWER] > 0) {
+    addToString('storagePower', room.name, room.storage.store[RESOURCE_POWER]);
   }
   // TODO 15 it should be
   if (Math.ceil(room.memory.upgraderUpgrade / interval) < 15) {
@@ -182,6 +203,7 @@ brain.printSummary = function() {
     }
     brain.getStorageStringForRoom(strings, room, interval);
   }
+  Memory.summary = strings;
 
   console.log(`=========================
 Progress: ${diff / interval}/${Memory.myRooms.length * 15}

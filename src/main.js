@@ -20,7 +20,6 @@ if (config.profiler.enabled) {
     for (const role of _.keys(roles)) {
       profiler.registerObject(roles[role], 'Role_' + role);
     }
-    profiler.registerObject(PathFinder, 'PathFinder');
     profiler.registerObject(brain, 'Brain');
     profiler.enable();
   } catch (e) {
@@ -35,7 +34,7 @@ const main = function() {
     return;
   }
 
-  Memory.myRooms = Memory.myRooms = [];
+  Memory.myRooms = Memory.myRooms || [];
   try {
     brain.prepareMemory();
     brain.handleNextroom();
@@ -48,6 +47,7 @@ const main = function() {
 
   brain.stats.addRoot();
   Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
+  Memory.myRooms.forEach(visualizer.myRoomDatasDraw);
 
   if (config.visualizer.enabled) {
     visualizer.render();

@@ -117,7 +117,7 @@ brain.handleSquadmanager = function() {
 brain.addToQueue = function(spawns, roomNameFrom, roomNameTarget, squadName, queueLimit) {
   queueLimit = queueLimit || false;
   const outer = function(spawn) {
-    return function _addToQueue(time) {
+    return function _addToQueue() {
       if (queueLimit === false) {
         Game.rooms[roomNameFrom].memory.queue.push({
           role: spawn.role,
