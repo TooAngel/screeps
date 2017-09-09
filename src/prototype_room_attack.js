@@ -101,7 +101,11 @@ Room.prototype.getOwnerName = function() {
 };
 
 Room.prototype.launchAutoAttack = function(player) {
-  const lastAttacked = player.lastAttacked || Game.time;
+  if (!player.lastAttacked) {
+    player.lastAttacked = Game.time;
+    Memory.players[player.name] = player;
+  }
+  const lastAttacked = player.lastAttacked;
   if (Game.time < lastAttacked + config.autoattack.timeBetweenAttacks) {
     return false;
   }
