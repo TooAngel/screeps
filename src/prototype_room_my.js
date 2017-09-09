@@ -6,11 +6,13 @@ Room.prototype.myHandleRoom = function() {
   }
   this.memory.lastSeen = Game.time;
   this.memory.constructionSites = this.find(FIND_CONSTRUCTION_SITES);
-  let room = this;
 
   // TODO Fix for after `delete Memory.rooms`
-  if (!room.memory.position || !room.memory.position.structure) {
+  if (!this.memory.position || !this.memory.position.structure) {
     this.setup();
+  }
+  if (!this.memory.roomsPatern) {
+    this.initRoomsPatern();
   }
 
   if (!this.memory.queue) {
@@ -33,6 +35,60 @@ Room.prototype.myHandleRoom = function() {
     }
   }
   return this.executeRoom();
+};
+
+Room.prototype.newScoutTarget = function(creep) {
+  let oldestRoom;
+  let oldestAge = Game.time - config.scout.intervalBetweenRoomVisit;
+  root : for (let deepRooms of this.memory.roomsPatern) {
+    for (let room of deepRooms) {
+      if (!this.memory) {
+        oldestRoom = room;
+        break root;
+      }
+      let scoutSeen = this.memory.scoutSeen;
+      if (scoutSeen) {
+        if (Game.creeps[scoutSeen]) {
+          continue;
+        }
+        delete this.memory.scoutSeen;
+      }
+      if (Memory.rooms[room].lastSeen < oldestAge) {
+        oldestRoom = room;
+        oldestAge = Memory.rooms[room].lastSeen;
+      }
+    }
+  }
+  if (oldestRoom) {
+    return oldestRoom;
+  }
+  return null;
+};
+
+Room.prototype.initRoomsPatern = function() {
+  let roomsPatern = [[this.name],[]];
+  let n = 0;
+  let deep = 0;
+  let deepRooms;
+  root: while (roomsPatern[deep]) {
+    deepRooms = roomsPatern[deep];
+    deep++;
+    for (let roomName of deepRooms) {
+      let childRooms = Game.map.describeExits(roomName);
+      for (let direction in childRooms) {
+        let roomName = childRooms[direction];
+        if (n > config.room.maxPaternSize) {
+          break root;
+        } else if ((deep == 1 || roomsPatern[deep - 1].indexOf(roomName) === -1) &&
+          roomsPatern[deep].indexOf(roomName) === -1) {
+          roomsPatern[deep].push(roomName);
+          n++;
+        }
+      }
+    }
+    roomsPatern.push([]);
+  }
+  this.memory.roomsPatern = roomsPatern;
 };
 
 Room.prototype.getLinkStorage = function() {

@@ -176,6 +176,7 @@ global.config = {
       7: 1,
       8: 1
     },
+    maxPaternSize: 100,
     revive: true,
     rebuildLayout: 7654,
     handleNukeAttackInterval: 132,
