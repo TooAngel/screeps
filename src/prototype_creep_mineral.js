@@ -33,6 +33,9 @@ Creep.prototype.checkStorageMinerals = function() {
 };
 
 Creep.prototype.checkEnergyThreshold = function(structure, value, below = false) {
+  if (!this.room[structure]) {
+    return true;
+  }
   if (below) {
     return this.room[structure].store.energy < value;
   }
