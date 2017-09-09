@@ -58,8 +58,9 @@ Creep.prototype.moveEnergyBetween = function(from, to) {
 };
 
 Creep.prototype.checkTerminalEnergy = function() {
-  if (this.checkEnergyThreshold(STRUCTURE_TERMINAL, config.terminal.energyMax) ||
-    this.checkEnergyThreshold(STRUCTURE_STORAGE, config.terminal.storageMinEnergyAmount, true) && this.checkEnergyThreshold(STRUCTURE_TERMINAL, config.terminal.energyAmount)) {
+  if (this.checkEnergyThreshold(STRUCTURE_TERMINAL, config.terminal.maxEnergyAmount) ||
+    this.checkEnergyThreshold(STRUCTURE_STORAGE, config.terminal.storageMinEnergyAmount, true) &&
+    this.checkEnergyThreshold(STRUCTURE_TERMINAL, config.terminal.minEnergyAmount)) {
     this.say('storage');
     this.moveEnergyBetween(STRUCTURE_TERMINAL, STRUCTURE_STORAGE);
     return true;
