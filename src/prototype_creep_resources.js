@@ -176,6 +176,10 @@ Creep.prototype.handleUpgrader = function() {
     }
   }
 
+  if (this.room.storage.energy < 2 * config.creep.energyFromStorageThreshold && this.room.controller.ticksToDowngrade > 1500) {
+    return true;
+  }
+
   var returnCode = this.upgradeController(this.room.controller);
   if (returnCode === OK) {
     this.upgraderUpdateStats();
