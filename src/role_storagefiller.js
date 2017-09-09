@@ -32,17 +32,16 @@ roles.storagefiller.action = function(creep) {
   creep.spawnReplacement(1);
 
   let towers = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER], false, {
-    filter: tower => tower.energy <= 0.5 * tower.energyCapacity
+    filter: tower => tower.energy < tower.energyCapacity
   });
 
-  if (creep.room.controller.level === 4) {
-    if (towers.length > 0) {
-      if (creep.carry.energy === 0) {
-        creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
-      } else {
-        creep.transfer(towers[0], RESOURCE_ENERGY);
-      }
+  if (towers.length > 0) {
+    if (creep.carry.energy === 0) {
+      creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
+    } else {
+      creep.transfer(towers[0], RESOURCE_ENERGY);
     }
+    return true;
   }
 
   if (!creep.memory.link) {
