@@ -15,6 +15,7 @@
     "grunt-contrib-jshint": "1.1.0",
     "grunt-contrib-uglify": "2.0.0",
     "grunt-eslint": "^20.0.0",
+    "grunt-exec": "^3.0.0",
     "grunt-jsbeautifier": "0.2.13",
     "grunt-jscs": "3.0.1",
     "grunt-mocha-test": "0.13.2",
@@ -23,6 +24,7 @@
     "mocha": "3.2.0",
     "request": "^2.81.0",
     "request-promise-native": "^1.0.4",
+    "screeps": "^2.8.2",
     "screeps-profiler": "1.2.1",
     "uglify-js-harmony": "2.6.2"
   },
