@@ -23,10 +23,10 @@ roles.harvester.settings = {
   amount: {
     1: [2, 1, 1],
     3: {
-      0: [2, 1, 1]
-    }
+      0: [2, 1, 1],
+    },
   },
-  maxLayoutAmount: 6
+  maxLayoutAmount: 6,
 };
 roles.harvester.updateSettings = function(room, creep) {
   if (room.storage && room.storage.my && room.storage.store.energy > config.creep.energyFromStorageThreshold && room.energyAvailable > 350 && !room.memory.misplacedSpawn) {
@@ -34,11 +34,11 @@ roles.harvester.updateSettings = function(room, creep) {
       prefixString: 'WMC',
       layoutString: 'MC',
       amount: [1, 2],
-      maxLayoutAmount: 12
+      maxLayoutAmount: 12,
     };
   } else if (room.storage && !room.storage.my) {
     return {
-      maxLayoutAmount: 999
+      maxLayoutAmount: 999,
     };
   }
 };
@@ -48,9 +48,11 @@ roles.harvester.buildRoad = true;
 roles.harvester.boostActions = ['capacity'];
 
 roles.harvester.preMove = function(creep, directions) {
-  let resources = creep.room.find(FIND_DROPPED_RESOURCES, { filter: Creep.pickableResources(creep) });
+  const resources = creep.room.find(FIND_DROPPED_RESOURCES, {
+    filter: Creep.pickableResources(creep),
+  });
   if (resources.length > 0) {
-    let resource = Game.getObjectById(resources[0].id);
+    const resource = Game.getObjectById(resources[0].id);
     creep.pickup(resource);
   }
 
@@ -70,14 +72,14 @@ roles.harvester.preMove = function(creep, directions) {
   let reverse = creep.carry.energy === 0;
 
   if (creep.memory.routing.pathPos === 0) {
-    for (let resource in creep.carry) {
+    for (const resource in creep.carry) {
       if (resource === RESOURCE_ENERGY) {
         continue;
       }
       creep.transfer(creep.room.storage, resource);
     }
 
-    let returnCode = creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
+    const returnCode = creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
     if (returnCode === OK || returnCode === ERR_FULL) {
       creep.memory.move_forward_direction = true;
       reverse = false;
@@ -88,7 +90,7 @@ roles.harvester.preMove = function(creep, directions) {
     }
   }
 
-  let transferred = creep.transferToStructures();
+  const transferred = creep.transferToStructures();
   if (transferred) {
     if (transferred.transferred >= _.sum(creep.carry)) {
       reverse = true;

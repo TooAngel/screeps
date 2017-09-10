@@ -1,11 +1,11 @@
 'use strict';
 
 Creep.pickableResources = function(creep) {
-  return object => creep.pos.isNearTo(object);
+  return (object) => creep.pos.isNearTo(object);
 };
 
 Creep.prototype.harvesterBeforeStorage = function() {
-  let methods = [];
+  const methods = [];
 
   methods.push(Creep.getEnergy);
 
@@ -14,7 +14,7 @@ Creep.prototype.harvesterBeforeStorage = function() {
   }
 
   methods.push(Creep.transferEnergy);
-  let structures = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_CONTROLLER], true);
+  const structures = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_CONTROLLER], true);
   if (structures.length > 0) {
     methods.push(Creep.constructTask);
   }
@@ -50,7 +50,7 @@ Creep.prototype.checkEnergyTransfer = function(otherCreep) {
 
 Creep.prototype.findCreepWhichCanTransfer = function(creeps) {
   for (let i = 0; i < creeps.length; i++) {
-    let otherCreep = creeps[i];
+    const otherCreep = creeps[i];
     if (!Game.creeps[otherCreep.name] || otherCreep.carry.energy < 50 || otherCreep.memory.recycle) {
       continue;
     }
@@ -68,7 +68,7 @@ Creep.prototype.checkForTransfer = function(direction) {
     return false;
   }
 
-  let adjacentPos = this.pos.getAdjacentPosition(direction);
+  const adjacentPos = this.pos.getAdjacentPosition(direction);
 
   if (adjacentPos.x < 0 || adjacentPos.y < 0) {
     return false;
@@ -77,7 +77,7 @@ Creep.prototype.checkForTransfer = function(direction) {
     return false;
   }
 
-  let creeps = adjacentPos.lookFor('creep');
+  const creeps = adjacentPos.lookFor('creep');
   return this.findCreepWhichCanTransfer(creeps);
 };
 
@@ -90,10 +90,12 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
     return reverse;
   }
 
-  let resources = this.room.find(FIND_DROPPED_RESOURCES, { filter: Creep.pickableResources(this) });
+  const resources = this.room.find(FIND_DROPPED_RESOURCES, {
+    filter: Creep.pickableResources(this),
+  });
 
   if (resources.length > 0) {
-    let resource = resources[0];
+    const resource = resources[0];
     const amount = this.pickupOrWithdrawFromSourcer(resource);
     return _.sum(this.carry) + amount > 0.5 * this.carryCapacity;
   }
@@ -113,42 +115,42 @@ Creep.prototype.handleExtractor = function() {
     this.suicide();
     return true;
   }
-  let carrying = _.sum(this.carry);
+  const carrying = _.sum(this.carry);
   if (carrying === this.carryCapacity) {
-    let returnCode = this.moveToMy(this.room.terminal.pos, 1);
-    for (let key in this.carry) {
+    this.moveToMy(this.room.terminal.pos, 1);
+    for (const key in this.carry) {
       if (this.carry[key] === 0) {
         continue;
       }
-      let returnCode = this.transfer(this.room.terminal, key);
+      this.transfer(this.room.terminal, key);
       return true;
     }
   }
 
-  let minerals = this.room.find(FIND_MINERALS);
+  const minerals = this.room.find(FIND_MINERALS);
   if (minerals.length > 0) {
-    let posMem = this.room.memory.position.creep[minerals[0].id];
-    let pos = new RoomPosition(posMem.x, posMem.y, posMem.roomName);
-    let returnCode = this.moveToMy(pos, 0);
+    const posMem = this.room.memory.position.creep[minerals[0].id];
+    const pos = new RoomPosition(posMem.x, posMem.y, posMem.roomName);
+    this.moveToMy(pos, 0);
     this.harvest(minerals[0]);
   }
   return true;
 };
 
 Creep.prototype.sayIdiotList = function() {
-  let say = function(creep) {
-    let players = _.filter(Memory.players, function(object) {
+  const say = function(creep) {
+    const players = _.filter(Memory.players, (object) => {
       return object.idiot && object.idiot > 0;
     });
     if (players.length === 0) {
       return;
     }
-    let sentence = ['Don\'t', 'like'];
-    for (let player of players) {
+    const sentence = ['Don\'t', 'like'];
+    for (const player of players) {
       sentence.push(player.name);
       sentence.push(player.idiot);
     }
-    let word = Game.time % sentence.length;
+    const word = Game.time % sentence.length;
     creep.say(sentence[word], true);
   };
   say(this);
@@ -158,13 +160,13 @@ Creep.prototype.upgraderUpdateStats = function() {
   if (!this.room.memory.upgraderUpgrade) {
     this.room.memory.upgraderUpgrade = 0;
   }
-  var work_parts = 0;
-  for (var part_i in this.body) {
-    if (this.body[part_i].type === 'work') {
-      work_parts++;
+  let workParts = 0;
+  for (const partI in this.body) {
+    if (this.body[partI].type === 'work') {
+      workParts++;
     }
   }
-  this.room.memory.upgraderUpgrade += Math.min(work_parts, this.carry.energy);
+  this.room.memory.upgraderUpgrade += Math.min(workParts, this.carry.energy);
 };
 
 Creep.prototype.handleUpgrader = function() {
@@ -176,7 +178,7 @@ Creep.prototype.handleUpgrader = function() {
     }
   }
 
-  var returnCode = this.upgradeController(this.room.controller);
+  let returnCode = this.upgradeController(this.room.controller);
   if (returnCode === OK) {
     this.upgraderUpdateStats();
   }
@@ -189,14 +191,14 @@ Creep.prototype.handleUpgrader = function() {
 };
 
 Creep.prototype.buildContainerConstructionSite = function() {
-  let returnCode = this.pos.createConstructionSite(STRUCTURE_CONTAINER);
+  const returnCode = this.pos.createConstructionSite(STRUCTURE_CONTAINER);
   if (returnCode === OK) {
     this.log('Create cs for container');
     return true;
   }
   if (returnCode === ERR_INVALID_TARGET) {
-    let constructionSites = this.pos.findInRange(FIND_CONSTRUCTION_SITES, 0);
-    for (let constructionSite of constructionSites) {
+    const constructionSites = this.pos.findInRange(FIND_CONSTRUCTION_SITES, 0);
+    for (const constructionSite of constructionSites) {
       constructionSite.remove();
     }
     return false;
@@ -212,9 +214,9 @@ Creep.prototype.buildContainerExecute = function() {
     return false;
   }
 
-  let constructionSites = this.pos.findInRangeStructures(FIND_CONSTRUCTION_SITES, 0, [STRUCTURE_CONTAINER]);
+  const constructionSites = this.pos.findInRangeStructures(FIND_CONSTRUCTION_SITES, 0, [STRUCTURE_CONTAINER]);
   if (constructionSites.length > 0) {
-    let returnCode = this.build(constructionSites[0]);
+    const returnCode = this.build(constructionSites[0]);
     if (returnCode !== OK) {
       this.log('buildContainerExecute build: ' + returnCode);
     }
@@ -229,29 +231,29 @@ Creep.prototype.buildContainer = function() {
     return false;
   }
   // TODO Not in base room
-  var objects = this.pos.findInRangeStructures(FIND_STRUCTURES, 0, [STRUCTURE_CONTAINER]);
+  const objects = this.pos.findInRangeStructures(FIND_STRUCTURES, 0, [STRUCTURE_CONTAINER]);
   if (objects.length === 0) {
     return this.buildContainerExecute();
   }
-  let object = objects[0];
+  const object = objects[0];
   if (object.hits < object.hitsMax) {
     this.repair(object);
   }
 };
 
 Creep.prototype.pickupEnergy = function() {
-  let resources = this.room.findPropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], false, {
-    filter: Creep.pickableResources(this)
+  const resources = this.room.findPropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], false, {
+    filter: Creep.pickableResources(this),
   });
   if (resources.length > 0) {
-    let resource = resources[0];
-    let returnCode = this.pickup(resource);
+    const resource = resources[0];
+    const returnCode = this.pickup(resource);
     return returnCode === OK;
   }
 
-  let containers = this.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_CONTAINER]);
+  const containers = this.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_CONTAINER]);
   if (containers.length > 0) {
-    let returnCode = this.withdraw(containers[0], RESOURCE_ENERGY);
+    const returnCode = this.withdraw(containers[0], RESOURCE_ENERGY);
     if (returnCode === OK) {
       return true;
     }
@@ -259,7 +261,7 @@ Creep.prototype.pickupEnergy = function() {
 
   const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer']);
   if (sourcers.length > 0) {
-    let returnCode = sourcers[0].transfer(this, RESOURCE_ENERGY);
+    const returnCode = sourcers[0].transfer(this, RESOURCE_ENERGY);
     if (returnCode === OK) {
       return true;
     }
@@ -268,7 +270,7 @@ Creep.prototype.pickupEnergy = function() {
   return false;
 };
 
-let checkCreepForTransfer = function(creep) {
+const checkCreepForTransfer = function(creep) {
   if (!Game.creeps[creep.name]) {
     return false;
   }
@@ -287,34 +289,34 @@ let checkCreepForTransfer = function(creep) {
 };
 
 Creep.prototype.transferToCreep = function(direction) {
-  let adjacentPos = this.pos.getAdjacentPosition(direction);
+  const adjacentPos = this.pos.getAdjacentPosition(direction);
   if (!adjacentPos.isValid()) {
     return false;
   }
 
-  var creeps = adjacentPos.lookFor('creep');
+  const creeps = adjacentPos.lookFor('creep');
   for (let i = 0; i < creeps.length; i++) {
-    let otherCreep = creeps[i];
+    const otherCreep = creeps[i];
     if (!checkCreepForTransfer(otherCreep)) {
       continue;
     }
-    var return_code = this.transfer(otherCreep, RESOURCE_ENERGY);
-    if (return_code === OK) {
+    const returnCode = this.transfer(otherCreep, RESOURCE_ENERGY);
+    if (returnCode === OK) {
       return this.carry.energy * 0.5 <= otherCreep.carryCapacity - otherCreep.carry.energy;
     }
   }
   return false;
 };
 
-let canStoreEnergy = function(object) {
-  let structureTypes = [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART, STRUCTURE_OBSERVER];
+const canStoreEnergy = function(object) {
+  const structureTypes = [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART, STRUCTURE_OBSERVER];
   if (structureTypes.indexOf(object.structureType) >= 0) {
     return false;
   }
   return true;
 };
 
-let energyAcceptingLink = function(object, room) {
+const energyAcceptingLink = function(object, room) {
   if (object.structureType === STRUCTURE_LINK) {
     for (let i = 0; i < 3; i++) {
       if (object.pos.isEqualTo(room.memory.position.structure.link[i].x, room.memory.position.structure.link[i].y)) {
@@ -325,14 +327,14 @@ let energyAcceptingLink = function(object, room) {
   return true;
 };
 
-let terminalAvailable = function(object) {
+const terminalAvailable = function(object) {
   if (object.structureType === STRUCTURE_TERMINAL && (object.store.energy || 0) > 10000) {
     return false;
   }
   return true;
 };
 
-let harvesterTarget = function(creep, object) {
+const harvesterTarget = function(creep, object) {
   if (creep.memory.role === 'harvester') {
     if (object.structureType === STRUCTURE_STORAGE || object.structureType === STRUCTURE_LINK) {
       return false;
@@ -341,7 +343,7 @@ let harvesterTarget = function(creep, object) {
   return true;
 };
 
-let filterTransferrables = function(creep, object) {
+const filterTransferrables = function(creep, object) {
   if (!canStoreEnergy(object)) {
     return false;
   }
@@ -367,11 +369,11 @@ let filterTransferrables = function(creep, object) {
 
 Creep.prototype.transferAllResources = function(structure) {
   let transferred = false;
-  for (let resource in this.carry) {
+  for (const resource in this.carry) {
     if (!resource) {
       continue;
     }
-    let returnCode = this.transfer(structure, resource);
+    const returnCode = this.transfer(structure, resource);
     if (returnCode === OK) {
       let transferableEnergy = structure.energyCapacity - structure.energy;
       if (structure.structureType === STRUCTURE_STORAGE) {
@@ -389,20 +391,20 @@ Creep.prototype.transferToStructures = function() {
   }
 
   let transferred = false;
-  var look = this.room.lookForAtArea(
+  const look = this.room.lookForAtArea(
     LOOK_STRUCTURES,
     Math.max(1, Math.min(48, this.pos.y - 1)),
     Math.max(1, Math.min(48, this.pos.x - 1)),
     Math.max(1, Math.min(48, this.pos.y + 1)),
     Math.max(1, Math.min(48, this.pos.x + 1)),
     true);
-  for (let item of look) {
+  for (const item of look) {
     if (filterTransferrables(this, item.structure)) {
       if (transferred) {
         return {
           moreStructures: true,
           // TODO handle different type of resources on the structure side
-          transferred: transferred
+          transferred: transferred,
         };
       }
       transferred = this.transferAllResources(item.structure);
@@ -413,10 +415,10 @@ Creep.prototype.transferToStructures = function() {
 
 Creep.prototype.getEnergyFromSourcer = function() {
   const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer'], false, {
-    filter: creep => creep.carry.energy > 0
+    filter: (creep) => creep.carry.energy > 0,
   });
   if (sourcers.length > 0) {
-    let returnCode = sourcers[0].transfer(this, RESOURCE_ENERGY);
+    const returnCode = sourcers[0].transfer(this, RESOURCE_ENERGY);
     this.say('rr:' + returnCode);
     if (returnCode === OK) {
       return true;
@@ -438,18 +440,18 @@ Creep.prototype.moveToSource = function(source, swarm = false) {
     this.moveTo(source.pos);
   } else {
     this.moveByPathMy([{
-      'name': this.room.name
+      'name': this.room.name,
     }], 0, 'pathStart', source.id, true, undefined);
   }
   return true;
 };
 
 Creep.prototype.harvestSource = function(source) {
-  let returnCode = this.harvest(source);
+  this.harvest(source);
   if (this.carry.energy === this.carryCapacity && this.carryCapacity > 0) {
-    const creeps_without_energy = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'carry.energy', [0]);
-    if (creeps_without_energy.length > 0) {
-      this.transfer(creeps_without_energy[0], RESOURCE_ENERGY);
+    const creepsWithoutEnergy = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'carry.energy', [0]);
+    if (creepsWithoutEnergy.length > 0) {
+      this.transfer(creepsWithoutEnergy[0], RESOURCE_ENERGY);
     }
   }
 
@@ -475,14 +477,14 @@ Creep.prototype.getSourceToHarvest = function(swarmSourcesFilter) {
 Creep.prototype.getEnergyFromSource = function() {
   let swarm = false;
   let swarmSourcesFilter;
-  if (config.swarmSourceHarvestingMaxParts < this.body.filter(b => b.type === WORK).length) {
+  if (config.swarmSourceHarvestingMaxParts < this.body.filter((b) => b.type === WORK).length) {
     swarm = true;
-    swarmSourcesFilter = source => source.pos.hasNonObstacleAdjacentPosition() || this.pos.isNearTo(source);
+    swarmSourcesFilter = (source) => source.pos.hasNonObstacleAdjacentPosition() || this.pos.isNearTo(source);
   }
-  let source = this.getSourceToHarvest(swarmSourcesFilter);
+  const source = this.getSourceToHarvest(swarmSourcesFilter);
 
   this.memory.source = source.id;
-  let range = this.pos.getRangeTo(source);
+  const range = this.pos.getRangeTo(source);
   if (this.carry.energy > 0 && range > 1) {
     this.memory.hasEnergy = true; // Stop looking and spend the energy.
     return false;
@@ -513,20 +515,20 @@ Creep.prototype.setHasEnergy = function() {
 };
 
 Creep.prototype.getDroppedEnergy = function() {
-  let target = this.pos.findClosestByRangePropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], false, {
-    filter: object => object.amount > 0
+  const target = this.pos.findClosestByRangePropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], false, {
+    filter: (object) => object.amount > 0,
   });
   if (target === null) {
     return false;
   }
-  let energyRange = this.pos.getRangeTo(target.pos);
+  const energyRange = this.pos.getRangeTo(target.pos);
   if (energyRange <= 1) {
     this.pickupOrWithdrawFromSourcer(target);
     return true;
   }
   if (target.energy > (energyRange * 10) * (this.carry.energy + 1)) {
     this.say('dropped');
-    let returnCode = this.moveToMy(target.pos, 1);
+    this.moveToMy(target.pos, 1);
     return true;
   }
   return false;
@@ -555,7 +557,7 @@ Creep.prototype.getEnergy = function() {
 };
 
 Creep.prototype.buildConstructionSite = function(target) {
-  let returnCode = this.build(target);
+  const returnCode = this.build(target);
   if (returnCode === OK) {
     this.moveRandomWithin(target.pos);
     return true;
@@ -572,7 +574,7 @@ Creep.prototype.buildConstructionSite = function(target) {
 };
 
 Creep.prototype.construct = function() {
-  var target;
+  let target;
   if (this.memory.role === 'nextroomer') {
     target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART], true);
   } else {
@@ -583,7 +585,7 @@ Creep.prototype.construct = function() {
     return false;
   }
 
-  var range = this.pos.getRangeTo(target);
+  const range = this.pos.getRangeTo(target);
   if (range <= 3) {
     return this.buildConstructionSite(target);
   }
@@ -594,7 +596,7 @@ Creep.prototype.construct = function() {
 
 Creep.prototype.getTransferTargetStructure = function() {
   const structure = this.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER], false, {
-    filter: structure => structure.energy < structure.energyCapacity
+    filter: (structure) => structure.energy < structure.energyCapacity,
   });
   if (structure === null) {
     if (this.room.storage && this.room.storage.my && this.memory.role !== 'planer') {
@@ -629,9 +631,9 @@ Creep.prototype.transferEnergyMy = function() {
   if (!target) {
     return false;
   }
-  var range = this.pos.getRangeTo(target);
+  const range = this.pos.getRangeTo(target);
   if (range === 1) {
-    let returnCode = this.transfer(target, RESOURCE_ENERGY);
+    const returnCode = this.transfer(target, RESOURCE_ENERGY);
     if (returnCode !== OK && returnCode !== ERR_FULL) {
       this.log('transferEnergyMy: ' + returnCode + ' ' +
         target.structureType + ' ' + target.pos);
@@ -653,20 +655,20 @@ Creep.prototype.reserverSetLevel = function() {
   }
 };
 
-let callStructurer = function(creep) {
+const callStructurer = function(creep) {
   const structurers = creep.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['structurer']);
   if (structurers.length > 0) {
     return false;
   }
-  const resource_structures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
-  if (resource_structures.length > 0 && !creep.room.controller.my) {
-    creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resource_structures[0].structureType);
+  const resourceStructures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
+  if (resourceStructures.length > 0 && !creep.room.controller.my) {
+    creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resourceStructures[0].structureType);
     Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, creep.room.name);
     return true;
   }
 };
 
-let callCleaner = function(creep) {
+const callCleaner = function(creep) {
   if (creep.inBase()) {
     return false;
   }
@@ -684,22 +686,22 @@ let callCleaner = function(creep) {
   }
 };
 
-let checkSourcerMatch = function(sourcers, source_id) {
+const checkSourcerMatch = function(sourcers, sourceId) {
   for (let i = 0; i < sourcers.length; i++) {
-    var sourcer = Game.creeps[sourcers[i].name];
-    if (sourcer.memory.routing.targetId === source_id) {
+    const sourcer = Game.creeps[sourcers[i].name];
+    if (sourcer.memory.routing.targetId === sourceId) {
       return true;
     }
   }
   return false;
 };
 
-let checkSourcer = function(creep) {
+const checkSourcer = function(creep) {
   const sources = creep.room.find(FIND_SOURCES);
   const sourcers = creep.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer']);
 
   if (sourcers.length < sources.length) {
-    let sourceParse = function(source) {
+    const sourceParse = function(source) {
       if (!checkSourcerMatch(sourcers, source.pos)) {
         Game.rooms[creep.memory.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
       }
@@ -709,15 +711,15 @@ let checkSourcer = function(creep) {
 };
 
 Creep.prototype.callDefender = function() {
-  var hostiles = this.room.getEnemys();
+  const hostiles = this.room.getEnemys();
   if (hostiles.length > 0) {
-    //this.log('Reserver under attack');
+    // this.log('Reserver under attack');
     if (!this.memory.defender_called) {
       Game.rooms[this.memory.base].memory.queue.push({
         role: 'defender',
         routing: {
-          targetRoom: this.room.name
-        }
+          targetRoom: this.room.name,
+        },
       });
       this.memory.defender_called = true;
     }
@@ -730,7 +732,7 @@ Creep.prototype.interactWithControllerSuccess = function() {
       base: this.memory.base,
       tick: Game.time,
       ticksToLive: this.ticksToLive,
-      reservation: this.room.controller.reservation.ticksToEnd
+      reservation: this.room.controller.reservation.ticksToEnd,
     };
   }
   this.memory.targetReached = true;
@@ -738,26 +740,26 @@ Creep.prototype.interactWithControllerSuccess = function() {
 };
 
 Creep.prototype.interactWithController = function() {
-  var return_code;
+  let returnCode;
   if (this.room.controller.owner && this.room.controller.owner !== Memory.username) {
     this.say('attack');
-    return_code = this.attackController(this.room.controller);
+    returnCode = this.attackController(this.room.controller);
   } else {
-    return_code = this.reserveController(this.room.controller);
+    returnCode = this.reserveController(this.room.controller);
   }
 
-  if (return_code === OK || return_code === ERR_NO_BODYPART) {
+  if (returnCode === OK || returnCode === ERR_NO_BODYPART) {
     this.interactWithControllerSuccess();
     return true;
   }
-  if (return_code === ERR_NOT_IN_RANGE) {
+  if (returnCode === ERR_NOT_IN_RANGE) {
     return true;
   }
-  if (return_code === ERR_INVALID_TARGET) {
+  if (returnCode === ERR_INVALID_TARGET) {
     return true;
   }
 
-  this.log('reserver: ' + return_code);
+  this.log('reserver: ' + returnCode);
 };
 
 Creep.prototype.handleReserver = function() {

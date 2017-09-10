@@ -1,7 +1,7 @@
 'use strict';
 
 Room.prototype.buildBase = function() {
-  let resetCounters = function(room) {
+  const resetCounters = function(room) {
     room.memory.controllerLevel.checkPathInterval = 1;
     room.memory.controllerLevel.checkWrongStructureInterval = 1;
     room.memory.controllerLevel.buildStructuresInterval = 1;
@@ -41,8 +41,8 @@ Room.prototype.buildBase = function() {
 
   // TODO Add build ramparts and walls
 
-  let room = this;
-  let executeTask = function(name) {
+  const room = this;
+  const executeTask = function(name) {
     if (room[name]()) {
       room.memory.controllerLevel[name + 'Interval'] = 1;
     } else {
@@ -75,18 +75,18 @@ Room.prototype.buildBase = function() {
   }
 
   // version: this.memory.position.version is maybe not the best idea
-  if (!this.memory.position || this.memory.position.version != config.layout.version) {
+  if (!this.memory.position || this.memory.position.version !== config.layout.version) {
     this.setup();
   }
 };
 
 Room.prototype.clearRoom = function() {
   const structures = this.find(FIND_STRUCTURES);
-  _.each(structures, s => s.destroy());
+  _.each(structures, (s) => s.destroy());
 
   const constructionSites = this.find(FIND_CONSTRUCTION_SITES);
-  _.each(constructionSites, cs => cs.remove());
+  _.each(constructionSites, (cs) => cs.remove());
 
   const creeps = this.find(FIND_MY_CREEPS);
-  _.each(creeps, cs => cs.suicide());
+  _.each(creeps, (cs) => cs.suicide());
 };

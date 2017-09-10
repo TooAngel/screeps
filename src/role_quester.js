@@ -7,7 +7,7 @@
 roles.quester = {};
 roles.quester.settings = {
   layoutString: 'M',
-  maxLayoutAmount: 1
+  maxLayoutAmount: 1,
 };
 
 roles.quester.questLost = function(creep, quest, reason, value) {
@@ -27,13 +27,11 @@ roles.quester.questWon = function(creep, quest) {
     type: 'Quest',
     id: quest.id,
     reputation: Memory.players[name].reputation,
-    result: 'won'
+    result: 'won',
   };
-  const room = Game.rooms[quest.origin];
   creep.room.terminal.send(RESOURCE_ENERGY, 100, quest.player.room, JSON.stringify(response));
   delete Memory.quests[creep.memory.level];
   creep.suicide();
-  return;
 };
 
 roles.quester.handleBuildcs = function(creep, quest) {
@@ -52,7 +50,7 @@ roles.quester.handleBuildcs = function(creep, quest) {
       return;
     }
 
-    let roads = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_ROAD]);
+    const roads = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_ROAD]);
     if (roads.length < 3) {
       roles.quester.questLost(creep, quest, 'roads', roads.length);
       return;

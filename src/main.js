@@ -13,10 +13,11 @@ console.log('Starting TooAngel AI - Have fun');
 
 brain.stats.init();
 
+let profiler;
 if (config.profiler.enabled) {
   try {
-    var profiler = require('screeps-profiler');
-    for (let role of _.keys(roles)) {
+    profiler = require('screeps-profiler'); // eslint-disable-line global-require
+    for (const role of _.keys(roles)) {
       profiler.registerObject(roles[role], 'Role_' + role);
     }
     profiler.registerObject(PathFinder, 'PathFinder');
@@ -28,19 +29,23 @@ if (config.profiler.enabled) {
   }
 }
 
-var main = function() {
+const main = function() {
   if (Game.cpu.bucket < 2 * Game.cpu.tickLimit) {
     console.log('Skipping tick ' + Game.time + ' due to lack of CPU.');
     return;
   }
 
   Memory.myRooms = _(Game.rooms).filter(r => r.execute()).map(r => r.name).value();
-
-  brain.prepareMemory();
-  brain.handleNextroom();
-  brain.handleSquadmanager();
-  brain.handleIncomingTransactions();
-  brain.handleQuests();
+  
+  try {
+    brain.prepareMemory();
+    brain.handleNextroom();
+    brain.handleSquadmanager();
+    brain.handleIncomingTransactions();
+    brain.handleQuests();
+  } catch (e) {
+    console.log('Exeception', e);
+  }
 
   brain.stats.addRoot();
 
@@ -48,13 +53,13 @@ var main = function() {
     visualizer.render();
   }
   brain.stats.add(['cpu'], {
-    used: Game.cpu.getUsed()
+    used: Game.cpu.getUsed(),
   });
 };
 
 module.exports.loop = function() {
   if (config.profiler.enabled) {
-    profiler.wrap(function() {
+    profiler.wrap(() => {
       main();
     });
   } else {

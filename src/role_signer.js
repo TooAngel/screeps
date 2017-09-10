@@ -14,7 +14,7 @@ roles.signer.settings = {
 };
 
 roles.signer.action = function(creep) {
-  let returnCode = creep.signController(creep.room.controller, creep.memory.signText || config.info.signText);
+  const returnCode = creep.signController(creep.room.controller, creep.memory.signText || config.info.signText);
   if (returnCode === OK) {
     // if (creep.memory.nextTarget) {
     //   creep.memory.signText = creep.memory.nextTarget.signText || creep.memory.signText;

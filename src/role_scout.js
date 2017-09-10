@@ -10,7 +10,7 @@ roles.scout = {};
 roles.scout.settings = {
   layoutString: 'M',
   amount: [1],
-  maxLayoutAmount: 1
+  maxLayoutAmount: 1,
 };
 
 function onBorder(creep) {
@@ -27,9 +27,9 @@ roles.scout.execute = function(creep) {
   if (creep.memory.skip === undefined) {
     creep.memory.skip = [];
   }
-  let breadthFirstSearch = function(creep) {
-    let setNewTarget = function(creep) {
-      for (let room of creep.memory.search.levels[creep.memory.search.level]) {
+  const breadthFirstSearch = function(creep) {
+    const setNewTarget = function(creep) {
+      for (const room of creep.memory.search.levels[creep.memory.search.level]) {
         if (haveNotSeen(creep, room)) {
           creep.memory.search.target = room;
           return true;
@@ -43,10 +43,10 @@ roles.scout.execute = function(creep) {
       creep.memory.search.level = 1;
       creep.memory.search.levels = [
         [creep.room.name],
-        []
+        [],
       ];
-      let rooms = Game.map.describeExits(creep.room.name);
-      for (let direction in rooms) {
+      const rooms = Game.map.describeExits(creep.room.name);
+      for (const direction of Object.keys(rooms)) {
         creep.memory.search.levels[1].push(rooms[direction]);
         creep.memory.search.target = rooms[direction];
       }
@@ -61,10 +61,10 @@ roles.scout.execute = function(creep) {
       }
       if (!setNewTarget(creep)) {
         creep.memory.search.levels.push([]);
-        for (let room of creep.memory.search.levels[creep.memory.search.level]) {
-          let rooms = Game.map.describeExits(room);
-          for (let direction in rooms) {
-            let roomNext = rooms[direction];
+        for (const room of creep.memory.search.levels[creep.memory.search.level]) {
+          const rooms = Game.map.describeExits(room);
+          for (const direction of Object.keys(rooms)) {
+            const roomNext = rooms[direction];
             if (haveNotSeen(creep, roomNext)) {
               creep.memory.search.levels[creep.memory.search.level + 1].push(roomNext);
               creep.memory.search.target = roomNext;
@@ -80,7 +80,7 @@ roles.scout.execute = function(creep) {
       creep.suicide();
       return true;
     }
-    let targetPosObject = new RoomPosition(25, 25, creep.memory.search.target);
+    const targetPosObject = new RoomPosition(25, 25, creep.memory.search.target);
 
     let search;
 
@@ -88,16 +88,15 @@ roles.scout.execute = function(creep) {
       search = PathFinder.search(
         creep.pos, {
           pos: targetPosObject,
-          range: 20
+          range: 20,
         }, {
-          roomCallback: creep.room.getCostMatrixCallback(targetPosObject, true, false, true)
+          roomCallback: creep.room.getCostMatrixCallback(targetPosObject, true, false, true),
         }
       );
 
       if (config.visualizer.enabled && config.visualizer.showPathSearches) {
         visualizer.showSearch(search);
       }
-
     } catch (e) {
       if (e !== null) {
         creep.log(`search: ${targetPosObject} ${e} ${e.stack}`);
@@ -146,18 +145,18 @@ roles.scout.execute = function(creep) {
           delete creep.memory.last; // Delete to reset stuckness.
         }
       }
-      //if (search.path.length > 0) {
-      //creep.move(creep.pos.getDirectionTo(search.path[0]));
-      //} else {
-      let returnCode = creep.moveTo(targetPosObject, {
+      // if (search.path.length > 0) {
+      // creep.move(creep.pos.getDirectionTo(search.path[0]));
+      // } else {
+      creep.moveTo(targetPosObject, {
         ignoreCreeps: true,
-        costCallback: creep.room.getCostMatrixCallback()
+        costCallback: creep.room.getCostMatrixCallback(),
       });
-      //}
+      // }
       return true;
     }
     creep.say(creep.pos.getDirectionTo(search.path[0]));
-    let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
+    creep.move(creep.pos.getDirectionTo(search.path[0]));
   };
 
   creep.notifyWhenAttacked(false);

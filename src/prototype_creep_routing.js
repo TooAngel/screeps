@@ -13,12 +13,11 @@ Creep.prototype.getRoute = function() {
 
   // Add room avoidance
   let route = [];
-  let creep = this;
-  if (this.memory.base != this.memory.routing.targetRoom) {
+  if (this.memory.base !== this.memory.routing.targetRoom) {
     route = this.room.findRoute(this.memory.base, this.memory.routing.targetRoom);
   }
   route.splice(0, 0, {
-    room: this.memory.base
+    room: this.memory.base,
   });
   this.memory.routing.route = route;
   return route;
@@ -27,8 +26,8 @@ Creep.prototype.getRoute = function() {
 Creep.prototype.getRoutePos = function(route) {
   let routePos = this.memory.routing.routePos || 0;
   // Detect room change
-  if (!route[routePos] || this.room.name != route[routePos].room) {
-    routePos = _.findIndex(route, i => i.room === this.room.name);
+  if (!route[routePos] || this.room.name !== route[routePos].room) {
+    routePos = _.findIndex(route, (i) => i.room === this.room.name);
 
     // TODO if we can't find the room in the array
     if (routePos < 0) {
@@ -45,10 +44,10 @@ Creep.prototype.getPathPos = function(route, routePos, path) {
     this.memory.routing = {};
   }
   let pathPos = this.memory.routing.pathPos || 0;
-  let pos = path[pathPos];
+  const pos = path[pathPos];
 
   if (!pos || !this.pos.isEqualTo(pos.x, pos.y)) {
-    pathPos = _.findIndex(path, i => i.x === this.pos.x && i.y === this.pos.y);
+    pathPos = _.findIndex(path, (i) => i.x === this.pos.x && i.y === this.pos.y);
     if (pathPos === -1) {
       // Not sure if this method is the best place
       // this.log('routing: Not on path, pos: ' + JSON.stringify(this.pos) + '
@@ -56,7 +55,7 @@ Creep.prototype.getPathPos = function(route, routePos, path) {
 
       if (Room.isRoomUnderAttack(this.room.name)) {
         this.moveTo(path[0].x, path[0].y, {
-          ignoreCreeps: true
+          ignoreCreeps: true,
         });
         return -1;
       }
@@ -69,17 +68,17 @@ Creep.prototype.getPathPos = function(route, routePos, path) {
 
       // Move to the middle of the path, something else could be better
       // When using the costmatrix, that should be fine
-      let posTarget = path[Math.floor(path.length / 2)];
+      const posTarget = path[Math.floor(path.length / 2)];
 
       // TODO when does this happen?
       if (!posTarget) {
         // this.log('config_creep_routing.move middle: ' + posTarget);
         return -1;
       }
-      let returnCode = this.moveTo(posTarget.x, posTarget.y, {
-        ignoreCreeps: true
+      const returnCode = this.moveTo(posTarget.x, posTarget.y, {
+        ignoreCreeps: true,
       });
-      if (returnCode != OK && returnCode != ERR_TIRED) {
+      if (returnCode !== OK && returnCode !== ERR_TIRED) {
         this.log('newmove: moveTo: ' + returnCode + ' ' + JSON.stringify(path[path.length / 2]) + ' ' + (path.length / 2));
       }
       return -1;
@@ -90,7 +89,7 @@ Creep.prototype.getPathPos = function(route, routePos, path) {
 
 Creep.prototype.getDirections = function(path, pathPos) {
   let flee = false;
-  if (this.room.name != this.memory.base && Room.isRoomUnderAttack(this.room.name)) {
+  if (this.room.name !== this.memory.base && Room.isRoomUnderAttack(this.room.name)) {
     this.say('flee');
     delete this.memory.routing.reached;
     // TODO flee disabled 2016-01-15
@@ -99,22 +98,22 @@ Creep.prototype.getDirections = function(path, pathPos) {
 
   // TODO handle if next room is under attack
 
-  let pos = path[pathPos];
+  const pos = path[pathPos];
   if (!pos) {
     console.log('newmove: getDirections: pathPos: ' + pathPos + ' path: ' + JSON.stringify(path));
   }
-  let currentPos = new RoomPosition(pos.x, pos.y, this.room.name);
+  const currentPos = new RoomPosition(pos.x, pos.y, this.room.name);
   let forwardDirection;
   let backwardDirection;
   let direction;
 
   if (pathPos + 1 < path.length) {
-    let nextPos = path[pathPos + 1];
+    const nextPos = path[pathPos + 1];
     forwardDirection = currentPos.getDirectionTo(nextPos.x, nextPos.y);
   }
 
   if (pathPos - 1 >= 0) {
-    let nextPos = path[pathPos - 1];
+    const nextPos = path[pathPos - 1];
     backwardDirection = currentPos.getDirectionTo(nextPos.x, nextPos.y);
   }
 
@@ -126,7 +125,7 @@ Creep.prototype.getDirections = function(path, pathPos) {
         forwardDirection: forwardDirection,
         backwardDirection: 0,
         direction: 0,
-        pathOffset: 0
+        pathOffset: 0,
       };
     }
     direction = backwardDirection;
@@ -145,21 +144,19 @@ Creep.prototype.getDirections = function(path, pathPos) {
     forwardDirection: forwardDirection,
     backwardDirection: backwardDirection,
     direction: direction,
-    pathOffset: offset
+    pathOffset: offset,
   };
 };
 
 Creep.prototype.followPath = function(action) {
-  let route = this.getRoute();
-  let routePos = this.getRoutePos(route);
+  const route = this.getRoute();
+  const routePos = this.getRoutePos(route);
 
   // TODO Disable base room for now
   // if (routePos === 0) {
   // this.say('R:Base');
   // return false;
   // }
-
-  let unit = roles[this.memory.role];
 
   if (!this.memory.routing.targetId && this.room.name === this.memory.routing.targetRoom) {
     this.memory.routing.reached = true;
@@ -169,9 +166,9 @@ Creep.prototype.followPath = function(action) {
 };
 
 Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreMove, action) {
-  let unit = roles[this.memory.role];
+  const unit = roles[this.memory.role];
   // Somehow reset the pathPos if the path has changed?!
-  let path = this.room.getPath(route, routePos, start, target);
+  const path = this.room.getPath(route, routePos, start, target);
   if (!path) {
     // TODO this could be because the targetId Object does not exist anymore
     // this.log('newmove: no path legacy fallback: ' + this.memory.base + ' ' +
@@ -191,7 +188,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     return false;
   }
 
-  let pathPos = this.getPathPos(route, routePos, path);
+  const pathPos = this.getPathPos(route, routePos, path);
   if (pathPos < 0) {
     // this.say('R:pos -1');
     this.memory.routing.pathPos = pathPos;
@@ -220,15 +217,15 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
       return false;
     }
 
-    let search = PathFinder.search(
+    const search = PathFinder.search(
       this.pos, {
         pos: posFirst,
-        range: 0
+        range: 0,
       }, {
         roomCallback: this.room.getCostMatrixCallback(posFirst, true),
         maxRooms: 1,
         swampCost: config.layout.swampCost,
-        plainCost: config.layout.plainCost
+        plainCost: config.layout.plainCost,
       }
     );
 
@@ -246,13 +243,13 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     // ' + this.pos + ' routePos: ' + routePos + ' path: ' +
     // JSON.stringify(path) + ' route: ' + JSON.stringify(route));
     this.say('R:p-1: ' + this.pos.getDirectionTo(search.path[0]));
-    var creepPos = this.pos;
-    let returnCode = this.moveTo(_.min(search.path, function(object) {
+    const creepPos = this.pos;
+    const returnCode = this.moveTo(_.min(search.path, (object) => {
       return object.getRangeTo(creepPos);
     }), {
-      reusePath: 0
+      reusePath: 0,
     });
-    if (returnCode == OK) {
+    if (returnCode === OK) {
       return true;
     }
     if (returnCode === ERR_TIRED) {
@@ -288,7 +285,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     }
   }
 
-  let directions = this.getDirections(path, pathPos);
+  const directions = this.getDirections(path, pathPos);
 
   if (!directions) {
     // TODO Better true? On stuck on the border, execute is executed in the previous room
@@ -317,7 +314,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     // this.log('zero direction: pathPos: ' + pathPos + ' path: ' + path);
     // throw new Error();
   }
-  //this.say(directions.direction);
+  // this.say(directions.direction);
   if (!directions.direction) {
     // TODO E.g. carry creeps run into this, if the sourcer is missing
     //     this.log('config_creep_routing no directions.direction: ' + JSON.stringify(directions) + ' ' + JSON.stringify(this.memory.routing));

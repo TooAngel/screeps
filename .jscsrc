@@ -2,5 +2,7 @@
   "preset": "google",
   "maximumLineLength": 240,
   "requireCamelCaseOrUpperCaseIdentifiers": false,
-  "disallowSpacesInsideObjectBrackets": false
+  "disallowSpacesInsideObjectBrackets": false,
+  "disallowSpacesInFunctionExpression": false,
+  "disallowSpacesInAnonymousFunctionExpression": false
 }

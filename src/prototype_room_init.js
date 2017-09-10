@@ -2,8 +2,8 @@
 
 Room.prototype.initSetController = function() {
   if (this.controller) {
-    let costMatrix = this.getMemoryCostMatrix();
-    let upgraderPos = this.controller.pos.getBestNearPosition();
+    const costMatrix = this.getMemoryCostMatrix();
+    const upgraderPos = this.controller.pos.getBestNearPosition();
     this.memory.position.creep[this.controller.id] = upgraderPos;
     costMatrix.set(upgraderPos.x, upgraderPos.y, config.layout.creepAvoid);
     this.setMemoryCostMatrix(costMatrix);
@@ -11,14 +11,14 @@ Room.prototype.initSetController = function() {
 };
 
 Room.prototype.initSetSources = function() {
-  let sources = this.find(FIND_SOURCES);
-  let costMatrix = this.getMemoryCostMatrix();
-  for (let source of sources) {
-    let sourcer = source.pos.getFirstNearPosition();
+  const sources = this.find(FIND_SOURCES);
+  const costMatrix = this.getMemoryCostMatrix();
+  for (const source of sources) {
+    const sourcer = source.pos.getFirstNearPosition();
     this.memory.position.creep[source.id] = sourcer;
     // TODO E.g. E11S8 it happens that sourcer has no position
     if (sourcer) {
-      let link = sourcer.getFirstNearPosition();
+      const link = sourcer.getFirstNearPosition();
       this.memory.position.structure.link.push(link);
       costMatrix.set(link.x, link.y, config.layout.structureAvoid);
       this.setMemoryCostMatrix(costMatrix);
@@ -27,10 +27,10 @@ Room.prototype.initSetSources = function() {
 };
 
 Room.prototype.initSetMinerals = function() {
-  let costMatrix = this.getMemoryCostMatrix();
-  let minerals = this.find(FIND_MINERALS);
-  for (let mineral of minerals) {
-    let extractor = mineral.pos.getFirstNearPosition();
+  const costMatrix = this.getMemoryCostMatrix();
+  const minerals = this.find(FIND_MINERALS);
+  for (const mineral of minerals) {
+    const extractor = mineral.pos.getFirstNearPosition();
     this.memory.position.creep[mineral.id] = extractor;
     this.memory.position.structure.extractor.push(mineral.pos);
     costMatrix.set(extractor.x, extractor.y, config.layout.creepAvoid);
@@ -39,8 +39,8 @@ Room.prototype.initSetMinerals = function() {
 };
 
 Room.prototype.initSetStorageAndPathStart = function() {
-  let costMatrix = this.getMemoryCostMatrix();
-  let storagePos = this.memory.position.creep[this.controller.id].getBestNearPosition();
+  const costMatrix = this.getMemoryCostMatrix();
+  const storagePos = this.memory.position.creep[this.controller.id].getBestNearPosition();
   this.memory.position.structure.storage.push(storagePos);
   // TODO should also be done for the other structures
   costMatrix.set(storagePos.x, storagePos.y, config.layout.structureAvoid);
@@ -48,12 +48,12 @@ Room.prototype.initSetStorageAndPathStart = function() {
 
   this.memory.position.creep.pathStart = storagePos.getFirstNearPosition();
 
-  let route = [{
-    room: this.name
+  const route = [{
+    room: this.name,
   }];
-  let pathUpgrader = this.getPath(route, 0, 'pathStart', this.controller.id, true);
+  const pathUpgrader = this.getPath(route, 0, 'pathStart', this.controller.id, true);
   // TODO exclude the last position (creepAvoid) in all paths
-  for (let pos of pathUpgrader) {
+  for (const pos of pathUpgrader) {
     if (this.memory.position.creep[this.controller.id].isEqualTo(pos.x, pos.y)) {
       continue;
     }
@@ -62,38 +62,38 @@ Room.prototype.initSetStorageAndPathStart = function() {
   this.setMemoryCostMatrix(costMatrix);
   return {
     storagePos: storagePos,
-    route: route
+    route: route,
   };
 };
 
 Room.prototype.setFillerArea = function(storagePos, route) {
-  let costMatrix = this.getMemoryCostMatrix();
-  let fillerPos = storagePos.getBestNearPosition();
+  const costMatrix = this.getMemoryCostMatrix();
+  const fillerPos = storagePos.getBestNearPosition();
   // TODO reset all values if the first doesn't fit
   this.log('Testing fillerPos' + JSON.stringify(fillerPos));
   this.deleteMemoryPath('pathStart-filler');
   this.memory.position.creep.filler = fillerPos;
   costMatrix.set(fillerPos.x, fillerPos.y, config.layout.creepAvoid);
   this.setMemoryCostMatrix(costMatrix);
-  let pathFiller = this.getPath(route, 0, 'pathStart', 'filler', true);
-  for (let pos of pathFiller) {
+  const pathFiller = this.getPath(route, 0, 'pathStart', 'filler', true);
+  for (const pos of pathFiller) {
     this.increaseCostMatrixValue(costMatrix, pos, config.layout.pathAvoid);
   }
   this.setMemoryCostMatrix(costMatrix);
-  let linkStoragePosIterator = fillerPos.findNearPosition();
-  for (let linkStoragePos of linkStoragePosIterator) {
+  const linkStoragePosIterator = fillerPos.findNearPosition();
+  for (const linkStoragePos of linkStoragePosIterator) {
     this.memory.position.structure.link.unshift(linkStoragePos);
     costMatrix.set(linkStoragePos.x, linkStoragePos.y, config.layout.structureAvoid);
     this.setMemoryCostMatrix(costMatrix);
 
-    let powerSpawnPosIterator = fillerPos.findNearPosition();
-    for (let powerSpawnPos of powerSpawnPosIterator) {
+    const powerSpawnPosIterator = fillerPos.findNearPosition();
+    for (const powerSpawnPos of powerSpawnPosIterator) {
       this.memory.position.structure.powerSpawn.push(powerSpawnPos);
       costMatrix.set(powerSpawnPos.x, powerSpawnPos.y, config.layout.structureAvoid);
       this.setMemoryCostMatrix(costMatrix);
 
-      let towerPosIterator = fillerPos.findNearPosition();
-      for (let towerPos of towerPosIterator) {
+      const towerPosIterator = fillerPos.findNearPosition();
+      for (const towerPos of towerPosIterator) {
         this.memory.position.structure.tower.push(towerPos);
         costMatrix.set(towerPos.x, towerPos.y, config.layout.structureAvoid);
         this.setMemoryCostMatrix(costMatrix);
@@ -109,10 +109,10 @@ Room.prototype.updatePosition = function() {
   this.checkCache();
   delete this.memory.routing;
 
-  let costMatrixBase = this.getCostMatrix();
+  const costMatrixBase = this.getCostMatrix();
   this.setMemoryCostMatrix(costMatrixBase);
   this.memory.position = {
-    creep: {}
+    creep: {},
   };
   this.memory.position.structure = {
     storage: [],
@@ -125,7 +125,7 @@ Room.prototype.updatePosition = function() {
     terminal: [],
     nuker: [],
     powerSpawn: [],
-    extractor: []
+    extractor: [],
   };
 
   this.initSetController();
@@ -133,25 +133,25 @@ Room.prototype.updatePosition = function() {
   this.initSetMinerals();
 
   if (this.controller && this.controller.my) {
-    let startPos = this.initSetStorageAndPathStart();
+    const startPos = this.initSetStorageAndPathStart();
 
-    let sources = this.find(FIND_SOURCES);
-    let costMatrix = this.getMemoryCostMatrix();
-    for (let source of sources) {
-      let route = [{
-        room: this.name
+    const sources = this.find(FIND_SOURCES);
+    const costMatrix = this.getMemoryCostMatrix();
+    for (const source of sources) {
+      const route = [{
+        room: this.name,
       }];
-      let path = this.getPath(route, 0, 'pathStart', source.id, true);
-      for (let pos of path) {
-        let posObject = new RoomPosition(pos.x, pos.y, this.name);
-        let sourcer = this.memory.position.creep[source.id];
+      const path = this.getPath(route, 0, 'pathStart', source.id, true);
+      for (const pos of path) {
+        const posObject = new RoomPosition(pos.x, pos.y, this.name);
+        const sourcer = this.memory.position.creep[source.id];
         if (posObject.isEqualTo(sourcer.x, sourcer.y)) {
           continue;
         }
 
         costMatrix.set(pos.x, pos.y, config.layout.pathAvoid);
       }
-      let sourcer = this.memory.position.creep[source.id];
+      const sourcer = this.memory.position.creep[source.id];
       costMatrix.set(sourcer.x, sourcer.y, config.layout.creepAvoid);
       this.setMemoryCostMatrix(costMatrix);
     }
@@ -160,7 +160,7 @@ Room.prototype.updatePosition = function() {
 };
 
 Room.prototype.setPosition = function(type, pos, value, positionType = 'structure') {
-  let costMatrix = this.getMemoryCostMatrix();
+  const costMatrix = this.getMemoryCostMatrix();
   this.memory.position[positionType][type].push(pos);
   costMatrix.set(pos.x, pos.y, value);
   this.setMemoryCostMatrix(costMatrix);
@@ -170,21 +170,21 @@ Room.prototype.setTowerFillerIterate = function(roomName, offsetDirection) {
   let linkSet = false;
   let towerFillerSet = false;
   let positionsFound = false;
-  let path = this.getMemoryPath('pathStart-' + roomName);
+  const path = this.getMemoryPath('pathStart-' + roomName);
   for (let pathIndex = path.length - 1; pathIndex >= 1; pathIndex--) {
-    let posPath = path[pathIndex];
-    let posPathObject = new RoomPosition(posPath.x, posPath.y, posPath.roomName);
-    let posPathNext = path[pathIndex - 1];
+    const posPath = path[pathIndex];
+    const posPathObject = new RoomPosition(posPath.x, posPath.y, posPath.roomName);
+    const posPathNext = path[pathIndex - 1];
 
-    let directionNext = posPathObject.getDirectionTo(posPathNext.x, posPathNext.y, posPathNext.roomName);
+    const directionNext = posPathObject.getDirectionTo(posPathNext.x, posPathNext.y, posPathNext.roomName);
 
-    let pos = posPathObject.getAdjacentPosition(directionNext + offsetDirection);
+    const pos = posPathObject.getAdjacentPosition(directionNext + offsetDirection);
 
     if (!pos.checkTowerFillerPos()) {
       continue;
     }
 
-    let terrain = pos.lookFor(LOOK_TERRAIN)[0];
+    const terrain = pos.lookFor(LOOK_TERRAIN)[0];
     if (terrain === 'wall') {
       break;
     }
@@ -208,12 +208,11 @@ Room.prototype.setTowerFillerIterate = function(roomName, offsetDirection) {
 };
 
 Room.prototype.setTowerFiller = function() {
-  let exits = _.map(Game.map.describeExits(this.name));
+  const exits = _.map(Game.map.describeExits(this.name));
 
   this.memory.position.creep.towerfiller = [];
-  let costMatrix = this.getMemoryCostMatrix();
   for (let index = 0; index < CONTROLLER_STRUCTURES.tower[8] - 1; index++) {
-    let roomName = exits[index % exits.length];
+    const roomName = exits[index % exits.length];
     if (!roomName) {
       break;
     }
@@ -250,9 +249,9 @@ Room.prototype.checkLabStructures = function(structurePos, pathPos) {
 
 Room.prototype.setLabsTerminal = function(path) {
   for (let pathI = path.length - 1; pathI > 0; pathI--) {
-    let pathPos = new RoomPosition(path[pathI].x, path[pathI].y, this.name);
-    let structurePosIterator = pathPos.findNearPosition();
-    for (let structurePos of structurePosIterator) {
+    const pathPos = new RoomPosition(path[pathI].x, path[pathI].y, this.name);
+    const structurePosIterator = pathPos.findNearPosition();
+    for (const structurePos of structurePosIterator) {
       if (this.checkLabStructures(structurePos, pathPos)) {
         continue;
       }
@@ -265,7 +264,7 @@ Room.prototype.setLabsTerminal = function(path) {
 };
 
 Room.prototype.checkPositions = function() {
-  for (let type of [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER, STRUCTURE_LINK, STRUCTURE_OBSERVER, STRUCTURE_NUKER]) {
+  for (const type of [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER, STRUCTURE_LINK, STRUCTURE_OBSERVER, STRUCTURE_NUKER]) {
     if (this.memory.position.structure[type].length < CONTROLLER_STRUCTURES[type][8]) {
       this.log('Structures not found: ' +
         'spawns: ' + this.memory.position.structure.spawn.length + ' ' +
@@ -298,7 +297,7 @@ Room.prototype.areEnergyStructuresPlaced = function() {
 };
 
 Room.prototype.setPositionAux = function(structurePos) {
-  for (let type of [STRUCTURE_TOWER, STRUCTURE_NUKER, STRUCTURE_OBSERVER, STRUCTURE_LINK]) {
+  for (const type of [STRUCTURE_TOWER, STRUCTURE_NUKER, STRUCTURE_OBSERVER, STRUCTURE_LINK]) {
     if (this.memory.position.structure[type].length < CONTROLLER_STRUCTURES[type][8]) {
       this.setPosition(type, structurePos, config.layout.structureAvoid);
       return true;
@@ -343,9 +342,9 @@ Room.prototype.setStructures = function(path) {
   this.setTowerFiller();
 
   for (let pathI = 0; pathI < path.length; pathI++) {
-    let pathPos = new RoomPosition(path[pathI].x, path[pathI].y, this.name);
-    let structurePosIterator = pathPos.findNearPosition();
-    for (let structurePos of structurePosIterator) {
+    const pathPos = new RoomPosition(path[pathI].x, path[pathI].y, this.name);
+    const structurePosIterator = pathPos.findNearPosition();
+    for (const structurePos of structurePosIterator) {
       if (this.setStructuresIteratePos(structurePos, pathI, path)) {
         continue;
       }
@@ -357,13 +356,13 @@ Room.prototype.setStructures = function(path) {
 };
 
 Room.prototype.costMatrixSetMineralPath = function() {
-  let costMatrix = this.getMemoryCostMatrix();
-  let minerals = this.find(FIND_MINERALS);
-  for (let mineral of minerals) {
-    let route = [{
-      room: this.name
+  const costMatrix = this.getMemoryCostMatrix();
+  const minerals = this.find(FIND_MINERALS);
+  for (const mineral of minerals) {
+    const route = [{
+      room: this.name,
     }];
-    let path = this.getPath(route, 0, 'pathStart', mineral.id, true);
+    const path = this.getPath(route, 0, 'pathStart', mineral.id, true);
 
     this.setCostMatrixPath(costMatrix, path);
     this.setMemoryCostMatrix(costMatrix);
@@ -371,56 +370,56 @@ Room.prototype.costMatrixSetMineralPath = function() {
 };
 
 Room.prototype.costMatrixPathFromStartToExit = function(exits) {
-  let costMatrix = this.getMemoryCostMatrix();
-  for (let endDir in exits) {
+  const costMatrix = this.getMemoryCostMatrix();
+  for (const endDir in exits) {
     if (!endDir) {
       continue;
     }
-    let end = exits[endDir];
-    let route = [{
-      room: this.name
+    const end = exits[endDir];
+    const route = [{
+      room: this.name,
     }, {
-      room: end
+      room: end,
     }];
-    let path = this.getPath(route, 0, 'pathStart', undefined, true);
+    const path = this.getPath(route, 0, 'pathStart', undefined, true);
     this.setCostMatrixPath(costMatrix, path);
     this.setMemoryCostMatrix(costMatrix);
   }
 };
 
 Room.prototype.costMatrixPathCrossings = function(exits) {
-  let costMatrix = this.getMemoryCostMatrix();
-  for (let startDir in exits) {
+  const costMatrix = this.getMemoryCostMatrix();
+  for (const startDir in exits) {
     if (!startDir) {
       continue;
     }
-    let start = exits[startDir];
-    for (let endDir in exits) {
+    const start = exits[startDir];
+    for (const endDir in exits) {
       if (!endDir) {
         continue;
       }
-      let end = exits[endDir];
+      const end = exits[endDir];
       if (start === end) {
         continue;
       }
-      let route = [{
-        room: start
+      const route = [{
+        room: start,
       }, {
-        room: this.name
+        room: this.name,
       }, {
-        room: end
+        room: end,
       }];
-      let path = this.getPath(route, 1, undefined, undefined, true);
+      const path = this.getPath(route, 1, undefined, undefined, true);
       this.setCostMatrixPath(costMatrix, path);
       this.setMemoryCostMatrix(costMatrix);
     }
   }
 };
 
-let checkForSurroundingWalls = function(pos, valueAdd) {
+const checkForSurroundingWalls = function(pos, valueAdd) {
   for (let x = -1; x < 2; x++) {
     for (let y = -1; y < 2; y++) {
-      let wall = new RoomPosition(pos.x + x, pos.y + y, pos.roomName);
+      const wall = new RoomPosition(pos.x + x, pos.y + y, pos.roomName);
       if (wall.checkForWall()) {
         valueAdd *= 0.5; // TODO some factor
       }
@@ -430,16 +429,16 @@ let checkForSurroundingWalls = function(pos, valueAdd) {
 };
 
 // find longest path, calculate vert-/horizontal as 2 (new structures) and diagonal as 4
-let sorter = function(object) {
-  let last_pos;
+const sorter = function(object) {
+  let lastPos;
   let value = 0;
-  for (let pos of object.path) {
+  for (const pos of object.path) {
     let valueAdd = 0;
-    if (!last_pos) {
-      last_pos = new RoomPosition(pos.x, pos.y, pos.roomName);
+    if (!lastPos) {
+      lastPos = new RoomPosition(pos.x, pos.y, pos.roomName);
       continue;
     }
-    let direction = last_pos.getDirectionTo(pos.x, pos.y, pos.roomName);
+    const direction = lastPos.getDirectionTo(pos.x, pos.y, pos.roomName);
     if (direction % 2 === 0) {
       valueAdd += 2;
     } else {
@@ -447,7 +446,7 @@ let sorter = function(object) {
     }
 
     value += checkForSurroundingWalls(pos, valueAdd);
-    last_pos = new RoomPosition(pos.x, pos.y, pos.roomName);
+    lastPos = new RoomPosition(pos.x, pos.y, pos.roomName);
   }
   return value;
 };
@@ -458,8 +457,7 @@ Room.prototype.setup = function() {
   this.memory.controllerLevel = {};
   this.updatePosition();
 
-  let costMatrix = this.getMemoryCostMatrix();
-  let exits = Game.map.describeExits(this.name);
+  const exits = Game.map.describeExits(this.name);
   if (this.controller) {
     this.costMatrixSetMineralPath();
     this.costMatrixPathFromStartToExit(exits);
@@ -467,16 +465,16 @@ Room.prototype.setup = function() {
 
   this.costMatrixPathCrossings(exits);
 
-  let paths_controller = _.filter(this.getMemoryPaths(), function(object, key) {
+  const pathsController = _.filter(this.getMemoryPaths(), (object, key) => {
     return key.startsWith('pathStart-');
   });
-  let paths_sorted = _.sortBy(paths_controller, sorter);
-  let path = this.getMemoryPath(paths_sorted[paths_sorted.length - 1].name);
+  const pathsSorted = _.sortBy(pathsController, sorter);
+  const path = this.getMemoryPath(pathsSorted[pathsSorted.length - 1].name);
   // TODO This is the path to the extractor, we should change this to getting the right path via ID (e.g. if there are more than two sources this could change)
-  let pathLB = this.getMemoryPath(paths_controller[4].name);
-  let pathL = this.setLabsTerminal(pathLB);
+  const pathLB = this.getMemoryPath(pathsController[4].name);
+  this.setLabsTerminal(pathLB);
   let pathI = this.setStructures(path);
-  this.log('path: ' + paths_sorted[paths_sorted.length - 1].name + ' pathI: ' + pathI + ' length: ' + path.length);
+  this.log('path: ' + pathsSorted[pathsSorted.length - 1].name + ' pathI: ' + pathI + ' length: ' + path.length);
   if (pathI === -1) {
     pathI = path.length - 1;
   }

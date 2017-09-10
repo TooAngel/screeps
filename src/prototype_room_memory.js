@@ -31,19 +31,20 @@ Room.prototype.setMemoryCostMatrix = function(costMatrix) {
 };
 
 Room.prototype.clearMemory = function() {
-  this.memory = { invalidated: Game.time };
+  this.memory = {
+    invalidated: Game.time,
+  };
 };
 
 Room.prototype.checkCache = function() {
   this.memory.routing = this.memory.routing || {};
   if (!cache.rooms[this.name] || !cache.rooms[this.name].created ||
     this.memory.invalidated && cache.rooms[this.name].created < this.memory.invalidated) {
-
     cache.rooms[this.name] = {
       find: {},
       routing: {},
       costMatrix: {},
-      created: Game.time
+      created: Game.time,
     };
   }
 };
@@ -51,6 +52,8 @@ Room.prototype.checkCache = function() {
 /**
  * Returns the costMatrix for the room. The cache will be populated
  * from memory.
+ *
+ * @return {CostMatrix|undefined}
  */
 Room.prototype.getMemoryCostMatrix = function() {
   this.checkCache();
@@ -67,13 +70,15 @@ Room.prototype.getMemoryCostMatrix = function() {
 /**
  * Returns all paths for this room from cache. Checks if cache and memory
  * paths fit, otherwise populate cache.
+ *
+ * @return {object}
  */
 Room.prototype.getMemoryPaths = function() {
   this.checkCache();
-  let memoryKeys = Object.keys(this.memory.routing).sort();
-  let cacheKeys = Object.keys(cache.rooms[this.name].routing).sort();
-  let diff = _.difference(memoryKeys, cacheKeys);
-  for (let item of diff) {
+  const memoryKeys = Object.keys(this.memory.routing).sort();
+  const cacheKeys = Object.keys(cache.rooms[this.name].routing).sort();
+  const diff = _.difference(memoryKeys, cacheKeys);
+  for (const item of diff) {
     //    this.log(`getPaths ${item} missing in cache`);
     let path;
     try {
@@ -87,7 +92,7 @@ Room.prototype.getMemoryPaths = function() {
       path: path,
       created: this.memory.routing[item].created,
       fixed: this.memory.routing[item].fixed,
-      name: this.memory.routing[item].name
+      name: this.memory.routing[item].name,
     };
   }
   return cache.rooms[this.name].routing;
@@ -98,11 +103,12 @@ Room.prototype.getMemoryPaths = function() {
  * cache if missing.
  *
  * @param {String} name - the name of the path
+ * @return {array|boolean} path
  */
 Room.prototype.getMemoryPath = function(name) {
   this.checkCache();
 
-  let isValid = function(path) {
+  const isValid = function(path) {
     return path.fixed || path.created > Game.time - config.path.refresh;
   };
 
@@ -123,7 +129,7 @@ Room.prototype.getMemoryPath = function(name) {
       path: path,
       created: this.memory.routing[name].created,
       fixed: this.memory.routing[name].fixed,
-      name: this.memory.routing[name].name
+      name: this.memory.routing[name].name,
     };
     return cache.rooms[this.name].routing[name].path;
   }
@@ -160,19 +166,19 @@ Room.prototype.deleteMemoryPath = function(name) {
  */
 Room.prototype.setMemoryPath = function(name, path, fixed) {
   this.checkCache();
-  let data = {
+  const data = {
     path: path,
     created: Game.time,
     fixed: fixed,
-    name: name
+    name: name,
   };
   cache.rooms[this.name].routing[name] = data;
   if (fixed) {
-    let memoryData = {
+    const memoryData = {
       path: Room.pathToString(path),
       created: Game.time,
       fixed: fixed,
-      name: name
+      name: name,
     };
     this.memory.routing[name] = memoryData;
   }

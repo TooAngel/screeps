@@ -16,7 +16,7 @@ roles.storagefiller.killPrevious = true;
 roles.storagefiller.settings = {
   layoutString: 'MC',
   amount: [1, 4],
-  maxLayoutAmount: 1
+  maxLayoutAmount: 1,
 };
 
 roles.storagefiller.action = function(creep) {
@@ -31,8 +31,8 @@ roles.storagefiller.action = function(creep) {
   creep.setNextSpawn();
   creep.spawnReplacement(1);
 
-  let towers = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER], false, {
-    filter: tower => tower.energy <= 0.5 * tower.energyCapacity
+  const towers = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER], false, {
+    filter: (tower) => tower.energy <= 0.5 * tower.energyCapacity,
   });
 
   if (creep.room.controller.level === 4) {
@@ -46,25 +46,25 @@ roles.storagefiller.action = function(creep) {
   }
 
   if (!creep.memory.link) {
-    var links = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
+    const links = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
     if (links.length === 0) {
       return true;
     }
     creep.memory.link = links[0].id;
   }
 
-  var storage = creep.room.storage;
-  var link = Game.getObjectById(creep.memory.link);
+  const storage = creep.room.storage;
+  const link = Game.getObjectById(creep.memory.link);
   if (link === null) {
-    //creep.log('No link');
+    // creep.log('No link');
     return true;
   }
 
-  let room = Game.rooms[creep.room.name];
+  const room = Game.rooms[creep.room.name];
   if (room.memory.attackTimer > 50 && room.controller.level > 6) {
     creep.withdraw(storage, RESOURCE_ENERGY);
-    for (let tower of towers) {
-      let returnCode = creep.transfer(tower, RESOURCE_ENERGY);
+    for (const tower of towers) {
+      const returnCode = creep.transfer(tower, RESOURCE_ENERGY);
       if (returnCode === OK) {
         return true;
       }
@@ -72,13 +72,13 @@ roles.storagefiller.action = function(creep) {
     creep.transfer(link, RESOURCE_ENERGY);
   } else {
     creep.withdraw(link, RESOURCE_ENERGY);
-    for (let tower of towers) {
-      let returnCode = creep.transfer(tower, RESOURCE_ENERGY);
+    for (const tower of towers) {
+      const returnCode = creep.transfer(tower, RESOURCE_ENERGY);
       if (returnCode === OK) {
         return true;
       }
     }
-    for (let resource in creep.carry) {
+    for (const resource of Object.keys(creep.carry)) {
       creep.transfer(storage, resource);
     }
   }

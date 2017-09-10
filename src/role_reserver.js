@@ -14,19 +14,19 @@ roles.reserver.flee = false;
 
 roles.reserver.settings = {
   layoutString: 'MK',
-  maxLayoutAmount: 1
+  maxLayoutAmount: 1,
 };
 roles.reserver.updateSettings = function(room, creep) {
-  let level = creep.level ? creep.level : 1;
+  const level = creep.level ? creep.level : 1;
   if (level === 2) {
     return {
-      amount: [2, 2]
+      amount: [2, 2],
     };
   }
   if (level === 5) {
     room.log('Build super reserver');
     return {
-      amount: [5, 5]
+      amount: [5, 5],
     };
   }
 };

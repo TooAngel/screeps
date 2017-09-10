@@ -44,6 +44,7 @@ welcome.
  - [Manual commands](doc/Manual.md)
  - [Alliance](doc/Alliance.md)
  - [Graphs](doc/Graphs.md)
+ - [Testing](doc/Testing.md)
 
 ## Tweaking
 

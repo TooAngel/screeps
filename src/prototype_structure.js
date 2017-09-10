@@ -17,5 +17,5 @@ Object.defineProperty(Structure.prototype, 'memory', {
     return _.set(Memory, 'structures.' + this.id, v);
   },
   configurable: true,
-  enumerable: false
+  enumerable: false,
 });

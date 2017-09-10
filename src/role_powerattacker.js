@@ -10,11 +10,11 @@ roles.powerattacker = {};
 roles.powerattacker.settings = {
   layoutString: 'MA',
   amount: [5, 5],
-  fillTough: true
+  fillTough: true,
 };
 
 roles.powerattacker.action = function(creep) {
-  let hostileCreep = creep.pos.findClosestEnemy();
+  const hostileCreep = creep.pos.findClosestEnemy();
   if (hostileCreep !== null) {
     creep.moveTo(hostileCreep);
     creep.attack(hostileCreep);
@@ -30,12 +30,12 @@ roles.powerattacker.action = function(creep) {
       Game.rooms[creep.memory.base].memory.queue.push({
         role: 'powerdefender',
         routing: {
-          targetRoom: creep.room.name
-        }
+          targetRoom: creep.room.name,
+        },
       });
       Memory.powerBanks[creep.room.name].defender = true;
     }
-    var range = creep.pos.getRangeTo(hostileCreep);
+    const range = creep.pos.getRangeTo(hostileCreep);
     if (range < 10) {
       creep.moveTo(hostileCreep);
       creep.attack(hostileCreep);
@@ -43,9 +43,9 @@ roles.powerattacker.action = function(creep) {
     }
   }
 
-  var power_bank = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
+  const powerBank = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
 
-  if (power_bank.length === 0) {
+  if (powerBank.length === 0) {
     if (hostileCreep !== null) {
       creep.moveTo(hostileCreep);
       creep.attack(hostileCreep);
@@ -55,14 +55,14 @@ roles.powerattacker.action = function(creep) {
     return false;
   }
 
-  if (power_bank[0].hits > 100000) {
+  if (powerBank[0].hits > 100000) {
     creep.spawnReplacement();
   }
 
   creep.setNextSpawn();
 
-  creep.moveTo(power_bank[0]);
-  creep.attack(power_bank[0]);
+  creep.moveTo(powerBank[0]);
+  creep.attack(powerBank[0]);
   return true;
 };
 

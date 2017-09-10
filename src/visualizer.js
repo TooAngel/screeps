@@ -7,16 +7,16 @@ if (config.visualizer.enabled) {
       rv.text(text, position.x, position.y + 0.2, {
         color: color,
         font: 0.7,
-        opacity: 0.5
+        opacity: 0.5,
       });
     },
 
     drawPath(rv, path, color) {
       if (path.length) {
-        rv.poly(path.map(p => [p.x, p.y]), {
+        rv.poly(path.map((p) => [p.x, p.y]), {
           stroke: color,
           strokeWidth: 0.1,
-          opacity: 0.5
+          opacity: 0.5,
         });
       }
     },
@@ -25,10 +25,10 @@ if (config.visualizer.enabled) {
      * draw fixed paths in room
      */
     showRoomPaths() {
-      for (let room of _.values(Game.rooms)) {
+      for (const room of _.values(Game.rooms)) {
         const rv = room.visual;
-        let paths = room.getMemoryPaths();
-        for (let route of _.values(paths)) {
+        const paths = room.getMemoryPaths();
+        for (const route of _.values(paths)) {
           this.drawPath(rv, route.path, 'white');
         }
       }
@@ -38,10 +38,10 @@ if (config.visualizer.enabled) {
      * draw creep paths from using moveTo
      */
     showCreepPaths() {
-      for (let creep of _.values(Game.creeps)) {
+      for (const creep of _.values(Game.creeps)) {
         const rv = creep.room.visual;
         if (creep.memory._move) {
-          let path = Room.deserializePath(creep.memory._move.path);
+          const path = Room.deserializePath(creep.memory._move.path);
           this.drawPath(rv, path, 'red');
         }
       }
@@ -51,13 +51,13 @@ if (config.visualizer.enabled) {
      * draw structures
      */
     showStructures() {
-      for (let room of _.values(Game.rooms)) {
+      for (const room of _.values(Game.rooms)) {
         const rv = room.visual;
         if (room.memory.position && room.memory.position.structure) {
-          let structures = room.memory.position.structure;
-          for (let structType of Object.keys(structures)) {
-            let text = structType.substr(0, 1).toUpperCase() + structType.substr(1, 1);
-            for (let structure of structures[structType]) {
+          const structures = room.memory.position.structure;
+          for (const structType of Object.keys(structures)) {
+            const text = structType.substr(0, 1).toUpperCase() + structType.substr(1, 1);
+            for (const structure of structures[structType]) {
               this.drawPosition(rv, structure, text, 'blue');
             }
           }
@@ -66,25 +66,25 @@ if (config.visualizer.enabled) {
     },
 
     showBlockers() {
-      for (let room of _.values(Game.rooms)) {
+      for (const room of _.values(Game.rooms)) {
         const rv = room.visual;
         if (room.memory.walls && room.memory.walls.layer) {
-          for (let layer of Object.keys(room.memory.walls.layer)) {
-            for (let pos of room.memory.walls.layer[layer]) {
+          for (const layer of Object.keys(room.memory.walls.layer)) {
+            for (const pos of room.memory.walls.layer[layer]) {
               this.drawPosition(rv, pos, layer, 'blue');
               rv.rect(pos.x - 0.5, pos.y - 0.5, 1, 1, {
                 fill: 'transparent',
-                stroke: 'blue'
+                stroke: 'blue',
               });
             }
           }
         }
         if (room.memory.walls && room.memory.walls.ramparts) {
-          for (let pos of room.memory.walls.ramparts) {
+          for (const pos of room.memory.walls.ramparts) {
             rv.circle(pos, {
               radius: 0.5,
               fill: 'transparent',
-              stroke: 'blue'
+              stroke: 'blue',
             });
           }
         }
@@ -95,18 +95,18 @@ if (config.visualizer.enabled) {
      * draw creep positions
      */
     showCreeps() {
-      for (let room of _.values(Game.rooms)) {
+      for (const room of _.values(Game.rooms)) {
         const rv = room.visual;
         if (room.memory.position) {
-          let creeps = room.memory.position.creep;
-          for (let positionName of Object.keys(creeps)) {
+          const creeps = room.memory.position.creep;
+          for (const positionName of Object.keys(creeps)) {
             if (creeps[positionName]) {
               if (creeps[positionName].x || creeps[positionName].y) {
-                let text = positionName.substr(0, 1);
+                const text = positionName.substr(0, 1);
                 this.drawPosition(rv, creeps[positionName], text, 'yellow');
               } else {
-                let text = positionName.substr(0, 1);
-                for (let towerfiller of creeps[positionName]) {
+                const text = positionName.substr(0, 1);
+                for (const towerfiller of creeps[positionName]) {
                   this.drawPosition(rv, towerfiller, text, 'yellow');
                 }
               }
@@ -124,7 +124,7 @@ if (config.visualizer.enabled) {
           for (let y = 0; y < 50; ++y) {
             rv.rect(x - 0.5, y - 0.5, 1, 1, {
               fill: 'pink',
-              opacity: Math.pow(cm.get(x, y) / 255, 1 / 4)
+              opacity: Math.pow(cm.get(x, y) / 255, 1 / 4),
             });
           }
         }
@@ -132,7 +132,7 @@ if (config.visualizer.enabled) {
     },
 
     showCostMatrixes() {
-      for (let room of _.values(Game.rooms)) {
+      for (const room of _.values(Game.rooms)) {
         this.showCostMatrix(room.name, room.getCostMatrixCallback());
       }
     },
@@ -140,15 +140,17 @@ if (config.visualizer.enabled) {
     showSearch(search) {
       if (search) {
         const rv = {};
-        const getRV = pos => {
+        const getRV = (pos) => {
           if (!rv[pos.roomName]) {
             rv[pos.roomName] = new RoomVisual(pos.roomName);
           }
           return rv[pos.roomName];
         };
         let prevPos = search.path[0];
-        let style = { color: search.incomplete ? 'red' : 'green' };
-        for (let pi of search.path) {
+        const style = {
+          color: search.incomplete ? 'red' : 'green',
+        };
+        for (const pi of search.path) {
           if (prevPos.roomName === pi.roomName) {
             getRV(pi).line(prevPos, pi, style);
           } else {
@@ -181,6 +183,6 @@ if (config.visualizer.enabled) {
       if (config.visualizer.showBlockers) {
         this.showBlockers();
       }
-    }
+    },
   };
 }

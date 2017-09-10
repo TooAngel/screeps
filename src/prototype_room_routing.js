@@ -11,45 +11,45 @@ Room.isRoomUnderAttack = function(roomName) {
 
   if (Game.time - Memory.rooms[roomName].hostile.lastUpdate > config.hostile.remeberInRoom) {
     delete Memory.rooms[roomName].hostile;
-    let room = Game.rooms[roomName];
+    const room = Game.rooms[roomName];
     room.log('newmove: isRoomUnderAttack: lastUpdate too old');
     return false;
   }
 
   // Maybe also add? Rethink wayBlocked
-  //	    if (this.memory.role === 'nextroomer' && Game.rooms[this.memory.target]) {
-  //	      Game.rooms[this.memory.target].memory.wayBlocked = true;
-  //	    }
+  // if (this.memory.role === 'nextroomer' && Game.rooms[this.memory.target]) {
+  //   Game.rooms[this.memory.target].memory.wayBlocked = true;
+  // }
 
   return true;
 };
 
 Room.prototype.getCreepPositionForId = function(to) {
   if (this.memory.position && this.memory.position.creep && this.memory.position.creep[to]) {
-    let pos = this.memory.position.creep[to];
+    const pos = this.memory.position.creep[to];
     return new RoomPosition(pos.x, pos.y, this.name);
   }
 
-  let target = Game.getObjectById(to);
+  const target = Game.getObjectById(to);
   if (target === null) {
     // this.log('getCreepPositionForId: No object: ' + to);
     return;
   }
   this.memory.position = this.memory.position || {
-    creep: {}
+    creep: {},
   };
   this.memory.position.creep[to] = target.pos.findNearPosition().next().value;
 
   let pos = this.memory.position.creep[to];
   if (!pos) {
-    //this.log('getCreepPositionForId no pos in memory take pos of target: ' + to);
+    // this.log('getCreepPositionForId no pos in memory take pos of target: ' + to);
     pos = Game.getObjectById(to).pos;
   }
   return new RoomPosition(pos.x, pos.y, this.name);
 };
 
 Room.prototype.findRoute = function(from, to) {
-  let routeCallback = function(roomName, fromRoomName) {
+  const routeCallback = function(roomName, fromRoomName) {
     if (roomName === to) {
       return 1;
     }
@@ -72,7 +72,7 @@ Room.prototype.findRoute = function(from, to) {
     return 1;
   };
   return Game.map.findRoute(from, to, {
-    routeCallback: routeCallback
+    routeCallback: routeCallback,
   });
 };
 
@@ -96,15 +96,15 @@ Room.prototype.buildPath = function(route, routePos, from, to) {
       return;
     }
   }
-  let search = PathFinder.search(
+  const search = PathFinder.search(
     start, {
       pos: end,
-      range: 1
+      range: 1,
     }, {
       roomCallback: this.getCostMatrixCallback(end),
       maxRooms: 1,
       swampCost: config.layout.swampCost,
-      plainCost: config.layout.plainCost
+      plainCost: config.layout.plainCost,
     }
   );
 
@@ -129,9 +129,9 @@ Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
     to = route[routePos + 1].room;
   }
 
-  let pathName = from + '-' + to;
+  const pathName = from + '-' + to;
   if (!this.getMemoryPath(pathName)) {
-    let path = this.buildPath(route, routePos, from, to);
+    const path = this.buildPath(route, routePos, from, to);
     if (!path) {
       // this.log('getPath: No path');
       return;
@@ -143,27 +143,27 @@ Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
 
 Room.prototype.getMyExitTo = function(room) {
   // Handle rooms with newbie zone walls
-  let exitDirection = this.findExitTo(room);
-  let nextExits = this.find(exitDirection);
-  let nextExit = nextExits[Math.floor(nextExits.length / 2)];
+  const exitDirection = this.findExitTo(room);
+  const nextExits = this.find(exitDirection);
+  const nextExit = nextExits[Math.floor(nextExits.length / 2)];
   return new RoomPosition(nextExit.x, nextExit.y, this.name);
 };
 
 Room.prototype.getMatrixCallback = function(end) {
   // TODO cache?!
-  let callback = function(roomName) {
+  const callback = function(roomName) {
     // console.log('getMatrixCallback', this);
-    let room = Game.rooms[roomName];
-    let costMatrix = new PathFinder.CostMatrix();
+    const room = Game.rooms[roomName];
+    const costMatrix = new PathFinder.CostMatrix();
     // Previous Source Keeper where also excluded?
 
-    let sources = room.find(FIND_SOURCES, {
+    const sources = room.find(FIND_SOURCES, {
       filter: function(object) {
         return !end || object.pos.x !== end.x || object.pos.y !== end.y;
-      }
+      },
     });
 
-    for (let source of sources) {
+    for (const source of sources) {
       for (let x = -1; x < 2; x++) {
         for (let y = -1; y < 2; y++) {
           if (end && source.pos.x + x === end.x && source.pos.y + y !== end.y) {

@@ -1,11 +1,11 @@
 'use strict';
 
 Creep.prototype.moveRandom = function(onPath) {
-  let start = Math.ceil(Math.random() * 8);
+  const start = Math.ceil(Math.random() * 8);
   let direction = 0;
   for (let i = start; i < start + 8; i++) {
     direction = ((i - 1) % 8) + 1;
-    let pos = this.pos.getAdjacentPosition(direction);
+    const pos = this.pos.getAdjacentPosition(direction);
     if (pos.isBorder(-1)) {
       continue;
     }
@@ -24,11 +24,11 @@ Creep.prototype.moveRandom = function(onPath) {
 };
 
 Creep.prototype.moveRandomWithin = function(goal, dist = 3) {
-  let start = Math.ceil(Math.random() * 8);
+  const start = Math.ceil(Math.random() * 8);
   let direction = 0;
   for (let i = start; i < start + 8; i++) {
     direction = ((i - 1) % 8) + 1;
-    let pos = this.pos.getAdjacentPosition(direction);
+    const pos = this.pos.getAdjacentPosition(direction);
     if (pos.isBorder(-1)) {
       continue;
     }
@@ -51,8 +51,8 @@ Creep.prototype.moveCreep = function(position, direction) {
     return false;
   }
 
-  var pos = new RoomPosition(position.x, position.y, this.room.name);
-  var creeps = pos.lookFor('creep');
+  const pos = new RoomPosition(position.x, position.y, this.room.name);
+  const creeps = pos.lookFor('creep');
   if (creeps.length > 0 && creeps[0].memory) {
     if (creeps[0].memory.role === 'carry') {
       creeps[0].move(direction);
