@@ -35,7 +35,8 @@ const main = function() {
     return;
   }
 
-  Memory.myRooms = Memory.myRooms = [];
+  Memory.myRooms = _(Game.rooms).filter(r => r.execute()).map(r => r.name).value();
+  
   try {
     brain.prepareMemory();
     brain.handleNextroom();
@@ -47,7 +48,6 @@ const main = function() {
   }
 
   brain.stats.addRoot();
-  Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
 
   if (config.visualizer.enabled) {
     visualizer.render();
