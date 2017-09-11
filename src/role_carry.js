@@ -75,6 +75,7 @@ roles.carry.handleMisplacedSpawn = function(creep) {
         ignoreCreeps: true,
       });
       creep.transfer(structure, RESOURCE_ENERGY);
+      return true;
     } else {
       const targetId = creep.memory.routing.targetId;
 
