@@ -162,13 +162,36 @@ Creep.prototype.followPath = function(action) {
     this.memory.routing.reached = true;
     return action(this);
   }
-  return this.moveByPathMy(route, routePos, 'pathStart', this.memory.routing.targetId, false, action);
+  const prepareData = this.moveByPathPrepare(route, routePos, 'pathStart', this.memory.routing.targetId);
+  if (prepareData.unit.preMove) {
+    if (prepareData.unit.preMove(this, prepareData.directions)) {
+      return true;
+    }
+  }
+  return this.moveByPathMy(route, routePos, 'pathStart', this.memory.routing.targetId, action, prepareData);
 };
 
-Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreMove, action) {
-  const unit = roles[this.memory.role];
+Creep.prototype.moveByPathPrepare = function(route, routePos, start, target) {
+  const result = {};
+  result.unit = roles[this.memory.role];
   // Somehow reset the pathPos if the path has changed?!
-  const path = this.room.getPath(route, routePos, start, target);
+  result.path = this.room.getPath(route, routePos, start, target);
+  if (!result.path) {
+    return result;
+  }
+  result.pathPos = this.getPathPos(route, routePos, result.path);
+  if (result.pathPos < 0) {
+    return result;
+  }
+  result.directions = this.getDirections(result.path, result.pathPos);
+  return result;
+};
+
+Creep.prototype.moveByPathMy = function(route, routePos, start, target, action, prepareData) {
+  if (!prepareData) {
+    prepareData = this.moveByPathPrepare(route, routePos, start, target);
+  }
+  const {unit, path, pathPos, directions} = prepareData;
   if (!path) {
     // TODO this could be because the targetId Object does not exist anymore
     // this.log('newmove: no path legacy fallback: ' + this.memory.base + ' ' +
@@ -178,30 +201,12 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     this.say('R:no path');
     this.log('R:no path');
     // this.log('R:no path: pathStart-' + this.memory.routing.targetId);
-    if (!skipPreMove) {
-      if (unit.preMove) {
-        if (unit.preMove(this)) {
-          return true;
-        }
-      }
-    }
     return false;
   }
 
-  const pathPos = this.getPathPos(route, routePos, path);
   if (pathPos < 0) {
     // this.say('R:pos -1');
     this.memory.routing.pathPos = pathPos;
-    // TODO this is duplicated, find a better order? Or have another method
-    if (!skipPreMove) {
-      if (unit.preMove) {
-        // this.say('R:-1 pre');
-        if (unit.preMove(this)) {
-          return true;
-        }
-        this.say('R:-1 no pre');
-      }
-    }
     if (path.length === 0) {
       this.log('config_creep_routing.followPath no pos: ' + JSON.stringify(path));
       return false;
@@ -285,8 +290,6 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
     }
   }
 
-  const directions = this.getDirections(path, pathPos);
-
   if (!directions) {
     // TODO Better true? On stuck on the border, execute is executed in the previous room
     if (this.pos.isBorder()) {
@@ -298,14 +301,6 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, skipPreM
   if (!directions.forwardDirection && !directions.backwardDirection) {
     this.log('no forward and backward direction');
     return false;
-  }
-
-  if (!skipPreMove) {
-    if (unit.preMove) {
-      if (unit.preMove(this, directions)) {
-        return true;
-      }
-    }
   }
 
   // this.say(directions.direction);
