@@ -141,15 +141,15 @@ brain.getStorageStringForRoom = function(strings, room, interval) {
     strings[variable] += name + ':' + value + ' ';
   };
 
-  if (room.storage.store.energy < 200000) {
-    addToString('storageLowString', room.name, room.storage.store.energy);
-  } else if (room.storage.store.energy > 800000) {
-    addToString('storageHighString', room.name, room.storage.store.energy);
+  if (room.storage.store[RESOURCE_ENERGY] < 200000) {
+    addToString('storageLowString', room.name, room.storage.store[RESOURCE_ENERGY]);
+  } else if (room.storage.store[RESOURCE_ENERGY] > 800000) {
+    addToString('storageHighString', room.name, room.storage.store[RESOURCE_ENERGY]);
   } else {
-    addToString('storageMiddleString', room.name, room.storage.store.energy);
+    addToString('storageMiddleString', room.name, room.storage.store[RESOURCE_ENERGY]);
   }
-  if (room.storage.store.power && room.storage.store.power > 0) {
-    addToString('storagePower', room.name, room.storage.store.power);
+  if (room.storage.store[RESOURCE_POWER] && room.storage.store[RESOURCE_POWER] > 0) {
+    addToString('storagePower', room.name, room.storage.store[RESOURCE_POWER]);
   }
   // TODO 15 it should be
   if (Math.ceil(room.memory.upgraderUpgrade / interval) < 15) {
@@ -182,6 +182,7 @@ brain.printSummary = function() {
     }
     brain.getStorageStringForRoom(strings, room, interval);
   }
+  Memory.summary = strings;
 
   console.log(`=========================
 Progress: ${diff / interval}/${Memory.myRooms.length * 15}
