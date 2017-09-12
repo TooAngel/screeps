@@ -182,7 +182,7 @@ Room.prototype.handleScout = function() {
 };
 
 Room.prototype.checkNeedHelp = function() {
-  const needHelp = this.memory.energyAvailableSum < config.carryHelpers.needTreshold * config.carryHelpers.ticksUntilHelpCheck; // && !this.hostile;
+  const needHelp = this.memory.energyAvailableSum < config.haulers.needTreshold * config.haulers.ticksUntilHelpCheck; // && !this.hostile;
   const oldNeedHelp = this.memory.needHelp;
   if (needHelp) {
     if (!oldNeedHelp) {
@@ -209,7 +209,7 @@ Room.prototype.checkCanHelp = function() {
 
   let nearestRoom = this.memory.nearestRoom;
   if (!nearestRoom || !Memory.rooms[nearestRoom] || !Memory.rooms[nearestRoom].needHelp) {
-    nearestRoom = this.nearestRoomName(Memory.needEnergyRooms, config.carryHelpers.maxDistance);
+    nearestRoom = this.nearestRoomName(Memory.needEnergyRooms, config.haulers.maxDistance);
     this.memory.nearestRoom = nearestRoom;
   }
   if (!Game.rooms[nearestRoom] || !Memory.rooms[nearestRoom].needHelp) {
@@ -217,7 +217,7 @@ Room.prototype.checkCanHelp = function() {
   }
   const nearestRoomObj = Game.rooms[nearestRoom];
 
-  const canHelp = this.memory.energyAvailableSum > config.carryHelpers.helpTreshold * config.carryHelpers.ticksUntilHelpCheck &&
+  const canHelp = this.memory.energyAvailableSum > config.haulers.helpTreshold * config.haulers.ticksUntilHelpCheck &&
     nearestRoom !== this.name && nearestRoomObj && this.storage && // !nearestRoomObj.hostile &&
     !nearestRoomObj.terminal;
   if (canHelp) {
@@ -225,10 +225,8 @@ Room.prototype.checkCanHelp = function() {
     if (route === -2 || route.length === 0) {
       return 'no';
     }
-    this.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, this.storage.id,
-      this.name, undefined, nearestRoom, {
-        helper: true,
-      });
+    this.checkRoleToSpawn('hauler', config.haulers.maxAmount, this.storage.id,
+      this.name, undefined, nearestRoom);
     this.memory.energyAvailableSum = 0;
     return '---!!! ' + this.name + ' send energy to: ' + nearestRoom + ' !!!---';
   }
@@ -236,14 +234,14 @@ Room.prototype.checkCanHelp = function() {
 };
 
 Room.prototype.checkForEnergyTransfer = function() {
-  if (config.carryHelpers.disabled) {
+  if (config.haulers.disabled) {
     return false;
   }
 
   Memory.needEnergyRooms = Memory.needEnergyRooms || [];
   this.memory.energyAvailableSum = this.memory.energyAvailableSum || 0;
-  if (!this.exectueEveryTicks(config.carryHelpers.ticksUntilHelpCheck)) {
-    const factor = config.carryHelpers.factor;
+  if (!this.exectueEveryTicks(config.haulers.ticksUntilHelpCheck)) {
+    const factor = config.haulers.factor;
     this.memory.energyAvailable = (1 - factor) * this.memory.energyAvailable + (factor) * this.energyAvailable || 0;
     this.memory.energyAvailableSum += this.memory.energyAvailable;
     return;
