@@ -91,9 +91,9 @@ global.config = {
     notify: false,
   },
 
-  carryHelpers: {
+  haulers: {
     ticksUntilHelpCheck: 100,
-    maxHelpersAmount: 5,
+    maxAmount: 5,
     helpTreshold: 1500,
     needTreshold: 750,
     maxDistance: 7,

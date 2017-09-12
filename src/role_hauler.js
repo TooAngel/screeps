@@ -1,74 +1,56 @@
 'use strict';
 
 /*
- * carry gets energy and brings it to the storage
+ * hauler gets energy and brings it to the storage
  *
  * Moves to the 'targetId', picks up energy from container or dropped,
  * move back to storage, on meeting other creeps the energy is transferred,
  * energy is transferred to other structures, too.
  */
 
-roles.carry = {};
+roles.hauler = {};
 
-roles.carry.buildRoad = true;
-roles.carry.flee = true;
+roles.hauler.buildRoad = true;
+roles.hauler.flee = true;
 
-roles.carry.boostActions = ['capacity'];
+roles.hauler.boostActions = ['capacity'];
 
-roles.carry.settings = {
+roles.hauler.settings = {
   param: ['energyCapacityAvailable'],
-  prefixString: {
-    300: '',
-    600: roles.carry.buildRoad ? 'MW' : '',
-  },
+  prefixString: config.buildRoad.buildToOtherMyRoom ? 'MW' : '',
   layoutString: 'MC',
   amount: {
     0: [3, 3], // RCL 1
     550: [4, 4], // RCL 2
     800: [6, 6], // RCL 3
-    1300: [6, 11], // RCL 4
-    1800: [8, 15], // RCL 5
-    2300: [11, 21], // RCL 6
+    1300: [11, 11], // RCL 4
+    1800: [15, 15], // RCL 5
+    2300: [21, 21], // RCL 6
   },
   maxLayoutAmount: 1,
 };
 
-roles.carry.handleMisplacedSpawn = function(creep) {
-  // Misplaced spawn
-  // TODO Somehow ugly and maybe better somewhere else
-  if (creep.inBase() && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
-    //     creep.say('cmis', true);
-    if (creep.carry.energy > 0) {
-      const structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-        filter: (object) => object.energy < object.energyCapacity,
-      });
-      creep.moveTo(structure, {
-        ignoreCreeps: true,
-      });
-      creep.transfer(structure, RESOURCE_ENERGY);
-      return true;
-    } else {
-      const targetId = creep.memory.routing.targetId;
+roles.hauler.checkHaulerEmptyStorage = function(creep) {
+  // Fix blocked haulers due to empty structure in the room where we get the energy from
+  if (creep.room.name === creep.memory.routing.targetRoom) {
+    const targetStructure = Game.getObjectById(creep.memory.routing.targetId);
+    if (targetStructure === null) {
+      creep.suicide();
+      return;
+    }
 
-      const source = creep.room.memory.position.creep[targetId];
-      // TODO better the position from the room memory
-      if (source !== null) {
-        creep.moveTo(source, {
-          ignoreCreeps: true,
-        });
-        if (creep.pos.getRangeTo(source) > 1) {
-          return true;
-        }
+    if (targetStructure.structureType === STRUCTURE_STORAGE) {
+      creep.say('storage');
+      if (targetStructure.store.energy === 0) {
+        creep.log('Suiciding the storage I should get the energy from is empty');
+        creep.suicide();
       }
     }
-    return false;
   }
 };
 
-roles.carry.preMove = function(creep, directions) {
-  if (roles.carry.handleMisplacedSpawn(creep)) {
-    return true;
-  }
+roles.hauler.preMove = function(creep, directions) {
+  roles.hauler.checkHaulerEmptyStorage(creep);
 
   if (!creep.room.controller) {
     const target = creep.findClosestSourceKeeper();
@@ -111,7 +93,7 @@ roles.carry.preMove = function(creep, directions) {
         if (transferred.moreStructures) {
           return true;
         }
-        reverse = creep.carry.energy - transferred.transferred > 0;
+        reverse = creep.hauler.energy - transferred.transferred > 0;
       } else if (creep.memory.routing.pathPos === 0 && !(creep.room.storage && creep.room.storage.my && creep.room.storage.isActive())) {
         creep.drop(RESOURCE_ENERGY);
         reverse = false;
@@ -122,7 +104,7 @@ roles.carry.preMove = function(creep, directions) {
           resourceAtPosition += resource.amount;
         }
         let amount = creep.room.getHarvesterAmount();
-        amount += Math.floor(resourceAtPosition / config.carry.callHarvesterPerResources);
+        amount += Math.floor(resourceAtPosition / config.hauler.callHarvesterPerResources);
         creep.room.checkRoleToSpawn('harvester', amount, 'harvester');
       }
     }
@@ -173,8 +155,8 @@ roles.carry.preMove = function(creep, directions) {
   }
 };
 
-roles.carry.action = function(creep) {
-  // TODO log when this happens, carry is getting energy from the source
+roles.hauler.action = function(creep) {
+  // TODO log when this happens, hauler is getting energy from the source
   // creep.log('ACTION');
   const source = Game.getObjectById(creep.memory.routing.targetId);
   if (source === null) {
@@ -222,7 +204,7 @@ roles.carry.action = function(creep) {
   return true;
 };
 
-roles.carry.execute = function(creep) {
+roles.hauler.execute = function(creep) {
   // creep.log('Execute!!!');
   const target = Game.getObjectById(creep.memory.routing.targetId);
   if (target === null) {
