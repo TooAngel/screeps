@@ -71,11 +71,13 @@ roles.carry.handleMisplacedSpawn = function(creep) {
       const structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
         filter: (object) => object.energy < object.energyCapacity,
       });
-      creep.moveTo(structure, {
-        ignoreCreeps: true,
-      });
-      creep.transfer(structure, RESOURCE_ENERGY);
-      return true;
+      if (structure) {
+        creep.moveTo(structure, {
+          ignoreCreeps: true,
+        });
+        creep.transfer(structure, RESOURCE_ENERGY);
+        return true;
+      }
     } else {
       const targetId = creep.memory.routing.targetId;
 
