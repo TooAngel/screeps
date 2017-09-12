@@ -80,6 +80,9 @@ brain.isFriend = function(name) {
 };
 
 brain.handleSquadmanager = function() {
+  if (!Memory.squads) {
+    return false;
+  }
   for (const squadIndex of Object.keys(Memory.squads)) {
     const squad = Memory.squads[squadIndex];
     if (!squad.siege || Object.keys(squad.siege).length === 0) {
