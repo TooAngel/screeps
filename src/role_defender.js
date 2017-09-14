@@ -44,7 +44,7 @@ roles.defender.action = function(creep) {
   return true;
 };
 
-roles.defender.preMove = function(creep, directions) {
+roles.defender.preMove = function(creep) {
   creep.heal(creep);
   const target = creep.findClosestEnemy();
   if (target !== null) {

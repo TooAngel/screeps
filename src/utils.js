@@ -65,7 +65,7 @@ global.utils = {
   },
 
   csstats: function() {
-    const aggregate = function(result, value, key) {
+    const aggregate = function(result, value) {
       result[value.pos.roomName] = (result[value.pos.roomName] || (result[value.pos.roomName] = 0)) + 1;
       return result;
     };

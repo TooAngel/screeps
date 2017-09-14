@@ -61,29 +61,50 @@ brain.addToStats = function(name) {
   brain.stats.modifyRoleAmount(role, -1);
 };
 
-brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
-  console.log(name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
-  if (Game.time - creepMemory.born < 20) {
-    return;
-  }
+brain.handleDiedFastCreep = function(creepMemory) {
+  return Game.time - creepMemory.born < 20;
+};
 
-  if (!creepMemory.role) {
-    delete Memory.creeps[name];
-    return;
-  }
+brain.handleDiedNoRoleCreep = function(creepMemory) {
+  return !!(!creepMemory.role || !roles[creepMemory.role]);
+};
 
-  const unit = roles[creepMemory.role];
-  if (!unit) {
-    delete Memory.creeps[name];
-    return;
-  }
-  if (unit.died) {
-    if (unit.died(name, creepMemory)) {
-      delete Memory.creeps[name];
+brain.handleDiedCreep = function(name, creepMemory) {
+  const role = roles[creepMemory.role];
+  if (role.died) {
+    if (typeof role.died === 'boolean' && role.died === true) {
+      console.log('--->', name, JSON.stringify(creepMemory), 'Died naturally?');
     }
-  } else {
-    delete Memory.creeps[name];
+    if (typeof role.died === 'function') {
+      role.died(name, creepMemory);
+    }
   }
+};
+
+brain.handleDiedCreepLog = function(name, creepMemory) {
+  const baseRoomName = Memory.creeps[name].base;
+  let baseRoom = Game.rooms[baseRoomName];
+  if (!baseRoom) {
+    baseRoom = console;
+  }
+  baseRoom.log(Game.time, name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
+};
+
+brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
+  brain.handleDiedCreepLog(name, creepMemory);
+
+  if (brain.handleDiedFastCreep(creepMemory)) {
+    return false;
+  }
+
+  if (brain.handleDiedNoRoleCreep(creepMemory)) {
+    delete Memory.creeps[name];
+    return false;
+  }
+
+  brain.handleDiedCreep(name, creepMemory);
+  delete Memory.creeps[name];
+  return false;
 };
 
 brain.cleanCreeps = function() {

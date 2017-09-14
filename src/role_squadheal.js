@@ -112,7 +112,3 @@ roles.squadheal.action = function(creep) {
   creep.squadHeal();
   return true;
 };
-
-roles.squadheal.execute = function(creep) {
-  //  creep.log('Execute!!!');
-};
