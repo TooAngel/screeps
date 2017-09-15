@@ -23,6 +23,29 @@ function haveNotSeen(creep, room) {
     creep.memory.skip.indexOf(room) === -1;
 }
 
+function checkForDefender(creep) {
+  if (!creep.room.controller) {
+    return false;
+  }
+  if (!creep.room.controller.reservation) {
+    return false;
+  }
+  if (creep.room.controller.reservation.username === Memory.username) {
+    return false;
+  }
+  if (!config.external.defendDistance) {
+    return false;
+  }
+
+  const distance = Game.map.getRoomLinearDistance(creep.room.name, creep.memory.base);
+  if (distance > config.external.defendDistance) {
+    return false;
+  }
+
+  creep.log('Spawning defender for external room');
+  Game.rooms[creep.memory.base].checkRoleToSpawn('defender', 1, undefined, creep.room.name);
+}
+
 roles.scout.execute = function(creep) {
   if (creep.memory.skip === undefined) {
     creep.memory.skip = [];
@@ -57,6 +80,7 @@ roles.scout.execute = function(creep) {
         creep.memory.skip.push(creep.memory.search.target);
         delete creep.memory.scoutSkip;
       } else {
+        checkForDefender(creep);
         creep.memory.search.seen.push(creep.room.name);
       }
       if (!setNewTarget(creep)) {
