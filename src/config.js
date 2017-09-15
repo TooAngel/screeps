@@ -142,10 +142,13 @@ global.config = {
       1800: [8, 15], // RCL 5
       2300: [11, 21], // RCL 6
     },
+    transferToCarry: false,
+    // limit carry spawn rate when RCL < 4
+    minSpawnRate: 50,
     // when ticksToLive > recycleThreshold, reuse carry
     recycleThreshold: 200,
-    transferToCarry: false,
-    minSpawnRate: 50,
+    // keep at least one carry for a target
+    ensureOne: true,
     // Percentage should increase from base to target room. Decrease may cause stack on border
     carryPercentageBase: 0.1,
     carryPercentageHighway: 0.2,

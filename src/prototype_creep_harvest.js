@@ -67,18 +67,13 @@ Creep.prototype.spawnCarry = function() {
     Math.sqrt(carryCapacity / Math.max(resourceAtPosition, carryCapacity));
 
   if (resourceAtPosition > carryCapacity) {
-    baseRoom.checkRoleToSpawn('carry', 0, this.memory.routing.targetId,
-      this.memory.routing.targetRoom, undefined, undefined, {
-        checkRecycle: true,
-      });
+    baseRoom.checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom);
   }
 
-  // low minSpawnRate helps carry recycling
-  let minSpawnRate = 10;
-
-  // higher minSpawnRate when RCL < 4
+  // limit carry spawn rate when RCL < 4
   if (baseRoom.controller.level < 4) {
-    minSpawnRate = config.carry.minSpawnRate;
+    this.memory.wait = Math.max(waitTime, config.carry.minSpawnRate);
+  } else {
+    this.memory.wait = waitTime;
   }
-  this.memory.wait = Math.max(waitTime, minSpawnRate);
 };

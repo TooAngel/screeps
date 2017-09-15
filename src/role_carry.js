@@ -56,8 +56,15 @@ roles.carry.reset = function(creep) {
   return false;
 };
 
-roles.carry.checkOnPathStart = function(creep) {
-  return creep.pos.isEqualTo(creep.room.memory.position.creep.pathStart.x, creep.room.memory.position.creep.pathStart.y);
+roles.carry.ensureOne = function(creep) {
+  if (config.carry.ensureOne) {
+    const nearCarries = creep.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['carry'], false, {
+      filter: (otherCreep) => otherCreep.memory.routing.targetId === creep.memory.routing.targetId,
+    });
+    if (nearCarries.length < 2) {
+      creep.memory.resetTarget = false;
+    }
+  }
 };
 
 roles.carry.checkHelperEmptyStorage = function(creep) {
@@ -65,15 +72,15 @@ roles.carry.checkHelperEmptyStorage = function(creep) {
   if (creep.room.name === creep.memory.routing.targetRoom) {
     const targetStructure = Game.getObjectById(creep.memory.routing.targetId);
     if (targetStructure === null) {
-      creep.suicide();
+      creep.memory.resetTarget = true;
       return;
     }
 
     if (targetStructure.structureType === STRUCTURE_STORAGE) {
       creep.say('storage');
       if (targetStructure.store.energy === 0) {
-        creep.log('Suiciding the storage I should get the energy from is empty');
-        creep.suicide();
+        creep.log('the storage I should get the energy from is empty');
+        creep.memory.resetTarget = true;
       }
     }
   }
@@ -85,7 +92,7 @@ roles.carry.handleMisplacedSpawn = function(creep) {
   if (creep.inBase() && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
     //     creep.say('cmis', true);
     // don't recycle carry
-    creep.memory.recycle = false;
+    creep.memory.resetTarget = false;
     if (creep.carry.energy > 0) {
       const structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
         filter: (object) => object.energy < object.energyCapacity,
@@ -113,7 +120,7 @@ roles.carry.handleMisplacedSpawn = function(creep) {
   }
 };
 
-roles.carry.preMove = function(creep, directions) {
+roles.carry.preMove = function(creep, directions, routeLength, pathLength) {
   roles.carry.checkHelperEmptyStorage(creep);
 
   if (roles.carry.handleMisplacedSpawn(creep)) {
@@ -164,7 +171,7 @@ roles.carry.preMove = function(creep, directions) {
           return true;
         }
         reverse = creep.carry.energy - transferred.transferred > 0;
-      } else if (roles.carry.checkOnPathStart(creep) && !(creep.room.storage && creep.room.storage.my && creep.room.storage.isActive())) {
+      } else if (creep.memory.routing.pathPos === 0 && !(creep.room.storage && creep.room.storage.my && creep.room.storage.isActive())) {
         creep.drop(RESOURCE_ENERGY);
         reverse = false;
 
@@ -187,21 +194,29 @@ roles.carry.preMove = function(creep, directions) {
   reverse = creep.pickupWhileMoving(reverse);
 
   // recycle carry
-  if (creep.memory.recycle) {
+  if (pathLength) {
+    const routing = creep.memory.routing;
+    if (routing.routePos === routeLength - 1 && routing.pathPos === pathLength - 2) {
+      if (creep.isStuck() && !reverse) {
+        creep.memory.resetTarget = true;
+      }
+      roles.carry.ensureOne(creep);
+    }
+  }
+  if (creep.memory.resetTarget) {
     reverse = true;
-    creep.say('recycle');
+    creep.say('reset');
     if (creep.inBase()) {
       if (creep.ticksToLive > config.carry.recycleThreshold && roles.carry.reset(creep)) {
-        creep.memory.recycle = false;
+        creep.memory.resetTarget = false;
       } else {
         const spawn = creep.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
         if (spawn && spawn.recycleCreep(creep) === 'OK') {
           return true;
+        } else if (creep.memory.routing.pathPos === 0) {
+          creep.memory.recycle = true;
+          return true;
         }
-      }
-      if (roles.carry.checkOnPathStart(creep)) {
-        creep.memory.moveToSpawn = true;
-        return true;
       }
     }
   }
@@ -291,8 +306,9 @@ roles.carry.action = function(creep) {
 
   creep.memory.routing.reached = false;
   creep.memory.routing.reverse = true;
-  if (creep.memory.checkRecycle) {
-    creep.memory.recycle = true;
+  if (!creep.memory.helper) {
+    creep.memory.resetTarget = true;
+    roles.carry.ensureOne(creep);
   }
 
   return true;

@@ -163,8 +163,15 @@ Creep.prototype.followPath = function(action) {
     return action(this);
   }
   const prepareData = this.moveByPathPrepare(route, routePos, 'pathStart', this.memory.routing.targetId);
+  let routeLength;
+  let pathLength;
+  if (prepareData.pathPos) {
+    this.memory.routing.pathPos = prepareData.pathPos;
+    routeLength = route.length;
+    pathLength = prepareData.path.length;
+  }
   if (prepareData.unit.preMove) {
-    if (prepareData.unit.preMove(this, prepareData.directions)) {
+    if (prepareData.unit.preMove(this, prepareData.directions, routeLength, pathLength)) {
       return true;
     }
   }
@@ -206,7 +213,6 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, action, 
 
   if (pathPos < 0) {
     // this.say('R:pos -1');
-    this.memory.routing.pathPos = pathPos;
     if (path.length === 0) {
       this.log('config_creep_routing.followPath no pos: ' + JSON.stringify(path));
       return false;
@@ -271,10 +277,6 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, action, 
       if (pathPos === path.length - 2) {
         if (this.memory.killPrevious) {
           this.killPrevious();
-        }
-        if (this.memory.checkRecycle && this.isStuck() && !this.memory.routing.reverse) {
-          // recycle carry
-          this.memory.recycle = true;
         }
       }
       if (pathPos === path.length - 1 && !this.memory.routing.reverse) {
