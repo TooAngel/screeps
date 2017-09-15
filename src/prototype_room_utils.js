@@ -75,6 +75,41 @@ Room.prototype.findPropertyFilter = function(findTarget, property, properties, w
   }
 };
 
+/**
+ * Perform a random choice of room connected to this room.
+ * Chance are however proportional to need of room to be visited according
+ * to config scout setups and distance from room to base used for method.
+ *
+ * @param  {String}  base      The base room used for limit search around a room
+ * @return {String}            The name of adjacent room chosen.
+ */
+
+Room.prototype.randomRoomAround = function(base) {
+  let rooms = Game.map.describeExits(this.name);
+  let age;
+  let roomsRet = [];
+  let totalAge = 0;
+  for (let direction in rooms) {
+    let roomNext = rooms[direction];
+    let roomMem = Memory.rooms[roomNext];
+    if (roomMem && roomMem.tickHostilesSeen && (Game.time - roomMem.tickHostilesSeen) < config.scout.intervalBetweenHostileVisits) {
+      continue;
+    }
+    age = ((roomMem && (Math.max(Game.time - roomMem.lastSeen, config.scout.intervalBetweenRoomVisits))) || config.scout.intervalBetweenRoomVisits) *
+        (5 - Math.max(Game.map.getRoomLinearDistance(roomNext, base), config.scout.maxDistanceAroundTarget)) / config.scout.maxDistanceAroundTarget;
+    roomsRet.push({name: roomNext, age: age});
+    totalAge += age;
+  }
+  let random = Math.random() * totalAge;
+  totalAge = 0;
+  for (let room of roomsRet) {
+    totalAge += room.age;
+    if (totalAge >= random) {
+      return room.name;
+    }
+  }
+};
+
 Room.prototype.closestSpawn = function(target) {
   let pathLength = {};
   let roomsMy = this.sortMyRoomsByLinearDistance(target);

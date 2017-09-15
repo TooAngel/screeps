@@ -160,10 +160,13 @@ global.config = {
   },
 
   scout: {
-    amount: [1,2,3,4,5,6,7,8],   // by RCL
-    intervalBetweenRoomVisit: 500,
-    scoutSkipWhenStuck: true, // Useful for novice areas.
+    amount: [1, 2, 3, 4, 5, 6, 7, 8],   // by RCL
+    intervalBetweenRoomVisits: 500,
+    intervalBetweenHostileVisits: 2500,
+    intervalBetweenBlockedVisits: 1500,
+    maxDistanceAroundTarget: 5,
   },
+
   room: {
     reservedRCL: {
       0: 1,
