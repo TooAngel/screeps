@@ -360,7 +360,9 @@ const filterTransferrables = function(creep, object) {
     return false;
   }
 
-  if (object.structureType !== STRUCTURE_STORAGE && object.energy === object.energyCapacity) {
+  if (object.structureType === STRUCTURE_STORAGE ?
+    _.sum(object.store) + _.sum(creep.carry) > object.storeCapacity :
+    object.energy === object.energyCapacity) {
     return false;
   }
 
@@ -409,6 +411,12 @@ Creep.prototype.transferToStructures = function() {
       }
       transferred = this.transferAllResources(item.structure);
     }
+  }
+  if (transferred) {
+    return {
+      moreStructures: false,
+      transferred: transferred,
+    };
   }
   return false;
 };
