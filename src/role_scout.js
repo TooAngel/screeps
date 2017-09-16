@@ -171,9 +171,9 @@ roles.scout.unStuckIt = function(creep) {
   if (creep.memory.stuckAmount === 2) {
     creep.memory.moveTo = true;
   } else if (creep.memory.stuckAmount === 4) {
-    delete creep.memory.search.target;
     Memory.rooms[creep.memory.search.target] = Memory.rooms[creep.memory.search.target] || {};
     Memory.rooms[creep.memory.search.target].tickBlockedFlag = Game.time;
+    delete creep.memory.search.target;
   } else if (creep.memory.stuckAmount === 6) {
     delete creep.memory.search;
     creep.memory.stuckAmount = 0;
@@ -183,9 +183,12 @@ roles.scout.unStuckIt = function(creep) {
 
 roles.scout.enterNewRoom = function(creep) {
   creep.room.memory.lastSeen = Game.time;
-  creep.memory.stuckAmount = 0;
   creep.memory.moveTo = false;
   let roomMem = creep.room.memory;
+
+  if (creep.memory.stuckAmount > 4) {
+    creep.memory.stuckAmount = 0;
+  }
 
   let youngerCreepHere = roomMem && roomMem.scoutSeen;
   if (!youngerCreepHere || !Game.creeps[youngerCreepHere] || Game.creeps[youngerCreepHere].ticksToLive < creep.ticksToLive) {
