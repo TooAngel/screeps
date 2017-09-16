@@ -1,5 +1,5 @@
 'use strict';
-
+global.visualizer = {};
 if (config.visualizer.enabled) {
   global.visualizer = {
 
@@ -186,3 +186,82 @@ if (config.visualizer.enabled) {
     },
   };
 }
+
+global.visualizer.myRoomDatasDraw = function(roomName) {
+  const fontSize = 0.65;
+  const room = Game.rooms[roomName];
+  const energy = (room.memory.energyStats && Math.floor(room.memory.energyStats.average)) ||
+    room.energyAvailable;
+  const storedE = room.storage ? room.storage.store[RESOURCE_ENERGY] : 0;
+  const queueL = room.memory.queue ? room.memory.queue.length : 0;
+  const rclP = Math.floor(100 * (room.controller.progressTotal ? room.controller.progress / room.controller.progressTotal : 1));
+
+  const color = (coeff) => `rgb(${Math.floor(-(coeff - 1) * 255)},${Math.floor(coeff * 255)},0)`;
+  const lines = [
+    {label: `Energy Average :`, value: energy, coeff: energy / room.energyCapacityAvailable},
+    {label: `Stored Energy :`, value: storedE, coeff: Math.min(storedE, 500000) / 500000},
+    {label: `Queue length :`, value: queueL, coeff: (20 - Math.min(queueL, 20)) / 20},
+    {label: `RCL ${room.controller.level} progress :`, value: rclP, coeff: rclP / 100},
+  ];
+  if (config.stats.summary && Memory.summary) {
+    const rclSpeed = Math.floor(room.memory.upgraderUpgrade / (Game.time % 100 || 1));
+    lines.push({label: `RCL speed:`, value: rclSpeed, coeff: rclSpeed / 50});
+  }
+  if (room.memory.queue.length) {
+    const lowestInQueue = [
+      _.chain(room.memory.queue).sortBy((creep) => creep.ttl).value()[0],
+      room.memory.queue[0],
+    ];
+    const labels = ['ttl', 'priority'];
+    let lowest;
+    for (let id = 0; id < 2; id++) {
+      lowest = lowestInQueue[id];
+      lines.push({label: `Lowest ${labels[id]}: ${lowest.role} --> ${(lowest.routing && lowest.routing.targetRoom) || '?'} | TTL: ${lowest.ttl || '?'}`});
+    }
+  }
+  let y = 0;
+  let line;
+  for (line of lines) {
+    room.visual.text(line.label, 0.5, 0.75 + 2 * y * fontSize, {
+      color: 'rgb(255,255,255)',
+      font: fontSize,
+      align: 'left',
+    });
+    if (line.value !== undefined) {
+      room.visual.text(`${line.value}`, 6, 1.5 * fontSize + 2 * y * fontSize, {
+        color: color(line.coeff),
+        font: fontSize * 2,
+        align: 'left',
+      });
+    }
+    y++;
+  }
+
+  if (config.stats.summary && Memory.summary) {
+    const highterQueue = _.chain(Memory.myRooms)
+      .map((roomName) => {
+        return {length: -Memory.rooms[roomName].queue.length, roomName: roomName};
+      }).sortBy((roomRet) => -Memory.rooms[roomRet.roomName].queue.length).value()[0];
+    const output = `=========================
+      Game time: ${Game.time}
+      Progress: ${(Game.gcl.progress - Memory.progress) / 100}/${Memory.myRooms.length * 15}
+      ConstructionSites: ${Object.keys(Memory.constructionSites).length}
+      -------------------------
+      No storage: ${Memory.summary.storageNoString}
+      Low storage: ${Memory.summary.storageLowString}
+      Middle storage: ${Memory.summary.storageMiddleString}
+      High storage: ${Memory.summary.storageHighString}
+      -------------------------
+      Power storage: ${Memory.summary.storagePower}
+      -------------------------
+      Upgrade less: ${Memory.summary.upgradeLess}
+      -------------------------
+      Highter queue: ${highterQueue.roomName}:${-highterQueue.length}
+      =========================`;
+    const lines = output.split('\n');
+    let l = 0;
+    for (l; l < lines.length; l++) {
+      room.visual.text(lines[l], 25, 25 + (l * (fontSize - 0.05)), {font: fontSize});
+    }
+  }
+};

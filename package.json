@@ -25,7 +25,7 @@
     "request": "^2.81.0",
     "request-promise-native": "^1.0.4",
     "screeps": "^2.8.2",
-    "screeps-profiler": "1.2.1",
+    "screeps-profiler": "github:samogot/screeps-profiler",
     "uglify-js-harmony": "2.6.2"
   },
   "repository": {

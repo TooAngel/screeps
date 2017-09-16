@@ -22,8 +22,8 @@ Creep.prototype.fleeFromHostile = function(hostile) {
   for (let offset = 0; offset < 8; offset++) {
     const dir = (direction + offset) % 8 + 1;
     const pos = this.pos.getAdjacentPosition(dir);
-    if (pos.lookFor(LOOK_TERRAIN)[0] !== STRUCTURE_WALL && pos.lookFor(LOOK_CREEPS).length === 0) {
-      direction = direction + offset;
+    if (!pos.checkForWall() && pos.lookFor(LOOK_CREEPS).length === 0) {
+      direction = dir;
       break;
     }
   }
@@ -169,6 +169,16 @@ Creep.prototype.fightRampart = function(target) {
   if (range > 3) {
     return false;
   }
+
+  const targets = this.pos.findInRange(FIND_HOSTILE_CREEPS, 3, {
+    filter: this.room.findAttackCreeps,
+  });
+  if (targets.length > 1) {
+    this.rangedMassAttack();
+  } else {
+    this.rangedAttack(target);
+  }
+
   const returnCode = this.moveToMy(rampart.pos, 0);
   if (returnCode === OK) {
     return true;
@@ -179,14 +189,6 @@ Creep.prototype.fightRampart = function(target) {
 
   this.log('creep_fight.fightRampart returnCode: ' + returnCode);
 
-  const targets = this.pos.findInRange(FIND_HOSTILE_CREEPS, 3, {
-    filter: this.room.findAttackCreeps,
-  });
-  if (targets.length > 1) {
-    this.rangedMassAttack();
-  } else {
-    this.rangedAttack(target);
-  }
   return true;
 };
 
@@ -233,7 +235,8 @@ Creep.prototype.siege = function() {
   this.memory.hitsLost = this.memory.hitsLast - this.hits;
   this.memory.hitsLast = this.hits;
 
-  if (this.hits - this.memory.hitsLost < this.hits / 2) {
+  // if (this.hits - this.memory.hitsLost < this.hits / 2) {
+  if (this.hits < 0.7 * this.hitsMax) {
     const exitNext = this.pos.findClosestByRange(FIND_EXIT);
     this.moveTo(exitNext);
     return true;

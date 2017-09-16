@@ -10,13 +10,37 @@ roles.squadheal = {};
 
 roles.squadheal.settings = {
   layoutString: 'MH',
-  amount: [17, 17],
+  amount: [1, 1],
   fillTough: true,
 };
 
+roles.squadheal.healClosestCreep = function(creep) {
+  const myCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
+    filter: function(object) {
+      if (object.hits < object.hitsMax) {
+        return true;
+      }
+      return false;
+    },
+  });
+  if (myCreep !== null) {
+    creep.say('heal', true);
+    const range = creep.pos.getRangeTo(myCreep);
+    if (range <= 1) {
+      creep.heal(myCreep);
+    } else {
+      creep.moveTo(myCreep);
+      creep.rangedHeal(myCreep);
+    }
+    return true;
+  }
+  return false;
+};
+
 roles.squadheal.preMove = function(creep, directions) {
+  creep.log('preMove');
   if (creep.hits < creep.hitsMax) {
-    console.log('preMove heal');
+    creep.log('preMove heal');
     creep.heal(creep);
     creep.memory.routing.reverse = true;
     if (directions) {
@@ -27,23 +51,7 @@ roles.squadheal.preMove = function(creep, directions) {
     creep.memory.routing.reverse = false;
   }
 
-  const myCreeps = creep.room.find(FIND_MY_CREEPS, {
-    filter: function(object) {
-      if (object.hits < object.hitsMax) {
-        return true;
-      }
-      return false;
-    },
-  });
-  if (myCreeps.length > 0) {
-    creep.say('heal', true);
-    creep.moveTo(myCreeps[0]);
-    const range = creep.pos.getRangeTo(myCreeps[0]);
-    if (range <= 1) {
-      creep.heal(myCreeps[0]);
-    } else {
-      creep.rangedHeal(myCreeps[0]);
-    }
+  if (roles.squadheal.healClosestCreep(creep)) {
     return true;
   }
 
@@ -54,16 +62,8 @@ roles.squadheal.preMove = function(creep, directions) {
       creep.memory.initialized = true;
     }
     if (squad.action === 'move') {
-      if (creep.room.name === squad.moveTarget) {
-        const nextExits = creep.room.find(creep.memory.route[creep.memory.routePos].exit);
-        const nextExit = nextExits[Math.floor(nextExits.length / 2)];
-        const range = creep.pos.getRangeTo(nextExit.x, nextExit.y);
-        if (range < 4) {
-          Memory.squads[creep.memory.squad].heal[creep.id].waiting = true;
-          //        if (Math.random() > 0.5 * (range - 2)) {
-          //          reverse = true;
-          //        }
-        }
+      if (creep.squadMove(squad, 4, false, 'heal')) {
+        return true;
       }
     }
   }
@@ -71,44 +71,40 @@ roles.squadheal.preMove = function(creep, directions) {
 
 // TODO need to check if it works
 roles.squadheal.action = function(creep) {
-  if (creep.hits < creep.hitsMax) {
-    creep.log('action heal');
-    creep.heal(creep);
-    creep.say('exit');
-    const exit = creep.pos.findClosestByRange(FIND_EXIT);
-    creep.cancelOrder('move');
-    creep.cancelOrder('moveTo');
+  creep.heal(creep);
 
-    if (creep.pos.x === 0 || creep.pos.y === 0 || creep.pos.x === 49 || creep.pos.y === 49) {
-      return true;
+  if (creep.room.name !== creep.memory.routing.targetRoom) {
+    // creep.log('Not in room');
+    if (creep.hits < creep.hitsMax) {
+      creep.moveRandom();
+    } else {
+      // creep.log('delete?');
+      delete creep.memory.routing.reached;
     }
-
-    const search = PathFinder.search(
-      creep.pos, {
-        pos: exit,
-        range: 0,
-      }, {
-        roomCallback: creep.room.getCostMatrixCallback(exit),
-        maxRooms: 1,
-      }
-    );
-
-    if (config.visualizer.enabled && config.visualizer.showPathSearches) {
-      visualizer.showSearch(search);
-    }
-
-    if (search.incomplete) {
-      creep.say('incomplete');
-      creep.log(creep.pos.getDirectionTo(exit.x, exit.y));
-      const returnCode = creep.move(creep.pos.getDirectionTo(exit.x, exit.y));
-      creep.log('rc: ' + returnCode);
-      return true;
-    }
-    creep.move(creep.pos.getDirectionTo(search.path[0]));
-    delete creep.memory.routing.reached;
     return true;
+  } else {
+    creep.log('In room');
+    // TODO calculate if we would to flip directly back to the previous room
+    // get all towers and calculate their potential damage
+    // the damage is applied after the first tick
+    if (creep.hits < creep.hitsMax) {
+      creep.log('action heal');
+      creep.heal(creep);
+      creep.say('exit');
+      const exit = creep.pos.findClosestByRange(FIND_EXIT);
+      creep.moveTo(exit);
+    } else {
+      creep.log('mrandom');
+      creep.moveRandom();
+      creep.squadHeal();
+    }
   }
 
-  creep.squadHeal();
   return true;
+};
+
+roles.squadheal.execute = function(creep) {
+  creep.log('Execute!!!');
+  creep.heal(creep);
+  creep.moveRandom();
 };
