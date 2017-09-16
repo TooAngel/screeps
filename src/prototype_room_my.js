@@ -37,34 +37,6 @@ Room.prototype.myHandleRoom = function() {
   return this.executeRoom();
 };
 
-Room.prototype.newScoutTarget = function(creep) {
-  let oldestRoom;
-  let oldestAge = Game.time - config.scout.intervalBetweenRoomVisit;
-  root : for (let deepRooms of this.memory.roomsPatern) {
-    for (let room of deepRooms) {
-      if (!this.memory) {
-        oldestRoom = room;
-        break root;
-      }
-      let scoutSeen = this.memory.scoutSeen;
-      if (scoutSeen) {
-        if (Game.creeps[scoutSeen]) {
-          continue;
-        }
-        delete this.memory.scoutSeen;
-      }
-      if (Memory.rooms[room].lastSeen < oldestAge) {
-        oldestRoom = room;
-        oldestAge = Memory.rooms[room].lastSeen;
-      }
-    }
-  }
-  if (oldestRoom) {
-    return oldestRoom;
-  }
-  return null;
-};
-
 Room.prototype.initRoomsPatern = function() {
   let roomsPatern = [[this.name],[]];
   let n = 0;

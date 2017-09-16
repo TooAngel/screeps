@@ -200,42 +200,6 @@ Room.stringToPath = function(string) {
   return path;
 };
 
-/**
-Room.prototype.randomRoomAround = function(exits) { //TODO : move to rooms proto
-  let target;
-  let rooms = exits || Game.map.describeExits(this.name);
-  while (!target) {
-    target = rooms[Math.floor(Math.random() * 4 - 0.01) * 2 + 1];
-  }
-  return target;
-};
-**/
-
-Room.prototype.randomRoomAround = function() {
-  let rooms = Game.map.describeExits(this.name);
-  let age;
-  let roomsRet = [];
-  let totalAge = 0;
-  for (let direction in rooms) {
-    let roomNext = rooms[direction];
-    let roomMem = Memory.rooms[roomNext];
-    if (roomMem && (roomMem.unSafe || (Game.time - roomMem.lastSeen) > 5000)) {
-      continue;
-    }
-    age = (roomMem && (Math.max(Game.time - roomMem.lastSeen, config.scout.intervalBetweenRoomVisit))) || config.scout.intervalBetweenRoomVisit;
-    roomsRet.push({name: roomNext, age: age});
-    totalAge += age;
-  }
-  let random = Math.random() * totalAge;
-  totalAge = 0;
-  for (let room of roomsRet) {
-    totalAge += room.age;
-    if (totalAge <= random) {
-      return room.name;
-    }
-  }
-};
-
 Room.test = function() {
   let original = Memory.rooms.E37N35.routing['pathStart-harvester'].path;
   let string = Room.pathToString(original);
