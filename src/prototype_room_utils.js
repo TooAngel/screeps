@@ -95,8 +95,11 @@ Room.prototype.randomRoomAround = function(base) {
     if (roomMem && roomMem.tickHostilesSeen && (Game.time - roomMem.tickHostilesSeen) < config.scout.intervalBetweenHostileVisits) {
       continue;
     }
-    age = ((roomMem && (Math.max(Game.time - roomMem.lastSeen, config.scout.intervalBetweenRoomVisits))) || config.scout.intervalBetweenRoomVisits) *
-        (5 - Math.max(Game.map.getRoomLinearDistance(roomNext, base), config.scout.maxDistanceAroundTarget)) / config.scout.maxDistanceAroundTarget;
+    let distance = Math.min(Game.map.getRoomLinearDistance(roomNext, base), config.scout.maxDistanceAroundTarget);
+    age = roomMem ? (Game.rooms[roomNext] ? config.scout.intervalBetweenRoomVisits : Game.time - roomMem.lastSeen) :  config.scout.intervalBetweenRoomVisits;
+    age = Math.ceil(Math.min(age < 10 ? 0 : age, config.scout.intervalBetweenRoomVisits) * (5 - distance) / config.scout.maxDistanceAroundTarget);
+    Memory.rooms[roomNext] = roomMem || {};
+    Memory.rooms[roomNext].lastAge = age;
     roomsRet.push({name: roomNext, age: age});
     totalAge += age;
   }

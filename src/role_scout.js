@@ -12,10 +12,16 @@ roles.scout.settings = {
   amount: [1],
   maxLayoutAmount: 1,
 };
+roles.scout.updateSettings = function(room, creep) {
+  return {fillTough: creep.renforced || false};
+};
 
 roles.scout.died = function(name, memory) {
-  const baseName = memory.base;
-  Game.rooms[baseName].checkRoleToSpawn('scout', 0, undefined, undefined, 0, baseName);
+  const baseRoom = Game.rooms[memory.base];
+  if (memory.hits) {
+    Memory.rooms[memory.search.target].tickHostilesSeen = Game.time;
+  }
+  baseRoom.checkRoleToSpawn('scout', 0 , undefined, undefined, 0, memory.base, {renforced: true});
   delete Memory.creeps[name];
 };
 
@@ -25,30 +31,29 @@ roles.scout.execute = function(creep) {
     creep.memory.notifyDisabled = true;
   }
 };
+
 roles.scout.action = function(creep) {
   if (!creep.memory.search) {
-    creep.say('init');
     roles.scout.initSearch(creep);
+    creep.say('i-' + creep.memory.search.startRoom, true);
   }
+  if (!creep.memory.search.startRoom) {
+    creep.memory.search.startRoom = creep.memory.base;
+  }
+  creep.say('-->' + creep.memory.search.target, true);
   if (creep.room.name === creep.memory.search.target || !creep.memory.search.target) {
-    creep.say('switch');
-    creep.memory.search.target = creep.room.randomRoomAround(creep.memory.search.startRoom || creep.memory.base);
-
-    if (creep.memory.search.target) {
-      Memory.rooms[creep.memory.search.target].lastSeen = Game.time;
-    } else {
-      if (creep.pos.roomName === creep.memory.search.startRoom) {
-        delete creep.memory.search.target;
-      } else {
-        creep.memory.search.target = creep.memory.search.startRoom || creep.memory.base;
-      }
-    }
+    roles.scout.switchTarget(creep);
   }
-  if (creep.memory.last && creep.memory.last.pos1 && creep.room.name !== creep.memory.last.pos1.roomName) {
+  if (creep.memory.hits && creep.hits < creep.memory.hits) {
+    creep.say('Afraid', true);
+    creep.room.memory.tickHostilesSeen = Game.time;
+    creep.memory.hits = creep.hits;
+  }
+  if (creep.memory.last && creep.memory.last.pos3 && creep.room.name !== creep.memory.last.pos3.roomName) {
     roles.scout.enterNewRoom(creep);
+  } else if (creep.memory.search) {
+    roles.scout.move(creep);
   }
-  let targetPos = new RoomPosition(25, 25, creep.memory.search.target);
-  roles.scout.move(creep, targetPos);
 };
 
 const isSafe = function(roomMem) {
@@ -75,7 +80,7 @@ roles.scout.initSearch = function(creep) {
   let deep = 1;
   while (roomsPatern[deep]) {
     for (let roomName of roomsPatern[deep]) {
-      const roomMem = Memory.rooms[roomName].lastSeen;
+      const roomMem = Memory.rooms[roomName];
       if (isSafe(roomMem) && needVisit(roomMem)) {
         creep.memory.search.target = roomName;
         creep.memory.search.startRoom = roomName;
@@ -87,78 +92,111 @@ roles.scout.initSearch = function(creep) {
   return false;
 };
 
+roles.scout.switchTarget = function(creep) {
+  creep.memory.search.target = creep.room.randomRoomAround(creep.memory.search.startRoom);
+  creep.say('s-' + creep.memory.search.target, true);
+  if (creep.memory.search.target) {
+    if (creep.memory.search.target === creep.memory.search.startRoom) {
+      delete creep.memory.search;
+    } else {
+      Memory.rooms[creep.memory.search.target] = Memory.rooms[creep.memory.search.target] || {};
+      Memory.rooms[creep.memory.search.target].lastSeen = Game.time;
+    }
+  } else {
+    if (creep.pos.roomName === creep.memory.search.startRoom) {
+      delete creep.memory.search;
+    } else {
+      creep.memory.search.target = creep.memory.search.startRoom;
+    }
+  }
+};
+
 roles.scout.move = function(creep) {
   let targetPos = new RoomPosition(25, 25, creep.memory.search.target);
-  let costMatrix = function(roomName) {
-    let roomMem = Memory.rooms[roomName];
-    if (isSafe(roomMem)) {
-      return creep.room.getCostMatrixCallback(targetPos, true, false, true);
+  if (creep.memory.moveTo) {
+    creep.say('?->' + targetPos.roomName, true);
+    creep.moveTo(targetPos, {ignoreRoads: true});
+  } else {
+    let costMatrix = function(roomName) {
+      let roomMem = Memory.rooms[roomName];
+      if (isSafe(roomMem)) {
+        return creep.room.getCostMatrixCallback(targetPos, true, false, true);
+      }
+      return false;
+    };
+    let search = PathFinder.search(
+      creep.pos, {
+        ignoreCreeps: true,
+        pos: targetPos,
+        range: 20
+      }, {
+        roomCallback: costMatrix,
+        swampCost: 1,
+      }
+    );
+    if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+      visualizer.showSearch(search);
     }
-    return false;
-  };
-
-  let search = PathFinder.search(
-    creep.pos, {
-      pos: targetPos,
-      range: 20
-    }, {
-      roomCallback: costMatrix,
-    }
-  );
-
-  if (config.visualizer.enabled && config.visualizer.showPathSearches) {
-    visualizer.showSearch(search);
-  }
-
-  if (search.path.length === 0) {
-    creep.say('?');
-    if (creep.isStuck()) {
-      let search = PathFinder.search(
+    if (search.path.length === 0) {
+      if (creep.isStuck()) {
+        let search = PathFinder.search(
           creep.pos, {
             pos: targetPos,
             range: 20
           }, {
-            ignoreCreeps: true,
             roomCallback: costMatrix,
             maxOps: 10000,
           }
         );
-
-      if (search.path.length === 0) {
-        Memory.rooms[creep.memory.search.target] = Memory.rooms[creep.memory.search.target] || {};
-        Memory.rooms[creep.memory.search.target].tickBlockedFlag = Game.time;
-        creep.memory.search = {};
-        return false;
+        if (search.path.length === 0) {
+          Memory.rooms[creep.memory.search.target] = Memory.rooms[creep.memory.search.target] || {};
+          Memory.rooms[creep.memory.search.target].tickBlockedFlag = Game.time;
+          creep.memory.search = {};
+          return false;
+        }
       }
     }
+    let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
   }
-  creep.say(creep.memory.search.target);
-  let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
+
   if (creep.isStuck()) {
-    creep.memory.stuckAmount = creep.memory.stuckAmount ? creep.memory.stuckAmount + 1 : 1;
-    delete creep.memory.search.target;
-    if (creep.memory.stuckAmount >= 5) {
-      delete creep.memory.search;
-      creep.memory.stuckAmount = 0;
-    }
-    delete creep.memory.last;
-    creep.moveTo(targetPos);
+    roles.scout.unStuckIt(creep);
   }
 };
 
+roles.scout.unStuckIt = function(creep) {
+  creep.memory.stuckAmount = creep.memory.stuckAmount ? creep.memory.stuckAmount + 1 : 1;
+
+  creep.say('stu:' + creep.memory.stuckAmount, true);
+  if (creep.memory.stuckAmount === 2) {
+    creep.memory.moveTo = true;
+  } else if (creep.memory.stuckAmount === 4) {
+    delete creep.memory.search.target;
+    Memory.rooms[creep.memory.search.target] = Memory.rooms[creep.memory.search.target] || {};
+    Memory.rooms[creep.memory.search.target].tickBlockedFlag = Game.time;
+  } else if (creep.memory.stuckAmount === 6) {
+    delete creep.memory.search;
+    creep.memory.stuckAmount = 0;
+  }
+  delete creep.memory.last;
+};
+
 roles.scout.enterNewRoom = function(creep) {
+  creep.room.memory.lastSeen = Game.time;
+  creep.memory.stuckAmount = 0;
+  creep.memory.moveTo = false;
   let roomMem = creep.room.memory;
-  let youngerCreepHere = creep.room.memory.scoutSeen;
+
+  let youngerCreepHere = roomMem && roomMem.scoutSeen;
   if (!youngerCreepHere || !Game.creeps[youngerCreepHere] || Game.creeps[youngerCreepHere].ticksToLive < creep.ticksToLive) {
     creep.room.memory.scoutSeen = creep.name;
   }
 
   if (creep.room.getEnemys().length) {
-    creep.say('Afraid', true);
-    creep.room.memory.tickHostilesSeen = Game.time;
-    return false;
+    creep.memory.hits = creep.hits;
+  } else {
+    delete creep.memory.hits;
   }
-
-  creep.moveTo(25, 25, {maxOps: 100});
+  creep.moveTo(25, 25, {maxOps: 500});
   return true;
 };
