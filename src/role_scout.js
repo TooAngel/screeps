@@ -54,6 +54,9 @@ roles.scout.action = function(creep) {
   } else if (creep.memory.search) {
     roles.scout.move(creep);
   }
+  if (creep.isStuck()) {
+    roles.scout.unStuckIt(creep);
+  }
 };
 
 const isSafe = function(roomMem) {
@@ -157,10 +160,6 @@ roles.scout.move = function(creep) {
       }
     }
     let returnCode = creep.move(creep.pos.getDirectionTo(search.path[0]));
-  }
-
-  if (creep.isStuck()) {
-    roles.scout.unStuckIt(creep);
   }
 };
 
