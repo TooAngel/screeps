@@ -49,6 +49,8 @@ const main = function() {
   Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
   Memory.myRooms.forEach(visualizer.myRoomDatasDraw);
 
+  brain.saveMemorySegments();
+
   if (config.visualizer.enabled) {
     visualizer.render();
   }
