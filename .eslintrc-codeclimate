@@ -2,7 +2,7 @@ extends:
   - .eslintrc-base
 
 rules:
-  no-undef: 2
+  no-undef: 0
   complexity: [2, 6]
   max-statements: [2, 30]
   require-jsdoc:
@@ -11,4 +11,3 @@ rules:
         FunctionDeclaration: true
         MethodDefinition: true
         ClassDeclaration: true
-        ArrowFunctionExpression: true
