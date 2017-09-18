@@ -59,7 +59,7 @@ roles.carry.reset = function(creep) {
 roles.carry.ensureOne = function(creep) {
   if (config.carry.ensureOne) {
     const nearCarries = creep.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['carry'], false, {
-      filter: (otherCreep) => otherCreep.memory.routing.targetId === creep.memory.routing.targetId,
+      filter: (otherCreep) => !otherCreep.resetTarget && otherCreep.memory.routing.targetId === creep.memory.routing.targetId,
     });
     if (nearCarries.length < 2) {
       creep.memory.resetTarget = false;
