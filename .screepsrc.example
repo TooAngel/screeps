@@ -1,0 +1,4 @@
+;If you launch the server without running the local Steam client, 
+;then the Steam Web API key is required for authenticating users. 
+;It can be obtained on this page: http://steamcommunity.com/dev/apikey
+steam_api_key = SOMEKEY
