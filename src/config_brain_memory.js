@@ -306,7 +306,7 @@ brain.checkSegmentActive = function(id, noThrow = false) {
     for (let i = 0; i < config.memory.segments && ids.size < 10; ++i) {
       ids.add(i);
     }
-    RawMemory.setActiveSegments(ids);
+    RawMemory.setActiveSegments(Array.from(ids));
     if (noThrow) {
       return false;
     }
