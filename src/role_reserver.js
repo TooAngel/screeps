@@ -31,6 +31,12 @@ roles.reserver.updateSettings = function(room, creep) {
   }
 };
 
+roles.reserver.preMove = function(creep, directions) {
+  if (creep.allowOverTake(directions)) {
+    return true;
+  }
+};
+
 roles.reserver.action = function(creep) {
   creep.mySignController();
   if (!creep.memory.routing.targetId) {

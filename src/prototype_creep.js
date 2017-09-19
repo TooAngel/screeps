@@ -98,6 +98,11 @@ Creep.prototype.handle = function() {
         }
       }
 
+      if (this.memory.forced) {
+        delete this.memory.forced;
+        return;
+      }
+
       if (this.followPath(unit.action)) {
         return true;
       }

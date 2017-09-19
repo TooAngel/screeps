@@ -23,6 +23,20 @@ Creep.prototype.getRoute = function() {
   return route;
 };
 
+Creep.prototype.allowOverTake = function(directions) {
+  if (!this.inBase() || this.room.controller.level < 4) {
+    const dir = directions && directions.direction;
+    if (dir === 1 || dir === 3 || dir === 5 || dir === 7) {
+      const reverseDir = directions.direction > 4 ? directions.direction - 4 : directions.direction + 4;
+      const randomDir = Game.time % 2 ? 1 : -1;
+      const pos = this.pos.getAdjacentPosition(reverseDir);
+      this.moveCreep(pos, (reverseDir + 3 * randomDir) % 8 || 8);
+      return true;
+    }
+  }
+  return false;
+};
+
 Creep.prototype.getRoutePos = function(route) {
   let routePos = this.memory.routing.routePos || 0;
   // Detect room change
@@ -214,7 +228,12 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, action, 
 
     let posFirst;
     try {
-      posFirst = new RoomPosition(path[0].x, path[0].y, path[0].roomName);
+      if (this.memory.routing.reverse) {
+        posFirst = new RoomPosition(path[0].x, path[0].y, path[0].roomName);
+      } else {
+        const step = path.length > 1 ? path.length - 2 : path.length - 1;
+        posFirst = new RoomPosition(path[step].x, path[step].y, path[step].roomName);
+      }
     } catch (e) {
       // TODO config.serializePath mismatch with memory is the only case I know of
       this.log('Can not parse path in cache will delete Memory');
