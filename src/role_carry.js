@@ -71,11 +71,20 @@ roles.carry.handleMisplacedSpawn = function(creep) {
       const structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
         filter: (object) => object.energy < object.energyCapacity,
       });
-      creep.moveTo(structure, {
-        ignoreCreeps: true,
-      });
-      creep.transfer(structure, RESOURCE_ENERGY);
-      return true;
+      if (structure) {
+        creep.moveTo(structure, {
+          ignoreCreeps: !creep.isStuck(),
+        });
+        creep.transfer(structure, RESOURCE_ENERGY);
+        return true;
+      } else {
+        const harvesters = creep.pos.findInRange(FIND_MY_CREEPS, 2, {
+          filter: (c) => (c.memory.role === 'harvester' && c.carry.energy < c.carryCapacity),
+        });
+        if (harvesters.length) {
+          creep.drop(RESOURCE_ENERGY);
+        }
+      }
     } else {
       const targetId = creep.memory.routing.targetId;
 

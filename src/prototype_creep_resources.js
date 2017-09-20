@@ -4,19 +4,30 @@ Creep.pickableResources = function(creep) {
   return (object) => creep.pos.isNearTo(object);
 };
 
+Creep.transferToCreep = function(creep) {
+  if (creep.memory._move && creep.memory._move.dest) {
+    const direction = creep.pos.getDirectionTo(creep.memory._move.dest.x, creep.memory._move.dest.y);
+    return creep.transferToCreep(direction);
+  }
+};
+
 Creep.prototype.harvesterBeforeStorage = function() {
-  const methods = [];
-
-  methods.push(Creep.getEnergy);
-
-  if (this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / 10 || this.room.controller.level === 1) {
-    methods.push(Creep.upgradeControllerTask);
+  if (this.isStuck()) {
+    this.moveRandom();
   }
 
+  const methods = [];
+  methods.push(Creep.getEnergy);
+
+  if (this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / 10) {
+    methods.push(Creep.upgradeControllerTask);
+  }
   methods.push(Creep.transferEnergy);
   const structures = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_CONTROLLER], true);
   if (structures.length > 0) {
     methods.push(Creep.constructTask);
+  } else if (this.memory.routing.reverse) {
+    methods.push(Creep.transferToCreep);
   }
 
   if (this.room.controller.level < 9) {
@@ -590,6 +601,8 @@ Creep.prototype.construct = function() {
   let target;
   if (this.memory.role === 'nextroomer') {
     target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART], true);
+  } else if (this.memory.role === 'harvester') {
+    target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD], true);
   } else {
     target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
   }
