@@ -210,16 +210,6 @@ module.exports = function(grunt) {
           dest: 'dist/',
         }],
       },
-      visualizer: {
-        files: [{
-          expand: true,
-          cwd: 'screeps-visual/',
-          src: [
-            'visual.js',
-          ],
-          dest: 'dist/',
-        }],
-      },
     },
 
     sync: {
@@ -236,12 +226,12 @@ module.exports = function(grunt) {
     },
   });
 
-  grunt.registerTask('default', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'copy:visualizer', 'screeps']);
-  grunt.registerTask('release', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
-  grunt.registerTask('local', ['jshint', 'jsbeautifier', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'copy:visualizer', 'sync']);
+  grunt.registerTask('default', ['eslint:fix', 'jshint', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
+  grunt.registerTask('release', ['eslint:fix', 'jshint', 'jscs', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
+  grunt.registerTask('local', ['eslint:fix', 'jshint', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
   grunt.registerTask('test', ['eslint:check', 'jshint', 'jscs', 'exec:test_on_private_server']);
   grunt.registerTask('dev', ['eslint:fix', 'jshint', 'jscs']);
-  grunt.registerTask('deploy', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'copy:visualizer', 'screeps']);
+  grunt.registerTask('deploy', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
   grunt.registerTask('requireFile', 'Creates an empty file', () => {
     grunt.file.write('dist/require.js', '');
   });

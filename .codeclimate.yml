@@ -13,5 +13,3 @@ engines:
 ratings:
   paths:
   - src/**
-exclude_paths:
-- screeps-visual/
