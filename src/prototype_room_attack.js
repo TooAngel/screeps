@@ -1,6 +1,5 @@
 'use strict';
 
-
 /**
  * Attack42 is called so because 42 is the only true answer :-).
  *
