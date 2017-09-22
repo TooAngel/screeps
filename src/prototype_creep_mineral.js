@@ -89,63 +89,159 @@ Creep.prototype.checkLabEnoughMineral = function(lab, mineralType) {
   return true;
 };
 
+Creep.prototype.mineralNextState = function nextState(states) {
+  this.memory.state = (this.memory.state + 1) % states.length;
+  return this.memory.state;
+};
+
+Creep.prototype.checkNukeMinerals = function() {
+  if (this.room.terminal.store[RESOURCE_GHODIUM] > 500 || this.carry[RESOURCE_GHODIUM]) {
+    const nuke = this.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_NUKER]);
+    if (nuke.length > 0) {
+      if (nuke[0].ghodium < nuke[0].ghodiumCapacity) {
+        if (this.carry[RESOURCE_GHODIUM] > 0) {
+          this.moveToMy(nuke[0].pos);
+          this.transfer(nuke[0], RESOURCE_GHODIUM);
+        } else {
+          this.moveToMy(this.room.terminal.pos);
+          this.withdraw(this.room.terminal, RESOURCE_GHODIUM);
+        }
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
+Creep.prototype.mineralCleanUpLabs = function() {
+  this.say('cleanup');
+  if (_.sum(this.carry) > 0) {
+    this.moveToMy(this.room.terminal.pos);
+
+    for (const resource in this.carry) {
+      if (this.carry[resource] === 0) {
+        continue;
+      }
+      const returnCode = this.transfer(this.room.terminal, resource);
+      if (config.debug.mineral) {
+        this.log(returnCode + ' ' + resource + ' ' + JSON.stringify(resource));
+      }
+      break;
+    }
+  } else {
+    const lab = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, {
+      filter: (lab) => lab.mineralAmount > 0,
+    });
+    if (lab === null) {
+      // Nothing to do?
+      this.moveRandom();
+      return false;
+    }
+    this.moveToMy(lab.pos);
+
+    const returnCode = this.withdraw(lab, lab.mineralType);
+    if (config.debug.mineral) {
+      this.log(returnCode + ' ' + lab.mineralType + ' ' + JSON.stringify(lab));
+    }
+  }
+};
+
+Creep.prototype.mineralExecuteNextState = function(states, room) {
+  const state = states[this.memory.state];
+
+  let target = this.room.terminal;
+  if (state.destination === STRUCTURE_LAB) {
+    target = Game.getObjectById(room.memory.reaction.labs[state.lab]);
+  } else if (state.destination === STRUCTURE_STORAGE) {
+    target = this.room.storage;
+  }
+
+  this.moveToMy(target.pos);
+
+  let resource = RESOURCE_ENERGY;
+  if (state.resouce !== 'energy') {
+    resource = room.memory.reaction.result[state.resource];
+  }
+
+  state.action(this, target, resource);
+};
+
+Creep.prototype.mineralCheckTerminalTooLessEnergy = function() {
+  if (_.sum(this.carry) - this.carry.energy > 0) {
+    this.moveToMy(this.room.terminal.pos);
+
+    for (const resource of Object.keys(this.carry)) {
+      if (this.transfer(this.room.terminal, resource) === OK) {
+        return true;
+      }
+    }
+    return true;
+  }
+
+  this.say('TEnergy');
+  let target = this.room.storage;
+  if (this.carry.energy > 0) {
+    target = this.room.terminal;
+  }
+  this.moveToMy(target.pos);
+  this.transfer(target, RESOURCE_ENERGY);
+  return true;
+};
+
 // TODO totally ugly copy&paste from creep_mineral to migrate to role_mineral
 Creep.prototype.handleMineralCreep = function() {
-  const states = [{
-    name: 'storage result',
-    destination: STRUCTURE_TERMINAL,
-    action: transfer,
-    resource: 'result',
-  }, {
-    name: 'terminal 0',
-    destination: STRUCTURE_TERMINAL,
-    action: get,
-    resource: 'first',
-  }, {
-    name: 'terminal 1',
-    destination: STRUCTURE_TERMINAL,
-    action: get,
-    resource: 'second',
-  }, {
-    name: 'lab 1',
-    destination: STRUCTURE_LAB,
-    lab: 1,
-    action: transfer,
-    resource: 'first',
-  }, {
-    name: 'lab 2',
-    destination: STRUCTURE_LAB,
-    lab: 2,
-    action: transfer,
-    resource: 'second',
-  }, {
-    name: 'storage energy',
-    destination: STRUCTURE_TERMINAL,
-    action: get,
-    resource: 'energy',
-  }, {
-    name: 'lab 1',
-    destination: STRUCTURE_LAB,
-    lab: 1,
-    action: transfer,
-    resource: 'energy',
-  }, {
-    name: 'lab 2',
-    destination: STRUCTURE_LAB,
-    lab: 2,
-    action: transfer,
-    resource: 'energy',
-  }, {
-    name: 'lab result1',
-    destination: STRUCTURE_LAB,
-    lab: 0,
-    action: get,
-    resource: 'result',
-  }];
-
-  function nextState(creep) {
-    creep.memory.state = (creep.memory.state + 1) % states.length;
-  }
+  const states = [
+    {
+      name: 'storage result',
+      destination: STRUCTURE_TERMINAL,
+      action: transfer,
+      resource: 'result',
+    }, {
+      name: 'terminal 0',
+      destination: STRUCTURE_TERMINAL,
+      action: get,
+      resource: 'first',
+    }, {
+      name: 'terminal 1',
+      destination: STRUCTURE_TERMINAL,
+      action: get,
+      resource: 'second',
+    }, {
+      name: 'lab 1',
+      destination: STRUCTURE_LAB,
+      lab: 1,
+      action: transfer,
+      resource: 'first',
+    }, {
+      name: 'lab 2',
+      destination: STRUCTURE_LAB,
+      lab: 2,
+      action: transfer,
+      resource: 'second',
+    }, {
+      name: 'storage energy',
+      destination: STRUCTURE_TERMINAL,
+      action: get,
+      resource: 'energy',
+    }, {
+      name: 'lab 1',
+      destination: STRUCTURE_LAB,
+      lab: 1,
+      action: transfer,
+      resource: 'energy',
+    }, {
+      name: 'lab 2',
+      destination: STRUCTURE_LAB,
+      lab: 2,
+      action: transfer,
+      resource: 'energy',
+    }, {
+      name: 'lab result1',
+      destination: STRUCTURE_LAB,
+      lab: 0,
+      action: get,
+      resource: 'result',
+    }];
 
   function get(creep, target, resource) {
     if (_.sum(creep.carry) === creep.carryCapacity) {
@@ -161,7 +257,7 @@ Creep.prototype.handleMineralCreep = function() {
         if (config.debug.mineral) {
           creep.log('next state no capacity' + target);
         }
-        nextState(creep);
+        creep.mineralNextState(states);
       }
       return;
     }
@@ -170,7 +266,7 @@ Creep.prototype.handleMineralCreep = function() {
       if (config.debug.mineral) {
         creep.log('next state already carrying' + target);
       }
-      nextState(creep);
+      creep.mineralNextState(states);
       return;
     }
 
@@ -178,7 +274,7 @@ Creep.prototype.handleMineralCreep = function() {
       if (config.debug.mineral) {
         creep.log('next state terminal no resource' + target);
       }
-      nextState(creep);
+      creep.mineralNextState(states);
       return;
     }
 
@@ -186,7 +282,7 @@ Creep.prototype.handleMineralCreep = function() {
       if (config.debug.mineral) {
         creep.log('next state lab no mineral' + target);
       }
-      nextState(creep);
+      creep.mineralNextState(states);
       return;
     }
 
@@ -210,7 +306,7 @@ Creep.prototype.handleMineralCreep = function() {
       if (config.debug.mineral) {
         creep.log('next state no amount' + target);
       }
-      nextState(creep);
+      creep.mineralNextState(states);
       return;
     }
 
@@ -224,7 +320,7 @@ Creep.prototype.handleMineralCreep = function() {
       if (config.debug.mineral) {
         creep.log('next state transfer ok: ' + returnCode + ' ' + target);
       }
-      nextState(creep);
+      creep.mineralNextState(states);
       return true;
     }
     if (returnCode === ERR_NOT_IN_RANGE) {
@@ -236,39 +332,6 @@ Creep.prototype.handleMineralCreep = function() {
     }
     creep.log('get: ' + returnCode + ' target: ' + target + ' resource: ' + resource + ' amount: ' + amount);
     creep.log(target.mineralAmount + ' ' + (creep.carryCapacity - _.sum(creep.carry)));
-  }
-
-  function cleanUpLabs(creep) {
-    creep.say('cleanup');
-    if (_.sum(creep.carry) > 0) {
-      creep.moveToMy(creep.room.terminal.pos);
-
-      for (const resource in creep.carry) {
-        if (creep.carry[resource] === 0) {
-          continue;
-        }
-        const returnCode = creep.transfer(creep.room.terminal, resource);
-        if (config.debug.mineral) {
-          creep.log(returnCode + ' ' + resource + ' ' + JSON.stringify(resource));
-        }
-        break;
-      }
-    } else {
-      const lab = creep.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, {
-        filter: (lab) => lab.mineralAmount > 0,
-      });
-      if (lab === null) {
-        // Nothing to do?
-        creep.moveRandom();
-        return false;
-      }
-      creep.moveToMy(lab.pos);
-
-      const returnCode = creep.withdraw(lab, lab.mineralType);
-      if (config.debug.mineral) {
-        creep.log(returnCode + ' ' + lab.mineralType + ' ' + JSON.stringify(lab));
-      }
-    }
   }
 
   function transfer(creep, target, resource) {
@@ -285,17 +348,13 @@ Creep.prototype.handleMineralCreep = function() {
     }
 
     if (!creep.carry[resource]) {
-      nextState(creep);
+      creep.mineralNextState(states);
       return;
     }
 
     const returnCode = creep.transfer(target, resource);
-    if (returnCode === OK) {
-      nextState(creep);
-      return;
-    }
-    if (returnCode === ERR_FULL) {
-      nextState(creep);
+    if ((returnCode === OK) || (returnCode === ERR_FULL)) {
+      creep.mineralNextState(states);
       return;
     }
     if (returnCode === ERR_NOT_IN_RANGE) {
@@ -400,146 +459,47 @@ Creep.prototype.handleMineralCreep = function() {
     return false;
   }
 
-  function checkNuke(creep) {
-    if (creep.room.terminal.store[RESOURCE_GHODIUM] > 500 || creep.carry[RESOURCE_GHODIUM]) {
-      const nukers = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_NUKER]);
-      if (nukers.length > 0) {
-        const nuker = nukers[0];
-        if (nuker.ghodium < nuker.ghodiumCapacity) {
-          if (creep.carry[RESOURCE_GHODIUM] > 0) {
-            creep.moveToMy(nuker.pos);
-            creep.transfer(nuker, RESOURCE_GHODIUM);
-          } else {
-            creep.moveToMy(creep.room.terminal.pos);
-
-            creep.withdraw(creep.room.terminal, RESOURCE_GHODIUM);
-          }
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   const execute = function(creep) {
-    if (!creep.room.terminal) {
-      creep.suicide();
-      return true;
-    }
-    if (creep.ticksToLive < 50 && _.sum(creep.carry) === 0) {
-      // early suicide to not waste minerals
+    if (!creep.room.terminal || (creep.ticksToLive < 50 && _.sum(creep.carry) === 0)) {
+      // no terminal or early suicide not to waste minerals
       creep.suicide();
       return true;
     }
 
-    if (creep.checkTerminalEnergy()) {
-      return true;
-    }
-
-    if (creep.checkStorageMinerals()) {
+    if (creep.checkTerminalEnergy() || creep.checkStorageMinerals() || creep.checkNukeMinerals()) {
       return true;
     }
 
     const room = Game.rooms[creep.room.name];
 
-    let lab0;
-    let lab1;
-    let lab2;
     if (room.memory.reaction) {
-      lab0 = Game.getObjectById(room.memory.reaction.labs[0]);
-      lab1 = Game.getObjectById(room.memory.reaction.labs[1]);
-      lab2 = Game.getObjectById(room.memory.reaction.labs[2]);
-
-      if (lab0 === null || lab1 === null || lab2 === null) {
-        delete creep.room.memory.reaction;
-      } else {
-        if (lab0.cooldown === 0) {
-          const returnCode = lab0.runReaction(lab1, lab2);
-          if (returnCode === ERR_NOT_ENOUGH_RESOURCES) {
-            if (!creep.checkLabEnoughMineral(lab1, room.memory.reaction.result.first) || !creep.checkLabEnoughMineral(lab2, room.memory.reaction.result.second)) {
-              cleanUpLabs(creep);
-            }
-          }
-        }
-      }
-      if (lab0.mineralAmount > lab0.mineralCapacity - 100 && creep.room.memory.reaction) {
-        creep.room.memory.fullLab = 1;
-      }
-
-      if (lab0.mineralAmount < 100) {
-        creep.room.memory.fullLab = 0;
-      }
+      room.checkLabs(creep);
     }
+    room.checkFullLabs(creep, states);
 
-    if (creep.room.memory.fullLab === 1) {
-      if (_.sum(creep.carry) > 0) {
-        creep.memory.state = 0;
-      }
-      if (_.sum(creep.carry) === 0) {
-        creep.memory.state = 8;
-      }
-    }
     if (room.memory.boosting && Object.keys(room.memory.boosting).length > 0) {
       if (prepareBoost(creep)) {
         return true;
       }
     }
 
-    if (checkNuke(creep)) {
-      return true;
-    }
-
-    creep.say('A1');
-
     if (room.memory.terminalTooLessEnergy) {
-      if (_.sum(creep.carry) - creep.carry.energy > 0) {
-        creep.moveToMy(creep.room.terminal.pos);
-
-        for (const resource of Object.keys(creep.carry)) {
-          creep.transfer(room.terminal, resource);
-        }
-        return true;
-      }
-
-      creep.say('TEnergy');
-      let target = creep.room.storage;
-      if (creep.carry.energy > 0) {
-        target = creep.room.terminal;
-      }
-      creep.moveToMy(target.pos);
-      creep.transfer(target, RESOURCE_ENERGY);
-      return true;
+      return creep.mineralCheckTerminalTooLessEnergy();
     }
 
-    creep.say(creep.memory.state);
+    creep.say('A1 ' + creep.memory.state);
 
     creep.memory.state = creep.memory.state || 0;
 
     if (!room.memory.reaction) {
-      cleanUpLabs(creep);
+      creep.mineralCleanUpLabs();
       if (config.debug.mineral) {
         creep.log('No reactions?');
       }
       return true;
     }
 
-    const state = states[creep.memory.state];
-
-    let target = creep.room.terminal;
-    if (state.destination === STRUCTURE_LAB) {
-      target = Game.getObjectById(room.memory.reaction.labs[state.lab]);
-    } else if (state.destination === STRUCTURE_STORAGE) {
-      target = creep.room.storage;
-    }
-
-    creep.moveToMy(target.pos);
-
-    let resource = RESOURCE_ENERGY;
-    if (state.resouce !== 'energy') {
-      resource = room.memory.reaction.result[state.resource];
-    }
-
-    state.action(creep, target, resource);
+    creep.mineralExecuteNextState(states, room);
 
     return true;
   };
