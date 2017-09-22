@@ -182,11 +182,10 @@ Room.prototype.handleScout = function() {
 };
 
 Room.prototype.checkNeedHelp = function() {
-  const needHelp = this.memory.energyAvailableSum < config.carryHelpers.needTreshold * config.carryHelpers.ticksUntilHelpCheck; // && !this.hostile;
+  const needHelp = this.memory.energyStats.average < config.carryHelpers.needTreshold; // && !this.hostile;
   const oldNeedHelp = this.memory.needHelp;
   if (needHelp) {
     if (!oldNeedHelp) {
-      this.memory.energyAvailableSum = 0;
       Memory.needEnergyRooms.push(this.name);
       this.memory.needHelp = true;
       return '---!!!---' + this.name + ' need energy ---!!!---';
@@ -194,7 +193,6 @@ Room.prototype.checkNeedHelp = function() {
     return 'Already set as needHelp';
   }
   if (oldNeedHelp) {
-    this.memory.energyAvailableSum = 0;
     _.remove(Memory.needEnergyRooms, (r) => r === this.name);
     delete Memory.rooms[this.name].needHelp;
     return '---!!!---' + this.name + ' no more need help ---!!!---';
@@ -216,9 +214,8 @@ Room.prototype.checkCanHelp = function() {
     _.remove(Memory.needEnergyRooms, (r) => r === nearestRoom);
   }
   const nearestRoomObj = Game.rooms[nearestRoom];
-
-  const canHelp = this.memory.energyAvailableSum > config.carryHelpers.helpTreshold * config.carryHelpers.ticksUntilHelpCheck &&
-    nearestRoom !== this.name && nearestRoomObj && this.storage && // !nearestRoomObj.hostile &&
+  const canHelp = this.memory.energyStats.average > config.carryHelpers.helpTreshold &&
+   nearestRoom !== this.name && nearestRoomObj && this.storage && // !nearestRoomObj.hostile &&
     !nearestRoomObj.terminal;
   if (canHelp) {
     const route = this.findRoute(nearestRoom, this.name);
@@ -229,7 +226,6 @@ Room.prototype.checkCanHelp = function() {
       this.name, undefined, nearestRoom, {
         helper: true,
       });
-    this.memory.energyAvailableSum = 0;
     return '---!!! ' + this.name + ' send energy to: ' + nearestRoom + ' !!!---';
   }
   return 'no';
@@ -241,13 +237,15 @@ Room.prototype.checkForEnergyTransfer = function() {
   }
 
   Memory.needEnergyRooms = Memory.needEnergyRooms || [];
-  this.memory.energyAvailableSum = this.memory.energyAvailableSum || 0;
+  this.memory.energyStats = this.memory.energyStats || {sum: 0, ticks: 0};
   if (!this.exectueEveryTicks(config.carryHelpers.ticksUntilHelpCheck)) {
     const factor = config.carryHelpers.factor;
-    this.memory.energyAvailable = (1 - factor) * this.memory.energyAvailable + (factor) * this.energyAvailable || 0;
-    this.memory.energyAvailableSum += this.memory.energyAvailable;
+    this.memory.energyStats.available = (1 - factor) * this.memory.energyStats.available + (factor) * this.energyAvailable || 0;
+    this.memory.energyStats.sum += this.memory.energyStats.available;
+    this.memory.energyStats.ticks++;
     return;
   }
+  this.memory.energyStats.average = this.memory.energyStats.sum / this.memory.energyStats.ticks;
   const needHelp = this.checkNeedHelp();
   if (needHelp) {
     if (needHelp !== 'Already set as needHelp') {
@@ -259,7 +257,8 @@ Room.prototype.checkForEnergyTransfer = function() {
       this.log(canHelp);
     }
   }
-  this.memory.energyAvailableSum = 0;
+  this.memory.energyStats.sum = 0;
+  this.memory.energyStats.ticks = 0;
 };
 
 Room.prototype.getHarvesterAmount = function() {
