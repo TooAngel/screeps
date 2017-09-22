@@ -202,8 +202,7 @@ Room.prototype.checkLabs = function(creep) {
   const lab0 = Game.getObjectById(this.memory.reaction.labs[0]);
   const lab1 = Game.getObjectById(this.memory.reaction.labs[1]);
   const lab2 = Game.getObjectById(this.memory.reaction.labs[2]);
-
-
+  
   if (lab0 === null || lab1 === null || lab2 === null) {
     delete creep.room.memory.reaction;
   } else {
