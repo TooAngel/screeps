@@ -191,56 +191,56 @@ Creep.prototype.mineralCheckTerminalTooLessEnergy = function() {
 // TODO totally ugly copy&paste from creep_mineral to migrate to role_mineral
 Creep.prototype.handleMineralCreep = function() {
   const states = [{
-      name: 'storage result',
-      destination: STRUCTURE_TERMINAL,
-      action: transfer,
-      resource: 'result',
-    }, {
-      name: 'terminal 0',
-      destination: STRUCTURE_TERMINAL,
-      action: get,
-      resource: 'first',
-    }, {
-      name: 'terminal 1',
-      destination: STRUCTURE_TERMINAL,
-      action: get,
-      resource: 'second',
-    }, {
-      name: 'lab 1',
-      destination: STRUCTURE_LAB,
-      lab: 1,
-      action: transfer,
-      resource: 'first',
-    }, {
-      name: 'lab 2',
-      destination: STRUCTURE_LAB,
-      lab: 2,
-      action: transfer,
-      resource: 'second',
-    }, {
-      name: 'storage energy',
-      destination: STRUCTURE_TERMINAL,
-      action: get,
-      resource: 'energy',
-    }, {
-      name: 'lab 1',
-      destination: STRUCTURE_LAB,
-      lab: 1,
-      action: transfer,
-      resource: 'energy',
-    }, {
-      name: 'lab 2',
-      destination: STRUCTURE_LAB,
-      lab: 2,
-      action: transfer,
-      resource: 'energy',
-    }, {
-      name: 'lab result1',
-      destination: STRUCTURE_LAB,
-      lab: 0,
-      action: get,
-      resource: 'result',
-    }];
+    name: 'storage result',
+    destination: STRUCTURE_TERMINAL,
+    action: transfer,
+    resource: 'result',
+  }, {
+    name: 'terminal 0',
+    destination: STRUCTURE_TERMINAL,
+    action: get,
+    resource: 'first',
+  }, {
+    name: 'terminal 1',
+    destination: STRUCTURE_TERMINAL,
+    action: get,
+    resource: 'second',
+  }, {
+    name: 'lab 1',
+    destination: STRUCTURE_LAB,
+    lab: 1,
+    action: transfer,
+    resource: 'first',
+  }, {
+    name: 'lab 2',
+    destination: STRUCTURE_LAB,
+    lab: 2,
+    action: transfer,
+    resource: 'second',
+  }, {
+    name: 'storage energy',
+    destination: STRUCTURE_TERMINAL,
+    action: get,
+    resource: 'energy',
+  }, {
+    name: 'lab 1',
+    destination: STRUCTURE_LAB,
+    lab: 1,
+    action: transfer,
+    resource: 'energy',
+  }, {
+    name: 'lab 2',
+    destination: STRUCTURE_LAB,
+    lab: 2,
+    action: transfer,
+    resource: 'energy',
+  }, {
+    name: 'lab result1',
+    destination: STRUCTURE_LAB,
+    lab: 0,
+    action: get,
+    resource: 'result',
+  }];
 
   function get(creep, target, resource) {
     if (_.sum(creep.carry) === creep.carryCapacity) {
