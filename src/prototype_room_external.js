@@ -112,6 +112,8 @@ Room.prototype.externalHandleHighwayRoom = function() {
     return;
   }
 
+  Memory.powerBanks = Memory.powerBanks || {};
+
   if (structures[0].ticksToDecay < 3000) {
     Memory.powerBanks[this.name] = {
       target: null,
@@ -130,10 +132,6 @@ Room.prototype.externalHandleHighwayRoom = function() {
         minRoute = routeToTest.length;
         target = room;
       }
-    }
-
-    if (!Memory.powerBanks) {
-      Memory.powerBanks = {};
     }
     if (target !== null) {
       Memory.powerBanks[this.name] = {
