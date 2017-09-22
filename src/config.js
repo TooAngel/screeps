@@ -187,6 +187,7 @@ global.config = {
     upgraderStorageFactor: 2,
     lastSeenThreshold: 1000000,
     notify: false,
+    observerRange: 10,
   },
 
   layout: {

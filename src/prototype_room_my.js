@@ -128,13 +128,14 @@ Room.prototype.handleObserver = function() {
 
     // TODO scan full range, first implementation
     const nameSplit = this.splitRoomName();
-    const fullLength = 2 * OBSERVER_RANGE + 1;
+    const observerRange = (config.room.observerRange <= 10 && config.room.observerRange > 0) ? config.room.observerRange : OBSERVER_RANGE;
+    const fullLength = 2 * observerRange + 1;
     const numberOfFields = fullLength * fullLength;
     const offset = Game.time % numberOfFields;
-    const xOffset = Math.floor(offset / fullLength) - OBSERVER_RANGE;
-    const yOffset = Math.floor(offset % fullLength) - OBSERVER_RANGE;
-    let xPos = +nameSplit[2] + xOffset;
+    const xOffset = Math.floor(offset / fullLength) - observerRange;
+    const yOffset = Math.floor(offset % fullLength) - observerRange;
 
+    let xPos = +nameSplit[2] + xOffset;
     let yPos = +nameSplit[4] + yOffset;
     let xDir = nameSplit[1];
     let yDir = nameSplit[3];
@@ -150,11 +151,10 @@ Room.prototype.handleObserver = function() {
     }
 
     const roomObserve = xDir + xPos + yDir + yPos;
-
-    // const observeRoom = this.memory.observe_rooms[Game.time % this.memory.observe_rooms.length];
-    // this.log(observeRoom);
-    //     observers[0].observeRoom(observeRoom);
     const returnCode = observers[0].observeRoom(roomObserve);
+    if (config.debug.observer) {
+      this.log(`${observers[0]} observing ${roomObserve}`);
+    }
     if (returnCode !== OK) {
       this.log('observer returnCode: ' + returnCode + ' ' + roomObserve + ' ' + fullLength + ' ' + numberOfFields + ' ' + offset + ' ' + xOffset + ' ' + yOffset);
     }
@@ -215,7 +215,7 @@ Room.prototype.checkCanHelp = function() {
   }
   const nearestRoomObj = Game.rooms[nearestRoom];
   const canHelp = this.memory.energyStats.average > config.carryHelpers.helpTreshold &&
-   nearestRoom !== this.name && nearestRoomObj && this.storage && // !nearestRoomObj.hostile &&
+    nearestRoom !== this.name && nearestRoomObj && this.storage && // !nearestRoomObj.hostile &&
     !nearestRoomObj.terminal;
   if (canHelp) {
     const route = this.findRoute(nearestRoom, this.name);
@@ -279,6 +279,9 @@ Room.prototype.getHarvesterAmount = function() {
     if (!this.storage.my) {
       amount = 10;
     }
+  }
+  if (amount < 2) {
+    amount = 2;
   }
   return amount;
 };
@@ -513,7 +516,7 @@ Room.prototype.setRoomInactive = function() {
 
 Room.prototype.reviveRoom = function() {
   const nextRoomers = _.filter(Game.creeps, (c) => c.memory.role === 'nextroomer' &&
-    c.memory.routing.targetRoom === this.name).length;
+  c.memory.routing.targetRoom === this.name).length;
   if (this.controller.level >= config.nextRoom.boostToControllerLevel &&
     this.controller.ticksToDowngrade >
     (CONTROLLER_DOWNGRADE[this.controller.level] * config.nextRoom.minDowngradPercent / 100) &&
