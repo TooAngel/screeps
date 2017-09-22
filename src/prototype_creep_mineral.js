@@ -190,8 +190,7 @@ Creep.prototype.mineralCheckTerminalTooLessEnergy = function() {
 
 // TODO totally ugly copy&paste from creep_mineral to migrate to role_mineral
 Creep.prototype.handleMineralCreep = function() {
-  const states = [
-    {
+  const states = [{
       name: 'storage result',
       destination: STRUCTURE_TERMINAL,
       action: transfer,
