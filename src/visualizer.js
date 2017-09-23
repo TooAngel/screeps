@@ -105,7 +105,11 @@ if (config.visualizer.enabled) {
                 let text = positionName.substr(0, 1);
                 const target = Game.getObjectById(positionName);
                 if (target) {
-                  text = target.structureType.substr(0, 1);
+                  if (target.structureType) {
+                    text = target.structureType.substr(0, 1);
+                  } else {
+                    text = 's'; // source
+                  }
                 }
                 this.drawPosition(rv, creeps[positionName], text, 'yellow');
               } else {
