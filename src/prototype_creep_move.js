@@ -1,10 +1,10 @@
 'use strict';
 
 Creep.prototype.moveRandom = function(onPath) {
-  const start = Math.ceil(Math.random() * 8);
+  const startDirection = _.random(1, 8);
   let direction = 0;
-  for (let i = start; i < start + 8; i++) {
-    direction = ((i - 1) % 8) + 1;
+  for (let i = 0; i < 8; i++) {
+    direction = global.utils.changeDirection(startDirection, i);
     const pos = this.pos.getAdjacentPosition(direction);
     if (pos.isBorder(-1)) {
       continue;
@@ -24,10 +24,10 @@ Creep.prototype.moveRandom = function(onPath) {
 };
 
 Creep.prototype.moveRandomWithin = function(goal, dist = 3) {
-  const start = Math.ceil(Math.random() * 8);
+  const startDirection = _.random(1, 8);
   let direction = 0;
-  for (let i = start; i < start + 8; i++) {
-    direction = ((i - 1) % 8) + 1;
+  for (let i = 0; i < 8; i++) {
+    direction = global.utils.changeDirection(startDirection, i);
     const pos = this.pos.getAdjacentPosition(direction);
     if (pos.isBorder(-1)) {
       continue;

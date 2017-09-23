@@ -89,16 +89,17 @@ roles.scoutnextroom.execute = function(creep) {
     const exits = Game.map.describeExits(creep.room.name);
 
     const handleTarget = function(creep, exits) {
-      const offset = Math.floor(Math.random() * 4);
+      const startDirection = _.random(1, 4) * 2;
+      const backwardsDirection = global.utils.oppositeDirection(creep.memory.dir);
 
       if (!creep.memory.base) {
         return false;
       }
 
-      for (let i = 0; i < 4; i++) {
+      for (let i = 1; i < 8; i += 2) {
         // Don't go back
-        const direction = (((offset + i) % 4) * 2) + 1;
-        if (direction === (creep.memory.dir + 4) % 8) {
+        const direction = global.utils.changeDirection(startDirection, i);
+        if (direction === backwardsDirection) {
           continue;
         }
 
@@ -147,16 +148,16 @@ roles.scoutnextroom.execute = function(creep) {
     if (opponentRoom || !handleTarget(creep, exits)) {
       // Go back, no other way
       if (!creep.memory.dir) {
-        creep.memory.dir = Math.floor(Math.random() * 8);
+        creep.memory.dir = _.random(1, 8);
       }
-      const roomName = exits[(creep.memory.dir + 4) % 8];
+      const roomName = exits[global.utils.oppositeDirection(creep.memory.dir)];
       if (!roomName) {
-        creep.memory.dir = Math.floor(Math.random() * 8);
+        creep.memory.dir = _.random(1, 8);
       }
       const exitTo = creep.room.findExitTo(roomName);
       const exit = creep.pos.findClosestByRange(exitTo);
       creep.memory.target = exit;
-      creep.memory.dir = (creep.memory.dir + 4) % 8;
+      creep.memory.dir = global.utils.oppositeDirection(creep.memory.dir);
     }
   }
 

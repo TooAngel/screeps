@@ -71,12 +71,6 @@ roles.sourcer.preMove = function(creep, directions) {
     }
   }
 
-  // TODO Check if this is working
-  if (directions) {
-    const pos = creep.pos.getAdjacentPosition(directions.direction);
-    creep.moveCreep(pos, (directions.direction + 3) % 8 + 1);
-  }
-
   // TODO copied from nextroomer, should be extracted to a method or a creep flag
   // Remove structures in front
   if (!directions) {

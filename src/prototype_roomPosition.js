@@ -65,7 +65,7 @@ RoomPosition.prototype.getAdjacentPosition = function(direction) {
     [-1, -1],
   ];
   if (direction > 8) {
-    direction = (direction - 1) % 8 + 1;
+    direction = global.utils.changeDirection(direction, 0);
   }
   return new RoomPosition(this.x + adjacentPos[direction][0], this.y + adjacentPos[direction][1], this.roomName);
 };
