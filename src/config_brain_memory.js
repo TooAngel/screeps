@@ -178,6 +178,9 @@ brain.printSummary = function() {
     const room = Game.rooms[name];
     if (!room || !room.storage) {
       strings.storageNoString += name + ' ';
+      if (room) {
+        room.memory.upgraderUpgrade = 0;
+      }
       continue;
     }
     brain.getStorageStringForRoom(strings, room, interval);

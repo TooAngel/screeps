@@ -18,6 +18,8 @@ Creep.upgradeControllerTask = function(creep) {
     const returnCode = creep.upgradeController(creep.room.controller);
     if (returnCode !== OK) {
       creep.log('upgradeController: ' + returnCode);
+    } else {
+      creep.upgraderUpdateStats();
     }
     creep.moveRandomWithin(creep.room.controller.pos);
     return true;
