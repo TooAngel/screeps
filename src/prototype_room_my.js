@@ -280,9 +280,6 @@ Room.prototype.getHarvesterAmount = function() {
       amount = 10;
     }
   }
-  if (amount < 2) {
-    amount = 2;
-  }
   return amount;
 };
 
