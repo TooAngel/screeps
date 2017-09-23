@@ -102,10 +102,14 @@ if (config.visualizer.enabled) {
           for (const positionName of Object.keys(creeps)) {
             if (creeps[positionName]) {
               if (creeps[positionName].x || creeps[positionName].y) {
-                const text = positionName.substr(0, 1);
+                let text = positionName.substr(0, 1);
+                const target = Game.getObjectById(positionName);
+                if (target) {
+                  text = target.structureType.substr(0, 1);
+                }
                 this.drawPosition(rv, creeps[positionName], text, 'yellow');
               } else {
-                const text = positionName.substr(0, 1);
+                const text = positionName.substr(0, 1); // always 't'
                 for (const towerfiller of creeps[positionName]) {
                   this.drawPosition(rv, towerfiller, text, 'yellow');
                 }
