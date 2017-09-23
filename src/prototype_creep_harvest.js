@@ -14,8 +14,17 @@ Creep.prototype.handleSourcer = function() {
 
   this.buildContainer();
 
-  if (!this.room.controller || !this.room.controller.my || this.room.controller.level >= 2) {
-    this.spawnCarry();
+  const nearStorage = this.room.storage && this.pos.isNearTo(this.room.storage);
+
+  if (nearStorage) {
+    const workParts = this.body.filter((part) => part.type === WORK).length;
+    if (_.sum(this.carry) > this.carryCapacity - workParts * 2) {
+      this.transfer(this.room.storage, RESOURCE_ENERGY);
+    }
+  } else {
+    if (!this.room.controller || !this.room.controller.my || this.room.controller.level >= 2) {
+      this.spawnCarry();
+    }
   }
 
   if (this.inBase()) {
