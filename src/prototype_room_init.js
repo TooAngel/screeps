@@ -14,7 +14,7 @@ Room.prototype.initSetSources = function() {
   const sources = this.find(FIND_SOURCES);
   const costMatrix = this.getMemoryCostMatrix();
   for (const source of sources) {
-    const sourcer = source.pos.getFirstNearPosition();
+    const sourcer = source.pos.getBestNearPosition();
     this.memory.position.creep[source.id] = sourcer;
     // TODO E.g. E11S8 it happens that sourcer has no position
     if (sourcer) {
@@ -30,7 +30,7 @@ Room.prototype.initSetMinerals = function() {
   const costMatrix = this.getMemoryCostMatrix();
   const minerals = this.find(FIND_MINERALS);
   for (const mineral of minerals) {
-    const extractor = mineral.pos.getFirstNearPosition();
+    const extractor = mineral.pos.getBestNearPosition();
     this.memory.position.creep[mineral.id] = extractor;
     this.memory.position.structure.extractor.push(mineral.pos);
     costMatrix.set(extractor.x, extractor.y, config.layout.creepAvoid);
@@ -46,7 +46,7 @@ Room.prototype.initSetStorageAndPathStart = function() {
   costMatrix.set(storagePos.x, storagePos.y, config.layout.structureAvoid);
   this.setMemoryCostMatrix(costMatrix);
 
-  this.memory.position.creep.pathStart = storagePos.getFirstNearPosition();
+  this.memory.position.creep.pathStart = storagePos.getBestNearPosition();
 
   const route = [{
     room: this.name,
