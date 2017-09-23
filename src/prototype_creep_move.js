@@ -54,38 +54,29 @@ Creep.prototype.moveCreep = function(position, direction) {
   const pos = new RoomPosition(position.x, position.y, this.room.name);
   const creeps = pos.lookFor('creep');
   if (creeps.length > 0 && creeps[0].memory) {
-    if (creeps[0].memory.role === 'carry') {
+    const role = this.memory.role;
+    if ((role === 'sourcer' || role === 'reserver') && creeps[0].memory.role !== 'harvester' && !creeps[0].memory.routing.reverse) {
+      if (this.fatigue > 0) {
+        creeps[0].move(direction);
+        creeps[0].memory.forced = true;
+      }
+      return;
+    }
+    const targetRole = creeps[0].memory.role;
+    if (role === 'defendmelee' ||
+      targetRole === 'harvester' ||
+      targetRole === 'carry') {
       creeps[0].move(direction);
       return;
     }
-    if (this.memory.role === 'defendmelee') {
+    if (role === 'upgrader' &&
+      targetRole === 'storagefiller') {
       creeps[0].move(direction);
       return;
     }
-    if (creeps[0].memory.role === 'harvester') {
-      creeps[0].move(direction);
-      return;
-    }
-    if (this.memory.role === 'upgrader' &&
-      creeps[0].memory.role === 'storagefiller') {
-      creeps[0].move(direction);
-      return;
-    }
-    if (this.memory.role === 'upgrader' &&
-      creeps[0].memory.role === 'upgrader') {
-      creeps[0].suicide();
-      this.log('New killing');
-      return;
-    }
-    if (this.memory.role === 'upgrader' &&
-      creeps[0].memory.role === 'sourcer') {
-      this.log('config_creep_move suicide sourcer');
-      creeps[0].suicide();
-      return;
-    }
-    if (this.memory.role === 'upgrader' &&
-      creeps[0].memory.role === 'harvester') {
-      this.log('config_creep_move suicide harvester');
+    if (role === 'upgrader' &&
+      (targetRole === 'harvester' || targetRole === 'sourcer' || targetRole === 'upgrader')) {
+      this.log('config_creep_move suicide ' + targetRole);
       creeps[0].suicide();
       return;
     }

@@ -43,6 +43,9 @@ roles.sourcer.killPrevious = true;
 roles.sourcer.flee = false;
 
 roles.sourcer.preMove = function(creep, directions) {
+  if (creep.allowOverTake(directions)) {
+    return true;
+  }
   // Misplaced spawn
   if (creep.inBase() && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
     // creep.say('smis', true);
@@ -69,12 +72,6 @@ roles.sourcer.preMove = function(creep, directions) {
         creep.memory.routing.reverse = true;
       }
     }
-  }
-
-  // TODO Check if this is working
-  if (directions) {
-    const pos = creep.pos.getAdjacentPosition(directions.direction);
-    creep.moveCreep(pos, (directions.direction + 3) % 8 + 1);
   }
 
   // TODO copied from nextroomer, should be extracted to a method or a creep flag
