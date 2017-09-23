@@ -18,7 +18,6 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-screeps');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-jsbeautifier');
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-jscs');
   grunt.loadNpmTasks('grunt-eslint');
@@ -44,12 +43,6 @@ module.exports = function(grunt) {
       all: ['Gruntfile.js', 'src/*.js'],
       options: {
         jshintrc: true,
-      },
-    },
-    jsbeautifier: {
-      files: ['Gruntfile.js', 'src/*.js'],
-      options: {
-        config: '.jsbeautifyrc',
       },
     },
     mochaTest: {

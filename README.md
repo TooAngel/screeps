@@ -103,9 +103,7 @@ module.exports = [{
 
 ## Develop
 
-    grunt jshint
-    grunt jsbeautifier
-    grunt jscs
+    grunt dev
 
 ## Release
 
