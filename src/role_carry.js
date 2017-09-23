@@ -88,9 +88,13 @@ roles.carry.handleMisplacedSpawn = function(creep) {
         creep.moveTo(sourcePos, {
           ignoreCreeps: true,
         });
-        if (creep.pos.getRangeTo(sourcePos) > 1) {
-          return true;
+        if (creep.pos.getRangeTo(sourcePos) <= 1) {
+          const target = creep.room.lookForAt(LOOK_RESOURCES, sourcePos)[0];
+          if (target) {
+            creep.pickup(target);
+          }
         }
+        return true;
       }
     }
     return false;
