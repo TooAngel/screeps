@@ -128,7 +128,7 @@ Room.prototype.handleObserver = function() {
 
     // TODO scan full range, first implementation
     const nameSplit = this.splitRoomName();
-    const observerRange = (config.room.observerRange <= 10 && config.room.observerRange > 0) ? config.room.observerRange : OBSERVER_RANGE;
+    const observerRange = Math.max(Math.min(config.room.observerRange, OBSERVER_RANGE), 1);
     const fullLength = 2 * observerRange + 1;
     const numberOfFields = fullLength * fullLength;
     const offset = Game.time % numberOfFields;
