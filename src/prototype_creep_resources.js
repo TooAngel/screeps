@@ -754,7 +754,7 @@ Creep.prototype.interactWithControllerSuccess = function() {
 
 Creep.prototype.interactWithController = function() {
   let returnCode;
-  if (this.room.controller.owner && this.room.controller.owner !== Memory.username) {
+  if (this.room.controller.owner && this.room.controller.owner.username !== Memory.username) {
     this.say('attack');
     returnCode = this.attackController(this.room.controller);
   } else {
