@@ -272,9 +272,17 @@ global.visualizer.myRoomDatasDraw = function(roomName) {
       Highter queue: ${highterQueue.roomName}:${-highterQueue.length}
       =========================`;
     const lines = output.split('\n');
-    let l = 0;
-    for (l; l < lines.length; l++) {
-      room.visual.text(lines[l], 25, 25 + (l * (fontSize - 0.05)), {font: fontSize});
+    let summaryCenterX = 25;
+    let summaryTopLineY = 25;
+    if (Memory.rooms[roomName].summaryCenter) {
+      summaryCenterX = Math.min(Math.max(Memory.rooms[roomName].summaryCenter.x, 5), 44);
+      const summaryHeight = lines.length * (fontSize - 0.05);
+      summaryTopLineY = Memory.rooms[roomName].summaryCenter.y - summaryHeight / 2 + (fontSize - 0.05);
+      summaryTopLineY = Math.min(Math.max(summaryTopLineY, 1), 49 - summaryHeight + (fontSize - 0.05));
+    }
+
+    for (let l = 0; l < lines.length; l++) {
+      room.visual.text(lines[l], summaryCenterX, summaryTopLineY + (l * (fontSize - 0.05)), {font: fontSize});
     }
   }
 };

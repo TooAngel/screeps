@@ -108,6 +108,7 @@ Room.prototype.setFillerArea = function(storagePos, route) {
 Room.prototype.updatePosition = function() {
   this.checkCache();
   delete this.memory.routing;
+  delete this.memory.summaryCenter;
 
   const costMatrixBase = this.getCostMatrix();
   this.setMemoryCostMatrix(costMatrixBase);
@@ -157,6 +158,25 @@ Room.prototype.updatePosition = function() {
     }
     this.setFillerArea(startPos.storagePos, startPos.route);
   }
+
+  // find the most remote position to place the room summary visual
+  let bestPosition = null;
+  let bestScore = 0;
+  const reservedPositions = this.getPositions();
+  for (let y = 10; y <= 40; y += 10) {
+    for (let x = 10; x <= 40; x += 10) {
+      let score = 0;
+      const pos = new RoomPosition(x, y, this.name);
+      for (const pos2 of reservedPositions) {
+        score += pos.getRangeTo(pos2);
+      }
+      if (score > bestScore) {
+        bestScore = score;
+        bestPosition = pos;
+      }
+    }
+  }
+  this.memory.summaryCenter = {x: bestPosition.x, y: bestPosition.y};
 };
 
 Room.prototype.setPosition = function(type, pos, value, positionType = 'structure') {
