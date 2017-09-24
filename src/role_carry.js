@@ -85,10 +85,10 @@ roles.carry.handleMisplacedSpawn = function(creep) {
       // TODO better the position from the room memory
       if (source !== null) {
         const sourcePos = new RoomPosition(source.x, source.y, source.roomName);
-        creep.moveTo(sourcePos, {
-          ignoreCreeps: true,
-        });
         if (creep.pos.getRangeTo(sourcePos) > 1) {
+          creep.moveTo(sourcePos, {
+            ignoreCreeps: true,
+          });
           return true;
         }
       }
