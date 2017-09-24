@@ -84,7 +84,7 @@ To deploy to the live server provide the credentials.
 
 And deploy to the server:
 
-    grunt screeps
+    grunt
 
 ### to private server
 Create a `.localSync.js` file with content:
