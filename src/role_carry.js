@@ -146,18 +146,20 @@ roles.carry.preMove = function(creep, directions) {
           return true;
         }
         reverse = creep.carry.energy - transferred.transferred > 0;
-      } else if (creep.memory.routing.pathPos === 0 && !(creep.room.storage && creep.room.storage.my && creep.room.storage.isActive())) {
+      } else if (creep.memory.routing.pathPos === 0) {
         creep.drop(RESOURCE_ENERGY);
         reverse = false;
-
-        let resourceAtPosition = 0;
-        const resources = creep.pos.lookFor(LOOK_RESOURCES);
-        for (const resource of resources) {
-          resourceAtPosition += resource.amount;
+        const storage = creep.room.storage;
+        if (!(storage && storage.my && storage.isActive())) {
+          let resourceAtPosition = 0;
+          const resources = creep.pos.lookFor(LOOK_RESOURCES);
+          for (const resource of resources) {
+            resourceAtPosition += resource.amount;
+          }
+          let amount = creep.room.getHarvesterAmount();
+          amount += Math.floor(resourceAtPosition / config.carry.callHarvesterPerResources);
+          creep.room.checkRoleToSpawn('harvester', amount, 'harvester');
         }
-        let amount = creep.room.getHarvesterAmount();
-        amount += Math.floor(resourceAtPosition / config.carry.callHarvesterPerResources);
-        creep.room.checkRoleToSpawn('harvester', amount, 'harvester');
       }
     }
     if (directions.backwardDirection && directions.backwardDirection !== null) {
