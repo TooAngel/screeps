@@ -162,14 +162,25 @@ Creep.prototype.getDirections = function(path, pathPos) {
   };
 };
 
+Creep.prototype.checkPreMove = function(datas) {
+  if (!datas.path) {
+    return true;
+  }
+  if (datas.pathPos < 0) {
+    this.memory.routing.pathPos = datas.pathPos;
+    return true;
+  }
+  return false;
+};
+
 Creep.prototype.followPath = function(action) {
   const route = this.getRoute();
   const routePos = this.getRoutePos(route);
 
   // TODO Disable base room for now
   // if (routePos === 0) {
-  // this.say('R:Base');
-  // return false;
+  //   this.say('R:Base');
+  //   return false;
   // }
 
   if (!this.memory.routing.targetId && this.room.name === this.memory.routing.targetRoom) {
@@ -177,10 +188,17 @@ Creep.prototype.followPath = function(action) {
     return action(this);
   }
   const prepareData = this.moveByPathPrepare(route, routePos, 'pathStart', this.memory.routing.targetId);
-  if (prepareData.unit.preMove) {
-    if (prepareData.unit.preMove(this, prepareData.directions)) {
+  if (this.checkPreMove(prepareData)) {
+    if (prepareData.unit.preMove && prepareData.unit.preMove(this, prepareData.directions)) {
       return true;
     }
+    if (!prepareData.path || prepareData.path.length === 0) {
+      return false;
+    }
+  } else if (prepareData.unit.preMove && prepareData.unit.preMove(this, prepareData.directions)) {
+    // if(!this.isStuck()){  // May be used if a issue happen. Didn't need it while testing
+    return true;
+    // }
   }
   return this.moveByPathMy(route, routePos, 'pathStart', this.memory.routing.targetId, action, prepareData);
 };
@@ -188,6 +206,7 @@ Creep.prototype.followPath = function(action) {
 Creep.prototype.moveByPathPrepare = function(route, routePos, start, target) {
   const result = {};
   result.unit = roles[this.memory.role];
+
   // Somehow reset the pathPos if the path has changed?!
   result.path = this.room.getPath(route, routePos, start, target);
   if (!result.path) {
@@ -206,26 +225,8 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, action, 
     prepareData = this.moveByPathPrepare(route, routePos, start, target);
   }
   const {unit, path, pathPos, directions} = prepareData;
-  if (!path) {
-    // TODO this could be because the targetId Object does not exist anymore
-    // this.log('newmove: no path legacy fallback: ' + this.memory.base + ' ' +
-    // this.room.name + ' ' + this.memory.base + ' ' +
-    // this.memory.routing.targetRoom + ' routePos: ' + routePos + ' route: ' +
-    // JSON.stringify(route));
-    this.say('R:no path');
-    this.log('R:no path');
-    // this.log('R:no path: pathStart-' + this.memory.routing.targetId);
-    return false;
-  }
 
   if (pathPos < 0) {
-    // this.say('R:pos -1');
-    this.memory.routing.pathPos = pathPos;
-    if (path.length === 0) {
-      this.log('config_creep_routing.followPath no pos: ' + JSON.stringify(path));
-      return false;
-    }
-
     let posFirst;
     try {
       if (this.memory.routing.reverse) {
@@ -321,7 +322,6 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, action, 
     this.log('no forward and backward direction');
     return false;
   }
-
   // this.say(directions.direction);
   if (directions.direction === 0) {
     // TODO When does this happen?
