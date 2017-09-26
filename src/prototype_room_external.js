@@ -232,7 +232,7 @@ Room.prototype.checkAndSpawnReserver = function() {
   if (this.checkBlockedPath()) {
     if (this.exectueEveryTicks(config.creep.structurerInterval)) {
       this.log('Call structurer from ' + baseRoom.name);
-      Game.rooms[this.memory.base].checkRoleToSpawn('structurer', 1, undefined, this.name);
+      baseRoom.checkRoleToSpawn('structurer', 1, undefined, this.name);
       return;
     }
   }
