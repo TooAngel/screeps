@@ -16,7 +16,6 @@
     "grunt-contrib-uglify": "2.0.0",
     "grunt-eslint": "^20.0.0",
     "grunt-exec": "^3.0.0",
-    "grunt-jsbeautifier": "0.2.13",
     "grunt-jscs": "3.0.1",
     "grunt-mocha-test": "0.13.2",
     "grunt-screeps": "1.2.1",
