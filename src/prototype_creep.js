@@ -23,7 +23,9 @@ Creep.prototype.mySignController = function() {
     }
 
     const returnCode = this.signController(this.room.controller, text);
-    this.log(returnCode);
+    if (returnCode !== OK) {
+      this.log('sign controller: ' + returnCode);
+    }
   }
 };
 
