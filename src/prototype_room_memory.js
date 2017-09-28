@@ -152,6 +152,93 @@ Room.prototype.getMemoryPath = function(name) {
 };
 
 /**
+ * Returns a pseudo-path including every tile adjacent to one side of the given path
+ *
+ * @param {String} name - the name of the path
+ * @param {Number} side - +1 or -1 indicating which side of the path
+ * @return {array|boolean} path
+ */
+Room.prototype.getMemoryPathSidewalk = function(name, side = 1) {
+  const path = this.getMemoryPath(name);
+  if (!path) {
+    return false;
+  }
+  const sidewalk = [];
+  let prevDirection = null;
+  for (let pathIndex = 0; pathIndex < path.length; pathIndex++) {
+    const posPath = path[pathIndex];
+    const posPathObject = new RoomPosition(posPath.x, posPath.y, posPath.roomName);
+    const posPathNext = pathIndex < path.length - 1 ? path[pathIndex + 1] : null;
+    const directionNext = pathIndex < path.length - 1 ?
+      posPathObject.getDirectionTo(posPathNext.x, posPathNext.y, posPathNext.roomName) :
+      prevDirection;
+    prevDirection = prevDirection === null ? directionNext : prevDirection;
+
+    if (directionNext === prevDirection) {
+      // straight line
+      sidewalk.push(posPathObject.getAdjacentPosition(directionNext + side * 2 + 8));
+      if (directionNext % 2 === 0) {
+        // diagonal
+        sidewalk.push(posPathObject.getAdjacentPosition(directionNext + side + 8));
+      }
+    } else {
+      // corner
+      if (prevDirection % 2 === 0) {
+        if (directionNext % 2 === 0) {
+          // diagonal to diagonal
+          if ((directionNext - prevDirection + 8) % 8 === (side * 2 + 8) % 8) {
+            // turn towards side
+            // do nothing
+          } else {
+            // turn away from side
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side * 2 + 8));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side + 8));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection - side + 8));
+          }
+        } else {
+          // diagonal to orthogonal
+          if ((directionNext - prevDirection + 8) % 8 === (side + 8) % 8) {
+            // turn towards side
+            // do nothing
+          } else {
+            // turn away from side
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side * 2 + 8));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side + 8));
+          }
+        }
+      } else {
+        if (directionNext % 2 === 0) {
+          // orthogonal to diagonal
+          if ((directionNext - prevDirection + 8) % 8 === (side + 8) % 8) {
+            // turn towards side
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side * 2 + 8));
+          } else {
+            // turn away from side
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side * 2 + 8));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side + 8));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection));
+          }
+        } else {
+          // orthogonal to orthogonal
+          if ((directionNext - prevDirection + 8) % 8 === (side * 2 + 8) % 8) {
+            // turn towards side
+            pathIndex++;
+          } else {
+            // turn away from side
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side * 2 + 8));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side + 8));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection));
+          }
+        }
+      }
+    }
+    prevDirection = directionNext;
+  }
+  return sidewalk;
+};
+
+/**
  * Cleans the cache and memory from all paths
  */
 Room.prototype.deleteMemoryPaths = function() {
