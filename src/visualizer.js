@@ -239,9 +239,14 @@ global.visualizer.myRoomDatasDraw = function(roomName) {
 
   if (config.stats.summary && Memory.summary) {
     const highterQueue = _.chain(Memory.myRooms)
-      .map((roomName) => {
-        return {length: -Memory.rooms[roomName].queue.length, roomName: roomName};
-      }).sortBy((roomRet) => -Memory.rooms[roomRet.roomName].queue.length).value()[0];
+      .map((roomName) => ({
+        roomName: roomName,
+        length: (Memory.rooms[roomName] && Memory.rooms[roomName].queue) ?
+          -Memory.rooms[roomName].queue.length :
+          0,
+      }))
+      .sortBy('length')
+      .value()[0];
     const output = `=========================
       Game time: ${Game.time}
       Progress: ${(Game.gcl.progress - Memory.progress) / 100}/${Memory.myRooms.length * 15}
