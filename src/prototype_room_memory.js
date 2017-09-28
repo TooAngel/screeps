@@ -198,3 +198,51 @@ Room.prototype.setMemoryPath = function(name, path, fixed) {
     this.memory.routing[name] = memoryData;
   }
 };
+
+/**
+ * Bends orthogonal path segments into diagonal zigzags
+ *
+ * @param {String} name - the name of the path
+ * @return {boolean} changed - whether any changes were made
+ */
+Room.prototype.perturbMemoryPath = function(name) {
+  const path = this.getMemoryPath(name);
+  if (!path) {
+    return false;
+  }
+  let perturbed = false;
+  let skip = false;
+  let prevDir = null;
+  let prevDirOffset = 2;
+  for (let pathIndex = 0; pathIndex < path.length - 1; pathIndex++) {
+    const posPath = path[pathIndex];
+    const posPathObject = new RoomPosition(posPath.x, posPath.y, posPath.roomName);
+    const posPathNext = path[pathIndex + 1];
+    const dirNext = posPathObject.getDirectionTo(posPathNext.x, posPathNext.y, posPathNext.roomName);
+    if (skip) {
+      // don't perturb if we did on the last step
+      skip = false;
+      prevDir = dirNext;
+      continue;
+    }
+    if (prevDir !== dirNext || dirNext % 2 === 0) {
+      // don't perturb corners or diagonals
+      prevDir = dirNext;
+      continue;
+    }
+    for (let dirOffset = -prevDirOffset; dirOffset !== prevDirOffset * 2; dirOffset += prevDirOffset * 2) {
+      const offsetPosition = posPathObject.getAdjacentPosition((dirNext + dirOffset + 7) % 8 + 1);
+      if (offsetPosition.lookFor(LOOK_TERRAIN)[0] === 'plain') {
+        path[pathIndex].x = offsetPosition.x;
+        path[pathIndex].y = offsetPosition.y;
+        prevDirOffset = dirOffset;
+        perturbed = true;
+        skip = true;
+        break;
+      }
+    }
+    prevDir = dirNext;
+  }
+  this.setMemoryPath(name, path);
+  return perturbed;
+};

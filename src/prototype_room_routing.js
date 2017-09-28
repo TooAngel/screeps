@@ -137,6 +137,7 @@ Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
       return;
     }
     this.setMemoryPath(pathName, path, fixed);
+    this.perturbMemoryPath(pathName);
   }
   return this.getMemoryPath(pathName);
 };
