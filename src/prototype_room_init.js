@@ -14,7 +14,7 @@ Room.prototype.initSetSources = function() {
   const sources = this.find(FIND_SOURCES);
   const costMatrix = this.getMemoryCostMatrix();
   for (const source of sources) {
-    const sourcer = source.pos.getFirstNearPosition();
+    const sourcer = source.pos.getFirstNearPosition({ignorePath: true});
     this.memory.position.creep[source.id] = sourcer;
     // TODO E.g. E11S8 it happens that sourcer has no position
     if (sourcer) {

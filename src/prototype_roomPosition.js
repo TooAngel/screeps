@@ -173,33 +173,33 @@ RoomPosition.prototype.isValid = function() {
   return true;
 };
 
-RoomPosition.prototype.validPosition = function() {
-  if (this.isBorder()) {
+RoomPosition.prototype.validPosition = function(opts = {}) {
+  if (!opts.ignoreBorder && this.isBorder()) {
     return false;
   }
-  if (this.checkForWall()) {
+  if (!opts.ignoreWall && this.checkForWall()) {
     return false;
   }
-  if (this.inPositions()) {
+  if (!opts.ignorePositions && this.inPositions()) {
     return false;
   }
-  if (this.inPath()) {
+  if (!opts.ignorePath && this.inPath()) {
     return false;
   }
   return true;
 };
 
-RoomPosition.prototype.getFirstNearPosition = function() {
-  return this.findNearPosition().next().value;
+RoomPosition.prototype.getFirstNearPosition = function(...args) {
+  return this.findNearPosition(...args).next().value;
 };
 
-RoomPosition.prototype.getBestNearPosition = function() {
+RoomPosition.prototype.getBestNearPosition = function(...args) {
   return _.max(Array.from(this.findNearPosition()), (pos) => Array.from(pos.findNearPosition()).length);
 };
 
-RoomPosition.prototype.findNearPosition = function* () {
+RoomPosition.prototype.findNearPosition = function* (...args) {
   for (const posNew of this.getAllAdjacentPositions()) {
-    if (!posNew.validPosition()) {
+    if (!posNew.validPosition(...args)) {
       //        console.log(posNew + ' - invalid');
       continue;
     }
