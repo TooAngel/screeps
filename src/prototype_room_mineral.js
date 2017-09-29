@@ -1,6 +1,9 @@
 'use strict';
 
 Room.prototype.isMineralInStorage = function() {
+  if (!this.storage) {
+    return false;
+  }
   return Object.keys(this.storage.store).some((resource) => resource !== RESOURCE_ENERGY && resource !== RESOURCE_POWER);
 };
 
