@@ -484,6 +484,6 @@ Room.prototype.setup = function() {
     pathI = path.length - 1;
   }
 
-  this.setMemoryPath('pathStart-harvester', path.slice(0, pathI + 1), true);
+  this.setMemoryPath('pathStart-harvester', path.slice(0, pathI + 1), true, true);
   this.memory.position.version = config.layout.version;
 };

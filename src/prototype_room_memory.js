@@ -178,9 +178,13 @@ Room.prototype.deleteMemoryPath = function(name) {
  * @param {String} name - the name of the path
  * @param {Array} path - the path itself
  * @param {boolean} fixed - Flag to define if the path should be stored in memory
+ * @param {boolean} perturb - Flag to define if the path should be perturbed
  */
-Room.prototype.setMemoryPath = function(name, path, fixed) {
+Room.prototype.setMemoryPath = function(name, path, fixed, perturb = false) {
   this.checkCache();
+  if (perturb) {
+    path = Room.perturbPath(path);
+  }
   const data = {
     path: path,
     created: Game.time,
@@ -202,23 +206,20 @@ Room.prototype.setMemoryPath = function(name, path, fixed) {
 /**
  * Bends orthogonal path segments into diagonal zigzags
  *
- * @param {String} name - the name of the path
- * @return {boolean} changed - whether any changes were made
+ * @param {Array} path - the path to perturb
+ * @return {Array} changed - the perturbed path
  */
-Room.prototype.perturbMemoryPath = function(name) {
-  const path = this.getMemoryPath(name);
+Room.perturbPath = function(path) {
   if (!path) {
-    return false;
+    return path;
   }
-  let perturbed = false;
   let skip = false;
   let prevDir = null;
   let prevDirOffset = 2;
   for (let pathIndex = 0; pathIndex < path.length - 1; pathIndex++) {
-    const posPath = path[pathIndex];
-    const posPathObject = new RoomPosition(posPath.x, posPath.y, posPath.roomName);
+    const posPathObject = path[pathIndex];
     const posPathNext = path[pathIndex + 1];
-    const dirNext = posPathObject.getDirectionTo(posPathNext.x, posPathNext.y, posPathNext.roomName);
+    const dirNext = posPathObject.getDirectionTo(posPathNext);
     if (skip) {
       // don't perturb if we did on the last step
       skip = false;
@@ -230,19 +231,17 @@ Room.prototype.perturbMemoryPath = function(name) {
       prevDir = dirNext;
       continue;
     }
-    for (let dirOffset = -prevDirOffset; dirOffset !== prevDirOffset * 2; dirOffset += prevDirOffset * 2) {
+    for (let dirOffset = -prevDirOffset; dirOffset !== prevDirOffset * 3; dirOffset += prevDirOffset * 2) {
       const offsetPosition = posPathObject.getAdjacentPosition((dirNext + dirOffset + 7) % 8 + 1);
-      if (offsetPosition.lookFor(LOOK_TERRAIN)[0] === 'plain') {
-        path[pathIndex].x = offsetPosition.x;
-        path[pathIndex].y = offsetPosition.y;
+      if (offsetPosition.lookFor(LOOK_TERRAIN)[0] === 'plain' &&
+          !offsetPosition.inPositions()) {
+        path[pathIndex] = offsetPosition;
         prevDirOffset = dirOffset;
-        perturbed = true;
         skip = true;
         break;
       }
     }
     prevDir = dirNext;
   }
-  this.setMemoryPath(name, path);
-  return perturbed;
+  return path;
 };
