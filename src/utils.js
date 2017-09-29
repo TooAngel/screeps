@@ -183,25 +183,4 @@ global.utils = {
     }
     return arrayParts;
   },
-
-  /**
-   * Given a direction, 1-8, increment it by some value and wrap back to 1-8
-   *
-   * @param {Number} direction
-   * @param {Number} change
-   * @return {Number}
-   */
-  changeDirection: function(direction, change) {
-    return ((direction + change - 1) % 8) + 1;
-  },
-  /**
-   * Given a direction, 1-8, return the opposite direction
-   *
-   * @param {Number} direction
-   * @return {Number}
-   */
-  oppositeDirection: function(direction) {
-    return ((direction + 3) % 8) + 1;
-  },
-
 };

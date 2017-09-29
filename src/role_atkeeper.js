@@ -26,7 +26,7 @@ roles.atkeeper.action = function(creep) {
       const range = creep.pos.getRangeTo(target);
       creep.heal(creep);
       if (range <= 3) {
-        let direction = global.utils.oppositeDirection(creep.pos.getDirectionTo(target));
+        let direction = RoomPosition.oppositeDirection(creep.pos.getDirectionTo(target));
         const pos = creep.pos.getAdjacentPosition(direction);
         const terrain = pos.lookFor(LOOK_TERRAIN)[0];
         if (terrain === 'wall') {
@@ -55,7 +55,7 @@ roles.atkeeper.action = function(creep) {
         creep.moveTo(target);
       }
       if (range < 3) {
-        direction = global.utils.oppositeDirection(creep.pos.getDirectionTo(target));
+        direction = RoomPosition.oppositeDirection(creep.pos.getDirectionTo(target));
       }
       return true;
     } else {
@@ -106,7 +106,7 @@ roles.atkeeper.action = function(creep) {
 
     creep.rangedAttack(target);
     if (range < 3) {
-      direction = global.utils.oppositeDirection(creep.pos.getDirectionTo(target));
+      direction = RoomPosition.oppositeDirection(creep.pos.getDirectionTo(target));
       creep.move(direction);
     }
     return true;

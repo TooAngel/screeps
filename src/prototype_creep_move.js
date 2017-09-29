@@ -4,7 +4,7 @@ Creep.prototype.moveRandom = function(onPath) {
   const startDirection = _.random(1, 8);
   let direction = 0;
   for (let i = 0; i < 8; i++) {
-    direction = global.utils.changeDirection(startDirection, i);
+    direction = RoomPosition.changeDirection(startDirection, i);
     const pos = this.pos.getAdjacentPosition(direction);
     if (pos.isBorder(-1)) {
       continue;
@@ -27,7 +27,7 @@ Creep.prototype.moveRandomWithin = function(goal, dist = 3) {
   const startDirection = _.random(1, 8);
   let direction = 0;
   for (let i = 0; i < 8; i++) {
-    direction = global.utils.changeDirection(startDirection, i);
+    direction = RoomPosition.changeDirection(startDirection, i);
     const pos = this.pos.getAdjacentPosition(direction);
     if (pos.isBorder(-1)) {
       continue;

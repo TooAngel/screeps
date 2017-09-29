@@ -276,7 +276,7 @@ Creep.prototype.moveForce = function(target, forward) {
     const pos = new RoomPosition(nextPosition.x, nextPosition.y, this.room.name);
     const creeps = pos.lookFor('creep');
     if (0 < creeps.length) {
-      this.moveCreep(pos, global.utils.oppositeDirection(nextPosition.direction));
+      this.moveCreep(pos, RoomPosition.oppositeDirection(nextPosition.direction));
     }
   }
 
@@ -288,7 +288,7 @@ Creep.prototype.moveForce = function(target, forward) {
       this.move(nextPosition.direction);
     } else {
       const position = this.memory.path[this.room.name][(+positionId)];
-      this.move(global.utils.oppositeDirection(position.direction));
+      this.move(RoomPosition.oppositeDirection(position.direction));
     }
     this.memory.lastPosition = this.pos;
   }
