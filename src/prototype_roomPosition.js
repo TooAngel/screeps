@@ -194,7 +194,7 @@ RoomPosition.prototype.getFirstNearPosition = function(...args) {
 };
 
 RoomPosition.prototype.getBestNearPosition = function(...args) {
-  return _.max(Array.from(this.findNearPosition()), (pos) => Array.from(pos.findNearPosition()).length);
+  return _.max(Array.from(this.findNearPosition(...args)), (pos) => Array.from(pos.findNearPosition(...args)).length);
 };
 
 RoomPosition.prototype.findNearPosition = function* (...args) {
