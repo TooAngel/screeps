@@ -14,7 +14,7 @@ Room.prototype.initSetSources = function() {
   const sources = this.find(FIND_SOURCES);
   const costMatrix = this.getMemoryCostMatrix();
   for (const source of sources) {
-    const sourcer = source.pos.getFirstNearPosition();
+    const sourcer = source.pos.getBestNearPosition();
     this.memory.position.creep[source.id] = sourcer;
     // TODO E.g. E11S8 it happens that sourcer has no position
     if (sourcer) {
@@ -30,7 +30,7 @@ Room.prototype.initSetMinerals = function() {
   const costMatrix = this.getMemoryCostMatrix();
   const minerals = this.find(FIND_MINERALS);
   for (const mineral of minerals) {
-    const extractor = mineral.pos.getFirstNearPosition();
+    const extractor = mineral.pos.getBestNearPosition();
     this.memory.position.creep[mineral.id] = extractor;
     this.memory.position.structure.extractor.push(mineral.pos);
     costMatrix.set(extractor.x, extractor.y, config.layout.creepAvoid);
@@ -46,7 +46,7 @@ Room.prototype.initSetStorageAndPathStart = function() {
   costMatrix.set(storagePos.x, storagePos.y, config.layout.structureAvoid);
   this.setMemoryCostMatrix(costMatrix);
 
-  this.memory.position.creep.pathStart = storagePos.getFirstNearPosition();
+  this.memory.position.creep.pathStart = storagePos.getBestNearPosition();
 
   const route = [{
     room: this.name,
@@ -166,62 +166,72 @@ Room.prototype.setPosition = function(type, pos, value, positionType = 'structur
   this.setMemoryCostMatrix(costMatrix);
 };
 
-Room.prototype.setTowerFillerIterate = function(roomName, offsetDirection) {
-  let linkSet = false;
-  let towerFillerSet = false;
-  let positionsFound = false;
-  const path = this.getMemoryPath('pathStart-' + roomName);
+/**
+ * Places one tower, filler, link along the path from a specific exit.
+ *
+ * @param {String} roomName
+ * @param {Number} offsetDirection (-1 or +1)
+ * @return {Boolean} success
+ */
+Room.prototype.setTowerIterate = function(roomName, offsetDirection) {
+  const path = this.getMemoryPathSidewalk('pathStart-' + roomName, offsetDirection);
+  let linkPos = null;
+  let fillerPos = null;
   for (let pathIndex = path.length - 1; pathIndex >= 1; pathIndex--) {
     const posPath = path[pathIndex];
-    const posPathObject = new RoomPosition(posPath.x, posPath.y, posPath.roomName);
-    const posPathNext = path[pathIndex - 1];
-
-    const directionNext = posPathObject.getDirectionTo(posPathNext.x, posPathNext.y, posPathNext.roomName);
-
-    const pos = posPathObject.getAdjacentPosition(directionNext + offsetDirection);
-
-    if (!pos.checkTowerFillerPos()) {
-      continue;
-    }
-
+    const pos = new RoomPosition(posPath.x, posPath.y, posPath.roomName);
     const terrain = pos.lookFor(LOOK_TERRAIN)[0];
-    if (terrain === 'wall') {
-      break;
+
+    if (terrain === 'wall' || !pos.checkTowerLinkPos() || pos.isEqualTo(linkPos) || pos.isEqualTo(fillerPos)) {
+      linkPos = null;
+      fillerPos = null;
+      continue;
     }
 
-    if (!linkSet) {
-      this.setPosition('link', pos, config.layout.structureAvoid);
-      linkSet = true;
+    if (linkPos === null) {
+      linkPos = pos;
       continue;
     }
-    if (!towerFillerSet) {
-      this.setPosition('towerfiller', pos, config.layout.creepAvoid, 'creep');
-      towerFillerSet = true;
+
+    if (fillerPos === null) {
+      fillerPos = pos;
       continue;
     }
+
+    this.setPosition('link', linkPos, config.layout.structureAvoid);
+    this.setPosition('towerfiller', fillerPos, config.layout.creepAvoid, 'creep');
     this.setPosition('tower', pos, config.layout.structureAvoid);
-    positionsFound = true;
-    break;
+    return true;
   }
 
-  return positionsFound;
+  return false;
 };
 
 Room.prototype.setTowerFiller = function() {
   const exits = _.map(Game.map.describeExits(this.name));
 
   this.memory.position.creep.towerfiller = [];
-  for (let index = 0; index < CONTROLLER_STRUCTURES.tower[8] - 1; index++) {
+  let towersPlaced = 0;
+  let towersPlacedThisRound = 0;
+  for (let index = 0; towersPlaced < CONTROLLER_STRUCTURES.tower[8] - 1; index++) {
+    if (index % (exits.length * 2) === 0) {
+      if (index > 0 && towersPlacedThisRound === 0) {
+        // tried every exit, both sides, placed no towers, nowhere left to try
+        return false;
+      }
+      towersPlacedThisRound = 0;
+    }
     const roomName = exits[index % exits.length];
     if (!roomName) {
-      break;
+      return false;
     }
-    for (let offsetDirection = 2; offsetDirection < 7; offsetDirection += 4) {
-      if (this.setTowerFillerIterate(roomName, offsetDirection)) {
-        break;
-      }
+    const offsetDirection = (Math.floor(index / exits.length) % 2) * 2 - 1;
+    if (this.setTowerIterate(roomName, offsetDirection)) {
+      towersPlaced++;
+      towersPlacedThisRound++;
     }
   }
+  return true;
 };
 
 Room.prototype.checkLabStructures = function(structurePos, pathPos) {
@@ -339,7 +349,9 @@ Room.prototype.setStructuresIteratePos = function(structurePos, pathI, path) {
 };
 
 Room.prototype.setStructures = function(path) {
-  this.setTowerFiller();
+  if (!this.setTowerFiller()) {
+    this.log('Failed to place all towers');
+  }
 
   for (let pathI = 0; pathI < path.length; pathI++) {
     const pathPos = new RoomPosition(path[pathI].x, path[pathI].y, this.name);
@@ -465,20 +477,25 @@ Room.prototype.setup = function() {
 
   this.costMatrixPathCrossings(exits);
 
+  const minerals = this.find(FIND_MINERALS);
+  for (const mineral of minerals) {
+    // TODO handle multiple minerals somehow?
+    const pathLB = this.getMemoryPath('pathStart-' + mineral.id);
+    this.setLabsTerminal(pathLB);
+    break;
+  }
+
   const pathsController = _.filter(this.getMemoryPaths(), (object, key) => {
     return key.startsWith('pathStart-');
   });
   const pathsSorted = _.sortBy(pathsController, sorter);
   const path = this.getMemoryPath(pathsSorted[pathsSorted.length - 1].name);
-  // TODO This is the path to the extractor, we should change this to getting the right path via ID (e.g. if there are more than two sources this could change)
-  const pathLB = this.getMemoryPath(pathsController[4].name);
-  this.setLabsTerminal(pathLB);
   let pathI = this.setStructures(path);
   this.log('path: ' + pathsSorted[pathsSorted.length - 1].name + ' pathI: ' + pathI + ' length: ' + path.length);
   if (pathI === -1) {
     pathI = path.length - 1;
   }
 
-  this.setMemoryPath('pathStart-harvester', path.slice(0, pathI + 1), true);
+  this.setMemoryPath('pathStart-harvester', path.slice(0, pathI + 1), true, true);
   this.memory.position.version = config.layout.version;
 };

@@ -152,6 +152,93 @@ Room.prototype.getMemoryPath = function(name) {
 };
 
 /**
+ * Returns a pseudo-path including every tile adjacent to one side of the given path
+ *
+ * @param {String} name - the name of the path
+ * @param {Number} side - +1 or -1 indicating which side of the path
+ * @return {array|boolean} path
+ */
+Room.prototype.getMemoryPathSidewalk = function(name, side = 1) {
+  const path = this.getMemoryPath(name);
+  if (!path) {
+    return false;
+  }
+  const sidewalk = [];
+  let prevDirection = null;
+  for (let pathIndex = 0; pathIndex < path.length; pathIndex++) {
+    const posPath = path[pathIndex];
+    const posPathObject = new RoomPosition(posPath.x, posPath.y, posPath.roomName);
+    const posPathNext = pathIndex < path.length - 1 ? path[pathIndex + 1] : null;
+    const directionNext = pathIndex < path.length - 1 ?
+      posPathObject.getDirectionTo(posPathNext.x, posPathNext.y, posPathNext.roomName) :
+      prevDirection;
+    prevDirection = prevDirection === null ? directionNext : prevDirection;
+
+    if (directionNext === prevDirection) {
+      // straight line
+      sidewalk.push(posPathObject.getAdjacentPosition(directionNext + side * 2 + 8));
+      if (directionNext % 2 === 0) {
+        // diagonal
+        sidewalk.push(posPathObject.getAdjacentPosition(directionNext + side + 8));
+      }
+    } else {
+      // corner
+      if (prevDirection % 2 === 0) {
+        if (directionNext % 2 === 0) {
+          // diagonal to diagonal
+          if ((directionNext - prevDirection + 8) % 8 === (side * 2 + 8) % 8) {
+            // turn towards side
+            // do nothing
+          } else {
+            // turn away from side
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side * 2 + 8));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side + 8));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection - side + 8));
+          }
+        } else {
+          // diagonal to orthogonal
+          if ((directionNext - prevDirection + 8) % 8 === (side + 8) % 8) {
+            // turn towards side
+            // do nothing
+          } else {
+            // turn away from side
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side * 2 + 8));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side + 8));
+          }
+        }
+      } else {
+        if (directionNext % 2 === 0) {
+          // orthogonal to diagonal
+          if ((directionNext - prevDirection + 8) % 8 === (side + 8) % 8) {
+            // turn towards side
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side * 2 + 8));
+          } else {
+            // turn away from side
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side * 2 + 8));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side + 8));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection));
+          }
+        } else {
+          // orthogonal to orthogonal
+          if ((directionNext - prevDirection + 8) % 8 === (side * 2 + 8) % 8) {
+            // turn towards side
+            pathIndex++;
+          } else {
+            // turn away from side
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side * 2 + 8));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection + side + 8));
+            sidewalk.push(posPathObject.getAdjacentPosition(prevDirection));
+          }
+        }
+      }
+    }
+    prevDirection = directionNext;
+  }
+  return sidewalk;
+};
+
+/**
  * Cleans the cache and memory from all paths
  */
 Room.prototype.deleteMemoryPaths = function() {
@@ -178,9 +265,13 @@ Room.prototype.deleteMemoryPath = function(name) {
  * @param {String} name - the name of the path
  * @param {Array} path - the path itself
  * @param {boolean} fixed - Flag to define if the path should be stored in memory
+ * @param {boolean} perturb - Flag to define if the path should be perturbed
  */
-Room.prototype.setMemoryPath = function(name, path, fixed) {
+Room.prototype.setMemoryPath = function(name, path, fixed, perturb = false) {
   this.checkCache();
+  if (perturb) {
+    path = Room.perturbPath(path);
+  }
   const data = {
     path: path,
     created: Game.time,
@@ -197,4 +288,47 @@ Room.prototype.setMemoryPath = function(name, path, fixed) {
     };
     this.memory.routing[name] = memoryData;
   }
+};
+
+/**
+ * Bends orthogonal path segments into diagonal zigzags
+ *
+ * @param {Array} path - the path to perturb
+ * @return {Array} changed - the perturbed path
+ */
+Room.perturbPath = function(path) {
+  if (!path) {
+    return path;
+  }
+  let skip = false;
+  let prevDir = null;
+  let prevDirOffset = 2;
+  for (let pathIndex = 0; pathIndex < path.length - 1; pathIndex++) {
+    const posPathObject = path[pathIndex];
+    const posPathNext = path[pathIndex + 1];
+    const dirNext = posPathObject.getDirectionTo(posPathNext);
+    if (skip) {
+      // don't perturb if we did on the last step
+      skip = false;
+      prevDir = dirNext;
+      continue;
+    }
+    if (prevDir !== dirNext || dirNext % 2 === 0) {
+      // don't perturb corners or diagonals
+      prevDir = dirNext;
+      continue;
+    }
+    for (let dirOffset = -prevDirOffset; dirOffset !== prevDirOffset * 3; dirOffset += prevDirOffset * 2) {
+      const offsetPosition = posPathObject.getAdjacentPosition((dirNext + dirOffset + 7) % 8 + 1);
+      if (offsetPosition.lookFor(LOOK_TERRAIN)[0] === 'plain' &&
+          !offsetPosition.inPositions()) {
+        path[pathIndex] = offsetPosition;
+        prevDirOffset = dirOffset;
+        skip = true;
+        break;
+      }
+    }
+    prevDir = dirNext;
+  }
+  return path;
 };

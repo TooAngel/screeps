@@ -130,15 +130,16 @@ Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
   }
 
   const pathName = from + '-' + to;
-  if (!this.getMemoryPath(pathName)) {
+  const memoryPath = this.getMemoryPath(pathName);
+  if (!memoryPath) {
     const path = this.buildPath(route, routePos, from, to);
     if (!path) {
       // this.log('getPath: No path');
       return;
     }
-    this.setMemoryPath(pathName, path, fixed);
+    this.setMemoryPath(pathName, path, fixed, true);
   }
-  return this.getMemoryPath(pathName);
+  return memoryPath || this.getMemoryPath(pathName);
 };
 
 Room.prototype.getMyExitTo = function(room) {
