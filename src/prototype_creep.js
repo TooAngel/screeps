@@ -23,7 +23,9 @@ Creep.prototype.mySignController = function() {
     }
 
     const returnCode = this.signController(this.room.controller, text);
-    this.log(returnCode);
+    if (returnCode !== OK) {
+      this.log('sign controller: ' + returnCode);
+    }
   }
 };
 
@@ -96,6 +98,11 @@ Creep.prototype.handle = function() {
           //      this.say('Action');
           return unit.action(this);
         }
+      }
+
+      if (this.memory.forced) {
+        delete this.memory.forced;
+        return;
       }
 
       if (this.followPath(unit.action)) {

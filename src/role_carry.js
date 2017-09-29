@@ -69,23 +69,26 @@ roles.carry.handleMisplacedSpawn = function(creep) {
     //     creep.say('cmis', true);
     if (creep.carry.energy > 0) {
       const structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-        filter: (object) => object.energy < object.energyCapacity,
+        filter: (object) => ((object.store ? _.sum(object.store) < object.storeCapacity : object.energy < object.energyCapacity)),
       });
-      creep.moveTo(structure, {
-        ignoreCreeps: true,
-      });
-      creep.transfer(structure, RESOURCE_ENERGY);
-      return true;
+      if (structure) {
+        creep.moveTo(structure, {
+          ignoreCreeps: true,
+        });
+        creep.transfer(structure, RESOURCE_ENERGY);
+        return true;
+      }
     } else {
       const targetId = creep.memory.routing.targetId;
 
       const source = creep.room.memory.position.creep[targetId];
       // TODO better the position from the room memory
-      if (source !== null) {
-        creep.moveTo(source, {
+      if (source) {
+        const sourcePos = new RoomPosition(source.x, source.y, source.roomName);
+        creep.moveTo(sourcePos, {
           ignoreCreeps: true,
         });
-        if (creep.pos.getRangeTo(source) > 1) {
+        if (creep.pos.getRangeTo(sourcePos) > 1) {
           return true;
         }
       }
@@ -143,18 +146,20 @@ roles.carry.preMove = function(creep, directions) {
           return true;
         }
         reverse = creep.carry.energy - transferred.transferred > 0;
-      } else if (creep.memory.routing.pathPos === 0 && !(creep.room.storage && creep.room.storage.my && creep.room.storage.isActive())) {
+      } else if (creep.memory.routing.pathPos === 0) {
         creep.drop(RESOURCE_ENERGY);
         reverse = false;
-
-        let resourceAtPosition = 0;
-        const resources = creep.pos.lookFor(LOOK_RESOURCES);
-        for (const resource of resources) {
-          resourceAtPosition += resource.amount;
+        const storage = creep.room.storage;
+        if (!(storage && storage.my && storage.isActive())) {
+          let resourceAtPosition = 0;
+          const resources = creep.pos.lookFor(LOOK_RESOURCES);
+          for (const resource of resources) {
+            resourceAtPosition += resource.amount;
+          }
+          let amount = creep.room.getHarvesterAmount();
+          amount += Math.floor(resourceAtPosition / config.carry.callHarvesterPerResources);
+          creep.room.checkRoleToSpawn('harvester', amount, 'harvester');
         }
-        let amount = creep.room.getHarvesterAmount();
-        amount += Math.floor(resourceAtPosition / config.carry.callHarvesterPerResources);
-        creep.room.checkRoleToSpawn('harvester', amount, 'harvester');
       }
     }
     if (directions.backwardDirection && directions.backwardDirection !== null) {

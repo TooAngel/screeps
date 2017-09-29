@@ -102,10 +102,18 @@ if (config.visualizer.enabled) {
           for (const positionName of Object.keys(creeps)) {
             if (creeps[positionName]) {
               if (creeps[positionName].x || creeps[positionName].y) {
-                const text = positionName.substr(0, 1);
+                let text = positionName.substr(0, 1);
+                const target = Game.getObjectById(positionName);
+                if (target) {
+                  if (target.structureType) {
+                    text = target.structureType.substr(0, 1);
+                  } else {
+                    text = 's'; // source
+                  }
+                }
                 this.drawPosition(rv, creeps[positionName], text, 'yellow');
               } else {
-                const text = positionName.substr(0, 1);
+                const text = positionName.substr(0, 1); // always 't'
                 for (const towerfiller of creeps[positionName]) {
                   this.drawPosition(rv, towerfiller, text, 'yellow');
                 }
@@ -239,9 +247,14 @@ global.visualizer.myRoomDatasDraw = function(roomName) {
 
   if (config.stats.summary && Memory.summary) {
     const highterQueue = _.chain(Memory.myRooms)
-      .map((roomName) => {
-        return {length: -Memory.rooms[roomName].queue.length, roomName: roomName};
-      }).sortBy((roomRet) => -Memory.rooms[roomRet.roomName].queue.length).value()[0];
+      .map((roomName) => ({
+        roomName: roomName,
+        length: (Memory.rooms[roomName] && Memory.rooms[roomName].queue) ?
+          -Memory.rooms[roomName].queue.length :
+          0,
+      }))
+      .sortBy('length')
+      .value()[0];
     const output = `=========================
       Game time: ${Game.time}
       Progress: ${(Game.gcl.progress - Memory.progress) / 100}/${Memory.myRooms.length * 15}

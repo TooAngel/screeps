@@ -132,7 +132,7 @@ RoomPosition.prototype.inPositions = function() {
     const pos = room.memory.position.creep[creepId];
     if (!pos) {
       // TODO introduce this.log()
-      console.log('inPositions:', this.roomName, creepId);
+      // console.log('inPositions:', this.roomName, creepId);
       continue;
     }
     if (this.isEqualTo(pos.x, pos.y)) {

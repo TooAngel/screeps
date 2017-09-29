@@ -37,11 +37,11 @@ roles.repairer.execute = function(creep) {
     if (creep.memory.step <= 0) {
       const structures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_WALL, STRUCTURE_RAMPART]);
       if (structures.length > 0) {
-        let min = structures[0].hits;
+        let min = WALL_HITS_MAX;
 
-        for (const i in structures) {
-          if (min > structures[i].hits) {
-            min = structures[i].hits;
+        for (const structure of structures) {
+          if (min > structure.hits) {
+            min = structure.hits;
           }
         }
         creep.memory.step = min;

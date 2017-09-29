@@ -6,6 +6,7 @@ global.brain = {
 global.roles = {};
 global.cache = {
   rooms: {},
+  segments: {},
 };
 
 try {
@@ -44,6 +45,10 @@ global.config = {
   performance: {
     serializePath: true,
     costMatrixMemoryMaxGCL: 15,
+  },
+
+  memory: {
+    segments: 10,
   },
 
   // use username `tooangels` and password `tooSecretPassword` at https://screepspl.us/grafana
@@ -187,6 +192,7 @@ global.config = {
     upgraderStorageFactor: 2,
     lastSeenThreshold: 1000000,
     notify: false,
+    observerRange: OBSERVER_RANGE, // between 1 and 10:OBSERVER_RANGE
   },
 
   layout: {

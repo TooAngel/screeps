@@ -48,6 +48,12 @@ Creep.prototype.checkEnergyTransfer = function(otherCreep) {
   return offset + _.sum(this.carry) > carryPercentage * this.carryCapacity;
 };
 
+// return true if helper can't transfer to creep
+Creep.prototype.checkHelperNoTransfer = function(creep) {
+  return this.memory.helper && !creep.memory.helper &&
+        creep.memory.role === 'carry' && creep.memory.base !== this.memory.base;
+};
+
 Creep.prototype.findCreepWhichCanTransfer = function(creeps) {
   for (let i = 0; i < creeps.length; i++) {
     const otherCreep = creeps[i];
@@ -55,7 +61,10 @@ Creep.prototype.findCreepWhichCanTransfer = function(creeps) {
       continue;
     }
 
-    if (Game.creeps[otherCreep.name].memory.role === 'carry') {
+    if (otherCreep.memory.role === 'carry') {
+      if (otherCreep.checkHelperNoTransfer(this)) {
+        continue;
+      }
       return this.checkEnergyTransfer(otherCreep);
     }
     continue;
@@ -77,7 +86,7 @@ Creep.prototype.checkForTransfer = function(direction) {
     return false;
   }
 
-  const creeps = adjacentPos.lookFor('creep');
+  const creeps = adjacentPos.lookFor(LOOK_CREEPS);
   return this.findCreepWhichCanTransfer(creeps);
 };
 
@@ -102,9 +111,15 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
 
   if (this.room.name === this.memory.routing.targetRoom) {
     const containers = this.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_CONTAINER, STRUCTURE_STORAGE]);
-    if (containers.length > 0) {
-      this.withdraw(containers[0], RESOURCE_ENERGY);
-      return containers[0].store.energy > 9;
+    for (const container of containers) {
+      // To avoid carry withdrawing energy from base storage
+      if (container.structureType === STRUCTURE_STORAGE && container.id !== this.memory.routing.targetId) {
+        continue;
+      }
+      if (container.store[RESOURCE_ENERGY]) {
+        this.withdraw(container, RESOURCE_ENERGY);
+        return container.store[RESOURCE_ENERGY] > 9;
+      }
     }
   }
   return reverse;
@@ -297,7 +312,7 @@ Creep.prototype.transferToCreep = function(direction) {
   const creeps = adjacentPos.lookFor('creep');
   for (let i = 0; i < creeps.length; i++) {
     const otherCreep = creeps[i];
-    if (!checkCreepForTransfer(otherCreep)) {
+    if (!checkCreepForTransfer(otherCreep) || this.checkHelperNoTransfer(otherCreep)) {
       continue;
     }
     const returnCode = this.transfer(otherCreep, RESOURCE_ENERGY);
@@ -360,7 +375,9 @@ const filterTransferrables = function(creep, object) {
     return false;
   }
 
-  if (object.structureType !== STRUCTURE_STORAGE && object.energy === object.energyCapacity) {
+  if (object.structureType === STRUCTURE_STORAGE ?
+    _.sum(object.store) + _.sum(creep.carry) > object.storeCapacity :
+    object.energy === object.energyCapacity) {
     return false;
   }
 
@@ -409,6 +426,12 @@ Creep.prototype.transferToStructures = function() {
       }
       transferred = this.transferAllResources(item.structure);
     }
+  }
+  if (transferred) {
+    return {
+      moreStructures: false,
+      transferred: transferred,
+    };
   }
   return false;
 };
@@ -739,7 +762,7 @@ Creep.prototype.interactWithControllerSuccess = function() {
 
 Creep.prototype.interactWithController = function() {
   let returnCode;
-  if (this.room.controller.owner && this.room.controller.owner !== Memory.username) {
+  if (this.room.controller.owner && this.room.controller.owner.username !== Memory.username) {
     this.say('attack');
     returnCode = this.attackController(this.room.controller);
   } else {

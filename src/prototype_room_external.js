@@ -82,15 +82,15 @@ Room.prototype.externalHandleHighwayRoom = function() {
     return false;
   }
 
+  Memory.powerBanks = Memory.powerBanks || {};
+
   const structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
   if (structures.length === 0) {
-    if (Memory.powerBanks) {
-      delete Memory.powerBanks[this.name];
-    }
+    delete Memory.powerBanks[this.name];
     return false;
   }
 
-  if (Memory.powerBanks && Memory.powerBanks[this.name]) {
+  if (Memory.powerBanks[this.name]) {
     if (Memory.powerBanks[this.name].target && Memory.powerBanks[this.name] !== null) {
       if (Memory.powerBanks[this.name].transporter_called) {
         return;
@@ -130,10 +130,6 @@ Room.prototype.externalHandleHighwayRoom = function() {
         minRoute = routeToTest.length;
         target = room;
       }
-    }
-
-    if (!Memory.powerBanks) {
-      Memory.powerBanks = {};
     }
     if (target !== null) {
       Memory.powerBanks[this.name] = {
@@ -232,7 +228,7 @@ Room.prototype.checkAndSpawnReserver = function() {
   if (this.checkBlockedPath()) {
     if (this.exectueEveryTicks(config.creep.structurerInterval)) {
       this.log('Call structurer from ' + baseRoom.name);
-      Game.rooms[this.memory.base].checkRoleToSpawn('structurer', 1, undefined, this.name);
+      baseRoom.checkRoleToSpawn('structurer', 1, undefined, this.name);
       return;
     }
   }

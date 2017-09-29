@@ -14,26 +14,59 @@
  */
 
 /**
- * Stores the costMatrix in cache or in case of a controller room
- * in memory, too.
+ * Initialize `this.memory.segment` if it not exists yet
+ */
+Room.prototype.checkSegment = function() {
+  if (this.memory.segment === undefined) {
+    this.memory.segment = brain.getNextSegmentId();
+  }
+};
+
+/**
+ * Combine key for storing room cache objects in memory segments
+ *
+ * @param {string} object Room object name
+ * @return {string}
+ */
+Room.prototype.getRoomMemorySegmentKey = function(object) {
+  return `room-${this.name}-${object}`;
+};
+
+/**
+ * Deletes room memory, all room cache objects from memory segments and invalidates global cache
+ */
+Room.prototype.clearMemory = function() {
+  this.checkSegment();
+  const roomKeyPrefix = this.getRoomMemorySegmentKey('');
+  for (const key of brain.getSegmentKeys(this.memory.segment)) {
+    if (key.startsWith(roomKeyPrefix)) {
+      brain.removeSegmentObject(this.memory.segment, roomKeyPrefix);
+    }
+  }
+  this.memory = {
+    invalidated: Game.time,
+  };
+};
+
+/**
+ * Returns the costMatrix for the room. The cache will be populated
+ * from memory segment.
+ *
+ * @return {CostMatrix|undefined}
+ */
+Room.prototype.getMemoryCostMatrix = function() {
+  this.checkSegment();
+  return brain.getSegmentObject(this.memory.segment, this.getRoomMemorySegmentKey('costmatrix'));
+};
+
+/**
+ * Stores the costMatrix in cache and in memory segment.
  *
  * @param {Object} costMatrix - the costMatrix to save
  */
 Room.prototype.setMemoryCostMatrix = function(costMatrix) {
-  this.checkCache();
-  if (this.controller && this.controller.my || Game.gcl.level < config.performance.costMatrixMemoryMaxGCL) {
-    if (!this.memory.costMatrix) {
-      this.memory.costMatrix = {};
-    }
-    this.memory.costMatrix.base = costMatrix.serialize();
-  }
-  cache.rooms[this.name].costMatrix.base = costMatrix;
-};
-
-Room.prototype.clearMemory = function() {
-  this.memory = {
-    invalidated: Game.time,
-  };
+  this.checkSegment();
+  brain.setSegmentObject(this.memory.segment, this.getRoomMemorySegmentKey('costmatrix'), costMatrix, 'costmatrix');
 };
 
 Room.prototype.checkCache = function() {
@@ -47,24 +80,6 @@ Room.prototype.checkCache = function() {
       created: Game.time,
     };
   }
-};
-
-/**
- * Returns the costMatrix for the room. The cache will be populated
- * from memory.
- *
- * @return {CostMatrix|undefined}
- */
-Room.prototype.getMemoryCostMatrix = function() {
-  this.checkCache();
-
-  if (!cache.rooms[this.name].costMatrix.base) {
-    if (!this.memory.costMatrix || !this.memory.costMatrix.base) {
-      return;
-    }
-    cache.rooms[this.name].costMatrix.base = PathFinder.CostMatrix.deserialize(this.memory.costMatrix.base);
-  }
-  return cache.rooms[this.name].costMatrix.base;
 };
 
 /**
