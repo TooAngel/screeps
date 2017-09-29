@@ -465,14 +465,19 @@ Room.prototype.setup = function() {
 
   this.costMatrixPathCrossings(exits);
 
+  const minerals = this.find(FIND_MINERALS);
+  for (const mineral of minerals) {
+    // TODO handle multiple minerals somehow?
+    const pathLB = this.getMemoryPath('pathStart-' + mineral.id);
+    this.setLabsTerminal(pathLB);
+    break;
+  }
+
   const pathsController = _.filter(this.getMemoryPaths(), (object, key) => {
     return key.startsWith('pathStart-');
   });
   const pathsSorted = _.sortBy(pathsController, sorter);
   const path = this.getMemoryPath(pathsSorted[pathsSorted.length - 1].name);
-  // TODO This is the path to the extractor, we should change this to getting the right path via ID (e.g. if there are more than two sources this could change)
-  const pathLB = this.getMemoryPath(pathsController[4].name);
-  this.setLabsTerminal(pathLB);
   let pathI = this.setStructures(path);
   this.log('path: ' + pathsSorted[pathsSorted.length - 1].name + ' pathI: ' + pathI + ' length: ' + path.length);
   if (pathI === -1) {
