@@ -1,54 +1,28 @@
 'use strict';
 
 /**
- * attack42 is called so because 42 is the only true answer :-)
+ * Attack42 is called so because 42 is the only true answer :-).
  *
- * USAGE: get a Room Object then .attack42('targetRoomName')
- * e.g. Game.rooms[Memory.myRooms[0]].attack42('targetRoomName');
- * TODO add an attack42 event if invader is seen by reserver, sourcer or carry
+ * USAGE: get a Room Object then `.attack42('targetRoomName')`
+ * e.g. `Game.rooms[Memory.myRooms[0]].attack42('targetRoomName')`;.
+ * TODO add an attack42 event if invader is seen by reserver, sourcer or carry.
  *
- * @param {String} roomName should be your targetRoomName
- * @param {Array} [spawn] yourCustomSpawn Array of {creeps: creepsToAdd, role: 'rolesToAdd'}
+ * @example room.attack42('E5S3')
+ *
+ * @param {string} roomName - Should be your targetRoomName.
+ *
  */
-Room.prototype.attack42 = function(roomName, spawn) {
-  spawn = spawn || [{
-    creep: 1,
-    role: 'autoattackmelee',
-  }, {
-    creep: 1,
-    role: 'defender',
-  }, {
-    creep: 1,
-    role: 'squadheal',
-  },
-
-  {
-    creep: 2,
-    role: 'autoattackmelee',
-  }, {
-    creep: 2,
-    role: 'defender',
-  }, {
-    creep: 2,
-    role: 'squadheal',
-  },
-  ];
-
+Room.prototype.attack42 = function(roomName) {
   const closestSpawn = this.closestSpawn(roomName);
-  // this.log('closestSpawn ' + JSON.stringify(closestSpawn, null, 2));
   if (closestSpawn && closestSpawn.id) {
-    brain.startMeleeSquad(closestSpawn.room, roomName
-      // , spawn
-    );
+    brain.startMeleeSquad(closestSpawn.room, roomName);
   }
 };
 
-Room.prototype.attackRoom = function() {
-  function attack0(room) {
-    room.log('Queuing level 0 attack');
-    if (config.autoattack.notify) {
-      Game.notify(Game.time + ' ' + room.name + ' Queuing autoattacker');
-    }
+const getClosestRoom = function(roomName) {
+  const sortByDistance = function(object) {
+    return Game.map.getRoomLinearDistance(roomName, object);
+  };
 
   const roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
   return Game.rooms[roomsMy[0]];
