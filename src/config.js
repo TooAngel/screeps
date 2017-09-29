@@ -201,7 +201,7 @@ global.config = {
     borderAvoid: 20,
     skLairAvoidRadius: 5,
     skLairAvoid: 30,
-    wallAvoid: 10,
+    wallAvoid: 2,
     sourceAvoid: 20,
     pathAvoid: 1,
     structureAvoid: 0xFF,
