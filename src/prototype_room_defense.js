@@ -26,9 +26,7 @@ Room.prototype.findAttackCreeps = function(object) {
       return true;
     }
   }
-  return true;
-  // TODO defender stop in rooms with (non attacking) enemies
-  //    return false;
+  return false;
 };
 
 Room.prototype.handleNukeAttack = function() {
