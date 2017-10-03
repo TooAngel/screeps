@@ -198,3 +198,39 @@ Room.prototype.setMemoryPath = function(name, path, fixed) {
     this.memory.routing[name] = memoryData;
   }
 };
+
+/**
+ * Returns a list of some/all reserved routing positions in the room
+ *
+ * @param {Function} filter - optional function used to filter positions
+ * @return {Array} all reserved positions
+ */
+Room.prototype.getPositions = function(filter) {
+  if (!this.memory.position) {
+    return [];
+  }
+
+  const positions = [];
+  for (const creepId of Object.keys(this.memory.position.creep)) {
+    const pos = this.memory.position.creep[creepId];
+    if (!pos) {
+      continue;
+    }
+    if (!filter || filter(pos)) {
+      positions.push(pos);
+    }
+  }
+  for (const structureId of Object.keys(this.memory.position.structure)) {
+    const poss = this.memory.position.structure[structureId];
+    for (const pos of poss) {
+      if (!pos) {
+        continue;
+      }
+      if (!filter || filter(pos)) {
+        positions.push(pos);
+      }
+    }
+  }
+
+  return positions;
+};
