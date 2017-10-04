@@ -410,7 +410,7 @@ Room.prototype.executeRoom = function() {
       }
     }
   }
-  if (config.mineral.enabled && this.terminal) {
+  if (config.mineral.enabled && this.terminal && this.storage) {
     this.checkRoleToSpawn('mineral');
   }
 
