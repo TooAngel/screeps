@@ -24,14 +24,17 @@ Creep.prototype.getRoute = function() {
 };
 
 Creep.prototype.allowOverTake = function(directions) {
-  if (!this.inBase() || this.room.controller.level < 4) {
-    const dir = directions && directions.direction;
-    if (dir === 1 || dir === 3 || dir === 5 || dir === 7) {
+  const dir = directions && directions.direction;
+  if (dir && (!this.inBase() || this.room.controller.level < 4)) {
+    if (this.fatigue === 0) {
+      const pos = this.pos.getAdjacentPosition(dir);
+      const reverseDir = directions.direction > 4 ? directions.direction - 4 : directions.direction + 4;
+      this.moveCreep(pos, reverseDir);
+    } else {
       const reverseDir = directions.direction > 4 ? directions.direction - 4 : directions.direction + 4;
       const randomDir = Game.time % 2 ? 1 : -1;
       const pos = this.pos.getAdjacentPosition(reverseDir);
-      this.moveCreep(pos, (reverseDir + 3 * randomDir) % 8 || 8);
-      return true;
+      return this.moveCreep(pos, (reverseDir + 3 * randomDir) % 8 || 8);
     }
   }
   return false;

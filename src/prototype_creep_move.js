@@ -56,29 +56,27 @@ Creep.prototype.moveCreep = function(position, direction) {
   if (creeps.length > 0 && creeps[0].memory) {
     const role = this.memory.role;
     if ((role === 'sourcer' || role === 'reserver') && creeps[0].memory.role !== 'harvester' && !creeps[0].memory.routing.reverse) {
-      if (this.fatigue > 0) {
-        creeps[0].move(direction);
-        creeps[0].memory.forced = true;
-      }
-      return;
+      creeps[0].move(direction);
+      creeps[0].memory.forced = true;
+      return true;
     }
     const targetRole = creeps[0].memory.role;
     if (role === 'defendmelee' ||
       targetRole === 'harvester' ||
       targetRole === 'carry') {
       creeps[0].move(direction);
-      return;
+      return true;
     }
     if (role === 'upgrader' &&
       targetRole === 'storagefiller') {
       creeps[0].move(direction);
-      return;
+      return true;
     }
     if (role === 'upgrader' &&
       (targetRole === 'harvester' || targetRole === 'sourcer' || targetRole === 'upgrader')) {
       this.log('config_creep_move suicide ' + targetRole);
       creeps[0].suicide();
-      return;
+      return true;
     }
   }
 };
