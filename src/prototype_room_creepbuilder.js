@@ -360,7 +360,7 @@ Room.prototype.getCreepConfig = function(creep) {
     this.log('Can not find role: ' + role + ' creep_' + role);
     return false;
   }
-  const id = Math.floor((Math.random() * 10000) + 1);
+  const id = _.random(1, 9999);
   const name = role + '-' + id;
   const partConfig = this.getPartConfig(creep);
   if (!partConfig) {

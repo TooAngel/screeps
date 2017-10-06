@@ -13,14 +13,13 @@ Creep.prototype.findClosestEnemy = function() {
 };
 
 Creep.prototype.fleeFromHostile = function(hostile) {
-  let direction = this.pos.getDirectionTo(hostile);
-  direction = (direction + 3) % 8 + 1;
+  let direction = RoomPosition.oppositeDirection(this.pos.getDirectionTo(hostile));
   if (!direction || direction === null || this.pos.x === 0 || this.pos.x === 49 || this.pos.y === 0 || this.pos.y === 49) {
     this.moveTo(25, 25);
     return true;
   }
   for (let offset = 0; offset < 8; offset++) {
-    const dir = (direction + offset) % 8 + 1;
+    const dir = RoomPosition.changeDirection(direction, offset);
     const pos = this.pos.getAdjacentPosition(dir);
     if (!pos.checkForWall() && pos.lookFor(LOOK_CREEPS).length === 0) {
       direction = dir;
@@ -193,13 +192,12 @@ Creep.prototype.fightRampart = function(target) {
 };
 
 Creep.prototype.flee = function(target) {
-  let direction = this.pos.getDirectionTo(target);
+  let direction = RoomPosition.oppositeDirection(this.pos.getDirectionTo(target));
   this.rangedAttack(target);
-  direction = (direction + 3) % 8 + 1;
   const pos = this.pos.getAdjacentPosition(direction);
   const terrain = pos.lookFor(LOOK_TERRAIN)[0];
   if (terrain === 'wall') {
-    direction = (Math.random() * 8) + 1;
+    direction = _.random(1, 8);
   }
   this.move(direction);
   return true;

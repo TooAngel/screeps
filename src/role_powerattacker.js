@@ -51,7 +51,7 @@ roles.powerattacker.action = function(creep) {
       creep.attack(hostileCreep);
       return true;
     }
-    creep.move((Math.random() * 8) + 1);
+    creep.move(_.random(1, 8));
     return false;
   }
 

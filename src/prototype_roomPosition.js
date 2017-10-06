@@ -52,6 +52,12 @@ RoomPosition.prototype.findClosestStructure = function(structures, structureType
   return this.findClosestByPathPropertyFilter(structures, 'structureType', [structureType]);
 };
 
+/**
+ * Get the position adjacent to this position in a specific direction
+ *
+ * @param {Number} direction (or 0)
+ * @return {RoomPosition} adjacent position, or this position for direction==0
+ */
 RoomPosition.prototype.getAdjacentPosition = function(direction) {
   const adjacentPos = [
     [0, 0],
@@ -64,9 +70,11 @@ RoomPosition.prototype.getAdjacentPosition = function(direction) {
     [-1, 0],
     [-1, -1],
   ];
+  // no clean way to handle negative directions here because 0 is a special case instead of equivalent to 8
   if (direction > 8) {
-    direction = (direction - 1) % 8 + 1;
+    direction = RoomPosition.fixDirection(direction);
   }
+
   return new RoomPosition(this.x + adjacentPos[direction][0], this.y + adjacentPos[direction][1], this.roomName);
 };
 
@@ -265,3 +273,34 @@ RoomPosition.prototype.findClosestByRangePropertyFilter = RoomPosition.wrapFindM
  * @return {Array} the objects returned in an array.
  */
 RoomPosition.prototype.findClosestByPathPropertyFilter = RoomPosition.wrapFindMethod('findClosestByPath', 0);
+
+/**
+ * Given a direction-like number, wrap it to fit in 1-8
+ *
+ * @param {Number} direction
+ * @return {Number} fixed direction
+ */
+RoomPosition.fixDirection = function(direction) {
+  return (((direction - 1) % 8) + 8) % 8 + 1;
+};
+
+/**
+ * Given a direction, 1-8, increment/decrement it by some value
+ *
+ * @param {Number} direction
+ * @param {Number} change
+ * @return {Number}
+ */
+RoomPosition.changeDirection = function(direction, change) {
+  return RoomPosition.fixDirection(direction + change);
+};
+
+/**
+ * Given a direction, 1-8, return the opposite direction
+ *
+ * @param {Number} direction
+ * @return {Number}
+ */
+RoomPosition.oppositeDirection = function(direction) {
+  return RoomPosition.fixDirection(direction + 4);
+};
