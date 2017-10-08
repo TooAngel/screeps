@@ -300,6 +300,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, action, 
         // this.log('creep_routing.followPath reached: ' + pathPos + '
         // path.length: ' + path.length);
         this.memory.routing.reached = true;
+        this.memory.timeToTravel = 1500 - this.ticksToLive;
         return action(this);
       }
     }
