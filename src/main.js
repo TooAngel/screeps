@@ -41,18 +41,27 @@ const main = function() {
     brain.handleIncomingTransactions();
     brain.handleQuests();
   } catch (e) {
-    console.log('Exeception', e);
+    console.log('Brain Exeception', e);
   }
 
   brain.stats.addRoot();
   Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
-  Memory.myRooms.forEach(visualizer.myRoomDatasDraw);
+  try {
+    Memory.myRooms.forEach(visualizer.myRoomDatasDraw);
+  } catch (e) {
+    console.log('Visualizer Draw Exeception', e);
+  }
 
   brain.saveMemorySegments();
 
-  if (config.visualizer.enabled) {
-    visualizer.render();
+  try {
+    if (config.visualizer.enabled) {
+      visualizer.render();
+    }
+  } catch (e) {
+    console.log('Visualizer Render Exeception', e);
   }
+
   brain.stats.add(['cpu'], {
     used: Game.cpu.getUsed(),
   });
