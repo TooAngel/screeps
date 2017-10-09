@@ -215,7 +215,7 @@ module.exports = function(grunt) {
     },
 
     exec: {
-      test_on_private_server: './utils/test-private-server.sh',
+      test_on_private_server: 'node utils/test_on_server.js',
     },
   });
 

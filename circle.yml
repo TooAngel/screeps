@@ -4,6 +4,7 @@ machine:
 dependencies:
   pre:
     - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+    - cd test-server; npm install; cd ..
 deployment:
   production:
     branch: master
