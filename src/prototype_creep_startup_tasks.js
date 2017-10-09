@@ -53,32 +53,33 @@ Creep.buildRoads = function(creep) {
     return false;
   }
 
-  // TODO Redo for all path in room
-  const path = room.memory.position.path;
-  for (const pathIndex of Object.keys(path)) {
-    const pos = new RoomPosition(
-      path[pathIndex].x,
-      path[pathIndex].y,
-      creep.room.name
-    );
-    if (checkForRoad(pos)) {
-      continue;
-    }
+  for (const pathName of Object.keys(room.getMemoryPaths())) {
+    const path = room.getMemoryPath(pathName);
+    for (const pathIndex of Object.keys(path)) {
+      const pos = new RoomPosition(
+        path[pathIndex].x,
+        path[pathIndex].y,
+        creep.room.name
+      );
+      if (checkForRoad(pos)) {
+        continue;
+      }
 
-    const returnCode = pos.createConstructionSite(STRUCTURE_ROAD);
-    if (returnCode === OK) {
+      const returnCode = pos.createConstructionSite(STRUCTURE_ROAD);
+      if (returnCode === OK) {
+        return true;
+      }
+      if (returnCode === ERR_FULL) {
+        return true;
+      }
+      if (returnCode === ERR_INVALID_TARGET) {
+        // FIXME Creep is standing on constructionSite, need to check why it is not building
+        creep.moveRandom();
+        continue;
+      }
+      creep.log('buildRoads: ' + returnCode + ' pos: ' + JSON.stringify(pos));
       return true;
     }
-    if (returnCode === ERR_FULL) {
-      return true;
-    }
-    if (returnCode === ERR_INVALID_TARGET) {
-      // FIXME Creep is standing on constructionSite, need to check why it is not building
-      creep.moveRandom();
-      continue;
-    }
-    creep.log('buildRoads: ' + returnCode + ' pos: ' + JSON.stringify(pos));
-    return true;
   }
   return false;
 };

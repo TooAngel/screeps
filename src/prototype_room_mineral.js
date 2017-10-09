@@ -1,10 +1,14 @@
 'use strict';
 
-Room.prototype.isMineralInStorage = function() {
-  if (!this.storage) {
-    return false;
-  }
-  return Object.keys(this.storage.store).some((resource) => resource !== RESOURCE_ENERGY && resource !== RESOURCE_POWER);
+Room.prototype.getResourceAmountWithNextTiers = function(resource) {
+  const resultOH = REACTIONS[RESOURCE_HYDROXIDE][resource];
+  const resultXOH = REACTIONS[RESOURCE_CATALYST][resultOH];
+  const resultX = REACTIONS[RESOURCE_CATALYST][resource];
+  let amount = this.terminal.store[resource] || 0;
+  amount += this.terminal.store[resultOH] || 0;
+  amount += this.terminal.store[resultXOH] || 0;
+  amount += this.terminal.store[resultX] || 0;
+  return amount;
 };
 
 Room.prototype.getNextReaction = function() {
@@ -17,13 +21,7 @@ Room.prototype.getNextReaction = function() {
         continue;
       }
       const result = REACTIONS[mineralFirst][mineralSecond];
-      const resultOH = REACTIONS[RESOURCE_HYDROXIDE][result];
-      const resultXOH = REACTIONS[RESOURCE_CATALYST][resultOH];
-      const resultX = REACTIONS[RESOURCE_CATALYST][result];
-      let amount = this.terminal.store[result];
-      amount += this.terminal.store[resultOH] || 0;
-      amount += this.terminal.store[resultXOH] || 0;
-      amount += this.terminal.store[resultX] || 0;
+      const amount = this.getResourceAmountWithNextTiers(result);
       if (amount > config.mineral.minAmount) {
         continue;
       }
@@ -108,10 +106,18 @@ Room.prototype.reactions = function() {
     //    this.log('Setting reaction: ' + JSON.stringify(this.memory.reaction));
   }
 
-  if (this.terminal.store[this.memory.reaction.result.result] > config.mineral.minAmount) {
+  if (this.getResourceAmountWithNextTiers(this.memory.reaction.result.result) > config.mineral.minAmount) {
     this.log('Done with reaction:' + this.memory.reaction.result.result);
     delete this.memory.reaction;
   }
+};
+
+Room.prototype.getMineralType = function() {
+  if (this.memory.mineralType === undefined) {
+    const minerals = this.find(FIND_MINERALS);
+    this.memory.mineralType = minerals.length > 0 ? minerals[0].mineralType : null;
+  }
+  return this.memory.mineralType;
 };
 
 Room.prototype.orderMinerals = function() {
@@ -184,11 +190,8 @@ Room.prototype.handleTerminal = function() {
 
   if (this.terminal.store.energy < energy) {
     // this.log('Terminal not enough energy');
-    this.memory.terminalTooLessEnergy = true;
     return false;
   }
-
-  this.memory.terminalTooLessEnergy = false;
 
   if (this.terminal.store[order.type] < order.amount) {
     return false;

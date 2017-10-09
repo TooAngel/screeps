@@ -53,8 +53,7 @@ Room.prototype.sellByOthersOrders = function(sellAmount, resource) {
 };
 
 Room.prototype.sellOwnMineral = function() {
-  const minerals = this.find(FIND_MINERALS);
-  const resource = minerals[0].mineralType;
+  const resource = this.getMineralType();
 
   if (!this.terminal.store[resource]) {
     return false;

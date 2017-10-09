@@ -1,83 +1,5 @@
 'use strict';
 
-Creep.prototype.transferAllMineralsToTerminal = function() {
-  this.moveToMy(this.room.terminal.pos);
-  for (const resource of Object.keys(this.carry)) {
-    this.transfer(this.room.terminal, resource);
-  }
-};
-
-Creep.prototype.withdrawAllMineralsFromStorage = function() {
-  this.moveToMy(this.room.storage.pos);
-  for (const resource in this.room.storage.store) {
-    if (resource === RESOURCE_ENERGY || resource === RESOURCE_POWER) {
-      continue;
-    }
-    this.withdraw(this.room.storage, resource);
-  }
-};
-
-Creep.prototype.checkStorageMinerals = function() {
-  if (!this.room.isMineralInStorage()) {
-    return false;
-  }
-  this.say('checkStorage');
-
-  if (_.sum(this.carry) > 0) {
-    this.transferAllMineralsToTerminal();
-    return true;
-  }
-
-  this.withdrawAllMineralsFromStorage();
-  return true;
-};
-
-Creep.prototype.checkEnergyThreshold = function(structure, value, below = false) {
-  if (!this.room[structure]) {
-    return true;
-  }
-  if (below) {
-    return this.room[structure].store.energy < value;
-  }
-  return this.room[structure].store.energy + this.carry.energy > value;
-};
-
-Creep.prototype.moveEnergyBetween = function(from, to) {
-  if (this.pos.isNearTo(this.room[STRUCTURE_TERMINAL]) && _.sum(this.carry) > this.carry.energy) {
-    for (const resource of Object.keys(this.carry)) {
-      if (resource !== RESOURCE_ENERGY) {
-        this.transfer(this.room[STRUCTURE_TERMINAL], resource);
-        return;
-      }
-    }
-  }
-  if (this.carry.energy > 0) {
-    this.moveToMy(this.room[to].pos);
-    this.transfer(this.room[to], RESOURCE_ENERGY);
-  } else {
-    this.moveToMy(this.room[from].pos);
-    this.withdraw(this.room[from], RESOURCE_ENERGY);
-  }
-};
-
-Creep.prototype.checkTerminalEnergy = function() {
-  if (this.checkEnergyThreshold(STRUCTURE_TERMINAL, config.terminal.maxEnergyAmount) ||
-    this.checkEnergyThreshold(STRUCTURE_STORAGE, config.terminal.storageMinEnergyAmount, true) &&
-    this.checkEnergyThreshold(STRUCTURE_TERMINAL, config.terminal.minEnergyAmount)) {
-    this.say('storage');
-    this.moveEnergyBetween(STRUCTURE_TERMINAL, STRUCTURE_STORAGE);
-    return true;
-  }
-
-  if (this.checkEnergyThreshold(STRUCTURE_TERMINAL, config.terminal.energyAmount, true) && this.checkEnergyThreshold(STRUCTURE_STORAGE, config.terminal.storageMinEnergyAmount)) {
-    this.say('terminal');
-    this.moveEnergyBetween(STRUCTURE_STORAGE, STRUCTURE_TERMINAL);
-    return true;
-  }
-
-  return false;
-};
-
 Creep.prototype.checkLabEnoughMineral = function(lab, mineralType) {
   if (lab.mineralAmount < LAB_REACTION_AMOUNT && !this.room.terminal.store[mineralType] && !this.carry[mineralType]) {
     if (config.debug.mineral) {
@@ -432,14 +354,6 @@ Creep.prototype.handleMineralCreep = function() {
       return true;
     }
 
-    if (creep.checkTerminalEnergy()) {
-      return true;
-    }
-
-    if (creep.checkStorageMinerals()) {
-      return true;
-    }
-
     const room = Game.rooms[creep.room.name];
 
     let lab0;
@@ -490,26 +404,6 @@ Creep.prototype.handleMineralCreep = function() {
     }
 
     creep.say('A1');
-
-    if (room.memory.terminalTooLessEnergy) {
-      if (_.sum(creep.carry) - creep.carry.energy > 0) {
-        creep.moveToMy(creep.room.terminal.pos);
-
-        for (const resource of Object.keys(creep.carry)) {
-          creep.transfer(room.terminal, resource);
-        }
-        return true;
-      }
-
-      creep.say('TEnergy');
-      let target = creep.room.storage;
-      if (creep.carry.energy > 0) {
-        target = creep.room.terminal;
-      }
-      creep.moveToMy(target.pos);
-      creep.transfer(target, RESOURCE_ENERGY);
-      return true;
-    }
 
     creep.say(creep.memory.state);
 

@@ -19,6 +19,66 @@ roles.storagefiller.settings = {
   maxLayoutAmount: 1,
 };
 
+roles.storagefiller.checkEnergyStore = function(creep, withdraw = false) {
+  if (!creep.room.terminal) {
+    return STRUCTURE_STORAGE;
+  }
+  if (creep.room.storage.store.energy < config.terminal.storageMinEnergyAmount) {
+    return STRUCTURE_STORAGE;
+  }
+  if (creep.room.terminal.store.energy > config.terminal.maxEnergyAmount) {
+    return STRUCTURE_STORAGE;
+  }
+  if (creep.room.terminal.store.energy < config.terminal.minEnergyAmount) {
+    if (withdraw && creep.room.storage.store.energy - creep.carryCapacity < config.terminal.storageMinEnergyAmount) {
+      return;
+    }
+    return STRUCTURE_TERMINAL;
+  }
+  if (!withdraw) {
+    return STRUCTURE_STORAGE;
+  }
+};
+
+roles.storagefiller.checkResourceStore = function(creep, resourceType, withdraw = false) {
+  if (!creep.room.terminal) {
+    return STRUCTURE_STORAGE;
+  }
+  if (resourceType === RESOURCE_ENERGY) {
+    return roles.storagefiller.checkEnergyStore(creep, withdraw);
+  }
+  if (resourceType === RESOURCE_POWER) {
+    return STRUCTURE_STORAGE;
+  }
+  if (creep.room.getMineralType() === resourceType) {
+    return STRUCTURE_TERMINAL;
+  }
+
+  if (!creep.room.terminal.store[resourceType]) {
+    return STRUCTURE_TERMINAL;
+  }
+
+  if (creep.room.terminal.store[resourceType] < config.mineral.minAmount) {
+    return STRUCTURE_TERMINAL;
+  }
+
+  if (creep.room.terminal.store[resourceType] > config.mineral.minAmount * 2 + withdraw * creep.carryCapacity) {
+    return STRUCTURE_STORAGE;
+  }
+
+  const terminalFreeSpace = creep.room.terminal.storeCapacity - _.sum(creep.room.terminal.store) - Math.max(0, config.terminal.storageMinEnergyAmount - creep.room.terminal.store.energy);
+  if (creep.room.terminal.store[resourceType] < terminalFreeSpace - config.mineral.minAmount) {
+    if (withdraw && creep.room.terminal.store[resourceType] + creep.carryCapacity > config.mineral.minAmount * 2) {
+      return;
+    }
+    return STRUCTURE_TERMINAL;
+  }
+
+  if (!withdraw) {
+    return STRUCTURE_STORAGE;
+  }
+};
+
 roles.storagefiller.action = function(creep) {
   if (!creep.memory.routing.targetId && creep.memory.routing.reached) {
     creep.memory.routing.reached = false;
@@ -30,6 +90,16 @@ roles.storagefiller.action = function(creep) {
 
   creep.setNextSpawn();
   creep.spawnReplacement(1);
+
+  for (const resourceType of Object.keys(creep.carry)) {
+    if (resourceType !== RESOURCE_ENERGY && resourceType !== RESOURCE_POWER) {
+      const structureToStore = roles.storagefiller.checkResourceStore(creep, resourceType);
+      const returnCode = creep.transfer(creep.room[structureToStore], resourceType);
+      if (returnCode === OK) {
+        return true;
+      }
+    }
+  }
 
   const towers = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER], false, {
     filter: (tower) => tower.energy <= 0.5 * tower.energyCapacity,
@@ -56,7 +126,7 @@ roles.storagefiller.action = function(creep) {
   const storage = creep.room.storage;
   const link = Game.getObjectById(creep.memory.link);
   if (link === null) {
-    // creep.log('No link');
+    delete creep.memory.link;
     return true;
   }
 
@@ -70,18 +140,58 @@ roles.storagefiller.action = function(creep) {
       }
     }
     creep.transfer(link, RESOURCE_ENERGY);
-  } else {
-    creep.withdraw(link, RESOURCE_ENERGY);
-    for (const tower of towers) {
-      const returnCode = creep.transfer(tower, RESOURCE_ENERGY);
+    return true;
+  }
+
+  if (creep.withdraw(link, RESOURCE_ENERGY) === OK) {
+    return true;
+  }
+
+  for (const tower of towers) {
+    const returnCode = creep.transfer(tower, RESOURCE_ENERGY);
+    if (returnCode === OK) {
+      return true;
+    }
+  }
+
+  const resources = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1);
+  if (resources.length > 0) {
+    const returnCode = creep.pickup(resources[0]);
+    if (returnCode === OK) {
+      return true;
+    }
+  }
+
+  for (const resourceType of Object.keys(creep.carry)) {
+    const structureToStore = roles.storagefiller.checkResourceStore(creep, resourceType);
+    const returnCode = creep.transfer(creep.room[structureToStore], resourceType);
+    if (returnCode === OK) {
+      return true;
+    }
+  }
+
+  for (const resourceType of Object.keys(creep.room[STRUCTURE_STORAGE].store).reverse()) {
+    const structureToMove = roles.storagefiller.checkResourceStore(creep, resourceType, true);
+    if (structureToMove && structureToMove !== STRUCTURE_STORAGE) {
+      const returnCode = creep.withdraw(creep.room[STRUCTURE_STORAGE], resourceType);
       if (returnCode === OK) {
         return true;
       }
     }
-    for (const resource of Object.keys(creep.carry)) {
-      creep.transfer(storage, resource);
+  }
+
+  if (creep.room[STRUCTURE_TERMINAL]) {
+    for (const resourceType of Object.keys(creep.room[STRUCTURE_TERMINAL].store)) {
+      const structureToMove = roles.storagefiller.checkResourceStore(creep, resourceType, true);
+      if (structureToMove && structureToMove !== STRUCTURE_TERMINAL) {
+        const returnCode = creep.withdraw(creep.room[STRUCTURE_TERMINAL], resourceType);
+        if (returnCode === OK) {
+          return true;
+        }
+      }
     }
   }
+
   return true;
 };
 

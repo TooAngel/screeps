@@ -113,6 +113,18 @@ Room.prototype.getMemoryPaths = function() {
   return cache.rooms[this.name].routing;
 };
 
+Room.prototype.getMemoryPathsSet = function() {
+  this.checkCache();
+  const mem = cache.rooms[this.name].pathSet = cache.rooms[this.name].pathSet || {};
+  for (const pathName of Object.keys(this.getMemoryPaths())) {
+    const path = this.getMemoryPath(pathName);
+    for (const pos of path) {
+      mem[`${pos.x} ${pos.y}`] = true;
+    }
+  }
+  return mem;
+};
+
 /**
  * Returns the path for the given name. Checks for validity and populated
  * cache if missing.
@@ -158,6 +170,7 @@ Room.prototype.deleteMemoryPaths = function() {
   this.checkCache();
   cache.rooms[this.name].routing = {};
   delete this.memory.routing;
+  cache.rooms[this.name].pathSet = {};
 };
 
 /**
@@ -169,6 +182,7 @@ Room.prototype.deleteMemoryPath = function(name) {
   this.checkCache();
   delete cache.rooms[this.name].routing[name];
   delete this.memory.routing[name];
+  cache.rooms[this.name].pathSet = {};
 };
 
 /**
@@ -197,6 +211,7 @@ Room.prototype.setMemoryPath = function(name, path, fixed) {
     };
     this.memory.routing[name] = memoryData;
   }
+  cache.rooms[this.name].pathSet = {};
 };
 
 /**
