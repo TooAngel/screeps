@@ -197,3 +197,52 @@ Room.prototype.handleTerminal = function() {
   delete this.memory.mineralOrder[roomOtherName];
   return true;
 };
+
+/**
+ * @param {Creep} creep the mineral creep
+ */
+Room.prototype.checkLabs = function(creep) {
+  const lab0 = Game.getObjectById(this.memory.reaction.labs[0]);
+  const lab1 = Game.getObjectById(this.memory.reaction.labs[1]);
+  const lab2 = Game.getObjectById(this.memory.reaction.labs[2]);
+  
+  if (lab0 === null || lab1 === null || lab2 === null) {
+    delete creep.room.memory.reaction;
+  } else {
+    if (lab0.cooldown === 0) {
+      const returnCode = lab0.runReaction(lab1, lab2);
+      if (returnCode === ERR_NOT_ENOUGH_RESOURCES) {
+        if (!creep.checkLabEnoughMineral(lab1, this.memory.reaction.result.first) || !creep.checkLabEnoughMineral(lab2, this.memory.reaction.result.second)) {
+          creep.mineralCleanUpLabs();
+        }
+      }
+    }
+  }
+  if (lab0.mineralAmount > lab0.mineralCapacity - 100 && creep.room.memory.reaction) {
+    creep.room.memory.fullLab = 1;
+  }
+
+  if (lab0.mineralAmount < 100) {
+    creep.room.memory.fullLab = 0;
+  }
+};
+
+/**
+ * @param {Creep}  creep           this mineral creep
+ * @param {Object} states          ths states
+ * @param {Number} [notEmptyState] default first of states
+ * @param {Number} [emptyState]    default last of states
+ */
+Room.prototype.checkFullLabs = function(creep, states, notEmptyState, emptyState) {
+  notEmptyState = notEmptyState || 0;
+  emptyState = emptyState || _.size(states) - 1;
+
+  if (creep.room.memory.fullLab === 1) {
+    if (_.sum(creep.carry) > 0) {
+      creep.memory.state = notEmptyState;
+    }
+    if (_.sum(creep.carry) === 0) {
+      creep.memory.state = emptyState;
+    }
+  }
+};
