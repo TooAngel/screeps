@@ -46,7 +46,7 @@ Room.prototype.initSetStorageAndPathStart = function() {
   costMatrix.set(storagePos.x, storagePos.y, config.layout.structureAvoid);
   this.setMemoryCostMatrix(costMatrix);
 
-  this.memory.position.creep.pathStart = storagePos.getFirstNearPosition();
+  this.memory.position.creep.pathStart = storagePos.getBestNearPosition();
 
   const route = [{
     room: this.name,
