@@ -1,0 +1,17 @@
+// Local overrides to config, modify this instead of global config.
+config.profiler.enabled = false;
+config.debug.spawn = false;
+config.debug.queue = false;
+config.debug.upgrader = false;
+config.debug.moveToMy = true;
+config.debug.market = false;
+config.visualizer.enabled = true;
+config.visualizer.showPathSearches = true;
+config.visualizer.showRoomPaths = false;
+config.visualizer.showCreepPaths = false;
+config.visualizer.showStructures = false;
+config.visualizer.showCreeps = false;
+config.visualizer.showBlockers = false;
+config.visualizer.showCostMatrixes = false;
+config.mineral.enabled = false;
+config.nextRoom.maxRooms = 3;

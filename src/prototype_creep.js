@@ -44,7 +44,7 @@ Creep.prototype.moveToMy = function(target, range) {
 
   // Fallback to moveTo when the path is incomplete and the creep is only switching positions
   if (search.path.length < 2 && search.incomplete) {
-    this.log(`fallback ${JSON.stringify(target)} ${JSON.stringify(search)}`);
+    // this.log(`fallback ${JSON.stringify(target)} ${JSON.stringify(search)}`);
     this.moveTo(target);
     return false;
   }

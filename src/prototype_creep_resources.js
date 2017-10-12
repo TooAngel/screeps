@@ -185,7 +185,7 @@ Creep.prototype.upgraderUpdateStats = function() {
 };
 
 Creep.prototype.handleUpgrader = function() {
-  this.sayIdiotList();
+  // this.sayIdiotList();
   this.spawnReplacement(1);
   if (this.room.memory.attackTimer > 50 && this.room.controller.level > 6) {
     if (this.room.controller.ticksToDowngrade > 10000) {
@@ -640,7 +640,7 @@ Creep.prototype.getTransferTarget = function() {
 
   const target = Game.getObjectById(this.memory.targetEnergyMy);
   if (!target || (target.structureType !== STRUCTURE_STORAGE && target.energy === target.energyCapacity)) {
-    this.log(`transferEnergyMy: Can not find target ${this.memory.targetEnergyMy}`);
+    // this.log(`transferEnergyMy: Can not find target ${this.memory.targetEnergyMy}`);
     delete this.memory.targetEnergyMy;
     return false;
   }
