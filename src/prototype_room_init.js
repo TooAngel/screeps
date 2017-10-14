@@ -3,7 +3,7 @@
 Room.prototype.initSetController = function() {
   if (this.controller) {
     const costMatrix = this.getMemoryCostMatrix();
-    const upgraderPos = this.controller.pos.getBestNearPosition();
+    const upgraderPos = this.controller.pos.getBestNearPosition({ignorePositions: true, ignorePath: true});
     this.memory.position.creep[this.controller.id] = upgraderPos;
     costMatrix.set(upgraderPos.x, upgraderPos.y, config.layout.creepAvoid);
     this.setMemoryCostMatrix(costMatrix);
@@ -14,7 +14,7 @@ Room.prototype.initSetSources = function() {
   const sources = this.find(FIND_SOURCES);
   const costMatrix = this.getMemoryCostMatrix();
   for (const source of sources) {
-    const sourcer = source.pos.getFirstNearPosition();
+    const sourcer = source.pos.getFirstNearPosition({ignorePath: true});
     this.memory.position.creep[source.id] = sourcer;
     // TODO E.g. E11S8 it happens that sourcer has no position
     if (sourcer) {
@@ -40,13 +40,15 @@ Room.prototype.initSetMinerals = function() {
 
 Room.prototype.initSetStorageAndPathStart = function() {
   const costMatrix = this.getMemoryCostMatrix();
-  const storagePos = this.memory.position.creep[this.controller.id].getBestNearPosition();
+  const upgraderPos = this.memory.position.creep[this.controller.id];
+  const storagePos = upgraderPos.getBestNearPosition({ignorePath: true});
+
   this.memory.position.structure.storage.push(storagePos);
   // TODO should also be done for the other structures
   costMatrix.set(storagePos.x, storagePos.y, config.layout.structureAvoid);
   this.setMemoryCostMatrix(costMatrix);
 
-  this.memory.position.creep.pathStart = storagePos.getFirstNearPosition();
+  this.memory.position.creep.pathStart = storagePos.getFirstNearPosition({ignorePath: true});
 
   const route = [{
     room: this.name,
