@@ -220,11 +220,7 @@ Creep.prototype.buildRoad = function() {
     return false;
   }
 
-  if (this.pos.x === 0 ||
-    this.pos.x === 49 ||
-    this.pos.y === 0 ||
-    this.pos.y === 49
-  ) {
+  if (this.pos.isBorder(-1)) {
     return true;
   }
 
