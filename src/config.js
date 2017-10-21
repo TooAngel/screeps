@@ -48,7 +48,7 @@ global.config = {
   },
 
   memory: {
-    segments: 10,
+    segments: 20,
   },
 
   // use username `tooangels` and password `tooSecretPassword` at https://screepspl.us/grafana
