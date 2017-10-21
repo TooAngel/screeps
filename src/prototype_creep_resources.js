@@ -79,10 +79,7 @@ Creep.prototype.checkForTransfer = function(direction) {
 
   const adjacentPos = this.pos.getAdjacentPosition(direction);
 
-  if (adjacentPos.x < 0 || adjacentPos.y < 0) {
-    return false;
-  }
-  if (adjacentPos.x > 49 || adjacentPos.y > 49) {
+  if (adjacentPos.isBorder(-2)) {
     return false;
   }
 

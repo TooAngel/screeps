@@ -14,7 +14,7 @@ Creep.prototype.findClosestEnemy = function() {
 
 Creep.prototype.fleeFromHostile = function(hostile) {
   let direction = RoomPosition.oppositeDirection(this.pos.getDirectionTo(hostile));
-  if (!direction || direction === null || this.pos.x === 0 || this.pos.x === 49 || this.pos.y === 0 || this.pos.y === 49) {
+  if (!direction || direction === null || this.pos.isBorder(-1)) {
     this.moveTo(25, 25);
     return true;
   }
@@ -329,11 +329,7 @@ Creep.prototype.squadHeal = function() {
 
   const attacker = this.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['squadsiege']);
 
-  if (this.pos.x === 0 ||
-    this.pos.x === 49 ||
-    this.pos.y === 0 ||
-    this.pos.y === 49
-  ) {
+  if (this.pos.isBorder(-1)) {
     this.moveTo(25, 25);
     return true;
   }
