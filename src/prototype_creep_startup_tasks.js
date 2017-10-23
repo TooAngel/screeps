@@ -180,6 +180,7 @@ Creep.prototype.repairStructure = function() {
         if (range <= 3) {
           this.moveRandomWithin(toRepair);
         } else {
+          this.creepLog('repairStructure moveToMy target:', JSON.stringify(toRepair.pos));
           const returnCode = this.moveToMy(toRepair.pos, 3);
           this.memory.lastPosition = this.pos;
           if (returnCode === OK) {
