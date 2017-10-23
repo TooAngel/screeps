@@ -90,6 +90,7 @@ global.config = {
     numberOfNextroomers: 10,
     nextroomerInterval: 500,
     maxRooms: 20,
+    cpuPerRoom: 13, // Necessary CPU per room, prevent claiming new rooms
     revive: true,
     maxDistance: 17,
     minNewRoomDistance: 2,

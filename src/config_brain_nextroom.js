@@ -1,7 +1,10 @@
 'use strict';
 
 brain.handleNextroom = function() {
-  if (Memory.myRooms && Memory.myRooms.length < Game.gcl.level && Memory.myRooms.length < config.nextRoom.maxRooms) {
+  if (Memory.myRooms &&
+    Memory.myRooms.length < Game.gcl.level &&
+    Memory.myRooms.length < config.nextRoom.maxRooms &&
+    (Memory.myRooms.length + 1) * config.nextRoom.cpuPerRoom < Game.cpu.limit) {
     if (Game.time % config.nextRoom.ttlPerRoomForScout === 0) {
       for (const roomName of Memory.myRooms) {
         const room = Game.rooms[roomName];
