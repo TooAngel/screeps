@@ -273,7 +273,7 @@ Room.prototype.getHarvesterAmount = function() {
     if (this.storage.store.energy < config.creep.energyFromStorageThreshold && this.controller.level < 5) {
       amount = 3;
     }
-    if (this.storage.store.energy > 2 * config.creep.energyFromStorageThreshold && this.controller.level > 6) {
+    if (this.storage.store.energy > 2 * config.creep.energyFromStorageThreshold && this.controller.level > 6 && this.energyAvailable > 2000) {
       amount = 2;
     }
     if (!this.storage.my) {
