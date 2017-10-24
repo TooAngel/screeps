@@ -29,6 +29,9 @@ if (config.profiler.enabled) {
 }
 
 const main = function() {
+  if (Game.time % 200 === 0) {
+    console.log(Game.time, 'TooAngel AI - All good');
+  }
   if (Game.cpu.bucket < 2 * Game.cpu.tickLimit && Game.cpu.bucket < Game.cpu.limit * 10) {
     console.log('Skipping tick ' + Game.time + ' due to lack of CPU.');
     return;

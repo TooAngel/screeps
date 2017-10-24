@@ -6,7 +6,7 @@ const {ScreepsAPI} = require('screeps-api');
 const cliPort = 21026;
 const port = 21025;
 
-const duration = 300;
+const duration = 3600;
 
 /**
  * sleep method
@@ -129,12 +129,13 @@ async function connectToCli() {
     }
 
     if (line.indexOf('type: \'controller\',') > -1) {
+      eval(`var value = ${line}`);
       const progressPos = line.indexOf('progress: ');
       const progress = line.substring(progressPos + 10, progressPos+11);
-      if (progress === '0') {
-        defer.reject('No progress');
+      if (value[0].progress > 0 && value[0].level > 1) {
+        defer.resolve();
       }
-      defer.resolve();
+      defer.reject('No progress');
     }
     console.log('socket.data:' + line);
   });
