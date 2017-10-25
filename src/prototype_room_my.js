@@ -390,7 +390,7 @@ Room.prototype.executeRoom = function() {
     let amount = 1;
     for (const cs of constructionSites) {
       if (cs.structureType === STRUCTURE_STORAGE) {
-        amount = 3;
+        amount = 6;
       }
     }
     if (this.controller.level === 4 && this.memory.misplacedSpawn) {
@@ -485,6 +485,7 @@ Room.prototype.reviveMyNow = function() {
       nextroomerCalled++;
     }
   }
+  return nextroomerCalled;
 };
 
 Room.prototype.setRoomInactive = function() {

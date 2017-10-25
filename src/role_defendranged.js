@@ -9,7 +9,9 @@
 roles.defendranged = {};
 
 roles.defendranged.settings = {
-  layoutString: 'MR',
+  layoutString: 'RM',
+  amount: [1, 1],
+  maxLayoutAmount: 20,
   fillTough: true,
 };
 

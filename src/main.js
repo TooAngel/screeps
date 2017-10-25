@@ -9,7 +9,7 @@ require('prototype_room_costmatrix');
 require('visualizer');
 require('screepsplus');
 
-console.log('Starting TooAngel AI - Have fun');
+console.log('no cache', 'L: ' + _.round(Game.cpu.getUsed()), 'B: ' + Game.cpu.bucket);
 
 brain.stats.init();
 
@@ -30,7 +30,8 @@ if (config.profiler.enabled) {
 
 const main = function() {
   if (Game.cpu.bucket < 2 * Game.cpu.tickLimit && Game.cpu.bucket < Game.cpu.limit * 10) {
-    console.log('Skipping tick ' + Game.time + ' due to lack of CPU.');
+    console.log(Game.time, 'Skipping tick CPU Bucket too low.',
+      'L:', _.round(Game.cpu.getUsed()), 'B:', Game.cpu.bucket);
     return;
   }
 
@@ -46,6 +47,9 @@ const main = function() {
 
   brain.stats.addRoot();
   Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
+  if (config.profiler.enabled && config.visualizer.enabled) {
+    profiler.registerObject(visualizer, 'Visualizer');
+  }
   try {
     Memory.myRooms.forEach(visualizer.myRoomDatasDraw);
   } catch (e) {
@@ -59,7 +63,7 @@ const main = function() {
       visualizer.render();
     }
   } catch (e) {
-    console.log('Visualizer Render Exeception', e);
+    console.log('Visualizer Render Exeception', e, e.stack);
   }
 
   brain.stats.add(['cpu'], {

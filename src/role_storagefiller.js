@@ -90,6 +90,7 @@ roles.storagefiller.action = function(creep) {
 
   creep.setNextSpawn();
   creep.spawnReplacement(1);
+  creep.pickupEnergy();
 
   for (const resourceType of Object.keys(creep.carry)) {
     if (resourceType !== RESOURCE_ENERGY && resourceType !== RESOURCE_POWER) {

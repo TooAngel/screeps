@@ -20,6 +20,10 @@ roles.upgrader.settings = {
   amount: {
     4: [1],
   },
+  maxLayoutAmount: {
+    1: 10,
+    8: 1,
+  },
 };
 
 roles.upgrader.updateSettings = function(room, creep) {
@@ -35,7 +39,7 @@ roles.upgrader.updateSettings = function(room, creep) {
   let workParts = Math.floor((room.storage.store.energy + 1) / (CREEP_LIFE_TIME * config.room.upgraderStorageFactor));
   workParts = Math.min(workParts, 47);
   if (room.controller.level === 8) {
-    workParts = Math.min(workParts, 15);
+    workParts = Math.min(workParts, 2);
   }
   const maxLayoutAmount = Math.max(0, workParts - 1);
   if (config.debug.upgrader) {
@@ -54,12 +58,13 @@ roles.upgrader.killPrevious = true;
 roles.upgrader.boostActions = ['upgradeController'];
 
 roles.upgrader.work = function(creep) {
+  creep.pickupEnergy();
   return creep.handleUpgrader();
 };
 
 roles.upgrader.action = function(creep) {
   creep.mySignController();
-
+  creep.pickupEnergy();
   if (!creep.memory.routing.targetId && creep.memory.routing.reached) {
     creep.memory.routing.reached = false;
     creep.memory.routing.targetId = creep.room.controller.id;

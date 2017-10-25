@@ -131,10 +131,4 @@ roles.harvester.action = function(creep) {
   return true;
 };
 
-roles.harvester.execute = function(creep) {
-  creep.log('execute');
-  // TODO Something is broken
-  creep.harvesterBeforeStorage();
-  //   if (true) throw new Error();
-  return false;
-};
+roles.harvester.execute = roles.harvester.action;

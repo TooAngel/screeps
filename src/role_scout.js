@@ -147,9 +147,21 @@ roles.scout.execute = function(creep) {
     }
 
     if (creep.isStuck()) {
+      if (creep.memory.stuck > 15) {
+        creep.log('Scout Stuck suicide');
+        creep.suicide();
+        return true;
+      }
+      if (creep.memory.stuck > 0) {
+        creep.memory.stuck++;
+      } else {
+        creep.memory.stuck = 1;
+      }
+
       creep.moveRandom();
       creep.say('ImStuck', true);
-      creep.log('Scout Stuck, Randomly Moving: ' + JSON.stringify(creep.memory.last) + ' ' + JSON.stringify(creep.isStuck()));
+      creep.log('Scout Stuck, Randomly Moving: ' + JSON.stringify(creep.memory.last) + ' ' + JSON.stringify(creep.isStuck()) + ' ' + creep.memory.stuck);
+
       return true;
     }
 

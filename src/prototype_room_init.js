@@ -30,7 +30,8 @@ Room.prototype.initSetMinerals = function() {
   const costMatrix = this.getMemoryCostMatrix();
   const minerals = this.find(FIND_MINERALS);
   for (const mineral of minerals) {
-    const extractor = mineral.pos.getFirstNearPosition();
+    // const extractor = mineral.pos.getFirstNearPosition();
+    const extractor = mineral.pos.getBestNearPosition();
     this.memory.position.creep[mineral.id] = extractor;
     this.memory.position.structure.extractor.push(mineral.pos);
     costMatrix.set(extractor.x, extractor.y, config.layout.creepAvoid);
@@ -71,7 +72,8 @@ Room.prototype.initSetStorageAndPathStart = function() {
 Room.prototype.setFillerArea = function(storagePos, route) {
   const costMatrix = this.getMemoryCostMatrix();
 
-  const fillerPos = storagePos.getBestNearPosition();
+  const fillerPos = storagePos.getLastNearPosition();
+  // const fillerPos = storagePos.getBestNearPosition();
   this.memory.position.creep.filler = fillerPos;
   costMatrix.set(fillerPos.x, fillerPos.y, config.layout.creepAvoid);
   this.setMemoryCostMatrix(costMatrix);
