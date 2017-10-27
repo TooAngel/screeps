@@ -64,8 +64,19 @@ Creep.prototype.spawnCarry = function() {
   for (const container of containers) {
     resourceAtPosition += _.sum(container.store);
   }
-  if (resourceAtPosition > parts.carryParts.carry * CARRY_CAPACITY) {
-    Game.rooms[this.memory.base].checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
+  let levelToSendNext;
+  // todo-msc: changed for lower room level (2) added (* 10)
+  if (baseRoom.controller.level < 4) {
+    levelToSendNext = parts.carryParts.carry * CARRY_CAPACITY * 10;
+  } else {
+    levelToSendNext = parts.carryParts.carry * CARRY_CAPACITY;
+  }
+  if (resourceAtPosition > levelToSendNext) {
+  // todo-msc-end
+    const returnValue = baseRoom.checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
+    if (returnValue > 0 && config.debug.queue) {
+      baseRoom.log('checkRoleToSpawn', 'carry', resourceAtPosition, parts.carryParts.carry * CARRY_CAPACITY, returnValue, this.memory.routing.targetRoom, this.memory.routing.targetId);
+    }
   } else if (resourceAtPosition <= HARVEST_POWER * parts.sourcerWork) {
     const nearCarries = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 2, 'memory.role', ['carry'], false, {
       filter: (creep) => creep.memory.routing.targetId === this.memory.routing.targetId,
@@ -78,16 +89,16 @@ Creep.prototype.spawnCarry = function() {
 };
 
 /*
-Time between carrys should be proportional to % of energy the carry will carry in his life as :
-Energy harvested in sourcer life :
-`1500 * (HARVEST_POWER * workParts) = A`
-Energy carried by carry :
-`1500 * carryCapacity / carryTravelTime = B`
-`B/A = carryCapacity /( carryTravelTime * harvestpower * workParts) `
-This result should be interpreted as spawn a creep each 1500 ticks is B/A = 1. One each 750 ticks if it's 1/2.
-then we just have to multiply it by 1500 and floor all for have a rounded value.
-The distance coeff is for take care of surpopulation in parents rooms, then far rooms will call less carry. Not even sure we need it.
-*/
+ Time between carrys should be proportional to % of energy the carry will carry in his life as :
+ Energy harvested in sourcer life :
+ `1500 * (HARVEST_POWER * workParts) = A`
+ Energy carried by carry :
+ `1500 * carryCapacity / carryTravelTime = B`
+ `B/A = carryCapacity /( carryTravelTime * harvestpower * workParts) `
+ This result should be interpreted as spawn a creep each 1500 ticks is B/A = 1. One each 750 ticks if it's 1/2.
+ then we just have to multiply it by 1500 and floor all for have a rounded value.
+ The distance coeff is for take care of surpopulation in parents rooms, then far rooms will call less carry. Not even sure we need it.
+ */
 
 Creep.prototype.getCarrySpawnInterval = function(parts, resourcesDroped) {
   if (!this.memory.pathDatas) {

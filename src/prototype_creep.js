@@ -224,10 +224,11 @@ Creep.prototype.buildRoad = function() {
     return true;
   }
 
+  // todo-msc why for loop? repair first? (structure.hits < structure.hitsMax) so no return on fully repaired
   const structures = this.pos.lookFor(LOOK_STRUCTURES);
   if (structures.length > 0) {
     for (const structure of structures) {
-      if (structure.structureType === STRUCTURE_ROAD) {
+      if ((structure.structureType === STRUCTURE_ROAD) && (structure.hits < structure.hitsMax)) {
         this.repair(structure);
         return true;
       }

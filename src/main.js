@@ -9,7 +9,7 @@ require('prototype_room_costmatrix');
 require('visualizer');
 require('screepsplus');
 
-console.log('no cache', 'L: ' + _.round(Game.cpu.getUsed()), 'B: ' + Game.cpu.bucket);
+console.log(Game.time, 'no cache', 'L: ' + _.round(Game.cpu.getUsed()), 'B: ' + Game.cpu.bucket);
 
 brain.stats.init();
 

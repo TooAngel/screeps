@@ -100,6 +100,9 @@ roles.carry.handleMisplacedSpawn = function(creep) {
 
 roles.carry.preMove = function(creep, directions) {
   roles.carry.checkHelperEmptyStorage(creep);
+  if ((Game.time % 2 === 0) && (_.sum(creep.carry) < 50)) {
+    creep.pickupEnergy();
+  }
 
   if (roles.carry.handleMisplacedSpawn(creep)) {
     return true;

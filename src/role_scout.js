@@ -41,7 +41,15 @@ function checkForDefender(creep) {
   Game.rooms[creep.memory.base].checkRoleToSpawn('defender', 1, undefined, creep.room.name);
 }
 
+roles.scout.preMove = function(creep) {
+  if (creep.memory.search && creep.memory.search.seen && (creep.memory.search.seen.length > 0) && (creep.memory.search.seen.indexOf(creep.room.name) === -1)) {
+    creep.memory.search.seen.push(creep.room.name);
+    creep.log('added', creep.room.name, 'to seen', creep.memory.search.seen);
+  }
+};
+
 roles.scout.execute = function(creep) {
+  roles.scout.preMove(creep);
   if (creep.memory.skip === undefined) {
     creep.memory.skip = [];
   }

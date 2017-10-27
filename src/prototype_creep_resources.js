@@ -558,7 +558,7 @@ Creep.prototype.getEnergy = function() {
    * Full energy, uses energy until empty.
    */
   this.setHasEnergy();
-
+  // todo-msc getEnergyFromStorage, getDroppedEnergy for planer and misplacedSpawn
   if (this.memory.hasEnergy) {
     return false;
   }
