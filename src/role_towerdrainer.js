@@ -56,12 +56,10 @@ roles.towerdrainer.action = function(creep) {
     creep.moveRandom();
     return false;
   }
+  creep.selfHeal();
 
   if (creep.pos.roomName === attackRoom || creep.pos.isBorder(-1) && creep.pos.isNearTo(restPos.x, restPos.y)) {
-    creep.heal(creep);
     creep.move(creep.memory.restDirrection);
-  } else if (creep.hits < creep.hitsMax) {
-    creep.heal(creep);
   } else if (creep.pos.isEqualTo(restPos.x, restPos.y)) {
     creep.move(creep.memory.attackDirrection);
   } else {

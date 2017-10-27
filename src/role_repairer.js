@@ -30,6 +30,7 @@ roles.repairer.execute = function(creep) {
   const execute = function(creep) {
     creep.setNextSpawn();
     creep.spawnReplacement(1);
+    creep.pickupEnergy();
     if (!creep.memory.move_wait) {
       creep.memory.move_wait = 0;
     }

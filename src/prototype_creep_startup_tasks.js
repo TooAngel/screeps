@@ -15,13 +15,23 @@ Creep.upgradeControllerTask = function(creep) {
 
   const range = creep.pos.getRangeTo(creep.room.controller);
   if (range <= 3) {
+    const resources = creep.pos.findInRangePropertyFilter(FIND_DROPPED_RESOURCES, 10, 'resourceType', [RESOURCE_ENERGY]);
+    let resource = false;
+    if (resources.length > 0) {
+      resource = resources[0];
+      creep.pickup(resource);
+    }
     const returnCode = creep.upgradeController(creep.room.controller);
     if (returnCode !== OK) {
       creep.log('upgradeController: ' + returnCode);
     } else {
       creep.upgraderUpdateStats();
     }
-    creep.moveRandomWithin(creep.room.controller.pos);
+    if (resource) {
+      creep.moveRandomWithin(creep.room.controller.pos, 3, resource);
+    } else {
+      creep.moveRandomWithin(creep.room.controller.pos);
+    }
     return true;
   } else {
     creep.moveToMy(creep.room.controller.pos, 3);
@@ -117,7 +127,8 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
   if (this.carry.energy) {
     return false;
   }
-  let hostileStructures = this.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_OBSERVER], true, {
+  let hostileStructures = this.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_OBSERVER], {
+    inverse: true,
     filter: Room.structureHasEnergy,
   });
   if (!hostileStructures.length) {
@@ -180,6 +191,7 @@ Creep.prototype.repairStructure = function() {
         if (range <= 3) {
           this.moveRandomWithin(toRepair);
         } else {
+          this.creepLog('repairStructure moveToMy target:', JSON.stringify(toRepair.pos));
           const returnCode = this.moveToMy(toRepair.pos, 3);
           this.memory.lastPosition = this.pos;
           if (returnCode === OK) {
@@ -221,7 +233,7 @@ Creep.prototype.repairStructure = function() {
   }
 
   // Repair low ramparts
-  const lowRamparts = this.pos.findInRangePropertyFilter(FIND_STRUCTURES, 4, 'structureType', [STRUCTURE_RAMPART], false, {
+  const lowRamparts = this.pos.findInRangePropertyFilter(FIND_STRUCTURES, 4, 'structureType', [STRUCTURE_RAMPART], {
     filter: (rampart) => rampart.hits < 10000,
   });
 
@@ -246,7 +258,7 @@ Creep.prototype.repairStructure = function() {
     if (range <= 3) {
       this.build(target);
       this.memory.step = 0;
-      const targetNew = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], false, {
+      const targetNew = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], {
         filter: (object) => object.id !== target.id,
       });
       if (targetNew !== null) {
@@ -270,7 +282,7 @@ Creep.prototype.repairStructure = function() {
   }
 
   const creep = this;
-  const structure = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], false, {
+  const structure = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], {
     // Newbie zone walls have no hits
     filter: (object) => object.hits && object.hits < Math.min(creep.memory.step, object.hitsMax),
   });

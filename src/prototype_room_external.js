@@ -64,15 +64,16 @@ Room.prototype.externalHandleRoom = function() {
     }
   }
 
-  if (!this.controller) {
+  if (config.keepers.enabled) {
+    // todo-msc !this.controller => Highway or Source Keeper
     const sourceKeepers = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'owner.username', ['Source Keeper']);
-    if (sourceKeepers.length > 0) {
+    if (!this.controller && (sourceKeepers.length > 0)) {
       this.memory.lastSeen = Game.time;
+      this.memory.sourceKeeperRoom = true;
       this.handleSourceKeeperRoom();
       return false;
     }
   }
-
   delete Memory.rooms[this.roomName];
   return false;
 };
@@ -95,9 +96,9 @@ Room.prototype.externalHandleHighwayRoom = function() {
       if (Memory.powerBanks[this.name].transporter_called) {
         return;
       }
-      if (structures[0].hits < 300000) {
-        for (let i = 0; i < Math.ceil(structures[0].power / 1000); i++) {
-          this.log('Adding powertransporter at ' + Memory.powerBanks[this.name].target);
+      if (structures[0].hits < 350000) {
+        const amountPowerTransporter = Math.ceil(structures[0].power / 1000);
+        for (let i = 0; i < amountPowerTransporter; i++) {
           Game.rooms[Memory.powerBanks[this.name].target].memory.queue.push({
             role: 'powertransporter',
             routing: {
@@ -105,7 +106,7 @@ Room.prototype.externalHandleHighwayRoom = function() {
             },
           });
         }
-
+        this.log('Adding ' + amountPowerTransporter + ' powertransporter at ' + Memory.powerBanks[this.name].target);
         Memory.powerBanks[this.name].transporter_called = true;
       }
     }
@@ -136,7 +137,8 @@ Room.prototype.externalHandleHighwayRoom = function() {
         target: target.name,
         min_route: minRoute,
       };
-      this.log('--------------> Start power harvesting in: ' + target.name + ' <----------------');
+      this.log('--------------> Start power harvesting in: ' + this.name + ' from ' + target.name + ' <----------------');
+      Game.notify('Start power harvesting in: ' + this.name + ' from ' + target.name);
       Game.rooms[target.name].memory.queue.push({
         role: 'powerattacker',
         routing: {
@@ -145,6 +147,18 @@ Room.prototype.externalHandleHighwayRoom = function() {
       });
       Game.rooms[target.name].memory.queue.push({
         role: 'powerhealer',
+        routing: {
+          targetRoom: this.name,
+        },
+      });
+      Game.rooms[target.name].memory.queue.push({
+        role: 'powerhealer',
+        routing: {
+          targetRoom: this.name,
+        },
+      });
+      Game.rooms[target.name].memory.queue.push({
+        role: 'powerattacker',
         routing: {
           targetRoom: this.name,
         },
@@ -173,7 +187,7 @@ Room.prototype.handleOccupiedRoom = function() {
 
     // TODO trigger everytime?
     if (!this.controller.safeMode) {
-      const myCreeps = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['scout'], true);
+      const myCreeps = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['scout'], {inverse: true});
       if (myCreeps.length > 0) {
         return false;
       }
@@ -356,63 +370,9 @@ Room.prototype.handleUnreservedRoom = function() {
 
 Room.prototype.handleSourceKeeperRoom = function() {
   if (!this.memory.base) {
-    return false;
+    this.updateClosestSpawn();
   }
 
-  if (!this.exectueEveryTicks(893)) {
-    return false;
-  }
-  this.log('handle source keeper room');
-  this.log('DISABLED - Routing keep distance to Source keeper structure, sourcer/carry check for next spawn, move await ~10 ticksToSpawn');
-  // eslint-disable-next-line no-constant-condition
-  if (true) {
-    return false;
-  }
-
-  const myCreeps = this.find(FIND_MY_CREEPS);
-  let sourcer = 0;
-  let melee = 0;
-  for (const object of myCreeps) {
-    const creep = Game.getObjectById(object.id);
-    if (creep.memory.role === 'sourcer') {
-      sourcer++;
-      continue;
-    }
-    if (creep.memory.role === 'atkeepermelee') {
-      melee++;
-      continue;
-    }
-  }
-
-  if (sourcer < 3) {
-    for (const source of this.find(FIND_SOURCES)) {
-      const sourcer = source.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer']);
-      if (sourcer !== null) {
-        const range = source.pos.getRangeTo(sourcer.pos);
-        if (range < 7) {
-          continue;
-        }
-      }
-      const spawn = {
-        role: 'sourcer',
-        routing: {
-          targetId: source.id,
-          targetRoom: source.pos.roomName,
-        },
-      };
-      this.log(`!!!!!!!!!!!! ${JSON.stringify(spawn)}`);
-      Game.rooms[this.memory.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
-    }
-  }
-
-  if (melee === 0) {
-    const spawn = {
-      role: 'atkeepermelee',
-      routing: {
-        targetRoom: this.name,
-      },
-    };
-    this.log(`!!!!!!!!!!!! ${JSON.stringify(spawn)}`);
-    Game.rooms[this.memory.base].memory.queue.push(spawn);
-  }
+  this.spawnKeepersEveryTicks(50);
+  return false;
 };

@@ -6,6 +6,8 @@
  * Moves to the power and brings it back to the storage and destroys itself.
  */
 
+// todo check routing reverse: is it memory.routing.reverse or memory.reverse
+
 roles.powertransporter = {};
 roles.powertransporter.settings = {
   layoutString: 'MC',
@@ -14,31 +16,38 @@ roles.powertransporter.settings = {
 };
 
 roles.powertransporter.action = function(creep) {
-  if (creep.memory.reverse) {
-    creep.log('reversing');
-  }
   if (creep.carry.energy) {
     creep.drop(RESOURCE_ENERGY);
   }
 
   if (creep.memory.reverse && creep.inBase()) {
-    creep.log('Fill storage');
-    creep.moveToMy(creep.room.storage);
+    creep.moveToMy(creep.room.storage.pos);
     const returnCode = creep.transfer(creep.room.storage, RESOURCE_POWER);
     if (returnCode === OK) {
-      creep.memory.target = creep.memory.old_target;
-      creep.suicide();
+      creep.log('Fill storage');
+      // todo-msc no suicide if we have recycle functions
+      return Creep.recycleCreep(creep);
     }
     return true;
   }
 
   const getResource = function(creep) {
     if (creep.carry.power > 0) {
-      creep.log(creep.memory.route[creep.memory.route.length - 2].room);
-      const exitDirection = creep.room.findExitTo(creep.memory.route[creep.memory.route.length - 2].room);
-      const nextExits = creep.room.find(exitDirection);
-      const nextExit = nextExits[Math.floor(nextExits.length / 2)];
-      creep.moveTo(nextExit);
+      let storagePos;
+      if (!creep.memory.storagePos) {
+        const baseRoom = creep.memory.base;
+        creep.log('moving back to baseRoom', baseRoom);
+        storagePos = Game.rooms[baseRoom].memory.position.structure.storage[0];
+        creep.memory.storagePos = storagePos;
+      } else {
+        storagePos = creep.memory.storagePos;
+      }
+      creep.memory.routing.reverse = true;
+      creep.memory.reverse = true;
+      creep.moveTo(new RoomPosition(storagePos.x, storagePos.y, storagePos.roomName), {
+        ignoreCreeps: true,
+      });
+      // creep.moveToMy(new RoomPosition(storagePos.x, storagePos.y, storagePos.roomName), 2);
       return true;
     }
     const powerBank = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
@@ -65,12 +74,14 @@ roles.powertransporter.action = function(creep) {
     });
     const returnCode = creep.pickup(resource);
     if (returnCode === OK) {
+      delete creep.memory.routing.reached;
+      creep.memory.routing.reverse = true;
       creep.memory.reverse = true;
     }
     return true;
   };
 
-  getResource();
+  getResource(creep);
   return true;
 };
 

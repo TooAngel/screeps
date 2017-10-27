@@ -219,6 +219,7 @@ module.exports = function(grunt) {
     },
   });
 
+  grunt.log.writeln(new Date().toString());
   grunt.registerTask('default', ['eslint:fix', 'jshint', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
   grunt.registerTask('release', ['eslint:fix', 'jshint', 'jscs', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
   grunt.registerTask('local', ['eslint:fix', 'jshint', 'jscs', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);

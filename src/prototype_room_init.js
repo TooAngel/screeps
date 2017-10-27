@@ -84,6 +84,7 @@ Room.prototype.setFillerArea = function(storagePos, route) {
 
   const fillerNearPositions = Array.from(fillerPos.findNearPosition());
   if (fillerNearPositions.length < 4) {
+    this.clearMemory();
     throw new Error(`Can't set layout for room ${this.name}. Not enough space for filler area`);
   }
 
@@ -196,7 +197,11 @@ Room.prototype.updatePosition = function() {
       }
     }
   }
-  this.memory.summaryCenter = {x: bestPosition.x, y: bestPosition.y};
+  if (bestPosition && (bestPosition.x || bestPosition.y)) {
+    this.memory.summaryCenter = {x: bestPosition.x, y: bestPosition.y};
+  } else {
+    this.memory.summaryCenter = {x: 10, y: 40};
+  }
 };
 
 Room.prototype.setPosition = function(type, pos, value = config.layout.structureAvoid, positionType = 'structure') {
@@ -265,6 +270,7 @@ Room.prototype.setTowerFiller = function() {
 };
 
 Room.prototype.setLabs = function(allPaths) {
+  const room = this;
   let lab1Pos;
   let lab2Pos;
   let pathI;
@@ -311,7 +317,7 @@ Room.prototype.setLabs = function(allPaths) {
             this.memory.position.creep.labs = lastPathPos;
           }
         }
-        console.log('All labs set: ' + pathI);
+        room.log('All labs set: ' + pathI);
         return;
       }
     }
@@ -383,7 +389,7 @@ Room.prototype.setStructuresIteratePos = function(structurePos, pathI, path) {
   }
 
   this.memory.position.pathEnd = structurePos;
-  console.log('All structures set: ' + pathI);
+  this.log('All structures set: ' + pathI);
   return false;
 };
 
@@ -516,6 +522,31 @@ const sorter = function(object) {
   return value;
 };
 
+/*
+ * Places walls at spawn exits which are not on the path
+ */
+Room.prototype.blockWrongSpawnExits = function() {
+  for (let spawnId = 0; spawnId < this.memory.position.structure.spawn.length; spawnId++) {
+    const spawnMemory = this.memory.position.structure.spawn[spawnId];
+    const spawn = new RoomPosition(spawnMemory.x, spawnMemory.y, spawnMemory.roomName);
+    for (const adjacentPos of spawn.getAllAdjacentPositions()) {
+      if (adjacentPos.validPosition()) {
+        this.log('Blocking ', adjacentPos, ' with wall - Wrong spawn exit');
+        this.memory.walls = this.memory.walls || {
+          exit_i: 0,
+          ramparts: [],
+          layer_i: 0,
+          // TODO as array?
+          layer: {
+            0: [],
+          },
+        };
+        this.memory.walls.layer[0].push(adjacentPos);
+      }
+    }
+  }
+};
+
 Room.prototype.setup = function() {
   delete this.memory.constants;
   this.log('costmatrix.setup called');
@@ -545,4 +576,6 @@ Room.prototype.setup = function() {
 
   this.setMemoryPath('pathStart-harvester', path.slice(0, pathI + 1), true);
   this.memory.position.version = config.layout.version;
+
+  this.blockWrongSpawnExits();
 };

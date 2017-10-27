@@ -43,8 +43,7 @@ roles.defendranged.settings = {
 //  creep.say('fightRanged');
 //  return creep.fightRanged(target);
 // };
-
-roles.defendranged.execute = function(creep) {
+const action = function(creep) {
   creep.memory.countdown = creep.memory.countdown || 100;
 
   const recycleCreep = function(creep) {
@@ -89,3 +88,6 @@ roles.defendranged.execute = function(creep) {
   creep.say('fightRanged');
   return creep.fightRanged(target);
 };
+
+roles.defendranged.action = action;
+roles.defendranged.execute = action;

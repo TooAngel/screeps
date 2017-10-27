@@ -14,7 +14,7 @@ Creep.prototype.harvesterBeforeStorage = function() {
   }
 
   methods.push(Creep.transferEnergy);
-  const structures = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_CONTROLLER], true);
+  const structures = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_CONTROLLER], {inverse: true});
   if (structures.length > 0) {
     methods.push(Creep.constructTask);
   }
@@ -51,7 +51,7 @@ Creep.prototype.checkEnergyTransfer = function(otherCreep) {
 // return true if helper can't transfer to creep
 Creep.prototype.checkHelperNoTransfer = function(creep) {
   return this.memory.helper && !creep.memory.helper &&
-        creep.memory.role === 'carry' && creep.memory.base !== this.memory.base;
+    creep.memory.role === 'carry' && creep.memory.base !== this.memory.base;
 };
 
 Creep.prototype.findCreepWhichCanTransfer = function(creeps) {
@@ -189,6 +189,12 @@ Creep.prototype.handleUpgrader = function() {
       return true;
     }
   }
+  if (this.room.controller.ticksToDowngrade > (CONTROLLER_DOWNGRADE[this.room.controller.level] * config.nextRoom.minDowngradPercent / 100) &&
+    this.room.storage.store.energy < config.creep.energyFromStorageThreshold &&
+    Game.time % 1000 !== 0) {
+    this.creepLog('Skipping controller upgrade, not enough in storage');
+    return true;
+  }
 
   let returnCode = this.upgradeController(this.room.controller);
   if (returnCode === OK) {
@@ -254,7 +260,7 @@ Creep.prototype.buildContainer = function() {
 };
 
 Creep.prototype.pickupEnergy = function() {
-  const resources = this.room.findPropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], false, {
+  const resources = this.room.findPropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], {
     filter: Creep.pickableResources(this),
   });
   if (resources.length > 0) {
@@ -290,10 +296,15 @@ const checkCreepForTransfer = function(creep) {
   if (Game.creeps[creep.name].memory.role === 'extractor') {
     return false;
   }
+  // don't transfer to mineral, fixes full terminal with 80% energy?
+  if (Game.creeps[creep.name].memory.role === 'mineral') {
+    return false;
+  }
   // Do we want this?
   if (Game.creeps[creep.name].memory.role === 'powertransporter') {
     return false;
   }
+  // can not carry
   if (creep.carry.energy === creep.carryCapacity) {
     return false;
   }
@@ -340,7 +351,7 @@ const energyAcceptingLink = function(object, room) {
 };
 
 const terminalAvailable = function(object) {
-  if (object.structureType === STRUCTURE_TERMINAL && (object.store.energy || 0) > 10000) {
+  if (object.structureType === STRUCTURE_TERMINAL && (object.store.energy || 0) > config.terminal.maxEnergyAmount) {
     return false;
   }
   return true;
@@ -434,7 +445,7 @@ Creep.prototype.transferToStructures = function() {
 };
 
 Creep.prototype.getEnergyFromSourcer = function() {
-  const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer'], false, {
+  const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer'], {
     filter: (creep) => creep.carry.energy > 0,
   });
   if (sourcers.length > 0) {
@@ -508,15 +519,17 @@ Creep.prototype.getEnergyFromSource = function() {
     return false;
   }
 
-  if (range <= 2) {
-    if (this.getEnergyFromSourcer()) {
-      return true;
-    }
+  if (range <= 2 && this.getEnergyFromSourcer()) {
+    return true;
   }
 
   if (range === 1) {
     return this.harvestSource(source);
   } else {
+    if (range > 1 && range < 4) {
+      this.moveTo(source);
+      return true;
+    }
     return this.moveToSource(source, swarm);
   }
 };
@@ -533,7 +546,7 @@ Creep.prototype.setHasEnergy = function() {
 };
 
 Creep.prototype.getDroppedEnergy = function() {
-  const target = this.pos.findClosestByRangePropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], false, {
+  const target = this.pos.findClosestByRangePropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], {
     filter: (object) => object.amount > 0,
   });
   if (target === null) {
@@ -558,7 +571,7 @@ Creep.prototype.getEnergy = function() {
    * Full energy, uses energy until empty.
    */
   this.setHasEnergy();
-
+  // todo-msc getEnergyFromStorage, getDroppedEnergy for planer and misplacedSpawn
   if (this.memory.hasEnergy) {
     return false;
   }
@@ -594,7 +607,7 @@ Creep.prototype.buildConstructionSite = function(target) {
 Creep.prototype.construct = function() {
   let target;
   if (this.memory.role === 'nextroomer') {
-    target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART], true);
+    target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART], {inverse: true});
   } else {
     target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
   }
@@ -613,7 +626,7 @@ Creep.prototype.construct = function() {
 };
 
 Creep.prototype.getTransferTargetStructure = function() {
-  const structure = this.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER], false, {
+  const structure = this.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER], {
     filter: (structure) => structure.energy < structure.energyCapacity,
   });
   if (structure === null) {
@@ -678,7 +691,7 @@ const callStructurer = function(creep) {
   if (structurers.length > 0) {
     return false;
   }
-  const resourceStructures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
+  const resourceStructures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], {inverse: true});
   if (resourceStructures.length > 0 && !creep.room.controller.my) {
     creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resourceStructures[0].structureType);
     Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, creep.room.name);
@@ -762,6 +775,11 @@ Creep.prototype.interactWithController = function() {
   if (this.room.controller.owner && this.room.controller.owner.username !== Memory.username) {
     this.say('attack');
     returnCode = this.attackController(this.room.controller);
+    if (returnCode === ERR_TIRED) {
+      this.respawnMe();
+      this.suicide();
+      return true;
+    }
   } else {
     returnCode = this.reserveController(this.room.controller);
   }

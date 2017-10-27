@@ -44,6 +44,9 @@ roles.storagefiller.checkResourceStore = function(creep, resourceType, withdraw 
   if (!creep.room.terminal) {
     return STRUCTURE_STORAGE;
   }
+  if (creep.pos.getRangeTo(creep.room.terminal.pos) > 1) {
+    return STRUCTURE_STORAGE;
+  }
   if (resourceType === RESOURCE_ENERGY) {
     return roles.storagefiller.checkEnergyStore(creep, withdraw);
   }
@@ -79,6 +82,70 @@ roles.storagefiller.checkResourceStore = function(creep, resourceType, withdraw 
   }
 };
 
+// todo-msc can we simplyfy this? check both resources (power, energy) and termiinal and storage
+roles.storagefiller.movePowerAndEnergy = function(creep) {
+  const powerSpawn = Game.getObjectById(creep.room.memory.constants.powerSpawn);
+  if (powerSpawn && creep.room.terminal && creep.room.storage) {
+    // todo-msc do we have power at all
+    const power = 0 + (creep.room.terminal.store.power || 0) + (creep.room.storage.store.power || 0) + (powerSpawn.power || 0);
+    if ((power > 0) &&
+      (creep.pos.getRangeTo(powerSpawn.pos) === 1) &&
+      (creep.pos.getRangeTo(creep.room.terminal.pos) === 1)
+    ) {
+      // todo-msc determine what to do
+      const option = {
+        need: {
+          power: powerSpawn.power < 50,
+          energy: powerSpawn.energy < 2500,
+        },
+        carry: {
+          sum: _.sum(creep.carry),
+          power: creep.carry.power > 0,
+          energy: creep.carry.energy > 0,
+        },
+      };
+
+      if (!option.need.energy && !option.need.power) {
+        if (creep.carry.power > 0) {
+          creep.transfer(creep.room.storage, RESOURCE_POWER);
+          return true;
+        }
+        return false;
+      }
+      let returnCode = false;
+      let resource;
+      let strucktur;
+      // put
+      if (option.carry.sum > 0) {
+        if (option.carry.energy > 0) {
+          resource = RESOURCE_ENERGY;
+        } else if (option.carry.power > 0) {
+          resource = RESOURCE_POWER;
+        }
+        returnCode = creep.transfer(powerSpawn, resource);
+      } else { // pickup
+        if (option.need.energy) {
+          resource = RESOURCE_ENERGY;
+        } else if (option.need.power) {
+          resource = RESOURCE_POWER;
+        }
+        if (creep.room.terminal.store[resource] > 0) {
+          strucktur = STRUCTURE_TERMINAL;
+        } else if (creep.room.storage.store[resource] > 0) {
+          strucktur = STRUCTURE_STORAGE;
+        }
+        returnCode = creep.withdraw(creep.room[strucktur], resource);
+      }
+
+      if (returnCode === OK) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
 roles.storagefiller.action = function(creep) {
   if (!creep.memory.routing.targetId && creep.memory.routing.reached) {
     creep.memory.routing.reached = false;
@@ -92,6 +159,11 @@ roles.storagefiller.action = function(creep) {
   creep.spawnReplacement(1);
   creep.pickupEnergy();
 
+  // todo-msc move power and energy to power spawn
+  if (roles.storagefiller.movePowerAndEnergy(creep)) {
+    return true;
+  }
+
   for (const resourceType of Object.keys(creep.carry)) {
     if (resourceType !== RESOURCE_ENERGY && resourceType !== RESOURCE_POWER) {
       const structureToStore = roles.storagefiller.checkResourceStore(creep, resourceType);
@@ -102,7 +174,7 @@ roles.storagefiller.action = function(creep) {
     }
   }
 
-  const towers = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER], false, {
+  const towers = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER], {
     filter: (tower) => tower.energy <= 0.5 * tower.energyCapacity,
   });
 
@@ -171,23 +243,43 @@ roles.storagefiller.action = function(creep) {
     }
   }
 
-  for (const resourceType of Object.keys(creep.room[STRUCTURE_STORAGE].store).reverse()) {
-    const structureToMove = roles.storagefiller.checkResourceStore(creep, resourceType, true);
-    if (structureToMove && structureToMove !== STRUCTURE_STORAGE) {
-      const returnCode = creep.withdraw(creep.room[STRUCTURE_STORAGE], resourceType);
-      if (returnCode === OK) {
-        return true;
-      }
+  if (creep.room.terminal &&
+    (creep.room.storage.store.energy < 20000) &&
+    (creep.room.storage.store.energy < creep.room.terminal.store.energy)
+  ) {
+    if (creep.carry.energy === 0) {
+      creep.withdraw(creep.room[STRUCTURE_TERMINAL], RESOURCE_ENERGY);
+    } else {
+      creep.transfer(creep.room[STRUCTURE_STORAGE], RESOURCE_ENERGY);
     }
   }
 
-  if (creep.room[STRUCTURE_TERMINAL]) {
-    for (const resourceType of Object.keys(creep.room[STRUCTURE_TERMINAL].store)) {
-      const structureToMove = roles.storagefiller.checkResourceStore(creep, resourceType, true);
-      if (structureToMove && structureToMove !== STRUCTURE_TERMINAL) {
-        const returnCode = creep.withdraw(creep.room[STRUCTURE_TERMINAL], resourceType);
-        if (returnCode === OK) {
-          return true;
+  // todo-msc if (creep.room.storage.store.energy < creep.room.terminal.store.energy) then
+  // todo-msc move energy from terminal to storage
+  if (creep.room.terminal && (
+    (creep.room.storage.store.energy < creep.room.terminal.store.energy) ||
+    (creep.pos.getRangeTo(creep.room.terminal.pos) > 1))
+  ) {
+    if (creep.room.storage) {
+      for (const resourceType of Object.keys(creep.room[STRUCTURE_STORAGE].store).reverse()) {
+        const structureToMove = roles.storagefiller.checkResourceStore(creep, resourceType, true);
+        if (structureToMove && structureToMove !== STRUCTURE_STORAGE) {
+          const returnCode = creep.withdraw(creep.room[STRUCTURE_STORAGE], resourceType);
+          if (returnCode === OK) {
+            return true;
+          }
+        }
+      }
+    }
+
+    if (creep.room[STRUCTURE_TERMINAL]) {
+      for (const resourceType of Object.keys(creep.room[STRUCTURE_TERMINAL].store)) {
+        const structureToMove = roles.storagefiller.checkResourceStore(creep, resourceType, true);
+        if (structureToMove && structureToMove !== STRUCTURE_TERMINAL) {
+          const returnCode = creep.withdraw(creep.room[STRUCTURE_TERMINAL], resourceType);
+          if (returnCode === OK) {
+            return true;
+          }
         }
       }
     }

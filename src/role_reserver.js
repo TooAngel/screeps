@@ -32,6 +32,15 @@ roles.reserver.updateSettings = function(room, creep) {
 };
 
 roles.reserver.preMove = function(creep, directions) {
+  // todo-msc maybe add and my creeps in are below x
+  // const controller = Game.getObjectById(creep.memory.routing.targetId);
+  // if (controller && (creep.room.name === controller.pos.roomName)) {
+  //  const range = creep.pos.getRangeTo(controller);
+  //  if (range > 2 && range < 15) {
+  //    creep.moveTo(controller);
+  //    return true;
+  //  }
+  // }
   if (creep.allowOverTake(directions)) {
     return true;
   }
