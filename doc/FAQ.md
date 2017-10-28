@@ -70,5 +70,5 @@ Having a GCL 20+ is in many regards different to a GCL 1.
 
 # Any other question?
 Contact me on
-[slack](https://screeps.slack.com/messages/angels_public/) or
+[slack](https://screeps.slack.com/messages/tooangels/) or
 [gitter](https://gitter.im/screeps-bot-tooangel/Lobby).
