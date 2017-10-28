@@ -340,7 +340,7 @@ const energyAcceptingLink = function(object, room) {
 };
 
 const terminalAvailable = function(object) {
-  if (object.structureType === STRUCTURE_TERMINAL && (object.store.energy || 0) > 10000) {
+  if (object.structureType === STRUCTURE_TERMINAL && (object.store.energy || 0) > config.terminal.maxEnergyAmount) {
     return false;
   }
   return true;
