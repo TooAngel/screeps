@@ -64,7 +64,7 @@ Room.prototype.handleLinks = function() {
     return;
   }
 
-  const links = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LINK], false, {
+  const links = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LINK], {
     filter: (link) => link.id !== linkStorage.id,
   });
 
@@ -310,7 +310,7 @@ Room.prototype.executeRoom = function() {
     this.memory.active = true;
   }
 
-  const nextroomers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['nextroomer'], false, {
+  const nextroomers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['nextroomer'], {
     filter: (object) => object.memory.base !== this.name,
   });
   const building = nextroomers.length > 0 && this.controller.level < 4;
@@ -323,7 +323,7 @@ Room.prototype.executeRoom = function() {
 
   if (this.memory.attackTimer > 100) {
     // TODO better metric for SafeMode
-    const enemies = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], true);
+    const enemies = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
     if (enemies > 0) {
       this.controller.activateSafeMode();
     }
@@ -345,7 +345,7 @@ Room.prototype.executeRoom = function() {
     }
   }
 
-  const idiotCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], true);
+  const idiotCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
   if (idiotCreeps.length > 0) {
     for (const idiotCreep of idiotCreeps) {
       brain.increaseIdiot(idiotCreep.owner.username);
@@ -385,7 +385,7 @@ Room.prototype.executeRoom = function() {
     this.checkRoleToSpawn('upgrader', 1, this.controller.id);
   }
 
-  const constructionSites = this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART], true);
+  const constructionSites = this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART], {inverse: true});
   if (constructionSites.length > 0) {
     let amount = 1;
     for (const cs of constructionSites) {
@@ -502,7 +502,7 @@ Room.prototype.setRoomInactive = function() {
     addToIdiot = Math.max(addToIdiot, tokens[0].price);
   }
   this.log('Increase idiot by subscription token');
-  const idiotCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], true);
+  const idiotCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
   if (idiotCreeps.length > 0) {
     for (const idiotCreep of idiotCreeps) {
       brain.increaseIdiot(idiotCreep.owner.username, addToIdiot);
