@@ -15,13 +15,23 @@ Creep.upgradeControllerTask = function(creep) {
 
   const range = creep.pos.getRangeTo(creep.room.controller);
   if (range <= 3) {
+    const resources = creep.pos.findInRangePropertyFilter(FIND_DROPPED_RESOURCES, 10, 'resourceType', [RESOURCE_ENERGY]);
+    let resource = false;
+    if (resources.length > 0) {
+      resource = resources[0];
+      creep.pickup(resource);
+    }
     const returnCode = creep.upgradeController(creep.room.controller);
     if (returnCode !== OK) {
       creep.log('upgradeController: ' + returnCode);
     } else {
       creep.upgraderUpdateStats();
     }
-    creep.moveRandomWithin(creep.room.controller.pos);
+    if (resource) {
+      creep.moveRandomWithin(creep.room.controller.pos, 3, resource);
+    } else {
+      creep.moveRandomWithin(creep.room.controller.pos);
+    }
     return true;
   } else {
     creep.moveToMy(creep.room.controller.pos, 3);

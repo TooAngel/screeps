@@ -250,6 +250,7 @@ global.config = {
       defendranged: 13,
       nextroomer: 15,
       carry: 17,
+      watcher: 17,
       sourcer: 18,
       reserver: 19,
     },

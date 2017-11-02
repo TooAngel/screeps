@@ -215,7 +215,7 @@ roles.nextroomer.settle = function(creep) {
     }
   }
 
-  if (creep.room.energyCapacityAvailable < 300) {
+  if ((creep.room.energyCapacityAvailable < 300) && (creep.room.exectueEveryTicks(50))) {
     const constructionSites = creep.room.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_LAB, STRUCTURE_NUKER, STRUCTURE_TERMINAL]);
     for (const cs of constructionSites) {
       cs.remove();

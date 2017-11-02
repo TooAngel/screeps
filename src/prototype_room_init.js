@@ -196,7 +196,11 @@ Room.prototype.updatePosition = function() {
       }
     }
   }
-  this.memory.summaryCenter = {x: bestPosition.x, y: bestPosition.y};
+  if (bestPosition.x || bestPosition.y) {
+    this.memory.summaryCenter = {x: bestPosition.x, y: bestPosition.y};
+  } else {
+    this.memory.summaryCenter = {x: 10, y: 40};
+  }
 };
 
 Room.prototype.setPosition = function(type, pos, value = config.layout.structureAvoid, positionType = 'structure') {

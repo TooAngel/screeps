@@ -64,13 +64,12 @@ Room.prototype.externalHandleRoom = function() {
     }
   }
 
-  if (!this.controller) {
-    const sourceKeepers = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'owner.username', ['Source Keeper']);
-    if (sourceKeepers.length > 0) {
-      this.memory.lastSeen = Game.time;
-      this.handleSourceKeeperRoom();
-      return false;
-    }
+  // todo-msc !this.controller => Highway or Source Keeper
+  const sourceKeepers = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'owner.username', ['Source Keeper']);
+  if (!this.controller && (sourceKeepers.length > 0)) {
+    this.memory.lastSeen = Game.time;
+    this.handleSourceKeeperRoom();
+    return false;
   }
 
   delete Memory.rooms[this.roomName];
@@ -356,63 +355,10 @@ Room.prototype.handleUnreservedRoom = function() {
 
 Room.prototype.handleSourceKeeperRoom = function() {
   if (!this.memory.base) {
-    return false;
+    this.updateClosestSpawn();
   }
-
-  if (!this.exectueEveryTicks(893)) {
-    return false;
-  }
-  this.log('handle source keeper room');
-  this.log('DISABLED - Routing keep distance to Source keeper structure, sourcer/carry check for next spawn, move await ~10 ticksToSpawn');
-  // eslint-disable-next-line no-constant-condition
-  if (true) {
-    return false;
-  }
-
-  const myCreeps = this.find(FIND_MY_CREEPS);
-  let sourcer = 0;
-  let melee = 0;
-  for (const object of myCreeps) {
-    const creep = Game.getObjectById(object.id);
-    if (creep.memory.role === 'sourcer') {
-      sourcer++;
-      continue;
-    }
-    if (creep.memory.role === 'atkeepermelee') {
-      melee++;
-      continue;
-    }
-  }
-
-  if (sourcer < 3) {
-    for (const source of this.find(FIND_SOURCES)) {
-      const sourcer = source.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer']);
-      if (sourcer !== null) {
-        const range = source.pos.getRangeTo(sourcer.pos);
-        if (range < 7) {
-          continue;
-        }
-      }
-      const spawn = {
-        role: 'sourcer',
-        routing: {
-          targetId: source.id,
-          targetRoom: source.pos.roomName,
-        },
-      };
-      this.log(`!!!!!!!!!!!! ${JSON.stringify(spawn)}`);
-      Game.rooms[this.memory.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
-    }
-  }
-
-  if (melee === 0) {
-    const spawn = {
-      role: 'atkeepermelee',
-      routing: {
-        targetRoom: this.name,
-      },
-    };
-    this.log(`!!!!!!!!!!!! ${JSON.stringify(spawn)}`);
-    Game.rooms[this.memory.base].memory.queue.push(spawn);
-  }
+  this.checkForWatcher();
+  this.updateKeepers();
+  this.spawnKeepersEveryTicks(50);
+  return false;
 };

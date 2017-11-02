@@ -15,6 +15,17 @@ Creep.prototype.getRoute = function() {
   let route = [];
   if (this.memory.base !== this.memory.routing.targetRoom) {
     route = this.room.findRoute(this.memory.base, this.memory.routing.targetRoom);
+    if (route < 0) {
+      route = this.room.findRoute(this.memory.base, this.memory.routing.targetRoom, true);
+    }
+    if (route < 0) {
+      route = Game.map.findRoute(this.memory.base, this.memory.routing.targetRoom);
+    }
+  }
+
+  if (!route.splice && (route < 0)) {
+    // this.suicide();
+    return false;
   }
   route.splice(0, 0, {
     room: this.memory.base,
@@ -185,7 +196,10 @@ Creep.prototype.followPath = function(action) {
   //   this.say('R:Base');
   //   return false;
   // }
-
+  if (!route) {
+    this.log(route);
+    return true;
+  }
   if (!this.memory.routing.targetId && this.room.name === this.memory.routing.targetRoom) {
     this.memory.routing.reached = true;
     return action(this);
@@ -308,7 +322,7 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, action, 
 
   // build roads
   if (unit.buildRoad) {
-    const target = Game.getObjectById(this.memory.routing.targetId);
+    target = Game.getObjectById(this.memory.routing.targetId);
     if (config.buildRoad.buildToOtherMyRoom || !target || target.structureType !== STRUCTURE_STORAGE) {
       this.buildRoad();
     }

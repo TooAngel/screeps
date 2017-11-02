@@ -42,7 +42,7 @@ Room.prototype.spawnCheckForCreate = function() {
     return true;
   }
   if (creep.ttl === 0) {
-    this.log('TTL reached, skipping: ' + JSON.stringify(creep));
+    this.log('TTL reached, skipping: ' + JSON.stringify(_.omit(creep, ['level'])));
     this.memory.queue.shift();
     return false;
   }
@@ -97,17 +97,17 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
       continue;
     }
     if (creepMemory.role === iMem.role && (!iMem.routing ||
-        (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
-          creepMemory.routing.targetId === iMem.routing.targetId))) {
+      (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
+      creepMemory.routing.targetId === iMem.routing.targetId))) {
       j++;
     }
     if (j >= amount) {
       this.memory.roles[creepMemory.role] = true;
       /**
-      if (config.debug.queue) {
+       if (config.debug.queue) {
         this.log('Already enough ' + creepMemory.role);
       }
-      **/
+       **/
       return true;
     }
   }
@@ -134,7 +134,13 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
   }
 
   if (config.debug.queue) {
-    this.log('Add ' + creepMemory.role + ' to queue. ' + JSON.stringify(creepMemory));
+    let debugMem = JSON.stringify(_.omit(creepMemory, ['role', 'routing', 'level']));
+    debugMem = (debugMem !== '{}') ? debugMem : '';
+    if (this.name === creepMemory.routing.targetRoom) {
+      this.log('Add to queue: ' + creepMemory.role.rpad(' ', 20), ' '.rpad(' ', 19), debugMem);
+    } else {
+      this.log('Add to queue: ' + creepMemory.role.rpad(' ', 20), 'targetRoom ' + creepMemory.routing.targetRoom.rpad(' ', 8), debugMem);
+    }
   }
   return this.memory.queue.push(creepMemory);
 };
@@ -292,7 +298,7 @@ Room.prototype.getPartConfig = function(creep) {
     maxLayoutAmount,
     sufixString,
     fillTough,
-  } = settings;
+    } = settings;
   let layoutString = settings.layoutString;
   let maxBodyLength = MAX_CREEP_SIZE;
   if (prefixString) {

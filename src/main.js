@@ -29,6 +29,7 @@ if (config.profiler.enabled) {
 }
 
 const main = function() {
+  Memory.time = Game.time;
   if (Game.cpu.bucket < 2 * Game.cpu.tickLimit && Game.cpu.bucket < Game.cpu.limit * 10) {
     console.log(Game.time, 'Skipping tick CPU Bucket too low.',
       'L:', _.round(Game.cpu.getUsed()), 'B:', Game.cpu.bucket);
@@ -50,20 +51,18 @@ const main = function() {
   if (config.profiler.enabled && config.visualizer.enabled) {
     profiler.registerObject(visualizer, 'Visualizer');
   }
-  try {
-    Memory.myRooms.forEach(visualizer.myRoomDatasDraw);
-  } catch (e) {
-    console.log('Visualizer Draw Exeception', e);
-  }
-
   brain.saveMemorySegments();
-
-  try {
-    if (config.visualizer.enabled) {
-      visualizer.render();
+  if (config.visualizer.enabled) {
+    try {
+      Memory.myRooms.forEach(visualizer.myRoomDatasDraw);
+    } catch (e) {
+      console.log('Visualizer Draw Exeception', e);
     }
-  } catch (e) {
-    console.log('Visualizer Render Exeception', e, e.stack);
+    try {
+      visualizer.render();
+    } catch (e) {
+      console.log('Visualizer Render Exeception', e, e.stack);
+    }
   }
 
   brain.stats.add(['cpu'], {

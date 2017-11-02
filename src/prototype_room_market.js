@@ -32,7 +32,7 @@ Room.prototype.sellByOwnOrders = function(resource, sellAmount) {
 
 Room.prototype.sellByOthersOrders = function(sellAmount, resource) {
   const sortByEnergyCostAndPrice = (order) => Game.market.calcTransactionCost(sellAmount, this.name, order.roomName) +
-    -order.price * sellAmount / config.market.energyCreditEquivalent;
+  -order.price * sellAmount / config.market.energyCreditEquivalent;
   if (Memory.orders[ORDER_BUY][resource]) {
     const orders = _.sortBy(Memory.orders[ORDER_BUY][resource].orders, sortByEnergyCostAndPrice);
     for (const order of orders) {
@@ -90,11 +90,12 @@ Room.prototype.buyByOthersOrders = function(resource) {
       if (Game.market.calcTransactionCost(amount, this.name, order.roomName) > this.terminal.store.energy) {
         break;
       }
-      this.log('BUY', order.id, this.name, amount, order.price);
+      this.log('BUY', order.id, order.roomName, '=>', this.name, amount, order.price);
       const returnCode = Game.market.deal(order.id, amount, this.name);
-      this.log('market.deal:', resource, returnCode);
       if (returnCode === OK) {
         break;
+      } else {
+        this.log('market.deal:', resource, returnCode);
       }
     }
   }

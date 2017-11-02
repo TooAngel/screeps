@@ -9,76 +9,75 @@
 
 roles.atkeepermelee = {};
 roles.atkeepermelee.settings = {
-  layoutString: 'MAH',
-  amount: [25, 19, 6],
-  fillTough: true,
+  layoutString: 'TAMH',
+  amount: [10, 10, 21, 1],
+  fillTough: false,
+  maxLayoutAmount: 1,
+};
+
+roles.atkeepermelee.preMove = function(creep, direction) {
+  if (creep.room.name === creep.memory.routing.targetRoom) {
+    creep.memory.routing.reached = true;
+  }
 };
 
 roles.atkeepermelee.action = function(creep) {
   // TODO Untested
   creep.spawnReplacement();
   creep.setNextSpawn();
+  creep.memory.canHeal = creep.getActiveBodyparts(HEAL) > 0;
 
-  const getNextSourceKeeper = function(creep) {
-    const sourceKeeper = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_KEEPER_LAIR]);
-    const sourceKeeperNext = _.sortBy(sourceKeeper, (object) => object.ticksToSpawn);
-    return sourceKeeperNext[0];
+  if (creep.isDamaged() === 1) {
+    creep.memory.damaged = false;
+  }
+
+  const moveToCenter = function(creep) {
+    const center = new RoomPosition(25, 25, creep.memory.routing.targetRoom);
+    return creep.moveTo(center, {ignoreCreeps: false, reusePath: 2});
   };
 
-  const heal = function(creep) {
-    creep.say('heal');
-    let target = creep.findClosestSourceKeeper();
-    if (target === null) {
-      target = getNextSourceKeeper(creep);
-      creep.log('heal: ' + JSON.stringify(target));
-    }
-    const range = creep.pos.getRangeTo(target);
-    if (range > 1) {
-      if (range > 7) {
-        const sourcers = creep.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 3, 'memory.role', ['sourcer'], false, {
-          filter: (target) => target.hits < target.hitsMax,
-        });
-
-        if (sourcers.length > 0) {
-          creep.heal(sourcers[0]);
-          return true;
-        }
-      }
-
-      creep.heal(creep);
-      if (creep.hits === creep.hitsMax || range > 5 || range < 5) {
-        const returnCode = creep.moveTo(target);
-        if (returnCode !== OK) {
-          creep.log(`heal.move returnCode: ${returnCode}`);
-        }
-      }
-      return true;
-    }
-    return false;
-  };
 
   const attack = function(creep) {
     creep.say('attack');
-    let target = creep.findClosestSourceKeeper();
+    // todo-msc cache target
+    const lastTarget = Game.getObjectById(creep.room.memory.lastTarget);
+    let target = (lastTarget && lastTarget.hits && lastTarget.hitsMax) ? lastTarget : creep.findClosestSourceKeeper();
+    if (lastTarget && !(lastTarget.hits && lastTarget.hitsMax)) {
+      creep.log(JSON.stringify(lastTarget));
+    }
     if (target === null) {
-      target = getNextSourceKeeper(creep);
+      target = creep.room.getNextSourceKeeperLair();
+      creep.room.memory.lastTarget = target.id;
+    }
+    if (target) {
+      creep.room.memory.lastTarget = target.id;
     }
     if (creep.pos.getRangeTo(target.pos) > 1) {
-      creep.moveTo(target);
+      creep.moveToMy(target.pos);
     }
     creep.attack(target);
     return true;
   };
 
-  if (heal(creep)) {
-    return true;
+  if (creep.room.name === creep.memory.routing.targetRoom) {
+    if (creep.memory.damaged || creep.isDamaged() < 0.4 || (creep.getActiveBodyparts(ATTACK) === 0)) {
+      if (creep.memory.canHeal) {
+        creep.heal(creep);
+      }
+      creep.memory.damaged = true;
+      creep.memory.canHeal = creep.getActiveBodyparts(HEAL) > 0;
+      return moveToCenter(creep);
+    }
+    if (creep.room.keeperTeamReady()) {
+      if (attack(creep)) {
+        return true;
+      }
+      if (creep.isDamaged() <= 1 && creep.memory.canHeal) {
+        creep.heal(creep);
+      }
+    }
   }
-
-  if (attack(creep)) {
-    return true;
-  }
-  creep.heal(creep);
-  return true;
+  return moveToCenter(creep);
 };
 
 roles.atkeepermelee.execute = function(creep) {

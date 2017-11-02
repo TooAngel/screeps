@@ -29,15 +29,15 @@ Room.prototype.getCreepPositionForId = function(to) {
     const pos = this.memory.position.creep[to];
     return new RoomPosition(pos.x, pos.y, this.name);
   }
-
+  const defaultPosition = {
+    creep: {},
+  };
   const target = Game.getObjectById(to);
   if (target === null) {
     // this.log('getCreepPositionForId: No object: ' + to);
     return;
   }
-  this.memory.position = this.memory.position || {
-    creep: {},
-  };
+  this.memory.position = this.memory.position || defaultPosition;
   this.memory.position.creep[to] = target.pos.findNearPosition().next().value;
 
   let pos = this.memory.position.creep[to];
@@ -48,7 +48,13 @@ Room.prototype.getCreepPositionForId = function(to) {
   return new RoomPosition(pos.x, pos.y, this.name);
 };
 
-Room.prototype.findRoute = function(from, to) {
+//todo-msc useHighWay
+Room.prototype.findRoute = function(from, to, useHighWay) {
+  useHighWay = useHighWay || false;
+  const splitRoomName = function(name) {
+    const patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
+    return patt.exec(name);
+  };
   const routeCallback = function(roomName, fromRoomName) {
     if (roomName === to) {
       return 1;
@@ -68,8 +74,15 @@ Room.prototype.findRoute = function(from, to) {
       //         console.log(`Creep.prototype.getRoute: Do not route through blocked rooms ${roomName}`);
       return Infinity;
     }
-
-    return 1;
+    if (useHighWay) {
+      const nameSplit = splitRoomName(roomName);
+      if (nameSplit[2] % 10 === 0 || nameSplit[4] % 10 === 0) {
+        return 0.5;
+      }
+      return 2;
+    } else {
+      return 1;
+    }
   };
   return Game.map.findRoute(from, to, {
     routeCallback: routeCallback,

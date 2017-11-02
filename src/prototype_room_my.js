@@ -266,7 +266,7 @@ Room.prototype.getHarvesterAmount = function() {
   if (!this.storage) {
     amount = 2;
     // TODO maybe better spawn harvester when a carry recognize that the dropped energy > threshold
-    if (this.controller.level === 2 || this.controller.level === 3) {
+    if (this.controller.level === 2) {
       amount = 5;
     }
   } else {
@@ -371,6 +371,15 @@ Room.prototype.executeRoom = function() {
     if (hostiles[0].owner.username !== 'Invader' && !brain.isFriend(hostiles[0].owner.username)) {
       Game.notify(this.name + ' Under attack from ' + hostiles[0].owner.username + ' at ' + Game.time);
     }
+  }
+
+  if (Memory.myRooms && (Memory.myRooms.length < 5) && building) {
+    const constructionSites = this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART], true);
+    if (constructionSites.length > 0) {
+      this.checkRoleToSpawn('planer', 1);
+    }
+    brain.stats.addRoom(this.name, cpuUsed);
+    return true;
   }
 
   this.checkForEnergyTransfer();

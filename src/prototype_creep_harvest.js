@@ -8,6 +8,16 @@ Creep.prototype.handleSourcer = function() {
 
   const returnCode = this.harvest(source);
   if (returnCode !== OK && returnCode !== ERR_NOT_ENOUGH_RESOURCES) {
+    if (returnCode === ERR_NO_BODYPART) {
+      // todo-msc maybe spawn defender
+      this.room.checkRoleToSpawn('defender', 2, undefined, this.room.name);
+      this.respawnMe();
+      this.suicide();
+      return false;
+    }
+    if (returnCode === ERR_TIRED) {
+      return false;
+    }
     this.log('harvest: ' + returnCode);
     return false;
   }
@@ -64,20 +74,37 @@ Creep.prototype.spawnCarry = function() {
   for (const container of containers) {
     resourceAtPosition += _.sum(container.store);
   }
-  let levelToSendNext;
   // todo-msc: changed for lower room level (2) added (* 10)
-  if (baseRoom.controller.level < 4) {
-    levelToSendNext = parts.carryParts.carry * CARRY_CAPACITY * 10;
-  } else {
-    levelToSendNext = parts.carryParts.carry * CARRY_CAPACITY;
-  }
-  if (resourceAtPosition > levelToSendNext) {
-  // todo-msc-end
-    const returnValue = baseRoom.checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
-    if (returnValue > 0 && config.debug.queue) {
-      baseRoom.log('checkRoleToSpawn', 'carry', resourceAtPosition, parts.carryParts.carry * CARRY_CAPACITY, returnValue, this.memory.routing.targetRoom, this.memory.routing.targetId);
+  const sendNext = () => {
+    switch (baseRoom.controller.level) {
+      case 0:
+      case 1:
+      case 2:
+      case 3:
+        return parts.carryParts.carry * CARRY_CAPACITY * 10;
+      case 4:
+        return parts.carryParts.carry * CARRY_CAPACITY * 5;
+      case 5:
+        return parts.carryParts.carry * CARRY_CAPACITY * 4;
+      case 6:
+        return parts.carryParts.carry * CARRY_CAPACITY * 3;
+      case 7:
+        return parts.carryParts.carry * CARRY_CAPACITY * 3;
+      case 8:
+        return parts.carryParts.carry * CARRY_CAPACITY;
     }
-  } else if (resourceAtPosition <= HARVEST_POWER * parts.sourcerWork) {
+  };
+  const levelToSendNext = sendNext();
+
+  if (resourceAtPosition > levelToSendNext) {
+    // const returnValue =
+    baseRoom.checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
+    // todo-msc checkRoleToSpawn carry
+    // if (returnValue > 0 && config.debug.queue) {
+    //  baseRoom.log('checkRoleToSpawn', 'carry', resourceAtPosition, levelToSendNext, returnValue, this.memory.routing.targetRoom, this.memory.routing.targetId);
+    // }
+  }
+  if (resourceAtPosition <= HARVEST_POWER * parts.sourcerWork) {
     const nearCarries = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 2, 'memory.role', ['carry'], false, {
       filter: (creep) => creep.memory.routing.targetId === this.memory.routing.targetId,
     });
@@ -85,7 +112,8 @@ Creep.prototype.spawnCarry = function() {
       nearCarries[0].memory.recycle = true;
     }
   }
-  this.memory.wait = this.getCarrySpawnInterval(parts, resourceAtPosition);
+  this.memory.wait = this.getCarrySpawnInterval(parts, resourceAtPosition) * 3;
+  // todo-msc-end
 };
 
 /*
