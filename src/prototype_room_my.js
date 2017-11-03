@@ -420,7 +420,12 @@ Room.prototype.executeRoom = function() {
     }
   }
   if (config.mineral.enabled && this.terminal && this.storage) {
-    this.checkRoleToSpawn('mineral');
+    if (this.memory.cleanup <= 10) {
+      this.checkRoleToSpawn('mineral');
+    }
+    if (this.exectueEveryTicks(10000)) {
+      this.memory.cleanup = 0;
+    }
   }
 
   if (!building && nextroomers.length === 0) {
