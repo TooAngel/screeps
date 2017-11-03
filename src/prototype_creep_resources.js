@@ -189,6 +189,12 @@ Creep.prototype.handleUpgrader = function() {
       return true;
     }
   }
+  if (this.room.controller.ticksToDowngrade > (CONTROLLER_DOWNGRADE[this.room.controller.level] * config.nextRoom.minDowngradPercent / 100) &&
+    this.room.storage.store.energy < config.creep.energyFromStorageThreshold &&
+    Game.time % 1000 !== 0) {
+    this.creepLog('Skipping controller upgrade, not enough in storage');
+    return true;
+  }
 
   let returnCode = this.upgradeController(this.room.controller);
   if (returnCode === OK) {
