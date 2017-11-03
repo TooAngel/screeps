@@ -357,8 +357,7 @@ Room.prototype.handleSourceKeeperRoom = function() {
   if (!this.memory.base) {
     this.updateClosestSpawn();
   }
-  this.checkForWatcher();
-  this.updateKeepers();
+
   this.spawnKeepersEveryTicks(50);
   return false;
 };

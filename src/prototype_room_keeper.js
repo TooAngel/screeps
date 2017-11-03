@@ -90,9 +90,11 @@ Room.prototype.updateClosestSpawn = function() {
 };
 
 Room.prototype.spawnKeepersEveryTicks = function(ticks) {
-  if (this.exectueEveryTicks(ticks)) {
-    let returnValue = false;
-    if (Game.rooms[this.memory.base].controller.level > 6) {
+  let returnValue = false;
+  if (Game.rooms[this.memory.base].controller.level > 6) {
+    this.checkForWatcher();
+    if (this.exectueEveryTicks(ticks)) {
+      this.updateKeepers();
       if (this.updateClosestSpawn()) {
         returnValue = this.spawnKeepers();
         if (returnValue && returnValue[0] && returnValue[0][0] && returnValue[0][0].success) {
@@ -101,8 +103,8 @@ Room.prototype.spawnKeepersEveryTicks = function(ticks) {
         return returnValue;
       }
     }
-    return returnValue;
   }
+  return returnValue;
 };
 
 Creep.prototype.isDamaged = function() {
