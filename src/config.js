@@ -48,7 +48,7 @@ global.config = {
   },
 
   memory: {
-    segments: 10,
+    segments: 20,
   },
 
   // use username `tooangels` and password `tooSecretPassword` at https://screepspl.us/grafana
@@ -64,6 +64,10 @@ global.config = {
     queue: false,
     spawn: false,
     mineral: false,
+    creepLog: {
+      roles: [], // Roles for debug output, e.g. ['repairer']
+      rooms: [], // Rooms for debug output, e.g. ['E21N8']
+    },
   },
 
   tower: {
@@ -90,6 +94,7 @@ global.config = {
     numberOfNextroomers: 10,
     nextroomerInterval: 500,
     maxRooms: 20,
+    cpuPerRoom: 13, // Necessary CPU per room, prevent claiming new rooms
     revive: true,
     maxDistance: 17,
     minNewRoomDistance: 2,

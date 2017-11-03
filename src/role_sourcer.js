@@ -101,7 +101,7 @@ roles.sourcer.preMove = function(creep, directions) {
       creep.say('dismantle', true);
       break;
     }
-    if (creep.memory.last && (creep.pos.x !== creep.memory.last.pos1.x || creep.pos.y !== creep.memory.last.pos1.y)) {
+    if (!creep.memory.last || creep.pos.x !== creep.memory.last.pos1.x || creep.pos.y !== creep.memory.last.pos1.y) {
       if (!creep.memory.pathDatas) {
         creep.memory.pathDatas = {swamp: 0, plain: 0, road: 0};
       }

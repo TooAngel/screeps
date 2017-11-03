@@ -30,6 +30,9 @@ if (config.profiler.enabled) {
 
 const main = function() {
   Memory.time = Game.time;
+  if (Game.time % 200 === 0) {
+    console.log(Game.time, 'TooAngel AI - All good');
+  }
   if (Game.cpu.bucket < 2 * Game.cpu.tickLimit && Game.cpu.bucket < Game.cpu.limit * 10) {
     console.log(Game.time, 'Skipping tick CPU Bucket too low.',
       'L:', _.round(Game.cpu.getUsed()), 'B:', Game.cpu.bucket);
@@ -51,6 +54,7 @@ const main = function() {
   if (config.profiler.enabled && config.visualizer.enabled) {
     profiler.registerObject(visualizer, 'Visualizer');
   }
+
   brain.saveMemorySegments();
   if (config.visualizer.enabled) {
     try {

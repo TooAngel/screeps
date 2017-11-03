@@ -520,6 +520,31 @@ const sorter = function(object) {
   return value;
 };
 
+/*
+ * Places walls at spawn exits which are not on the path
+ */
+Room.prototype.blockWrongSpawnExits = function() {
+  for (let spawnId = 0; spawnId < this.memory.position.structure.spawn.length; spawnId++) {
+    const spawnMemory = this.memory.position.structure.spawn[spawnId];
+    const spawn = new RoomPosition(spawnMemory.x, spawnMemory.y, spawnMemory.roomName);
+    for (const adjacentPos of spawn.getAllAdjacentPositions()) {
+      if (adjacentPos.validPosition()) {
+        this.log('Blocking ', adjacentPos, ' with wall - Wrong spawn exit');
+        this.memory.walls = this.memory.walls || {
+          exit_i: 0,
+          ramparts: [],
+          layer_i: 0,
+          // TODO as array?
+          layer: {
+            0: [],
+          },
+        };
+        this.memory.walls.layer[0].push(adjacentPos);
+      }
+    }
+  }
+};
+
 Room.prototype.setup = function() {
   delete this.memory.constants;
   this.log('costmatrix.setup called');
@@ -549,4 +574,6 @@ Room.prototype.setup = function() {
 
   this.setMemoryPath('pathStart-harvester', path.slice(0, pathI + 1), true);
   this.memory.position.version = config.layout.version;
+
+  this.blockWrongSpawnExits();
 };
