@@ -44,6 +44,9 @@ roles.storagefiller.checkResourceStore = function(creep, resourceType, withdraw 
   if (!creep.room.terminal) {
     return STRUCTURE_STORAGE;
   }
+  if (creep.pos.getRangeTo(creep.room.terminal.pos) > 1) {
+    return STRUCTURE_STORAGE;
+  }
   if (resourceType === RESOURCE_ENERGY) {
     return roles.storagefiller.checkEnergyStore(creep, withdraw);
   }
@@ -171,23 +174,27 @@ roles.storagefiller.action = function(creep) {
     }
   }
 
-  for (const resourceType of Object.keys(creep.room[STRUCTURE_STORAGE].store).reverse()) {
-    const structureToMove = roles.storagefiller.checkResourceStore(creep, resourceType, true);
-    if (structureToMove && structureToMove !== STRUCTURE_STORAGE) {
-      const returnCode = creep.withdraw(creep.room[STRUCTURE_STORAGE], resourceType);
-      if (returnCode === OK) {
-        return true;
+  if (creep.room.terminal && creep.pos.getRangeTo(creep.room.terminal.pos) > 1) {
+    if (creep.room.storage) {
+      for (const resourceType of Object.keys(creep.room[STRUCTURE_STORAGE].store).reverse()) {
+        const structureToMove = roles.storagefiller.checkResourceStore(creep, resourceType, true);
+        if (structureToMove && structureToMove !== STRUCTURE_STORAGE) {
+          const returnCode = creep.withdraw(creep.room[STRUCTURE_STORAGE], resourceType);
+          if (returnCode === OK) {
+            return true;
+          }
+        }
       }
     }
-  }
 
-  if (creep.room[STRUCTURE_TERMINAL]) {
-    for (const resourceType of Object.keys(creep.room[STRUCTURE_TERMINAL].store)) {
-      const structureToMove = roles.storagefiller.checkResourceStore(creep, resourceType, true);
-      if (structureToMove && structureToMove !== STRUCTURE_TERMINAL) {
-        const returnCode = creep.withdraw(creep.room[STRUCTURE_TERMINAL], resourceType);
-        if (returnCode === OK) {
-          return true;
+    if (creep.room[STRUCTURE_TERMINAL]) {
+      for (const resourceType of Object.keys(creep.room[STRUCTURE_TERMINAL].store)) {
+        const structureToMove = roles.storagefiller.checkResourceStore(creep, resourceType, true);
+        if (structureToMove && structureToMove !== STRUCTURE_TERMINAL) {
+          const returnCode = creep.withdraw(creep.room[STRUCTURE_TERMINAL], resourceType);
+          if (returnCode === OK) {
+            return true;
+          }
         }
       }
     }
