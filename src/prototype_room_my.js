@@ -1,15 +1,39 @@
 'use strict';
 
+Room.prototype.unclaimRoom = function() {
+  // remove creeps if base === this.name
+  const room = this;
+  let returnValue;
+  const creepsToKill = _.filter(Game.creeps, (c) => c.memory.base === room.name);
+  room.log('creepsToKill', _.size(creepsToKill), _.map(creepsToKill, (c) => c.suicide()));
+  if (room.memory.constructionSites && _.size(room.memory.constructionSites)) {
+    room.memory.constructionSites[0].remove();
+  }
+
+  const myStructuresToDestroy = _.sortBy(this.find(FIND_MY_STRUCTURES), (s) => s.hitsMax);
+  const controller = myStructuresToDestroy.shift();
+  if (_.size(myStructuresToDestroy) > 0) {
+    returnValue = myStructuresToDestroy[0].destroy();
+  } else {
+    returnValue = controller.unclaim();
+    delete Memory.rooms[room.name];
+  }
+  if (returnValue !== OK) {
+    room.log(myStructuresToDestroy[0], 'destroy / unclaim did not work');
+  } else {
+    room.log('myStructuresToDestroy', myStructuresToDestroy[0], _.size(myStructuresToDestroy), controller);
+  }
+};
+
 Room.prototype.myHandleRoom = function() {
   if (!Memory.username) {
     Memory.username = this.controller.owner.username;
   }
   this.memory.lastSeen = Game.time;
   this.memory.constructionSites = this.find(FIND_CONSTRUCTION_SITES);
-  const room = this;
 
   // TODO Fix for after `delete Memory.rooms`
-  if (!room.memory.position || !room.memory.position.structure) {
+  if (!this.memory.position || !this.memory.position.structure) {
     this.setup();
   }
 
@@ -31,6 +55,9 @@ Room.prototype.myHandleRoom = function() {
         hostiles: hostiles,
       };
     }
+  }
+  if (this.memory.unclaim) {
+    return this.unclaimRoom();
   }
   return this.executeRoom();
 };
@@ -182,7 +209,10 @@ Room.prototype.handleScout = function() {
 };
 
 Room.prototype.checkNeedHelp = function() {
-  const needHelp = this.memory.energyStats.average < config.carryHelpers.needTreshold; // && !this.hostile;
+  let needHelp = this.memory.energyStats.average < config.carryHelpers.needTreshold; // && !this.hostile;
+  if (!needHelp) {
+    needHelp = (this.storage) ? (this.storage.store.energy < (config.carryHelpers.helpTreshold * 2) || (this.storage.store.energy < 20000)) : false;
+  }
   const oldNeedHelp = this.memory.needHelp;
   if (needHelp) {
     if (!oldNeedHelp) {
@@ -201,8 +231,9 @@ Room.prototype.checkNeedHelp = function() {
 };
 
 Room.prototype.checkCanHelp = function() {
-  if (!Memory.needEnergyRooms) {
-    return;
+  let returnValue = 'no';
+  if (!Memory.needEnergyRooms || Memory.needEnergyRooms.length === 0) {
+    return returnValue;
   }
 
   let nearestRoom = this.memory.nearestRoom;
@@ -213,37 +244,72 @@ Room.prototype.checkCanHelp = function() {
   if (!Game.rooms[nearestRoom] || !Memory.rooms[nearestRoom].needHelp) {
     _.remove(Memory.needEnergyRooms, (r) => r === nearestRoom);
   }
+  if (nearestRoom === Infinity) {
+    return returnValue;
+  }
   const nearestRoomObj = Game.rooms[nearestRoom];
-  const canHelp = this.memory.energyStats.average > config.carryHelpers.helpTreshold &&
-    nearestRoom !== this.name && nearestRoomObj && this.storage && // !nearestRoomObj.hostile &&
-    !nearestRoomObj.terminal;
+  if (nearestRoom === this.name) {
+    returnValue = 'no can\'t help myself';
+  }
+  if (!this.storage) {
+    returnValue = 'no can\'t help, no storage at' + this.name;
+  }
+  if (!nearestRoomObj) {
+    delete this.memory.nearestRoom;
+    returnValue = 'no can\'t help, no nearestRoomObj';
+  }
+  if (returnValue !== 'no') {
+    return returnValue;
+  }
+  const thisRoomCanHelp = this.memory.energyStats.average > config.carryHelpers.helpTreshold;
+  const canHelp = thisRoomCanHelp && nearestRoomObj && !nearestRoomObj.terminal;
+  // if (!canHelp) {
+  //   const nearestRoomObjNeedsEnergy = (nearestRoomObj.memory.energyStats.average < config.carryHelpers.helpTreshold) || (nearestRoomObj.storage.store.energy < 20000);
+  //   canHelp = thisRoomCanHelp && nearestRoomObj && nearestRoomObjNeedsEnergy;
+  // }
   if (canHelp) {
     const route = this.findRoute(nearestRoom, this.name);
     if (route === -2 || route.length === 0) {
-      return 'no';
+      returnValue = 'no route';
+    } else {
+      this.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, this.storage.id, this.name, undefined, nearestRoom, {helper: true});
+      returnValue = '---!!! ' + this.name + ' send energy to: ' + nearestRoom + ' !!!---';
     }
-    this.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, this.storage.id,
-      this.name, undefined, nearestRoom, {
-        helper: true,
-      });
-    return '---!!! ' + this.name + ' send energy to: ' + nearestRoom + ' !!!---';
   }
-  return 'no';
+  return returnValue;
 };
 
-Room.prototype.checkForEnergyTransfer = function() {
+Room.prototype.checkForEnergyTransfer = function(force) {
   if (config.carryHelpers.disabled) {
     return false;
   }
 
   Memory.needEnergyRooms = Memory.needEnergyRooms || [];
   this.memory.energyStats = this.memory.energyStats || {sum: 0, ticks: 0};
-  if (!this.exectueEveryTicks(config.carryHelpers.ticksUntilHelpCheck)) {
-    const factor = config.carryHelpers.factor;
-    this.memory.energyStats.available = (1 - factor) * this.memory.energyStats.available + (factor) * this.energyAvailable || 0;
-    this.memory.energyStats.sum += this.memory.energyStats.available;
-    this.memory.energyStats.ticks++;
-    return;
+  if (force) {
+    this.memory.energyStats.average = this.memory.energyStats.sum / this.memory.energyStats.ticks;
+    const needHelp = this.checkNeedHelp();
+    if (needHelp) {
+      if (needHelp !== 'Already set as needHelp') {
+        this.log(needHelp);
+      }
+    } else {
+      const canHelp = this.checkCanHelp();
+      if (canHelp !== 'no') {
+        this.log(canHelp);
+      }
+    }
+    this.memory.energyStats.sum = 0;
+    this.memory.energyStats.ticks = 0;
+    return true;
+  } else {
+    if (!this.exectueEveryTicks(config.carryHelpers.ticksUntilHelpCheck)) {
+      const factor = config.carryHelpers.factor;
+      this.memory.energyStats.available = (1 - factor) * this.memory.energyStats.available + (factor) * this.energyAvailable || 0;
+      this.memory.energyStats.sum += this.memory.energyStats.available;
+      this.memory.energyStats.ticks++;
+      return false;
+    }
   }
   this.memory.energyStats.average = this.memory.energyStats.sum / this.memory.energyStats.ticks;
   const needHelp = this.checkNeedHelp();
@@ -259,6 +325,7 @@ Room.prototype.checkForEnergyTransfer = function() {
   }
   this.memory.energyStats.sum = 0;
   this.memory.energyStats.ticks = 0;
+  return true;
 };
 
 Room.prototype.getHarvesterAmount = function() {
@@ -423,7 +490,7 @@ Room.prototype.executeRoom = function() {
     if (this.memory.cleanup <= 10) {
       this.checkRoleToSpawn('mineral');
     }
-    if (this.exectueEveryTicks(10000)) {
+    if ((Game.time + this.controller.pos.x + this.controller.pos.y) % 10000 < 10) {
       this.memory.cleanup = 0;
     }
   }

@@ -3,14 +3,14 @@
 Creep.prototype.mySignController = function() {
   if (config.info.signController && this.room.exectueEveryTicks(config.info.resignInterval)) {
     let text = config.info.signText;
-    // todo-msc move to config
-    const configEndTime = 10000;
+    // todo-msc add to config: config.quests.endTime, add quest.end  Math.floor(Game.time / 100) * 100 + configEndTime,
+    config.quests.endTime = 10000;
     if (config.quests.enabled && this.memory.role === 'reserver') {
       if (Math.random() < config.quests.signControllerPercentage) {
         const quest = {
           id: Math.floor(Math.random() * 100000),
           origin: this.memory.base,
-          end: Math.floor(Game.time / 100) * 100 + configEndTime,
+          end: Math.floor(Game.time / 100) * 100 + config.quests.endTime,
           type: 'Quest',
           // info: 'http://tooangel.github.io/screeps/doc/Quests.html'
           info: 'https://goo.gl/QEyNzG', // Pointing to the workspace branch doc

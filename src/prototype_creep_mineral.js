@@ -135,7 +135,7 @@ function get(creep, target, resource) {
 function cleanUpLabs(creep) {
   creep.say('cleanup');
   creep.memory.cleanup = creep.memory.cleanup || 0;
-  // todo-msc if 2/3 of the creep live time is cleanup stop spawning them for 10000 ticks
+  // todo-msc if 2 / 3 of the creep live time is cleanup stop spawning them for 10000 ticks
   if (creep.memory.cleanup++ > 1000) {
     creep.room.memory.cleanup = creep.room.memory.cleanup || 0;
     creep.room.memory.cleanup += 1;
@@ -347,6 +347,58 @@ function checkNuke(creep) {
   return false;
 }
 
+const states = [{
+  name: 'storage result',
+  destination: STRUCTURE_TERMINAL,
+  action: transfer,
+  resource: 'result',
+}, {
+  name: 'terminal 0',
+  destination: STRUCTURE_TERMINAL,
+  action: get,
+  resource: 'first',
+}, {
+  name: 'terminal 1',
+  destination: STRUCTURE_TERMINAL,
+  action: get,
+  resource: 'second',
+}, {
+  name: 'lab 1',
+  destination: STRUCTURE_LAB,
+  lab: 1,
+  action: transfer,
+  resource: 'first',
+}, {
+  name: 'lab 2',
+  destination: STRUCTURE_LAB,
+  lab: 2,
+  action: transfer,
+  resource: 'second',
+}, {
+  name: 'storage energy',
+  destination: STRUCTURE_TERMINAL,
+  action: get,
+  resource: 'energy',
+}, {
+  name: 'lab 1',
+  destination: STRUCTURE_LAB,
+  lab: 1,
+  action: transfer,
+  resource: 'energy',
+}, {
+  name: 'lab 2',
+  destination: STRUCTURE_LAB,
+  lab: 2,
+  action: transfer,
+  resource: 'energy',
+}, {
+  name: 'lab result1',
+  destination: STRUCTURE_LAB,
+  lab: 0,
+  action: get,
+  resource: 'result',
+}];
+
 const execute = function(creep) {
   if (!creep.room.terminal) {
     creep.suicide();
@@ -438,61 +490,10 @@ const execute = function(creep) {
   }
 
   state.action(creep, target, resource);
+  creep.room.memory.cleanup = 0;
 
   return true;
 };
-
-const states = [{
-  name: 'storage result',
-  destination: STRUCTURE_TERMINAL,
-  action: transfer,
-  resource: 'result',
-}, {
-  name: 'terminal 0',
-  destination: STRUCTURE_TERMINAL,
-  action: get,
-  resource: 'first',
-}, {
-  name: 'terminal 1',
-  destination: STRUCTURE_TERMINAL,
-  action: get,
-  resource: 'second',
-}, {
-  name: 'lab 1',
-  destination: STRUCTURE_LAB,
-  lab: 1,
-  action: transfer,
-  resource: 'first',
-}, {
-  name: 'lab 2',
-  destination: STRUCTURE_LAB,
-  lab: 2,
-  action: transfer,
-  resource: 'second',
-}, {
-  name: 'storage energy',
-  destination: STRUCTURE_TERMINAL,
-  action: get,
-  resource: 'energy',
-}, {
-  name: 'lab 1',
-  destination: STRUCTURE_LAB,
-  lab: 1,
-  action: transfer,
-  resource: 'energy',
-}, {
-  name: 'lab 2',
-  destination: STRUCTURE_LAB,
-  lab: 2,
-  action: transfer,
-  resource: 'energy',
-}, {
-  name: 'lab result1',
-  destination: STRUCTURE_LAB,
-  lab: 0,
-  action: get,
-  resource: 'result',
-}];
 
 /*
  * Check resources in the terminal

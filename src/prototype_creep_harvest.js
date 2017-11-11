@@ -75,26 +75,36 @@ Creep.prototype.spawnCarry = function() {
     resourceAtPosition += _.sum(container.store);
   }
   // todo-msc: changed for lower room level (2) added (* 10)
-  const sendNext = () => {
+  /* eslint-disable */
+  const levelToSoToSendNext = function() {
+    let returnValue = 0;
     switch (baseRoom.controller.level) {
       case 0:
       case 1:
       case 2:
       case 3:
-        return parts.carryParts.carry * CARRY_CAPACITY * 10;
+        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 10;
+        break;
       case 4:
-        return parts.carryParts.carry * CARRY_CAPACITY * 5;
+        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 5;
+        break;
       case 5:
-        return parts.carryParts.carry * CARRY_CAPACITY * 4;
+        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 4;
+        break;
       case 6:
-        return parts.carryParts.carry * CARRY_CAPACITY * 3;
+        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 3;
+        break;
       case 7:
-        return parts.carryParts.carry * CARRY_CAPACITY * 3;
+        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 3;
+        break;
       case 8:
-        return parts.carryParts.carry * CARRY_CAPACITY;
+        returnValue = parts.carryParts.carry * CARRY_CAPACITY;
+        break;
     }
+    return returnValue;
   };
-  const levelToSendNext = sendNext();
+  /* eslint-enable */
+  const levelToSendNext = levelToSoToSendNext();
 
   if (resourceAtPosition > levelToSendNext) {
     // const returnValue =

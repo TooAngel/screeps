@@ -9,7 +9,29 @@ require('prototype_room_costmatrix');
 require('visualizer');
 require('screepsplus');
 
-console.log(Game.time, 'no cache', 'L: ' + _.round(Game.cpu.getUsed()), 'B: ' + Game.cpu.bucket);
+global.tickLimit = global.tester();
+global.load = _.round(Game.cpu.getUsed());
+Memory.cpuStats = {
+  start: {
+    load: global.load,
+    time: Game.time,
+    bucket: Game.cpu.bucket,
+    tickLimit: global.tickLimit,
+  },
+  last: {
+    load: global.load,
+    time: Game.time,
+    bucket: Game.cpu.bucket,
+    tickLimit: global.tickLimit,
+  },
+  summary: {
+    maxBucket: Game.cpu.bucket,
+    maxLoad: global.load,
+    minBucket: Game.cpu.bucket,
+    runTime: 0,
+  },
+};
+console.log(Game.time, 'no cache', 'L: ' + global.load, 'B: ' + Game.cpu.bucket);
 
 brain.stats.init();
 
@@ -28,8 +50,15 @@ if (config.profiler.enabled) {
   }
 }
 
+const roomFilter = (r) => {
+  global.tickLimit = global.tester();
+  if (Game.cpu.getUsed() < global.tickLimit) {
+    r.execute();
+  }
+  return Memory.myRooms.indexOf(r.name) !== -1;
+};
+
 const main = function() {
-  Memory.time = Game.time;
   if (Game.time % 200 === 0) {
     console.log(Game.time, 'TooAngel AI - All good');
   }
@@ -38,7 +67,7 @@ const main = function() {
       'L:', _.round(Game.cpu.getUsed()), 'B:', Game.cpu.bucket);
     return;
   }
-
+  Memory.time = Game.time;
   try {
     brain.prepareMemory();
     brain.handleNextroom();
@@ -50,7 +79,12 @@ const main = function() {
   }
 
   brain.stats.addRoot();
-  Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
+  if (Game.time % 10 === 0) {
+    Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
+  } else {
+    Memory.myRooms = _(Game.rooms).filter(roomFilter).map((r) => r.name).value();
+  }
+
   if (config.profiler.enabled && config.visualizer.enabled) {
     profiler.registerObject(visualizer, 'Visualizer');
   }
@@ -82,4 +116,16 @@ module.exports.loop = function() {
   } else {
     main();
   }
+  Memory.cpuStats.last = {
+    load: _.round(Game.cpu.getUsed()),
+    time: Game.time,
+    bucket: Game.cpu.bucket,
+    tickLimit: global.tester(),
+  };
+  Memory.cpuStats.summary = {
+    maxBucket: Math.max(Memory.cpuStats.summary.maxBucket, Memory.cpuStats.last.bucket),
+    maxLoad: Math.max(Memory.cpuStats.summary.maxLoad, Memory.cpuStats.last.load),
+    minBucket: Math.min(Memory.cpuStats.summary.minBucket, Memory.cpuStats.last.bucket),
+    runTime: Memory.cpuStats.last.time - Memory.cpuStats.start.time,
+  };
 };
