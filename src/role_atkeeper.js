@@ -10,9 +10,9 @@
 roles.atkeeper = {};
 
 roles.atkeeper.settings = {
-  layoutString: 'TMH',
-  sufixString: 'M',
-  amount: [3, 10, 7],
+  layoutString: 'MH',
+  sufixString: 'MH',
+  amount: [12, 12],
   fillTough: false,
   maxLayoutAmount: 2,
 };

@@ -9,8 +9,8 @@
 
 roles.atkeepermelee = {};
 roles.atkeepermelee.settings = {
-  layoutString: 'TAMH',
-  amount: [10, 10, 21, 1],
+  layoutString: 'AMH',
+  amount: [22, 25, 3],
   fillTough: false,
   maxLayoutAmount: 1,
 };
