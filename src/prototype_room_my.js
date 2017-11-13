@@ -211,7 +211,7 @@ Room.prototype.handleScout = function() {
 Room.prototype.checkNeedHelp = function() {
   let needHelp = this.memory.energyStats.average < config.carryHelpers.needTreshold; // && !this.hostile;
   if (!needHelp) {
-    needHelp = (this.storage) ? (this.storage.store.energy < (config.carryHelpers.helpTreshold * 2) || (this.storage.store.energy < 20000)) : false;
+    needHelp = (this.storage) ? ((this.memory.energyStats.average < this.storage.store.energy) && (this.storage.store.energy < 20000)) : false;
   }
   const oldNeedHelp = this.memory.needHelp;
   if (needHelp) {
@@ -262,7 +262,8 @@ Room.prototype.checkCanHelp = function() {
     return returnValue;
   }
   const thisRoomCanHelp = this.memory.energyStats.average > config.carryHelpers.helpTreshold;
-  const canHelp = thisRoomCanHelp && nearestRoomObj && !nearestRoomObj.terminal;
+  const canHelp = thisRoomCanHelp && nearestRoomObj && (!nearestRoomObj.terminal || nearestRoomObj.terminal.store.energy < config.carryHelpers.helpTreshold * 2);
+  // this.log(thisRoomCanHelp, nearestRoomObj.name, !nearestRoomObj.terminal, nearestRoomObj.terminal.store.energy, config.carryHelpers.helpTreshold * 2);
   // if (!canHelp) {
   //   const nearestRoomObjNeedsEnergy = (nearestRoomObj.memory.energyStats.average < config.carryHelpers.helpTreshold) || (nearestRoomObj.storage.store.energy < 20000);
   //   canHelp = thisRoomCanHelp && nearestRoomObj && nearestRoomObjNeedsEnergy;
