@@ -297,8 +297,7 @@ Room.prototype.getPartConfig = function(creep) {
     amount,
     maxLayoutAmount,
     sufixString,
-    fillTough,
-    } = settings;
+    fillTough} = settings;
   let layoutString = settings.layoutString;
   let maxBodyLength = MAX_CREEP_SIZE;
   if (prefixString) {
@@ -328,7 +327,7 @@ Room.prototype.getPartConfig = function(creep) {
     maxRepeat = Math.min(maxLayoutAmount, maxRepeat);
   }
   if (maxRepeat > 0) {
-    parts = parts.concat(_.flatten(Array(maxRepeat).fill(layout.parts)));
+    parts = parts.concat(_.flatten(_.fill(new Array(maxRepeat), layout.parts)));
   }
   energyAvailable -= layout.cost * maxRepeat;
 
@@ -342,7 +341,7 @@ Room.prototype.getPartConfig = function(creep) {
     const tough = this.getPartsStringDatas('T', energyAvailable);
     if (!tough.fail && !tough.null) {
       const maxTough = Math.floor(Math.min(energyAvailable / tough.cost, MAX_CREEP_SIZE - parts.length, parts.filter((p) => p === MOVE).length));
-      parts = _.flatten(Array(maxTough).fill(tough.parts)).concat(parts);
+      parts = _.flatten(_.fill(new Array(maxTough), tough.parts)).concat(parts);
     }
   }
 
