@@ -174,7 +174,10 @@ roles.storagefiller.action = function(creep) {
     }
   }
 
-  if (creep.room.terminal && creep.pos.getRangeTo(creep.room.terminal.pos) > 1) {
+  if (creep.room.terminal && (
+    (creep.room.storage.store.energy < creep.room.terminal.store.energy) ||
+    (creep.pos.getRangeTo(creep.room.terminal.pos) > 1))
+  ) {
     if (creep.room.storage) {
       for (const resourceType of Object.keys(creep.room[STRUCTURE_STORAGE].store).reverse()) {
         const structureToMove = roles.storagefiller.checkResourceStore(creep, resourceType, true);
