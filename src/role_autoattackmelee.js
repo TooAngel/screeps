@@ -46,7 +46,7 @@ roles.autoattackmelee.action = function(creep) {
   if (spawn === null) {
     const hostileCreep = creep.findClosestEnemy();
     if (hostileCreep === null) {
-      const structures = creep.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER], true);
+      const structures = creep.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER], {inverse: true});
 
       if (structures === null) {
         const constructionSites = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);

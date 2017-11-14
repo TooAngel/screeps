@@ -14,7 +14,7 @@ Creep.prototype.harvesterBeforeStorage = function() {
   }
 
   methods.push(Creep.transferEnergy);
-  const structures = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_CONTROLLER], true);
+  const structures = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_CONTROLLER], {inverse: true});
   if (structures.length > 0) {
     methods.push(Creep.constructTask);
   }
@@ -260,7 +260,7 @@ Creep.prototype.buildContainer = function() {
 };
 
 Creep.prototype.pickupEnergy = function() {
-  const resources = this.room.findPropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], false, {
+  const resources = this.room.findPropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], {
     filter: Creep.pickableResources(this),
   });
   if (resources.length > 0) {
@@ -440,7 +440,7 @@ Creep.prototype.transferToStructures = function() {
 };
 
 Creep.prototype.getEnergyFromSourcer = function() {
-  const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer'], false, {
+  const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer'], {
     filter: (creep) => creep.carry.energy > 0,
   });
   if (sourcers.length > 0) {
@@ -539,7 +539,7 @@ Creep.prototype.setHasEnergy = function() {
 };
 
 Creep.prototype.getDroppedEnergy = function() {
-  const target = this.pos.findClosestByRangePropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], false, {
+  const target = this.pos.findClosestByRangePropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], {
     filter: (object) => object.amount > 0,
   });
   if (target === null) {
@@ -600,7 +600,7 @@ Creep.prototype.buildConstructionSite = function(target) {
 Creep.prototype.construct = function() {
   let target;
   if (this.memory.role === 'nextroomer') {
-    target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART], true);
+    target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART], {inverse: true});
   } else {
     target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
   }
@@ -619,7 +619,7 @@ Creep.prototype.construct = function() {
 };
 
 Creep.prototype.getTransferTargetStructure = function() {
-  const structure = this.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER], false, {
+  const structure = this.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER], {
     filter: (structure) => structure.energy < structure.energyCapacity,
   });
   if (structure === null) {
@@ -684,7 +684,7 @@ const callStructurer = function(creep) {
   if (structurers.length > 0) {
     return false;
   }
-  const resourceStructures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], true);
+  const resourceStructures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], {inverse: true});
   if (resourceStructures.length > 0 && !creep.room.controller.my) {
     creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resourceStructures[0].structureType);
     Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, creep.room.name);

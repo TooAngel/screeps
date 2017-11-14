@@ -417,7 +417,7 @@ Room.prototype.checkAndSpawnSourcer = function() {
   let source;
   const isSourcer = (object) => object.memory.routing.targetId === source.id && object.memory.routing.targetRoom === source.pos.roomName;
   for (source of sources) {
-    const sourcers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer'], false, {
+    const sourcers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer'], {
       filter: isSourcer,
     });
     if (sourcers.length === 0) {

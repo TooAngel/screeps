@@ -70,7 +70,8 @@ roles.atkeeper.action = function(creep) {
     }
 
     if (!target || target === null) {
-      const myCreep = creep.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeeper'], true, {
+      const myCreep = creep.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeeper'], {
+        inverse: true,
         filter: (creep) => creep.hits < creep.hitsMax,
       });
       if (myCreep !== null) {

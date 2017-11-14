@@ -57,7 +57,7 @@ roles.structurer.preMove = function(creep, directions) {
 
 roles.structurer.action = function(creep) {
   if (!creep.room.controller || !creep.room.controller.my) {
-    const structure = creep.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD], true, {
+    const structure = creep.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD], {
       filter: (object) => object.ticksToDecay !== null,
     });
     creep.dismantle(structure);

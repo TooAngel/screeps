@@ -167,7 +167,7 @@ Room.prototype.checkWrongStructure = function() {
   //  this.log('checkWrongStructure: controller.level < 6');
   //  return false;
   // }
-  const structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_CONTROLLER], true);
+  const structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_CONTROLLER], {inverse: true});
   for (const structure of structures) {
     if (this.destroyStructure(structure)) {
       return true;
@@ -283,7 +283,7 @@ Room.prototype.buildStructures = function() {
     return false;
   }
 
-  const constructionSites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_ROAD], true);
+  const constructionSites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_ROAD], {inverse: true});
   if (constructionSites.length > 0) {
     //    this.log('basebuilder.setup: Too many construction sites');
     return true;

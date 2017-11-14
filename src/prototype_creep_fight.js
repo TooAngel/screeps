@@ -136,7 +136,7 @@ Creep.prototype.handleDefender = function() {
 };
 
 Creep.prototype.findClosestRampart = function() {
-  return this.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], false, {
+  return this.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], {
     filter: (rampart) => this.pos.getRangeTo(rampart) > 0 && !rampart.pos.checkForObstacleStructure(),
   });
 };

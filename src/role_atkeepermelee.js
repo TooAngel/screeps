@@ -35,7 +35,7 @@ roles.atkeepermelee.action = function(creep) {
     const range = creep.pos.getRangeTo(target);
     if (range > 1) {
       if (range > 7) {
-        const sourcers = creep.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 3, 'memory.role', ['sourcer'], false, {
+        const sourcers = creep.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 3, 'memory.role', ['sourcer'], {
           filter: (target) => target.hits < target.hitsMax,
         });
 

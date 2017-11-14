@@ -117,7 +117,8 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
   if (this.carry.energy) {
     return false;
   }
-  let hostileStructures = this.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_OBSERVER], true, {
+  let hostileStructures = this.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_OBSERVER], {
+    inverse: true,
     filter: Room.structureHasEnergy,
   });
   if (!hostileStructures.length) {
@@ -222,7 +223,7 @@ Creep.prototype.repairStructure = function() {
   }
 
   // Repair low ramparts
-  const lowRamparts = this.pos.findInRangePropertyFilter(FIND_STRUCTURES, 4, 'structureType', [STRUCTURE_RAMPART], false, {
+  const lowRamparts = this.pos.findInRangePropertyFilter(FIND_STRUCTURES, 4, 'structureType', [STRUCTURE_RAMPART], {
     filter: (rampart) => rampart.hits < 10000,
   });
 
@@ -247,7 +248,7 @@ Creep.prototype.repairStructure = function() {
     if (range <= 3) {
       this.build(target);
       this.memory.step = 0;
-      const targetNew = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], false, {
+      const targetNew = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], {
         filter: (object) => object.id !== target.id,
       });
       if (targetNew !== null) {
@@ -271,7 +272,7 @@ Creep.prototype.repairStructure = function() {
   }
 
   const creep = this;
-  const structure = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], false, {
+  const structure = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], {
     // Newbie zone walls have no hits
     filter: (object) => object.hits && object.hits < Math.min(creep.memory.step, object.hitsMax),
   });

@@ -51,7 +51,7 @@ Room.prototype.handleNukeAttack = function() {
   };
 
   for (const nuke of nukes) {
-    const structures = nuke.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 4, 'structureType', [STRUCTURE_ROAD, STRUCTURE_RAMPART, STRUCTURE_WALL], true);
+    const structures = nuke.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 4, 'structureType', [STRUCTURE_ROAD, STRUCTURE_RAMPART, STRUCTURE_WALL], {inverse: true});
     this.log('Nuke attack !!!!!');
     for (const structure of structures) {
       const lookConstructionSites = structure.pos.lookFor(LOOK_CONSTRUCTION_SITES);
@@ -137,14 +137,16 @@ Room.prototype.handleTower = function() {
       }
     }
 
-    const lowRampart = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], false, {
+    const lowRampart = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], {
       filter: (rampart) => rampart.hits < 10000,
     });
 
     let repair = lowRampart;
     if (lowRampart === null) {
-      repair = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType',
-        [STRUCTURE_WALL, STRUCTURE_RAMPART], true, {filter: repairableStructures});
+      repair = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_WALL, STRUCTURE_RAMPART], {
+        inverse: true,
+        filter: repairableStructures,
+      });
       tower.repair(repair);
     }
   }
