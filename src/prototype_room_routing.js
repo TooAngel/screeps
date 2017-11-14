@@ -49,7 +49,7 @@ Room.prototype.getCreepPositionForId = function(to) {
 };
 
 Room.prototype.findRoute = function(from, to) {
-  const routeCallback = function(roomName, fromRoomName) {
+  const routeCallback = function(roomName) {
     if (roomName === to) {
       return 1;
     }

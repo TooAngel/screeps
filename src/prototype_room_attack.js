@@ -10,32 +10,9 @@
  * @example room.attack42('E5S3')
  *
  * @param {string} roomName - Should be your targetRoomName.
- * @param {Array} [spawn] - YourCustomSpawn Array of {creeps: creepsToAdd, role: 'rolesToAdd'}.
  *
  */
-Room.prototype.attack42 = function(roomName, spawn) {
-  spawn = spawn || [{
-    creep: 1,
-    role: 'autoattackmelee',
-  }, {
-    creep: 1,
-    role: 'defender',
-  }, {
-    creep: 1,
-    role: 'squadheal',
-  },
-  {
-    creep: 2,
-    role: 'autoattackmelee',
-  }, {
-    creep: 2,
-    role: 'defender',
-  }, {
-    creep: 2,
-    role: 'squadheal',
-  },
-  ];
-
+Room.prototype.attack42 = function(roomName) {
   const closestSpawn = this.closestSpawn(roomName);
   if (closestSpawn && closestSpawn.id) {
     brain.startMeleeSquad(closestSpawn.room, roomName);

@@ -14,10 +14,7 @@ roles.nextroomerattack.settings = {
   fillTough: true,
 };
 
-roles.nextroomerattack.died = function(name, memory) {
-  console.log('--->', name, 'Died naturally?');
-  delete Memory.creeps[name];
-};
+roles.nextroomerattack.died = true;
 
 roles.nextroomerattack.action = function(creep) {
   if (!creep.memory.notified) {

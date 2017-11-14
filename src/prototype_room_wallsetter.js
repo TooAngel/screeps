@@ -43,9 +43,8 @@ Room.prototype.checkExitsAreReachable = function() {
 
   const exits = this.find(FIND_EXIT);
   const room = this;
-  const callbackNew = function(roomName) {
-    const costMatrix = room.getMemoryCostMatrix();
-    return costMatrix;
+  const callbackNew = function() {
+    return room.getMemoryCostMatrix();
   };
   for (const exit of exits) {
     const targets = [{

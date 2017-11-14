@@ -161,6 +161,9 @@ Creep.prototype.getEnergyFromStorage = function() {
 };
 
 Creep.prototype.repairStructure = function() {
+  let structure = null;
+  let structures = null;
+
   if (this.memory.target) {
     const toRepair = Game.getObjectById(this.memory.target);
     if (!toRepair || toRepair === null) {
@@ -202,8 +205,8 @@ Creep.prototype.repairStructure = function() {
       for (const spawn of spawns) {
         let found = false;
         let rampart;
-        const structures = spawn.pos.lookFor(LOOK_STRUCTURES);
-        for (const structure of structures) {
+        structures = spawn.pos.lookFor(LOOK_STRUCTURES);
+        for (structure of structures) {
           if (structure.structureType === STRUCTURE_RAMPART) {
             if (structure.hits < 1100000) {
               found = true;
@@ -271,7 +274,7 @@ Creep.prototype.repairStructure = function() {
   }
 
   const creep = this;
-  const structure = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], false, {
+  structure = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], false, {
     // Newbie zone walls have no hits
     filter: (object) => object.hits && object.hits < Math.min(creep.memory.step, object.hitsMax),
   });

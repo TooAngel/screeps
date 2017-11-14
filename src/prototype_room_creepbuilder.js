@@ -203,7 +203,7 @@ Room.prototype.getSettings = function(creep) {
     return;
   }
   const param = settings.param;
-  return _.mapValues(settings, (setting, settingName) => {
+  return _.mapValues(settings, (setting) => {
     // Not sure when this happens
     if (!setting || setting === null) {
       return setting;
