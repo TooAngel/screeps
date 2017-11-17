@@ -35,11 +35,11 @@ roles.atkeeper.action = function(creep) {
   };
 
   const healAndMove = function(creep) {
-    let creepsToHeal = creep.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeeper', 'atkeepermelee'], false, {
+    let creepsToHeal = creep.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeeper', 'atkeepermelee'], {
       filter: (o) => o.hits < o.hitsMax,
     });
     creepsToHeal = _.sortBy(creepsToHeal, (c)=> c.isDamaged());
-    let creepsNearToHeal = creep.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 3, 'memory.role', ['atkeeper', 'atkeepermelee'], false, {
+    let creepsNearToHeal = creep.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 3, 'memory.role', ['atkeeper', 'atkeepermelee'], {
       filter: (o) => o.hits < o.hitsMax,
     });
     creepsNearToHeal = _.sortBy(creepsNearToHeal, (c)=> c.isDamaged());

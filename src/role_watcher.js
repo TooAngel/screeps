@@ -41,7 +41,7 @@ roles.watcher.action = function(creep) {
   const near = 4;
   if (creep.pos.isNearTo(pos)) {
     creep.moveRandomWithin(pos);
-    let creepOfRole = creep.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['watcher'], false, {
+    let creepOfRole = creep.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['watcher'], {
       filter: (o) => o.memory.routing.targetRoom === creep.memory.routing.targetRoom,
     });
     if (creepOfRole.length > 1) {
