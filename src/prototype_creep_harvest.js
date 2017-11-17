@@ -114,8 +114,10 @@ Creep.prototype.spawnCarry = function() {
     //  baseRoom.log('checkRoleToSpawn', 'carry', resourceAtPosition, levelToSendNext, returnValue, this.memory.routing.targetRoom, this.memory.routing.targetId);
     // }
   }
-  if (resourceAtPosition <= HARVEST_POWER * parts.sourcerWork) {
-    const nearCarries = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 2, 'memory.role', ['carry'], false, {
+  if (resourceAtPosition > parts.carryParts.carry * CARRY_CAPACITY) {
+    Game.rooms[this.memory.base].checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
+  } else if (resourceAtPosition <= HARVEST_POWER * parts.sourcerWork) {
+    const nearCarries = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 2, 'memory.role', ['carry'], {
       filter: (creep) => creep.memory.routing.targetId === this.memory.routing.targetId,
     });
     if (nearCarries.length > 1) {

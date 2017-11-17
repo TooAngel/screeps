@@ -226,28 +226,13 @@ RoomPosition.wrapFindMethod = (methodName, extraParamsCount) => function(findTar
   if (_.isNumber(findTarget)) {
     const objects = this.getRoom().findPropertyFilter(findTarget, ...propertyFilterParams);
     return this[methodName](objects, ...extraParams);
-  } else {
-    return this[methodName](findTarget, ...extraParams, Room.getPropertyFilterOptsObj(...propertyFilterParams));
   }
   /* eslint-enable no-invalid-this */
 };
 
 /**
- * Restore RoomPosition object after JSON serialisation.
  *
- * @param {object} json JSON object
- * @param {number} json.x X coordinate
- * @param {number} json.y Y coordinate
- * @param {string} json.roomName Name of the room
- * @return {RoomPosition} RoomPosition object
- */
-RoomPosition.fromJSON = function(json) {
-  return new RoomPosition(json.x, json.y, json.roomName);
-};
-
-/**
- *
- * @param {Number|RoomObject[]}  findTarget One of the FIND constant. e.g. [FIND_MY_STRUCTURES] or array of RoomObject to apply filters
+ * @param {Number}  findTarget One of the FIND constant. e.g. [FIND_MY_STRUCTURES] or array of RoomObject to apply filters
  * @param range
  * @param {String}  property The property to filter on. e.g. 'structureType' or 'memory.role'
  * @param {Array}  properties The properties to filter. e.g. [STRUCTURE_ROAD, STRUCTURE_RAMPART]
@@ -260,7 +245,7 @@ RoomPosition.prototype.findInRangePropertyFilter = RoomPosition.wrapFindMethod('
 
 /**
  *
- * @param {Number|RoomObject[]}  findTarget One of the FIND constant. e.g. [FIND_MY_STRUCTURES] or array of RoomObject to apply filters
+ * @param {Number}  findTarget One of the FIND constant. e.g. [FIND_MY_STRUCTURES] or array of RoomObject to apply filters
  * @param {String}  property The property to filter on. e.g. 'structureType' or 'memory.role'
  * @param {Array}  properties The properties to filter. e.g. [STRUCTURE_ROAD, STRUCTURE_RAMPART]
  * @param {Boolean} [without=false] Exclude or include the properties to find.
@@ -281,6 +266,19 @@ RoomPosition.prototype.findClosestByRangePropertyFilter = RoomPosition.wrapFindM
  * @return {Array} the objects returned in an array.
  */
 RoomPosition.prototype.findClosestByPathPropertyFilter = RoomPosition.wrapFindMethod('findClosestByPath', 0);
+
+/**
+ * Restore RoomPosition object after JSON serialisation.
+ *
+ * @param {object} json JSON object
+ * @param {number} json.x X coordinate
+ * @param {number} json.y Y coordinate
+ * @param {string} json.roomName Name of the room
+ * @return {RoomPosition} RoomPosition object
+ */
+RoomPosition.fromJSON = function(json) {
+  return new RoomPosition(json.x, json.y, json.roomName);
+};
 
 /**
  * Given a direction-like number, wrap it to fit in 1-8

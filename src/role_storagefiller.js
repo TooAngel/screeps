@@ -105,7 +105,7 @@ roles.storagefiller.action = function(creep) {
     }
   }
 
-  const towers = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER], false, {
+  const towers = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER], {
     filter: (tower) => tower.energy <= 0.5 * tower.energyCapacity,
   });
 

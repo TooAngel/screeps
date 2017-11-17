@@ -241,7 +241,7 @@ Creep.prototype.buildRoad = function() {
 
   const creep = this;
 
-  let constructionSites = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD], false, {
+  let constructionSites = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD], {
     filter: (cs) => creep.pos.getRangeTo(cs.pos) < 4,
   });
 

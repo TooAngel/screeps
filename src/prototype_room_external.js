@@ -172,7 +172,7 @@ Room.prototype.handleOccupiedRoom = function() {
 
     // TODO trigger everytime?
     if (!this.controller.safeMode) {
-      const myCreeps = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['scout'], true);
+      const myCreeps = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['scout'], {inverse: true});
       if (myCreeps.length > 0) {
         return false;
       }

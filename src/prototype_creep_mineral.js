@@ -154,7 +154,7 @@ function cleanUpLabs(creep) {
       break;
     }
   } else {
-    const lab = creep.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, {
+    const lab = creep.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], {
       filter: (lab) => lab.mineralAmount > 0,
     });
     if (lab === null) {
@@ -228,7 +228,7 @@ function checkBoostAction(creep) {
   const labEmpty = (object) => !object.mineralType || object.mineralType === null;
 
   for (mineral of Object.keys(room.memory.boosting)) {
-    let labs = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, {
+    let labs = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], {
       filter: labForMineral,
     });
     if (labs.length > 0) {
@@ -241,7 +241,7 @@ function checkBoostAction(creep) {
       return true;
     }
 
-    labs = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, {
+    labs = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], {
       filter: labEmpty,
     });
     if (labs.length > 0) {
@@ -560,7 +560,7 @@ Creep.prototype.boost = function() {
       for (const action of Object.keys(BOOSTS[part][boost])) {
         this.log('boost: ' + part + ' ' + boost + ' ' + action);
         if (unit.boostActions.indexOf(action) > -1) {
-          const labs = this.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], false, {
+          const labs = this.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], {
             filter: findLabs,
           });
           if (this.room.terminal.store[boost] || labs.length > 0) {

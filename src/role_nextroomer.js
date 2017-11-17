@@ -205,7 +205,7 @@ roles.nextroomer.settle = function(creep) {
   }
 
   if (creep.carry.energy > 0) {
-    const towers = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER], false, {
+    const towers = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER], {
       filter: (object) => object.energy < 10,
     });
     if (towers.length) {
@@ -233,7 +233,7 @@ roles.nextroomer.settle = function(creep) {
     methods.push(Creep.constructTask);
   }
 
-  const structures = creep.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_CONTROLLER], true);
+  const structures = creep.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_CONTROLLER], {inverse: true});
   if (creep.room.controller.level >= 3 && structures.length > 0) {
     methods.push(Creep.constructTask);
   }
