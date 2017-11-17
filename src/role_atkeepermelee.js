@@ -19,6 +19,9 @@ roles.atkeepermelee.preMove = function(creep, direction) {
   if (creep.room.name === creep.memory.routing.targetRoom) {
     creep.memory.routing.reached = true;
   }
+  if (creep.memory.canHeal && creep.isDamaged() < 1) {
+    creep.heal(creep);
+  }
 };
 
 roles.atkeepermelee.action = function(creep) {
@@ -42,7 +45,7 @@ roles.atkeepermelee.action = function(creep) {
     // todo-msc cache target
     const lastTarget = Game.getObjectById(creep.room.memory.lastTarget);
     let target = (lastTarget && lastTarget.hits && lastTarget.hitsMax) ? lastTarget : creep.findClosestSourceKeeper();
-    if (lastTarget && !(lastTarget.hits && lastTarget.hitsMax)) {
+    if (lastTarget && !(lastTarget.hits && lastTarget.hitsMax) && lastTarget.structureType !== 'keeperLair') {
       creep.log(JSON.stringify(lastTarget));
     }
     if (target === null) {

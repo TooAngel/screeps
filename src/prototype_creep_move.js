@@ -58,6 +58,9 @@ Creep.prototype.moveCreep = function(position, direction) {
   const creeps = pos.lookFor('creep');
   if (creeps.length > 0 && creeps[0].memory) {
     const role = this.memory.role;
+    if (creeps[0] && !creeps[0].memory.routing) {
+      creeps[0].memory.routing = {};
+    }
     if ((role === 'sourcer' || role === 'reserver') && creeps[0].memory.role !== 'harvester' && !creeps[0].memory.routing.reverse) {
       creeps[0].move(direction);
       creeps[0].memory.forced = true;

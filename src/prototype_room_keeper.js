@@ -56,6 +56,9 @@ Room.prototype.spawnKeepers = function() {
     if ((baseRoom.memory.queue.length < queueMaxLength) && (room.name === 'W4S6')) {
       return _.map(keeper.roles, (role) => {
         // const returnValue = false;
+        if (keeper.type === 'mineral') {
+          role.role = 'extractor';
+        }
         const returnValue = (role.size < amount) ? baseRoom.checkRoleToSpawn(role.role, amount, keeper.posId, room.name, undefined, room.memory.base) : false;
         // room.log('checkRoleToSpawn', returnValue, role.role, amount, keeper.posId, room.name, null, room.memory.base);
         return {
@@ -91,7 +94,7 @@ Room.prototype.updateClosestSpawn = function() {
 
 Room.prototype.spawnKeepersEveryTicks = function(ticks) {
   let returnValue = false;
-  if (Game.rooms[this.memory.base].controller.level > 6) {
+  if (Game.rooms[this.memory.base].controller.level === 8) {
     this.checkForWatcher();
     if (this.exectueEveryTicks(ticks)) {
       this.updateKeepers();

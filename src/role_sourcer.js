@@ -72,6 +72,9 @@ roles.sourcer.preMove = function(creep, directions) {
       if (range < 6) {
         creep.memory.routing.reverse = true;
       }
+    } else {
+      // todo-msc if SourceKeeper is killed while reverse == true
+      creep.memory.routing.reverse = false;
     }
   }
 
