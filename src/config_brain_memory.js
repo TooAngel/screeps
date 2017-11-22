@@ -342,7 +342,11 @@ brain.getSegment = function(id) {
   brain.prepareSegmentMemory(id);
   Memory.segments[id].lastAccessedTick = Game.time;
   if (Memory.segments[id].lastModifiedTick > cache.segments[id].lastParsedTick) {
-    brain.checkSegmentActive(id);
+    try {
+      brain.checkSegmentActive(id);
+    } catch (e) {
+      console.log(e)
+    }
     cache.segments[id].lastParsedTick = Game.time;
     cache.segments[id].value = RawMemory.segments[id] ? JSON.parse(RawMemory.segments[id]) : {};
   }
