@@ -61,7 +61,7 @@ brain.isFriend = function(name) {
   if (name === 'Invader') {
     return false;
   }
-  if (friends.indexOf(name) > -1) {
+  if (friends.toString().indexOf(name) > -1) {
     return true;
   }
   if (!Memory.players[name]) {
