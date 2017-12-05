@@ -491,7 +491,7 @@ Room.prototype.setRoomInactive = function() {
   this.log('Setting room to underSiege');
   // this.memory.underSiege = true;
   let tokens;
-  try{
+  try {
     tokens = Game.market.getAllOrders({
       type: ORDER_SELL,
       resourceType: SUBSCRIPTION_TOKEN,
@@ -499,7 +499,7 @@ Room.prototype.setRoomInactive = function() {
   } catch (e) {
     this.log('No Subscription Tokens for sale adding value of 5,000,000.000');
     tokens = [{
-      price: 5000000.000,   // change this value to whatever you feel appropriate enough
+      price: 5000000.000, // change this value to whatever you feel appropriate enough
     }];
   }
   let addToIdiot = 3000000;
