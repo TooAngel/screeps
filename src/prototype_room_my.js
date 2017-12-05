@@ -496,13 +496,11 @@ Room.prototype.setRoomInactive = function() {
     resourceType: SUBSCRIPTION_TOKEN,
   });
   } catch (e) {
-    this.log(e)
-    this.log('No Subscription Tokens for sale adding value of 5,000,000.000')
+    this.log('No Subscription Tokens for sale adding value of 5,000,000.000');
     var tokens =  [{
     price : 5000000.000,
- }]
+ }];
   }
-
   let addToIdiot = 3000000;
   if (tokens.length > 0) {
     tokens = _.sortBy(tokens, (object) => {
