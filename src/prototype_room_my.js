@@ -490,10 +490,18 @@ Room.prototype.reviveMyNow = function() {
 Room.prototype.setRoomInactive = function() {
   this.log('Setting room to underSiege');
   // this.memory.underSiege = true;
-  let tokens = Game.market.getAllOrders({
-    type: ORDER_SELL,
-    resourceType: SUBSCRIPTION_TOKEN,
-  });
+  let tokens;
+  try{
+      tokens = Game.market.getAllOrders({
+      type: ORDER_SELL,
+      resourceType: SUBSCRIPTION_TOKEN,
+    });
+  } catch (e) {
+    this.log('No Subscription Tokens for sale adding value of 5,000,000.000');
+    tokens = [{
+      price: 5000000.000,
+    }];
+  }
   let addToIdiot = 3000000;
   if (tokens.length > 0) {
     tokens = _.sortBy(tokens, (object) => {
