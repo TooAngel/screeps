@@ -454,3 +454,17 @@ brain.saveMemorySegments = function() {
     }
   }
 };
+
+brain.cleanAllMemory = function() {
+  const keys = _.map(_.keys(Memory), (key) => {
+    if (key !== 'players') {
+      delete Memory[key];
+    }
+    return key;
+  });
+
+  const roomss = _.map(Game.rooms, (room) => {
+    return room.clearMemory();
+  });
+  console.log(Game.time, 'wiped memory for rooms ', roomss, ' and ', keys);
+};
