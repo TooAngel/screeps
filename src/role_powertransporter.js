@@ -70,7 +70,7 @@ roles.powertransporter.action = function(creep) {
     return true;
   };
 
-  getResource();
+  getResource(creep);
   return true;
 };
 
