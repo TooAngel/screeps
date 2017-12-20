@@ -1,3 +1,8 @@
+
+global.ex = (x, y) => (y) ? JSON.stringify(x) : JSON.stringify(x, null, 2); // courtesy of @warinternal Aug 2016
+global.sigmoid = (x) => 1 + Math.tanh((2 * x) - 1);
+global.limitTester = () => _.ceil(Game.cpu.limit * global.sigmoid(Game.cpu.bucket / 10000));
+
 /**
  * this should be a collection of useful functions,
  * they should be as general as they can be, so we can use them as often as possible

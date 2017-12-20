@@ -9,7 +9,7 @@ require('prototype_room_costmatrix');
 require('visualizer');
 require('screepsplus');
 
-global.tickLimit = global.tester();
+global.tickLimit = global.limitTester();
 global.load = _.round(Game.cpu.getUsed());
 Memory.cpuStats = {
   start: {
@@ -51,7 +51,7 @@ if (config.profiler.enabled) {
 }
 
 const roomFilter = (r) => {
-  global.tickLimit = global.tester();
+  global.tickLimit = global.limitTester();
   if (Game.cpu.getUsed() < global.tickLimit) {
     r.execute();
   } else {
@@ -84,9 +84,9 @@ const main = function() {
   brain.stats.addRoot();
   if (Game.time % 10 === 0) {
     Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
+    console.log(Game.time, 'global.tickLimit', global.tickLimit);
   } else {
     Memory.myRooms = _(Game.rooms).filter(roomFilter).map((r) => r.name).value();
-    // console.log(Game.time, 'global.tickLimit', global.tickLimit);
   }
 
   if (config.profiler.enabled && config.visualizer.enabled) {
@@ -129,7 +129,7 @@ module.exports.loop = function() {
     load: _.round(Game.cpu.getUsed()),
     time: Game.time,
     bucket: Game.cpu.bucket,
-    tickLimit: global.tester(),
+    tickLimit: global.limitTester(),
   };
   Memory.cpuStats.summary = {
     maxBucket: Math.max(Memory.cpuStats.summary.maxBucket, Memory.cpuStats.last.bucket),
