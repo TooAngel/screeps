@@ -315,7 +315,7 @@ brain.checkSegmentActive = function(id, noThrow = false) {
     if (noThrow) {
       return false;
     }
-    throw new brain.MemorySegmentError();
+    throw new brain.MemorySegmentError('#' + id);
   }
   return true;
 };

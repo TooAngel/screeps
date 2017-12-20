@@ -54,11 +54,14 @@ const roomFilter = (r) => {
   global.tickLimit = global.tester();
   if (Game.cpu.getUsed() < global.tickLimit) {
     r.execute();
+  } else {
+    Memory.skippedRooms.push(r.name);
   }
   return Memory.myRooms.indexOf(r.name) !== -1;
 };
 
 const main = function() {
+  Memory.skippedRooms = [];
   if (Game.time % 200 === 0) {
     console.log(Game.time, 'TooAngel AI - All good');
   }
@@ -83,6 +86,7 @@ const main = function() {
     Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
   } else {
     Memory.myRooms = _(Game.rooms).filter(roomFilter).map((r) => r.name).value();
+    // console.log(Game.time, 'global.tickLimit', global.tickLimit);
   }
 
   if (config.profiler.enabled && config.visualizer.enabled) {
@@ -102,6 +106,9 @@ const main = function() {
       console.log('Visualizer Render Exeception', e, e.stack);
     }
   }
+  if (Memory.skippedRooms.length > 0) {
+    console.log(Game.time, 'skippedRooms', Memory.skippedRooms);
+  }
 
   brain.stats.add(['cpu'], {
     used: Game.cpu.getUsed(),
@@ -109,12 +116,14 @@ const main = function() {
 };
 
 module.exports.loop = function() {
-  if (config.profiler.enabled) {
-    profiler.wrap(() => {
+  if (config.main.enabled) {
+    if (config.profiler.enabled) {
+      profiler.wrap(() => {
+        main();
+      });
+    } else {
       main();
-    });
-  } else {
-    main();
+    }
   }
   Memory.cpuStats.last = {
     load: _.round(Game.cpu.getUsed()),

@@ -140,6 +140,9 @@ function cleanUpLabs(creep) {
     creep.room.memory.cleanup = creep.room.memory.cleanup || 0;
     creep.room.memory.cleanup += 1;
   }
+  if (creep.memory.cleanup > 1100) {
+    creep.memory.recycle = true;
+  }
   if (_.sum(creep.carry) > 0) {
     creep.moveToMy(creep.room.terminal.pos);
 

@@ -197,7 +197,7 @@ Room.prototype.getPartsStringDatas = function(parts, energyAvailable) {
  * Room.prototype.getSettings use for return creep spawn settings
  * adapted to room configuration
  *
- * @param {Collection} creep queue's creep spawn basic datas
+ * @param {Object} creep queue's creep spawn basic datas
  * @return {object}
  */
 Room.prototype.getSettings = function(creep) {

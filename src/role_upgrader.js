@@ -39,7 +39,11 @@ roles.upgrader.updateSettings = function(room, creep) {
   let workParts = Math.floor((room.storage.store.energy + 1) / (CREEP_LIFE_TIME * config.room.upgraderStorageFactor));
   workParts = Math.min(workParts, 47);
   if (room.controller.level === 8) {
-    workParts = Math.min(workParts, 2);
+    if (room.storage && room.storage.store.energy > 900000) {
+      workParts = 47;
+    } else {
+      workParts = Math.min(workParts, 2);
+    }
   }
   const maxLayoutAmount = Math.max(0, workParts - 1);
   if (config.debug.upgrader) {

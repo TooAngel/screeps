@@ -333,7 +333,9 @@ Creep.prototype.moveByPathMy = function(route, routePos, start, target, action, 
     if (this.pos.isBorder()) {
       return true;
     }
-    this.log('no directions');
+    if (this.memory.role !== 'harvester') {
+      this.log('no directions');
+    }
     return false;
   }
   if (!directions.forwardDirection && !directions.backwardDirection) {

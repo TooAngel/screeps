@@ -64,14 +64,16 @@ Room.prototype.externalHandleRoom = function() {
     }
   }
 
-  // todo-msc !this.controller => Highway or Source Keeper
-  const sourceKeepers = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'owner.username', ['Source Keeper']);
-  if (!this.controller && (sourceKeepers.length > 0)) {
-    this.memory.lastSeen = Game.time;
-    this.handleSourceKeeperRoom();
-    return false;
+  if (config.keepers.enabled) {
+    // todo-msc !this.controller => Highway or Source Keeper
+    const sourceKeepers = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'owner.username', ['Source Keeper']);
+    if (!this.controller && (sourceKeepers.length > 0)) {
+      this.memory.lastSeen = Game.time;
+      this.memory.sourceKeeperRoom = true;
+      this.handleSourceKeeperRoom();
+      return false;
+    }
   }
-
   delete Memory.rooms[this.roomName];
   return false;
 };

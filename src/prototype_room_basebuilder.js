@@ -126,7 +126,8 @@ Room.prototype.checkPath = function() {
 
   const path = this.getMemoryPath('pathStart-harvester');
   if (!path) {
-    this.log('Skipping checkPath, routing not initialized');
+    this.log('Skipping checkPath, routing not initialized, try remove memory');
+    this.clearMemory();
     return false;
   }
   for (const pos of path) {

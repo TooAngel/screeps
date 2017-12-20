@@ -211,7 +211,7 @@ Room.prototype.handleScout = function() {
 Room.prototype.checkNeedHelp = function() {
   let needHelp = this.memory.energyStats.average < config.carryHelpers.needTreshold; // && !this.hostile;
   if (!needHelp) {
-    needHelp = (this.storage) ? ((this.memory.energyStats.average < this.storage.store.energy) && (this.storage.store.energy < 20000)) : false;
+    needHelp = (this.storage) ? (this.storage.store.energy < 25000) : false;
   }
   const oldNeedHelp = this.memory.needHelp;
   if (needHelp) {
@@ -249,20 +249,26 @@ Room.prototype.checkCanHelp = function() {
   }
   const nearestRoomObj = Game.rooms[nearestRoom];
   if (nearestRoom === this.name) {
-    returnValue = 'no can\'t help myself';
+    returnValue = `no can't help myself`;
   }
   if (!this.storage) {
-    returnValue = 'no can\'t help, no storage at' + this.name;
+    returnValue = `no can't help, no storage at ${this.name}}`;
   }
   if (!nearestRoomObj) {
     delete this.memory.nearestRoom;
-    returnValue = 'no can\'t help, no nearestRoomObj';
+    returnValue = `no can't help, no nearestRoomObj`;
   }
   if (returnValue !== 'no') {
+    // todo-msc added fast exit
     return returnValue;
   }
+
   const thisRoomCanHelp = this.memory.energyStats.average > config.carryHelpers.helpTreshold;
-  const canHelp = thisRoomCanHelp && nearestRoomObj && (!nearestRoomObj.terminal || nearestRoomObj.terminal.store.energy < config.carryHelpers.helpTreshold * 2);
+  const canHelp = thisRoomCanHelp && nearestRoomObj && (
+    !nearestRoomObj.terminal ||
+    nearestRoomObj.terminal.store.energy < config.carryHelpers.helpTreshold * 2 ||
+    (nearestRoomObj.storage.store.energy < this.storage.store.energy && this.storage.store.energy > 700000) // todo-msc dont get full fix
+  );
   // this.log(thisRoomCanHelp, nearestRoomObj.name, !nearestRoomObj.terminal, nearestRoomObj.terminal.store.energy, config.carryHelpers.helpTreshold * 2);
   // if (!canHelp) {
   //   const nearestRoomObjNeedsEnergy = (nearestRoomObj.memory.energyStats.average < config.carryHelpers.helpTreshold) || (nearestRoomObj.storage.store.energy < 20000);
@@ -271,10 +277,10 @@ Room.prototype.checkCanHelp = function() {
   if (canHelp) {
     const route = this.findRoute(nearestRoom, this.name);
     if (route === -2 || route.length === 0) {
-      returnValue = 'no route';
+      returnValue = `no route`;
     } else {
       this.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, this.storage.id, this.name, undefined, nearestRoom, {helper: true});
-      returnValue = '---!!! ' + this.name + ' send energy to: ' + nearestRoom + ' !!!---';
+      returnValue = `---!!! ${this.name} send energy to ${nearestRoom} !!!---`;
     }
   }
   return returnValue;

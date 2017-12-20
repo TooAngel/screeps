@@ -107,12 +107,13 @@ Creep.prototype.spawnCarry = function() {
   const levelToSendNext = levelToSoToSendNext();
 
   if (resourceAtPosition > levelToSendNext) {
-    // const returnValue =
-    baseRoom.checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
+    const returnValue = baseRoom.checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
     // todo-msc checkRoleToSpawn carry
-    // if (returnValue > 0 && config.debug.queue) {
-    //  baseRoom.log('checkRoleToSpawn', 'carry', resourceAtPosition, levelToSendNext, returnValue, this.memory.routing.targetRoom, this.memory.routing.targetId);
-    // }
+    if (returnValue !== OK && config.debug.queue) {
+      baseRoom.log('checkRoleToSpawn', 'carry', resourceAtPosition, levelToSendNext, returnValue, this.memory.routing.targetRoom, this.memory.routing.targetId);
+    }
+  } else if (config.debug.queue) {
+    baseRoom.log('checkRoleToSpawn', 'carry', resourceAtPosition, levelToSendNext, this.memory.routing.targetRoom, this.memory.routing.targetId);
   }
   if (resourceAtPosition > parts.carryParts.carry * CARRY_CAPACITY) {
     Game.rooms[this.memory.base].checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
@@ -126,6 +127,7 @@ Creep.prototype.spawnCarry = function() {
   }
   this.memory.wait = this.getCarrySpawnInterval(parts, resourceAtPosition) * 3;
   // todo-msc-end
+  return this.memory.wait;
 };
 
 /*

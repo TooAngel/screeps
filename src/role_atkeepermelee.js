@@ -39,6 +39,15 @@ roles.atkeepermelee.action = function(creep) {
     return creep.moveTo(center, {ignoreCreeps: false, reusePath: 2});
   };
 
+  if (creep.getActiveBodyparts(ATTACK) === 0) {
+    creep.memory.damaged = true;
+  }
+
+  const healMySelf = function(returnValue) {
+    if (returnValue !== OK && creep.memory.canHeal && creep.isDamaged() < 1) {
+      creep.heal(creep);
+    }
+  };
 
   const attack = function(creep) {
     creep.say('attack');
@@ -49,16 +58,25 @@ roles.atkeepermelee.action = function(creep) {
       creep.log(JSON.stringify(lastTarget));
     }
     if (target === null) {
-      target = creep.room.getNextSourceKeeperLair();
+      target = creep.findClosestEnemy() || creep.room.getNextSourceKeeperLair();
       creep.room.memory.lastTarget = target.id;
     }
     if (target) {
       creep.room.memory.lastTarget = target.id;
     }
-    if (creep.pos.getRangeTo(target.pos) > 1) {
+    const range = creep.pos.getRangeTo(target.pos);
+    if (range > 5) {
       creep.moveToMy(target.pos);
+    } else if (range > 2) {
+      creep.moveTo(target.pos, {ignoreCreeps: false, reusePath: 2});
+    } else {
+      creep.moveRandomWithin(target.pos, 1);
+      if (target.structureType === 'keeperLair') {
+        healMySelf(true);
+      }
     }
-    creep.attack(target);
+    const returnValue = creep.attack(target);
+    healMySelf(returnValue);
     return true;
   };
 

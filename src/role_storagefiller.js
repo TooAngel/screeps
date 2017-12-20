@@ -174,6 +174,19 @@ roles.storagefiller.action = function(creep) {
     }
   }
 
+  if (creep.room.terminal &&
+    (creep.room.storage.store.energy < 20000) &&
+    (creep.room.storage.store.energy < creep.room.terminal.store.energy)
+  ) {
+    if (creep.carry.energy === 0) {
+      creep.withdraw(creep.room[STRUCTURE_TERMINAL], RESOURCE_ENERGY);
+    } else {
+      creep.transfer(creep.room[STRUCTURE_STORAGE], RESOURCE_ENERGY);
+    }
+  }
+
+  // todo-msc if (creep.room.storage.store.energy < creep.room.terminal.store.energy) then
+  // todo-msc move energy from terminal to storage
   if (creep.room.terminal && (
     (creep.room.storage.store.energy < creep.room.terminal.store.energy) ||
     (creep.pos.getRangeTo(creep.room.terminal.pos) > 1))

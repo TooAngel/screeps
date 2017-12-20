@@ -42,6 +42,22 @@ roles.sourcer.killPrevious = true;
 // TODO should be true, but flee must be fixed before 2016-10-13
 roles.sourcer.flee = false;
 
+roles.sourcer.updateSettings = function(room, creep) {
+  if (!room.storage) {
+    return false;
+  }
+  const target = creep.routing && creep.routing.targetRoom;
+  if ((target !== room.name) && Memory.rooms[target].sourceKeeperRoom) {
+    return {
+      prefixString: 'MC',
+      layoutString: 'MW',
+      amount: [5, 10],
+      maxLayoutAmount: 1,
+    };
+  }
+  return false;
+};
+
 roles.sourcer.preMove = function(creep, directions) {
   creep.pickupEnergy();
   if (creep.allowOverTake(directions)) {

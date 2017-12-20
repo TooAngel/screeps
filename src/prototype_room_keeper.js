@@ -10,8 +10,8 @@ Room.prototype.findKeepersAt = function(roles, posId) {
     posId: posId,
     amount: amount,
     roles: _.map(roles, (role) => {
-      const keepers = room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', [role]);
-      const cSize = _.filter(keepers, (c) => c.memory.routing.targetId === posId);
+      const keeper = room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', [role]);
+      const cSize = _.filter(keeper, (c) => c.memory.routing.targetId === posId);
       return {
         role: role,
         size: _.size(cSize),
@@ -51,16 +51,39 @@ Room.prototype.spawnKeepers = function() {
   const baseRoom = Game.rooms[room.memory.base];
   const amount = 1;
   const queueMaxLength = 10;
+  if (baseRoom.memory.energyStats.available < 2000) {
+    return false;
+  }
   return _.map(keeperPositions, (keeper) => {
     // todo-msc remove W4S6
-    if ((baseRoom.memory.queue.length < queueMaxLength) && (room.name === 'W4S6')) {
+    if ((baseRoom.memory.queue.length < queueMaxLength) && ((room.name === 'W4S6') || (room.name === 'W4S4'))) {
       return _.map(keeper.roles, (role) => {
         // const returnValue = false;
+        // todo-msc fix minerl harvesting
         if (keeper.type === 'mineral') {
-          role.role = 'extractor';
+          return {
+            role: 'extractor',
+            success: false,
+            queue: baseRoom.memory.queue.length,
+            baseRoom: baseRoom.name,
+          };
         }
         const returnValue = (role.size < amount) ? baseRoom.checkRoleToSpawn(role.role, amount, keeper.posId, room.name, undefined, room.memory.base) : false;
-        // room.log('checkRoleToSpawn', returnValue, role.role, amount, keeper.posId, room.name, null, room.memory.base);
+        if (!returnValue && (role.size < amount)) {
+          const creepMemory = baseRoom.creepMem(role.role, keeper.posId, room.name, undefined, room.memory.base);
+          const inQueue = baseRoom.inQueue(creepMemory);
+          const inRoom = baseRoom.inRoom(creepMemory, amount);
+          room.log('checkRoleToSpawn', returnValue,
+            JSON.stringify({
+              room: room.name,
+              base: room.memory.base,
+              posId: keeper.posId,
+              size: role.size,
+              role: role.role,
+              inQueue: inQueue,
+              inRoom: inRoom,
+            }));
+        }
         return {
           role: role.role,
           success: returnValue > 0,
@@ -94,18 +117,22 @@ Room.prototype.updateClosestSpawn = function() {
 
 Room.prototype.spawnKeepersEveryTicks = function(ticks) {
   let returnValue = false;
-  if (Game.rooms[this.memory.base].controller.level === 8) {
-    this.checkForWatcher();
-    if (this.exectueEveryTicks(ticks)) {
-      this.updateKeepers();
-      if (this.updateClosestSpawn()) {
-        returnValue = this.spawnKeepers();
-        if (returnValue && returnValue[0] && returnValue[0][0] && returnValue[0][0].success) {
-          this.log('spawnKeepers', JSON.stringify(returnValue[0]));
+  if (Game.rooms[this.memory.base] && Game.rooms[this.memory.base].controller) {
+    if (Game.rooms[this.memory.base].controller.level >= config.keepers.minControllerLevel) {
+      this.checkForWatcher();
+      if (this.exectueEveryTicks(ticks)) {
+        this.updateKeepers();
+        if (this.updateClosestSpawn()) {
+          returnValue = this.spawnKeepers();
+          if (returnValue && returnValue[0] && returnValue[0][0] && returnValue[0][0].success) {
+            this.log('spawnKeepers', JSON.stringify(returnValue[0]));
+          }
+          return returnValue;
         }
-        return returnValue;
       }
     }
+  } else {
+    this.log('Error no Access to ', this.memory.base, 'or its controller');
   }
   return returnValue;
 };
@@ -117,6 +144,8 @@ Creep.prototype.isDamaged = function() {
 Room.prototype.keeperTeamReady = function() {
   const atkeepermelee = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeepermelee']);
   const atkeeper = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeeper']);
+  this.memory.atkeeper = atkeeper.length;
+  this.memory.atkeepermelee = atkeepermelee.length;
   return (atkeepermelee.length > 0 && atkeeper.length > 0);
 };
 
