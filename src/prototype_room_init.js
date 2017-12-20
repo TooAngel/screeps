@@ -84,6 +84,7 @@ Room.prototype.setFillerArea = function(storagePos, route) {
 
   const fillerNearPositions = Array.from(fillerPos.findNearPosition());
   if (fillerNearPositions.length < 4) {
+    this.clearMemory();
     throw new Error(`Can't set layout for room ${this.name}. Not enough space for filler area`);
   }
 
