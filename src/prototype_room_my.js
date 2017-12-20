@@ -120,13 +120,22 @@ Room.prototype.handleLinks = function() {
 };
 
 Room.prototype.handlePowerSpawn = function() {
-  const powerSpawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_POWER_SPAWN]);
-  if (powerSpawns.length === 0) {
-    return false;
-  }
-  const powerSpawn = powerSpawns[0];
-  if (powerSpawn.power > 0) {
-    powerSpawn.processPower();
+  // todo-msc (verify is needed) added exectueEveryTicks 3 for movement of harvesters
+  // todo-msc this slows down power processing
+  // todo-msc (is needed) added memory.constants.powerSpawn = powerSpawn.id for role storagefiller
+  if (this.exectueEveryTicks(3)) {
+    const powerSpawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_POWER_SPAWN]);
+    if (powerSpawns.length === 0) {
+      return false;
+    }
+    const powerSpawn = powerSpawns[0];
+    if (!this.memory.constants.powerSpawn || this.memory.constants.powerSpawn !== powerSpawn.id) {
+      this.memory.constants.powerSpawn = powerSpawn.id;
+    }
+
+    if (powerSpawn.power > 0) {
+      powerSpawn.processPower();
+    }
   }
 };
 
@@ -201,17 +210,21 @@ Room.prototype.handleScout = function() {
   if (shouldSpawn) {
     const scoutSpawn = {
       role: 'scout',
+      routing: {
+        targetRoom: this.name,
+      },
     };
     if (!this.inQueue(scoutSpawn)) {
-      this.memory.queue.push(scoutSpawn);
+      return this.memory.queue.push(scoutSpawn);
     }
   }
+  return false;
 };
 
 Room.prototype.checkNeedHelp = function() {
   let needHelp = this.memory.energyStats.average < config.carryHelpers.needTreshold; // && !this.hostile;
   if (!needHelp) {
-    needHelp = (this.storage) ? (this.storage.store.energy < 25000) : false;
+    needHelp = (this.storage) ? (this.storage.store.energy < 125000) : false;
   }
   const oldNeedHelp = this.memory.needHelp;
   if (needHelp) {
@@ -264,11 +277,10 @@ Room.prototype.checkCanHelp = function() {
   }
 
   const thisRoomCanHelp = this.memory.energyStats.average > config.carryHelpers.helpTreshold;
-  const canHelp = thisRoomCanHelp && nearestRoomObj && (
-    !nearestRoomObj.terminal ||
+  // todo-msc dont get full fix
+  const canHelp = thisRoomCanHelp && nearestRoomObj && (!nearestRoomObj.terminal ||
     nearestRoomObj.terminal.store.energy < config.carryHelpers.helpTreshold * 2 ||
-    (nearestRoomObj.storage.store.energy < this.storage.store.energy && this.storage.store.energy > 700000) // todo-msc dont get full fix
-  );
+    (nearestRoomObj.storage.store.energy < this.storage.store.energy && this.storage.store.energy > 700000));
   // this.log(thisRoomCanHelp, nearestRoomObj.name, !nearestRoomObj.terminal, nearestRoomObj.terminal.store.energy, config.carryHelpers.helpTreshold * 2);
   // if (!canHelp) {
   //   const nearestRoomObjNeedsEnergy = (nearestRoomObj.memory.energyStats.average < config.carryHelpers.helpTreshold) || (nearestRoomObj.storage.store.energy < 20000);
@@ -494,7 +506,7 @@ Room.prototype.executeRoom = function() {
     }
   }
   if (config.mineral.enabled && this.terminal && this.storage) {
-    if (this.memory.cleanup <= 10) {
+    if (!this.memory.cleanup || this.memory.cleanup <= 10) {
       this.checkRoleToSpawn('mineral');
     }
     if ((Game.time + this.controller.pos.x + this.controller.pos.y) % 10000 < 10) {
@@ -529,30 +541,21 @@ Room.prototype.reviveMyNow = function() {
     return Game.map.getRoomLinearDistance(room.name, object);
   };
   const roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
-
-  for (const roomIndex in roomsMy) {
+  const callNextRoomer = (roomIndex) => {
     if (nextroomerCalled > config.nextRoom.numberOfNextroomers) {
-      break;
+      return false;
     }
     const roomName = Memory.myRooms[roomIndex];
-    if (this.name === roomName) {
-      continue;
-    }
     const roomOther = Game.rooms[roomName];
-    if (!roomOther.memory.active) {
-      continue;
-    }
-    if (!roomOther.storage || roomOther.storage.store.energy < config.room.reviveStorageAvailable) {
-      continue;
-    }
-    // TODO find a proper value
-    if (roomOther.memory.queue.length > config.revive.reviverMaxQueue) {
-      continue;
-    }
 
-    // TODO config value, meaningful
-    if (roomOther.energyCapacityAvailable < config.revive.reviverMinEnergy) {
-      continue;
+    // TODO find a proper value for config.revive.reviverMaxQueue,
+    // TODO find meaningful config value for config.revive.reviverMinEnergy
+    if ((this.name === roomName) || !roomOther || !roomOther.memory || !roomOther.memory.active ||
+      (!roomOther.storage || roomOther.storage.store.energy < config.room.reviveStorageAvailable) ||
+      (!roomOther.memory.queue || roomOther.memory.queue.length > config.revive.reviverMaxQueue) ||
+      (roomOther.energyCapacityAvailable < config.revive.reviverMinEnergy)
+    ) {
+      return false;
     }
 
     const distance = Game.map.getRoomLinearDistance(this.name, roomName);
@@ -561,7 +564,7 @@ Room.prototype.reviveMyNow = function() {
       // TODO Instead of skipping we could try to free up the way: nextroomerattack or squad
       if (route.length === 0) {
         roomOther.log('No route to other room: ' + roomOther.name);
-        continue;
+        return false;
       }
 
       const role = this.memory.wayBlocked ? 'nextroomerattack' : 'nextroomer';
@@ -571,7 +574,16 @@ Room.prototype.reviveMyNow = function() {
       }
       roomOther.checkRoleToSpawn(role, 1, undefined, this.name);
       nextroomerCalled++;
+      return {
+        called: nextroomerCalled,
+        base: roomOther,
+        to: this.name,
+      };
     }
+  };
+  const nextroomers = _.map(roomsMy, callNextRoomer);
+  if (config.debug.nextroomer) {
+    this.log('nextroomers ', nextroomers);
   }
   return nextroomerCalled;
 };

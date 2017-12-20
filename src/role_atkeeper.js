@@ -83,9 +83,7 @@ roles.atkeeper.action = function(creep) {
         }
       }
     } else {
-      if (creep.isDamaged() < 1) {
-        creep.heal(creep);
-      }
+      creep.selfHeal();
       return true;
     }
   }

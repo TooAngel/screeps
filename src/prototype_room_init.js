@@ -84,6 +84,7 @@ Room.prototype.setFillerArea = function(storagePos, route) {
 
   const fillerNearPositions = Array.from(fillerPos.findNearPosition());
   if (fillerNearPositions.length < 4) {
+    this.clearMemory();
     throw new Error(`Can't set layout for room ${this.name}. Not enough space for filler area`);
   }
 
@@ -196,7 +197,7 @@ Room.prototype.updatePosition = function() {
       }
     }
   }
-  if (bestPosition.x || bestPosition.y) {
+  if (bestPosition && (bestPosition.x || bestPosition.y)) {
     this.memory.summaryCenter = {x: bestPosition.x, y: bestPosition.y};
   } else {
     this.memory.summaryCenter = {x: 10, y: 40};

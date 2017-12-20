@@ -1,5 +1,56 @@
 'use strict';
 
+const states = [{
+  name: 'storage result',
+  destination: STRUCTURE_TERMINAL,
+  action: transfer,
+  resource: 'result',
+}, {
+  name: 'terminal 0',
+  destination: STRUCTURE_TERMINAL,
+  action: get,
+  resource: 'first',
+}, {
+  name: 'terminal 1',
+  destination: STRUCTURE_TERMINAL,
+  action: get,
+  resource: 'second',
+}, {
+  name: 'lab 1',
+  destination: STRUCTURE_LAB,
+  lab: 1,
+  action: transfer,
+  resource: 'first',
+}, {
+  name: 'lab 2',
+  destination: STRUCTURE_LAB,
+  lab: 2,
+  action: transfer,
+  resource: 'second',
+}, {
+  name: 'storage energy',
+  destination: STRUCTURE_TERMINAL,
+  action: get,
+  resource: 'energy',
+}, {
+  name: 'lab 1',
+  destination: STRUCTURE_LAB,
+  lab: 1,
+  action: transfer,
+  resource: 'energy',
+}, {
+  name: 'lab 2',
+  destination: STRUCTURE_LAB,
+  lab: 2,
+  action: transfer,
+  resource: 'energy',
+}, {
+  name: 'lab result1',
+  destination: STRUCTURE_LAB,
+  lab: 0,
+  action: get,
+  resource: 'result',
+}];
 /**
  * Check is a given lab as enough mineral for reaction
  *
@@ -350,58 +401,6 @@ function checkNuke(creep) {
   return false;
 }
 
-const states = [{
-  name: 'storage result',
-  destination: STRUCTURE_TERMINAL,
-  action: transfer,
-  resource: 'result',
-}, {
-  name: 'terminal 0',
-  destination: STRUCTURE_TERMINAL,
-  action: get,
-  resource: 'first',
-}, {
-  name: 'terminal 1',
-  destination: STRUCTURE_TERMINAL,
-  action: get,
-  resource: 'second',
-}, {
-  name: 'lab 1',
-  destination: STRUCTURE_LAB,
-  lab: 1,
-  action: transfer,
-  resource: 'first',
-}, {
-  name: 'lab 2',
-  destination: STRUCTURE_LAB,
-  lab: 2,
-  action: transfer,
-  resource: 'second',
-}, {
-  name: 'storage energy',
-  destination: STRUCTURE_TERMINAL,
-  action: get,
-  resource: 'energy',
-}, {
-  name: 'lab 1',
-  destination: STRUCTURE_LAB,
-  lab: 1,
-  action: transfer,
-  resource: 'energy',
-}, {
-  name: 'lab 2',
-  destination: STRUCTURE_LAB,
-  lab: 2,
-  action: transfer,
-  resource: 'energy',
-}, {
-  name: 'lab result1',
-  destination: STRUCTURE_LAB,
-  lab: 0,
-  action: get,
-  resource: 'result',
-}];
-
 const execute = function(creep) {
   if (!creep.room.terminal) {
     creep.suicide();
@@ -464,8 +463,6 @@ const execute = function(creep) {
 
   creep.say('A1');
 
-  creep.say(creep.memory.state);
-
   creep.memory.state = creep.memory.state || 0;
 
   if (!room.memory.reaction) {
@@ -477,6 +474,7 @@ const execute = function(creep) {
   }
 
   const state = states[creep.memory.state];
+  creep.say(state.name);
 
   let target = creep.room.terminal;
   if (state.destination === STRUCTURE_LAB) {
@@ -523,9 +521,47 @@ Creep.prototype.checkTerminal = function() {
   return false;
 };
 
+/**
+ * check storage for resouces which don't belong there
+ * returns true if if so
+ *
+ * @return {boolean}
+ */
+Creep.prototype.transferAllResourcesToTerminal = function() {
+  let foundResources = false;
+
+  for (const resource in this.room.storage.store) {
+    if (resource !== RESOURCE_ENERGY) {
+      foundResources = true;
+    }
+  }
+
+  if (foundResources) {
+    if (_.sum(this.carry) > 0) {
+      for (const resource in this.carry) {
+        if (resource !== RESOURCE_ENERGY) {
+          this.moveToMy(this.room.terminal.pos);
+          this.transfer(this.room.terminal, resource);
+        }
+      }
+    } else {
+      for (const resource in this.room.storage.store) {
+        if (resource !== RESOURCE_ENERGY) {
+          this.withdraw(this.room.storage, resource);
+          this.moveToMy(this.room.storage.pos);
+        }
+      }
+    }
+  }
+  return foundResources;
+};
+
 // TODO totally ugly copy&paste from creep_mineral to migrate to role_mineral
 Creep.prototype.handleMineralCreep = function() {
   if (this.checkTerminal()) {
+    return true;
+  }
+  if (this.transferAllResourcesToTerminal()) {
     return true;
   }
 

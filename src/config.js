@@ -68,6 +68,8 @@ global.config = {
       roles: [], // Roles for debug output, e.g. ['repairer']
       rooms: [], // Rooms for debug output, e.g. ['E21N8']
     },
+    power: false,
+    nextroomer: false,
   },
 
   tower: {
@@ -239,6 +241,15 @@ global.config = {
     maxBuyPrice: 0.5,
     // buyByOwnOrders: true,
     buyOrderPriceMultiplicator: 0.5,
+
+    // buy power if we have more credits than config.market.minCredits
+    buyPower: false,
+    // 3M credits
+    minCredits: 3000000,
+    // set activate buyPower your need to set a roomName here e.g. 'W2S6'
+    buyPowerRoom: false,
+    // disable to use power only in gathered room
+    sendPowerOwnRoom: true,
   },
 
   priorityQueue: {
@@ -262,6 +273,21 @@ global.config = {
       reserver: 20,
     },
   },
+
+  main: {
+    enabled: true,
+    randomExecution: false,
+  },
+
+  keepers: {
+    enabled: false,
+    minControllerLevel: 8,
+  },
+
+  cpuStats: {
+    enabled: false,
+  },
+
 };
 
 try {

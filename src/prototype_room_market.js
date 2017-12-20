@@ -43,7 +43,9 @@ Room.prototype.sellByOthersOrders = function(sellAmount, resource) {
         }
         this.log(order.id, this.name, amount, order.price);
         const returnCode = Game.market.deal(order.id, amount, this.name);
-        this.log('market.deal:', resource, returnCode);
+        if (returnCode !== ERR_TIRED) {
+          this.log('market.deal:', resource, returnCode);
+        }
         if (returnCode === OK) {
           break;
         }
@@ -94,7 +96,7 @@ Room.prototype.buyByOthersOrders = function(resource) {
       const returnCode = Game.market.deal(order.id, amount, this.name);
       if (returnCode === OK) {
         break;
-      } else {
+      } else if (returnCode !== ERR_TIRED) {
         this.log('market.deal:', resource, returnCode);
       }
     }
@@ -110,6 +112,59 @@ Room.prototype.buyLowResources = function() {
   }
 };
 
+Room.prototype.buyLowCostResources = function() {
+  if ((Game.market.credits < config.market.minCredits) || (this.terminal.cooldown > 0)) {
+    return false;
+  }
+  const room = this.name;
+  const resource = this.memory.mineralType;
+  if (this.terminal.store[resource] > 10000) {
+    return false;
+  }
+  const orders = _.sortBy(Game.market.getAllOrders({type: ORDER_SELL, resourceType: resource}), ['price'], ['asc']);
+
+  const checkForDeal = (item) => {
+    const range = Game.map.getRoomLinearDistance(item.roomName, room, true);
+    if (item.price < 1 && range < 20 && ((item.resourceType === 'O') || (item.resourceType === 'H'))) {
+      Game.market.deal(item.id, 1000, room);
+    }
+  };
+  _.map(orders, checkForDeal);
+};
+
+/**
+ * sends 100 power to every room with a terminal
+ */
+Room.prototype.sendPowerOwnRooms = function() {
+  if (this.terminal && this.terminal.cooldown === 0 && this.terminal.store[RESOURCE_POWER] > 100) {
+    let sendOnce = false;
+    const powerTransfer = _.map(_.shuffle(Memory.myRooms), (myRoom) => {
+      if (Game.rooms[myRoom].terminal && !sendOnce) {
+        if (!Game.rooms[myRoom].terminal.store[RESOURCE_POWER] ||
+          (Game.rooms[myRoom].terminal.store[RESOURCE_POWER] < 100)) {
+          sendOnce = true;
+          return {
+            success: this.terminal.send(RESOURCE_POWER,
+              _.min([this.terminal.store[RESOURCE_POWER] - 100, 100]),
+              myRoom,
+              'trade power ' + this.name + ' ' + myRoom) === OK,
+            from: this.name,
+            to: myRoom,
+          };
+        }
+        return {
+          amount: Game.rooms[myRoom].terminal.store[RESOURCE_POWER],
+          room: myRoom,
+        };
+      }
+      return false;
+    });
+    if (config.debug.power) {
+      this.log('powerTransfer', global.ex(powerTransfer, true));
+    }
+  }
+};
+
 Room.prototype.handleMarket = function() {
   if (!this.terminal) {
     return false;
@@ -117,4 +172,8 @@ Room.prototype.handleMarket = function() {
 
   this.sellOwnMineral();
   this.buyLowResources();
+  this.buyLowCostResources();
+  if (config.market.sendPowerOwnRoom) {
+    this.sendPowerOwnRooms();
+  }
 };

@@ -43,12 +43,6 @@ roles.atkeepermelee.action = function(creep) {
     creep.memory.damaged = true;
   }
 
-  const healMySelf = function(returnValue) {
-    if (returnValue !== OK && creep.memory.canHeal && creep.isDamaged() < 1) {
-      creep.heal(creep);
-    }
-  };
-
   const attack = function(creep) {
     creep.say('attack');
     // todo-msc cache target
@@ -72,11 +66,13 @@ roles.atkeepermelee.action = function(creep) {
     } else {
       creep.moveRandomWithin(target.pos, 1);
       if (target.structureType === 'keeperLair') {
-        healMySelf(true);
+        creep.selfHeal();
       }
     }
     const returnValue = creep.attack(target);
-    healMySelf(returnValue);
+    if (returnValue !== OK) {
+      creep.selfHeal();
+    }
     return true;
   };
 

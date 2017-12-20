@@ -46,8 +46,9 @@ roles.sourcer.updateSettings = function(room, creep) {
   if (!room.storage) {
     return false;
   }
-  const target = creep.routing && creep.routing.targetRoom;
-  if ((target !== room.name) && Memory.rooms[target].sourceKeeperRoom) {
+  const target = creep.routing && creep.routing.targetRoom ? creep.routing.targetRoom : false;
+  const inBase = (target === room.name);
+  if (!inBase && Memory.rooms[target].sourceKeeperRoom) {
     return {
       prefixString: 'MC',
       layoutString: 'MW',
@@ -55,78 +56,16 @@ roles.sourcer.updateSettings = function(room, creep) {
       maxLayoutAmount: 1,
     };
   }
+  if (!inBase) {
+    return {
+      sufixString: 'MH',
+    };
+  }
   return false;
 };
 
 roles.sourcer.preMove = function(creep, directions) {
-  creep.pickupEnergy();
-  if (creep.allowOverTake(directions)) {
-    return true;
-  }
-  // Misplaced spawn
-  if (creep.inBase() && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
-    // creep.say('smis', true);
-    const targetId = creep.memory.routing.targetId;
-
-    const source = creep.room.memory.position.creep[targetId];
-    // TODO better the position from the room memory
-    creep.moveTo(source, {
-      ignoreCreeps: true,
-    });
-    if (creep.pos.getRangeTo(source) > 1) {
-      return true;
-    }
-  }
-
-  if (!creep.room.controller) {
-    const target = creep.findClosestSourceKeeper();
-    if (target !== null) {
-      const range = creep.pos.getRangeTo(target);
-      if (range > 6) {
-        creep.memory.routing.reverse = false;
-      }
-      if (range < 6) {
-        creep.memory.routing.reverse = true;
-      }
-    } else {
-      // todo-msc if SourceKeeper is killed while reverse == true
-      creep.memory.routing.reverse = false;
-    }
-  }
-
-  // TODO copied from nextroomer, should be extracted to a method or a creep flag
-  // Remove structures in front
-  if (!directions) {
-    return false;
-  }
-  // TODO when is the forwardDirection missing?
-  if (directions.forwardDirection) {
-    const posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
-    let terrain = posForward.lookFor(LOOK_TERRAIN);
-    const structures = posForward.lookFor(LOOK_STRUCTURES);
-    let structure;
-    for (structure of structures) {
-      if (structure.structureType === STRUCTURE_ROAD) {
-        terrain = ['road'];
-        continue;
-      }
-      if (structure.structureType === STRUCTURE_RAMPART && structure.my) {
-        continue;
-      }
-      if (structure.structureType === STRUCTURE_SPAWN && structure.my) {
-        continue;
-      }
-      creep.dismantle(structure);
-      creep.say('dismantle', true);
-      break;
-    }
-    if (!creep.memory.last || creep.pos.x !== creep.memory.last.pos1.x || creep.pos.y !== creep.memory.last.pos1.y) {
-      if (!creep.memory.pathDatas) {
-        creep.memory.pathDatas = {swamp: 0, plain: 0, road: 0};
-      }
-      creep.memory.pathDatas[terrain[0]]++;
-    }
-  }
+  creep.preMoveExtractorSourcer(directions);
 };
 
 roles.sourcer.died = function(name, memory) {
@@ -136,18 +75,7 @@ roles.sourcer.died = function(name, memory) {
 
 roles.sourcer.action = function(creep) {
   creep.pickupEnergy();
-  // TODO check source keeper structure for ticksToSpawn
-  if (!creep.room.controller) {
-    const target = creep.findClosestSourceKeeper();
-    if (target !== null) {
-      const range = creep.pos.getRangeTo(target);
-      if (range < 5) {
-        delete creep.memory.routing.reached;
-        creep.memory.routing.reverse = true;
-      }
-    }
-  }
-
+  creep.checkForSourceKeeper();
   creep.handleSourcer();
   return true;
 };
