@@ -464,8 +464,6 @@ const execute = function(creep) {
 
   creep.say('A1');
 
-  creep.say(creep.memory.state);
-
   creep.memory.state = creep.memory.state || 0;
 
   if (!room.memory.reaction) {
@@ -477,6 +475,7 @@ const execute = function(creep) {
   }
 
   const state = states[creep.memory.state];
+  creep.say(state.name);
 
   let target = creep.room.terminal;
   if (state.destination === STRUCTURE_LAB) {
@@ -523,9 +522,47 @@ Creep.prototype.checkTerminal = function() {
   return false;
 };
 
+/**
+ * check storage for resouces witch dont belon there
+ * returns true if if so
+ *
+ * @return {boolean}
+ */
+Creep.prototype.transferAllResourcesToTerminal = function() {
+  let foundResources = false;
+
+  for (const resource in this.room.storage.store) {
+    if (resource !== RESOURCE_ENERGY) {
+      foundResources = true;
+    }
+  }
+
+  if (foundResources) {
+    if (_.sum(this.carry) > 0) {
+      for (const resource in this.carry) {
+        if (resource !== RESOURCE_ENERGY) {
+          this.moveToMy(this.room.terminal.pos);
+          this.transfer(this.room.terminal, resource);
+        }
+      }
+    } else {
+      for (const resource in this.room.storage.store) {
+        if (resource !== RESOURCE_ENERGY) {
+          this.withdraw(this.room.storage, resource);
+          this.moveToMy(this.room.storage.pos);
+        }
+      }
+    }
+  }
+  return foundResources;
+};
+
 // TODO totally ugly copy&paste from creep_mineral to migrate to role_mineral
 Creep.prototype.handleMineralCreep = function() {
   if (this.checkTerminal()) {
+    return true;
+  }
+  if (this.transferAllResourcesToTerminal()) {
     return true;
   }
 
