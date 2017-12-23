@@ -39,8 +39,8 @@ roles.upgrader.updateSettings = function(room, creep) {
   let workParts = Math.floor((room.storage.store.energy + 1) / (CREEP_LIFE_TIME * config.room.upgraderStorageFactor));
   workParts = Math.min(workParts, 47);
   if (room.controller.level === 8) {
-    if (room.storage && room.storage.store.energy > 900000) {
-      workParts = 47;
+    if (room.storage && room.storage.store.energy > 700000) {
+      workParts = 48;
     } else {
       workParts = Math.min(workParts, 2);
     }

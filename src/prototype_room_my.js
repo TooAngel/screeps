@@ -211,7 +211,7 @@ Room.prototype.handleScout = function() {
 Room.prototype.checkNeedHelp = function() {
   let needHelp = this.memory.energyStats.average < config.carryHelpers.needTreshold; // && !this.hostile;
   if (!needHelp) {
-    needHelp = (this.storage) ? (this.storage.store.energy < 25000) : false;
+    needHelp = (this.storage) ? (this.storage.store.energy < 125000) : false;
   }
   const oldNeedHelp = this.memory.needHelp;
   if (needHelp) {
