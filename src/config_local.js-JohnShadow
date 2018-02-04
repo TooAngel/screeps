@@ -1,0 +1,51 @@
+// Local overrides to global.config, modify this instead of global global.config.
+global.config.nextRoom.nextroomerInterval = _.ceil(1500 / 10);
+global.config.nextRoom.maxDistance = 6;
+global.config.room.observerRange = 3;
+global.config.nextRoom.maxDistance = 10;
+global.config.nextRoom.maxRooms = _.max([Math.ceil(Game.gcl.level / 2), 2]);
+global.config.autoattack.disabled = true;
+global.config.autoattack.timeBetweenAttacks = 10000;
+global.config.info.signController = true;
+global.config.info.signText = 'JS mod v3.4 TA mod';
+global.config.visualizer.enabled = true;
+global.config.tower.healMyCreeps = true;
+global.config.tower.repairStructures = true;
+global.config.memory.segments = 10;
+
+global.config.market.buyPower = true;
+global.config.market.minCredits = 3000000;
+global.config.market.buyPowerRoom = 'W2S6';
+
+global.config.cpuStats = {
+  enabled: true,
+//  // enabled: false,
+};
+
+console.log(Game.time, 'local config loaded!');
+
+// global.config.profiler.enabled = false;
+// global.config.stats.enabled = false;
+// global.config.stats.summary = false;
+// global.config.stats.screepsPlusEnabled = false;
+// global.config.nextRoom.ttlPerRoomForScout = 900;
+// global.config.carryHelpers.ticksUntilHelpCheck = 100;
+// global.config.nextRoom.maxRooms = 2;
+// global.config.debug.queue = false;
+// global.config.debug.sourcekeeper = false;
+// global.config.room.sourcekeeperroom = false;
+// global.config.market.minAmountToSell = 50000;
+
+// todo-msc https://github.com/TooAngel/screeps/pull/411
+
+global.config.keepers = {
+  enabled: false,
+  minControllerLevel: 8,
+};
+
+// todo-msc deactivation flag for the main loop, still needed???
+global.config.main = {
+  enabled: true,
+//  // enabled: false,
+};
+
