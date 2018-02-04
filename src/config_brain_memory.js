@@ -30,6 +30,26 @@ brain.getMarketOrderAverage = (type, resource) => Memory.orders[type][resource] 
 
 brain.getMarketOrder = (type, resource, property) => Memory.orders[type][resource] && Memory.orders[type][resource][property] ? Memory.orders[type][resource][property] : null;
 
+brain.buyPower = function() {
+  if (!config.market.buyPower) {
+    return false;
+  }
+  const roomName = config.market.buyPowerRoom;
+  // low cash
+  if (Game.market.credits < config.market.minCredits) {
+    return false;
+  }
+  // deal one order
+  const deal = function(item) {
+    return Game.market.deal(item.id, 1000, roomName);
+  };
+  // if no cooldown
+  if (Game.rooms[roomName].terminal && !Game.rooms[roomName].terminal.cooldown) {
+    return _.map(Game.market.getAllOrders({type: ORDER_SELL, resourceType: RESOURCE_POWER}), deal);
+  }
+  return false;
+};
+
 brain.setConstructionSites = function() {
   if (!Memory.constructionSites) {
     Memory.constructionSites = {};

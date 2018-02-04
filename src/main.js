@@ -9,28 +9,32 @@ require('prototype_room_costmatrix');
 require('visualizer');
 require('screepsplus');
 
-global.tickLimit = global.limitTester();
+global.tickLimit = global.cpuLimit();
 global.load = _.round(Game.cpu.getUsed());
-Memory.cpuStats = {
-  start: {
-    load: global.load,
-    time: Game.time,
-    bucket: Game.cpu.bucket,
-    tickLimit: global.tickLimit,
-  },
-  last: {
-    load: global.load,
-    time: Game.time,
-    bucket: Game.cpu.bucket,
-    tickLimit: global.tickLimit,
-  },
-  summary: {
-    maxBucket: Game.cpu.bucket,
-    maxLoad: global.load,
-    minBucket: Game.cpu.bucket,
-    runTime: 0,
-  },
-};
+
+if (config.cpuStats.enable) {
+  Memory.cpuStats = {
+    start: {
+      load: global.load,
+      time: Game.time,
+      bucket: Game.cpu.bucket,
+      tickLimit: global.tickLimit,
+    },
+    last: {
+      load: global.load,
+      time: Game.time,
+      bucket: Game.cpu.bucket,
+      tickLimit: global.tickLimit,
+    },
+    summary: {
+      maxBucket: Game.cpu.bucket,
+      maxLoad: global.load,
+      minBucket: Game.cpu.bucket,
+      runTime: 0,
+    },
+  };
+}
+
 console.log(Game.time, 'no cache', 'L: ' + global.load, 'B: ' + Game.cpu.bucket);
 
 brain.stats.init();
@@ -51,7 +55,7 @@ if (config.profiler.enabled) {
 }
 
 const roomFilter = (r) => {
-  global.tickLimit = global.limitTester();
+  global.tickLimit = global.cpuLimit();
   if (Game.cpu.getUsed() < global.tickLimit) {
     r.execute();
   } else {
@@ -62,6 +66,8 @@ const roomFilter = (r) => {
 
 const main = function() {
   Memory.skippedRooms = [];
+  brain.buyPower();
+
   if (Game.time % 200 === 0) {
     console.log(Game.time, 'TooAngel AI - All good');
   }
@@ -82,6 +88,7 @@ const main = function() {
   }
 
   brain.stats.addRoot();
+  // room execution via sigmoid function + every 10 ticks execute all rooms
   if (Game.time % 10 === 0) {
     Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
     console.log(Game.time, 'global.tickLimit', global.tickLimit);
@@ -125,16 +132,19 @@ module.exports.loop = function() {
       main();
     }
   }
-  Memory.cpuStats.last = {
-    load: _.round(Game.cpu.getUsed()),
-    time: Game.time,
-    bucket: Game.cpu.bucket,
-    tickLimit: global.limitTester(),
-  };
-  Memory.cpuStats.summary = {
-    maxBucket: Math.max(Memory.cpuStats.summary.maxBucket, Memory.cpuStats.last.bucket),
-    maxLoad: Math.max(Memory.cpuStats.summary.maxLoad, Memory.cpuStats.last.load),
-    minBucket: Math.min(Memory.cpuStats.summary.minBucket, Memory.cpuStats.last.bucket),
-    runTime: Memory.cpuStats.last.time - Memory.cpuStats.start.time,
-  };
+
+  if (config.cpuStats.enable) {
+    Memory.cpuStats.last = {
+      load: _.round(Game.cpu.getUsed()),
+      time: Game.time,
+      bucket: Game.cpu.bucket,
+      tickLimit: global.cpuLimit(),
+    };
+    Memory.cpuStats.summary = {
+      maxBucket: Math.max(Memory.cpuStats.summary.maxBucket, Memory.cpuStats.last.bucket),
+      maxLoad: Math.max(Memory.cpuStats.summary.maxLoad, Memory.cpuStats.last.load),
+      minBucket: Math.min(Memory.cpuStats.summary.minBucket, Memory.cpuStats.last.bucket),
+      runTime: Memory.cpuStats.last.time - Memory.cpuStats.start.time,
+    };
+  }
 };

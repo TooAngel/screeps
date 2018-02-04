@@ -197,7 +197,7 @@ Room.prototype.updatePosition = function() {
       }
     }
   }
-  if (bestPosition.x || bestPosition.y) {
+  if (bestPosition && (bestPosition.x || bestPosition.y)) {
     this.memory.summaryCenter = {x: bestPosition.x, y: bestPosition.y};
   } else {
     this.memory.summaryCenter = {x: 10, y: 40};

@@ -96,9 +96,9 @@ Room.prototype.externalHandleHighwayRoom = function() {
       if (Memory.powerBanks[this.name].transporter_called) {
         return;
       }
-      if (structures[0].hits < 300000) {
-        for (let i = 0; i < Math.ceil(structures[0].power / 1000); i++) {
-          this.log('Adding powertransporter at ' + Memory.powerBanks[this.name].target);
+      if (structures[0].hits < 350000) {
+        const amountPowerTransporter = Math.ceil(structures[0].power / 1000)
+        for (let i = 0; i < amountPowerTransporter; i++) {
           Game.rooms[Memory.powerBanks[this.name].target].memory.queue.push({
             role: 'powertransporter',
             routing: {
@@ -106,7 +106,7 @@ Room.prototype.externalHandleHighwayRoom = function() {
             },
           });
         }
-
+        this.log('Adding ' + amountPowerTransporter + ' powertransporter at ' + Memory.powerBanks[this.name].target);
         Memory.powerBanks[this.name].transporter_called = true;
       }
     }
@@ -137,7 +137,8 @@ Room.prototype.externalHandleHighwayRoom = function() {
         target: target.name,
         min_route: minRoute,
       };
-      this.log('--------------> Start power harvesting in: ' + target.name + ' <----------------');
+      this.log('--------------> Start power harvesting in: ' + this.name + ' from ' + target.name + ' <----------------');
+      Game.notify('Start power harvesting in: ' + this.name + ' from ' + target.name);
       Game.rooms[target.name].memory.queue.push({
         role: 'powerattacker',
         routing: {
@@ -146,6 +147,18 @@ Room.prototype.externalHandleHighwayRoom = function() {
       });
       Game.rooms[target.name].memory.queue.push({
         role: 'powerhealer',
+        routing: {
+          targetRoom: this.name,
+        },
+      });
+      Game.rooms[target.name].memory.queue.push({
+        role: 'powerhealer',
+        routing: {
+          targetRoom: this.name,
+        },
+      });
+      Game.rooms[target.name].memory.queue.push({
+        role: 'powerattacker',
         routing: {
           targetRoom: this.name,
         },

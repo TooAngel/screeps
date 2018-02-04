@@ -82,6 +82,70 @@ roles.storagefiller.checkResourceStore = function(creep, resourceType, withdraw 
   }
 };
 
+// todo-msc can we simplyfy this? check both resources (power, energy) and termiinal and storage
+roles.storagefiller.movePowerAndEnergy = function(creep) {
+  const powerSpawn = Game.getObjectById(creep.room.memory.constants.powerSpawn);
+  if (powerSpawn && creep.room.terminal && creep.room.storage) {
+    // todo-msc do we have power at all
+    const power = 0 + (creep.room.terminal.store.power || 0) + (creep.room.storage.store.power || 0) + (powerSpawn.power || 0);
+    if ((power > 0) &&
+      (creep.pos.getRangeTo(powerSpawn.pos) === 1) &&
+      (creep.pos.getRangeTo(creep.room.terminal.pos) === 1)
+    ) {
+      // todo-msc determine what to do
+      const option = {
+        need: {
+          power: powerSpawn.power < 50,
+          energy: powerSpawn.energy < 2500,
+        },
+        carry: {
+          sum: _.sum(creep.carry),
+          power: creep.carry.power > 0,
+          energy: creep.carry.energy > 0,
+        },
+      };
+
+      if (!option.need.energy && !option.need.power) {
+        if (creep.carry.power > 0) {
+          creep.transfer(creep.room.storage, RESOURCE_POWER);
+          return true;
+        }
+        return false;
+      }
+      let returnCode = false;
+      let resource;
+      let strucktur;
+      // put
+      if (option.carry.sum > 0) {
+        if (option.carry.energy > 0) {
+          resource = RESOURCE_ENERGY;
+        } else if (option.carry.power > 0) {
+          resource = RESOURCE_POWER;
+        }
+        returnCode = creep.transfer(powerSpawn, resource);
+      } else { // pickup
+        if (option.need.energy) {
+          resource = RESOURCE_ENERGY;
+        } else if (option.need.power) {
+          resource = RESOURCE_POWER;
+        }
+        if (creep.room.terminal.store[resource] > 0) {
+          strucktur = STRUCTURE_TERMINAL;
+        } else if (creep.room.storage.store[resource] > 0) {
+          strucktur = STRUCTURE_STORAGE;
+        }
+        returnCode = creep.withdraw(creep.room[strucktur], resource);
+      }
+
+      if (returnCode === OK) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
 roles.storagefiller.action = function(creep) {
   if (!creep.memory.routing.targetId && creep.memory.routing.reached) {
     creep.memory.routing.reached = false;
@@ -94,6 +158,12 @@ roles.storagefiller.action = function(creep) {
   creep.setNextSpawn();
   creep.spawnReplacement(1);
   creep.pickupEnergy();
+
+  // todo-msc move power and energy to power spawn
+  if (roles.storagefiller.movePowerAndEnergy(creep)) {
+    return true;
+  }
+
 
   for (const resourceType of Object.keys(creep.carry)) {
     if (resourceType !== RESOURCE_ENERGY && resourceType !== RESOURCE_POWER) {

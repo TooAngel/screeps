@@ -1,7 +1,23 @@
 
-global.ex = (x, y) => (y) ? JSON.stringify(x) : JSON.stringify(x, null, 2); // courtesy of @warinternal Aug 2016
+// todo-msc i did not find a better place to put this 3 functions at
+/**
+ * courtesy of @warinternal Aug 2016
+ * @param {object} x
+ * @param {boolean} y
+ * @return {string}
+ */
+global.ex = (x, y) => (y) ? JSON.stringify(x) : JSON.stringify(x, null, 2);
+/**
+ * https://en.wikipedia.org/wiki/Sigmoid_function
+ * @param {number} x
+ * @return {number}
+ */
 global.sigmoid = (x) => 1 + Math.tanh((2 * x) - 1);
-global.limitTester = () => _.ceil(Game.cpu.limit * global.sigmoid(Game.cpu.bucket / 10000));
+/**
+ * sigmoid on Game.cpu.limit + Game.cpu.bucket
+ * @return {number}
+ */
+global.cpuLimit = () => _.ceil(Game.cpu.limit * global.sigmoid(Game.cpu.bucket / 10000));
 
 /**
  * this should be a collection of useful functions,

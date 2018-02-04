@@ -120,13 +120,22 @@ Room.prototype.handleLinks = function() {
 };
 
 Room.prototype.handlePowerSpawn = function() {
-  const powerSpawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_POWER_SPAWN]);
-  if (powerSpawns.length === 0) {
-    return false;
-  }
-  const powerSpawn = powerSpawns[0];
-  if (powerSpawn.power > 0) {
-    powerSpawn.processPower();
+  // todo-msc (verify is needed) added exectueEveryTicks 3 for movement of harvesters
+  // todo-msc this slows down power processing
+  // todo-msc (is needed) added memory.constants.powerSpawn = powerSpawn.id for role storagefiller
+  if (this.exectueEveryTicks(3)) {
+    const powerSpawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_POWER_SPAWN]);
+    if (powerSpawns.length === 0) {
+      return false;
+    }
+    const powerSpawn = powerSpawns[0];
+    if (!this.memory.constants.powerSpawn || this.memory.constants.powerSpawn !== powerSpawn.id) {
+      this.memory.constants.powerSpawn = powerSpawn.id;
+    }
+
+    if (powerSpawn.power > 0) {
+      powerSpawn.processPower();
+    }
   }
 };
 
