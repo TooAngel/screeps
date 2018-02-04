@@ -36,7 +36,7 @@ brain.buyPower = function() {
   }
   const roomName = config.market.buyPowerRoom;
   // low cash
-  if (Game.market.credits < config.market.minCredits) {
+  if (Game.market.credits < config.market.minCredits || !roomName) {
     return false;
   }
   // deal one order

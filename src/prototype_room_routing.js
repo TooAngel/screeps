@@ -48,7 +48,7 @@ Room.prototype.getCreepPositionForId = function(to) {
   return new RoomPosition(pos.x, pos.y, this.name);
 };
 
-//todo-msc useHighWay
+// todo-msc find a route using highway rooms
 Room.prototype.findRoute = function(from, to, useHighWay) {
   useHighWay = useHighWay || false;
   const splitRoomName = function(name) {

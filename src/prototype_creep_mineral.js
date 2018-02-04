@@ -522,7 +522,7 @@ Creep.prototype.checkTerminal = function() {
 };
 
 /**
- * check storage for resouces witch dont belon there
+ * check storage for resouces which don't belong there
  * returns true if if so
  *
  * @return {boolean}

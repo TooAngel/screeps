@@ -97,7 +97,7 @@ Room.prototype.externalHandleHighwayRoom = function() {
         return;
       }
       if (structures[0].hits < 350000) {
-        const amountPowerTransporter = Math.ceil(structures[0].power / 1000)
+        const amountPowerTransporter = Math.ceil(structures[0].power / 1000);
         for (let i = 0; i < amountPowerTransporter; i++) {
           Game.rooms[Memory.powerBanks[this.name].target].memory.queue.push({
             role: 'powertransporter',

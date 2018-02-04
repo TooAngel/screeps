@@ -93,7 +93,12 @@ const main = function() {
     Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
     console.log(Game.time, 'global.tickLimit', global.tickLimit);
   } else {
-    Memory.myRooms = _(Game.rooms).filter(roomFilter).map((r) => r.name).value();
+    /** @see https://github.com/TooAngel/screeps/pull/498#discussion-diff-165847270R92 */
+    if (config.main.randomExecution) {
+      Memory.myRooms = _(_.shuffle(Game.rooms)).filter(roomFilter).map((r) => r.name).value();
+    } else {
+      Memory.myRooms = _(Game.rooms).filter(roomFilter).map((r) => r.name).value();
+    }
   }
 
   if (config.profiler.enabled && config.visualizer.enabled) {

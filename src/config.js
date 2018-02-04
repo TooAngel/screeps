@@ -239,6 +239,13 @@ global.config = {
     maxBuyPrice: 0.5,
     // buyByOwnOrders: true,
     buyOrderPriceMultiplicator: 0.5,
+
+    // buy power if we have more credits than config.market.minCredits
+    buyPower: false,
+    // 3M credits
+    minCredits: 3000000,
+    // set activate buyPower your need to set a roomName here e.g. 'W2S6'
+    buyPowerRoom: false,
   },
 
   priorityQueue: {
@@ -262,6 +269,21 @@ global.config = {
       reserver: 20,
     },
   },
+
+  main: {
+    enabled: true,
+    randomExecution: false,
+  },
+
+  keepers: {
+    enabled: false,
+    minControllerLevel: 8,
+  },
+
+  cpuStats: {
+    enabled: false,
+  },
+
 };
 
 try {
