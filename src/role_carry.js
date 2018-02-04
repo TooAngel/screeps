@@ -108,18 +108,7 @@ roles.carry.preMove = function(creep, directions) {
     return true;
   }
 
-  if (!creep.room.controller) {
-    const target = creep.findClosestSourceKeeper();
-    if (target !== null) {
-      const range = creep.pos.getRangeTo(target);
-      if (range > 6) {
-        creep.memory.routing.reverse = false;
-      }
-      if (range < 6) {
-        creep.memory.routing.reverse = true;
-      }
-    }
-  }
+  creep.checkForSourceKeeper();
 
   // TODO When does this happen? (Not on path?) - Handle better
   if (!directions) {

@@ -1,4 +1,3 @@
-
 // todo-msc i did not find a better place to put this 3 functions at
 /**
  * courtesy of @warinternal Aug 2016
@@ -203,5 +202,78 @@ global.utils = {
       arrayParts.push(partsConversion[stringParts.charAt(i)]);
     }
     return arrayParts;
+  },
+
+  // todo-msc: changed for lower room level (2) added (* 10)
+  levelToSendNext: function(baseRoom, parts) {
+    let returnValue = 0;
+    /* eslint-disable */
+    switch (baseRoom.controller.level) {
+      case 0:
+      case 1:
+      case 2:
+      case 3:
+        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 10;
+        break;
+      case 4:
+        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 5;
+        break;
+      case 5:
+        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 4;
+        break;
+      case 6:
+        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 3;
+        break;
+      case 7:
+        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 3;
+        break;
+      case 8:
+        returnValue = parts.carryParts.carry * CARRY_CAPACITY;
+        break;
+    }
+    /* eslint-enable */
+    return returnValue;
+  },
+
+  splitRoomName: function(name) {
+    const patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
+    return patt.exec(name);
+  },
+
+  routeCallback: function(to, useHighWay) {
+    return function(roomName, fromRoomName) {
+      let returnValue = Infinity;
+      if (roomName === to) {
+        returnValue = 1;
+      } else {
+        if (Memory.rooms[roomName]) {
+          if (Memory.rooms[roomName].state === 'Occupied') {
+            // console.log(Game.time, `Creep.prototype.getRoute: Do not route through occupied rooms ${roomName}`);
+            if (config.path.allowRoutingThroughFriendRooms && friends.indexOf(Memory.rooms[roomName].player) > -1) {
+              console.log('routing through friendly room' + roomName);
+              returnValue = 1;
+            } else {
+              // console.log(Game.time, 'Not routing through enemy room' + roomName);
+              returnValue = Infinity;
+            }
+          }
+          if (Memory.rooms[roomName].state === 'Blocked') {
+            // console.log(Game.time, `Creep.prototype.getRoute: Do not route through blocked rooms ${roomName}`);
+            returnValue = Infinity;
+          }
+        }
+        if (useHighWay) {
+          const nameSplit = global.utils.splitRoomName(roomName);
+          if (nameSplit[2] % 10 === 0 || nameSplit[4] % 10 === 0) {
+            returnValue = 0.5;
+          } else {
+            returnValue = 2;
+          }
+        } else {
+          returnValue = 1;
+        }
+      }
+      return returnValue;
+    };
   },
 };

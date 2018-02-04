@@ -74,37 +74,7 @@ Creep.prototype.spawnCarry = function() {
   for (const container of containers) {
     resourceAtPosition += _.sum(container.store);
   }
-  // todo-msc: changed for lower room level (2) added (* 10)
-  /* eslint-disable */
-  const levelToSoToSendNext = function() {
-    let returnValue = 0;
-    switch (baseRoom.controller.level) {
-      case 0:
-      case 1:
-      case 2:
-      case 3:
-        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 10;
-        break;
-      case 4:
-        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 5;
-        break;
-      case 5:
-        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 4;
-        break;
-      case 6:
-        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 3;
-        break;
-      case 7:
-        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 3;
-        break;
-      case 8:
-        returnValue = parts.carryParts.carry * CARRY_CAPACITY;
-        break;
-    }
-    return returnValue;
-  };
-  /* eslint-enable */
-  const levelToSendNext = levelToSoToSendNext();
+  const levelToSendNext = global.utils.levelToSendNext();
 
   if (resourceAtPosition > levelToSendNext) {
     const returnValue = baseRoom.checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);

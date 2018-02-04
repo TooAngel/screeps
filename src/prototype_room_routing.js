@@ -51,41 +51,8 @@ Room.prototype.getCreepPositionForId = function(to) {
 // todo-msc find a route using highway rooms
 Room.prototype.findRoute = function(from, to, useHighWay) {
   useHighWay = useHighWay || false;
-  const splitRoomName = function(name) {
-    const patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
-    return patt.exec(name);
-  };
-  const routeCallback = function(roomName, fromRoomName) {
-    if (roomName === to) {
-      return 1;
-    }
-
-    if (Memory.rooms[roomName] && Memory.rooms[roomName].state === 'Occupied') {
-      //         console.log(`Creep.prototype.getRoute: Do not route through occupied rooms ${roomName}`);
-      if (config.path.allowRoutingThroughFriendRooms && friends.indexOf(Memory.rooms[roomName].player) > -1) {
-        console.log('routing through friendly room' + roomName);
-        return 1;
-      }
-      //         console.log('Not routing through enemy room' + roomName);
-      return Infinity;
-    }
-
-    if (Memory.rooms[roomName] && Memory.rooms[roomName].state === 'Blocked') {
-      //         console.log(`Creep.prototype.getRoute: Do not route through blocked rooms ${roomName}`);
-      return Infinity;
-    }
-    if (useHighWay) {
-      const nameSplit = splitRoomName(roomName);
-      if (nameSplit[2] % 10 === 0 || nameSplit[4] % 10 === 0) {
-        return 0.5;
-      }
-      return 2;
-    } else {
-      return 1;
-    }
-  };
   return Game.map.findRoute(from, to, {
-    routeCallback: routeCallback,
+    routeCallback: global.utils.routeCallback(to, useHighWay),
   });
 };
 
