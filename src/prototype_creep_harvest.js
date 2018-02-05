@@ -74,7 +74,7 @@ Creep.prototype.spawnCarry = function() {
   for (const container of containers) {
     resourceAtPosition += _.sum(container.store);
   }
-  const levelToSendNext = global.utils.levelToSendNext();
+  const levelToSendNext = global.utils.levelToSendNext(baseRoom, parts);
 
   if (resourceAtPosition > levelToSendNext) {
     const returnValue = baseRoom.checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
