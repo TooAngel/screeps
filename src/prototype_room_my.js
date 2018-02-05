@@ -274,10 +274,10 @@ Room.prototype.checkCanHelp = function() {
 
   const thisRoomCanHelp = this.memory.energyStats.average > config.carryHelpers.helpTreshold;
   const canHelp = thisRoomCanHelp && nearestRoomObj && (
-    !nearestRoomObj.terminal ||
-    nearestRoomObj.terminal.store.energy < config.carryHelpers.helpTreshold * 2 ||
-    (nearestRoomObj.storage.store.energy < this.storage.store.energy && this.storage.store.energy > 700000) // todo-msc dont get full fix
-  );
+      !nearestRoomObj.terminal ||
+      nearestRoomObj.terminal.store.energy < config.carryHelpers.helpTreshold * 2 ||
+      (nearestRoomObj.storage.store.energy < this.storage.store.energy && this.storage.store.energy > 700000) // todo-msc dont get full fix
+    );
   // this.log(thisRoomCanHelp, nearestRoomObj.name, !nearestRoomObj.terminal, nearestRoomObj.terminal.store.energy, config.carryHelpers.helpTreshold * 2);
   // if (!canHelp) {
   //   const nearestRoomObjNeedsEnergy = (nearestRoomObj.memory.energyStats.average < config.carryHelpers.helpTreshold) || (nearestRoomObj.storage.store.energy < 20000);
@@ -545,12 +545,19 @@ Room.prototype.reviveMyNow = function() {
     const roomName = Memory.myRooms[roomIndex];
     const roomOther = Game.rooms[roomName];
 
+    // fixes circleci / memory issues
+    if (!Memory.rooms[roomOther]) {
+      roomOther.clearMemory();
+      roomOther.memory = Memory.rooms[roomOther];
+    } else {
+      roomOther.memory = Memory.rooms[roomOther];
+    }
     // TODO find a proper value for config.revive.reviverMaxQueue,
     // TODO find meaningful config value for config.revive.reviverMinEnergy
     if (
       ((this.name === roomName) || (!roomOther.memory.active)) ||
       (!roomOther.storage || roomOther.storage.store.energy < config.room.reviveStorageAvailable) ||
-      (roomOther.memory.queue.length > config.revive.reviverMaxQueue) ||
+      (!roomOther.memory.queue || roomOther.memory.queue.length > config.revive.reviverMaxQueue) ||
       (roomOther.energyCapacityAvailable < config.revive.reviverMinEnergy)
     ) {
       return false;
