@@ -120,55 +120,6 @@ global.utils = {
     }
   },
 
-  checkMinerals: function() {
-    const minerals = {};
-    for (const name of Memory.myRooms) {
-      const room = Game.rooms[name];
-      if (room.terminal) {
-        console.log(name, JSON.stringify(room.terminal.store));
-        for (const mineral in room.terminal.store) {
-          if (mineral === 'U') {
-            console.log(room.name, room.terminal.store[mineral]);
-          }
-          if (!minerals[mineral]) {
-            minerals[mineral] = room.terminal.store[mineral];
-          } else {
-            minerals[mineral] += room.terminal.store[mineral];
-          }
-        }
-      }
-    }
-
-    console.log(JSON.stringify(minerals));
-    console.log(minerals.U);
-  },
-
-  findRoomsWithMineralsToTransfer: function() {
-    const minerals = {};
-    for (const name of Memory.myRooms) {
-      const room = Game.rooms[name];
-      if (room.terminal) {
-        if (room.terminal.store.energy < 10000) {
-          continue;
-        }
-        console.log(name, JSON.stringify(room.terminal.store));
-        for (const mineral in room.terminal.store) {
-          if (mineral === 'U') {
-            console.log(room.name, room.terminal.store[mineral]);
-          }
-          if (!minerals[mineral]) {
-            minerals[mineral] = room.terminal.store[mineral];
-          } else {
-            minerals[mineral] += room.terminal.store[mineral];
-          }
-        }
-      }
-    }
-
-    console.log(JSON.stringify(minerals));
-    console.log(minerals.U);
-  },
-
   queueCheck: function(roomName) {
     // todo move to global.utils
     // todo save functions by prop so creation should only be once

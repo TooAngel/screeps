@@ -503,7 +503,7 @@ Room.prototype.executeRoom = function() {
     }
   }
   if (config.mineral.enabled && this.terminal && this.storage) {
-    if (this.memory.cleanup <= 10) {
+    if (!this.memory.cleanup || this.memory.cleanup <= 10) {
       this.checkRoleToSpawn('mineral');
     }
     if ((Game.time + this.controller.pos.x + this.controller.pos.y) % 10000 < 10) {
@@ -538,30 +538,22 @@ Room.prototype.reviveMyNow = function() {
     return Game.map.getRoomLinearDistance(room.name, object);
   };
   const roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
-
-  for (const roomIndex in roomsMy) {
+  const callNextRoomer = (roomIndex) => {
     if (nextroomerCalled > config.nextRoom.numberOfNextroomers) {
-      break;
+      return false;
     }
     const roomName = Memory.myRooms[roomIndex];
-    if (this.name === roomName) {
-      continue;
-    }
     const roomOther = Game.rooms[roomName];
-    if (!roomOther.memory.active) {
-      continue;
-    }
-    if (!roomOther.storage || roomOther.storage.store.energy < config.room.reviveStorageAvailable) {
-      continue;
-    }
-    // TODO find a proper value
-    if (roomOther.memory.queue.length > config.revive.reviverMaxQueue) {
-      continue;
-    }
 
-    // TODO config value, meaningful
-    if (roomOther.energyCapacityAvailable < config.revive.reviverMinEnergy) {
-      continue;
+    // TODO find a proper value for config.revive.reviverMaxQueue,
+    // TODO find meaningful config value for config.revive.reviverMinEnergy
+    if (
+      ((this.name === roomName) || (!roomOther.memory.active)) ||
+      (!roomOther.storage || roomOther.storage.store.energy < config.room.reviveStorageAvailable) ||
+      (roomOther.memory.queue.length > config.revive.reviverMaxQueue) ||
+      (roomOther.energyCapacityAvailable < config.revive.reviverMinEnergy)
+    ) {
+      return false;
     }
 
     const distance = Game.map.getRoomLinearDistance(this.name, roomName);
@@ -570,7 +562,7 @@ Room.prototype.reviveMyNow = function() {
       // TODO Instead of skipping we could try to free up the way: nextroomerattack or squad
       if (route.length === 0) {
         roomOther.log('No route to other room: ' + roomOther.name);
-        continue;
+        return false;
       }
 
       const role = this.memory.wayBlocked ? 'nextroomerattack' : 'nextroomer';
@@ -580,7 +572,16 @@ Room.prototype.reviveMyNow = function() {
       }
       roomOther.checkRoleToSpawn(role, 1, undefined, this.name);
       nextroomerCalled++;
+      return {
+        called: nextroomerCalled,
+        base: roomOther,
+        to: this.name,
+      };
     }
+  };
+  const nextroomers = _.map(roomsMy, callNextRoomer);
+  if (config.debug.nextroomer) {
+    this.log('nextroomers ', nextroomers);
   }
   return nextroomerCalled;
 };

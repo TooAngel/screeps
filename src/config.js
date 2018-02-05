@@ -68,6 +68,8 @@ global.config = {
       roles: [], // Roles for debug output, e.g. ['repairer']
       rooms: [], // Rooms for debug output, e.g. ['E21N8']
     },
+    power: false,
+    nextroomer: false,
   },
 
   tower: {
@@ -246,6 +248,8 @@ global.config = {
     minCredits: 3000000,
     // set activate buyPower your need to set a roomName here e.g. 'W2S6'
     buyPowerRoom: false,
+    // disable to use power only in gathered room
+    sendPowerOwnRoom: true,
   },
 
   priorityQueue: {
