@@ -545,12 +545,19 @@ Room.prototype.reviveMyNow = function() {
     const roomName = Memory.myRooms[roomIndex];
     const roomOther = Game.rooms[roomName];
 
+    // fixes circleci / memory issues
+    if (!Memory.rooms[roomOther]) {
+      roomOther.clearMemory();
+      roomOther.memory = Memory.rooms[roomOther];
+    } else {
+      roomOther.memory = Memory.rooms[roomOther];
+    }
     // TODO find a proper value for config.revive.reviverMaxQueue,
     // TODO find meaningful config value for config.revive.reviverMinEnergy
     if (
       ((this.name === roomName) || (!roomOther.memory.active)) ||
       (!roomOther.storage || roomOther.storage.store.energy < config.room.reviveStorageAvailable) ||
-      (roomOther.memory.queue.length > config.revive.reviverMaxQueue) ||
+      (!roomOther.memory.queue || roomOther.memory.queue.length > config.revive.reviverMaxQueue) ||
       (roomOther.energyCapacityAvailable < config.revive.reviverMinEnergy)
     ) {
       return false;
