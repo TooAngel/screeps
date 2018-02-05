@@ -13,7 +13,6 @@ roles.watcher.settings = {
   maxLayoutAmount: 1,
 };
 
-
 roles.watcher.preMove = function(creep, directions) {
   if (creep.hits < creep.hitsMax) {
     creep.memory.routing.reverse = true;

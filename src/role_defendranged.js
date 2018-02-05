@@ -89,6 +89,5 @@ const action = function(creep) {
   return creep.fightRanged(target);
 };
 
-
 roles.defendranged.action = action;
 roles.defendranged.execute = action;

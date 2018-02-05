@@ -164,7 +164,6 @@ roles.storagefiller.action = function(creep) {
     return true;
   }
 
-
   for (const resourceType of Object.keys(creep.carry)) {
     if (resourceType !== RESOURCE_ENERGY && resourceType !== RESOURCE_POWER) {
       const structureToStore = roles.storagefiller.checkResourceStore(creep, resourceType);

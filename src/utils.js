@@ -1,21 +1,9 @@
 // todo-msc i did not find a better place to put this 3 functions at
-/**
- * courtesy of @warinternal Aug 2016
- * @param {object} x
- * @param {boolean} y
- * @return {string}
- */
+// courtesy of @warinternal Aug 2016
 global.ex = (x, y) => (y) ? JSON.stringify(x) : JSON.stringify(x, null, 2);
-/**
- * https://en.wikipedia.org/wiki/Sigmoid_function
- * @param {number} x
- * @return {number}
- */
+// https://en.wikipedia.org/wiki/Sigmoid_function
 global.sigmoid = (x) => 1 + Math.tanh((2 * x) - 1);
-/**
- * sigmoid on Game.cpu.limit + Game.cpu.bucket
- * @return {number}
- */
+// sigmoid on Game.cpu.limit + Game.cpu.bucket
 global.cpuLimit = () => _.ceil(Game.cpu.limit * global.sigmoid(Game.cpu.bucket / 10000));
 
 /**
