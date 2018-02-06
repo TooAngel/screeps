@@ -274,10 +274,10 @@ Room.prototype.checkCanHelp = function() {
 
   const thisRoomCanHelp = this.memory.energyStats.average > config.carryHelpers.helpTreshold;
   const canHelp = thisRoomCanHelp && nearestRoomObj && (
-    !nearestRoomObj.terminal ||
-    nearestRoomObj.terminal.store.energy < config.carryHelpers.helpTreshold * 2 ||
-    (nearestRoomObj.storage.store.energy < this.storage.store.energy && this.storage.store.energy > 700000) // todo-msc dont get full fix
-  );
+      !nearestRoomObj.terminal ||
+      nearestRoomObj.terminal.store.energy < config.carryHelpers.helpTreshold * 2 ||
+      (nearestRoomObj.storage.store.energy < this.storage.store.energy && this.storage.store.energy > 700000) // todo-msc dont get full fix
+    );
   // this.log(thisRoomCanHelp, nearestRoomObj.name, !nearestRoomObj.terminal, nearestRoomObj.terminal.store.energy, config.carryHelpers.helpTreshold * 2);
   // if (!canHelp) {
   //   const nearestRoomObjNeedsEnergy = (nearestRoomObj.memory.energyStats.average < config.carryHelpers.helpTreshold) || (nearestRoomObj.storage.store.energy < 20000);
