@@ -70,6 +70,7 @@ const main = function() {
 
   if (Game.time % 200 === 0) {
     console.log(Game.time, 'TooAngel AI - All good');
+    console.log(Game.time, 'cpu limit per tick', global.tickLimit);
   }
   if (Game.cpu.bucket < 2 * Game.cpu.tickLimit && Game.cpu.bucket < Game.cpu.limit * 10) {
     console.log(Game.time, 'Skipping tick CPU Bucket too low.',
@@ -91,9 +92,6 @@ const main = function() {
   // room execution via sigmoid function + every 10 ticks execute all rooms
   if (Game.time % 10 === 0) {
     Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
-    if (Game.time % 100 === 0) {
-      console.log(Game.time, 'global.tickLimit', global.tickLimit);
-    }
   } else {
     /** @see https://github.com/TooAngel/screeps/pull/498#discussion-diff-165847270R92 */
     if (config.main.randomExecution) {
