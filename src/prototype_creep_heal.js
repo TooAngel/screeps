@@ -15,12 +15,7 @@ Creep.prototype.selfHeal = function() {
 
 Creep.prototype.healMyCreeps = function() {
   const myCreeps = this.room.find(FIND_MY_CREEPS, {
-    filter: function(object) {
-      if (object.hits < object.hitsMax) {
-        return true;
-      }
-      return false;
-    },
+    filter: (object) => (object.hits < object.hitsMax),
   });
   if (myCreeps.length > 0) {
     this.say('heal', true);
@@ -60,46 +55,28 @@ Creep.prototype.healAllyCreeps = function() {
   }
 };
 
+Creep.prototype.healCreep = function(range, myCreep) {
+  if (range <= 1) {
+    this.heal(myCreep);
+  } else {
+    this.moveTo(myCreep);
+    this.rangedHeal(myCreep);
+  }
+};
+
 Creep.prototype.squadHeal = function() {
   let range;
-  let creepToHeal = this.pos.findClosestByRange(FIND_MY_CREEPS, {
-    filter: function(object) {
-      return object.hits < object.hitsMax / 1.5;
-    },
+  const creepToHeal = this.pos.findClosestByRange(FIND_MY_CREEPS, {
+    filter: (object) => object.hits < object.hitsMax / 1.5,
   });
 
   if (creepToHeal !== null) {
     range = this.pos.getRangeTo(creepToHeal);
-    if (range <= 1) {
-      this.heal(creepToHeal);
-    } else {
-      this.rangedHeal(creepToHeal);
-      this.moveTo(creepToHeal);
-    }
+    this.healCreep(range, creepToHeal);
     return true;
   }
 
-  creepToHeal = this.pos.findClosestByRange(FIND_MY_CREEPS, {
-    filter: function(object) {
-      return object.hits < object.hitsMax;
-    },
-  });
-
-  if (creepToHeal !== null) {
-    range = this.pos.getRangeTo(creepToHeal);
-    if (range > 1) {
-      this.rangedHeal(creepToHeal);
-    } else {
-      this.heal(creepToHeal);
-    }
-    if (creepToHeal.id === this.id) {
-      this.say('exit');
-      const exit = this.pos.findClosestByRange(FIND_EXIT);
-      this.moveTo(exit);
-    } else {
-      this.say(JSON.stringify(creepToHeal));
-      this.moveTo(creepToHeal);
-    }
+  if (this.healClosestCreep(true)) {
     return true;
   }
 
@@ -118,18 +95,23 @@ Creep.prototype.squadHeal = function() {
   return false;
 };
 
-Creep.prototype.healClosestCreep = function() {
+Creep.prototype.healClosestCreep = function(andExit) {
   const myCreep = this.pos.findClosestByRange(FIND_MY_CREEPS, {
     filter: (o) => o.isDamaged() < 1,
   });
   if (myCreep !== null) {
     this.say('heal', true);
     const range = this.pos.getRangeTo(myCreep);
-    if (range <= 1) {
-      this.heal(myCreep);
-    } else {
-      this.moveTo(myCreep);
-      this.rangedHeal(myCreep);
+    this.healCreep(range, myCreep);
+    if (andExit) {
+      if (myCreep.id === this.id) {
+        this.say('exit');
+        const exit = this.pos.findClosestByRange(FIND_EXIT);
+        this.moveTo(exit);
+      } else {
+        this.say(JSON.stringify(myCreep));
+        this.moveTo(myCreep);
+      }
     }
     return true;
   }

@@ -5,18 +5,22 @@ brain.stats.init = function() {
   if (!config.stats.enabled || !userName) {
     return false;
   }
-  Memory.stats = {
-    [userName]: {
-      roles: {},
-      room: {},
-    },
-  };
+  Memory.stats = {[userName]: {roles: {}, room: {}}};
   const rolesNames = _(Game.creeps).map((c) => c.memory.role).countBy((r) => {
     return r;
   }).value();
   _.each(rolesNames, (element, index) => {
     Memory.stats[userName].roles[index] = element;
   });
+
+  if (config.cpuStats.enable) {
+    const startCpuWith = {load: global.load, time: Game.time, bucket: Game.cpu.bucket, tickLimit: global.tickLimit};
+    Memory.cpuStats = {
+      start: startCpuWith,
+      last: startCpuWith,
+      summary: {maxBucket: Game.cpu.bucket, maxLoad: global.load, minBucket: Game.cpu.bucket, runTime: 0},
+    };
+  }
 };
 
 brain.stats.modifyRoleAmount = function(role, diff) {
@@ -139,4 +143,21 @@ brain.stats.addRoom = function(roomName, previousCpu) {
     });
   }
   return true;
+};
+
+brain.stats.updateCpuStats = function() {
+  if (config.cpuStats.enable) {
+    Memory.cpuStats.last = {
+      load: _.round(Game.cpu.getUsed()),
+      time: Game.time,
+      bucket: Game.cpu.bucket,
+      tickLimit: global.cpuLimit(),
+    };
+    Memory.cpuStats.summary = {
+      maxBucket: Math.max(Memory.cpuStats.summary.maxBucket, Memory.cpuStats.last.bucket),
+      maxLoad: Math.max(Memory.cpuStats.summary.maxLoad, Memory.cpuStats.last.load),
+      minBucket: Math.min(Memory.cpuStats.summary.minBucket, Memory.cpuStats.last.bucket),
+      runTime: Memory.cpuStats.last.time - Memory.cpuStats.start.time,
+    };
+  }
 };

@@ -16,9 +16,7 @@ roles.atkeeper.settings = {
 };
 
 roles.atkeeper.preMove = function(creep, direction) {
-  if (creep.room.name === creep.memory.routing.targetRoom) {
-    creep.memory.routing.reached = true;
-  }
+  creep.checkForRoutingReached();
 };
 
 roles.atkeeper.action = function(creep) {

@@ -4,24 +4,13 @@ Room.prototype.unclaimRoom = function() {
   // remove creeps if base === this.name
   const room = this;
   let returnValue;
-  const creepsToKill = _.filter(Game.creeps, (c) => c.memory.base === room.name);
-  room.log('creepsToKill', _.size(creepsToKill), _.map(creepsToKill, (c) => c.suicide()));
-  if (room.memory.constructionSites && _.size(room.memory.constructionSites)) {
-    room.memory.constructionSites[0].remove();
-  }
-
-  const myStructuresToDestroy = _.sortBy(this.find(FIND_MY_STRUCTURES), (s) => s.hitsMax);
-  const controller = myStructuresToDestroy.shift();
-  if (_.size(myStructuresToDestroy) > 0) {
-    returnValue = myStructuresToDestroy[0].destroy();
-  } else {
-    returnValue = controller.unclaim();
-    delete Memory.rooms[room.name];
-  }
-  if (returnValue !== OK) {
-    room.log(myStructuresToDestroy[0], 'destroy / unclaim did not work');
-  } else {
-    room.log('myStructuresToDestroy', myStructuresToDestroy[0], _.size(myStructuresToDestroy), controller);
+  global.utils.killCreeps(room);
+  const sites = global.utils.removeConstructionSites(room);
+  if (sites < 2) {
+    returnValue = global.utils.removeNextStructure(room);
+    if (returnValue !== OK) {
+      room.log('destroy / unclaim did not work');
+    }
   }
 };
 
@@ -120,22 +109,25 @@ Room.prototype.handleLinks = function() {
 };
 
 Room.prototype.handlePowerSpawn = function() {
-  // todo-msc (verify is needed) added exectueEveryTicks 3 for movement of harvesters
-  // todo-msc this slows down power processing
-  // todo-msc (is needed) added memory.constants.powerSpawn = powerSpawn.id for role storagefiller
+  // todo-msc (verify is needed) added exectueEveryTicks 3 for movement of harvesters, maybe use exectueEveryTicks 2
   if (this.exectueEveryTicks(3)) {
     const powerSpawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_POWER_SPAWN]);
     if (powerSpawns.length === 0) {
       return false;
     }
     const powerSpawn = powerSpawns[0];
-    if (!this.memory.constants.powerSpawn || this.memory.constants.powerSpawn !== powerSpawn.id) {
-      this.memory.constants.powerSpawn = powerSpawn.id;
-    }
+    this.savePowerSpawnId(powerSpawn);
 
     if (powerSpawn.power > 0) {
       powerSpawn.processPower();
     }
+  }
+};
+
+// added memory.constants.powerSpawn = powerSpawn.id for role storagefiller
+Room.prototype.savePowerSpawnId = function(powerSpawn) {
+  if (!this.memory.constants.powerSpawn || this.memory.constants.powerSpawn !== powerSpawn.id) {
+    this.memory.constants.powerSpawn = powerSpawn.id;
   }
 };
 
@@ -298,38 +290,7 @@ Room.prototype.checkCanHelp = function() {
   return returnValue;
 };
 
-Room.prototype.checkForEnergyTransfer = function(force) {
-  if (config.carryHelpers.disabled) {
-    return false;
-  }
-
-  Memory.needEnergyRooms = Memory.needEnergyRooms || [];
-  this.memory.energyStats = this.memory.energyStats || {sum: 0, ticks: 0};
-  if (force) {
-    this.memory.energyStats.average = this.memory.energyStats.sum / this.memory.energyStats.ticks;
-    const needHelp = this.checkNeedHelp();
-    if (needHelp) {
-      if (needHelp !== 'Already set as needHelp') {
-        this.log(needHelp);
-      }
-    } else {
-      const canHelp = this.checkCanHelp();
-      if (canHelp !== 'no') {
-        this.log(canHelp);
-      }
-    }
-    this.memory.energyStats.sum = 0;
-    this.memory.energyStats.ticks = 0;
-    return true;
-  } else {
-    if (!this.exectueEveryTicks(config.carryHelpers.ticksUntilHelpCheck)) {
-      const factor = config.carryHelpers.factor;
-      this.memory.energyStats.available = (1 - factor) * this.memory.energyStats.available + (factor) * this.energyAvailable || 0;
-      this.memory.energyStats.sum += this.memory.energyStats.available;
-      this.memory.energyStats.ticks++;
-      return false;
-    }
-  }
+Room.prototype.updateEnergyStatsAndCheckForHelp = function() {
   this.memory.energyStats.average = this.memory.energyStats.sum / this.memory.energyStats.ticks;
   const needHelp = this.checkNeedHelp();
   if (needHelp) {
@@ -344,7 +305,30 @@ Room.prototype.checkForEnergyTransfer = function(force) {
   }
   this.memory.energyStats.sum = 0;
   this.memory.energyStats.ticks = 0;
-  return true;
+};
+
+Room.prototype.checkForEnergyTransfer = function(force) {
+  if (config.carryHelpers.disabled) {
+    return false;
+  }
+
+  Memory.needEnergyRooms = Memory.needEnergyRooms || [];
+  this.memory.energyStats = this.memory.energyStats || {sum: 0, ticks: 0};
+  if (force) {
+    this.updateEnergyStatsAndCheckForHelp();
+    return true;
+  }
+
+  if (this.exectueEveryTicks(config.carryHelpers.ticksUntilHelpCheck)) {
+    this.updateEnergyStatsAndCheckForHelp();
+    return true;
+  } else {
+    const factor = config.carryHelpers.factor;
+    this.memory.energyStats.available = (1 - factor) * this.memory.energyStats.available + (factor) * this.energyAvailable || 0;
+    this.memory.energyStats.sum += this.memory.energyStats.available;
+    this.memory.energyStats.ticks++;
+    return false;
+  }
 };
 
 Room.prototype.getHarvesterAmount = function() {
@@ -541,29 +525,37 @@ Room.prototype.reviveMyNow = function() {
     return Game.map.getRoomLinearDistance(room.name, object);
   };
   const roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
+  // TODO find a proper value for config.revive.reviverMaxQueue,
+  // TODO find meaningful config value for config.revive.reviverMinEnergy
+  const noNeedNextroomers = function(roomName, roomOther) {
+    return ((room.name === roomName) || !roomOther || !roomOther.memory || !roomOther.memory.active ||
+    (!roomOther.storage || roomOther.storage.store.energy < config.room.reviveStorageAvailable) ||
+    (!roomOther.memory.queue || roomOther.memory.queue.length > config.revive.reviverMaxQueue) ||
+    (roomOther.energyCapacityAvailable < config.revive.reviverMinEnergy));
+  };
+
+  const checkForRoute = function(roomOther) {
+    const route = room.findRoute(roomOther.name, room.name);
+    // TODO Instead of skipping we could try to free up the way: nextroomerattack or squad
+    if (route.length === 0) {
+      roomOther.log('No route to other room: ' + roomOther.name);
+      return true;
+    }
+    return false;
+  };
+
   const callNextRoomer = (roomIndex) => {
     if (nextroomerCalled > config.nextRoom.numberOfNextroomers) {
       return false;
     }
     const roomName = Memory.myRooms[roomIndex];
     const roomOther = Game.rooms[roomName];
-
-    // TODO find a proper value for config.revive.reviverMaxQueue,
-    // TODO find meaningful config value for config.revive.reviverMinEnergy
-    if ((this.name === roomName) || !roomOther || !roomOther.memory || !roomOther.memory.active ||
-      (!roomOther.storage || roomOther.storage.store.energy < config.room.reviveStorageAvailable) ||
-      (!roomOther.memory.queue || roomOther.memory.queue.length > config.revive.reviverMaxQueue) ||
-      (roomOther.energyCapacityAvailable < config.revive.reviverMinEnergy)
-    ) {
+    if (noNeedNextroomers(roomName, roomOther)) {
       return false;
     }
-
     const distance = Game.map.getRoomLinearDistance(this.name, roomName);
     if (distance < config.nextRoom.maxDistance) {
-      const route = this.findRoute(roomOther.name, this.name);
-      // TODO Instead of skipping we could try to free up the way: nextroomerattack or squad
-      if (route.length === 0) {
-        roomOther.log('No route to other room: ' + roomOther.name);
+      if (checkForRoute(roomOther)) {
         return false;
       }
 
@@ -574,11 +566,7 @@ Room.prototype.reviveMyNow = function() {
       }
       roomOther.checkRoleToSpawn(role, 1, undefined, this.name);
       nextroomerCalled++;
-      return {
-        called: nextroomerCalled,
-        base: roomOther,
-        to: this.name,
-      };
+      return {called: nextroomerCalled, base: roomOther, to: this.name};
     }
   };
   const nextroomers = _.map(roomsMy, callNextRoomer);

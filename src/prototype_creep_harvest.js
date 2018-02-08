@@ -1,11 +1,6 @@
 'use strict';
 
-Creep.prototype.handleSourcer = function() {
-  this.setNextSpawn();
-  this.spawnReplacement();
-  const targetId = this.memory.routing.targetId;
-  const source = Game.getObjectById(targetId);
-
+Creep.prototype.cantHarvest = function(source) {
   const returnCode = this.harvest(source);
   if (returnCode !== OK && returnCode !== ERR_NOT_ENOUGH_RESOURCES) {
     if (returnCode === ERR_NO_BODYPART) {
@@ -21,29 +16,40 @@ Creep.prototype.handleSourcer = function() {
     this.log('harvest: ' + returnCode);
     return false;
   }
+  return true;
+};
 
+Creep.prototype.baseHarvesting = function() {
+  if (!this.memory.link) {
+    const links = this.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
+    if (links.length > 0) {
+      this.memory.link = links[0].id;
+    }
+  }
+  const link = Game.getObjectById(this.memory.link);
+  if (link) {
+    this.transfer(link, RESOURCE_ENERGY);
+    const resources = this.pos.findInRangePropertyFilter(FIND_DROPPED_RESOURCES, 1, 'resourceType', [RESOURCE_ENERGY]);
+    if (resources.length > 0) {
+      this.pickup(resources);
+    }
+  }
+};
+
+Creep.prototype.handleSourcer = function() {
+  this.setNextSpawn();
+  this.spawnReplacement();
+  const targetId = this.memory.routing.targetId;
+  const source = Game.getObjectById(targetId);
+  if (!this.cantHarvest(source)) {
+    return false;
+  }
   this.buildContainer();
-
   if (!this.room.controller || !this.room.controller.my || this.room.controller.level >= 2) {
     this.spawnCarry();
   }
-
   if (this.inBase()) {
-    if (!this.memory.link) {
-      const links = this.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
-      if (links.length > 0) {
-        this.memory.link = links[0].id;
-      }
-    }
-
-    const link = Game.getObjectById(this.memory.link);
-    if (link) {
-      this.transfer(link, RESOURCE_ENERGY);
-      const resources = this.pos.findInRangePropertyFilter(FIND_DROPPED_RESOURCES, 1, 'resourceType', [RESOURCE_ENERGY]);
-      if (resources.length > 0) {
-        this.pickup(resources);
-      }
-    }
+    this.baseHarvesting();
   } else {
     this.selfHeal();
   }

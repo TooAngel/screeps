@@ -16,9 +16,7 @@ roles.atkeepermelee.settings = {
 };
 
 roles.atkeepermelee.preMove = function(creep, direction) {
-  if (creep.room.name === creep.memory.routing.targetRoom) {
-    creep.memory.routing.reached = true;
-  }
+  creep.checkForRoutingReached();
   if (creep.memory.canHeal && creep.isDamaged() < 1) {
     creep.heal(creep);
   }
@@ -43,6 +41,20 @@ roles.atkeepermelee.action = function(creep) {
     creep.memory.damaged = true;
   }
 
+  const healMove = function(creep, target) {
+    const range = creep.pos.getRangeTo(target.pos);
+    if (range > 5) {
+      creep.moveToMy(target.pos);
+    } else if (range > 2) {
+      creep.moveTo(target.pos, {ignoreCreeps: false, reusePath: 2});
+    } else {
+      creep.moveRandomWithin(target.pos, 1);
+      if (target.structureType === 'keeperLair') {
+        creep.selfHeal();
+      }
+    }
+  };
+
   const attack = function(creep) {
     creep.say('attack');
     // todo-msc cache target
@@ -58,17 +70,7 @@ roles.atkeepermelee.action = function(creep) {
     if (target) {
       creep.room.memory.lastTarget = target.id;
     }
-    const range = creep.pos.getRangeTo(target.pos);
-    if (range > 5) {
-      creep.moveToMy(target.pos);
-    } else if (range > 2) {
-      creep.moveTo(target.pos, {ignoreCreeps: false, reusePath: 2});
-    } else {
-      creep.moveRandomWithin(target.pos, 1);
-      if (target.structureType === 'keeperLair') {
-        creep.selfHeal();
-      }
-    }
+    healMove(creep, target);
     const returnValue = creep.attack(target);
     if (returnValue !== OK) {
       creep.selfHeal();

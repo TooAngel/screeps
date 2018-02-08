@@ -179,6 +179,25 @@ global.utils = {
     return patt.exec(name);
   },
 
+  routeCallbackRoomHandle: function(roomName) {
+    let returnValue;
+    if (Memory.rooms[roomName].state === 'Occupied') {
+      // console.log(Game.time, `Creep.prototype.getRoute: Do not route through occupied rooms ${roomName}`);
+      if (config.path.allowRoutingThroughFriendRooms && friends.indexOf(Memory.rooms[roomName].player) > -1) {
+        console.log('routing through friendly room' + roomName);
+        returnValue = 1;
+      } else {
+        // console.log(Game.time, 'Not routing through enemy room' + roomName);
+        returnValue = Infinity;
+      }
+    }
+    if (Memory.rooms[roomName].state === 'Blocked') {
+      // console.log(Game.time, `Creep.prototype.getRoute: Do not route through blocked rooms ${roomName}`);
+      returnValue = Infinity;
+    }
+    return returnValue;
+  },
+
   routeCallback: function(to, useHighWay) {
     return function(roomName, fromRoomName) {
       let returnValue = Infinity;
@@ -186,20 +205,7 @@ global.utils = {
         returnValue = 1;
       } else {
         if (Memory.rooms[roomName]) {
-          if (Memory.rooms[roomName].state === 'Occupied') {
-            // console.log(Game.time, `Creep.prototype.getRoute: Do not route through occupied rooms ${roomName}`);
-            if (config.path.allowRoutingThroughFriendRooms && friends.indexOf(Memory.rooms[roomName].player) > -1) {
-              console.log('routing through friendly room' + roomName);
-              returnValue = 1;
-            } else {
-              // console.log(Game.time, 'Not routing through enemy room' + roomName);
-              returnValue = Infinity;
-            }
-          }
-          if (Memory.rooms[roomName].state === 'Blocked') {
-            // console.log(Game.time, `Creep.prototype.getRoute: Do not route through blocked rooms ${roomName}`);
-            returnValue = Infinity;
-          }
+          returnValue = global.utils.routeCallbackRoomHandle(roomName);
         }
         if (useHighWay) {
           const nameSplit = global.utils.splitRoomName(roomName);
@@ -215,4 +221,36 @@ global.utils = {
       return returnValue;
     };
   },
+
+  // unclaim functions
+  killCreeps: function(room) {
+    const creepsToKill = _.filter(Game.creeps, (c) => c.memory.base === room.name);
+    room.log('creepsToKill', _.size(creepsToKill), _.map(creepsToKill, (c) => c.suicide()));
+  },
+
+  removeConstructionSites: function(room) {
+    const sites = _.size(room.memory.constructionSites);
+    if (room.memory.constructionSites && sites) {
+      room.memory.constructionSites[0].remove();
+    }
+    return sites > 0 ? (sites - 1) : 0;
+  },
+
+  removeNextStructure: function(room) {
+    let returnValue;
+    const myStructuresToDestroy = _.sortBy(room.find(FIND_MY_STRUCTURES), (s) => s.hitsMax);
+    const controller = myStructuresToDestroy.shift();
+    if (_.size(myStructuresToDestroy) > 0) {
+      returnValue = myStructuresToDestroy[0].destroy();
+    } else {
+      returnValue = controller.unclaim();
+      delete Memory.rooms[room.name];
+    }
+    room.log('removeNextStructure returns', returnValue,
+      'next structure', myStructuresToDestroy[0],
+      'total structures', _.size(myStructuresToDestroy),
+      'controller', global.ex(controller));
+    return returnValue;
+  },
+
 };

@@ -21,7 +21,7 @@ roles.carry.settings = {
     300: '',
     550: 'W',
   },
-  layoutString: 'MC',
+  layoutString: 'CM',
   amount: config.carry.sizes,
   maxLayoutAmount: 1,
 };

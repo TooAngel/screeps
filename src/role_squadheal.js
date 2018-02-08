@@ -14,7 +14,6 @@ roles.squadheal.settings = {
   fillTough: true,
 };
 
-
 roles.squadheal.preMove = function(creep, directions) {
   creep.log('preMove');
   if (creep.hits < creep.hitsMax) {

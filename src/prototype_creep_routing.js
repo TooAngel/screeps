@@ -445,3 +445,9 @@ Creep.prototype.checkForSourceKeeper = function() {
     }
   }
 };
+
+Creep.prototype.checkForRoutingReached = function(creep) {
+  if (creep.room.name === creep.memory.routing.targetRoom) {
+    creep.memory.routing.reached = true;
+  }
+};

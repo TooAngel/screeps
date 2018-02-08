@@ -2,12 +2,14 @@
 
 global.brain = {
   stats: {},
+  main: {},
 };
 global.roles = {};
 global.cache = {
   rooms: {},
   segments: {},
 };
+global.profiler = {};
 
 try {
   global.friends = require('friends'); // eslint-disable-line global-require
@@ -277,6 +279,7 @@ global.config = {
   main: {
     enabled: true,
     randomExecution: false,
+    executeAll: 10,
   },
 
   keepers: {

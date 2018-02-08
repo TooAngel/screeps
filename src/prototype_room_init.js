@@ -270,6 +270,7 @@ Room.prototype.setTowerFiller = function() {
 };
 
 Room.prototype.setLabs = function(allPaths) {
+  const room = this;
   let lab1Pos;
   let lab2Pos;
   let pathI;
@@ -316,7 +317,7 @@ Room.prototype.setLabs = function(allPaths) {
             this.memory.position.creep.labs = lastPathPos;
           }
         }
-        console.log('All labs set: ' + pathI);
+        room.log('All labs set: ' + pathI);
         return;
       }
     }
@@ -388,7 +389,7 @@ Room.prototype.setStructuresIteratePos = function(structurePos, pathI, path) {
   }
 
   this.memory.position.pathEnd = structurePos;
-  console.log('All structures set: ' + pathI);
+  this.log('All structures set: ' + pathI);
   return false;
 };
 
