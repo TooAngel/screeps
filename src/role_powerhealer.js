@@ -15,10 +15,7 @@ roles.powerhealer.settings = {
 };
 
 roles.powerhealer.action = function(creep) {
-  if (creep.hits < creep.hitsMax) {
-    creep.heal(creep);
-  }
-
+  creep.selfHeal();
   const myCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
     filter: (object) => object.hits < object.hitsMax,
   });

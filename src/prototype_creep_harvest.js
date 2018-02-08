@@ -44,6 +44,8 @@ Creep.prototype.handleSourcer = function() {
         this.pickup(resources);
       }
     }
+  } else {
+    this.selfHeal();
   }
 };
 

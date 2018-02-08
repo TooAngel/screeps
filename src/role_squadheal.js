@@ -14,34 +14,12 @@ roles.squadheal.settings = {
   fillTough: true,
 };
 
-roles.squadheal.healClosestCreep = function(creep) {
-  const myCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-    filter: function(object) {
-      if (object.hits < object.hitsMax) {
-        return true;
-      }
-      return false;
-    },
-  });
-  if (myCreep !== null) {
-    creep.say('heal', true);
-    const range = creep.pos.getRangeTo(myCreep);
-    if (range <= 1) {
-      creep.heal(myCreep);
-    } else {
-      creep.moveTo(myCreep);
-      creep.rangedHeal(myCreep);
-    }
-    return true;
-  }
-  return false;
-};
 
 roles.squadheal.preMove = function(creep, directions) {
   creep.log('preMove');
   if (creep.hits < creep.hitsMax) {
     creep.log('preMove heal');
-    creep.heal(creep);
+    creep.selfHeal();
     creep.memory.routing.reverse = true;
     if (directions) {
       directions.direction = directions.backwardDirection;
@@ -51,7 +29,7 @@ roles.squadheal.preMove = function(creep, directions) {
     creep.memory.routing.reverse = false;
   }
 
-  if (roles.squadheal.healClosestCreep(creep)) {
+  if (creep.healClosestCreep()) {
     return true;
   }
 
@@ -71,8 +49,7 @@ roles.squadheal.preMove = function(creep, directions) {
 
 // TODO need to check if it works
 roles.squadheal.action = function(creep) {
-  creep.heal(creep);
-
+  creep.selfHeal();
   if (creep.room.name !== creep.memory.routing.targetRoom) {
     // creep.log('Not in room');
     if (creep.hits < creep.hitsMax) {
@@ -88,8 +65,6 @@ roles.squadheal.action = function(creep) {
     // get all towers and calculate their potential damage
     // the damage is applied after the first tick
     if (creep.hits < creep.hitsMax) {
-      creep.log('action heal');
-      creep.heal(creep);
       creep.say('exit');
       const exit = creep.pos.findClosestByRange(FIND_EXIT);
       creep.moveTo(exit);
@@ -105,6 +80,6 @@ roles.squadheal.action = function(creep) {
 
 roles.squadheal.execute = function(creep) {
   creep.log('Execute!!!');
-  creep.heal(creep);
+  creep.selfHeal();
   creep.moveRandom();
 };

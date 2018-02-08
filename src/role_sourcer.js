@@ -46,13 +46,19 @@ roles.sourcer.updateSettings = function(room, creep) {
   if (!room.storage) {
     return false;
   }
-  const target = creep.routing && creep.routing.targetRoom;
-  if ((target !== room.name) && Memory.rooms[target].sourceKeeperRoom) {
+  const target = creep.routing && creep.routing.targetRoom ? creep.routing.targetRoom : false;
+  const inBase = (target === room.name);
+  if (!inBase && Memory.rooms[target].sourceKeeperRoom) {
     return {
       prefixString: 'MC',
       layoutString: 'MW',
       amount: [5, 10],
       maxLayoutAmount: 1,
+    };
+  }
+  if (!inBase) {
+    return {
+      sufixString: 'MH',
     };
   }
   return false;

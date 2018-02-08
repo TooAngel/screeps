@@ -137,10 +137,6 @@ Room.prototype.spawnKeepersEveryTicks = function(ticks) {
   return returnValue;
 };
 
-Creep.prototype.isDamaged = function() {
-  return this.hits / this.hitsMax;
-};
-
 Room.prototype.keeperTeamReady = function() {
   const atkeepermelee = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeepermelee']);
   const atkeeper = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeeper']);
