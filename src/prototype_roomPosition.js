@@ -191,8 +191,8 @@ RoomPosition.prototype.getFirstNearPosition = function(...args) {
 };
 RoomPosition.prototype.getLastNearPosition = function(...args) {
   const arr = this.findNearPosition(...args);
-  console.log(JSON.stringify(arr.next()));
-  console.log(JSON.stringify(arr.next()));
+  this.log(JSON.stringify(arr.next()));
+  this.log(JSON.stringify(arr.next()));
   return arr.next().value;
 };
 
