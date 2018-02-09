@@ -42,7 +42,7 @@ Room.prototype.spawnCheckForCreate = function() {
     return true;
   }
   if (creep.ttl === 0) {
-    this.log('TTL reached, skipping: ' + JSON.stringify(creep));
+    this.log('TTL reached, skipping: ' + JSON.stringify(_.omit(creep, ['level'])));
     this.memory.queue.shift();
     return false;
   }
@@ -97,17 +97,17 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
       continue;
     }
     if (creepMemory.role === iMem.role && (!iMem.routing ||
-        (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
-          creepMemory.routing.targetId === iMem.routing.targetId))) {
+      (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
+      creepMemory.routing.targetId === iMem.routing.targetId))) {
       j++;
     }
     if (j >= amount) {
       this.memory.roles[creepMemory.role] = true;
       /**
-      if (config.debug.queue) {
+       if (config.debug.queue) {
         this.log('Already enough ' + creepMemory.role);
       }
-      **/
+       **/
       return true;
     }
   }
@@ -134,7 +134,13 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
   }
 
   if (config.debug.queue) {
-    this.log('Add ' + creepMemory.role + ' to queue. ' + JSON.stringify(creepMemory));
+    let debugMem = JSON.stringify(_.omit(creepMemory, ['role', 'routing', 'level']));
+    debugMem = (debugMem !== '{}') ? debugMem : '';
+    if (this.name === creepMemory.routing.targetRoom) {
+      this.log('Add to queue: ' + creepMemory.role.rpad(' ', 20), ' '.rpad(' ', 19), debugMem);
+    } else {
+      this.log('Add to queue: ' + creepMemory.role.rpad(' ', 20), 'targetRoom ' + creepMemory.routing.targetRoom.rpad(' ', 8), debugMem);
+    }
   }
   return this.memory.queue.push(creepMemory);
 };
@@ -191,7 +197,7 @@ Room.prototype.getPartsStringDatas = function(parts, energyAvailable) {
  * Room.prototype.getSettings use for return creep spawn settings
  * adapted to room configuration
  *
- * @param {Collection} creep queue's creep spawn basic datas
+ * @param {Object} creep queue's creep spawn basic datas
  * @return {object}
  */
 Room.prototype.getSettings = function(creep) {
@@ -291,8 +297,7 @@ Room.prototype.getPartConfig = function(creep) {
     amount,
     maxLayoutAmount,
     sufixString,
-    fillTough,
-  } = settings;
+    fillTough} = settings;
   let layoutString = settings.layoutString;
   let maxBodyLength = MAX_CREEP_SIZE;
   if (prefixString) {
@@ -322,7 +327,7 @@ Room.prototype.getPartConfig = function(creep) {
     maxRepeat = Math.min(maxLayoutAmount, maxRepeat);
   }
   if (maxRepeat > 0) {
-    parts = parts.concat(_.flatten(Array(maxRepeat).fill(layout.parts)));
+    parts = parts.concat(_.flatten(_.fill(new Array(maxRepeat), layout.parts)));
   }
   energyAvailable -= layout.cost * maxRepeat;
 
@@ -336,7 +341,7 @@ Room.prototype.getPartConfig = function(creep) {
     const tough = this.getPartsStringDatas('T', energyAvailable);
     if (!tough.fail && !tough.null) {
       const maxTough = Math.floor(Math.min(energyAvailable / tough.cost, MAX_CREEP_SIZE - parts.length, parts.filter((p) => p === MOVE).length));
-      parts = _.flatten(Array(maxTough).fill(tough.parts)).concat(parts);
+      parts = _.flatten(_.fill(new Array(maxTough), tough.parts)).concat(parts);
     }
   }
 

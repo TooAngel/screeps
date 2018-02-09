@@ -20,6 +20,11 @@ function executeExtractor(creep) {
   return creep.handleExtractor();
 }
 
+// todo-msc preMove parts from sourcer
+roles.extractor.preMove = function(creep, directions) {
+  creep.preMoveExtractorSourcer(directions);
+};
+
 roles.extractor.action = executeExtractor;
 
 roles.extractor.execute = executeExtractor;

@@ -41,10 +41,20 @@ function checkForDefender(creep) {
   Game.rooms[creep.memory.base].checkRoleToSpawn('defender', 1, undefined, creep.room.name);
 }
 
-roles.scout.execute = function(creep) {
+roles.scout.preMove = function(creep, direction) {
   if (creep.memory.skip === undefined) {
     creep.memory.skip = [];
   }
+  if (creep.memory.search && creep.memory.search.seen && (creep.memory.search.seen.length > 0) && (creep.memory.search.seen.indexOf(creep.room.name) === -1)) {
+    creep.memory.search.seen.push(creep.room.name);
+    // creep.log('added', creep.room.name, 'to seen', creep.memory.search.seen);
+    return true;
+  }
+  return false;
+};
+
+roles.scout.execute = function(creep) {
+  roles.scout.preMove(creep);
   const breadthFirstSearch = function(creep) {
     const setNewTarget = function(creep) {
       for (const room of creep.memory.search.levels[creep.memory.search.level]) {
@@ -147,9 +157,21 @@ roles.scout.execute = function(creep) {
     }
 
     if (creep.isStuck()) {
+      if (creep.memory.stuck > 20) {
+        creep.log('Scout Stuck suicide');
+        creep.suicide();
+        return true;
+      }
+      if (creep.memory.stuck > 0) {
+        creep.memory.stuck++;
+      } else {
+        creep.memory.stuck = 1;
+      }
+
       creep.moveRandom();
-      creep.say('ImStuck', true);
-      creep.log('Scout Stuck, Randomly Moving: ' + JSON.stringify(creep.memory.last) + ' ' + JSON.stringify(creep.isStuck()));
+      creep.say('ImStuck ' + creep.memory.stuck, true);
+      // creep.log('Scout Stuck, Randomly Moving: ' + JSON.stringify(creep.memory.last.pos1) + ' #' + creep.memory.stuck);
+
       return true;
     }
 
@@ -177,7 +199,6 @@ roles.scout.execute = function(creep) {
     creep.say(creep.pos.getDirectionTo(search.path[0]));
     creep.move(creep.pos.getDirectionTo(search.path[0]));
   };
-
   creep.notifyWhenAttacked(false);
   return breadthFirstSearch(creep);
 };

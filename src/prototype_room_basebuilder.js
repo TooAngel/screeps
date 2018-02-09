@@ -70,7 +70,7 @@ Room.prototype.destroyStructure = function(structure) {
     structuresMin = 1;
   }
 
-  if (structures.length > structuresMin && (structure.my || Room.structureIsEmpty(structure))) {
+  if (structures.length > structuresMin && (structure.my || Room.structureIsEmpty(structure)) && (structure.structureType !== STRUCTURE_STORAGE)) {
     this.log('Destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
     structure.destroy();
     return true;
@@ -126,7 +126,8 @@ Room.prototype.checkPath = function() {
 
   const path = this.getMemoryPath('pathStart-harvester');
   if (!path) {
-    this.log('Skipping checkPath, routing not initialized');
+    this.log('Skipping checkPath, routing not initialized, try remove memory');
+    this.clearMemory();
     return false;
   }
   for (const pos of path) {

@@ -51,7 +51,7 @@ Creep.prototype.checkEnergyTransfer = function(otherCreep) {
 // return true if helper can't transfer to creep
 Creep.prototype.checkHelperNoTransfer = function(creep) {
   return this.memory.helper && !creep.memory.helper &&
-        creep.memory.role === 'carry' && creep.memory.base !== this.memory.base;
+    creep.memory.role === 'carry' && creep.memory.base !== this.memory.base;
 };
 
 Creep.prototype.findCreepWhichCanTransfer = function(creeps) {
@@ -296,10 +296,15 @@ const checkCreepForTransfer = function(creep) {
   if (Game.creeps[creep.name].memory.role === 'extractor') {
     return false;
   }
+  // don't transfer to mineral, fixes full terminal with 80% energy?
+  if (Game.creeps[creep.name].memory.role === 'mineral') {
+    return false;
+  }
   // Do we want this?
   if (Game.creeps[creep.name].memory.role === 'powertransporter') {
     return false;
   }
+  // can not carry
   if (creep.carry.energy === creep.carryCapacity) {
     return false;
   }
@@ -514,15 +519,17 @@ Creep.prototype.getEnergyFromSource = function() {
     return false;
   }
 
-  if (range <= 2) {
-    if (this.getEnergyFromSourcer()) {
-      return true;
-    }
+  if (range <= 2 && this.getEnergyFromSourcer()) {
+    return true;
   }
 
   if (range === 1) {
     return this.harvestSource(source);
   } else {
+    if (range > 1 && range < 4) {
+      this.moveTo(source);
+      return true;
+    }
     return this.moveToSource(source, swarm);
   }
 };
@@ -564,7 +571,7 @@ Creep.prototype.getEnergy = function() {
    * Full energy, uses energy until empty.
    */
   this.setHasEnergy();
-
+  // todo-msc getEnergyFromStorage, getDroppedEnergy for planer and misplacedSpawn
   if (this.memory.hasEnergy) {
     return false;
   }
@@ -768,6 +775,11 @@ Creep.prototype.interactWithController = function() {
   if (this.room.controller.owner && this.room.controller.owner.username !== Memory.username) {
     this.say('attack');
     returnCode = this.attackController(this.room.controller);
+    if (returnCode === ERR_TIRED) {
+      this.respawnMe();
+      this.suicide();
+      return true;
+    }
   } else {
     returnCode = this.reserveController(this.room.controller);
   }

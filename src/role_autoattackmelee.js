@@ -10,7 +10,7 @@ roles.autoattackmelee = {};
 
 roles.autoattackmelee.settings = {
   layoutString: 'MA',
-  amount: [1, 1],
+  amount: [5, 5],
   fillTough: true,
 };
 

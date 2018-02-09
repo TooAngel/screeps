@@ -3,17 +3,21 @@
 Creep.prototype.mySignController = function() {
   if (config.info.signController && this.room.exectueEveryTicks(config.info.resignInterval)) {
     let text = config.info.signText;
+    // todo-msc add to config: config.quests.endTime, add quest.end  Math.floor(Game.time / 100) * 100 + configEndTime,
+    config.quests.endTime = 10000;
     if (config.quests.enabled && this.memory.role === 'reserver') {
       if (Math.random() < config.quests.signControllerPercentage) {
         const quest = {
-          id: Math.random(),
+          id: Math.floor(Math.random() * 100000),
           origin: this.memory.base,
+          end: Math.floor(Game.time / 100) * 100 + config.quests.endTime,
           type: 'Quest',
           // info: 'http://tooangel.github.io/screeps/doc/Quests.html'
           info: 'https://goo.gl/QEyNzG', // Pointing to the workspace branch doc
         };
-        this.log('Attach quest');
         text = JSON.stringify(quest);
+        // Memory.quests[quest.id] = quest;
+        this.log('Attach quest:', text);
       }
     }
 
@@ -155,12 +159,11 @@ Creep.prototype.isStuck = function() {
   if (!this.memory.last.pos3) {
     return false;
   }
-  for (let pos = 1; pos < 4; pos++) {
-    if (!this.pos.isEqualTo(this.memory.last['pos' + pos].x, this.memory.last['pos' + pos].y)) {
-      return false;
-    }
-  }
-  return true;
+  const creep = this;
+  const filter = (pos)=> {
+    return creep.pos.isEqualTo(pos.x, pos.y) ? 1 : 0;
+  };
+  return _.sum(_.map(this.memory.last, filter)) > 1;
 };
 
 Creep.prototype.getEnergyFromStructure = function() {
@@ -225,10 +228,11 @@ Creep.prototype.buildRoad = function() {
     return true;
   }
 
+  // todo-msc why for loop? repair first? (structure.hits < structure.hitsMax) so no return on fully repaired
   const structures = this.pos.lookFor(LOOK_STRUCTURES);
   if (structures.length > 0) {
     for (const structure of structures) {
-      if (structure.structureType === STRUCTURE_ROAD) {
+      if ((structure.structureType === STRUCTURE_ROAD) && (structure.hits < structure.hitsMax)) {
         this.repair(structure);
         return true;
       }
@@ -250,7 +254,7 @@ Creep.prototype.buildRoad = function() {
   if (
     constructionSites.length <= config.buildRoad.maxConstructionSitesRoom &&
     Object.keys(Game.constructionSites).length < config.buildRoad.maxConstructionSitesTotal
-    // && this.pos.inPath()
+  // && this.pos.inPath()
   ) {
     const returnCode = this.pos.createConstructionSite(STRUCTURE_ROAD);
     if (returnCode === OK) {

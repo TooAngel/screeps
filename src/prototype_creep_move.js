@@ -23,7 +23,7 @@ Creep.prototype.moveRandom = function(onPath) {
   this.move(direction);
 };
 
-Creep.prototype.moveRandomWithin = function(goal, dist = 3) {
+Creep.prototype.moveRandomWithin = function(goal, dist = 3, goal2 = false) {
   const startDirection = _.random(1, 8);
   let direction = 0;
   for (let i = 0; i < 8; i++) {
@@ -33,6 +33,9 @@ Creep.prototype.moveRandomWithin = function(goal, dist = 3) {
       continue;
     }
     if (pos.getRangeTo(goal) > dist) {
+      continue;
+    }
+    if (goal2 && pos.getRangeTo(goal2) > dist) {
       continue;
     }
     if (pos.checkForWall()) {
@@ -55,6 +58,9 @@ Creep.prototype.moveCreep = function(position, direction) {
   const creeps = pos.lookFor('creep');
   if (creeps.length > 0 && creeps[0].memory) {
     const role = this.memory.role;
+    if (creeps[0] && !creeps[0].memory.routing) {
+      creeps[0].memory.routing = {};
+    }
     if ((role === 'sourcer' || role === 'reserver') && creeps[0].memory.role !== 'harvester' && !creeps[0].memory.routing.reverse) {
       creeps[0].move(direction);
       creeps[0].memory.forced = true;
