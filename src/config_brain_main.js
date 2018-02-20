@@ -6,11 +6,9 @@ brain.main.roomExecution = function() {
     Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
   } else {
     /** @see https://github.com/TooAngel/screeps/pull/498#discussion-diff-165847270R92 */
-    if (config.main.randomExecution) {
-      Memory.myRooms = _(_.shuffle(Game.rooms)).filter(brain.main.roomFilter).map((r) => r.name).value();
-    } else {
-      Memory.myRooms = _(Game.rooms).filter(brain.main.roomFilter).map((r) => r.name).value();
-    }
+    Memory.myRooms = _(Game.rooms).filter((r) => r.controller && r.controller.my).map((r) => r.name).value();
+    const roomsList = config.main.randomExecution ? _.shuffle(Game.rooms) : Game.rooms;
+    roomsList.forEach(brain.main.roomFilter);
   }
 };
 
@@ -21,7 +19,6 @@ brain.main.roomFilter = (r) => {
   } else {
     Memory.skippedRooms.push(r.name);
   }
-  return Memory.myRooms.indexOf(r.name) !== -1;
 };
 
 brain.main.profilerInit = function() {
@@ -49,6 +46,9 @@ brain.main.visualizeRooms = function() {
     }
     try {
       visualizer.render();
+      if (config.profiler.enabled) {
+        global.profiler.registerObject(visualizer, 'Visualizer');
+      }
     } catch (e) {
       console.log('Visualizer Render Exeception', e, e.stack);
     }
@@ -56,9 +56,6 @@ brain.main.visualizeRooms = function() {
 };
 
 brain.main.execute = function() {
-  Memory.skippedRooms = [];
-  brain.buyPower();
-
   if (Game.time % 200 === 0) {
     console.log(Game.time, 'TooAngel AI - All good');
     console.log(Game.time, 'cpu limit per tick', global.tickLimit);
@@ -71,6 +68,7 @@ brain.main.execute = function() {
   Memory.time = Game.time;
   try {
     brain.prepareMemory();
+    brain.buyPower();
     brain.handleNextroom();
     brain.handleSquadmanager();
     brain.handleIncomingTransactions();
@@ -81,10 +79,6 @@ brain.main.execute = function() {
 
   brain.stats.addRoot();
   brain.main.roomExecution();
-  if (config.profiler.enabled && config.visualizer.enabled) {
-    global.profiler.registerObject(visualizer, 'Visualizer');
-  }
-
   brain.saveMemorySegments();
   brain.main.visualizeRooms();
   if (Memory.skippedRooms.length > 0) {

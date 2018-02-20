@@ -72,6 +72,7 @@ global.config = {
     },
     power: false,
     nextroomer: false,
+    quests: false,
   },
 
   tower: {

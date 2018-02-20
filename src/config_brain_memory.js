@@ -226,6 +226,7 @@ brain.prepareMemory = function() {
   Memory.username = Memory.username || _.chain(Game.rooms).map('controller').flatten().filter('my').map('owner.username').first().value();
   Memory.myRooms = Memory.myRooms || [];
   Memory.squads = Memory.squads || {};
+  Memory.skippedRooms = [];
   brain.setMarketOrders();
   brain.setConstructionSites();
   brain.cleanCreeps();
@@ -476,15 +477,15 @@ brain.saveMemorySegments = function() {
 };
 
 brain.cleanAllMemory = function() {
-  const keys = _.map(_.keys(Memory), (key) => {
+  const keys = _.map(_.keys(Memory), (value, key) => {
     if (key !== 'players') {
       delete Memory[key];
     }
     return key;
   });
 
-  const roomss = _.map(Game.rooms, (room) => {
+  const rooms = _.map(Game.rooms, (room) => {
     return room.clearMemory();
   });
-  console.log(Game.time, 'wiped memory for rooms ', roomss, ' and ', keys);
+  console.log(Game.time, 'wiped memory for rooms ', rooms, ' and ', keys);
 };
