@@ -6,9 +6,8 @@ brain.main.roomExecution = function() {
     Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
   } else {
     /** @see https://github.com/TooAngel/screeps/pull/498#discussion-diff-165847270R92 */
-    Memory.myRooms = _(Game.rooms).filter((r) => r.controller && r.controller.my).map((r) => r.name).value();
-    const roomsList = config.main.randomExecution ? _.shuffle(Game.rooms) : Game.rooms;
-    roomsList.forEach(brain.main.roomFilter);
+    const roomList = config.main.randomExecution ? _.shuffle(Game.rooms) : Game.rooms;
+    Memory.myRooms = _(roomList).filter(brain.main.roomFilter).map((r) => r.name).value();
   }
 };
 
@@ -19,6 +18,7 @@ brain.main.roomFilter = (r) => {
   } else {
     Memory.skippedRooms.push(r.name);
   }
+  return Memory.myRooms.indexOf(r.name) !== -1;
 };
 
 brain.main.profilerInit = function() {

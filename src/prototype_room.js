@@ -1,5 +1,5 @@
 'use strict';
-// todo-msc make PR for exectueEveryTicks
+
 Room.prototype.exectueEveryTicks = function(ticks) {
   const timer = (ticks > 3000) ? Game.time - Memory.time + 1 : 0;
   let exectue = false;
@@ -25,7 +25,6 @@ Room.prototype.execute = function() {
     for (const creep of this.find(FIND_MY_CREEPS)) {
       creep.handle();
     }
-    delete this.transferableStructures;
     return returnCode;
   } catch (err) {
     this.log('Executing room failed: ' + this.name + ' ' + err + ' ' + err.stack);
