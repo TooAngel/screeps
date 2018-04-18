@@ -21,7 +21,7 @@ roles.carry.settings = {
     300: '',
     550: 'W',
   },
-  layoutString: 'MC',
+  layoutString: 'CM',
   amount: config.carry.sizes,
   maxLayoutAmount: 1,
 };
@@ -100,23 +100,15 @@ roles.carry.handleMisplacedSpawn = function(creep) {
 
 roles.carry.preMove = function(creep, directions) {
   roles.carry.checkHelperEmptyStorage(creep);
+  if ((Game.time % 2 === 0) && (_.sum(creep.carry) < 50)) {
+    creep.pickupEnergy();
+  }
 
   if (roles.carry.handleMisplacedSpawn(creep)) {
     return true;
   }
 
-  if (!creep.room.controller) {
-    const target = creep.findClosestSourceKeeper();
-    if (target !== null) {
-      const range = creep.pos.getRangeTo(target);
-      if (range > 6) {
-        creep.memory.routing.reverse = false;
-      }
-      if (range < 6) {
-        creep.memory.routing.reverse = true;
-      }
-    }
-  }
+  creep.checkForSourceKeeper();
 
   // TODO When does this happen? (Not on path?) - Handle better
   if (!directions) {

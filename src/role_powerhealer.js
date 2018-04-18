@@ -15,10 +15,7 @@ roles.powerhealer.settings = {
 };
 
 roles.powerhealer.action = function(creep) {
-  if (creep.hits < creep.hitsMax) {
-    creep.heal(creep);
-  }
-
+  creep.selfHeal();
   const myCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
     filter: (object) => object.hits < object.hitsMax,
   });
@@ -43,10 +40,10 @@ roles.powerhealer.heal = function(creep) {
   });
   const powerBank = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
   if (powerBank.length > 0 && powerBank[0].hits > 100000) {
+    creep.setNextSpawn();
+    // todo-msc spawn replacement when we found pover bank
     creep.spawnReplacement();
   }
-
-  creep.setNextSpawn();
 
   let attacker;
 

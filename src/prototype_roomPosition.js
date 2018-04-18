@@ -189,6 +189,12 @@ RoomPosition.prototype.validPosition = function(opts = {}) {
 RoomPosition.prototype.getFirstNearPosition = function(...args) {
   return this.findNearPosition(...args).next().value;
 };
+RoomPosition.prototype.getLastNearPosition = function(...args) {
+  const arr = this.findNearPosition(...args);
+  this.log(JSON.stringify(arr.next()));
+  this.log(JSON.stringify(arr.next()));
+  return arr.next().value;
+};
 
 RoomPosition.prototype.getBestNearPosition = function(...args) {
   return _.max(Array.from(this.findNearPosition(...args)), (pos) => Array.from(pos.findNearPosition(...args)).length);

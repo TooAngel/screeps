@@ -33,7 +33,7 @@ roles.defender.action = function(creep) {
     }
   }
 
-  creep.heal(creep);
+  creep.selfHeal();
   const room = Game.rooms[creep.room.name];
   if (room.memory.hostile) {
     creep.handleDefender();
@@ -45,7 +45,7 @@ roles.defender.action = function(creep) {
 };
 
 roles.defender.preMove = function(creep, directions) {
-  creep.heal(creep);
+  creep.selfHeal();
   const target = creep.findClosestEnemy();
   if (target !== null) {
     creep.handleDefender();

@@ -16,7 +16,7 @@ roles.repairer.stayInRoom = true;
 roles.repairer.settings = {
   layoutString: 'MWC',
   amount: [2, 1, 1],
-  // if (room.storage) {datas.maxEnergyUsed = (room.storage.store.energy / 10000) * 250;}
+  maxLayoutAmount: 5,
 };
 
 roles.repairer.boostActions = ['repair'];
@@ -30,6 +30,7 @@ roles.repairer.execute = function(creep) {
   const execute = function(creep) {
     creep.setNextSpawn();
     creep.spawnReplacement(1);
+    creep.pickupEnergy();
     if (!creep.memory.move_wait) {
       creep.memory.move_wait = 0;
     }

@@ -50,22 +50,30 @@ brain.getQuestFromTransactionDescription = function(description) {
   try {
     data = JSON.parse(description);
   } catch (e) {
-    console.log('Quest transaction: Can not parse');
+    if (config.debug.quests) {
+      console.log(Game.time, 'Quest transaction: Can not parse');
+    }
     return false;
   }
   if (data === null) {
-    console.log('Quest transaction: No type');
+    if (config.debug.quests) {
+      console.log(Game.time, 'Quest transaction: No type');
+    }
     return false;
   }
   console.log(data);
   for (const key of ['type', 'room', 'id']) {
     if (!data[key]) {
-      console.log(`Incoming transaction no Quest: No ${key}`);
+      if (config.debug.quests) {
+        console.log(Game.time, `Incoming transaction no Quest: No ${key}`);
+      }
       return false;
     }
   }
   if (data.type !== 'Quest') {
-    console.log('Quest transaction: Type not quest');
+    if (config.debug.quests) {
+      console.log(Game.time, 'Quest transaction: Type not quest');
+    }
     return false;
   }
   return data;

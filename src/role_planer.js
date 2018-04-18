@@ -44,6 +44,6 @@ roles.planer.execute = function(creep) {
     methods.push(Creep.recycleCreep);
   }
   methods.push(Creep.upgradeControllerTask);
-
+  creep.pickupEnergy();
   return Creep.execute(creep, methods);
 };

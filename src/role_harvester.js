@@ -60,16 +60,28 @@ roles.harvester.preMove = function(creep, directions) {
     creep.memory.move_forward_direction = true;
   }
 
+  // todo-msc changed harvesterBeforeStorage then transferToStructures, to transferToStructures then harvesterBeforeStorage
+  let reverse = creep.carry.energy === 0;
+
   creep.setNextSpawn();
   creep.spawnReplacement(1);
+
+  const transferred = creep.transferToStructures();
+  if (transferred) {
+    if (transferred.transferred >= _.sum(creep.carry)) {
+      reverse = true;
+    } else {
+      if (transferred.moreStructures) {
+        return true;
+      }
+    }
+  }
 
   if (!creep.room.storage || !creep.room.storage.my || creep.room.memory.misplacedSpawn || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
     creep.harvesterBeforeStorage();
     creep.memory.routing.reached = true;
     return true;
   }
-
-  let reverse = creep.carry.energy === 0;
 
   if (creep.memory.routing.pathPos === 0) {
     for (const resource in creep.carry) {
@@ -90,16 +102,6 @@ roles.harvester.preMove = function(creep, directions) {
     }
   }
 
-  const transferred = creep.transferToStructures();
-  if (transferred) {
-    if (transferred.transferred >= _.sum(creep.carry)) {
-      reverse = true;
-    } else {
-      if (transferred.moreStructures) {
-        return true;
-      }
-    }
-  }
   creep.memory.routing.reverse = reverse || !creep.memory.move_forward_direction;
   if (directions && creep.memory.routing.reverse) {
     directions.direction = directions.backwardDirection;
@@ -131,10 +133,4 @@ roles.harvester.action = function(creep) {
   return true;
 };
 
-roles.harvester.execute = function(creep) {
-  creep.log('execute');
-  // TODO Something is broken
-  creep.harvesterBeforeStorage();
-  //   if (true) throw new Error();
-  return false;
-};
+roles.harvester.execute = roles.harvester.action;

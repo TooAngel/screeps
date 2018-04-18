@@ -30,6 +30,26 @@ brain.getMarketOrderAverage = (type, resource) => Memory.orders[type][resource] 
 
 brain.getMarketOrder = (type, resource, property) => Memory.orders[type][resource] && Memory.orders[type][resource][property] ? Memory.orders[type][resource][property] : null;
 
+brain.buyPower = function() {
+  if (!config.market.buyPower) {
+    return false;
+  }
+  const roomName = config.market.buyPowerRoom;
+  // low cash
+  if (Game.market.credits < config.market.minCredits || !roomName) {
+    return false;
+  }
+  // deal one order
+  const deal = function(item) {
+    return Game.market.deal(item.id, 1000, roomName);
+  };
+  // if no cooldown
+  if (Game.rooms[roomName].terminal && !Game.rooms[roomName].terminal.cooldown) {
+    return _.map(Game.market.getAllOrders({type: ORDER_SELL, resourceType: RESOURCE_POWER}), deal);
+  }
+  return false;
+};
+
 brain.setConstructionSites = function() {
   if (!Memory.constructionSites) {
     Memory.constructionSites = {};
@@ -206,6 +226,7 @@ brain.prepareMemory = function() {
   Memory.username = Memory.username || _.chain(Game.rooms).map('controller').flatten().filter('my').map('owner.username').first().value();
   Memory.myRooms = Memory.myRooms || [];
   Memory.squads = Memory.squads || {};
+  Memory.skippedRooms = [];
   brain.setMarketOrders();
   brain.setConstructionSites();
   brain.cleanCreeps();
@@ -315,7 +336,7 @@ brain.checkSegmentActive = function(id, noThrow = false) {
     if (noThrow) {
       return false;
     }
-    throw new brain.MemorySegmentError();
+    throw new brain.MemorySegmentError('#' + id);
   }
   return true;
 };
@@ -453,4 +474,18 @@ brain.saveMemorySegments = function() {
       Memory.segments[id].length = RawMemory.segments[id].length;
     }
   }
+};
+
+brain.cleanAllMemory = function() {
+  const keys = _.map(_.keys(Memory), (value, key) => {
+    if (key !== 'players') {
+      delete Memory[key];
+    }
+    return key;
+  });
+
+  const rooms = _.map(Game.rooms, (room) => {
+    return room.clearMemory();
+  });
+  console.log(Game.time, 'wiped memory for rooms ', rooms, ' and ', keys);
 };

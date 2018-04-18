@@ -30,7 +30,8 @@ Room.prototype.initSetMinerals = function() {
   const costMatrix = this.getMemoryCostMatrix();
   const minerals = this.find(FIND_MINERALS);
   for (const mineral of minerals) {
-    const extractor = mineral.pos.getFirstNearPosition();
+    // const extractor = mineral.pos.getFirstNearPosition();
+    const extractor = mineral.pos.getBestNearPosition();
     this.memory.position.creep[mineral.id] = extractor;
     this.memory.position.structure.extractor.push(mineral.pos);
     costMatrix.set(extractor.x, extractor.y, config.layout.creepAvoid);
@@ -71,7 +72,8 @@ Room.prototype.initSetStorageAndPathStart = function() {
 Room.prototype.setFillerArea = function(storagePos, route) {
   const costMatrix = this.getMemoryCostMatrix();
 
-  const fillerPos = storagePos.getBestNearPosition();
+  const fillerPos = storagePos.getLastNearPosition();
+  // const fillerPos = storagePos.getBestNearPosition();
   this.memory.position.creep.filler = fillerPos;
   costMatrix.set(fillerPos.x, fillerPos.y, config.layout.creepAvoid);
   this.setMemoryCostMatrix(costMatrix);
@@ -82,6 +84,7 @@ Room.prototype.setFillerArea = function(storagePos, route) {
 
   const fillerNearPositions = Array.from(fillerPos.findNearPosition());
   if (fillerNearPositions.length < 4) {
+    this.clearMemory();
     throw new Error(`Can't set layout for room ${this.name}. Not enough space for filler area`);
   }
 
@@ -194,7 +197,11 @@ Room.prototype.updatePosition = function() {
       }
     }
   }
-  this.memory.summaryCenter = {x: bestPosition.x, y: bestPosition.y};
+  if (bestPosition && (bestPosition.x || bestPosition.y)) {
+    this.memory.summaryCenter = {x: bestPosition.x, y: bestPosition.y};
+  } else {
+    this.memory.summaryCenter = {x: 10, y: 40};
+  }
 };
 
 Room.prototype.setPosition = function(type, pos, value = config.layout.structureAvoid, positionType = 'structure') {
@@ -263,6 +270,7 @@ Room.prototype.setTowerFiller = function() {
 };
 
 Room.prototype.setLabs = function(allPaths) {
+  const room = this;
   let lab1Pos;
   let lab2Pos;
   let pathI;
@@ -309,7 +317,7 @@ Room.prototype.setLabs = function(allPaths) {
             this.memory.position.creep.labs = lastPathPos;
           }
         }
-        console.log('All labs set: ' + pathI);
+        room.log('All labs set: ' + pathI);
         return;
       }
     }
@@ -381,7 +389,7 @@ Room.prototype.setStructuresIteratePos = function(structurePos, pathI, path) {
   }
 
   this.memory.position.pathEnd = structurePos;
-  console.log('All structures set: ' + pathI);
+  this.log('All structures set: ' + pathI);
   return false;
 };
 

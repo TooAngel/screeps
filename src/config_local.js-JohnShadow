@@ -1,0 +1,26 @@
+// Local overrides to global.config, modify this instead of global global.config.
+
+global.config.room.observerRange = 3;
+global.config.nextRoom.nextroomerInterval = 150; // _.ceil(1500 / 10) = 150
+global.config.nextRoom.maxDistance = 10;
+global.config.nextRoom.maxRooms = _.max([Math.ceil(Game.gcl.level / 2), 2]);
+global.config.autoattack.disabled = true;
+global.config.autoattack.timeBetweenAttacks = 10000;
+global.config.info.signController = true;
+global.config.visualizer.enabled = true;
+global.config.tower.healMyCreeps = true;
+global.config.tower.repairStructures = true;
+global.config.memory.segments = 10;
+
+global.config.market.minAmountToSell = 60000;
+global.config.market.buyPower = true;
+global.config.market.minCredits = 3000000;
+global.config.market.buyPowerRoom = 'W2S6';
+global.config.terminal.minEnergyAmount = 60000;
+global.config.terminal.maxEnergyAmount = 70000;
+global.config.carryHelpers.minEnergyAmount = 500000;
+
+global.config.cpuStats.enabled = true;
+global.config.main.randomExecution = false;
+
+console.log(Game.time, 'local config loaded!');

@@ -7,7 +7,12 @@ Room.prototype.setCostMatrixStructures = function(costMatrix, structures, value)
 };
 
 Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom, allowExits) {
-  const costMatrix = this.getMemoryCostMatrix();
+  let costMatrix = false;
+  try {
+    costMatrix = this.getMemoryCostMatrix();
+  } catch (err) {
+    this.log('getMemoryCostMatrix', err, err.stack);
+  }
   if (!costMatrix) {
     this.updatePosition();
   }

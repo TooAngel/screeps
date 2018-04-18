@@ -22,12 +22,13 @@ Room.prototype.getNextReaction = function() {
       }
       const result = REACTIONS[mineralFirst][mineralSecond];
       const amount = this.getResourceAmountWithNextTiers(result);
-      if (amount > config.mineral.minAmount) {
+      if (amount > config.mineral.minAmount && this.terminal.store[result] > config.mineral.minAmount) {
         continue;
       }
       if (config.debug.mineral) {
         this.log('Could build: ' + mineralFirst + ' ' + mineralSecond + ' ' + result, amount);
       }
+      delete this.memory.cleanup;
       return {
         result: result,
         first: mineralFirst,
@@ -106,7 +107,8 @@ Room.prototype.reactions = function() {
     //    this.log('Setting reaction: ' + JSON.stringify(this.memory.reaction));
   }
 
-  if (this.getResourceAmountWithNextTiers(this.memory.reaction.result.result) > config.mineral.minAmount) {
+  if (this.getResourceAmountWithNextTiers(this.memory.reaction.result.result) > config.mineral.minAmount &&
+    (this.terminal.store[this.memory.reaction.result.result] > config.mineral.minAmount)) {
     this.log('Done with reaction:' + this.memory.reaction.result.result);
     delete this.memory.reaction;
   }
