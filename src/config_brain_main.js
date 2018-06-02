@@ -74,7 +74,7 @@ brain.main.execute = function() {
     brain.handleIncomingTransactions();
     brain.handleQuests();
   } catch (e) {
-    console.log('Brain Exeception', e);
+    console.log('Brain Exeception', e, e.stack);
   }
 
   brain.stats.addRoot();

@@ -50,7 +50,7 @@ global.config = {
   },
 
   memory: {
-    segments: 20,
+    segments: 10,
   },
 
   // use username `tooangels` and password `tooSecretPassword` at https://screepspl.us/grafana
@@ -76,8 +76,10 @@ global.config = {
   },
 
   tower: {
-    healMyCreeps: false,
-    repairStructures: false,
+    // in the most chases they need heal not to break path movement
+    // mostly npcs damaged my creeps, "big" players around me are on friend my list
+    healMyCreeps: true, // so they should be healed
+    repairStructures: true, // so they should be repair Structures (mostly roads)
   },
 
   autoattack: {
@@ -97,11 +99,11 @@ global.config = {
     scoutMinControllerLevel: 4,
     ttlPerRoomForScout: 1500,
     numberOfNextroomers: 10,
-    nextroomerInterval: 500,
-    maxRooms: 20,
+    nextroomerInterval: 150, // default 500 (changed for fast build)
+    maxRooms: _.max([Math.ceil(Game.gcl.level / 2), 2]), // default: 20 (changed for cpu reason)
     cpuPerRoom: 13, // Necessary CPU per room, prevent claiming new rooms
     revive: true,
-    maxDistance: 17,
+    maxDistance: 10, // default 17 (if more than 10, some code will break eg helper carry and terminal energy transfer ??? unsure)
     minNewRoomDistance: 2,
     minEnergyForActive: 1000,
     minDowngradPercent: 90,
@@ -202,7 +204,7 @@ global.config = {
     upgraderStorageFactor: 2,
     lastSeenThreshold: 1000000,
     notify: false,
-    observerRange: OBSERVER_RANGE, // between 1 and 10:OBSERVER_RANGE
+    observerRange: 4, // default: OBSERVER_RANGE, (changed for cpu reason) // between 1 and 10:OBSERVER_RANGE
   },
 
   layout: {
@@ -221,8 +223,8 @@ global.config = {
   },
 
   terminal: {
-    minEnergyAmount: 80000,
-    maxEnergyAmount: 120000,
+    minEnergyAmount: 40000, // was 80000
+    maxEnergyAmount: 50000, // was 120000
     storageMinEnergyAmount: 20000,
   },
 
@@ -233,7 +235,7 @@ global.config = {
   },
 
   market: {
-    minAmountToSell: 100000,
+    minAmountToSell: 50000, // was 100000
     minSellPrice: 0.6,
     energyCreditEquivalent: 1,
     sellByOwnOrders: true,
@@ -249,10 +251,10 @@ global.config = {
     buyPower: false,
     // 3M credits
     minCredits: 3000000,
-    // set activate buyPower your need to set a roomName here e.g. 'W2S6'
-    buyPowerRoom: false,
     // disable to use power only in gathered room
     sendPowerOwnRoom: true,
+    // equalizes the energy beween your rooms via termial
+    sendEnergyToMyRooms: true,
   },
 
   priorityQueue: {

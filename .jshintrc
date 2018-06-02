@@ -81,6 +81,7 @@
     "FIND_HOSTILE_CREEPS": false,
     "FIND_SOURCES_ACTIVE": false,
     "FIND_SOURCES": false,
+    "FIND_TOMBSTONES": false,
     "FIND_DROPPED_ENERGY": false,
     "FIND_DROPPED_RESOURCES": false,
     "FIND_STRUCTURES": false,

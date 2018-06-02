@@ -16,6 +16,7 @@ roles.planer.settings = {
 };
 
 roles.planer.action = function(creep) {
+  creep.pickupEnergy();
   const methods = [Creep.getEnergy];
 
   methods.push(Creep.constructTask);
@@ -33,6 +34,7 @@ roles.planer.action = function(creep) {
 
 roles.planer.execute = function(creep) {
   creep.log('!!!! Execute !!!');
+  creep.pickupEnergy();
   const methods = [Creep.getEnergy];
 
   methods.push(Creep.constructTask);

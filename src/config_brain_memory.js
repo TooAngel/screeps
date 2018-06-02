@@ -34,14 +34,18 @@ brain.buyPower = function() {
   if (!config.market.buyPower) {
     return false;
   }
-  const roomName = config.market.buyPowerRoom;
+  const filterRoomPowerSpawn = (r) => Game.rooms[r] && Game.rooms[r].controller.level === 8 && !!Game.rooms[r].memory.constants.powerSpawn;
+  const roomName = _.first(_.filter(_.shuffle(Memory.myRooms), filterRoomPowerSpawn)) || false;
   // low cash
   if (Game.market.credits < config.market.minCredits || !roomName) {
     return false;
   }
   // deal one order
   const deal = function(item) {
-    return Game.market.deal(item.id, 1000, roomName);
+    if (item.price < 1) {
+      return Game.market.deal(item.id, 1000, roomName);
+    }
+    return false;
   };
   // if no cooldown
   if (Game.rooms[roomName].terminal && !Game.rooms[roomName].terminal.cooldown) {
@@ -62,17 +66,17 @@ brain.setConstructionSites = function() {
       const csMem = Memory.constructionSites[csId];
       if (csMem) {
         if (csMem === cs.progress) {
-          console.log(csId + ' constructionSite too old');
+          console.log(Game.time, csId + ' constructionSite too old');
           const csObject = Game.getObjectById(csId);
           const returnCode = csObject.remove();
-          console.log('Delete constructionSite: ' + returnCode);
+          console.log(Game.time, 'Delete constructionSite: ' + returnCode);
           continue;
         }
       }
       constructionSites[csId] = cs.progress;
     }
     Memory.constructionSites = constructionSites;
-    console.log('Known constructionSites: ' + Object.keys(constructionSites).length);
+    console.log(Game.time, 'Known constructionSites: ' + Object.keys(constructionSites).length);
   }
 };
 
@@ -82,7 +86,7 @@ brain.addToStats = function(name) {
 };
 
 brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
-  console.log(name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
+  console.log(Game.time, name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
   if (Game.time - creepMemory.born < 20) {
     return;
   }
@@ -144,12 +148,12 @@ brain.cleanRooms = function() {
     for (const name of Object.keys(Memory.rooms)) {
       // Check for reserved rooms
       if (!Memory.rooms[name].lastSeen) {
-        console.log('Deleting ' + name + ' from memory no `last_seen` value');
+        console.log(Game.time, 'Deleting ' + name + ' from memory no `last_seen` value');
         delete Memory.rooms[name];
         continue;
       }
       if (Memory.rooms[name].lastSeen < Game.time - config.room.lastSeenThreshold) {
-        console.log(`Deleting ${name} from memory older than ${config.room.lastSeenThreshold}`);
+        console.log(Game.time, `Deleting ${name} from memory older than ${config.room.lastSeenThreshold}`);
         delete Memory.rooms[name];
       }
     }
@@ -488,4 +492,31 @@ brain.cleanAllMemory = function() {
     return room.clearMemory();
   });
   console.log(Game.time, 'wiped memory for rooms ', rooms, ' and ', keys);
+};
+
+brain.handleIncomingTransactions = function() {
+  const transactions = Game.market.incomingTransactions;
+  const current = _.filter(transactions, (object) => {
+    // TODO save last checked value, so we will see all transactions even in case of CPU-skipped ticks
+    return object.time >= Game.time - 1;
+  });
+
+  for (const transaction of current) {
+    if (transaction.sender) {
+      const sender = transaction.sender.username;
+      // TODO for testing disabled
+      // if (sender === Memory.username) {
+      //   continue;
+      // }
+      const price = brain.getMarketOrder(ORDER_SELL, transaction.resourceType, 'min') || brain.getMarketOrder(ORDER_BUY, transaction.resourceType, 'max') || 1;
+      const value = -1 * transaction.amount * price;
+      const room = Game.rooms[transaction.to];
+      if (config.debug.transaction) {
+        room.log('Incoming transaction' + JSON.stringify(transaction));
+      }
+      room.log(`Incoming transaction from ${sender}[${transaction.from}] ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
+      brain.increaseIdiot(sender, value);
+    }
+    brain.checkQuestForAcceptance(transaction);
+  }
 };

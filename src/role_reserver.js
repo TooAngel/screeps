@@ -41,6 +41,16 @@ roles.reserver.preMove = function(creep, directions) {
   //    return true;
   //  }
   // }
+  const baseRoom = Game.rooms[creep.memory.base];
+  if ((creep.room.name === creep.memory.routing.targetRoom) || (creep.room.name !== creep.memory.base)) {
+    const structure = creep.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD], {
+      inverse: true,
+      filter: (object) => object.ticksToDecay === null,
+    });
+    if (structure) {
+      baseRoom.checkRoleToSpawn('structurer', 1, structure.id, this.name);
+    }
+  }
   if (creep.allowOverTake(directions)) {
     return true;
   }

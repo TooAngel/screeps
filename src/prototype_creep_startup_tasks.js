@@ -148,6 +148,8 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
     const resCode = this.withdraw(structure, RESOURCE_ENERGY);
     if (resCode === OK && getEnergy(structure) <= this.carryCapacity) {
       structure.destroy();
+    } else {
+      this.log(Game.time, 'withdraw from hostile ' + resCode);
     }
   }
   return true;

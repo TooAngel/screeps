@@ -277,6 +277,26 @@ Creep.prototype.pickupEnergy = function() {
     }
   }
 
+  // FIND_TOMBSTONES and get them empty first
+  const tombstones = this.pos.findInRange(FIND_TOMBSTONES, 1, {
+    filter: (t) => {
+      return t.creep.my;
+    },
+  });
+  if (tombstones.length > 0) {
+    const creep = this;
+    _.map(tombstones, (t) => {
+      if (t.store[RESOURCE_ENERGY] > 0) {
+        // console.log(`${Game.time} My creep died ${global.ex(_.omit(t, ['room', 'visual', 'id', 'creep']))} and store ${global.ex(t.store)}`);
+        const returnCode = creep.withdraw(t, RESOURCE_ENERGY);
+        if (returnCode === OK) {
+          return true;
+        }
+      }
+      return false;
+    });
+  }
+
   const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer']);
   if (sourcers.length > 0) {
     const returnCode = sourcers[0].transfer(this, RESOURCE_ENERGY);
