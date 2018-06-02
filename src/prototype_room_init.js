@@ -72,8 +72,7 @@ Room.prototype.initSetStorageAndPathStart = function() {
 Room.prototype.setFillerArea = function(storagePos, route) {
   const costMatrix = this.getMemoryCostMatrix();
 
-  const fillerPos = storagePos.getLastNearPosition();
-  // const fillerPos = storagePos.getBestNearPosition();
+  const fillerPos = storagePos.getBestNearPosition();
   this.memory.position.creep.filler = fillerPos;
   costMatrix.set(fillerPos.x, fillerPos.y, config.layout.creepAvoid);
   this.setMemoryCostMatrix(costMatrix);
@@ -83,7 +82,7 @@ Room.prototype.setFillerArea = function(storagePos, route) {
   this.setMemoryCostMatrix(costMatrix);
 
   const fillerNearPositions = Array.from(fillerPos.findNearPosition());
-  if (fillerNearPositions.length < 4) {
+  if (fillerNearPositions.length < 1) {
     this.clearMemory();
     throw new Error(`Can't set layout for room ${this.name}. Not enough space for filler area`);
   }
@@ -93,9 +92,13 @@ Room.prototype.setFillerArea = function(storagePos, route) {
   costMatrix.set(linkStoragePos.x, linkStoragePos.y, config.layout.structureAvoid);
   this.setMemoryCostMatrix(costMatrix);
 
-  this.setPosition(STRUCTURE_POWER_SPAWN, fillerNearPositions.shift());
+  try {
+    this.setPosition(STRUCTURE_POWER_SPAWN, fillerNearPositions.shift());
 
-  this.setPosition(STRUCTURE_TOWER, fillerNearPositions.shift());
+    this.setPosition(STRUCTURE_TOWER, fillerNearPositions.shift());
+  } catch (e) {
+    console.log(e.stack);
+  }
 };
 
 Room.prototype.addTerminalToFillerArea = function() {

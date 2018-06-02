@@ -46,7 +46,7 @@ roles.sourcer.updateSettings = function(room, creep) {
   if (!room.storage) {
     return false;
   }
-  const target = creep.routing && creep.routing.targetRoom ? creep.routing.targetRoom : false;
+  const target = creep.routing && creep.routing.targetRoom ? creep.routing.targetRoom : room.name;
   const inBase = (target === room.name);
   if (!inBase && Memory.rooms[target].sourceKeeperRoom) {
     return {
