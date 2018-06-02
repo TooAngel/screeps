@@ -36,11 +36,13 @@ Room.prototype.getRoomMemorySegmentKey = function(object) {
  * Deletes room memory, all room cache objects from memory segments and invalidates global cache
  */
 Room.prototype.clearMemory = function() {
-  this.checkSegment();
-  const roomKeyPrefix = this.getRoomMemorySegmentKey('');
-  for (const key of brain.getSegmentKeys(this.memory.segment)) {
-    if (key.startsWith(roomKeyPrefix)) {
-      brain.removeSegmentObject(this.memory.segment, roomKeyPrefix);
+  if (config.memory.segmentsEnabled) {
+    this.checkSegment();
+    const roomKeyPrefix = this.getRoomMemorySegmentKey('');
+    for (const key of brain.getSegmentKeys(this.memory.segment)) {
+      if (key.startsWith(roomKeyPrefix)) {
+        brain.removeSegmentObject(this.memory.segment, roomKeyPrefix);
+      }
     }
   }
   this.memory = {
@@ -55,8 +57,12 @@ Room.prototype.clearMemory = function() {
  * @return {CostMatrix|undefined}
  */
 Room.prototype.getMemoryCostMatrix = function() {
-  this.checkSegment();
-  return brain.getSegmentObject(this.memory.segment, this.getRoomMemorySegmentKey('costmatrix'));
+  if (config.memory.segmentsEnabled) {
+    this.checkSegment();
+    return brain.getSegmentObject(this.memory.segment, this.getRoomMemorySegmentKey('costmatrix'));
+  } else {
+    return PathFinder.CostMatrix.deserialize(this.memory.costMatrix);
+  }
 };
 
 /**
@@ -65,8 +71,12 @@ Room.prototype.getMemoryCostMatrix = function() {
  * @param {Object} costMatrix - the costMatrix to save
  */
 Room.prototype.setMemoryCostMatrix = function(costMatrix) {
-  this.checkSegment();
-  brain.setSegmentObject(this.memory.segment, this.getRoomMemorySegmentKey('costmatrix'), costMatrix, 'costmatrix');
+  if (config.memory.segmentsEnabled) {
+    this.checkSegment();
+    brain.setSegmentObject(this.memory.segment, this.getRoomMemorySegmentKey('costmatrix'), costMatrix, 'costmatrix');
+  } else {
+    this.memory.costMatrix = costMatrix.serialize();
+  }
 };
 
 Room.prototype.checkCache = function() {
