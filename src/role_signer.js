@@ -28,7 +28,3 @@ roles.signer.action = function(creep) {
     creep.log(returnCode);
   }
 };
-
-roles.signer.execute = function(creep) {
-  creep.log('Execute!!!');
-};

@@ -87,7 +87,3 @@ roles.powerhealer.heal = function(creep) {
   }
   return true;
 };
-
-roles.powerhealer.execute = function(creep) {
-  creep.log('Execute!!!');
-};

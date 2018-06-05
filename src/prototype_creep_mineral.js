@@ -570,7 +570,7 @@ Creep.prototype.handleMineralCreep = function() {
     return true;
   }
 
-  execute(this);
+  return execute(this);
 };
 
 Creep.prototype.boost = function() {

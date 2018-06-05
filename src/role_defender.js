@@ -52,7 +52,3 @@ roles.defender.preMove = function(creep, directions) {
     return true;
   }
 };
-
-roles.defender.execute = function(creep) {
-  creep.log('Execute!!!');
-};

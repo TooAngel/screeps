@@ -109,7 +109,9 @@ Room.prototype.reactions = function() {
 
   if (this.getResourceAmountWithNextTiers(this.memory.reaction.result.result) > config.mineral.minAmount &&
     (this.terminal.store[this.memory.reaction.result.result] > config.mineral.minAmount)) {
-    this.log('Done with reaction:' + this.memory.reaction.result.result);
+    if (config.debug.mineral) {
+      this.log('Done with reaction:' + this.memory.reaction.result.result);
+    }
     delete this.memory.reaction;
   }
 };

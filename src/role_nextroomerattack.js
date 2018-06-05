@@ -42,7 +42,3 @@ roles.nextroomerattack.action = function(creep) {
   creep.moveByPath(path);
   return true;
 };
-
-roles.nextroomerattack.execute = function(creep) {
-  creep.log('Execute!!!');
-};

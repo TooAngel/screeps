@@ -17,16 +17,26 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
     this.updatePosition();
   }
 
-  const callbackInner = (roomName) => {
+  // console.log(`getCostMatrixCallback(${end}, ${excludeStructures}, ${oneRoom}, ${allowExits})`);
+  const callbackInner = (roomName, debug) => {
     if (oneRoom && roomName !== this.name) {
+      if (debug) {
+        console.log(`callbackInner oneRoom: ${oneRoom} ${roomName} ${this.name}`);
+      }
       return false;
     }
     const room = Game.rooms[roomName];
     if (!room) {
+      if (debug) {
+        console.log(`No room`);
+      }
       return;
     }
     let costMatrix = room.getMemoryCostMatrix();
     if (!costMatrix) {
+      if (debug) {
+        console.log(`No costMatrix`);
+      }
       return;
     }
     costMatrix = costMatrix.clone();
@@ -38,6 +48,9 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
     if (excludeStructures) {
       // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
       const structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], {inverse: true});
+      if (debug) {
+        console.log(`Exclude structures: ${JSON.stringify(structures)}`);
+      }
       this.setCostMatrixStructures(costMatrix, structures, config.layout.structureAvoid);
 
       // TODO repairer got stuck at walls, why?
@@ -55,6 +68,9 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
         openExits(0, i);
         openExits(49, i);
       }
+    }
+    if (debug) {
+      console.log(JSON.stringify(costMatrix));
     }
     return costMatrix;
   };

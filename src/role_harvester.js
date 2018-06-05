@@ -129,5 +129,3 @@ roles.harvester.action = function(creep) {
   delete creep.memory.routing.reached;
   return true;
 };
-
-roles.harvester.execute = roles.harvester.action;

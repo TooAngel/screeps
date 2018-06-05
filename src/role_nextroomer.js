@@ -187,6 +187,7 @@ roles.nextroomer.underSiege = function(creep) {
 };
 
 roles.nextroomer.settle = function(creep) {
+  creep.creepLog('settle');
   const room = Game.rooms[creep.room.name];
   const hostileCreeps = room.find(FIND_HOSTILE_CREEPS, {
     filter: (creep) => (!room.controller.safeMode || creep.ticksToLive > room.controller.safeMode) && !brain.isFriend(creep.owner.username),
@@ -243,11 +244,18 @@ roles.nextroomer.settle = function(creep) {
   }
 
   methods.push(Creep.transferEnergy);
+  creep.creepLog(`Creep execute`);
   return Creep.execute(creep, methods);
 };
 
 roles.nextroomer.preMove = function(creep, directions) {
   if (!directions) {
+    return false;
+  }
+  if (!directions.forwardDirection) {
+    if (config.debug.nextRoomer) {
+      creep.log(`preMove no forwardDirection, why? (I think not on path) ${JSON.stringify(directions)} ${JSON.stringify(creep.memory)}`);
+    }
     return false;
   }
   const posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
@@ -279,9 +287,4 @@ roles.nextroomer.action = function(creep) {
     return roles.nextroomer.settle(creep);
   }
   return roles.nextroomer.settle(creep);
-};
-
-roles.nextroomer.execute = function(creep) {
-  creep.log('Execute!!!');
-  // creep.moveTo(25, 25);
 };

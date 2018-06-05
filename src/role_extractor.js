@@ -26,5 +26,3 @@ roles.extractor.preMove = function(creep, directions) {
 };
 
 roles.extractor.action = executeExtractor;
-
-roles.extractor.execute = executeExtractor;
