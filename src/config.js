@@ -51,6 +51,7 @@ global.config = {
 
   memory: {
     segments: 20,
+    segmentsEnabled: false,
   },
 
   // use username `tooangels` and password `tooSecretPassword` at https://screepspl.us/grafana
@@ -98,7 +99,7 @@ global.config = {
     ttlPerRoomForScout: 1500,
     numberOfNextroomers: 10,
     nextroomerInterval: 500,
-    maxRooms: 20,
+    maxRooms: 8,
     cpuPerRoom: 13, // Necessary CPU per room, prevent claiming new rooms
     revive: true,
     maxDistance: 17,
