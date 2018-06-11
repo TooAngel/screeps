@@ -20,7 +20,7 @@ brain.main.roomFilter = (r) => {
   if (Game.cpu.getUsed() < Game.cpu.limit) {
     r.execute();
     if (config.debug.cpu) {
-      r.log(`Before: ${global.cpuUsed} After: ${Game.cpu.getUsed()} Diff: ${Game.cpu.getUsed() - global.cpuUsed} tickLimit: ${global.tickLimit}`);
+      r.log(`Before: ${global.cpuUsed} After: ${Game.cpu.getUsed()} Diff: ${Game.cpu.getUsed() - global.cpuUsed} limit: ${Game.cpu.limit} tickLimit: ${Game.cpu.tickLimit}`);
     }
   } else {
     Memory.skippedRooms.push(r.name);
@@ -83,7 +83,9 @@ brain.main.execute = function() {
 
   brain.stats.addRoot();
   brain.main.roomExecution();
-  brain.saveMemorySegments();
+  if (config.memory.segmentsEnabled) {
+    brain.saveMemorySegments();
+  }
   brain.main.visualizeRooms();
   if (Memory.skippedRooms.length > 0) {
     console.log(`${Game.time} cpu.getUsed: ${_.round(Game.cpu.getUsed())} ticklimit: ${Game.cpu.tickLimit} Bucket: ${Game.cpu.bucket} skippedRooms ${Memory.skippedRooms}`);

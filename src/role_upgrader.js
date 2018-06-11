@@ -52,7 +52,6 @@ roles.upgrader.updateSettings = function(room, creep) {
   };
 };
 
-roles.upgrader.stayInRoom = true;
 // TODO disabled because the upgrader took energy from the extension
 roles.upgrader.buildRoad = false;
 roles.upgrader.killPrevious = true;

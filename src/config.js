@@ -64,6 +64,7 @@ global.config = {
 
   debug: {
     getPartsConfLogs: false,
+    baseBuilding: false,
     queue: false,
     spawn: false,
     mineral: false,

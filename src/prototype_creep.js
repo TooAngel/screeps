@@ -16,6 +16,10 @@ Creep.prototype.unit = function() {
   return roles[this.memory.role];
 };
 
+/**
+ * mySignController signs the controller either with the default text or
+ * attaches a Quest.
+ **/
 Creep.prototype.mySignController = function() {
   if (config.info.signController && this.room.exectueEveryTicks(config.info.resignInterval)) {
     let text = config.info.signText;
@@ -28,8 +32,7 @@ Creep.prototype.mySignController = function() {
           origin: this.memory.base,
           end: Math.floor(Game.time / 100) * 100 + config.quests.endTime,
           type: 'Quest',
-          // info: 'http://tooangel.github.io/screeps/doc/Quests.html'
-          info: 'https://goo.gl/QEyNzG', // Pointing to the workspace branch doc
+          info: 'http://tooangel.github.io/screeps/doc/Quests.html',
         };
         text = JSON.stringify(quest);
         // Memory.quests[quest.id] = quest;
@@ -46,62 +49,45 @@ Creep.prototype.mySignController = function() {
   }
 };
 
-Creep.prototype.moveToMy = function(target, range) {
-  this.creepLog(`moveToMy(${target}, ${range}) pos: ${this.pos}`);
-  if (this.fatigue > 0) {
-    return true;
-  }
-  range = range || 1;
-
-  const costMatrixCallback = this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName);
-  const search = PathFinder.search(
-    this.pos, {
-      pos: target,
-      range: range,
-    }, {
-      roomCallback: costMatrixCallback,
-      maxRooms: 0,
-      swampCost: config.layout.swampCost,
-      plainCost: config.layout.plainCost,
-    }
-  );
-
-  if (config.visualizer.enabled && config.visualizer.showPathSearches) {
-    visualizer.showSearch(search);
-  }
-
-  // Fallback to moveTo when the path is incomplete and the creep is only switching positions
-  if (search.path.length < 2 && search.incomplete) {
-    this.creepLog(`moveToMy fallback ${JSON.stringify(target)} ${JSON.stringify(search)}`);
-    this.moveTo(target);
-    return false;
-  }
-  const moveResponse = this.move(this.pos.getDirectionTo(search.path[0] || target.pos || target));
-  if (moveResponse !== OK && moveResponse !== ERR_NO_BODYPART) {
-    this.log(`pos: ${this.pos} search: ${search.path[0]}, target.pos ${target.pos}, target ${target} ${search.path[0] || target.pos || target}`);
-    throw new Error(`moveToMy this.move(${this.pos.getDirectionTo(search.path[0] || target.pos || target)}); => ${moveResponse}`);
-  }
-  return moveResponse === OK;
-};
-
+/**
+ * inBase - Checks if the creep is in its base
+ *
+ * @return {boolean} If creep is in its base
+ **/
 Creep.prototype.inBase = function() {
   return this.room.name === this.memory.base;
 };
 
-Creep.prototype.handle = function() {
+/**
+ * checkForHandle - Checks if the creep can be handled with the usual workflow
+ * - spawning creeps are skipped
+ * - recycling is handled here
+ * - Check if the role is valid
+ *
+ * @return {boolean} - Creep is ready for handling
+ **/
+Creep.prototype.checkForHandle = function() {
   if (this.spawning) {
-    return;
+    return false;
   }
 
   if (this.memory.recycle) {
     Creep.recycleCreep(this);
-    return;
+    return false;
   }
 
   const role = this.memory.role;
   if (!role) {
     this.log('Creep role not defined for: ' + this.id + ' ' + this.name.split('-')[0].replace(/[0-9]/g, ''));
+    this.memory.killed = true;
     this.suicide();
+    return false;
+  }
+  return true;
+};
+
+Creep.prototype.handle = function() {
+  if (!this.checkForHandle()) {
     return;
   }
 
@@ -110,36 +96,16 @@ Creep.prototype.handle = function() {
       this.unit().setup(this);
     }
 
-    // TODO do we still need this?
-    if (this.unit().stayInRoom) {
-      if (this.stayInRoom()) {
-        return;
-      }
+    if (!this.memory.boosted && this.boost()) {
+      return true;
     }
 
-    if (!this.memory.boosted) {
-      if (this.boost()) {
-        return true;
-      }
+    if (this.memory.routing && this.memory.routing.reached) {
+      return this.unit().action(this);
     }
 
-    if (this.unit().action) {
-      if (this.memory.routing && this.memory.routing.reached) {
-        if (this.inBase() || !Room.isRoomUnderAttack(this.room.name)) {
-          // TODO maybe rename action to ... something better
-          //      this.say('Action');
-          return this.unit().action(this);
-        }
-      }
-
-      if (this.memory.forced) {
-        delete this.memory.forced;
-        return;
-      }
-
-      if (this.followPath(this.unit().action)) {
-        return true;
-      }
+    if (this.followPath(this.unit().action)) {
+      return true;
     }
 
     this.log('Reached end of handling() why?', JSON.stringify(this.memory));
@@ -213,17 +179,6 @@ Creep.prototype.getEnergyFromStructure = function() {
       }
     }
   }
-};
-
-Creep.prototype.stayInRoom = function() {
-  if (this.inBase()) {
-    return false;
-  }
-
-  const exitDir = Game.map.findExit(this.room, this.memory.base);
-  const exit = this.pos.findClosestByRange(exitDir);
-  this.moveTo(exit);
-  return true;
 };
 
 Creep.prototype.buildRoad = function() {
@@ -390,14 +345,16 @@ Creep.prototype.killPrevious = function(path) {
   }
 
   if (this.ticksToLive < previous.ticksToLive) {
-    if (this.ticksToLive > 10) {
+    if (this.ticksToLive > 100) {
       this.log('kill me: me: ' + this.ticksToLive + ' they: ' + previous.ticksToLive);
     }
+    this.memory.killed = true;
     this.suicide();
   } else {
-    if (previous.ticksToLive > 10) {
+    if (previous.ticksToLive > 100) {
       this.log('kill other: me: ' + this.ticksToLive + ' they: ' + previous.ticksToLive);
     }
+    previous.memory.killed = true;
     previous.suicide();
   }
   return true;
