@@ -2,7 +2,7 @@ version: 2
 jobs:
     deploy:
       docker:
-        - image: circleci/node:8.10.0
+        - image: circleci/node:8.11.3-stretch
       steps:
       - checkout
       # Download and cache dependencies
@@ -22,7 +22,9 @@ jobs:
       - run: node utils/grafana.js
     test:
       docker:
-        - image: circleci/node:8.10.0
+        - image: circleci/node:8.11.3-stretch
+        - image: mongo:latest
+        - image: redis:latest
       steps:
       - checkout
       # Download and cache dependencies
