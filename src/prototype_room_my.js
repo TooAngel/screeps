@@ -85,8 +85,7 @@ Room.prototype.handleLinks = function() {
   });
 
   if (links.length > 0) {
-    const numberOfLinks = CONTROLLER_STRUCTURES.link[this.controller.level];
-    const time = Game.time % ((numberOfLinks - 1) * 12);
+    const time = Game.time % (links.length * 12);
     const link = (time / 12);
     if (time % 12 === 0 && links.length - 1 >= link) {
       if (this.memory.attackTimer > 50 && this.controller.level > 6) {
@@ -100,8 +99,11 @@ Room.prototype.handleLinks = function() {
         linkStorage.transferEnergy(links[link]);
       } else {
         const returnCode = links[link].transferEnergy(linkStorage);
-        if (returnCode !== OK && returnCode !== ERR_NOT_ENOUGH_RESOURCES && returnCode !== ERR_TIRED) {
-          this.log('handleLinks.transferEnergy returnCode: ' + returnCode + ' targetPos: ' + linkStorage.pos);
+        if (returnCode !== OK &&
+            returnCode !== ERR_NOT_ENOUGH_RESOURCES &&
+            returnCode !== ERR_TIRED &&
+            returnCode !== ERR_RCL_NOT_ENOUGH) {
+          links[link].log('handleLinks.transferEnergy returnCode: ' + returnCode + ' targetPos: ' + linkStorage.pos);
         }
       }
     }
@@ -225,16 +227,18 @@ Room.prototype.checkNeedHelp = function() {
     if (!oldNeedHelp) {
       Memory.needEnergyRooms.push(this.name);
       this.memory.needHelp = true;
-      return '---!!!---' + this.name + ' need energy ---!!!---';
+      this.debugLog('energyTransfer', '---!!!---' + this.name + ' need energy ---!!!---');
+      return true;
     }
-    return 'Already set as needHelp';
+    return true;
   }
   if (oldNeedHelp) {
     _.remove(Memory.needEnergyRooms, (r) => r === this.name);
     delete Memory.rooms[this.name].needHelp;
-    return '---!!!---' + this.name + ' no more need help ---!!!---';
+    this.debugLog('energyTransfer', '---!!!---' + this.name + ' no more need help ---!!!---');
+    return true;
   }
-  return;
+  return false;
 };
 
 Room.prototype.checkCanHelp = function() {
@@ -295,11 +299,7 @@ Room.prototype.checkCanHelp = function() {
 Room.prototype.updateEnergyStatsAndCheckForHelp = function() {
   this.memory.energyStats.average = this.memory.energyStats.sum / this.memory.energyStats.ticks;
   const needHelp = this.checkNeedHelp();
-  if (needHelp) {
-    if (needHelp !== 'Already set as needHelp') {
-      this.log(needHelp);
-    }
-  } else {
+  if (!needHelp) {
     const canHelp = this.checkCanHelp();
     if (canHelp !== 'no') {
       this.log(canHelp);
@@ -385,12 +385,12 @@ Room.prototype.executeRoom = function() {
   const nextroomers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['nextroomer'], {
     filter: (object) => object.memory.base !== this.name,
   });
-  const building = nextroomers.length > 0 && this.controller.level < 4;
+  // Room is build up while nextroomers are in the room and sourcerers are too small
+  const building = nextroomers.length > 0 && this.energyCapacityAvailable <= 600;
 
   if (!building) {
     const amount = this.getHarvesterAmount();
-
-    this.checkRoleToSpawn('harvester', amount, 'harvester');
+    this.checkRoleToSpawn('harvester', amount);
   }
 
   if (this.memory.attackTimer > 100) {
@@ -448,10 +448,6 @@ Room.prototype.executeRoom = function() {
   }
 
   if (Memory.myRooms && (Memory.myRooms.length < 5) && building) {
-    const constructionSites = this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART], true);
-    if (constructionSites.length > 0) {
-      this.checkRoleToSpawn('planer', 1);
-    }
     brain.stats.addRoom(this.name, cpuUsed);
     return true;
   }
