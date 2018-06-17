@@ -156,8 +156,6 @@ Creep.prototype.followPath = function(action) {
     }
   }
 
-  this.buildRoad();
-
   return this.moveByPathMy(path, this.memory.routing.pathPos, directions);
 };
 
@@ -210,6 +208,8 @@ Creep.prototype.moveByPathMy = function(path, pathPos, directions) {
   if (pathPos < 0) {
     return this.moveBackToPath(path);
   }
+
+  this.buildRoad();
 
   if (!validateDirections(directions)) {
     this.log(`moveByPathMy: Directions invalid pathPos: ${pathPos} path: ${path} directions: ${directions}`);
