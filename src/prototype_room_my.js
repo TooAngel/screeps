@@ -456,7 +456,7 @@ Room.prototype.executeRoom = function() {
 
   this.checkAndSpawnSourcer();
 
-  if (this.controller.level >= 4 && this.storage && this.storage.my) {
+  if (this.controller.level >= 4 && this.storage && this.storage.my && !this.memory.misplacedSpawn) {
     this.checkRoleToSpawn('storagefiller', 1, 'filler');
   }
 
