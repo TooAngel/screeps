@@ -72,7 +72,9 @@ brain.setConstructionSites = function() {
       constructionSites[csId] = cs.progress;
     }
     Memory.constructionSites = constructionSites;
-    console.log('Known constructionSites: ' + Object.keys(constructionSites).length);
+    if (config.debug.constructionSites) {
+      console.log('Known constructionSites: ' + Object.keys(constructionSites).length);
+    }
   }
 };
 
@@ -126,6 +128,11 @@ brain.cleanCreeps = function() {
 
       const creepMemory = Memory.creeps[name];
       if (creepMemory.killed) {
+        delete Memory.creeps[name];
+        continue;
+      }
+
+      if (creepMemory.recycle) {
         delete Memory.creeps[name];
         continue;
       }

@@ -344,19 +344,23 @@ Creep.prototype.killPrevious = function(path) {
     return false;
   }
 
+  let killWho;
+  let killWhoName;
   if (this.ticksToLive < previous.ticksToLive) {
-    if (this.ticksToLive > 100) {
-      this.log('kill me: me: ' + this.ticksToLive + ' they: ' + previous.ticksToLive);
-    }
-    this.memory.killed = true;
-    this.suicide();
+    killWhoName = 'me';
+    killWho = this;
   } else {
-    if (previous.ticksToLive > 100) {
-      this.log('kill other: me: ' + this.ticksToLive + ' they: ' + previous.ticksToLive);
-    }
-    previous.memory.killed = true;
-    previous.suicide();
+    killWhoName = 'other';
+    killWho = previous;
   }
+
+  if (killWho.ticksToLive > killWho.memory.timeToTravel) {
+    this.log(`kill ${killWhoName} - me ttl: ${this.ticksToLive} they ttl: ${previous.ticksToLive}
+me: ${JSON.stringify(this)} Memory: ${JSON.stringify(this.memory)}
+other: ${JSON.stringify(previous)} Memory: ${JSON.stringify(previous.memory)}`);
+  }
+  killWho.memory.killed = true;
+  killWho.suicide();
   return true;
 };
 

@@ -237,7 +237,7 @@ Room.prototype.closeExitsByPath = function() {
       if (returnCode === ERR_INVALID_TARGET) {
         return false;
       }
-      this.log('Placing ' + structure + ' with ' + returnCode + ' at ' + JSON.stringify(pathPos));
+      this.debugLog('baseBuilding', 'Placing ' + structure + ' with ' + returnCode + ' at ' + JSON.stringify(pathPos));
       return true;
     }
   }

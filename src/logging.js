@@ -2,6 +2,12 @@ Room.prototype.log = function(...messages) {
   console.log(`${Game.time} ${this.name.rpad(' ', 27)} ${messages.join(' ')}`);
 };
 
+Room.prototype.debugLog = function(type, ...messages) {
+  if (config.debug[type]) {
+    this.log(messages);
+  }
+};
+
 RoomObject.prototype.log = function(...messages) {
   console.log(`${Game.time} ${this.room.name.rpad(' ', 6)} ${this.name.rpad(' ', 20)} ${this.pos} ${messages.join(' ')}`);
 };

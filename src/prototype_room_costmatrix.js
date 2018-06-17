@@ -20,23 +20,14 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
   // console.log(`getCostMatrixCallback(${end}, ${excludeStructures}, ${oneRoom}, ${allowExits})`);
   const callbackInner = (roomName, debug) => {
     if (oneRoom && roomName !== this.name) {
-      if (debug) {
-        console.log(`callbackInner oneRoom: ${oneRoom} ${roomName} ${this.name}`);
-      }
       return false;
     }
     const room = Game.rooms[roomName];
     if (!room) {
-      if (debug) {
-        console.log(`No room`);
-      }
       return;
     }
     let costMatrix = room.getMemoryCostMatrix();
     if (!costMatrix) {
-      if (debug) {
-        console.log(`No costMatrix`);
-      }
       return;
     }
     costMatrix = costMatrix.clone();
@@ -68,9 +59,6 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
         openExits(0, i);
         openExits(49, i);
       }
-    }
-    if (debug) {
-      console.log(JSON.stringify(costMatrix));
     }
     return costMatrix;
   };
