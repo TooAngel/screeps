@@ -253,4 +253,36 @@ global.utils = {
     return returnValue;
   },
 
+  segments: {
+    test: (testString) => {
+      const byteLength = global.utils.segments.byteLength(testString);
+      const size = global.utils.segments.formatBytes(byteLength);
+      console.log(`global.utils.segments.test: ${testString} => ${size}`);
+      return byteLength;
+    },
+    formatBytes: (a, b) => {
+      /** @see https://stackoverflow.com/questions/15900485/correct-way-to-convert-size-in-bytes-to-kb-mb-gb-in-javascript */
+      if (0 === a) {
+        return '0 Bytes';
+      }
+      const c = 1024;
+      const d = b || 2;
+      const e = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+      const f = Math.floor(Math.log(a) / Math.log(c));
+      return parseFloat((a / Math.pow(c, f)).toFixed(d)) + ' ' + e[f];
+    },
+    byteLength: (str) => {
+      /** @see https://gist.github.com/lovasoa/11357947 */
+      // returns the byte length of an utf8 string
+      let s = str.length;
+      for (let i = str.length - 1; i >= 0; i--) {
+        const code = str.charCodeAt(i);
+        if (code > 0x7f && code <= 0x7ff) s += 1;
+        else if (code > 0x7ff && code <= 0xffff) s += 2;
+        if (code >= 0xDC00 && code <= 0xDFFF) i--; // trail surrogate
+      }
+      return s;
+    },
+
+  },
 };

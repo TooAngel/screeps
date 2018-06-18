@@ -9,7 +9,6 @@ globals:
   friends: true,
   cache: true,
   visualizer: true,
-  FIND_TOMBSTONES: false,
 
 parserOptions:
   ecmaVersion: 8

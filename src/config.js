@@ -76,7 +76,7 @@ global.config = {
   },
 
   tower: {
-    // in the most chases they need heal not to break path movement
+    // in the most cases they need heal not to break path movement
     // mostly npcs damaged my creeps, "big" players around me are on friend my list
     healMyCreeps: true, // so they should be healed
     repairStructures: true, // so they should be repair Structures (mostly roads)
