@@ -191,7 +191,7 @@ Creep.prototype.moveBackToPath = function(path) {
  * @return {boolean} - If the object is valid
  **/
 function validateDirections(directions) {
-  return directions && (directions.forwardDirection || directions.backwardDirection);
+  return directions && directions.direction && (directions.forwardDirection || directions.backwardDirection);
 }
 
 /**
