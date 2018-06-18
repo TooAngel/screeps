@@ -16,9 +16,7 @@ roles.planer.settings = {
 };
 
 roles.planer.action = function(creep) {
-  creep.pickupEnergy();
   const methods = [Creep.getEnergy];
-
   methods.push(Creep.constructTask);
   // methods.push(Creep.buildRoads);
   if (creep.room.memory.misplacedSpawn) {
@@ -34,9 +32,7 @@ roles.planer.action = function(creep) {
 
 roles.planer.execute = function(creep) {
   creep.log('!!!! Execute !!!');
-  creep.pickupEnergy();
   const methods = [Creep.getEnergy];
-
   methods.push(Creep.constructTask);
   methods.push(Creep.buildRoads);
   if (creep.room.memory.misplacedSpawn) {
@@ -46,6 +42,5 @@ roles.planer.execute = function(creep) {
     methods.push(Creep.recycleCreep);
   }
   methods.push(Creep.upgradeControllerTask);
-  creep.pickupEnergy();
   return Creep.execute(creep, methods);
 };

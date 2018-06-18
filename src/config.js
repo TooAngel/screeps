@@ -51,6 +51,7 @@ global.config = {
 
   memory: {
     segments: 10,
+    segmentsEnabled: true,
   },
 
   // use username `tooangels` and password `tooSecretPassword` at https://screepspl.us/grafana
@@ -204,7 +205,7 @@ global.config = {
     upgraderStorageFactor: 2,
     lastSeenThreshold: 1000000,
     notify: false,
-    observerRange: 4, // default: OBSERVER_RANGE, (changed for cpu reason) // between 1 and 10:OBSERVER_RANGE
+    observerRange: OBSERVER_RANGE, // between 1 and 10:OBSERVER_RANGE
   },
 
   layout: {

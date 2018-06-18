@@ -60,7 +60,7 @@ brain.main.execute = function() {
     console.log(Game.time, 'TooAngel AI - All good');
     console.log(Game.time, 'cpu limit per tick', global.tickLimit);
   }
-  if (Game.cpu.bucket < 2 * Game.cpu.tickLimit && Game.cpu.bucket < Game.cpu.limit * 10) {
+  if (Game.time > 1000 && Game.cpu.bucket < 2 * Game.cpu.tickLimit && Game.cpu.bucket < Game.cpu.limit * 10) {
     console.log(Game.time, 'Skipping tick CPU Bucket too low.',
       'Load: ' + global.load, 'Bucket: ' + Game.cpu.bucket);
     return;

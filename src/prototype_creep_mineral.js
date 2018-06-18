@@ -503,6 +503,11 @@ const execute = function(creep) {
  * and `config.terminal.maxEnergyAmount`
  */
 Creep.prototype.checkTerminal = function() {
+  if (!this.room.terminal) {
+    this.creepLog('Killing myself, no terminal');
+    this.suicide();
+    return;
+  }
   if (this.room.terminal.store.energy + this.carry.energy > config.terminal.maxEnergyAmount) {
     if (_.sum(this.carry) > 0) {
       this.creepLog('Transfer energy to terminal');

@@ -116,6 +116,7 @@ Creep.recycleCreep = function(creep) {
 };
 
 Creep.getEnergy = function(creep) {
+  creep.pickupEnergy();
   return creep.getEnergy();
 };
 
