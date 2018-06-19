@@ -46,7 +46,3 @@ roles.powerdefender.action = function(creep) {
   creep.rangedAttack(powerBank[0]);
   return true;
 };
-
-roles.powerdefender.execute = function(creep) {
-  creep.log('Execute!!!');
-};

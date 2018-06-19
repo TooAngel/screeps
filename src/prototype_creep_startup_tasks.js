@@ -9,6 +9,7 @@ Creep.execute = function(creep, methods) {
 };
 
 Creep.upgradeControllerTask = function(creep) {
+  creep.creepLog('upgradeControllerTask');
   if (creep.carry.energy === 0) {
     return false;
   }
@@ -40,7 +41,7 @@ Creep.upgradeControllerTask = function(creep) {
 };
 
 Creep.constructTask = function(creep) {
-  //  creep.say('construct', true);
+  creep.creepLog('construct');
   return creep.construct();
 };
 
@@ -194,7 +195,7 @@ Creep.prototype.repairStructure = function() {
           this.creepLog('repairStructure moveToMy target:', JSON.stringify(toRepair.pos));
           const returnCode = this.moveToMy(toRepair.pos, 3);
           this.memory.lastPosition = this.pos;
-          if (returnCode === OK) {
+          if (returnCode === true) {
             return true;
           }
           this.log('config_creep_resources.repairStructure moveByPath.returnCode: ' + returnCode);

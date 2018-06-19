@@ -142,8 +142,11 @@ Creep.prototype.handleExtractor = function() {
   const minerals = this.room.find(FIND_MINERALS);
   if (minerals.length > 0) {
     const posMem = this.room.memory.position.creep[minerals[0].id];
-    const pos = new RoomPosition(posMem.x, posMem.y, posMem.roomName);
-    this.moveToMy(pos, 0);
+    // TODO this could be moved to `creep.moveToMy`, just need to unify the parameter
+    if (this.pos.x !== posMem.x || this.pos.y !== posMem.y) {
+      const pos = new RoomPosition(posMem.x, posMem.y, posMem.roomName);
+      this.moveToMy(pos, 0);
+    }
     this.harvest(minerals[0]);
   }
   return true;
@@ -211,7 +214,7 @@ Creep.prototype.handleUpgrader = function() {
 Creep.prototype.buildContainerConstructionSite = function() {
   const returnCode = this.pos.createConstructionSite(STRUCTURE_CONTAINER);
   if (returnCode === OK) {
-    this.log('Create cs for container');
+    this.creepLog('Create cs for container');
     return true;
   }
   if (returnCode === ERR_INVALID_TARGET) {
@@ -459,9 +462,6 @@ Creep.prototype.getEnergyFromSourcer = function() {
 };
 
 Creep.prototype.moveToSource = function(source, swarm = false) {
-  if (!this.memory.routing) {
-    this.memory.routing = {};
-  }
   this.memory.routing.reverse = false;
   if (swarm && this.pos.inRangeTo(source, 3)) {
     // should not be `moveToMy` unless it will start to handle creeps
@@ -470,7 +470,14 @@ Creep.prototype.moveToSource = function(source, swarm = false) {
     // TODO should be `moveToMy`, but that hangs in W5N1 spawn (10,9)
     this.moveTo(source.pos);
   } else {
-    this.moveByPathMy([{'name': this.room.name}], 0, 'pathStart', source.id);
+    const route = [{'name': this.room.name}];
+    const routePos = 0;
+    const start = 'pathStart';
+    const target = source.id;
+    const path = this.room.getPath(route, routePos, start, target);
+    const pathPos = this.getPathPos(path);
+    const directions = this.getDirections(path, pathPos);
+    this.moveByPathMy(path, pathPos, directions);
   }
   return true;
 };
@@ -530,6 +537,7 @@ Creep.prototype.getEnergyFromSource = function() {
       this.moveTo(source);
       return true;
     }
+    this.creepLog(`getEnergy.moveToSource`);
     return this.moveToSource(source, swarm);
   }
 };
@@ -576,14 +584,19 @@ Creep.prototype.getEnergy = function() {
     return false;
   }
   if (this.getDroppedEnergy()) {
+    this.creepLog(`getEnergy.getDroppedEnergy`);
     return true;
   }
   if (this.getEnergyFromStorage()) {
+    this.creepLog(`getEnergy.getEnergyFromStorage`);
     return true;
   }
   if (this.getEnergyFromHostileStructures()) {
+    this.creepLog(`getEnergy.getEnergyFromHostileStructures`);
     return true;
   }
+
+  this.creepLog(`getEnergy.getEnergyFromSource`);
   return this.getEnergyFromSource();
 };
 

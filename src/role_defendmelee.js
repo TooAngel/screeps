@@ -14,7 +14,7 @@ roles.defendmelee.settings = {
   fillTough: true,
 };
 
-roles.defendmelee.execute = function(creep) {
+roles.defendmelee.action = function(creep) {
   const hostile = creep.findClosestEnemy();
   if (hostile === null) {
     return Creep.recycleCreep(creep);

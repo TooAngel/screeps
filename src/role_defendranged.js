@@ -90,4 +90,3 @@ const action = function(creep) {
 };
 
 roles.defendranged.action = action;
-roles.defendranged.execute = action;

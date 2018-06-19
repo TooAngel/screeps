@@ -72,8 +72,13 @@ global.config = {
       rooms: [], // Rooms for debug output, e.g. ['E21N8']
     },
     power: false,
-    nextroomer: false,
+    nextroomer: true,
     quests: false,
+    revive: false,
+    quest: false,
+    market: false,
+    invader: false,
+    cpu: false,
   },
 
   tower: {
@@ -91,6 +96,8 @@ global.config = {
     disabled: false,
     reviverMaxQueue: 4,
     reviverMinEnergy: 1300,
+    nextroomerInterval: 500,
+    otherMinStorageAvailable: 3000,
   },
 
   nextRoom: {
@@ -98,7 +105,6 @@ global.config = {
     scoutMinControllerLevel: 4,
     ttlPerRoomForScout: 1500,
     numberOfNextroomers: 10,
-    nextroomerInterval: 500,
     maxRooms: 8,
     cpuPerRoom: 13, // Necessary CPU per room, prevent claiming new rooms
     revive: true,
@@ -190,12 +196,10 @@ global.config = {
       7: 1,
       8: 1,
     },
-    revive: true,
     rebuildLayout: 7654,
     handleNukeAttackInterval: 132,
     reviveEnergyCapacity: 1000,
     reviveEnergyAvailable: 1000,
-    reviveStorageAvailable: 3000,
     scoutInterval: 1499,
     scoutSkipWhenStuck: true, // Useful for novice areas.
     scout: true, // TODO somehow broken ?? Is it broken ??

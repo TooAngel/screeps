@@ -58,6 +58,9 @@ if (config.visualizer.enabled) {
           for (const structType of Object.keys(structures)) {
             const text = structType.substr(0, 1).toUpperCase() + structType.substr(1, 1);
             for (const structure of structures[structType]) {
+              if (!structure) {
+                continue;
+              }
               this.drawPosition(rv, structure, text, 'blue');
             }
           }

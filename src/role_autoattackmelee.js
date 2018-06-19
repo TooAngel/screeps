@@ -86,7 +86,3 @@ roles.autoattackmelee.action = function(creep) {
   }
   return true;
 };
-
-roles.autoattackmelee.execute = function(creep) {
-  creep.log('Execute!!!');
-};

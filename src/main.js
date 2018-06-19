@@ -12,7 +12,7 @@ require('screepsplus');
 global.tickLimit = global.cpuLimit();
 global.load = _.round(Game.cpu.getUsed());
 
-console.log(Game.time, 'no cache', 'Load: ' + global.load, 'Bucket: ' + Game.cpu.bucket);
+console.log(Game.time, 'Script reload', 'Load: ' + global.load, 'Bucket: ' + Game.cpu.bucket);
 
 brain.stats.init();
 brain.main.profilerInit();

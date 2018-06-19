@@ -13,7 +13,7 @@ roles.towerfiller.settings = {
   amount: [1, 4],
 };
 
-roles.towerfiller.execute = function(creep) {
+roles.towerfiller.action = function(creep) {
   if (!creep.memory.target_id) {
     creep.log('Suiciding to target_id');
     creep.suicide();

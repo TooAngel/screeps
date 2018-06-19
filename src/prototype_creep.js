@@ -1,5 +1,21 @@
 'use strict';
 
+/**
+ * initRouting - Makes sure the memory routing object is set
+ **/
+Creep.prototype.initRouting = function() {
+  this.memory.routing = this.memory.routing || {};
+};
+
+/**
+ * unit - return the unit configuration for this creep
+ *
+ * @return {object} - The generic configuration for this creep role
+ **/
+Creep.prototype.unit = function() {
+  return roles[this.memory.role];
+};
+
 Creep.prototype.mySignController = function() {
   if (config.info.signController && this.room.exectueEveryTicks(config.info.resignInterval)) {
     let text = config.info.signText;
@@ -17,7 +33,9 @@ Creep.prototype.mySignController = function() {
         };
         text = JSON.stringify(quest);
         // Memory.quests[quest.id] = quest;
-        this.log('Attach quest:', text);
+        if (config.debug.quest) {
+          this.log('Attach quest:', text);
+        }
       }
     }
 
@@ -29,13 +47,19 @@ Creep.prototype.mySignController = function() {
 };
 
 Creep.prototype.moveToMy = function(target, range) {
+  this.creepLog(`moveToMy(${target}, ${range}) pos: ${this.pos}`);
+  if (this.fatigue > 0) {
+    return true;
+  }
   range = range || 1;
+
+  const costMatrixCallback = this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName);
   const search = PathFinder.search(
     this.pos, {
       pos: target,
       range: range,
     }, {
-      roomCallback: this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName),
+      roomCallback: costMatrixCallback,
       maxRooms: 0,
       swampCost: config.layout.swampCost,
       plainCost: config.layout.plainCost,
@@ -46,14 +70,18 @@ Creep.prototype.moveToMy = function(target, range) {
     visualizer.showSearch(search);
   }
 
-  this.creepLog('moveToMy search:', JSON.stringify(search));
   // Fallback to moveTo when the path is incomplete and the creep is only switching positions
   if (search.path.length < 2 && search.incomplete) {
-    // this.log(`fallback ${JSON.stringify(target)} ${JSON.stringify(search)}`);
+    this.creepLog(`moveToMy fallback ${JSON.stringify(target)} ${JSON.stringify(search)}`);
     this.moveTo(target);
     return false;
   }
-  return this.move(this.pos.getDirectionTo(search.path[0] || target.pos || target));
+  const moveResponse = this.move(this.pos.getDirectionTo(search.path[0] || target.pos || target));
+  if (moveResponse !== OK && moveResponse !== ERR_NO_BODYPART) {
+    this.log(`pos: ${this.pos} search: ${search.path[0]}, target.pos ${target.pos}, target ${target} ${search.path[0] || target.pos || target}`);
+    throw new Error(`moveToMy this.move(${this.pos.getDirectionTo(search.path[0] || target.pos || target)}); => ${moveResponse}`);
+  }
+  return moveResponse === OK;
 };
 
 Creep.prototype.inBase = function() {
@@ -78,8 +106,12 @@ Creep.prototype.handle = function() {
   }
 
   try {
-    const unit = roles[role];
-    if (unit.stayInRoom) {
+    if (this.unit().setup) {
+      this.unit().setup(this);
+    }
+
+    // TODO do we still need this?
+    if (this.unit().stayInRoom) {
       if (this.stayInRoom()) {
         return;
       }
@@ -91,12 +123,12 @@ Creep.prototype.handle = function() {
       }
     }
 
-    if (unit.action) {
+    if (this.unit().action) {
       if (this.memory.routing && this.memory.routing.reached) {
         if (this.inBase() || !Room.isRoomUnderAttack(this.room.name)) {
           // TODO maybe rename action to ... something better
           //      this.say('Action');
-          return unit.action(this);
+          return this.unit().action(this);
         }
       }
 
@@ -105,22 +137,12 @@ Creep.prototype.handle = function() {
         return;
       }
 
-      if (this.followPath(unit.action)) {
+      if (this.followPath(this.unit().action)) {
         return true;
       }
     }
 
-    //    if (this.memory.role != 'defendranged' && this.memory.role != 'repairer' && this.memory.role != 'scout' && this.memory.role != 'scoutnextroom' && this.memory.role != 'nextroomer' && this.memory.role != 'upgrader') {
-    //      this.log('After followPath');
-    //    }
-
-    if (unit.execute) {
-      unit.execute(this);
-      // TODO this is very old, can be removed?
-    } else {
-      this.log('Old module execution !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1');
-      unit(this);
-    }
+    this.log('Reached end of handling() why?', JSON.stringify(this.memory));
   } catch (err) {
     let message = 'Executing creep role failed: ' +
       this.room.name + ' ' +
@@ -205,6 +227,15 @@ Creep.prototype.stayInRoom = function() {
 };
 
 Creep.prototype.buildRoad = function() {
+  if (!this.unit().buildRoad) {
+    return false;
+  }
+
+  const target = Game.getObjectById(this.memory.routing.targetId);
+  if (!config.buildRoad.buildToOtherMyRoom && target && target.structureType === STRUCTURE_STORAGE) {
+    return false;
+  }
+
   if (this.room.controller && this.room.controller.my &&
     this.room.energyCapacityAvailable < 550 &&
     this.pos.lookFor(LOOK_TERRAIN)[0] !== 'swamp') {
@@ -328,7 +359,18 @@ Creep.prototype.getPositionInPath = function(target) {
   return -1;
 };
 
-Creep.prototype.killPrevious = function() {
+Creep.prototype.killPrevious = function(path) {
+  if (this.memory.routing.routePos !== this.memory.routing.route.length - 1) {
+    return false;
+  }
+
+  if (this.memory.routing.pathPos !== path.length - 2) {
+    return false;
+  }
+
+  if (!this.memory.killPrevious) {
+    return false;
+  }
   const previous = this.pos.findInRange(FIND_MY_CREEPS, 1, {
     filter: (creep) => {
       if (creep.id === this.id) {
@@ -348,10 +390,14 @@ Creep.prototype.killPrevious = function() {
   }
 
   if (this.ticksToLive < previous.ticksToLive) {
-    this.log('kill me: me: ' + this.ticksToLive + ' they: ' + previous.ticksToLive);
+    if (this.ticksToLive > 10) {
+      this.log('kill me: me: ' + this.ticksToLive + ' they: ' + previous.ticksToLive);
+    }
     this.suicide();
   } else {
-    this.log('kill other: me: ' + this.ticksToLive + ' they: ' + previous.ticksToLive);
+    if (previous.ticksToLive > 10) {
+      this.log('kill other: me: ' + this.ticksToLive + ' they: ' + previous.ticksToLive);
+    }
     previous.suicide();
   }
   return true;
@@ -391,7 +437,6 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
 Creep.prototype.setNextSpawn = function() {
   if (!this.memory.nextSpawn) {
     this.memory.nextSpawn = Game.time - this.memory.born - config.creep.renewOffset;
-    //    this.killPrevious();
 
     if (this.ticksToLive < this.memory.nextSpawn) {
       this.respawnMe();

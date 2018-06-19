@@ -30,20 +30,3 @@ roles.planer.action = function(creep) {
 
   return Creep.execute(creep, methods);
 };
-
-roles.planer.execute = function(creep) {
-  creep.log('!!!! Execute !!!');
-  const methods = [Creep.getEnergy];
-
-  methods.push(Creep.constructTask);
-  methods.push(Creep.buildRoads);
-  if (creep.room.memory.misplacedSpawn) {
-    methods.push(Creep.transferEnergy);
-    methods.push(Creep.repairStructure);
-  } else {
-    methods.push(Creep.recycleCreep);
-  }
-  methods.push(Creep.upgradeControllerTask);
-  creep.pickupEnergy();
-  return Creep.execute(creep, methods);
-};

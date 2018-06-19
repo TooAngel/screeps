@@ -16,7 +16,9 @@ brain.handleIncomingTransactions = function() {
       // }
       const price = brain.getMarketOrder(ORDER_SELL, transaction.resourceType, 'min') || brain.getMarketOrder(ORDER_BUY, transaction.resourceType, 'max') || 1;
       const value = -1 * transaction.amount * price;
-      console.log(`Incoming transaction from ${sender} with ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
+      if (config.debug.market) {
+        console.log(`Incoming transaction from ${sender} with ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
+      }
       brain.increaseIdiot(sender, value);
     }
     brain.checkQuestForAcceptance(transaction);

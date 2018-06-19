@@ -41,6 +41,11 @@ function checkForDefender(creep) {
   Game.rooms[creep.memory.base].checkRoleToSpawn('defender', 1, undefined, creep.room.name);
 }
 
+roles.scout.setup = function(creep) {
+  // TODO need to solve this better, introduce while getting rid of `execute()`
+  creep.memory.routing.reached = true;
+};
+
 roles.scout.preMove = function(creep, direction) {
   if (creep.memory.skip === undefined) {
     creep.memory.skip = [];
@@ -53,7 +58,7 @@ roles.scout.preMove = function(creep, direction) {
   return false;
 };
 
-roles.scout.execute = function(creep) {
+roles.scout.action = function(creep) {
   roles.scout.preMove(creep);
   const breadthFirstSearch = function(creep) {
     const setNewTarget = function(creep) {

@@ -379,6 +379,7 @@ Room.prototype.getCreepConfig = function(creep) {
     killPrevious: unit.killPrevious,
     flee: unit.flee,
     buildRoad: unit.buildRoad,
+    routing: creep.routing || {targetRoom: this.name},
   });
   return {
     name: name,

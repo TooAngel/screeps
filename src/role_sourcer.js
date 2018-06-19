@@ -79,10 +79,3 @@ roles.sourcer.action = function(creep) {
   creep.handleSourcer();
   return true;
 };
-
-roles.sourcer.execute = function(creep) {
-  creep.log('Execute!!!');
-  creep.memory.routing.targetReached = true;
-  creep.handleSourcer();
-  //  throw new Error();
-};

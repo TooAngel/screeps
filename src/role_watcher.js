@@ -51,5 +51,3 @@ roles.watcher.action = function(creep) {
     creep.moveToMy(pos, near);
   }
 };
-
-roles.watcher.execute = roles.watcher.action;
