@@ -250,11 +250,3 @@ roles.carry.action = function(creep) {
 
   return true;
 };
-
-roles.carry.execute = function(creep) {
-  // creep.log('Execute!!!');
-  const target = Game.getObjectById(creep.memory.routing.targetId);
-  if (target === null) {
-    delete creep.memory.routing.targetId;
-  }
-};

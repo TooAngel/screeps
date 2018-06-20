@@ -76,9 +76,3 @@ roles.squadheal.action = function(creep) {
 
   return true;
 };
-
-roles.squadheal.execute = function(creep) {
-  creep.log('Execute!!!');
-  creep.selfHeal();
-  creep.moveRandom();
-};

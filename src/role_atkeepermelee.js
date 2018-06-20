@@ -98,7 +98,3 @@ roles.atkeepermelee.action = function(creep) {
   }
   return moveToCenter(creep);
 };
-
-roles.atkeepermelee.execute = function(creep) {
-  creep.log('Execute!!!');
-};

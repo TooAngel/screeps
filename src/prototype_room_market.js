@@ -98,7 +98,9 @@ Room.prototype.buyByOthersOrders = function(resource) {
       if (Game.market.calcTransactionCost(amount, this.name, order.roomName) > this.terminal.store.energy) {
         break;
       }
-      this.log('BUY', order.id, order.roomName, '=>', this.name, amount, order.price);
+      if (config.debug.market) {
+        this.log('BUY', order.resourceType, order.id, order.roomName, '=>', this.name, amount, order.price);
+      }
       const returnCode = Game.market.deal(order.id, amount, this.name);
       if (returnCode === OK) {
         break;

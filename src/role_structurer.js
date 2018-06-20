@@ -67,10 +67,3 @@ roles.structurer.action = function(creep) {
   creep.handleStructurer();
   return true;
 };
-
-roles.structurer.execute = function(creep) {
-  creep.log('Execute!!!');
-  if (!creep.memory.routing.targetId) {
-    return creep.cleanSetTargetId();
-  }
-};

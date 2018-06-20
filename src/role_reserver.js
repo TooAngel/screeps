@@ -31,31 +31,6 @@ roles.reserver.updateSettings = function(room, creep) {
   }
 };
 
-roles.reserver.preMove = function(creep, directions) {
-  // todo-msc maybe add and my creeps in are below x
-  // const controller = Game.getObjectById(creep.memory.routing.targetId);
-  // if (controller && (creep.room.name === controller.pos.roomName)) {
-  //  const range = creep.pos.getRangeTo(controller);
-  //  if (range > 2 && range < 15) {
-  //    creep.moveTo(controller);
-  //    return true;
-  //  }
-  // }
-  const baseRoom = Game.rooms[creep.memory.base];
-  if ((creep.room.name === creep.memory.routing.targetRoom) || (creep.room.name !== creep.memory.base)) {
-    const structure = creep.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD], {
-      inverse: true,
-      filter: (object) => object.ticksToDecay === null,
-    });
-    if (structure) {
-      baseRoom.checkRoleToSpawn('structurer', 1, structure.id, this.name);
-    }
-  }
-  if (creep.allowOverTake(directions)) {
-    return true;
-  }
-};
-
 roles.reserver.action = function(creep) {
   creep.mySignController();
   if (!creep.memory.routing.targetId) {
@@ -71,8 +46,4 @@ roles.reserver.action = function(creep) {
 
   creep.handleReserver();
   return true;
-};
-
-roles.reserver.execute = function(creep) {
-  creep.log('Execute!!!');
 };

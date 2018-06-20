@@ -272,10 +272,9 @@ brain.handleIncomingTransactions = function() {
       const price = brain.getMarketOrder(ORDER_SELL, transaction.resourceType, 'min') || brain.getMarketOrder(ORDER_BUY, transaction.resourceType, 'max') || 1;
       const value = -1 * transaction.amount * price;
       const room = Game.rooms[transaction.to];
-      if (config.debug.transaction) {
-        room.log('Incoming transaction' + JSON.stringify(transaction));
+      if (config.debug.market) {
+        room.log(`Incoming transaction from ${sender}[${transaction.from}] ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
       }
-      room.log(`Incoming transaction from ${sender}[${transaction.from}] ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
       brain.increaseIdiot(sender, value);
     }
     brain.checkQuestForAcceptance(transaction);

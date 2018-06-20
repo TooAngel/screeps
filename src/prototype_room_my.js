@@ -438,7 +438,9 @@ Room.prototype.executeRoom = function() {
     }
 
     if (this.exectueEveryTicks(10)) {
-      this.log('Under attack from ' + hostiles[0].owner.username);
+      if (hostiles[0].owner.username !== 'Invader' || config.debug.invader) {
+        this.log('Under attack from ' + hostiles[0].owner.username);
+      }
     }
     if (hostiles[0].owner.username !== 'Invader' && !brain.isFriend(hostiles[0].owner.username)) {
       Game.notify(this.name + ' Under attack from ' + hostiles[0].owner.username + ' at ' + Game.time);
@@ -530,11 +532,38 @@ Room.prototype.reviveMyNow = function() {
   const roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
   // TODO find a proper value for config.revive.reviverMaxQueue,
   // TODO find meaningful config value for config.revive.reviverMinEnergy
-  const noNeedNextroomers = function(roomName, roomOther) {
-    return ((room.name === roomName) || !roomOther || !roomOther.memory || !roomOther.memory.active ||
-    (!roomOther.storage || roomOther.storage.store.energy < config.room.reviveStorageAvailable) ||
-    (!roomOther.memory.queue || roomOther.memory.queue.length > config.revive.reviverMaxQueue) ||
-    (roomOther.energyCapacityAvailable < config.revive.reviverMinEnergy));
+  const notSuitableRoom = function(roomName, roomOther) {
+    if (room.name === roomName) {
+      if (config.debug.revive) {
+        room.log(`Same room`);
+      }
+      return true;
+    }
+    if (!roomOther || !roomOther.memory || !roomOther.memory.active) {
+      if (config.debug.revive) {
+        room.log(`Other room ${roomOther} not active`);
+      }
+      return true;
+    }
+    if (!roomOther.storage || roomOther.storage.store.energy < config.revive.otherMinStorageAvailable) {
+      if (config.debug.revive) {
+        room.log(`Other room ${roomOther} no storage`);
+      }
+      return true;
+    }
+    if (!roomOther.memory.queue || roomOther.memory.queue.length > config.revive.reviverMaxQueue) {
+      if (config.debug.revive) {
+        room.log(`Other room ${roomOther} no queue`);
+      }
+      return true;
+    }
+    if (roomOther.energyCapacityAvailable < config.revive.reviverMinEnergy) {
+      if (config.debug.revive) {
+        room.log(`Other room ${roomOther} no energy`);
+      }
+      return true;
+    }
+    return false;
   };
 
   const checkForRoute = function(roomOther) {
@@ -547,18 +576,26 @@ Room.prototype.reviveMyNow = function() {
     return false;
   };
 
-  const callNextRoomer = (roomIndex) => {
+  const callNextRoomer = (roomName) => {
     if (nextroomerCalled > config.nextRoom.numberOfNextroomers) {
+      if (config.debug.revive) {
+        room.log(`No nextroomer too many called ${nextroomerCalled} / ${config.nextRoom.numberOfNextroomers}`);
+      }
       return false;
     }
-    const roomName = Memory.myRooms[roomIndex];
     const roomOther = Game.rooms[roomName];
-    if (noNeedNextroomers(roomName, roomOther)) {
+    if (notSuitableRoom(roomName, roomOther)) {
+      if (config.debug.revive) {
+        room.log(`No nextroomer noNeedNextroomers ${roomOther}`);
+      }
       return false;
     }
     const distance = Game.map.getRoomLinearDistance(this.name, roomName);
     if (distance < config.nextRoom.maxDistance) {
       if (checkForRoute(roomOther)) {
+        if (config.debug.revive) {
+          room.log(`No nextroomer checkForRoute`);
+        }
         return false;
       }
 
@@ -573,7 +610,7 @@ Room.prototype.reviveMyNow = function() {
     }
   };
   const nextroomers = _.map(roomsMy, callNextRoomer);
-  if (config.debug.nextroomer) {
+  if (config.debug.revive) {
     this.log('nextroomers ', nextroomers);
   }
   return nextroomerCalled;
@@ -612,6 +649,10 @@ Room.prototype.setRoomInactive = function() {
 };
 
 Room.prototype.reviveRoom = function() {
+  if (!this.exectueEveryTicks(config.revive.nextroomerInterval)) {
+    return false;
+  }
+
   const nextRoomers = _.filter(Game.creeps, (c) => c.memory.role === 'nextroomer' &&
   c.memory.routing.targetRoom === this.name).length;
   if (this.controller.level >= config.nextRoom.boostToControllerLevel &&
@@ -619,8 +660,16 @@ Room.prototype.reviveRoom = function() {
     (CONTROLLER_DOWNGRADE[this.controller.level] * config.nextRoom.minDowngradPercent / 100) &&
     this.energyCapacityAvailable > config.nextRoom.minEnergyForActive) {
     this.memory.active = true;
+    if (config.debug.revive) {
+      this.log(`reviveRoom set active ${this.controller.level >= config.nextRoom.boostToControllerLevel}` /
+        ` ${this.controller.ticksToDowngrade > (CONTROLLER_DOWNGRADE[this.controller.level] * config.nextRoom.minDowngradPercent / 100)}` /
+        ` ${this.energyCapacityAvailable > config.nextRoom.minEnergyForActive}`);
+    }
     return false;
   } else if (this.controller.level > 1 && nextRoomers >= config.nextRoom.numberOfNextroomers) {
+    if (config.debug.revive) {
+      this.log(`reviveRoom enough nextRoomers ${nextRoomers}/${config.nextRoom.numberOfNextroomers}`);
+    }
     return false;
   }
 
@@ -630,18 +679,21 @@ Room.prototype.reviveRoom = function() {
 
   this.handleTower();
   this.handleTerminal();
-  if (!config.room.revive) {
+  if (config.revive.disabled) {
+    if (config.debug.revive) {
+      this.log(`reviveRoom room not set to revive`);
+    }
     return false;
   }
 
   if (this.controller.level === 1 && this.controller.ticksToDowngrade < 100) {
+    if (config.debug.revive) {
+      this.log(`reviveRoom Will die, clearRoom`);
+    }
     this.clearRoom();
     return false;
   }
 
-  if (!config.revive.disabled && this.controller.level >= 1 &&
-    this.exectueEveryTicks(config.nextRoom.nextroomerInterval)) {
-    this.reviveMyNow();
-  }
+  this.reviveMyNow();
   return true;
 };

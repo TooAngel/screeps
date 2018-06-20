@@ -9,16 +9,15 @@
 
 roles.upgrader = {};
 roles.upgrader.settings = {
-  param: ['controller.level', 'storage.store.energy', 'memory.enemies.length'],
+  param: ['controller.level'],
   prefixString: {
     1: 'MCW',
   },
   layoutString: {
-    1: 'MWW',
-    4: 'W',
+    1: 'MW',
   },
   amount: {
-    4: [1],
+    4: [1, 2],
   },
   maxLayoutAmount: {
     1: 10,
@@ -44,7 +43,7 @@ roles.upgrader.updateSettings = function(room, creep) {
   if (room.controller.level === 8) {
     workParts = Math.min(workParts, 15);
   }
-  const maxLayoutAmount = Math.max(0, workParts - 1);
+  const maxLayoutAmount = Math.max(0, Math.floor((workParts - 1) / 2));
   if (config.debug.upgrader) {
     room.log(`upgrader updateSettings - storage.energy: ${room.storage.store.energy} upgraderStorageFactor: ${config.room.upgraderStorageFactor} workParts: ${workParts} maxLayoutAmount: ${maxLayoutAmount}`);
   }
@@ -76,8 +75,4 @@ roles.upgrader.action = function(creep) {
     creep.memory.routing.reached = false;
   }
   return creep.handleUpgrader();
-};
-
-roles.upgrader.execute = function(creep) {
-  creep.log('Execute!!!');
 };
