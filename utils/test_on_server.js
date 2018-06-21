@@ -30,13 +30,14 @@ for (let room of rooms) {
   status[room] = {
     controller: null,
     creeps: 0,
-    // buildCreeps: [],
+    buildCreeps: [],
     progress: 0,
     level: 0,
     succes: false,
   };
 }
 
+let innerStatusLogCounter = 0;
 let mongoPrepared = false;
 
 /**
@@ -57,9 +58,9 @@ function sleep(seconds) {
  * @return {boolean}
  */
 function checkForStatus() {
-  for (const key in status) {
+  for (let key in status) {
     if ((process.argv.length !== 2 || status[key].progress === 0 || status[key].level < 3) && !status[key].success) {
-      console.log(`${key} has no progress ${JSON.stringify(status[key])}`);
+      console.log(`room ${key} has no progress ${JSON.stringify(status[key])}`);
       return false;
     }
   }
@@ -156,8 +157,8 @@ const helpers = {
       if (verbose) {
         console.log(event.data.gameTime, 'creeps', JSON.stringify(_.omit(creeps, ['meta', '$loki'])));
       }
-      // status[event.id].buildCreeps.push(_.map(creeps, 'name'));
-      // status[event.id].buildCreeps = _.uniq(_.flatten(status[event.id].buildCreeps));
+      status[event.id].buildCreeps.push(_.map(creeps, 'name'));
+      status[event.id].buildCreeps = _.uniq(_.flatten(status[event.id].buildCreeps));
       status[event.id].creeps += _.size(creeps);
       return true;
     }
@@ -202,13 +203,18 @@ const statusUpdater = (event) => {
     helpers.updateCreeps(event);
     helpers.updateController(event);
     if (verbose) {
-      console.log(event.data.gameTime, event.id, ex(event.data.objects));
+      console.log(event.data.gameTime, event.id, ex(event.data.objects, true));
     }
   }
 
-  for (const room in status) {
-    console.log(event.data.gameTime, 'status for ' + room, ex(status[room]));
+  innerStatusLogCounter += 1;
+  if (innerStatusLogCounter > 10) {
+    for (const room in status) {
+      console.log(event.data.gameTime, 'status for ' + room, ex(status[room]));
+    }
+    innerStatusLogCounter = 0;
   }
+  console.log(event.data.gameTime, 'status', ex(status));
 };
 
 /**
