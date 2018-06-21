@@ -34,7 +34,7 @@ for (let room of rooms) {
     buildCreeps: [],
     progress: 0,
     level: 0,
-    succes: false,
+    success: false,
   };
 }
 
@@ -62,7 +62,7 @@ function checkForStatus() {
   let success = 0;
   let total = 0;
   for (let key in status) {
-    if ((process.argv.length !== 2 || status[key].progress === 0 || status[key].level < 3) && !status[key].success) {
+    if (status[key].success) {
       success += 1;
     }
     total += 1;
@@ -186,8 +186,9 @@ const helpers = {
         status[roomName].level = controller.level;
       }
 
+      // todo room success as level > 2 + progress > 0
       if (status[roomName].level > 2 && status[roomName].progress > 0) {
-        status[roomName].succes = true;
+        status[roomName].success = true;
       }
       if (verbose) {
         console.log(event.data.gameTime, 'controller', JSON.stringify(_.omit(controller, ['meta'])));
@@ -219,7 +220,6 @@ const statusUpdater = (event) => {
     }
     innerStatusLogCounter = 0;
   }
-  console.log(event.data.gameTime, 'status', ex(status));
 };
 
 /**
@@ -264,11 +264,12 @@ const spawnBots = async function(line, socket) {
     const tickDuration = 100;
     console.log(`> setTickRate(${tickDuration})`);
     socket.write(`setTickRate(${tickDuration})\r\n`);
+    await sleep(1);
     mongoPrepared = true;
     for (let room of rooms) {
       console.log('> Spawn bot username as room:' + room + ' as TooAngel');
       socket.write(`bots.spawn('screeps-bot-tooangel', '${room}', {username: '${room}', cpu: 100, gcl: 1, x: ${players[room].x}, y: ${players[room].y}})\r\n`);
-      await sleep(1);
+      await sleep(2);
     }
     return true;
   }
@@ -282,7 +283,7 @@ const spawnBots = async function(line, socket) {
  * @param {object} socket
  * @return {boolean}
  */
-const setPassword = function(line, socket) {
+const setPassword = async function(line, socket) {
   for (let room of rooms) {
     if (line.startsWith(`'User ${room} with bot AI "screeps-bot-tooangel" spawned in ${room}'`)) {
       console.log(`> Set password for ${room}`);
@@ -338,7 +339,7 @@ async function connectToCli() {
     if (await spawnBots(line, socket)) {
       return;
     }
-    if (setPassword(line, socket)) {
+    if (await setPassword(line, socket)) {
       return;
     }
 
@@ -394,7 +395,7 @@ async function main() {
     console.log('seconds elapsed ' + Math.floor((timer.end - timer.start) / 1000));
     console.log('status', JSON.stringify(status));
     console.log(e);
-    console.log('!!! No progress on the controller !!!');
+    console.log('!!! No progress on the controllers !!!');
     // throw e;
     process.exit(1);
   }
