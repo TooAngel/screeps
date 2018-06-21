@@ -198,12 +198,9 @@ const statusUpdater = (event) => {
         console.log(event.data.gameTime, key, 'spawned creeps', status[key].creeps);
         console.log(event.data.gameTime, key, 'controller progress', status[key].progress, '& level', status[key].level);
       }
-      for (const key of status) {
-        console.log(event.data.gameTime, helpers.ex(key));
-      }
     }
-    console.log(event.data.gameTime, 'status', JSON.stringify(status));
   }
+  console.log(event.data.gameTime, 'status', JSON.stringify(status));
 };
 
 /**
@@ -292,7 +289,7 @@ async function checkForSucces(line, defer) {
       if (checkForStatus()) {
         defer.resolve();
       } else {
-        console.log('checkForStatus ' + attempts + ' passed and failed');
+        console.log('> checkForStatus ' + attempts + ' passed and failed');
       }
     }
     defer.reject('No progress');
