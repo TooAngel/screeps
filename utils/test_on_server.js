@@ -11,7 +11,7 @@ const players = {
   'W1N7': {x: 43, y: 35},
   'W8N8': {x: 21, y: 28},
   'W8N1': {x: 33, y: 13},
-  'W5N1': {x: 10, y: 9},
+  // 'W5N1': {x: 10, y: 9}, /** todo fix @see https://circleci.com/gh/TooAngel/screeps/1974 */
   'W8N3': {x: 14, y: 17},
 };
 const rooms = Object.keys(players);
@@ -29,9 +29,10 @@ for (let room of rooms) {
   status[room] = {
     controller: null,
     creeps: 0,
-    creepsNames: [],
+    // buildCreeps: [],
     progress: 0,
     level: 0,
+    succes: false,
   };
 }
 
@@ -56,7 +57,7 @@ function sleep(seconds) {
  */
 function checkForStatus() {
   for (let key in status) {
-    if (process.argv.length !== 2 || status[key].progress === 0 || status[key].level < 3) {
+    if ((process.argv.length !== 2 || status[key].progress === 0 || status[key].level < 3) && !status[key].success) {
       console.log(`${key} has no progress ${JSON.stringify(status[key])}`);
       return false;
     }
@@ -147,8 +148,8 @@ const helpers = {
       if (verbose) {
         console.log(event.data.gameTime, 'creeps', JSON.stringify(_.omit(creeps, ['meta', '$loki'])));
       }
-      status[event.id].creepsNames.push(_.map(creeps, 'name'));
-      status[event.id].creepsNames = _.uniq(_.flatten(status[event.id].creepsNames));
+      // status[event.id].buildCreeps.push(_.map(creeps, 'name'));
+      // status[event.id].buildCreeps = _.uniq(_.flatten(status[event.id].buildCreeps));
       status[event.id].creeps += _.size(creeps);
       return true;
     }
@@ -170,6 +171,10 @@ const helpers = {
       if (controller.level >= 0) {
         status[roomName].level = controller.level;
       }
+
+      if (status[roomName].level > 2 && status[roomName].progress > 0) {
+        status[roomName].succes = true;
+      }
       if (verbose) {
         console.log(event.data.gameTime, 'controller', JSON.stringify(_.omit(controller, ['meta'])));
       }
@@ -188,19 +193,14 @@ const statusUpdater = (event) => {
   if (_.size(event.data.objects) > 0) {
     helpers.updateCreeps(event);
     helpers.updateController(event);
-    console.log(event.data.gameTime, event.id, helpers.ex(event.data.objects, true));
+    if (verbose) {
+      console.log(event.data.gameTime, event.id, helpers.ex(event.data.objects));
+    }
   }
 
   if (event.data.gameTime % 300 === 0) {
-    if (verbose) {
-      console.log(event.data.gameTime, 'action objects in room', _.size(event.data.objects));
-      for (let key in status) {
-        console.log(event.data.gameTime, key, 'spawned creeps', status[key].creeps);
-        console.log(event.data.gameTime, key, 'controller progress', status[key].progress, '& level', status[key].level);
-      }
-    }
+    console.log(event.data.gameTime, 'status', JSON.stringify(status));
   }
-  console.log(event.data.gameTime, 'status', JSON.stringify(status));
 };
 
 /**
