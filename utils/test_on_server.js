@@ -31,7 +31,7 @@ for (let room of rooms) {
   status[room] = {
     controller: null,
     creeps: 0,
-    // buildCreeps: [],
+    buildCreeps: [],
     progress: 0,
     level: 0,
     success: false,
@@ -162,8 +162,8 @@ const helpers = {
       if (verbose) {
         console.log(event.data.gameTime, 'creeps', JSON.stringify(_.omit(creeps, ['meta', '$loki'])));
       }
-      // status[event.id].buildCreeps.push(_.map(creeps, 'name'));
-      // status[event.id].buildCreeps = _.uniq(_.flatten(status[event.id].buildCreeps));
+      status[event.id].buildCreeps.push(_.map(creeps, 'name'));
+      status[event.id].buildCreeps = _.uniq(_.flatten(status[event.id].buildCreeps));
       status[event.id].creeps += _.size(creeps);
       return true;
     }
@@ -187,12 +187,12 @@ const helpers = {
       }
 
       // todo room success as level > 2 + progress > 0
-      if (status[roomName].level > 2 && status[roomName].progress > 0) {
+      if (status[roomName].level >= 2 && status[roomName].progress > 100) {
         status[roomName].success = true;
       }
       if (verbose) {
         console.log(event.data.gameTime, 'controller', JSON.stringify(_.omit(controller, ['meta'])));
-        console.log(event.data.gameTime, 'controller', JSON.stringify(_.omit(event.data.object, ['meta'])));
+        console.log(event.data.gameTime, 'controller', ex(event.data));
       }
     }
     return returnValue;
@@ -210,7 +210,7 @@ const statusUpdater = (event) => {
     helpers.updateCreeps(event);
     helpers.updateController(event);
     if (verbose) {
-      console.log(event.data.gameTime, event.id, ex(event.data.objects));
+      console.log(event.data.gameTime, event.id, ex(event.data.objects, true));
     }
   }
 
