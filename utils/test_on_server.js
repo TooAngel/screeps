@@ -7,11 +7,12 @@ const {ScreepsAPI} = require('screeps-api');
 const cliPort = 21026;
 const port = 21025;
 
+// 'W5N1': {x: 10, y: 9}, /** todo fix @see https://circleci.com/gh/TooAngel/screeps/1974 */
+
 const players = {
   'W1N7': {x: 43, y: 35},
   'W8N8': {x: 21, y: 28},
   'W8N1': {x: 33, y: 13},
-  // 'W5N1': {x: 10, y: 9}, /** todo fix @see https://circleci.com/gh/TooAngel/screeps/1974 */
   'W8N3': {x: 14, y: 17},
 };
 const rooms = Object.keys(players);
@@ -56,7 +57,7 @@ function sleep(seconds) {
  * @return {boolean}
  */
 function checkForStatus() {
-  for (let key in status) {
+  for (const key in status) {
     if ((process.argv.length !== 2 || status[key].progress === 0 || status[key].level < 3) && !status[key].success) {
       console.log(`${key} has no progress ${JSON.stringify(status[key])}`);
       return false;
@@ -64,6 +65,16 @@ function checkForStatus() {
   }
   return true;
 }
+
+/**
+ * @param {object} i
+ * @param {boolean} [n]
+ * @return {string}
+ */
+function ex(i, n) {
+  return !n ? JSON.stringify(i) : JSON.stringify(i, null, 2);
+}
+
 
 /**
  * startServer method
@@ -132,9 +143,6 @@ const filter = {
 };
 
 const helpers = {
-  ex: function(i, n) {
-    return !n ? JSON.stringify(i) : JSON.stringify(i, null, 2);
-  },
   initControllerID: function(event) {
     if (status[event.id].controller === null) {
       status[event.id].controller = _.filter(event.data.objects, filter.controller)[0];
@@ -194,12 +202,12 @@ const statusUpdater = (event) => {
     helpers.updateCreeps(event);
     helpers.updateController(event);
     if (verbose) {
-      console.log(event.data.gameTime, event.id, helpers.ex(event.data.objects));
+      console.log(event.data.gameTime, event.id, ex(event.data.objects));
     }
   }
 
-  if (event.data.gameTime % 300 === 0) {
-    console.log(event.data.gameTime, 'status', JSON.stringify(status));
+  for (const room in status) {
+    console.log(event.data.gameTime, 'status for ' + room, ex(status[room]));
   }
 };
 
