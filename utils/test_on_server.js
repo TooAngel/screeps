@@ -213,24 +213,22 @@ const statusUpdater = (event) => {
  * are available
  */
 async function followLog() {
-  const api = new ScreepsAPI({
-    email: room,
-    password: 'tooangel',
-    protocol: 'http',
-    hostname: '127.0.0.1',
-    port: port,
-    path: '/',
-  });
-
-  await api.auth();
-
-  api.socket.connect();
-  api.socket.on('connected', ()=> {});
-  api.socket.on('auth', (event)=> {});
-  api.socket.subscribe('console', logConsole);
-
   for (const room of rooms) {
-    console.log('api.socket.subscribe room ' + room);
+    const api = new ScreepsAPI({
+      email: room,
+      password: 'tooangel',
+      protocol: 'http',
+      hostname: '127.0.0.1',
+      port: port,
+      path: '/',
+    });
+
+    await api.auth();
+
+    api.socket.connect();
+    api.socket.on('connected', ()=> {});
+    api.socket.on('auth', (event)=> {});
+    api.socket.subscribe('console', logConsole);
     api.socket.subscribe('room:' + room, statusUpdater);
   }
 }
