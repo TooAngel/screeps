@@ -29,7 +29,7 @@ for (let room of rooms) {
   status[room] = {
     controller: null,
     creeps: 0,
-    // creepsNames: [],
+    creepsNames: [],
     progress: 0,
     level: 0,
   };
@@ -59,7 +59,8 @@ function checkForStatus() {
     if (process.argv.length != 2 || status[key].progress === 0 || status[key].level < 3) {
       console.log(`${key} has no progress ${JSON.stringify(status[key])}`);
       return false;
-    };
+    }
+    ;
   }
   return true;
 }
@@ -144,21 +145,25 @@ const helpers = {
       if (verbose) {
         console.log(event.data.gameTime, 'creeps', JSON.stringify(_.omit(creeps, ['meta', '$loki'])));
       }
-      // status[event.id].creepsNames.push(_.map(creeps, 'name'));
-      // status[event.id].creepsNames = _.uniq(_.flatten(status[event.id].creepsNames));
+      status[event.id].creepsNames.push(_.map(creeps, 'name'));
+      status[event.id].creepsNames = _.uniq(_.flatten(status[event.id].creepsNames));
       status[event.id].creeps += _.size(creeps);
+      return true;
     }
+    return false;
   },
   updateController: function(event) {
     const controllers = _.pick(event.data.objects, Object.keys(controllerRooms));
+    let returnValue = false;
     for (let controllerId in controllers) {
-      let controller = controllers[controllerId];
-      let roomName = controllerRooms[controllerId];
+      const controller = controllers[controllerId];
+      const roomName = controllerRooms[controllerId];
       if (status[roomName] === undefined) {
         continue;
       }
       if (controller.progress >= 0) {
         status[roomName].progress = controller.progress;
+        returnValue = true;
       }
       if (controller.level >= 0) {
         status[roomName].level = controller.level;
@@ -167,6 +172,7 @@ const helpers = {
         console.log(event.data.gameTime, 'controller', JSON.stringify(_.omit(controller, ['meta'])));
       }
     }
+    return returnValue;
   },
 };
 
@@ -178,8 +184,9 @@ const helpers = {
 const statusUpdater = (event) => {
   helpers.initControllerID(event);
   if (_.size(event.data.objects) > 0) {
-    helpers.updateCreeps(event);
-    helpers.updateController(event);
+    if (!helpers.updateCreeps(event) || !helpers.updateController(event)) {
+      console.log(event.data.gameTime, event.id, JSON.stringify(event.data));
+    }
   }
 
   if (event.data.gameTime % 300 === 0) {
