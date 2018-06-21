@@ -18,6 +18,7 @@ const players = {
 const rooms = Object.keys(players);
 const duration = 600;
 const maxAttempts = 10;
+const successRatio = 0.5; // rooms we need progress in
 const verbose = true;
 const timer = {
   start: Date.now(),
@@ -58,13 +59,17 @@ function sleep(seconds) {
  * @return {boolean}
  */
 function checkForStatus() {
+  let success = 0;
+  let total = 0;
   for (let key in status) {
     if ((process.argv.length !== 2 || status[key].progress === 0 || status[key].level < 3) && !status[key].success) {
-      console.log(`room ${key} has no progress ${JSON.stringify(status[key])}`);
-      return false;
+      success += 1;
     }
+    total += 1;
   }
-  return true;
+  const currentRatio = Math.round((success / total) * 100) / 100;
+  console.log(`> ${currentRatio} total progress ${JSON.stringify(status)}`);
+  return currentRatio > successRatio;
 }
 
 /**
