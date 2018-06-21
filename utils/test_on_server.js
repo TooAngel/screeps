@@ -30,13 +30,13 @@ for (let room of rooms) {
   status[room] = {
     controller: null,
     creeps: 0,
-    // buildCreeps: [],
+    buildCreeps: [],
     progress: 0,
     level: 0,
     succes: false,
   };
 }
-
+let innerStatusLogCounter = 0;
 let mongoPrepared = false;
 
 /**
@@ -156,8 +156,8 @@ const helpers = {
       if (verbose) {
         console.log(event.data.gameTime, 'creeps', JSON.stringify(_.omit(creeps, ['meta', '$loki'])));
       }
-      // status[event.id].buildCreeps.push(_.map(creeps, 'name'));
-      // status[event.id].buildCreeps = _.uniq(_.flatten(status[event.id].buildCreeps));
+      status[event.id].buildCreeps.push(_.map(creeps, 'name'));
+      status[event.id].buildCreeps = _.uniq(_.flatten(status[event.id].buildCreeps));
       status[event.id].creeps += _.size(creeps);
       return true;
     }
@@ -206,8 +206,12 @@ const statusUpdater = (event) => {
     }
   }
 
-  for (const room in status) {
-    console.log(event.data.gameTime, 'status for ' + room, ex(status[room]));
+  innerStatusLogCounter += 1;
+  if (innerStatusLogCounter > 600) {
+    for (const room in status) {
+      console.log(event.data.gameTime, 'status for ' + room, ex(status[room]));
+    }
+    innerStatusLogCounter = 0;
   }
 };
 
