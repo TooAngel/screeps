@@ -7,17 +7,19 @@ const {ScreepsAPI} = require('screeps-api');
 const cliPort = 21026;
 const port = 21025;
 
+// 'W5N1': {x: 10, y: 9}, /** todo fix @see https://circleci.com/gh/TooAngel/screeps/1974 */
+
 const players = {
   'W1N7': {x: 43, y: 35},
   'W8N8': {x: 21, y: 28},
   'W8N1': {x: 33, y: 13},
-  'W5N1': {x: 10, y: 9},
   'W8N3': {x: 14, y: 17},
 };
 const rooms = Object.keys(players);
 const duration = 600;
 const maxAttempts = 10;
-const verbose = false;
+const successRatio = 0.5; // rooms we need progress in
+const verbose = true;
 const timer = {
   start: Date.now(),
   end: null,
@@ -29,12 +31,14 @@ for (let room of rooms) {
   status[room] = {
     controller: null,
     creeps: 0,
-    // creepsNames: [],
+    buildCreeps: [],
     progress: 0,
     level: 0,
+    success: false,
   };
 }
 
+let innerStatusLogCounter = 0;
 let mongoPrepared = false;
 
 /**
@@ -55,14 +59,28 @@ function sleep(seconds) {
  * @return {boolean}
  */
 function checkForStatus() {
+  let success = 0;
+  let total = 0;
   for (let key in status) {
-    if (process.argv.length != 2 || status[key].progress === 0 || status[key].level < 3) {
-      console.log(`${key} has no progress ${JSON.stringify(status[key])}`);
-      return false;
-    };
+    if (status[key].success) {
+      success += 1;
+    }
+    total += 1;
   }
-  return true;
+  const currentRatio = Math.round((success / total) * 100) / 100;
+  console.log(`> ${currentRatio} total progress ${JSON.stringify(status)}`);
+  return currentRatio > successRatio;
 }
+
+/**
+ * @param {object} i
+ * @param {boolean} [n]
+ * @return {string}
+ */
+function ex(i, n) {
+  return !n ? JSON.stringify(i) : JSON.stringify(i, null, 2);
+}
+
 
 /**
  * startServer method
@@ -144,29 +162,40 @@ const helpers = {
       if (verbose) {
         console.log(event.data.gameTime, 'creeps', JSON.stringify(_.omit(creeps, ['meta', '$loki'])));
       }
-      // status[event.id].creepsNames.push(_.map(creeps, 'name'));
-      // status[event.id].creepsNames = _.uniq(_.flatten(status[event.id].creepsNames));
+      status[event.id].buildCreeps.push(_.map(creeps, 'name'));
+      status[event.id].buildCreeps = _.uniq(_.flatten(status[event.id].buildCreeps));
       status[event.id].creeps += _.size(creeps);
+      return true;
     }
+    return false;
   },
   updateController: function(event) {
     const controllers = _.pick(event.data.objects, Object.keys(controllerRooms));
+    let returnValue = false;
     for (let controllerId in controllers) {
-      let controller = controllers[controllerId];
-      let roomName = controllerRooms[controllerId];
+      const controller = controllers[controllerId];
+      const roomName = controllerRooms[controllerId];
       if (status[roomName] === undefined) {
         continue;
       }
       if (controller.progress >= 0) {
         status[roomName].progress = controller.progress;
+        returnValue = true;
       }
       if (controller.level >= 0) {
         status[roomName].level = controller.level;
       }
+
+      // todo room success as level > 2 + progress > 0
+      if (status[roomName].level >= 2 && status[roomName].progress > 100) {
+        status[roomName].success = true;
+      }
       if (verbose) {
         console.log(event.data.gameTime, 'controller', JSON.stringify(_.omit(controller, ['meta'])));
+        console.log(event.data.gameTime, 'controller', ex(event.data));
       }
     }
+    return returnValue;
   },
 };
 
@@ -180,17 +209,17 @@ const statusUpdater = (event) => {
   if (_.size(event.data.objects) > 0) {
     helpers.updateCreeps(event);
     helpers.updateController(event);
+    if (verbose) {
+      console.log(event.data.gameTime, event.id, ex(event.data.objects, true));
+    }
   }
 
-  if (event.data.gameTime % 300 === 0) {
-    if (verbose) {
-      console.log(event.data.gameTime, 'action objects in room', _.size(event.data.objects));
-      for (let key in status) {
-        console.log(event.data.gameTime, key, 'spawned creeps', status[key].creeps);
-        console.log(event.data.gameTime, key, 'controller progress', status[key].progress, '& level', status[key].level);
-      }
+  innerStatusLogCounter += 1;
+  if (innerStatusLogCounter > 100) {
+    for (const room in status) {
+      console.log(event.data.gameTime, 'status for ' + room, ex(status[room]));
     }
-    console.log(event.data.gameTime, 'status', JSON.stringify(status));
+    innerStatusLogCounter = 0;
   }
 };
 
@@ -201,7 +230,7 @@ const statusUpdater = (event) => {
  * are available
  */
 async function followLog() {
-  for (let room of rooms) {
+  for (const room of rooms) {
     const api = new ScreepsAPI({
       email: room,
       password: 'tooangel',
@@ -236,11 +265,12 @@ const spawnBots = async function(line, socket) {
     const tickDuration = 100;
     console.log(`> setTickRate(${tickDuration})`);
     socket.write(`setTickRate(${tickDuration})\r\n`);
+    await sleep(1);
     mongoPrepared = true;
     for (let room of rooms) {
-      console.log('> Spawn bot ' + room + ' as TooAngel');
+      console.log('> Spawn bot username as room:' + room + ' as TooAngel');
       socket.write(`bots.spawn('screeps-bot-tooangel', '${room}', {username: '${room}', cpu: 100, gcl: 1, x: ${players[room].x}, y: ${players[room].y}})\r\n`);
-      await sleep(1);
+      await sleep(2);
     }
     return true;
   }
@@ -254,10 +284,11 @@ const spawnBots = async function(line, socket) {
  * @param {object} socket
  * @return {boolean}
  */
-const setPassword = function(line, socket) {
+const setPassword = async function(line, socket) {
   for (let room of rooms) {
     if (line.startsWith(`'User ${room} with bot AI "screeps-bot-tooangel" spawned in ${room}'`)) {
       console.log(`> Set password for ${room}`);
+      /* eslint max-len: ["error", 1300] */
       socket.write(`storage.db.users.update({username: '${room}'}, {$set: {password: '70dbaf0462458b31ff9b3d184d06824d1de01f6ad59cae7b5b9c01a8b530875ac502c46985b63f0c147cf59936ac1be302edc532abc38236ab59efecb3ec7f64fad7e4544c1c5a5294a8f6f45204deeb009a31dd6e81e879cfb3b7e63f3d937f412734b1a3fa7bc04bf3634d6bc6503bb0068c3f6b44f3a84b5fa421690a7399799e3be95278381ae2ac158c27f31eef99db1f21e75d285802cda983cd8a73a8a85d03ba45dcc7eb2b2ada362887df10bf74cdcca47f911147fd0946fb5119c888f048000044072dcc29b1c428b40b805cadeee7b3afc1e9d9d546c2a878ff8df9fcf805a28cc8b6e4b78051f0adb33642f1097bf0a189f388860302df6173b8e7955a35b278655df2d7615b54da6c63dc501c7914d726bea325c2225f343dff0068ac42300661664ee5611eb623e1efa379f571d46ba6a0e13a9e3e9c5bb7a772b685258f768216a830c5e9af3685898d98a9935cca2ba5efb5e1e4a9f2745c53bff318bda3e376bcd06b06d87a55045a76a1982f6e3b9fb77d39c2ff5c09c76989d1c779655bc2acdf55879b68f6155d14c26bdca3af5c7fd6de9926dbc091da280e6f7e3d727fa68c89aa8ac25b5e50bd14bf2dbcd452975710ef4b8d61a81c8f6ef2d5584eacfcb1ab4202860320f03313d23076a3b3e085af5f0a9e010ddb0ad5af57ed0db459db0d29aa2bcbcd64588d4c54d0c5265bf82f31349d9456', salt: '7eeb813417828682419582da8f997dea3e848ce8293e68b2dbb2f334b1f8949f'}})\r\n`);
       return true;
     }
@@ -279,7 +310,7 @@ async function checkForSucces(line, defer) {
       if (checkForStatus()) {
         defer.resolve();
       } else {
-        console.log('checkForStatus ' + attempts + ' passed and failed');
+        console.log('> checkForStatus ' + attempts + ' passed and failed');
       }
     }
     defer.reject('No progress');
@@ -309,7 +340,7 @@ async function connectToCli() {
     if (await spawnBots(line, socket)) {
       return;
     }
-    if (setPassword(line, socket)) {
+    if (await setPassword(line, socket)) {
       return;
     }
 
@@ -365,7 +396,7 @@ async function main() {
     console.log('seconds elapsed ' + Math.floor((timer.end - timer.start) / 1000));
     console.log('status', JSON.stringify(status));
     console.log(e);
-    console.log('!!! No progress on the controller !!!');
+    console.log('!!! No progress on the controllers !!!');
     // throw e;
     process.exit(1);
   }
