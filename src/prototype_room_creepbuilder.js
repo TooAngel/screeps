@@ -404,9 +404,13 @@ Room.prototype.spawnCreateCreep = function(creep) {
   if (!creepConfig) {
     return false;
   }
-
+  let returnCode;
   for (const spawn of spawns) {
-    const returnCode = spawn.createCreep(creepConfig.partConfig, creepConfig.name, creepConfig.memory);
+    returnCode = spawn.createCreep(creepConfig.partConfig, creepConfig.name, creepConfig.memory);
+    if (returnCode === ERR_NAME_EXISTS) {
+      this.spawnCreateCreep(creep);
+      return true;
+    }
     if (returnCode !== creepConfig.name) {
       this.log(`spawnCreateCreep: ${returnCode} ${creepConfig.name}`);
       continue;

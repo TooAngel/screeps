@@ -30,21 +30,23 @@ Room.prototype.sellByOwnOrders = function(resource, sellAmount) {
   return sellAmount;
 };
 
-Room.prototype.sellByOthersOrders = function(sellAmount, resource) {
+Room.prototype.sellByOthersOrders = function(sellAmount, resource, force) {
   const sortByEnergyCostAndPrice = (order) => Game.market.calcTransactionCost(sellAmount, this.name, order.roomName) +
   -order.price * sellAmount / config.market.energyCreditEquivalent;
   if (Memory.orders[ORDER_BUY][resource]) {
     const orders = _.sortBy(Memory.orders[ORDER_BUY][resource].orders, sortByEnergyCostAndPrice);
     for (const order of orders) {
       const amount = Math.min(sellAmount, order.remainingAmount);
-      if (amount > 0 && order.price >= config.market.minSellPrice) {
+      if (amount > 0 && (order.price >= config.market.minSellPrice || force)) {
         if (Game.market.calcTransactionCost(amount, this.name, order.roomName) > this.terminal.store.energy) {
           break;
         }
-        this.log(order.id, this.name, amount, order.price);
+        if (force && amount < 1000) {
+          return false;
+        }
         const returnCode = Game.market.deal(order.id, amount, this.name);
         if (returnCode !== ERR_TIRED) {
-          this.log('market.deal:', resource, returnCode);
+          this.log('selling', order.id, resource, this.name, amount, order.price, returnCode === OK);
         }
         if (returnCode === OK) {
           break;
@@ -56,7 +58,7 @@ Room.prototype.sellByOthersOrders = function(sellAmount, resource) {
 
 Room.prototype.sellOwnMineral = function() {
   const resource = this.getMineralType();
-
+  let force = false;
   if (!this.terminal.store[resource]) {
     return false;
   }
@@ -74,7 +76,11 @@ Room.prototype.sellOwnMineral = function() {
   if (sellAmount <= 0) {
     return true;
   }
-  this.sellByOthersOrders(sellAmount, resource);
+
+  if (_.sum(this.terminal.store) > this.terminal.storeCapacity * 0.9) {
+    force = true;
+  }
+  this.sellByOthersOrders(sellAmount, resource, force);
   return true;
 };
 
@@ -167,15 +173,41 @@ Room.prototype.sendPowerOwnRooms = function() {
   }
 };
 
+Room.prototype.sendEnergyToMyRooms = function() {
+  if ((_.size(Memory.needEnergyRooms) > 0) && (_.size(Memory.canHelpRooms) > 0) &&
+    _.includes(Memory.canHelpRooms, this.name) && !_.includes(Memory.needEnergyRooms, this.name) &&
+    (this.terminal.store[RESOURCE_ENERGY] > config.terminal.minEnergyAmount)) {
+    const diffNeedEnergyRooms = _.difference(Memory.needEnergyRooms, Memory.canHelpRooms);
+    const needEnergyRooms = _.size(diffNeedEnergyRooms) > 0 ? diffNeedEnergyRooms : Memory.needEnergyRooms;
+    const myRoom = _.shuffle(needEnergyRooms)[0];
+    if (myRoom) {
+      const amount = (this.terminal.store[RESOURCE_ENERGY] - config.terminal.minEnergyAmount) * 100;
+      if ((amount > 100) && (amount < this.terminal.store[RESOURCE_ENERGY]) &&
+        Game.rooms[myRoom].terminal &&
+        (Game.rooms[myRoom].terminal.store[RESOURCE_ENERGY] < config.terminal.maxEnergyAmount)) {
+        const success = this.terminal.send(RESOURCE_ENERGY, amount, myRoom, 'send energy ' + this.name + ' ' + myRoom) === OK;
+        if (success) {
+          const cost = Game.market.calcTransactionCost(amount, this.name, myRoom);
+          this.log('sendEnergyToMyRooms', myRoom, amount, cost, this.terminal.store[RESOURCE_ENERGY]);
+        }
+      }
+    }
+  }
+  return false;
+};
+
 Room.prototype.handleMarket = function() {
-  if (!this.terminal) {
+  if (!this.terminal || this.terminal.cooldown || this.terminal.cooldown > 0) {
     return false;
   }
-
   this.sellOwnMineral();
   this.buyLowResources();
   this.buyLowCostResources();
   if (config.market.sendPowerOwnRoom) {
     this.sendPowerOwnRooms();
+  }
+  // todo should fix full storage with 90% energy
+  if (config.market.sendEnergyToMyRooms) {
+    this.sendEnergyToMyRooms();
   }
 };

@@ -78,15 +78,22 @@ brain.main.execute = function() {
     brain.handleIncomingTransactions();
     brain.handleQuests();
   } catch (e) {
-    console.log('Brain Exception', e);
+    console.log('Brain Exeception', e, e.stack);
   }
 
   brain.stats.addRoot();
   brain.main.roomExecution();
   brain.saveMemorySegments();
   brain.main.visualizeRooms();
-  if (Memory.skippedRooms.length > 0) {
-    console.log(`${Game.time} cpu.getUsed: ${_.round(Game.cpu.getUsed())} ticklimit: ${Game.cpu.tickLimit} Bucket: ${Game.cpu.bucket} skippedRooms ${Memory.skippedRooms}`);
+  Memory.skippedRoomsLog = Memory.skippedRoomsLog || {};
+  if (_.size(Memory.skippedRooms)) {
+    console.log(Game.time, 'Load:', _.round(Game.cpu.getUsed()), '/', global.tickLimit, 'Bucket:', Game.cpu.bucket, 'skippedRooms', Memory.skippedRooms);
+    Memory.skippedRoomsLog[Game.time] = Memory.skippedRooms;
+  }
+  if (Game.time % 100 === 0) {
+    const roomsSkipped = _.sum(_.map(Memory.skippedRoomsLog, _.size));
+    console.log(Game.time, `skipped rooms ${roomsSkipped} in ${_.size(Memory.skippedRoomsLog)} ticks of 100 ticks`);
+    Memory.skippedRoomsLog = {};
   }
 
   brain.stats.add(['cpu'], {

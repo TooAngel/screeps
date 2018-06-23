@@ -244,8 +244,8 @@ roles.storagefiller.action = function(creep) {
   }
 
   if (creep.room.terminal &&
-    (creep.room.storage.store.energy < 20000) &&
-    (creep.room.storage.store.energy < creep.room.terminal.store.energy)
+    ((creep.room.terminal.store.energy > config.terminal.minEnergyAmount + creep.carryCapacity) ||
+    (creep.room.storage.store.energy < creep.room.terminal.store.energy))
   ) {
     if (creep.carry.energy === 0) {
       creep.withdraw(creep.room[STRUCTURE_TERMINAL], RESOURCE_ENERGY);
@@ -276,9 +276,11 @@ roles.storagefiller.action = function(creep) {
       for (const resourceType of Object.keys(creep.room[STRUCTURE_TERMINAL].store)) {
         const structureToMove = roles.storagefiller.checkResourceStore(creep, resourceType, true);
         if (structureToMove && structureToMove !== STRUCTURE_TERMINAL) {
-          const returnCode = creep.withdraw(creep.room[STRUCTURE_TERMINAL], resourceType);
-          if (returnCode === OK) {
-            return true;
+          if (resourceType !== RESOURCE_POWER && creep.room[STRUCTURE_TERMINAL].store[RESOURCE_POWER] > 200) {
+            const returnCode = creep.withdraw(creep.room[STRUCTURE_TERMINAL], resourceType);
+            if (returnCode === OK) {
+              return true;
+            }
           }
         }
       }

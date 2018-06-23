@@ -574,6 +574,7 @@ Creep.prototype.handleMineralCreep = function() {
 };
 
 Creep.prototype.boost = function() {
+  /** @see http://docs.screeps.com/api/#StructureLab.boostCreep */
   if (!this.room.terminal || !this.room.terminal.my) {
     this.memory.boosted = true;
     return false;

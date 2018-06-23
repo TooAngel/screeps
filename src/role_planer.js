@@ -17,7 +17,6 @@ roles.planer.settings = {
 
 roles.planer.action = function(creep) {
   const methods = [Creep.getEnergy];
-
   methods.push(Creep.constructTask);
   // methods.push(Creep.buildRoads);
   if (creep.room.memory.misplacedSpawn) {
