@@ -554,6 +554,40 @@ Room.prototype.blockWrongSpawnExits = function() {
   }
 };
 
+/**
+ * checkForSpawnPosition - Checks if the position is in the
+ * `memory.position.structure.spawn`.
+ *
+ * @param {object} pos - The position to check against memory
+ * @return {boolean} - If pos is a spawn position
+ **/
+Room.prototype.checkForSpawnPosition = function(pos) {
+  for (const spawnPos of this.memory.position.structure.spawn) {
+    if (spawnPos.x === pos.x && spawnPos.y === pos.y) {
+      return true;
+    }
+  }
+  return false;
+};
+
+/**
+ * checkForMisplacedSpawn - Compares the current spawn structures positions
+ * with the positions for spawns in memory.
+ * If a spawn is on an unkown position `room.memory.misplacedSpawn` is set
+ * to true.
+ *
+ * @return {undefined}
+ **/
+Room.prototype.checkForMisplacedSpawn = function() {
+  const spawns = this.find(FIND_STRUCTURES, {filter: (object) => object.structureType === STRUCTURE_SPAWN});
+  for (const spawn of spawns) {
+    if (!this.checkForSpawnPosition(spawn.pos)) {
+      this.memory.misplacedSpawn = true;
+      this.log('Set misplaced spawn');
+    }
+  }
+};
+
 Room.prototype.setup = function() {
   delete this.memory.constants;
   this.debugLog('baseBuilding', 'costmatrix.setup called');
@@ -585,4 +619,6 @@ Room.prototype.setup = function() {
   this.memory.position.version = config.layout.version;
 
   this.blockWrongSpawnExits();
+
+  this.checkForMisplacedSpawn();
 };
