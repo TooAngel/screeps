@@ -8,7 +8,6 @@
  */
 
 roles.planer = {};
-roles.planer.stayInRoom = true;
 
 roles.planer.settings = {
   layoutString: 'MCW',

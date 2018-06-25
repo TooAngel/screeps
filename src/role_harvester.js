@@ -40,7 +40,6 @@ roles.harvester.updateSettings = function(room, creep) {
   }
 };
 
-roles.harvester.stayInRoom = true;
 roles.harvester.buildRoad = true;
 roles.harvester.boostActions = ['capacity'];
 

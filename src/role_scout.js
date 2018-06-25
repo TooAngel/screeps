@@ -111,6 +111,7 @@ roles.scout.action = function(creep) {
 
     if (!creep.memory.search.target) {
       creep.log('Suiciding: ' + JSON.stringify(creep.memory.search));
+      creep.memory.killed = true;
       creep.suicide();
       return true;
     }
@@ -164,6 +165,7 @@ roles.scout.action = function(creep) {
     if (creep.isStuck()) {
       if (creep.memory.stuck > 20) {
         creep.log('Scout Stuck suicide');
+        creep.memory.killed = true;
         creep.suicide();
         return true;
       }

@@ -1,5 +1,69 @@
 'use strict';
 
+/**
+ * searchPath uses PathFinder and the room costMatrix to search for a path
+ *
+ *
+ * @param {object} target - The target to move to
+ * @param {number} range - How close to get to the target
+ * @return {object} - Response from PathFinder.search
+ **/
+Creep.prototype.searchPath = function(target, range=1) {
+  const costMatrixCallback = this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName);
+  const search = PathFinder.search(
+    this.pos, {
+      pos: target,
+      range: range,
+    }, {
+      roomCallback: costMatrixCallback,
+      maxRooms: 0,
+      swampCost: config.layout.swampCost,
+      plainCost: config.layout.plainCost,
+    }
+  );
+
+  if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+    visualizer.showSearch(search);
+  }
+  return search;
+};
+
+Creep.prototype.moveMy = function(target) {
+  const moveResponse = this.move(this.pos.getDirectionTo(target));
+  if (moveResponse !== OK && moveResponse !== ERR_NO_BODYPART) {
+    this.log(`pos: ${this.pos} target ${target}`);
+    throw new Error(`moveToMy this.move(${this.pos.getDirectionTo(target)}); => ${moveResponse}`);
+  }
+  return moveResponse === OK;
+};
+
+/**
+ * moveToMy replaces the moveTo method and tries to include the costmatrixes
+ *
+ * @param {object} target - The target to move to
+ * @param {number} range - How close to get to the target
+ * @return {boolean} - Success of the execution
+ **/
+Creep.prototype.moveToMy = function(target, range=1) {
+  this.creepLog(`moveToMy(${target}, ${range}) pos: ${this.pos}`);
+  if (this.fatigue > 0) {
+    return true;
+  }
+
+  const search = this.searchPath(target, range);
+
+  // Fallback to moveTo when the path is incomplete and the creep is only switching positions
+  if (search.path.length < 2 && search.incomplete) {
+    this.creepLog(`moveToMy fallback ${JSON.stringify(target)} ${JSON.stringify(search)}`);
+    this.moveTo(target, {range: range});
+    return false;
+  }
+
+  target = search.path[0] || target.pos || target;
+
+  return this.moveMy(target, search);
+};
+
 Creep.prototype.moveRandom = function(onPath) {
   const startDirection = _.random(1, 8);
   let direction = 0;
@@ -63,7 +127,6 @@ Creep.prototype.moveCreep = function(position, direction) {
     }
     if ((role === 'sourcer' || role === 'reserver') && creeps[0].memory.role !== 'harvester' && !creeps[0].memory.routing.reverse) {
       creeps[0].move(direction);
-      creeps[0].memory.forced = true;
       return true;
     }
     const targetRole = creeps[0].memory.role;

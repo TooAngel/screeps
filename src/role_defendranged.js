@@ -56,11 +56,6 @@ const action = function(creep) {
         return false;
       }
     }
-    if (creep.room.name !== creep.memory.base) {
-      if (creep.stayInRoom()) {
-        return true;
-      }
-    }
     return Creep.recycleCreep(creep);
   };
 

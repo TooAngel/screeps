@@ -122,9 +122,13 @@ Room.prototype.closeExitsByPath = function() {
   if (this.memory.walls.exit_i >= exits.length) {
     this.memory.walls.exit_i = 0;
     this.memory.walls.layer_i++;
-    this.log('Increase layer');
+    if (config.debug.baseBuilding) {
+      this.log('Increase layer');
+    }
     if (this.memory.walls.layer_i >= config.layout.wallThickness) {
-      this.log('Wall setup finished');
+      if (config.debug.baseBuilding) {
+        this.log('Wall setup finished');
+      }
       this.memory.walls.finished = true;
 
       // TODO disabled, too many ramparts

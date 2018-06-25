@@ -51,6 +51,7 @@ const states = [{
   action: get,
   resource: 'result',
 }];
+
 /**
  * Check is a given lab as enough mineral for reaction
  *

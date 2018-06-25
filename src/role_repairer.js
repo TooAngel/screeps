@@ -11,8 +11,6 @@
 
 roles.repairer = {};
 
-roles.repairer.stayInRoom = true;
-
 roles.repairer.settings = {
   layoutString: 'MWC',
   amount: [2, 1, 1],

@@ -82,7 +82,15 @@ brain.addToStats = function(name) {
 };
 
 brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
-  console.log(name, 'Not in Game.creeps', Game.time - creepMemory.born, Memory.creeps[name].base);
+  let hostiles = [];
+  let room = {};
+  if (Memory.creeps[name].routing && Memory.creeps[name].routing.route && Memory.creeps[name].routing.routePos) {
+    room = Game.rooms[Memory.creeps[name].routing.route[Memory.creeps[name].routing.routePos].room];
+    hostiles = room.find(FIND_HOSTILE_CREEPS);
+  }
+  if (hostiles.length === 0 || hostiles[0].owner.username !== 'Invader') {
+    console.log(`${Game.time} ${room.name} ${name} Not in Game.creeps lived ${Game.time - creepMemory.born} hostiles: ${hostiles.length} memory: ${JSON.stringify(Memory.creeps[name])}`);
+  }
   if (Game.time - creepMemory.born < 20) {
     return;
   }
