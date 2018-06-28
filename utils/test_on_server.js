@@ -8,11 +8,11 @@ const cliPort = 21026;
 const port = 21025;
 
 const players = {
-  'W1N7': {x: 43, y: 35},
-  'W8N8': {x: 21, y: 28},
-  'W8N1': {x: 33, y: 13},
+  // 'W1N7': {x: 43, y: 35},
+  // 'W8N8': {x: 21, y: 28},
+  // 'W8N1': {x: 33, y: 13},
   'W5N1': {x: 10, y: 9},
-  'W8N3': {x: 14, y: 17},
+  // 'W8N3': {x: 14, y: 17},
 };
 const rooms = Object.keys(players);
 const duration = 600;
