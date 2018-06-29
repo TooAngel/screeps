@@ -194,7 +194,10 @@ roles.nextroomer.settle = function(creep) {
   });
   if (hostileCreeps.length) {
     room.memory.underSiege = true;
-    if (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 || creep.room.controller.level === 1) {
+    if (creep.room.controller.level === 1 ||
+        creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 ||
+        (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] && creep.pos.getRangeTo(creep.room.controller.pos) <= 3)
+    ) {
       const methods = [Creep.getEnergy, Creep.upgradeControllerTask];
       return Creep.execute(creep, methods);
     }
