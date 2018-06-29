@@ -619,10 +619,17 @@ Creep.prototype.buildConstructionSite = function(target) {
 
 Creep.prototype.construct = function() {
   let target;
-  if (this.memory.role === 'nextroomer') {
-    target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART], {inverse: true});
-  } else {
-    target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+  if (this.memory.routing.targetId) {
+    target = Game.getObjectById(this.memory.routing.targetId);
+    this.creepLog('Use memory target', target);
+  }
+  if (!target || target === null) {
+    delete this.memory.routing.targetId;
+    if (this.memory.role === 'nextroomer') {
+      target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART], {inverse: true});
+    } else {
+      target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+    }
   }
 
   if (target === null) {
@@ -634,6 +641,7 @@ Creep.prototype.construct = function() {
     return this.buildConstructionSite(target);
   }
 
+  this.memory.routing.targetId = target.id;
   this.moveToMy(target.pos, 3);
   return true;
 };
