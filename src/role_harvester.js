@@ -79,6 +79,8 @@ roles.harvester.preMove = function(creep, directions) {
     return true;
   }
 
+  creep.memory.routing.targetId = 'harvester';
+
   if (creep.memory.routing.pathPos === 0) {
     for (const resource in creep.carry) {
       if (resource === RESOURCE_ENERGY) {
