@@ -9,7 +9,8 @@ Room.prototype.debugLog = function(type, ...messages) {
 };
 
 RoomObject.prototype.log = function(...messages) {
-  console.log(`${Game.time} ${this.room.name.rpad(' ', 6)} ${this.name.rpad(' ', 20)} ${this.pos} ${messages.join(' ')}`);
+  const name = this.name || this.structureType;
+  console.log(`${Game.time} ${this.room.name.rpad(' ', 6)} ${name.rpad(' ', 20)} ${this.pos} ${messages.join(' ')}`);
 };
 
 RoomPosition.prototype.log = function(...messages) {
