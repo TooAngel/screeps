@@ -73,7 +73,7 @@ global.config = {
       rooms: [], // Rooms for debug output, e.g. ['E21N8']
     },
     power: false,
-    nextroomer: true,
+    nextroomer: false,
     quests: false,
     revive: false,
     quest: false,
