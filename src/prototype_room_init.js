@@ -111,7 +111,7 @@ Room.prototype.addTerminalToFillerArea = function() {
     if (nearPathPos) {
       this.setPosition(STRUCTURE_TERMINAL, terminalPos);
       this.memory.position.creep.terminal = nearPathPos;
-      this.log('set terminal in free spot');
+      this.debugLog('baseBuilding', 'set terminal in free spot');
       return;
     }
   }
@@ -136,17 +136,17 @@ Room.prototype.addTerminalToFillerArea = function() {
   };
 
   if (trySwapPos(STRUCTURE_POWER_SPAWN)) {
-    this.log(`set terminal instead ${STRUCTURE_POWER_SPAWN}`);
+    this.debugLog('baseBuilding', `set terminal instead ${STRUCTURE_POWER_SPAWN}`);
     return;
   }
 
   if (trySwapPos(STRUCTURE_TOWER)) {
-    this.log(`set terminal instead ${STRUCTURE_TOWER}`);
+    this.debugLog('baseBuilding', `set terminal instead ${STRUCTURE_TOWER}`);
     return;
   }
 
   if (trySwapPos(STRUCTURE_LINK)) {
-    this.log(`set terminal instead ${STRUCTURE_LINK}`);
+    this.debugLog('baseBuilding', `set terminal instead ${STRUCTURE_LINK}`);
     return;
   }
 
@@ -324,7 +324,7 @@ Room.prototype.setLabs = function(allPaths) {
             this.memory.position.creep.labs = lastPathPos;
           }
         }
-        room.log('All labs set: ' + pathI);
+        room.debugLog('baseBuilding', 'All labs set: ' + pathI);
         return;
       }
     }
@@ -396,7 +396,7 @@ Room.prototype.setStructuresIteratePos = function(structurePos, pathI, path) {
   }
 
   this.memory.position.pathEnd = structurePos;
-  this.log('All structures set: ' + pathI);
+  this.debugLog('baseBuilding', 'All structures set: ' + pathI);
   return false;
 };
 
@@ -538,7 +538,7 @@ Room.prototype.blockWrongSpawnExits = function() {
     const spawn = new RoomPosition(spawnMemory.x, spawnMemory.y, spawnMemory.roomName);
     for (const adjacentPos of spawn.getAllAdjacentPositions()) {
       if (adjacentPos.validPosition()) {
-        this.log('Blocking ', adjacentPos, ' with wall - Wrong spawn exit');
+        this.debugLog('baseBuilding', 'Blocking ', adjacentPos, ' with wall - Wrong spawn exit');
         this.memory.walls = this.memory.walls || {
           exit_i: 0,
           ramparts: [],
@@ -556,7 +556,7 @@ Room.prototype.blockWrongSpawnExits = function() {
 
 Room.prototype.setup = function() {
   delete this.memory.constants;
-  this.log('costmatrix.setup called');
+  this.debugLog('baseBuilding', 'costmatrix.setup called');
   this.memory.controllerLevel = {};
   this.updatePosition();
 
@@ -576,7 +576,7 @@ Room.prototype.setup = function() {
   this.addTerminalToFillerArea();
   let pathI = this.setStructures(path);
   this.setLabs(pathsSorted);
-  this.log('path: ' + pathsSorted[pathsSorted.length - 1].name + ' pathI: ' + pathI + ' length: ' + path.length);
+  this.debugLog('baseBuilding', 'path: ' + pathsSorted[pathsSorted.length - 1].name + ' pathI: ' + pathI + ' length: ' + path.length);
   if (pathI === -1) {
     pathI = path.length - 1;
   }

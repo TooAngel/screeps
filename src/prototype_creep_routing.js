@@ -77,7 +77,14 @@ Creep.prototype.getDirections = function(path) {
     return {};
   }
   const pos = path[pathPos];
-  const currentPos = new RoomPosition(pos.x, pos.y, this.room.name);
+  let currentPos;
+  try {
+    currentPos = new RoomPosition(pos.x, pos.y, this.room.name);
+  } catch (e) {
+    console.log(`getDirections: pathPos: ${pathPos} pos: ${pos} path: ${JSON.stringify(path)}`);
+    throw e;
+  }
+
   let forwardDirection;
   let backwardDirection;
   let direction;

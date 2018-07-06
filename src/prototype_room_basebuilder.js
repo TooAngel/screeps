@@ -75,7 +75,7 @@ Room.prototype.destroyStructure = function(structure) {
     structure.destroy();
     return true;
   }
-  this.log('Not destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos) + ' ' + structures.length + ' ' + structuresMin);
+  this.debugLog('baseBuilding', 'Not destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos) + ' ' + structures.length + ' ' + structuresMin);
   if (structure.structureType === STRUCTURE_SPAWN) {
     if (this.memory.misplacedSpawn) {
       if (this.storage && this.storage.store.energy > 20000) {
@@ -159,7 +159,7 @@ Room.prototype.checkWrongStructure = function() {
 
   // destroyStructure resets misplacedSpawn, so make sure we reach that point with the storage check
   if (this.memory.misplacedSpawn && (!this.storage || this.storage.store.energy < 20000)) {
-    this.log('checkWrongStructures skipped - misplacedSpawn');
+    this.debugLog('baseBuilding', 'checkWrongStructures skipped - misplacedSpawn');
     return false;
   }
 
@@ -240,23 +240,23 @@ Room.prototype.setupStructure = function(structure) {
 
     const returnCode = posObject.createConstructionSite(structure);
     if (returnCode === OK) {
-      this.log('Build: ' + structure + ' ' + JSON.stringify(posObject));
+      this.debugLog('baseBuilding', 'Build: ' + structure + ' ' + JSON.stringify(posObject));
       return true;
     }
     if (returnCode === ERR_FULL) {
-      this.log('setup createConstrustionSite too many constructionSites');
+      this.debugLog('baseBuilding', 'setup createConstrustionSite too many constructionSites');
       return true;
     }
     if (returnCode === ERR_INVALID_TARGET) {
-      this.log('setup createConstrustionSite invalid target: ' + structure + ' ' + JSON.stringify(posObject));
+      this.debugLog('baseBuilding', 'setup createConstrustionSite invalid target: ' + structure + ' ' + JSON.stringify(posObject));
       continue;
     }
     if (returnCode === ERR_RCL_NOT_ENOUGH) {
-      this.log(structure + ' ' + this.controller.level + ' ' + CONTROLLER_STRUCTURES[structure][this.controller.level]);
-      this.log('setup createConstrustionSite ERR_RCL_NOT_ENOUGH structure: ' + structure + ' ' + CONTROLLER_STRUCTURES[structure][this.controller.level] + ' ' + structures.length + ' ' + constructionsites.length);
+      this.debugLog('baseBuilding', structure + ' ' + this.controller.level + ' ' + CONTROLLER_STRUCTURES[structure][this.controller.level]);
+      this.debugLog('baseBuilding', 'setup createConstrustionSite ERR_RCL_NOT_ENOUGH structure: ' + structure + ' ' + CONTROLLER_STRUCTURES[structure][this.controller.level] + ' ' + structures.length + ' ' + constructionsites.length);
     }
 
-    this.log('setup createConstrustionSite returnCode: ' + returnCode + ' structure: ' + structure);
+    this.debugLog('baseBuilding', 'setup createConstrustionSite returnCode: ' + returnCode + ' structure: ' + structure);
   }
   return false;
 };

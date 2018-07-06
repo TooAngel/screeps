@@ -80,6 +80,9 @@ global.config = {
     market: false,
     invader: false,
     cpu: false,
+    energyTransfer: false,
+    constructionSites: false,
+    routing: false,
   },
 
   tower: {
