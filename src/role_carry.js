@@ -151,7 +151,7 @@ roles.carry.preMove = function(creep, directions) {
           }
           let amount = creep.room.getHarvesterAmount();
           amount += Math.floor(resourceAtPosition / config.carry.callHarvesterPerResources);
-          creep.room.checkRoleToSpawn('harvester', amount, 'harvester');
+          creep.room.checkRoleToSpawn('harvester', amount);
         }
       }
     }
