@@ -588,6 +588,22 @@ Room.prototype.checkForMisplacedSpawn = function() {
   }
 };
 
+Room.prototype.setupStructures = function() {
+  const pathsController = _.filter(this.getMemoryPaths(), (object, key) => {
+    return key.startsWith('pathStart-');
+  });
+  const pathsSorted = _.sortBy(pathsController, sorter);
+  const path = this.getMemoryPath(pathsSorted[pathsSorted.length - 1].name);
+  let pathI = this.setStructures(path);
+  this.setLabs(pathsSorted);
+  this.debugLog('baseBuilding', 'path: ' + pathsSorted[pathsSorted.length - 1].name + ' pathI: ' + pathI + ' length: ' + path.length);
+  if (pathI === -1) {
+    pathI = path.length - 1;
+  }
+  this.setMemoryPath('pathStart-harvester', path.slice(0, pathI + 1), true);
+  this.memory.position.version = config.layout.version;
+};
+
 Room.prototype.setup = function() {
   delete this.memory.constants;
   this.debugLog('baseBuilding', 'costmatrix.setup called');
@@ -601,24 +617,8 @@ Room.prototype.setup = function() {
   }
 
   this.costMatrixPathCrossings(exits);
-
-  const pathsController = _.filter(this.getMemoryPaths(), (object, key) => {
-    return key.startsWith('pathStart-');
-  });
-  const pathsSorted = _.sortBy(pathsController, sorter);
-  const path = this.getMemoryPath(pathsSorted[pathsSorted.length - 1].name);
   this.addTerminalToFillerArea();
-  let pathI = this.setStructures(path);
-  this.setLabs(pathsSorted);
-  this.debugLog('baseBuilding', 'path: ' + pathsSorted[pathsSorted.length - 1].name + ' pathI: ' + pathI + ' length: ' + path.length);
-  if (pathI === -1) {
-    pathI = path.length - 1;
-  }
-
-  this.setMemoryPath('pathStart-harvester', path.slice(0, pathI + 1), true);
-  this.memory.position.version = config.layout.version;
-
+  this.setupStructures();
   this.blockWrongSpawnExits();
-
   this.checkForMisplacedSpawn();
 };
