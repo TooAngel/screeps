@@ -275,7 +275,7 @@ Room.prototype.buildStructures = function() {
     return false;
   }
 
-  if (this.controller === null || !this.controller.my) {
+  if (!this.controller || this.controller === null || !this.controller.my) {
     this.log('No controller');
     return false;
   }
