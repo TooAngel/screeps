@@ -52,13 +52,9 @@ roles.sourcer.updateSettings = function(room, creep) {
     return {
       prefixString: 'MC',
       layoutString: 'MW',
+      sufixString: 'MH',
       amount: [5, 10],
       maxLayoutAmount: 1,
-    };
-  }
-  if (!inBase) {
-    return {
-      sufixString: 'MH',
     };
   }
   return false;
