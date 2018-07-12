@@ -232,7 +232,7 @@ Room.prototype.checkNeedHelp = function() {
     delete Memory.rooms[this.name].needHelp;
     return '---!!!---' + this.name + ' no more need help ---!!!---';
   }
-  return;
+  return false;
 };
 
 Room.prototype.checkCanHelp = function() {
@@ -283,6 +283,7 @@ Room.prototype.checkCanHelp = function() {
     if (route === -2 || route.length === 0) {
       returnValue = `no route`;
     } else {
+      Memory.canHelpRooms.push(this.name);
       this.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, this.storage.id, this.name, undefined, nearestRoom, {helper: true});
       returnValue = `---!!! ${this.name} send energy to ${nearestRoom} !!!---`;
     }
@@ -312,7 +313,8 @@ Room.prototype.checkForEnergyTransfer = function(force) {
     return false;
   }
 
-  Memory.needEnergyRooms = Memory.needEnergyRooms || [];
+  Memory.needEnergyRooms = _.uniq(Memory.needEnergyRooms) || [];
+  Memory.canHelpRooms = _.uniq(Memory.canHelpRooms) || [];
   this.memory.energyStats = this.memory.energyStats || {sum: 0, ticks: 0};
   if (force) {
     this.updateEnergyStatsAndCheckForHelp();
@@ -492,7 +494,8 @@ Room.prototype.executeRoom = function() {
     }
   }
   if (config.mineral.enabled && this.terminal && this.storage) {
-    if (!this.memory.cleanup || this.memory.cleanup <= 10) {
+    const labs = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB]);
+    if ((!this.memory.cleanup || this.memory.cleanup <= 10) && (_.size(labs) > 2)) {
       this.checkRoleToSpawn('mineral');
     }
     if ((Game.time + this.controller.pos.x + this.controller.pos.y) % 10000 < 10) {
