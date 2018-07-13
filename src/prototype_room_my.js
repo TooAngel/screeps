@@ -193,9 +193,11 @@ Room.prototype.handleScout = function() {
   if (this.name === 'sim') {
     return false;
   }
+  const observers = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_OBSERVER]);
+  const levelCheck = (this.controller.level >= 2 && this.controller.level < 8) || (this.controller.level === 8 && observers.length === 0);
   const shouldSpawn = (
     this.exectueEveryTicks(config.room.scoutInterval) &&
-    this.controller.level >= 2 &&
+    levelCheck &&
     this.memory.queue.length === 0 &&
     config.room.scout
   );
