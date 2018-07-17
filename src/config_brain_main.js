@@ -63,6 +63,23 @@ brain.main.visualizeRooms = function() {
   }
 };
 
+brain.main.updateSkippedRoomsLog = function() {
+  Memory.skippedRoomsLog = Memory.skippedRoomsLog || {};
+  if (_.size(Memory.skippedRooms) > 0) {
+    console.log(`${Game.time} cpu.getUsed: ${_.round(Game.cpu.getUsed())} ticklimit: ${Game.cpu.tickLimit} Bucket: ${Game.cpu.bucket} skippedRooms ${Memory.skippedRooms}`);
+    Memory.skippedRoomsLog[Game.time] = Memory.skippedRooms;
+  }
+  if (Game.time % 100 === 0) {
+    const roomsSkipped = _.sum(_.map(Memory.skippedRoomsLog, _.size));
+    console.log(`${Game.time} skipped rooms ${roomsSkipped} in ${_.size(Memory.skippedRoomsLog)} ticks of 100 ticks`);
+    const lowExecution = _.size(Memory.skippedRoomsLog) / 100 < config.main.lowExecution;
+    if (config.debug.cpu && lowExecution) {
+      Game.notify(`${Game.time} skipped rooms ${roomsSkipped} in ${_.size(Memory.skippedRoomsLog)} ticks of 100 ticks`, 120);
+    }
+    Memory.skippedRoomsLog = {};
+  }
+};
+
 brain.main.execute = function() {
   if (Game.time > 1000 && Game.cpu.bucket < 2 * Game.cpu.tickLimit && Game.cpu.bucket < Game.cpu.limit * 10) {
     console.log(`${Game.time} Skipping tick CPU Bucket too low. bucket: ${Game.cpu.bucket} tickLimit: ${Game.cpu.tickLimit} limit: ${Game.cpu.limit}`);
@@ -78,7 +95,7 @@ brain.main.execute = function() {
     brain.handleIncomingTransactions();
     brain.handleQuests();
   } catch (e) {
-    console.log('Brain Exception', e);
+    console.log('Brain Exception', e.stack);
   }
 
   brain.stats.addRoot();
@@ -87,10 +104,7 @@ brain.main.execute = function() {
     brain.saveMemorySegments();
   }
   brain.main.visualizeRooms();
-  if (Memory.skippedRooms.length > 0) {
-    console.log(`${Game.time} cpu.getUsed: ${_.round(Game.cpu.getUsed())} ticklimit: ${Game.cpu.tickLimit} Bucket: ${Game.cpu.bucket} skippedRooms ${Memory.skippedRooms}`);
-  }
-
+  brain.main.updateSkippedRoomsLog();
   brain.stats.add(['cpu'], {
     used: Game.cpu.getUsed(),
   });
