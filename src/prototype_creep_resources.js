@@ -9,7 +9,7 @@ Creep.prototype.harvesterBeforeStorage = function() {
 
   methods.push(Creep.getEnergy);
 
-  if (this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / 10 || this.room.controller.level === 1) {
+  if (this.room.controller && this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / 10 || this.room.controller.level === 1) {
     methods.push(Creep.upgradeControllerTask);
   }
 
