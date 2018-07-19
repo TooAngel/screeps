@@ -9,7 +9,12 @@
  * @return {object} - Response from PathFinder.search
  **/
 Creep.prototype.searchPath = function(target, range=1) {
-  const costMatrixCallback = this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName);
+  let costMatrixCallback;
+  if (this.room.memory.misplacedSpawn) {
+    costMatrixCallback = this.room.getBasicCostMatrixCallback();
+  } else {
+    costMatrixCallback = this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName);
+  }
   const search = PathFinder.search(
     this.pos, {
       pos: target,

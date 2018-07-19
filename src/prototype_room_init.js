@@ -118,7 +118,7 @@ Room.prototype.addTerminalToFillerArea = function() {
 
   const nextPos = fillerPos.getFirstNearPosition();
   if (!nextPos) {
-    console.log('addTerminalToFillerArea can not find position');
+    this.log('addTerminalToFillerArea can not find position');
     return;
   }
   const trySwapPos = (structureType) => {
