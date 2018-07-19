@@ -96,11 +96,19 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
       this.log(`inRoom no iMem ${creep.name}`);
       continue;
     }
-    if (creepMemory.role === iMem.role && (!iMem.routing ||
-      (creepMemory.routing.targetRoom === iMem.routing.targetRoom &&
-      creepMemory.routing.targetId === iMem.routing.targetId))) {
-      j++;
+    if (creepMemory.role !== iMem.role) {
+      continue;
     }
+
+    if (iMem.routing) {
+      if (creepMemory.routing.targetRoom && creepMemory.routing.targetRoom !== iMem.routing.targetRoom) {
+        continue;
+      }
+      if (creepMemory.routing.targetId && creepMemory.routing.targetId !== iMem.routing.targetId) {
+        continue;
+      }
+    }
+    j++;
     if (j >= amount) {
       this.memory.roles[creepMemory.role] = true;
       /**
@@ -137,9 +145,9 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
     let debugMem = JSON.stringify(_.omit(creepMemory, ['role', 'routing', 'level']));
     debugMem = (debugMem !== '{}') ? debugMem : '';
     if (this.name === creepMemory.routing.targetRoom) {
-      this.log('Add to queue: ' + creepMemory.role.rpad(' ', 20), ' '.rpad(' ', 19), debugMem);
+      this.log(`Add to queue: ${creepMemory.role.rpad(' ', 20)} ${' '.rpad(' ', 19)} ${debugMem} amount: ${amount} queue: ${JSON.stringify(this.memory.queue.map((item) => item.role))}`);
     } else {
-      this.log('Add to queue: ' + creepMemory.role.rpad(' ', 20), 'targetRoom ' + creepMemory.routing.targetRoom.rpad(' ', 8), debugMem);
+      this.log(`Add to queue: ${creepMemory.role.rpad(' ', 20)} targetRoom ${creepMemory.routing.targetRoom.rpad(' ', 8)} ${debugMem} amount: ${amount} queue: ${JSON.stringify(this.memory.queue.map((item) => item.role))}`);
     }
   }
   return this.memory.queue.push(creepMemory);
