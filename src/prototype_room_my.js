@@ -337,10 +337,6 @@ Room.prototype.getHarvesterAmount = function() {
   let amount = 1;
   if (!this.storage) {
     amount = 2;
-    // TODO maybe better spawn harvester when a carry recognize that the dropped energy > threshold
-    if (this.controller.level === 2) {
-      amount = 5;
-    }
   } else {
     if (this.storage.store.energy < config.creep.energyFromStorageThreshold && this.controller.level < 5) {
       amount = 3;
