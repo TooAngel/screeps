@@ -118,7 +118,7 @@ RoomPosition.prototype.inPath = function() {
   return room.getMemoryPathsSet()[`${this.x} ${this.y}`];
 };
 
-RoomPosition.prototype.inPositions = function() {
+RoomPosition.prototype.inPositions = function(opts = {}) {
   const room = this.getRoom();
 
   if (!room.memory.position) {
@@ -133,6 +133,9 @@ RoomPosition.prototype.inPositions = function() {
       continue;
     }
     if (this.isEqualTo(pos.x, pos.y)) {
+      if (opts.debug) {
+        this.log(`equals to creep ${creepId}`);
+      }
       return true;
     }
   }
@@ -144,6 +147,9 @@ RoomPosition.prototype.inPositions = function() {
         continue;
       }
       if (this.isEqualTo(pos.x, pos.y)) {
+        if (opts.debug) {
+          this.log(`equals to structure ${structureId}`);
+        }
         return true;
       }
     }
@@ -172,15 +178,27 @@ RoomPosition.prototype.isValid = function() {
 
 RoomPosition.prototype.validPosition = function(opts = {}) {
   if (!opts.ignoreBorder && this.isBorder()) {
+    if (opts.debug) {
+      this.log('is border');
+    }
     return false;
   }
   if (!opts.ignoreWall && this.checkForWall()) {
+    if (opts.debug) {
+      this.log('is wall');
+    }
     return false;
   }
-  if (!opts.ignorePositions && this.inPositions()) {
+  if (!opts.ignorePositions && this.inPositions(opts)) {
+    if (opts.debug) {
+      this.log('is positions');
+    }
     return false;
   }
   if (!opts.ignorePath && this.inPath()) {
+    if (opts.debug) {
+      this.log('is path');
+    }
     return false;
   }
   return true;
@@ -203,7 +221,7 @@ RoomPosition.prototype.getBestNearPosition = function(...args) {
 RoomPosition.prototype.findNearPosition = function* (...args) {
   for (const posNew of this.getAllAdjacentPositions()) {
     if (!posNew.validPosition(...args)) {
-      //        console.log(posNew + ' - invalid');
+      // console.log(posNew + ' - invalid');
       continue;
     }
     // Single position or array
