@@ -138,6 +138,9 @@ Creep.prototype.prepareRoutingMemory = function() {
  * @return {boolean} - If the execution is successful
  */
 Creep.prototype.followPath = function(action) {
+  if (this.followPathWithoutTargetId()) {
+    return action(this);
+  }
   const path = this.prepareRoutingMemory();
   const directions = this.getDirections(path);
   if (this.unit().preMove && this.unit().preMove(this, directions)) {
@@ -145,7 +148,7 @@ Creep.prototype.followPath = function(action) {
   }
   this.getPathPos(path);
   this.killPrevious(path);
-  if (this.followPathWithoutTargetId() || this.followPathWithTargetId(path)) {
+  if (this.followPathWithTargetId(path)) {
     return action(this);
   }
   return this.moveByPathMy(path);
