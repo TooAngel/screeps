@@ -24,7 +24,7 @@ roles.nextroomer.died = function(name, creepMemory) {
       // TODO make underSiege to a counter
     }
     // Works but was annoying due to suppen
-    console.log('DIED:', message);
+    console.log(Game.time, 'DIED:', message);
   }
   return true;
 };
