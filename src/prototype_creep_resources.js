@@ -262,30 +262,46 @@ Creep.prototype.buildContainer = function() {
   }
 };
 
+Creep.prototype.withdrawEnergyFromTarget = function(target) {
+  let returnValue = false;
+  const returnCode = this.withdraw(target, RESOURCE_ENERGY);
+  if (returnCode === OK) {
+    returnValue = true;
+  }
+  return returnValue;
+};
+
+Creep.prototype.withdrawResourcesFromTarget = function(target) {
+  let returnValue = false;
+  const resosurces = Object.keys(target.store) || Object.keys(target.carry);
+  for (const resosurce of resosurces) {
+    if (!returnValue) {
+      returnValue = this.withdraw(target, resosurce) === OK;
+    }
+  }
+  return returnValue;
+};
+
+Creep.prototype.withdrawResourcesFromTargets = function(targets, onlyEnergy) {
+  let returnValue = false;
+  for (const target of targets) {
+    if (!returnValue) {
+      returnValue = onlyEnergy ? this.withdrawEnergyFromTarget(target) : this.withdrawResourcesFromTarget(target);
+    }
+  }
+  return returnValue;
+};
+
 Creep.prototype.withdrawTombstone = function(onlyEnergy) {
   onlyEnergy = onlyEnergy || false;
   let returnValue = false;
   // FIND_TOMBSTONES and get them empty first
   const tombstones = this.pos.findInRange(FIND_TOMBSTONES, 1);
   if (tombstones.length > 0) {
-    const creep = this;
     if (onlyEnergy) {
-      if (tombstones[0].store[RESOURCE_ENERGY] > 0) {
-        // console.log(`${Game.time} My creep died ${global.ex(_.omit(t, ['room', 'visual', 'id', 'creep']))} and store ${global.ex(t.store)}`);
-        const returnCode = creep.withdraw(tombstones[0], RESOURCE_ENERGY);
-        if (returnCode === OK) {
-          returnValue = true;
-        }
-      }
+      returnValue = this.withdrawResourcesFromTargets(tombstones, true);
     } else {
-      for (const resosurce of Object.keys(tombstones[0].store)) {
-        if (tombstones[0].store[resosurce] > 0) {
-          const returnCode = creep.withdraw(tombstones[0], resosurce);
-          if (returnCode === OK) {
-            returnValue = true;
-          }
-        }
-      }
+      returnValue = this.withdrawResourcesFromTargets(tombstones);
     }
   }
   return returnValue;
