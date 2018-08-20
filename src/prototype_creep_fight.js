@@ -236,3 +236,49 @@ Creep.prototype.siege = function() {
   this.dismantle(target);
   return true;
 };
+
+Creep.prototype.buildRamparts = function() {
+  // TODO Guess roles.nextroomer should be higher
+  const rampartMinHits = 10000;
+
+  this.say('checkRamparts');
+  const posRampart = global.utils.checkForRampart(this.pos);
+  if (posRampart) {
+    if (posRampart.hits < rampartMinHits) {
+      this.repair(posRampart);
+      return true;
+    }
+  } else {
+    this.room.createConstructionSite(this.pos.x, this.pos.y, STRUCTURE_RAMPART);
+    return true;
+  }
+
+  const room = Game.rooms[this.room.name];
+  let linkPosMem = room.memory.position.structure.link[1];
+  if (this.pos.getRangeTo(linkPosMem.x, linkPosMem.y) > 1) {
+    linkPosMem = room.memory.position.structure.link[2];
+  }
+
+  const links = this.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
+  if (links.length) {
+    this.say('dismantle');
+    this.log(JSON.stringify(links));
+    this.dismantle(links[0]);
+    return true;
+  }
+
+  this.say('cr');
+  const towerRampart = global.utils.checkForRampart(linkPosMem);
+  if (towerRampart) {
+    this.say('tr');
+    if (towerRampart.hits < rampartMinHits) {
+      this.repair(towerRampart);
+      return true;
+    }
+  } else {
+    const returnCode = this.room.createConstructionSite(linkPosMem.x, linkPosMem.y, STRUCTURE_RAMPART);
+    this.log('Build tower rampart: ' + returnCode);
+    return true;
+  }
+  return false;
+};

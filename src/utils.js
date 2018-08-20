@@ -252,5 +252,9 @@ global.utils = {
       'controller', global.ex(controller));
     return returnValue;
   },
-
+  checkForRampart: function(coords) {
+    const pos = new RoomPosition(coords.x, coords.y, coords.roomName);
+    const structures = pos.lookFor('structure');
+    return _.find(structures, (s) => s.structureType === STRUCTURE_RAMPART);
+  },
 };
