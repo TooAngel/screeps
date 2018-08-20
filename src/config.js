@@ -34,6 +34,7 @@ global.config = {
 
   quests: {
     enabled: true,
+    endTime: 10000,
     signControllerPercentage: 0.1,
   },
 

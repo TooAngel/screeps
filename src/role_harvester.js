@@ -56,7 +56,7 @@ roles.harvester.preMove = function(creep, directions) {
     creep.memory.move_forward_direction = true;
   }
 
-  // todo-msc changed harvesterBeforeStorage then transferToStructures, to transferToStructures then harvesterBeforeStorage
+  // changed controll flow: first transferToStructures then harvesterBeforeStorage
   let reverse = creep.carry.energy === 0;
 
   creep.setNextSpawn();

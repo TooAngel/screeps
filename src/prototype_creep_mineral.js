@@ -187,7 +187,7 @@ function get(creep, target, resource) {
 function cleanUpLabs(creep) {
   creep.say('cleanup');
   creep.memory.cleanup = creep.memory.cleanup || 0;
-  // todo-msc if 2 / 3 of the creep live time is cleanup stop spawning them for 10000 ticks
+  // if 2 / 3 of the creep live time is cleanup stop spawning them for 10000 ticks
   if (creep.memory.cleanup++ > 1000) {
     creep.room.memory.cleanup = creep.room.memory.cleanup || 0;
     creep.room.memory.cleanup += 1;

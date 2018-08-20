@@ -183,7 +183,6 @@ Creep.prototype.preMoveExtractorSourcer = function(directions) {
         this.memory.routing.reverse = true;
       }
     } else {
-      // todo-msc if SourceKeeper is killed while reverse == true
       this.memory.routing.reverse = false;
     }
   }

@@ -111,7 +111,7 @@ Room.prototype.handleLinks = function() {
 };
 
 Room.prototype.handlePowerSpawn = function() {
-  // todo-msc (verify is needed) added exectueEveryTicks 3 for movement of harvesters, maybe use exectueEveryTicks 2
+  // added exectueEveryTicks 3 for movement of harvesters
   if (this.exectueEveryTicks(3)) {
     const powerSpawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_POWER_SPAWN]);
     if (powerSpawns.length === 0) {
@@ -270,20 +270,13 @@ Room.prototype.checkCanHelp = function() {
     returnValue = `no can't help, no nearestRoomObj`;
   }
   if (returnValue !== 'no') {
-    // todo-msc added fast exit
     return returnValue;
   }
 
   const thisRoomCanHelp = this.memory.energyStats.average > config.carryHelpers.helpTreshold;
-  // todo-msc dont get full fix
   const canHelp = thisRoomCanHelp && nearestRoomObj && (!nearestRoomObj.terminal ||
     nearestRoomObj.terminal.store.energy < config.carryHelpers.helpTreshold * 2 ||
     (nearestRoomObj.storage.store.energy < this.storage.store.energy && this.storage.store.energy > 700000));
-  // this.log(thisRoomCanHelp, nearestRoomObj.name, !nearestRoomObj.terminal, nearestRoomObj.terminal.store.energy, config.carryHelpers.helpTreshold * 2);
-  // if (!canHelp) {
-  //   const nearestRoomObjNeedsEnergy = (nearestRoomObj.memory.energyStats.average < config.carryHelpers.helpTreshold) || (nearestRoomObj.storage.store.energy < 20000);
-  //   canHelp = thisRoomCanHelp && nearestRoomObj && nearestRoomObjNeedsEnergy;
-  // }
   if (canHelp) {
     const route = this.findRoute(nearestRoom, this.name);
     if (route === -2 || route.length === 0) {
