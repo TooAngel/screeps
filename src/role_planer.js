@@ -15,17 +15,28 @@ roles.planer.settings = {
 };
 
 roles.planer.action = function(creep) {
-  const methods = [Creep.getEnergy];
-
-  methods.push(Creep.constructTask);
-  // methods.push(Creep.buildRoads);
-  if (creep.room.memory.misplacedSpawn) {
-    methods.push(Creep.transferEnergy);
-    methods.push(Creep.repairStructure);
-  } else {
-    methods.push(Creep.recycleCreep);
+  if (creep.getEnergy()) {
+    return true;
   }
-  methods.push(Creep.upgradeControllerTask);
+  if (creep.construct()) {
+    creep.creepLog('construct');
+    return true;
+  }
+  if (creep.room.memory.misplacedSpawn) {
+    if (creep.transferEnergyMy()) {
+      return true;
+    }
+    if (creep.repairStructure()) {
+      return true;
+    }
+  } else {
+    if (creep.recycleCreep()) {
+      return true;
+    }
+  }
+  if (creep.repairStructure()) {
+    return true;
+  }
 
-  return Creep.execute(creep, methods);
+  return creep.upgradeControllerTask();
 };

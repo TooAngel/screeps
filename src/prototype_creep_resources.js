@@ -1,31 +1,37 @@
 'use strict';
 
-Creep.pickableResources = function(creep) {
-  return (object) => creep.pos.isNearTo(object);
-};
-
 Creep.prototype.harvesterBeforeStorage = function() {
-  const methods = [];
-
-  methods.push(Creep.getEnergy);
-
-  if (this.room.controller && (this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / 10 || this.room.controller.level === 1)) {
-    methods.push(Creep.upgradeControllerTask);
+  if (this.getEnergy()) {
+    return true;
   }
-
-  methods.push(Creep.transferEnergy);
+  if (this.upgradeControllerTask()) {
+    return true;
+  }
+  if (this.room.controller && (this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / 10 || this.room.controller.level === 1)) {
+    if (this.upgradeControllerTask()) {
+      return true;
+    }
+  }
+  if (this.transferEnergyMy()) {
+    return true;
+  }
   const structures = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_CONTROLLER], {inverse: true});
   if (structures.length > 0) {
-    methods.push(Creep.constructTask);
+    this.creepLog('construct');
+    if (this.construct()) {
+      return true;
+    }
   }
 
   if (this.room.controller && this.room.controller.level < 9) {
-    methods.push(Creep.upgradeControllerTask);
+    if (this.upgradeControllerTask()) {
+      return true;
+    }
   } else {
-    methods.push(Creep.repairStructure);
+    if (this.repairStructure()) {
+      return true;
+    }
   }
-  // this.say('startup', true);
-  Creep.execute(this, methods);
   return true;
 };
 
@@ -67,7 +73,6 @@ Creep.prototype.findCreepWhichCanTransfer = function(creeps) {
       }
       return this.checkEnergyTransfer(otherCreep);
     }
-    continue;
   }
   return false;
 };
@@ -97,7 +102,7 @@ Creep.prototype.pickupWhileMoving = function(reverse) {
   }
 
   const resources = this.room.find(FIND_DROPPED_RESOURCES, {
-    filter: Creep.pickableResources(this),
+    filter: global.filters.resources.pickableResources(this),
   });
 
   if (resources.length > 0) {
@@ -264,7 +269,7 @@ Creep.prototype.buildContainer = function() {
 
 Creep.prototype.pickupEnergy = function() {
   const resources = this.room.findPropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], {
-    filter: Creep.pickableResources(this),
+    filter: global.filters.resources.pickableResources(this),
   });
   if (resources.length > 0) {
     const resource = resources[0];

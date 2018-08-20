@@ -1,117 +1,54 @@
 'use strict';
 
-Creep.execute = function(creep, methods) {
-  for (const method of methods) {
-    if (method(creep)) {
-      return true;
-    }
-  }
-};
-
-Creep.upgradeControllerTask = function(creep) {
-  creep.creepLog('upgradeControllerTask');
-  if (creep.carry.energy === 0) {
+Creep.prototype.upgradeControllerTask = function() {
+  this.creepLog('upgradeControllerTask');
+  if (this.carry.energy === 0) {
     return false;
   }
 
-  const range = creep.pos.getRangeTo(creep.room.controller);
+  const range = this.pos.getRangeTo(this.room.controller);
   if (range <= 3) {
-    const resources = creep.pos.findInRangePropertyFilter(FIND_DROPPED_RESOURCES, 10, 'resourceType', [RESOURCE_ENERGY]);
+    const resources = this.pos.findInRangePropertyFilter(FIND_DROPPED_RESOURCES, 10, 'resourceType', [RESOURCE_ENERGY]);
     let resource = false;
     if (resources.length > 0) {
       resource = resources[0];
-      creep.pickup(resource);
+      this.pickup(resource);
     }
-    const returnCode = creep.upgradeController(creep.room.controller);
+    const returnCode = this.upgradeController(this.room.controller);
     if (returnCode !== OK) {
-      creep.log('upgradeController: ' + returnCode);
+      this.log('upgradeController: ' + returnCode);
     } else {
-      creep.upgraderUpdateStats();
+      this.upgraderUpdateStats();
     }
     if (resource) {
-      creep.moveRandomWithin(creep.room.controller.pos, 3, resource);
+      this.moveRandomWithin(this.room.controller.pos, 3, resource);
     } else {
-      creep.moveRandomWithin(creep.room.controller.pos);
+      this.moveRandomWithin(this.room.controller.pos);
     }
     return true;
   } else {
-    creep.moveToMy(creep.room.controller.pos, 3);
+    this.moveToMy(this.room.controller.pos, 3);
   }
   return true;
 };
 
-Creep.constructTask = function(creep) {
-  creep.creepLog('construct');
-  return creep.construct();
-};
-
-Creep.transferEnergy = function(creep) {
-  //  creep.say('transferEnergy', true);
-  return creep.transferEnergyMy();
-};
-
-Creep.buildRoads = function(creep) {
-  const room = Game.rooms[creep.room.name];
-
-  // TODO extract to roomposition
-  function checkForRoad(pos) {
-    const structures = pos.lookFor('structure');
-    for (const structuresIndex in structures) {
-      if (structures[structuresIndex].structureType === STRUCTURE_ROAD) {
-        return true;
-      }
-    }
-    return false;
+Creep.prototype.recycleCreep = function() {
+  if (this.memory.role === 'planer') {
+    this.room.buildStructures();
   }
 
-  for (const pathName of Object.keys(room.getMemoryPaths())) {
-    const path = room.getMemoryPath(pathName);
-    for (const pathIndex of Object.keys(path)) {
-      const pos = new RoomPosition(
-        path[pathIndex].x,
-        path[pathIndex].y,
-        creep.room.name
-      );
-      if (checkForRoad(pos)) {
-        continue;
-      }
-
-      const returnCode = pos.createConstructionSite(STRUCTURE_ROAD);
-      if (returnCode === OK) {
-        return true;
-      }
-      if (returnCode === ERR_FULL) {
-        return true;
-      }
-      if (returnCode === ERR_INVALID_TARGET) {
-        // FIXME Creep is standing on constructionSite, need to check why it is not building
-        creep.moveRandom();
-        continue;
-      }
-      creep.log('buildRoads: ' + returnCode + ' pos: ' + JSON.stringify(pos));
-      return true;
-    }
-  }
-  return false;
-};
-
-Creep.recycleCreep = function(creep) {
-  if (creep.memory.role === 'planer') {
-    creep.room.buildStructures();
-  }
-
-  let spawn = creep.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+  let spawn = this.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
   if (!spawn) {
-    spawn = Game.rooms[creep.memory.base].findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN])[0];
+    spawn = Game.rooms[this.memory.base].findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN])[0];
   }
   if (spawn) {
-    if (creep.room === spawn.room) {
-      creep.moveToMy(spawn.pos);
+    if (this.room === spawn.room) {
+      this.moveToMy(spawn.pos);
     } else {
-      creep.moveTo(spawn);
+      this.moveTo(spawn);
     }
-    creep.say('recycle');
-    spawn.recycleCreep(creep);
+    this.say('recycle');
+    spawn.recycleCreep(this);
   }
   return true;
 };

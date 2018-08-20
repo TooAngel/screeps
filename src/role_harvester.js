@@ -45,7 +45,7 @@ roles.harvester.boostActions = ['capacity'];
 
 roles.harvester.preMove = function(creep, directions) {
   const resources = creep.room.find(FIND_DROPPED_RESOURCES, {
-    filter: Creep.pickableResources(creep),
+    filter: global.filters.resources.pickableResources(creep),
   });
   if (resources.length > 0) {
     const resource = Game.getObjectById(resources[0].id);

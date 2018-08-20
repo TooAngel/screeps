@@ -195,11 +195,15 @@ roles.nextroomer.settle = function(creep) {
   if (hostileCreeps.length) {
     room.memory.underSiege = true;
     if (creep.room.controller.level === 1 ||
-        creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 ||
-        (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] && creep.pos.getRangeTo(creep.room.controller.pos) <= 3)
+      creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 ||
+      (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] && creep.pos.getRangeTo(creep.room.controller.pos) <= 3)
     ) {
-      const methods = [Creep.getEnergy, Creep.upgradeControllerTask];
-      return Creep.execute(creep, methods);
+      if (creep.getEnergy()) {
+        return true;
+      }
+      if (creep.upgradeControllerTask()) {
+        return true;
+      }
     }
   }
   room.memory.wayBlocked = false;
@@ -226,29 +230,44 @@ roles.nextroomer.settle = function(creep) {
     }
   }
 
-  const methods = [Creep.getEnergy];
+  if (this.getEnergy()) {
+    return true;
+  }
+
   if (creep.room.controller.ticksToDowngrade < 1500 || creep.room.controller.progress > creep.room.controller.progressTotal) {
-    methods.push(Creep.upgradeControllerTask);
+    if (this.upgradeControllerTask()) {
+      return true;
+    }
   }
 
   const spawnCSs = creep.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_SPAWN]);
   const spawns = creep.room.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
   if (spawns.length === 0 && spawnCSs.length > 0) {
-    methods.push(Creep.constructTask);
+    this.creepLog('construct');
+    if (this.construct()) {
+      return true;
+    }
   }
 
   const structures = creep.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_CONTROLLER], {inverse: true});
   if (creep.room.controller.level >= 3 && structures.length > 0) {
-    methods.push(Creep.constructTask);
+    this.creepLog('construct');
+    if (this.construct()) {
+      return true;
+    }
   }
 
   if (creep.room.controller.level < 8) {
-    methods.push(Creep.upgradeControllerTask);
+    if (this.upgradeControllerTask()) {
+      return true;
+    }
   }
 
-  methods.push(Creep.transferEnergy);
+  if (this.transferEnergyMy()) {
+    return true;
+  }
   creep.creepLog(`Creep execute`);
-  return Creep.execute(creep, methods);
+  return true;
 };
 
 roles.nextroomer.preMove = function(creep, directions) {
