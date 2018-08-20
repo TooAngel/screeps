@@ -290,6 +290,7 @@ global.config = {
     enabled: true,
     randomExecution: false,
     executeAll: 10,
+    lowExecution: 0.5,
   },
 
   keepers: {

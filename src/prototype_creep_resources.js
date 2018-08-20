@@ -9,7 +9,7 @@ Creep.prototype.harvesterBeforeStorage = function() {
 
   methods.push(Creep.getEnergy);
 
-  if (this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / 10 || this.room.controller.level === 1) {
+  if (this.room.controller && (this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / 10 || this.room.controller.level === 1)) {
     methods.push(Creep.upgradeControllerTask);
   }
 
@@ -19,7 +19,7 @@ Creep.prototype.harvesterBeforeStorage = function() {
     methods.push(Creep.constructTask);
   }
 
-  if (this.room.controller.level < 9) {
+  if (this.room.controller && this.room.controller.level < 9) {
     methods.push(Creep.upgradeControllerTask);
   } else {
     methods.push(Creep.repairStructure);
@@ -510,7 +510,7 @@ Creep.prototype.moveToSource = function(source, swarm = false) {
   if (swarm && this.pos.inRangeTo(source, 3)) {
     // should not be `moveToMy` unless it will start to handle creeps
     this.moveTo(source.pos);
-  } else if (this.room.memory.misplacedSpawn || this.room.controller.level < 2) {
+  } else if (this.room.memory.misplacedSpawn || (this.room.controller && this.room.controller.level < 2)) {
     // TODO should be `moveToMy`, but that hangs in W5N1 spawn (10,9)
     this.moveTo(source.pos);
   } else {

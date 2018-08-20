@@ -1,30 +1,5 @@
 'use strict';
 
-brain.handleIncomingTransactions = function() {
-  const transactions = Game.market.incomingTransactions;
-  const current = _.filter(transactions, (object) => {
-    // TODO save last checked value, so we will see all transactions even in case of CPU-skipped ticks
-    return object.time >= Game.time - 1;
-  });
-
-  for (const transaction of current) {
-    if (transaction.sender) {
-      const sender = transaction.sender.username;
-      // TODO for testing disabled
-      // if (sender === Memory.username) {
-      //   continue;
-      // }
-      const price = brain.getMarketOrder(ORDER_SELL, transaction.resourceType, 'min') || brain.getMarketOrder(ORDER_BUY, transaction.resourceType, 'max') || 1;
-      const value = -1 * transaction.amount * price;
-      if (config.debug.market) {
-        console.log(`Incoming transaction from ${sender} with ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
-      }
-      brain.increaseIdiot(sender, value);
-    }
-    brain.checkQuestForAcceptance(transaction);
-  }
-};
-
 brain.initPlayer = function(name) {
   if (!Memory.players[name]) {
     Memory.players[name] = {
