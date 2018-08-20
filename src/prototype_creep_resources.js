@@ -475,9 +475,8 @@ Creep.prototype.moveToSource = function(source, swarm = false) {
     const start = 'pathStart';
     const target = source.id;
     const path = this.room.getPath(route, routePos, start, target);
-    const pathPos = this.getPathPos(path);
-    const directions = this.getDirections(path, pathPos);
-    this.moveByPathMy(path, pathPos, directions);
+    this.getPathPos(path);
+    this.moveByPathMy(path);
   }
   return true;
 };
@@ -578,8 +577,9 @@ Creep.prototype.getEnergy = function() {
    * No energy, goes to collect energy until full.
    * Full energy, uses energy until empty.
    */
+  this.pickupEnergy();
   this.setHasEnergy();
-  // todo-msc getEnergyFromStorage, getDroppedEnergy for planer and misplacedSpawn
+
   if (this.memory.hasEnergy) {
     return false;
   }

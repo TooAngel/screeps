@@ -138,32 +138,36 @@ Creep.prototype.prepareRoutingMemory = function() {
  * @return {boolean} - If the execution is successful
  */
 Creep.prototype.followPath = function(action) {
-  if (!this.memory.routing.targetId && this.room.name === this.memory.routing.targetRoom) {
-    this.memory.routing.reached = true;
-    return action(this);
-  }
-
   const path = this.prepareRoutingMemory();
-  let directions = this.getDirections(path);
-
+  const directions = this.getDirections(path);
   if (this.unit().preMove && this.unit().preMove(this, directions)) {
     return true;
   }
-
-  // Recalculate the directions, if `preMove` changed `memory.routing.reversed`
-  directions = this.getDirections(path);
+  this.getPathPos(path);
   this.killPrevious(path);
-
-  if (this.memory.routing.routePos === this.memory.routing.route.length - 1) {
-    if (this.memory.routing.pathPos === path.length - 1 && !this.memory.routing.reverse) {
-      this.memory.routing.reached = true;
-      // TODO handle creeps with body part?
-      this.memory.timeToTravel = CREEP_LIFE_TIME - this.ticksToLive;
-      return action(this);
-    }
+  if (this.followPathWithoutTargetId() || this.followPathWithTargetId(path)) {
+    return action(this);
   }
+  return this.moveByPathMy(path);
+};
 
-  return this.moveByPathMy(path, this.memory.routing.pathPos, directions);
+Creep.prototype.followPathWithoutTargetId = function() {
+  if (!this.memory.routing.targetId && this.room.name === this.memory.routing.targetRoom) {
+    this.memory.routing.reached = true;
+    return true;
+  }
+  return false;
+};
+
+Creep.prototype.followPathWithTargetId = function(path) {
+  if (this.memory.routing.routePos === this.memory.routing.route.length - 1 &&
+    this.memory.routing.pathPos === path.length - 1 && !this.memory.routing.reverse) {
+    this.memory.routing.reached = true;
+    // TODO handle creeps with body part?
+    this.memory.timeToTravel = CREEP_LIFE_TIME - this.ticksToLive;
+    return true;
+  }
+  return false;
 };
 
 /**
@@ -171,7 +175,7 @@ Creep.prototype.followPath = function(action) {
  * `memory.routing.reverse` to get to the best path position.
  *
  * @param {list} path - The path we want to get back to
- * @return {number} - Result of `creep.moveToMy`
+ * @return {boolean} - Result of `creep.moveToMy`
  **/
 Creep.prototype.moveBackToPath = function(path) {
   let pos;
@@ -203,32 +207,31 @@ function validateDirections(directions) {
  * moveByPathMy follows the given path or gets back to the path
  *
  * @param {list} path - The path to follow
- * @param {number} pathPos - The current position on the path
- * @param {object} directions - Precalculated directions on the path
+ * @param {number} [pathPos] - The current position on the path
+ * @param {object} [directions] - Precalculated directions on the path
  * @return {boolean} true if a way was found to move the creep
  **/
 Creep.prototype.moveByPathMy = function(path, pathPos, directions) {
   if (this.fatigue > 0) {
     return true;
   }
-
+  pathPos = pathPos || this.memory.routing.pathPos;
   if (pathPos < 0) {
     return this.moveBackToPath(path);
   }
 
   this.buildRoad();
 
+  directions = directions || this.getDirections(path);
   if (!validateDirections(directions)) {
     this.log(`moveByPathMy: Directions invalid pathPos: ${pathPos} path: ${path} directions: ${directions}`);
     return false;
   }
 
   const moveResponse = this.move(directions.direction);
-  if (moveResponse !== OK && moveResponse !== ERR_NO_BODYPART) {
+  if (moveResponse !== OK && moveResponse !== ERR_NO_BODYPART && !this.pos.isBorder()) {
     // TODO carries sometimes run into this issues when switching between rooms
-    if (!this.pos.isBorder()) {
-      this.log(`moveByPathMy this.move(${directions.direction}) => ${moveResponse} DEBUG: reverse: ${this.memory.routing.reverse} pathPos: ${pathPos} directions: ${directions} path: ${path}`);
-    }
+    this.log(`moveByPathMy this.move(${directions.direction}) => ${moveResponse} DEBUG: reverse: ${this.memory.routing.reverse} pathPos: ${pathPos} directions: ${directions} path: ${path}`);
   }
   this.memory.routing.pathPos = pathPos + directions.pathOffset;
   return true;

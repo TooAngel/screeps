@@ -175,21 +175,30 @@ Room.prototype.sendPowerOwnRooms = function() {
   }
 };
 
+Room.prototype.canSendEnergyToMyRooms = function() {
+  return (_.size(Memory.needEnergyRooms) > 0) && (_.size(Memory.canHelpRooms) > 0) && _.includes(Memory.canHelpRooms, this.name) && (this.terminal.store[RESOURCE_ENERGY] > config.terminal.minEnergyAmount);
+};
+
+Room.prototype.sendEnergyAmountToMyRoom = function() {
+  const min = 100;
+  const max = this.terminal.store[RESOURCE_ENERGY];
+  const amount = (this.terminal.store[RESOURCE_ENERGY] - config.terminal.minEnergyAmount) * 100;
+  return (min < amount && amount < max) ? amount : false;
+};
+
 Room.prototype.sendEnergyToMyRooms = function() {
-  if ((_.size(Memory.needEnergyRooms) > 0) &&
-    (_.size(Memory.canHelpRooms) > 0) && _.includes(Memory.canHelpRooms, this.name) &&
-    (this.terminal.store[RESOURCE_ENERGY] > config.terminal.minEnergyAmount)) {
+  if (this.canSendEnergyToMyRooms()) {
     const myRoom = _.shuffle(Memory.needEnergyRooms)[0];
-    if (myRoom) {
-      const amount = (this.terminal.store[RESOURCE_ENERGY] - config.terminal.minEnergyAmount) * 100;
-      if ((amount > 100) && (amount < this.terminal.store[RESOURCE_ENERGY]) &&
-        Game.rooms[myRoom].terminal &&
-        (Game.rooms[myRoom].terminal.store[RESOURCE_ENERGY] < config.terminal.maxEnergyAmount)) {
-        const success = this.terminal.send(RESOURCE_ENERGY, amount, myRoom, 'send energy ' + this.name + ' ' + myRoom) === OK;
-        if (success) {
-          const cost = Game.market.calcTransactionCost(amount, this.name, myRoom);
-          this.log('sendEnergyToMyRooms', myRoom, amount, cost, this.terminal.store[RESOURCE_ENERGY]);
-        }
+    const amount = this.sendEnergyAmountToMyRoom();
+    const shouldSendEnergyToRoom = Game.rooms[myRoom].terminal && (Game.rooms[myRoom].terminal.store[RESOURCE_ENERGY] < config.terminal.maxEnergyAmount);
+    if (shouldSendEnergyToRoom) {
+      const success = OK === this.terminal.send(RESOURCE_ENERGY, amount, myRoom, 'send energy ' + this.name + ' ' + myRoom);
+      if (success) {
+        const cost = Game.market.calcTransactionCost(amount, this.name, myRoom);
+        this.log('sendEnergyToMyRooms', myRoom, amount, cost, this.terminal.store[RESOURCE_ENERGY]);
+        return true;
+      } else {
+        this.log('FAILED:sendEnergyToMyRooms', myRoom, amount, this.terminal.store[RESOURCE_ENERGY]);
       }
     }
   }
@@ -206,7 +215,8 @@ Room.prototype.handleMarket = function() {
   if (config.market.sendPowerOwnRoom) {
     this.sendPowerOwnRooms();
   }
-  // todo should fix full storage with 90% energy
+
+  // fixes full storage with 90% energy
   if (config.market.sendEnergyToMyRooms) {
     this.sendEnergyToMyRooms();
   }

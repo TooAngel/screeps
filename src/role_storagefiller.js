@@ -261,7 +261,7 @@ roles.storagefiller.action = function(creep) {
     (creep.pos.getRangeTo(creep.room.terminal.pos) > 1))
   ) {
     if (creep.room.storage) {
-      for (const resourceType of Object.keys(creep.room[STRUCTURE_STORAGE].store).reverse()) {
+      for (const resourceType of creep.room.getResourcesFrom(STRUCTURE_STORAGE).reverse()) {
         const structureToMove = roles.storagefiller.checkResourceStore(creep, resourceType, true);
         if (structureToMove && structureToMove !== STRUCTURE_STORAGE) {
           const returnCode = creep.withdraw(creep.room[STRUCTURE_STORAGE], resourceType);
@@ -273,14 +273,12 @@ roles.storagefiller.action = function(creep) {
     }
 
     if (creep.room[STRUCTURE_TERMINAL]) {
-      for (const resourceType of Object.keys(creep.room[STRUCTURE_TERMINAL].store)) {
+      for (const resourceType of creep.room.getResourcesFrom(STRUCTURE_TERMINAL)) {
         const structureToMove = roles.storagefiller.checkResourceStore(creep, resourceType, true);
-        if (structureToMove && structureToMove !== STRUCTURE_TERMINAL) {
-          if (resourceType !== RESOURCE_POWER && creep.room[STRUCTURE_TERMINAL].store[RESOURCE_POWER] > 200) {
-            const returnCode = creep.withdraw(creep.room[STRUCTURE_TERMINAL], resourceType);
-            if (returnCode === OK) {
-              return true;
-            }
+        if (structureToMove && structureToMove !== STRUCTURE_TERMINAL && resourceType !== RESOURCE_POWER && creep.room[STRUCTURE_TERMINAL].store[RESOURCE_POWER] > 200) {
+          const returnCode = creep.withdraw(creep.room[STRUCTURE_TERMINAL], resourceType);
+          if (returnCode === OK) {
+            return true;
           }
         }
       }

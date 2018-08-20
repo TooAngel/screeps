@@ -193,3 +193,13 @@ Room.test = function() {
     }
   }
 };
+
+/**
+ * returns resources from structure
+ *
+ * @param {String} structure
+ * @return {Array} - Object.keys of store
+ */
+Room.prototype.getResourcesFrom = function(structure) {
+  return Object.keys(this[structure].store);
+};
