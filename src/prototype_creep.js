@@ -23,8 +23,6 @@ Creep.prototype.unit = function() {
 Creep.prototype.mySignController = function() {
   if (config.info.signController && this.room.exectueEveryTicks(config.info.resignInterval)) {
     let text = config.info.signText;
-    // todo-msc add to config: config.quests.endTime, add quest.end  Math.floor(Game.time / 100) * 100 + configEndTime,
-    config.quests.endTime = 10000;
     if (config.quests.enabled && this.memory.role === 'reserver') {
       if (Math.random() < config.quests.signControllerPercentage) {
         const quest = {
@@ -214,7 +212,6 @@ Creep.prototype.buildRoad = function() {
     return true;
   }
 
-  // todo-msc why for loop? repair first? (structure.hits < structure.hitsMax) so no return on fully repaired
   const structures = this.pos.lookFor(LOOK_STRUCTURES);
   if (structures.length > 0) {
     for (const structure of structures) {

@@ -1,4 +1,3 @@
-// todo-msc i did not find a better place to put this 3 functions at
 // courtesy of @warinternal Aug 2016
 global.ex = (x, y) => (y) ? JSON.stringify(x) : JSON.stringify(x, null, 2);
 // https://en.wikipedia.org/wiki/Sigmoid_function
@@ -143,7 +142,6 @@ global.utils = {
     return arrayParts;
   },
 
-  // todo-msc: changed for lower room level (2) added (* 10)
   levelToSendNext: function(baseRoom, parts) {
     let returnValue = 0;
     /* eslint-disable */

@@ -35,8 +35,7 @@ roles.upgrader.updateSettings = function(room, creep) {
   // Example with upgraderStorageFactor 2:
   // 6453 energy in storage are 2 workParts
   // 3000 energy will be put in the controller
-  // todo-msc BUG-DETECTED my upgraders on storage.store.energy > 700k only push 15 energy to conoller
-  // todo-msc they always have 35 energy in creep.carry
+
   const maxWorkingParts = _.random(36, 48);
   let workParts = Math.floor((room.storage.store.energy + 1) / (CREEP_LIFE_TIME * config.room.upgraderStorageFactor));
   workParts = Math.min(workParts, maxWorkingParts - 1);
@@ -52,7 +51,7 @@ roles.upgrader.updateSettings = function(room, creep) {
   };
 };
 
-// TODO disabled because the upgrader took energy from the extension
+// disabled because the upgrader took energy from the extension
 roles.upgrader.buildRoad = false;
 roles.upgrader.killPrevious = true;
 
