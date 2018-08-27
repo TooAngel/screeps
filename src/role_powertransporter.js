@@ -68,7 +68,7 @@ roles.powertransporter.action = function(creep) {
     if (returnCode === OK) {
       creep.log('Fill storage');
       // todo-msc no suicide if we have recycle functions
-      return Creep.recycleCreep(creep);
+      return creep.recycleCreep();
     }
     return true;
   }

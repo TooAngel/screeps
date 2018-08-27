@@ -41,11 +41,14 @@ roles.repairer.action = function(creep) {
     }
   }
 
-  const methods = [Creep.getEnergy];
-  methods.push(Creep.repairStructure);
-  methods.push(Creep.constructTask);
-
-  if (Creep.execute(creep, methods)) {
+  if (creep.getEnergy()) {
+    return true;
+  }
+  if (creep.repairStructure()) {
+    return true;
+  }
+  if (creep.construct()) {
+    creep.creepLog('construct');
     return true;
   }
   return true;

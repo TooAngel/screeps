@@ -34,58 +34,6 @@ roles.nextroomer.settings = {
   amount: [6, 3, 3],
 };
 
-roles.nextroomer.checkForRampart = function(coords) {
-  const pos = new RoomPosition(coords.x, coords.y, coords.roomName);
-  const structures = pos.lookFor('structure');
-  return _.find(structures, (s) => s.structureType === STRUCTURE_RAMPART);
-};
-
-roles.nextroomer.buildRamparts = function(creep) {
-  // TODO Guess roles.nextroomer should be higher
-  const rampartMinHits = 10000;
-
-  creep.say('checkRamparts');
-  const posRampart = roles.nextroomer.checkForRampart(creep.pos);
-  if (posRampart) {
-    if (posRampart.hits < rampartMinHits) {
-      creep.repair(posRampart);
-      return true;
-    }
-  } else {
-    creep.room.createConstructionSite(creep.pos.x, creep.pos.y, STRUCTURE_RAMPART);
-    return true;
-  }
-
-  const room = Game.rooms[creep.room.name];
-  let linkPosMem = room.memory.position.structure.link[1];
-  if (creep.pos.getRangeTo(linkPosMem.x, linkPosMem.y) > 1) {
-    linkPosMem = room.memory.position.structure.link[2];
-  }
-
-  const links = creep.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
-  if (links.length) {
-    creep.say('dismantle');
-    creep.log(JSON.stringify(links));
-    creep.dismantle(links[0]);
-    return true;
-  }
-
-  creep.say('cr');
-  const towerRampart = roles.nextroomer.checkForRampart(linkPosMem);
-  if (towerRampart) {
-    creep.say('tr');
-    if (towerRampart.hits < rampartMinHits) {
-      creep.repair(towerRampart);
-      return true;
-    }
-  } else {
-    const returnCode = creep.room.createConstructionSite(linkPosMem.x, linkPosMem.y, STRUCTURE_RAMPART);
-    creep.log('Build tower rampart: ' + returnCode);
-    return true;
-  }
-  return false;
-};
-
 roles.nextroomer.defendTower = function(creep, source) {
   const room = Game.rooms[creep.room.name];
   const constructionSites = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 1);
@@ -99,7 +47,7 @@ roles.nextroomer.defendTower = function(creep, source) {
   const towers = creep.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER]);
 
   if (towers.length > 0) {
-    if (roles.nextroomer.buildRamparts(creep)) {
+    if (creep.buildRamparts()) {
       return true;
     }
 
@@ -121,8 +69,8 @@ roles.nextroomer.defendTower = function(creep, source) {
         return true;
       }
     }
-    return roles.nextroomer.buildRamparts(creep);
-  } else if (roles.nextroomer.buildRamparts(creep)) {
+    return creep.buildRamparts();
+  } else if (creep.buildRamparts()) {
     return true;
   }
 
@@ -197,11 +145,15 @@ roles.nextroomer.settle = function(creep) {
   if (hostileCreeps.length) {
     room.memory.underSiege = true;
     if (creep.room.controller.level === 1 ||
-        creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 ||
-        (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] && creep.pos.getRangeTo(creep.room.controller.pos) <= 3)
+      creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 ||
+      (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] && creep.pos.getRangeTo(creep.room.controller.pos) <= 3)
     ) {
-      const methods = [Creep.getEnergy, Creep.upgradeControllerTask];
-      return Creep.execute(creep, methods);
+      if (creep.getEnergy()) {
+        return true;
+      }
+      if (creep.upgradeControllerTask()) {
+        return true;
+      }
     }
   }
   room.memory.wayBlocked = false;
@@ -228,29 +180,44 @@ roles.nextroomer.settle = function(creep) {
     }
   }
 
-  const methods = [Creep.getEnergy];
+  if (this.getEnergy()) {
+    return true;
+  }
+
   if (creep.room.controller.ticksToDowngrade < 1500 || creep.room.controller.progress > creep.room.controller.progressTotal) {
-    methods.push(Creep.upgradeControllerTask);
+    if (this.upgradeControllerTask()) {
+      return true;
+    }
   }
 
   const spawnCSs = creep.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_SPAWN]);
   const spawns = creep.room.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
   if (spawns.length === 0 && spawnCSs.length > 0) {
-    methods.push(Creep.constructTask);
+    this.creepLog('construct');
+    if (this.construct()) {
+      return true;
+    }
   }
 
   const structures = creep.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_CONTROLLER], {inverse: true});
   if (creep.room.controller.level >= 3 && structures.length > 0) {
-    methods.push(Creep.constructTask);
+    this.creepLog('construct');
+    if (this.construct()) {
+      return true;
+    }
   }
 
   if (creep.room.controller.level < 8) {
-    methods.push(Creep.upgradeControllerTask);
+    if (this.upgradeControllerTask()) {
+      return true;
+    }
   }
 
-  methods.push(Creep.transferEnergy);
+  if (this.transferEnergyMy()) {
+    return true;
+  }
   creep.creepLog(`Creep execute`);
-  return Creep.execute(creep, methods);
+  return true;
 };
 
 roles.nextroomer.preMove = function(creep, directions) {

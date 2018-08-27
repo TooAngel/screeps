@@ -70,7 +70,7 @@ Creep.prototype.checkForHandle = function() {
   }
 
   if (this.memory.recycle) {
-    Creep.recycleCreep(this);
+    this.recycleCreep();
     return false;
   }
 

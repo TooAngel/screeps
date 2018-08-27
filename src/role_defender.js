@@ -21,7 +21,7 @@ roles.defender.settings = {
 
 roles.defender.action = function(creep) {
   if (creep.inBase() && creep.memory.reverse) {
-    return Creep.recycleCreep(creep);
+    return creep.recycleCreep();
   }
   // TODO Better in premove
   if (!creep.inBase()) {

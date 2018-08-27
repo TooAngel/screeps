@@ -56,7 +56,7 @@ const action = function(creep) {
         return false;
       }
     }
-    return Creep.recycleCreep(creep);
+    return creep.recycleCreep();
   };
 
   let hostiles = creep.room.getEnemys();

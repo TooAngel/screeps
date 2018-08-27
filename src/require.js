@@ -1,5 +1,6 @@
 require('config');
 require('logging');
+require('filters');
 require('utils');
 require('config_brain_main');
 require('config_brain_memory');

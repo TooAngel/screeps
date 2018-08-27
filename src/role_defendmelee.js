@@ -17,7 +17,7 @@ roles.defendmelee.settings = {
 roles.defendmelee.action = function(creep) {
   const hostile = creep.findClosestEnemy();
   if (hostile === null) {
-    return Creep.recycleCreep(creep);
+    return creep.recycleCreep();
   }
   const search = PathFinder.search(
     creep.pos,
