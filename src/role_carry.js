@@ -162,6 +162,7 @@ roles.carry.preMove = function(creep, directions) {
   }
 
   reverse = creep.pickupWhileMoving(reverse);
+  creep.memory.routing.reverse = reverse;
   if (reverse) {
     //     creep.log('reverse');
     directions.direction = directions.backwardDirection;
@@ -169,8 +170,6 @@ roles.carry.preMove = function(creep, directions) {
     //     creep.log('not reverse');
     directions.direction = directions.forwardDirection;
   }
-  creep.memory.routing.reverse = reverse;
-
   if (!directions.direction) {
     return false;
   }

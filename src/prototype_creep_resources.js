@@ -475,9 +475,9 @@ Creep.prototype.moveToSource = function(source, swarm = false) {
     const start = 'pathStart';
     const target = source.id;
     const path = this.room.getPath(route, routePos, start, target);
-    const pathPos = this.getPathPos(path);
-    const directions = this.getDirections(path, pathPos);
-    this.moveByPathMy(path, pathPos, directions);
+    this.memory.routing.pathPos = this.getPathPos(path);
+    const directions = this.getDirections(path);
+    this.moveByPathMy(path, this.memory.routing.pathPos, directions);
   }
   return true;
 };

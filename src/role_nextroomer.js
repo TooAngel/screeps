@@ -17,13 +17,15 @@ roles.nextroomer.died = function(name, creepMemory) {
     console.log('DIED', name, 'routing not in memory');
     return true;
   }
-  const roomName = creepMemory.routing.route[creepMemory.routing.routePos].room;
-  const message = `${name} ${roomName} ${JSON.stringify(creepMemory)}`;
-  if (roomName === creepMemory.routing.targetRoom) {
-    // TODO make underSiege to a counter
+  if (creepMemory.routing.route[creepMemory.routing.routePos]) {
+    const roomName = creepMemory.routing.route[creepMemory.routing.routePos].room;
+    const message = `${name} ${roomName} ${JSON.stringify(creepMemory)}`;
+    if (roomName === creepMemory.routing.targetRoom) {
+      // TODO make underSiege to a counter
+    }
+    // Works but was annoying due to suppen
+    console.log(Game.time, 'DIED:', message);
   }
-  // Works but was annoying due to suppen
-  console.log('DIED:', message);
   return true;
 };
 
