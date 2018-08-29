@@ -262,6 +262,75 @@ Creep.prototype.buildContainer = function() {
   }
 };
 
+Creep.prototype.withdrawEnergyFromTarget = function(target) {
+  let returnValue = false;
+  const returnCode = this.withdraw(target, RESOURCE_ENERGY);
+  if (returnCode === OK) {
+    returnValue = true;
+  }
+  return returnValue;
+};
+
+Creep.prototype.withdrawResourcesFromTarget = function(target) {
+  let returnValue = false;
+  const resosurces = Object.keys(target.store) || Object.keys(target.carry);
+  for (const resosurce of resosurces) {
+    if (!returnValue) {
+      returnValue = this.withdraw(target, resosurce) === OK;
+    }
+  }
+  return returnValue;
+};
+
+Creep.prototype.withdrawResourcesFromTargets = function(targets, onlyEnergy) {
+  let returnValue = false;
+  for (const target of targets) {
+    if (!returnValue) {
+      returnValue = onlyEnergy ? this.withdrawEnergyFromTarget(target) : this.withdrawResourcesFromTarget(target);
+    }
+  }
+  return returnValue;
+};
+
+Creep.prototype.withdrawTombstone = function(onlyEnergy) {
+  onlyEnergy = onlyEnergy || false;
+  let returnValue = false;
+  // FIND_TOMBSTONES and get them empty first
+  const tombstones = this.pos.findInRange(FIND_TOMBSTONES, 1);
+  if (tombstones.length > 0) {
+    if (onlyEnergy) {
+      returnValue = this.withdrawResourcesFromTargets(tombstones, true);
+    } else {
+      returnValue = this.withdrawResourcesFromTargets(tombstones);
+    }
+  }
+  return returnValue;
+};
+
+Creep.prototype.withdrawContainers = function() {
+  let returnValue = false;
+  const containers = this.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_CONTAINER]);
+  if (containers.length > 0) {
+    const returnCode = this.withdraw(containers[0], RESOURCE_ENERGY);
+    if (returnCode === OK) {
+      returnValue = true;
+    }
+  }
+  return returnValue;
+};
+
+Creep.prototype.giveSourcersEnergy = function() {
+  let returnValue = false;
+  const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer']);
+  if (sourcers.length > 0) {
+    const returnCode = sourcers[0].transfer(this, RESOURCE_ENERGY);
+    if (returnCode === OK) {
+      returnValue = true;
+    }
+  }
+  return returnValue;
+};
+
 Creep.prototype.pickupEnergy = function() {
   const resources = this.room.findPropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], {
     filter: Creep.pickableResources(this),
@@ -271,24 +340,15 @@ Creep.prototype.pickupEnergy = function() {
     const returnCode = this.pickup(resource);
     return returnCode === OK;
   }
-
-  const containers = this.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_CONTAINER]);
-  if (containers.length > 0) {
-    const returnCode = this.withdraw(containers[0], RESOURCE_ENERGY);
-    if (returnCode === OK) {
-      return true;
-    }
+  if (this.withdrawContainers()) {
+    return true;
   }
 
-  const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer']);
-  if (sourcers.length > 0) {
-    const returnCode = sourcers[0].transfer(this, RESOURCE_ENERGY);
-    if (returnCode === OK) {
-      return true;
-    }
+  if (this.withdrawTombstone()) {
+    return true;
   }
 
-  return false;
+  return this.giveSourcersEnergy();
 };
 
 const checkCreepForTransfer = function(creep) {
