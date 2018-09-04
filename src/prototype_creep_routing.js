@@ -92,7 +92,6 @@ Creep.prototype.getDirections = function(path) {
     backwardDirection = currentPos.getDirectionTo(nextPos.x, nextPos.y);
   }
 
-  let offset = 1;
   if (this.memory.routing.reverse) {
     offset = -1;
     direction = backwardDirection;
@@ -136,13 +135,12 @@ Creep.prototype.followPath = function(action) {
     return action(this);
   }
   const path = this.prepareRoutingMemory();
-  let directions = this.getDirections(path);
+  const directions = this.getDirections(path);
   if (this.unit().preMove && this.unit().preMove(this, directions)) {
     return true;
   }
-  
   // Recalculate the directions, if `preMove` changed `memory.routing.reversed`
-  directions = this.getDirections(path);
+  this.getDirections(path);
   this.getPathPos(path);
   this.killPrevious(path);
   if (this.followPathWithTargetId(path)) {
