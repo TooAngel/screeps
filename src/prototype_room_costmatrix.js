@@ -6,6 +6,44 @@ Room.prototype.setCostMatrixStructures = function(costMatrix, structures, value)
   }
 };
 
+Room.prototype.getBasicCostMatrixCallback = function() {
+  const callbackInner = (roomName) => {
+    if (roomName !== this.name) {
+      return false;
+    }
+
+    const costMatrix = new PathFinder.CostMatrix();
+    const room = Game.rooms[roomName];
+    if (!room) {
+      // TODO not sure how this can happen
+      return false;
+    }
+
+    const structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], {inverse: true});
+    this.setCostMatrixStructures(costMatrix, structures, config.layout.structureAvoid);
+
+    const constructionSites = room.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], {inverse: true});
+    this.setCostMatrixStructures(costMatrix, constructionSites, config.layout.structureAvoid);
+
+    for (const creep of Object.keys(this.memory.position.creep)) {
+      const pos = this.memory.position.creep[creep];
+      costMatrix.set(pos.x, pos.y, config.layout.creepAvoid);
+    }
+
+    const closeExits = function(x, y) {
+      costMatrix.set(x, y, 0xff);
+    };
+    for (let i = 0; i < 50; i++) {
+      closeExits(i, 0);
+      closeExits(i, 49);
+      closeExits(0, i);
+      closeExits(49, i);
+    }
+    return costMatrix;
+  };
+  return callbackInner;
+};
+
 Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom, allowExits) {
   let costMatrix = false;
   try {

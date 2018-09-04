@@ -4,7 +4,6 @@ Creep.prototype.cantHarvest = function(source) {
   const returnCode = this.harvest(source);
   if (returnCode !== OK && returnCode !== ERR_NOT_ENOUGH_RESOURCES) {
     if (returnCode === ERR_NO_BODYPART) {
-      // todo-msc maybe spawn defender
       this.room.checkRoleToSpawn('defender', 2, undefined, this.room.name);
       this.respawnMe();
       this.suicide();
@@ -86,7 +85,6 @@ Creep.prototype.spawnCarry = function() {
 
   if (resourceAtPosition > levelToSendNext) {
     const returnValue = baseRoom.checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
-    // todo-msc checkRoleToSpawn carry
     if (returnValue !== OK && config.debug.queue) {
       baseRoom.log('checkRoleToSpawn', 'carry', resourceAtPosition, levelToSendNext, returnValue, this.memory.routing.targetRoom, this.memory.routing.targetId);
     }
@@ -104,7 +102,6 @@ Creep.prototype.spawnCarry = function() {
     }
   }
   this.memory.wait = this.getCarrySpawnInterval(parts, resourceAtPosition) * 3;
-  // todo-msc-end
   return this.memory.wait;
 };
 

@@ -1,55 +1,5 @@
 'use strict';
 
-brain.setMarketOrders = function() {
-  Memory.orders = {};
-  Memory.orders[ORDER_BUY] = {};
-  Memory.orders[ORDER_SELL] = {};
-  for (const order of Game.market.getAllOrders()) {
-    if (order.resourceType === SUBSCRIPTION_TOKEN || Memory.myRooms.includes(order.roomName)) {
-      continue;
-    }
-    let category = Memory.orders[order.type][order.resourceType];
-    if (!category) {
-      Memory.orders[order.type][order.resourceType] = category = {
-        min: order.price,
-        max: order.price,
-        totalPrice: 0,
-        totalAmount: 0,
-        orders: [],
-      };
-    }
-    category.min = Math.min(category.min, order.price);
-    category.max = Math.max(category.max, order.price);
-    category.totalPrice += order.price * order.remainingAmount;
-    category.totalAmount += order.remainingAmount;
-    category.orders.push(order);
-  }
-};
-
-brain.getMarketOrderAverage = (type, resource) => Memory.orders[type][resource] && Memory.orders[type][resource].totalPrice ? Memory.orders[type][resource].totalPrice / Memory.orders[type][resource].totalAmount : null;
-
-brain.getMarketOrder = (type, resource, property) => Memory.orders[type][resource] && Memory.orders[type][resource][property] ? Memory.orders[type][resource][property] : null;
-
-brain.buyPower = function() {
-  if (!config.market.buyPower) {
-    return false;
-  }
-  const roomName = config.market.buyPowerRoom;
-  // low cash
-  if (Game.market.credits < config.market.minCredits || !roomName) {
-    return false;
-  }
-  // deal one order
-  const deal = function(item) {
-    return Game.market.deal(item.id, 1000, roomName);
-  };
-  // if no cooldown
-  if (Game.rooms[roomName].terminal && !Game.rooms[roomName].terminal.cooldown) {
-    return _.map(Game.market.getAllOrders({type: ORDER_SELL, resourceType: RESOURCE_POWER}), deal);
-  }
-  return false;
-};
-
 brain.setConstructionSites = function() {
   if (!Memory.constructionSites) {
     Memory.constructionSites = {};
@@ -62,10 +12,10 @@ brain.setConstructionSites = function() {
       const csMem = Memory.constructionSites[csId];
       if (csMem) {
         if (csMem === cs.progress) {
-          console.log(csId + ' constructionSite too old');
+          console.log(Game.time, csId + ' constructionSite too old');
           const csObject = Game.getObjectById(csId);
           const returnCode = csObject.remove();
-          console.log('Delete constructionSite: ' + returnCode);
+          console.log(Game.time, 'Delete constructionSite: ' + returnCode);
           continue;
         }
       }
@@ -73,7 +23,7 @@ brain.setConstructionSites = function() {
     }
     Memory.constructionSites = constructionSites;
     if (config.debug.constructionSites) {
-      console.log('Known constructionSites: ' + Object.keys(constructionSites).length);
+      console.log(Game.time, 'Known constructionSites: ' + Object.keys(constructionSites).length);
     }
   }
 };
@@ -86,7 +36,7 @@ brain.addToStats = function(name) {
 brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
   let hostiles = [];
   let room = {};
-  if (Memory.creeps[name].routing && Memory.creeps[name].routing.route && Memory.creeps[name].routing.routePos) {
+  if (Memory.creeps[name].routing && Memory.creeps[name].routing.route && Memory.creeps[name].routing.routePos && Memory.creeps[name].routing.route[Memory.creeps[name].routing.routePos]) {
     room = Game.rooms[Memory.creeps[name].routing.route[Memory.creeps[name].routing.routePos].room];
     hostiles = room.find(FIND_HOSTILE_CREEPS);
   }
@@ -159,12 +109,12 @@ brain.cleanRooms = function() {
     for (const name of Object.keys(Memory.rooms)) {
       // Check for reserved rooms
       if (!Memory.rooms[name].lastSeen) {
-        console.log('Deleting ' + name + ' from memory no `last_seen` value');
+        console.log(Game.time, 'Deleting ' + name + ' from memory no `last_seen` value');
         delete Memory.rooms[name];
         continue;
       }
       if (Memory.rooms[name].lastSeen < Game.time - config.room.lastSeenThreshold) {
-        console.log(`Deleting ${name} from memory older than ${config.room.lastSeenThreshold}`);
+        console.log(Game.time, `Deleting ${name} from memory older than ${config.room.lastSeenThreshold}`);
         delete Memory.rooms[name];
       }
     }

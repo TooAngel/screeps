@@ -34,6 +34,7 @@ global.config = {
 
   quests: {
     enabled: true,
+    endTime: 10000,
     signControllerPercentage: 0.1,
   },
 
@@ -294,6 +295,7 @@ global.config = {
     enabled: true,
     randomExecution: false,
     executeAll: 10,
+    lowExecution: 0.5,
   },
 
   keepers: {
