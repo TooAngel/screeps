@@ -9,8 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "screepsmod-auth": "^2.4.6",
-    "screepsmod-mongo": "^2.3.4",
-    "screepsmod-tickrate": "^1.0.6"
+    "screepsmod-auth": "2.4.6",
+    "screepsmod-mongo": "2.3.4",
+    "screepsmod-tickrate": "1.0.6"
   }
 }
