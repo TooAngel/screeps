@@ -17,7 +17,6 @@ module.exports = function(grunt) {
   }
 
   grunt.loadNpmTasks('grunt-screeps');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-contrib-copy');
@@ -36,12 +35,6 @@ module.exports = function(grunt) {
       },
       dist: {
         src: ['dist/*.js'],
-      },
-    },
-    jshint: {
-      all: ['Gruntfile.js', 'src/*.js'],
-      options: {
-        jshintrc: true,
       },
     },
     mochaTest: {
@@ -216,11 +209,11 @@ module.exports = function(grunt) {
   });
 
   grunt.log.writeln(new Date().toString());
-  grunt.registerTask('default', ['eslint:fix', 'jshint', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
-  grunt.registerTask('release', ['eslint:fix', 'jshint', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
-  grunt.registerTask('local', ['eslint:fix', 'jshint', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
-  grunt.registerTask('test', ['eslint:check', 'jshint', 'exec:test_on_private_server']);
-  grunt.registerTask('dev', ['eslint:fix', 'jshint']);
+  grunt.registerTask('default', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
+  grunt.registerTask('release', ['eslint:fix', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
+  grunt.registerTask('local', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
+  grunt.registerTask('test', ['eslint:check', 'exec:test_on_private_server']);
+  grunt.registerTask('dev', ['eslint:fix']);
   grunt.registerTask('deploy', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
   grunt.registerTask('requireFile', 'Creates an empty file', () => {
     grunt.file.write('dist/require.js', '');
