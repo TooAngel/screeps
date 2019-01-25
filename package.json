@@ -21,9 +21,9 @@
     "mocha": "5.2.0",
     "request": "2.88.0",
     "request-promise-native": "1.0.5",
-    "screeps": "3.1.6",
-    "screeps-api": "1.7.2",
-    "screeps-profiler": "github:samogot/screeps-profiler",
+    "screeps": "3.2.1",
+    "screeps-api": "1.8.0",
+    "screeps-profiler": "2.0.1",
     "uglify-js-harmony": "2.7.7"
   },
   "repository": {
