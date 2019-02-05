@@ -9,6 +9,11 @@
  * Author: SemperRabbit (special thanks to ags131 for assisting)
  */
 
+/**
+ * runAgent - Starts the agent
+ *
+ * @return {void}
+ **/
 function runAgent() {
   Memory.screepsplusToken = config.stats.screepsPlusToken;
   const output = `<SCRIPT>

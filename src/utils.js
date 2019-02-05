@@ -143,33 +143,23 @@ global.utils = {
   },
 
   levelToSendNext: function(baseRoom, parts) {
-    let returnValue = 0;
-    /* eslint-disable */
-    switch (baseRoom.controller.level) {
-      case 0:
-      case 1:
-      case 2:
-      case 3:
-        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 10;
-        break;
-      case 4:
-        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 5;
-        break;
-      case 5:
-        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 4;
-        break;
-      case 6:
-        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 3;
-        break;
-      case 7:
-        returnValue = parts.carryParts.carry * CARRY_CAPACITY * 3;
-        break;
-      case 8:
-        returnValue = parts.carryParts.carry * CARRY_CAPACITY;
-        break;
+    let factor = 0;
+    if (baseRoom.controller.level === 3) {
+      factor = 10;
     }
-    /* eslint-enable */
-    return returnValue;
+    if (baseRoom.controller.level === 4) {
+      factor = 5;
+    }
+    if (baseRoom.controller.level === 5) {
+      factor = 4;
+    }
+    if (baseRoom.controller.level === 6 || baseRoom.controller.level === 7) {
+      factor = 3;
+    }
+    if (baseRoom.controller.level === 8) {
+      factor = 1;
+    }
+    return factor * parts.carryParts.carry * CARRY_CAPACITY;
   },
 
   splitRoomName: function(name) {
