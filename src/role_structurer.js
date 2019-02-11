@@ -16,31 +16,72 @@ roles.structurer.settings = {
   amount: [5, 5],
 };
 
-roles.structurer.preMove = function(creep, directions) {
-  if (creep.room.name === creep.memory.routing.targetRoom) {
-    const target = Game.getObjectById(creep.memory.routing.targetId);
-    if (target === null) {
-      creep.log('Invalid target');
-      delete creep.memory.routing.targetId;
-    }
 
-    if (directions && directions.forwardDirection) {
-      const posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
-      const structures = posForward.lookFor(LOOK_STRUCTURES);
-      for (const structure of structures) {
-        if (structure.structureType === STRUCTURE_ROAD) {
-          continue;
-        }
-        if (structure.structureType === STRUCTURE_RAMPART && structure.my) {
-          continue;
-        }
+/**
+ * dismantleStructure - Dismantles structures in moving direction
+ *
+ * @param {object} creep - The creep object
+ * @param {object} structure - The structure to check and dismantle
+ * @return {boolean} - Dismantling
+ **/
+function dismantleStructure(creep, structure) {
+  if (structure.structureType === STRUCTURE_ROAD) {
+    return false;
+  }
+  if (structure.structureType === STRUCTURE_RAMPART && structure.my) {
+    return false;
+  }
 
-        creep.dismantle(structure);
-        creep.say('dismantle');
-        break;
-      }
+  creep.say('dismantle');
+  creep.dismantle(structure);
+  return true;
+}
+
+
+/**
+ * findAndDismantleStructure - Finds and dismantles strucutes
+ *
+ * @param {object} creep - The creep object
+ * @param {object} directions - The directions object
+ * @return {void}
+ **/
+function findAndDismantleStructure(creep, directions) {
+  if (!directions || !directions.forwardDirection) {
+    return;
+  }
+  const posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
+  const structures = posForward.lookFor(LOOK_STRUCTURES);
+  for (const structure of structures) {
+    if (dismantleStructure(creep, structure)) {
+      break;
     }
   }
+  return;
+}
+
+/**
+ * preMoveTargetRoom - preMove in targetRoom
+ *
+ * @param {object} creep - The creep object
+ * @param {object} directions - The directions object
+ * @return {void}
+ **/
+function preMoveTargetRoom(creep, directions) {
+  if (creep.room.name !== creep.memory.routing.targetRoom) {
+    return;
+  }
+
+  const target = Game.getObjectById(creep.memory.routing.targetId);
+  if (target === null) {
+    creep.log('Invalid target');
+    delete creep.memory.routing.targetId;
+  }
+
+  findAndDismantleStructure(creep, directions);
+}
+
+roles.structurer.preMove = function(creep, directions) {
+  preMoveTargetRoom(creep, directions);
 
   // Routing would end within the wall - this is the fix for that
   if (creep.memory.routing.targetId && creep.room.name === creep.memory.routing.targetRoom) {
