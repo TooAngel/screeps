@@ -125,18 +125,13 @@ Creep.repairStructure = function(creep) {
 };
 
 Creep.prototype.getEnergyFromHostileStructures = function() {
-  if (this.carry.energy) {
-    return false;
-  }
   let hostileStructures = this.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_OBSERVER], {
     inverse: true,
     filter: Room.structureHasEnergy,
   });
-  if (!hostileStructures.length) {
+  if (this.carry.energy || !hostileStructures.length) {
     return false;
   }
-
-  this.say('hostile');
   // Get energy from the structure with lowest amount first, so we can safely remove it
   const getEnergy = (object) => object.energy || object.store.energy;
   hostileStructures = _.sortBy(hostileStructures, [getEnergy, (object) => object.pos.getRangeTo(this)]);
@@ -149,6 +144,8 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
     const resCode = this.withdraw(structure, RESOURCE_ENERGY);
     if (resCode === OK && getEnergy(structure) <= this.carryCapacity) {
       structure.destroy();
+    } else {
+      this.log(Game.time, 'withdraw from hostile ' + resCode);
     }
   }
   return true;

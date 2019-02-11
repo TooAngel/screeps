@@ -87,7 +87,7 @@ global.config = {
   },
 
   tower: {
-    healMyCreeps: false,
+    healMyCreeps: true,
     repairStructures: false,
   },
 
@@ -113,7 +113,9 @@ global.config = {
     maxRooms: 8,
     cpuPerRoom: 13, // Necessary CPU per room, prevent claiming new rooms
     revive: true,
-    maxDistance: 17,
+    // creep max run distance for next room
+    // if terminal should send energy rooms should be close
+    maxDistance: 10,
     minNewRoomDistance: 2,
     minEnergyForActive: 1000,
     minDowngradPercent: 90,
@@ -231,8 +233,9 @@ global.config = {
   },
 
   terminal: {
-    minEnergyAmount: 80000,
-    maxEnergyAmount: 120000,
+    // terminals should not have to much enrgy, but not to less
+    minEnergyAmount: 40000,
+    maxEnergyAmount: 50000,
     storageMinEnergyAmount: 20000,
   },
 
@@ -243,7 +246,8 @@ global.config = {
   },
 
   market: {
-    minAmountToSell: 100000,
+    // sets mineral in terminal could be called minAmountMinerlasNotToSell
+    minAmountToSell: 50000,
     minSellPrice: 0.6,
     energyCreditEquivalent: 1,
     sellByOwnOrders: true,
@@ -259,10 +263,10 @@ global.config = {
     buyPower: false,
     // 3M credits
     minCredits: 3000000,
-    // set activate buyPower your need to set a roomName here e.g. 'W2S6'
-    buyPowerRoom: false,
     // disable to use power only in gathered room
     sendPowerOwnRoom: true,
+    // equalizes the energy beween your rooms via termial
+    sendEnergyToMyRooms: true,
   },
 
   priorityQueue: {
