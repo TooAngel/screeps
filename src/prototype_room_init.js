@@ -497,9 +497,11 @@ Room.prototype.costMatrixPathCrossings = function(exits) {
 const checkForSurroundingWalls = function(pos, valueAdd) {
   for (let x = -1; x < 2; x++) {
     for (let y = -1; y < 2; y++) {
-      const wall = new RoomPosition(pos.x + x, pos.y + y, pos.roomName);
-      if (wall.checkForWall()) {
-        valueAdd *= 0.5; // TODO some factor
+      if (pos.x + x >= 0 && pos.y + y >= 0 && pos.x + x < 50 && pos.y + y < 50) {
+        const wall = new RoomPosition(pos.x + x, pos.y + y, pos.roomName);
+        if (wall.checkForWall()) {
+          valueAdd *= 0.5; // TODO some factor
+        }
       }
     }
   }
