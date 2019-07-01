@@ -87,7 +87,9 @@ RoomPosition.prototype.getAllAdjacentPositions = function* () {
 RoomPosition.prototype.getAllPositionsInRange = function* (range) {
   for (let x = -range; x <= range; ++x) {
     for (let y = -range; y <= range; ++y) {
-      yield new RoomPosition(this.x + x, this.y + y, this.roomName);
+      if (this.x + x >= 0 && this.y + y >= 0 && this.x + x < 50 && this.y + y < 50) {
+        yield new RoomPosition(this.x + x, this.y + y, this.roomName);
+      }
     }
   }
 };
