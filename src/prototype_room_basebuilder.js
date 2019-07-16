@@ -105,12 +105,14 @@ Room.prototype.destroyStructure = function(structure) {
       for (const spawn of spawns) {
         for (let x = -1; x < 2; x++) {
           for (let y = -1; y < 2; y++) {
-            const pos = new RoomPosition(spawn.pos.x + x, spawn.pos.y + y, spawn.pos.roomName);
-            this.memory.walls.ramparts.push(pos);
-            costMatrixBase.set(pos.x, pos.y, 0);
-            const walls = pos.findInRangePropertyFilter(FIND_STRUCTURES, 0, 'structureType', [STRUCTURE_WALL]);
-            for (const wall of walls) {
-              wall.destroy();
+            if (spawn.pos.x + x >= 0 && spawn.pos.y + y >= 0 && spawn.pos.x + x < 50 && spawn.pos.y + y < 50) {
+              const pos = new RoomPosition(spawn.pos.x + x, spawn.pos.y + y, spawn.pos.roomName);
+              this.memory.walls.ramparts.push(pos);
+              costMatrixBase.set(pos.x, pos.y, 0);
+              const walls = pos.findInRangePropertyFilter(FIND_STRUCTURES, 0, 'structureType', [STRUCTURE_WALL]);
+              for (const wall of walls) {
+                wall.destroy();
+              }
             }
           }
         }
