@@ -128,11 +128,19 @@ RoomPosition.prototype.inPositions = function(opts = {}) {
   }
 
   for (const creepId of Object.keys(room.memory.position.creep)) {
-    const pos = room.memory.position.creep[creepId];
+    let pos = room.memory.position.creep[creepId];
     if (!pos) {
       // TODO introduce this.log()
       // console.log('inPositions:', this.roomName, creepId);
       continue;
+    }
+    if (pos[0]) {
+      // TODO towerfiller can have multiple positions
+      // All creep positions should be stored as a list and iterated here
+      // this.log(creepId);
+      // this.log(`this ${this}`);
+      // this.log(`pos ${JSON.stringify(pos)} ${typeof pos}`);
+      pos = pos[0];
     }
     if (this.isEqualTo(pos.x, pos.y)) {
       if (opts.debug) {

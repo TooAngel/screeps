@@ -168,6 +168,19 @@ Creep.prototype.followPathWithTargetId = function(path) {
   return false;
 };
 
+
+Creep.prototype.getMoveBackToPathPosition = function(path) {
+  if (this.memory.routing.reverse) {
+    const pos = new RoomPosition(path[0].x, path[0].y, path[0].roomName);
+    if (pos.isBorder(-1)) {
+      return new RoomPosition(path[1].x, path[1].y, path[1].roomName);
+    }
+    return pos;
+  }
+  const step = path.length > 1 ? path.length - 2 : path.length - 1;
+  return new RoomPosition(path[step].x, path[step].y, path[step].roomName);
+};
+
 /**
  * moveBackToPath moves to the first or last position based on
  * `memory.routing.reverse` to get to the best path position.
@@ -176,14 +189,7 @@ Creep.prototype.followPathWithTargetId = function(path) {
  * @return {boolean} - Result of `creep.moveToMy`
  **/
 Creep.prototype.moveBackToPath = function(path) {
-  let pos;
-  if (this.memory.routing.reverse) {
-    pos = new RoomPosition(path[0].x, path[0].y, path[0].roomName);
-  } else {
-    const step = path.length > 1 ? path.length - 2 : path.length - 1;
-    pos = new RoomPosition(path[step].x, path[step].y, path[step].roomName);
-  }
-
+  const pos = this.getMoveBackToPathPosition(path);
   const moveToMyResult = this.moveToMy(pos, 0);
   if (!moveToMyResult) {
     this.log(`${Game.time} moveBackToPath moveToMy(${JSON.stringify(pos)}, 0); => ${moveToMyResult}`);
