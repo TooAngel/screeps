@@ -3,12 +3,12 @@ env:
   node: true
 
 globals:
-  config: true,
-  brain: true,
-  roles: true,
-  friends: true,
-  cache: true,
-  visualizer: true,
+  config: writable
+  brain: writable
+  roles: writable
+  friends: writable
+  cache: writable
+  visualizer: writable
 
 parserOptions:
   ecmaVersion: 8
