@@ -1,7 +1,7 @@
 'use strict';
 
-RoomPosition.prototype.checkTowerFillerPos = function() {
-  if (this.isBorder(3)) {
+RoomPosition.prototype.checkTowerLinkPos = function() {
+  if (this.isBorder(2)) {
     return false;
   }
 
