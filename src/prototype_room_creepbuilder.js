@@ -145,9 +145,9 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
     let debugMem = JSON.stringify(_.omit(creepMemory, ['role', 'routing', 'level']));
     debugMem = (debugMem !== '{}') ? debugMem : '';
     if (this.name === creepMemory.routing.targetRoom) {
-      this.log(`Add to queue: ${creepMemory.role.rpad(' ', 20)} ${' '.rpad(' ', 19)} ${debugMem} amount: ${amount} queue: ${JSON.stringify(this.memory.queue.map((item) => item.role))}`);
+      this.debugLog('queue', `Add to queue: ${creepMemory.role.rpad(' ', 20)} ${' '.rpad(' ', 19)} ${debugMem} amount: ${amount} queue: ${JSON.stringify(this.memory.queue.map((item) => item.role))}`);
     } else {
-      this.log(`Add to queue: ${creepMemory.role.rpad(' ', 20)} targetRoom ${creepMemory.routing.targetRoom.rpad(' ', 8)} ${debugMem} amount: ${amount} queue: ${JSON.stringify(this.memory.queue.map((item) => item.role))}`);
+      this.debugLog('queue', `Add to queue: ${creepMemory.role.rpad(' ', 20)} targetRoom ${creepMemory.routing.targetRoom.rpad(' ', 8)} ${debugMem} amount: ${amount} queue: ${JSON.stringify(this.memory.queue.map((item) => item.role))}`);
     }
   }
   return this.memory.queue.push(creepMemory);
@@ -195,7 +195,7 @@ Room.prototype.getPartsStringDatas = function(parts, energyAvailable) {
     (p) => {
       ret.cost += BODYPART_COST[p];
       ret.fail = ret.cost > energyAvailable;
-    }
+    },
   );
   Memory.layoutsCost[parts] = ret.cost;
   return ret;
@@ -217,7 +217,7 @@ Room.prototype.getSettings = function(creep) {
     return;
   }
   const param = settings.param;
-  return _.mapValues(settings, (setting, settingName) => {
+  return _.mapValues(settings, (setting) => {
     // Not sure when this happens
     if (!setting || setting === null) {
       return setting;

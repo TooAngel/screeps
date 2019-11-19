@@ -73,6 +73,8 @@ Room.prototype.buildPath = function(route, routePos, from, to) {
   } else {
     end = this.getCreepPositionForId(to);
     if (!end) {
+      const item = Game.getObjectById(to);
+      this.log(`buildPath no end ${to} ${item}`);
       return;
     }
   }
@@ -85,8 +87,9 @@ Room.prototype.buildPath = function(route, routePos, from, to) {
       maxRooms: 1,
       swampCost: config.layout.swampCost,
       plainCost: config.layout.plainCost,
-    }
+    },
   );
+  this.log(JSON.stringify(search));
 
   search.path.splice(0, 0, start);
   search.path.push(end);
@@ -113,7 +116,7 @@ Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
   if (!this.getMemoryPath(pathName)) {
     const path = this.buildPath(route, routePos, from, to);
     if (!path) {
-      // this.log('getPath: No path');
+      this.log('getPath: No path');
       return;
     }
     this.setMemoryPath(pathName, path, fixed);

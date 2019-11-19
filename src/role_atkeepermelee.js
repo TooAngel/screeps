@@ -15,7 +15,7 @@ roles.atkeepermelee.settings = {
   maxLayoutAmount: 1,
 };
 
-roles.atkeepermelee.preMove = function(creep, direction) {
+roles.atkeepermelee.preMove = function(creep) {
   creep.checkForRoutingReached();
   if (creep.memory.canHeal && creep.isDamaged() < 1) {
     creep.heal(creep);

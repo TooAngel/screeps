@@ -25,7 +25,7 @@ roles.upgrader.settings = {
   },
 };
 
-roles.upgrader.updateSettings = function(room, creep) {
+roles.upgrader.updateSettings = function(room) {
   if (!room.storage) {
     return false;
   }

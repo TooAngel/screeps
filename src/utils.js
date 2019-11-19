@@ -72,7 +72,7 @@ global.utils = {
   },
 
   csstats: function() {
-    const aggregate = function(result, value, key) {
+    const aggregate = function(result, value) {
       result[value.pos.roomName] = (result[value.pos.roomName] || (result[value.pos.roomName] = 0)) + 1;
       return result;
     };
@@ -187,7 +187,7 @@ global.utils = {
   },
 
   routeCallback: function(to, useHighWay) {
-    return function(roomName, fromRoomName) {
+    return function(roomName) {
       let returnValue = Infinity;
       if (roomName === to) {
         returnValue = 1;

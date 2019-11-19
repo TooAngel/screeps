@@ -142,6 +142,17 @@ RoomPosition.prototype.inPositions = function(opts = {}) {
       // this.log(`pos ${JSON.stringify(pos)} ${typeof pos}`);
       pos = pos[0];
     }
+    if (!pos || pos.length === 0) {
+      // TODO If list, but element is undefined, something in the room setup is
+      // messed up
+      // TODO introduce this.log()
+      // console.log('inPositions:', this.roomName, creepId);
+      continue;
+    }
+    if (pos === -Infinity) {
+      // TODO also not sure where this comes from
+      continue;
+    }
     if (this.isEqualTo(pos.x, pos.y)) {
       if (opts.debug) {
         this.log(`equals to creep ${creepId}`);

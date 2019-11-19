@@ -44,8 +44,13 @@ brain.getNextSegmentId = function() {
  * Exception to indicate that we need unloaded segment, so we should skip this tick to wait until it will be avilable.
  *
  * @type {MemorySegmentError}
- */
+ **/
 brain.MemorySegmentError = class MemorySegmentError extends Error {
+  /**
+   * MemorySegmentError constructor
+   *
+   * @param {object} message - The message
+   **/
   constructor(message) {
     console.log('MemorySegmentError', new Error().stack);
     super(message);

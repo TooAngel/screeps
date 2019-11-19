@@ -14,28 +14,16 @@
  *
  */
 Room.prototype.attack42 = function(roomName, spawn) {
-  spawn = spawn || [{
-    creep: 1,
-    role: 'autoattackmelee',
-  }, {
-    creep: 1,
-    role: 'defender',
-  }, {
-    creep: 1,
-    role: 'squadheal',
-  },
-  {
-    creep: 2,
-    role: 'autoattackmelee',
-  }, {
-    creep: 2,
-    role: 'defender',
-  }, {
-    creep: 2,
-    role: 'squadheal',
-  },
-  ];
-
+  if (!spawn) {
+    spawn = [
+      {creep: 1, role: 'autoattackmelee'},
+      {creep: 1, role: 'defender'},
+      {creep: 1, role: 'squadheal'},
+      {creep: 2, role: 'autoattackmelee'},
+      {creep: 2, role: 'defender'},
+      {creep: 2, role: 'squadheal'},
+    ];
+  }
   const closestSpawn = this.closestSpawn(roomName);
   if (closestSpawn && closestSpawn.id) {
     brain.startMeleeSquad(closestSpawn.room, roomName);

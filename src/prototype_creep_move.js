@@ -24,7 +24,7 @@ Creep.prototype.searchPath = function(target, range=1) {
       maxRooms: 0,
       swampCost: config.layout.swampCost,
       plainCost: config.layout.plainCost,
-    }
+    },
   );
 
   if (config.visualizer.enabled && config.visualizer.showPathSearches) {

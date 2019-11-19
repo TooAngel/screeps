@@ -54,6 +54,12 @@ Creep.buildRoads = function(creep) {
   const room = Game.rooms[creep.room.name];
 
   // TODO extract to roomposition
+  /**
+   * checkForRoad Check if road is on position
+   *
+   * @param {object} pos - The position
+   * @return {boolean} - road is on position
+   */
   function checkForRoad(pos) {
     const structures = pos.lookFor('structure');
     for (const structuresIndex in structures) {
@@ -70,7 +76,7 @@ Creep.buildRoads = function(creep) {
       const pos = new RoomPosition(
         path[pathIndex].x,
         path[pathIndex].y,
-        creep.room.name
+        creep.room.name,
       );
       if (checkForRoad(pos)) {
         continue;

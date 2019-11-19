@@ -86,7 +86,7 @@ roles.nextroomer.buildRamparts = function(creep) {
   return false;
 };
 
-roles.nextroomer.defendTower = function(creep, source) {
+roles.nextroomer.defendTower = function(creep) {
   const room = Game.rooms[creep.room.name];
   const constructionSites = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 1);
   if (constructionSites.length > 0) {

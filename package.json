@@ -1,13 +1,17 @@
 {
   "name": "screeps-bot-tooangel",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "",
   "main": "src/main.js",
   "screeps_bot": true,
-  "dependencies": {},
+  "dependencies": {
+    "rimraf": "^3.0.0",
+    "screepsmod-admin-utils": "^1.10.3",
+    "screepsmod-auth": "^2.4.7"
+  },
   "devDependencies": {
     "chai": "4.2.0",
-    "eslint-config-google": "0.13.0",
+    "eslint-config-google": "0.14.0",
     "eslint-plugin-screeps": "^2.0.0",
     "grunt": "1.0.4",
     "grunt-contrib-clean": "2.0.0",
@@ -18,11 +22,11 @@
     "grunt-mocha-test": "0.13.3",
     "grunt-screeps": "1.4.0",
     "grunt-sync": "0.8.1",
-    "mocha": "6.2.0",
+    "mocha": "6.2.2",
     "request": "2.88.0",
-    "request-promise-native": "1.0.7",
-    "screeps": "3.4.4",
-    "screeps-api": "1.9.0",
+    "request-promise-native": "1.0.8",
+    "screeps": "4.0.5",
+    "screeps-api": "1.9.1",
     "screeps-profiler": "2.0.1",
     "uglify-js-harmony": "2.7.7"
   },
@@ -37,6 +41,8 @@
   },
   "scripts": {
     "test": "grunt test",
-    "deploy": "grunt deploy"
+    "deploy": "grunt deploy",
+    "lint": "eslint -c .eslintrc-basic.js src/",
+    "run-test": "git checkout test-server/db.json && node utils/test_on_server.js"
   }
 }

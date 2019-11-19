@@ -14,12 +14,11 @@ roles.autoattackmelee.settings = {
   fillTough: true,
 };
 
-roles.autoattackmelee.died = function(name, memory) {
-  console.log('--->', name, 'Died naturally?');
-  delete Memory.creeps[name];
+roles.autoattackmelee.died = function(name) {
+  brain.main.cleanUpDyingCreep(name);
 };
 
-roles.autoattackmelee.preMove = function(creep) {
+roles.autoattackmelee.preMove = function() {
   //  creep.log('!!!!!!!!!!!!!!!! Autoattacking');
 };
 
@@ -71,7 +70,7 @@ roles.autoattackmelee.action = function(creep) {
       range: 1,
     }, {
       maxRooms: 1,
-    }
+    },
   );
   if (config.visualizer.enabled && config.visualizer.showPathSearches) {
     visualizer.showSearch(search);

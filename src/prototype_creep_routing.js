@@ -119,6 +119,11 @@ Creep.prototype.prepareRoutingMemory = function() {
   const route = this.getRoute();
   const routePos = this.getRoutePos(route);
   const path = this.room.getPath(route, routePos, 'pathStart', this.memory.routing.targetId);
+  if (!path) {
+    this.log(`prepareRoutingMemory no path ${JSON.stringify(route)} ${routePos} ${this.memory.routing.targetId}`);
+    delete this.memory.routing.targetId;
+    return;
+  }
   this.getPathPos(path);
   return path;
 };
@@ -135,6 +140,9 @@ Creep.prototype.followPath = function(action) {
     return action(this);
   }
   const path = this.prepareRoutingMemory();
+  if (!path) {
+    return false;
+  }
   const directions = this.getDirections(path);
   if (this.unit().preMove && this.unit().preMove(this, directions)) {
     return true;
@@ -192,7 +200,10 @@ Creep.prototype.moveBackToPath = function(path) {
   const pos = this.getMoveBackToPathPosition(path);
   const moveToMyResult = this.moveToMy(pos, 0);
   if (!moveToMyResult) {
-    this.log(`${Game.time} moveBackToPath moveToMy(${JSON.stringify(pos)}, 0); => ${moveToMyResult}`);
+    // TODO this is a dirty fallback
+    // this.log(`${Game.time} moveBackToPath moveToMy(${JSON.stringify(pos)}, 0); => ${moveToMyResult}`);
+    this.moveTo(pos);
+    return true;
   }
   return moveToMyResult;
 };

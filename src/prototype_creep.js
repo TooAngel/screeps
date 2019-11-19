@@ -161,7 +161,7 @@ Creep.prototype.getEnergyFromStructure = function() {
     Math.max(1, this.pos.y - 1),
     Math.max(1, this.pos.x - 1),
     Math.min(48, this.pos.y + 1),
-    Math.min(48, this.pos.x + 1)
+    Math.min(48, this.pos.x + 1),
   );
   for (const y of Object.keys(area)) {
     for (const x of Object.keys(area[y])) {

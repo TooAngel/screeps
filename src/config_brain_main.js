@@ -15,6 +15,11 @@ brain.main.roomExecution = function() {
   }
 };
 
+brain.main.cleanUpDyingCreep = function(name) {
+  console.log('--->', name, 'Died naturally?');
+  delete Memory.creeps[name];
+};
+
 brain.main.roomFilter = (r) => {
   global.tickLimit = global.cpuLimit();
   if (Game.cpu.getUsed() < Game.cpu.limit) {

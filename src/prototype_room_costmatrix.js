@@ -27,6 +27,10 @@ Room.prototype.getBasicCostMatrixCallback = function() {
 
     for (const creep of Object.keys(this.memory.position.creep)) {
       const pos = this.memory.position.creep[creep];
+      if (!pos || pos === null) {
+        // TODO not sure when this happens
+        continue;
+      }
       costMatrix.set(pos.x, pos.y, config.layout.creepAvoid);
     }
 
