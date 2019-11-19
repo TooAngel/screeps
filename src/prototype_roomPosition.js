@@ -80,7 +80,12 @@ RoomPosition.prototype.getAdjacentPosition = function(direction) {
 
 RoomPosition.prototype.getAllAdjacentPositions = function* () {
   for (let direction = 1; direction <= 8; direction++) {
-    yield this.getAdjacentPosition(direction);
+    try {
+      yield this.getAdjacentPosition(direction);
+    } catch (e) {
+      this.log(e);
+      continue;
+    }
   }
 };
 

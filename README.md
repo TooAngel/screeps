@@ -114,6 +114,12 @@ Releasing to npm is done automatically by increasing the version and merging to 
 
 Every deploy to `master` is automatically deployed to the live tooangel account.
 
+## Testing
+
+`node utils/test.js` will start a private server and add some bots as test
+cases. Within in the `tmp-test-server` directory the server can be easily
+started via `screeps start`.
+
 ## Design
 
 [More details of the AI design](doc/Design.md)
