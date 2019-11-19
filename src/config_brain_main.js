@@ -76,7 +76,6 @@ brain.main.updateSkippedRoomsLog = function() {
   }
   if (Game.time % 100 === 0) {
     const roomsSkipped = _.sum(_.map(Memory.skippedRoomsLog, _.size));
-    console.log(`${Game.time} skipped rooms ${roomsSkipped} in ${_.size(Memory.skippedRoomsLog)} ticks of 100 ticks`);
     const lowExecution = _.size(Memory.skippedRoomsLog) / 100 < config.main.lowExecution;
     if (config.debug.cpu && lowExecution) {
       Game.notify(`${Game.time} skipped rooms ${roomsSkipped} in ${_.size(Memory.skippedRoomsLog)} ticks of 100 ticks`, 120);

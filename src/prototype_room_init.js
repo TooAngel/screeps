@@ -407,7 +407,7 @@ Room.prototype.setStructuresIteratePos = function(structurePos, pathI, path) {
 };
 
 Room.prototype.setStructures = function(path) {
-  this.setTowerFiller();
+  // this.setTowerFiller();
 
   for (let pathI = 0; pathI < path.length; pathI++) {
     const pathPos = new RoomPosition(path[pathI].x, path[pathI].y, this.name);
@@ -591,7 +591,7 @@ Room.prototype.checkForMisplacedSpawn = function() {
   for (const spawn of spawns) {
     if (!this.checkForSpawnPosition(spawn.pos)) {
       this.memory.misplacedSpawn = true;
-      this.log('Set misplaced spawn');
+      this.log(`Spawn ${spawn.pos} is misplaced, not in positions ${JSON.stringify(this.memory.position.structure.spawn)} (prototype_room_init.checkForMisplacedSpawn)`);
     }
   }
 };

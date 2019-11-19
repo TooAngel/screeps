@@ -36,12 +36,16 @@ brain.addToStats = function(name) {
 brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
   let hostiles = [];
   let room = {};
+  let structures = [];
+  let sourceKeepers = [];
   if (Memory.creeps[name].routing && Memory.creeps[name].routing.route && Memory.creeps[name].routing.routePos && Memory.creeps[name].routing.route[Memory.creeps[name].routing.routePos]) {
     room = Game.rooms[Memory.creeps[name].routing.route[Memory.creeps[name].routing.routePos].room];
-    hostiles = room.find(FIND_HOSTILE_CREEPS);
+    hostiles = room.find(FIND_CREEPS);
+    structures = room.find(FIND_STRUCTURES);
+    sourceKeepers = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'owner.username', ['Source Keeper']);
   }
   if (hostiles.length === 0 || hostiles[0].owner.username !== 'Invader') {
-    console.log(`${Game.time} ${room.name} ${name} Not in Game.creeps lived ${Game.time - creepMemory.born} hostiles: ${hostiles.length} memory: ${JSON.stringify(Memory.creeps[name])}`);
+    console.log(`${Game.time} ${room.name} ${name} Not in Game.creeps lived ${Game.time - creepMemory.born} hostiles: ${hostiles.length} structures: ${structures.length} sourceKeepers: ${sourceKeepers} memory: ${JSON.stringify(Memory.creeps[name])}`); // eslint-disable-line max-len
   }
   if (Game.time - creepMemory.born < 20) {
     return;

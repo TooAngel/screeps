@@ -1,5 +1,31 @@
 'use strict';
 
+RoomPosition.prototype.findClosestStructureWithMissingEnergyByRange = function(filter) {
+  const structure = this.findClosestByRange(FIND_MY_STRUCTURES, {
+    filter: (object) => (object.store && object.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && (!filter || filter(object))),
+    // TODO on the test server the spawn and tower return null as capacity, this is a workaround
+  //   filter: (object) => {
+  //     if (!object.store) {
+  //       return false;
+  //     }
+  //     if (filter && !filter(object)) {
+  //       return false;
+  //     }
+  //     let capacity = object.store.getCapacity(RESOURCE_ENERGY);
+  //     if (!capacity) {
+  //       if (object.structureType === STRUCTURE_SPAWN) {
+  //         capacity = 300;
+  //       } else if (object.structureType === STRUCTURE_TOWER) {
+  //         capacity = 1000;
+  //       }
+  //     }
+  //     const used = object.store.getUsedCapacity(RESOURCE_ENERGY);
+  //     return capacity - used > 0;
+  //   },
+  });
+  return structure;
+};
+
 RoomPosition.prototype.checkTowerFillerPos = function() {
   if (this.isBorder(3)) {
     return false;
@@ -233,10 +259,12 @@ RoomPosition.prototype.validPosition = function(opts = {}) {
 RoomPosition.prototype.getFirstNearPosition = function(...args) {
   return this.findNearPosition(...args).next().value;
 };
+
 RoomPosition.prototype.getLastNearPosition = function(...args) {
+  // TODO not sure how this works
   const arr = this.findNearPosition(...args);
-  this.log(JSON.stringify(arr.next()));
-  this.log(JSON.stringify(arr.next()));
+  arr.next();
+  arr.next();
   return arr.next().value;
 };
 

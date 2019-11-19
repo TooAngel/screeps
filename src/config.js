@@ -24,11 +24,11 @@ global.config = {
   visualizer: {
     enabled: false,
     showRoomPaths: true,
-    showCreepPaths: true,
-    showPathSearches: true,
-    showStructures: true,
-    showCreeps: true,
-    showBlockers: true,
+    showCreepPaths: false,
+    showPathSearches: false,
+    showStructures: false,
+    showCreeps: false,
+    showBlockers: false,
     showCostMatrixes: false,
   },
 
@@ -176,7 +176,7 @@ global.config = {
     carryPercentageBase: 0.1,
     carryPercentageHighway: 0.2,
     carryPercentageExtern: 0.5,
-    callHarvesterPerResources: 1000,
+    callHarvesterPerResources: 100,
   },
 
   creep: {

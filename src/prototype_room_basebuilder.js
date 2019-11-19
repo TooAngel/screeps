@@ -101,7 +101,7 @@ Room.prototype.destroyStructure = function(structure) {
       }
       return false;
     }
-    this.log('Set misplaced spawn');
+    this.log(`Spawn ${structure.pos} is misplaced, not in positions ${JSON.stringify(this.memory.position.structure[structure.structureType])} (prototype_room_basebuilder.destroyStructure)`);
     this.memory.misplacedSpawn = true;
 
     // Build ramparts around the spawn if wallThickness > 1
@@ -150,7 +150,7 @@ Room.prototype.checkPath = function() {
       if (structure.structureType === STRUCTURE_RAMPART) {
         continue;
       }
-      console.log('checkPath: ' + pos);
+      // console.log('checkPath: ' + pos);
       if (this.destroyStructure(structure)) {
         return true;
       }

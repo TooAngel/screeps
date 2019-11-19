@@ -157,21 +157,6 @@ Creep.prototype.moveCreep = function(position, direction) {
 Creep.prototype.preMoveExtractorSourcer = function(directions) {
   this.pickupEnergy();
 
-  // Misplaced spawn
-  if ((this.memory.role === 'sourcer') && this.inBase() && (this.room.memory.misplacedSpawn || this.room.controller.level < 3)) {
-    // this.say('smis', true);
-    const targetId = this.memory.routing.targetId;
-
-    const source = this.room.memory.position.creep[targetId];
-    // TODO better the position from the room memory
-    this.moveTo(source, {
-      ignoreCreeps: true,
-    });
-    if (this.pos.getRangeTo(source) > 1) {
-      return true;
-    }
-  }
-
   if (!this.room.controller) {
     const target = this.findClosestSourceKeeper();
     if (target !== null) {
@@ -195,11 +180,9 @@ Creep.prototype.preMoveExtractorSourcer = function(directions) {
   // TODO when is the forwardDirection missing?
   if (directions.forwardDirection) {
     const posForward = this.pos.getAdjacentPosition(directions.forwardDirection);
-    let terrain = posForward.lookFor(LOOK_TERRAIN);
     const structures = posForward.lookFor(LOOK_STRUCTURES);
     for (const structure of structures) {
       if (structure.structureType === STRUCTURE_ROAD) {
-        terrain = ['road'];
         continue;
       }
       if (structure.structureType === STRUCTURE_RAMPART && structure.my) {
@@ -212,12 +195,6 @@ Creep.prototype.preMoveExtractorSourcer = function(directions) {
       this.say('dismantle', true);
       break;
     }
-    if (!this.memory.last || this.pos.x !== this.memory.last.pos1.x || this.pos.y !== this.memory.last.pos1.y) {
-      if (!this.memory.pathDatas) {
-        this.memory.pathDatas = {swamp: 0, plain: 0, road: 0};
-      }
-      this.memory.pathDatas[terrain[0]]++;
-    }
   }
 };
 
@@ -228,10 +205,13 @@ Creep.prototype.checkForSourceKeeper = function() {
       const range = this.pos.getRangeTo(target);
       if (range > 6) {
         this.memory.routing.reverse = false;
+        return false;
       }
       if (range < 6) {
         this.memory.routing.reverse = true;
+        return true;
       }
     }
   }
+  return false;
 };

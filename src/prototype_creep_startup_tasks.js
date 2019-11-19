@@ -46,8 +46,7 @@ Creep.constructTask = function(creep) {
 };
 
 Creep.transferEnergy = function(creep) {
-  //  creep.say('transferEnergy', true);
-  return creep.transferEnergyMy();
+  return creep.transferEnergy();
 };
 
 Creep.buildRoads = function(creep) {

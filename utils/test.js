@@ -25,7 +25,7 @@ const players = {
 const rooms = Object.keys(players);
 const roomsSeen = {};
 const duration = 600;
-const maxAttempts = 20;
+const maxAttempts = 10;
 const verbose = false;
 const timer = {
   start: Date.now(),
@@ -41,6 +41,7 @@ for (const room of rooms) {
     // creepsNames: [],
     progress: 0,
     level: 0,
+    structures: 0,
   };
 }
 
@@ -65,9 +66,17 @@ function sleep(seconds) {
  */
 function checkForStatus() {
   let response = true;
-  for (const key in status) {
+  console.log('-------------------------------')
+  const keys = Object.keys(status);
+  keys.sort((a, b) => {
+    if (status[a].level === status[b].level) {
+      return status[a].progress - status[b].progress;
+    }
+    return status[a].level - status[b].level
+  });
+  for (const key of keys) {
     if (process.argv.length !== 2 || status[key].progress === 0 || status[key].level < 3) {
-      console.log(`${key} has no progress ${JSON.stringify(status[key])}`);
+      console.log(`${key} not at threshold level ${status[key].level} < 3 and progress ${status[key].progress} === 0 ${JSON.stringify(status[key])}`);
       response = false;
     }
   }
@@ -118,7 +127,6 @@ async function startServer() {
   return lib.start({}, process.stdout);
 }
 
-
 /**
  * logs event
  *
@@ -160,6 +168,12 @@ const filter = {
     }
     return false;
   },
+  structures: (o) => {
+    if (o && o.type) {
+      return o.type === 'spawn' || o.type == 'extension';
+    }
+    return false;
+  },
 };
 
 const helpers = {
@@ -176,9 +190,16 @@ const helpers = {
       if (verbose) {
         console.log(event.data.gameTime, 'creeps', JSON.stringify(_.omit(creeps, ['meta', '$loki'])));
       }
-      // status[event.id].creepsNames.push(_.map(creeps, 'name'));
-      // status[event.id].creepsNames = _.uniq(_.flatten(status[event.id].creepsNames));
       status[event.id].creeps += _.size(creeps);
+    }
+  },
+  updateStructures: function(event) {
+    const structures = _.filter(event.data.objects, filter.structures);
+    if (_.size(structures) > 0) {
+      if (verbose) {
+        console.log(event.data.gameTime, 'structures', JSON.stringify(_.omit(structures, ['meta', '$loki'])));
+      }
+      status[event.id].structures += _.size(structures);
     }
   },
   updateController: function(event) {
@@ -211,6 +232,7 @@ const statusUpdater = (event) => {
   helpers.initControllerID(event);
   if (_.size(event.data.objects) > 0) {
     helpers.updateCreeps(event);
+    helpers.updateStructures(event);
     helpers.updateController(event);
   }
 
@@ -222,7 +244,7 @@ const statusUpdater = (event) => {
         console.log(event.data.gameTime, key, 'controller progress', status[key].progress, '& level', status[key].level);
       }
     }
-    console.log(event.data.gameTime, 'status', event.id, JSON.stringify(status[event.id]));
+    console.log(`${event.data.gameTime} Status: room ${event.id} level: ${status[event.id].level} progress: ${status[event.id].progress} creeps: ${status[event.id].creeps} structures: ${status[event.id].structures}`);
   }
 };
 
@@ -317,9 +339,10 @@ async function checkForSucces(line, defer) {
     for (attempts; attempts <= maxAttempts; attempts++) {
       await sleep(duration);
       if (checkForStatus()) {
+        console.log(`Status check ${attempts}: passed`);
         defer.resolve();
       } else {
-        console.log('checkForStatus ' + attempts + ' passed and failed');
+        console.log(`Status check ${attempts}: failed`);
       }
     }
     defer.reject('No progress');
@@ -346,7 +369,6 @@ async function connectToCli() {
   socket.on('data', async (data) => {
     data = data.toString('utf8');
     const line = data.replace(/^< /, '').replace(/\n< /, '');
-    console.log(line);
     if (await spawnBots(line, socket)) {
       return;
     }
@@ -363,7 +385,7 @@ async function connectToCli() {
     }
 
     await checkForSucces(line, defer);
-    console.log('socket.data:' + line);
+    // console.log('socket.data:' + line);
   });
 
   socket.on('connect', () => {

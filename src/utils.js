@@ -142,26 +142,6 @@ global.utils = {
     return arrayParts;
   },
 
-  levelToSendNext: function(baseRoom, parts) {
-    let factor = 0;
-    if (baseRoom.controller.level === 3) {
-      factor = 10;
-    }
-    if (baseRoom.controller.level === 4) {
-      factor = 5;
-    }
-    if (baseRoom.controller.level === 5) {
-      factor = 4;
-    }
-    if (baseRoom.controller.level === 6 || baseRoom.controller.level === 7) {
-      factor = 3;
-    }
-    if (baseRoom.controller.level === 8) {
-      factor = 1;
-    }
-    return factor * parts.carryParts.carry * CARRY_CAPACITY;
-  },
-
   splitRoomName: function(name) {
     const patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
     return patt.exec(name);

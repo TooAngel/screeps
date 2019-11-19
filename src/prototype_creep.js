@@ -146,7 +146,7 @@ Creep.prototype.isStuck = function() {
     return false;
   }
   const creep = this;
-  const filter = (pos)=> {
+  const filter = (pos) => {
     return creep.pos.isEqualTo(pos.x, pos.y) ? 1 : 0;
   };
   return _.sum(_.map(this.memory.last, filter)) > 1;

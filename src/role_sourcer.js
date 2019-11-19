@@ -61,7 +61,7 @@ roles.sourcer.updateSettings = function(room, creep) {
 };
 
 roles.sourcer.preMove = function(creep, directions) {
-  creep.preMoveExtractorSourcer(directions);
+  return creep.preMoveExtractorSourcer(directions);
 };
 
 roles.sourcer.died = function(name) {

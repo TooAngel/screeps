@@ -178,25 +178,26 @@ roles.scout.action = function(creep) {
 
     if (creep.isStuck()) {
       if (creep.memory.stuck > 20) {
-        creep.log('Scout Stuck suicide');
+        creep.log('Scout Stuck suicide (role.scount.action)');
         creep.memory.killed = true;
         creep.suicide();
         return true;
       }
-      if (creep.memory.stuck > 0) {
-        creep.memory.stuck++;
-      } else {
-        creep.memory.stuck = 1;
+      if (!creep.memory.stuck) {
+        creep.memory.stuck = 0;
       }
+      creep.memory.stuck++;
 
       creep.moveRandom();
       creep.say('ImStuck ' + creep.memory.stuck, true);
       // creep.log('Scout Stuck, Randomly Moving: ' + JSON.stringify(creep.memory.last.pos1) + ' #' + creep.memory.stuck);
 
       return true;
+    } else {
+      creep.memory.stuck = 0;
     }
 
-    if (search.path.length === 0 || (creep.inBase() && creep.room.memory.misplacedSpawn)) {
+    if (search.path.length === 0) {
       creep.say('hello', true);
       //       creep.log(creep.pos + ' ' + targetPosObject + ' ' + JSON.stringify(search));
       if (creep.isStuck() && creep.pos.isBorder(-1)) {
