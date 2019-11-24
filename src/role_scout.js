@@ -13,11 +13,24 @@ roles.scout.settings = {
   maxLayoutAmount: 1,
 };
 
+/**
+ * haveNotSeen - Checks if a room was seen already
+ *
+ * @param {object} creep - The creep
+ * @param {object} room - The room
+ * @return {boolean} - If it is not seen
+ **/
 function haveNotSeen(creep, room) {
   return creep.memory.search.seen.indexOf(room) === -1 &&
     creep.memory.skip.indexOf(room) === -1;
 }
 
+/**
+ * checkForDefender - Checks if a defender needs to be send
+ *
+ * @param {object} creep - The creep
+ * @return {boolean} - If a defender is send
+ **/
 function checkForDefender(creep) {
   if (!creep.room.controller) {
     return false;
@@ -39,6 +52,7 @@ function checkForDefender(creep) {
 
   creep.log('Spawning defender for external room');
   Game.rooms[creep.memory.base].checkRoleToSpawn('defender', 1, undefined, creep.room.name);
+  return true;
 }
 
 roles.scout.setup = function(creep) {
@@ -46,7 +60,7 @@ roles.scout.setup = function(creep) {
   creep.memory.routing.reached = true;
 };
 
-roles.scout.preMove = function(creep, direction) {
+roles.scout.preMove = function(creep) {
   if (creep.memory.skip === undefined) {
     creep.memory.skip = [];
   }
@@ -126,7 +140,7 @@ roles.scout.action = function(creep) {
           range: 20,
         }, {
           roomCallback: creep.room.getCostMatrixCallback(targetPosObject, true, false, true),
-        }
+        },
       );
 
       if (config.visualizer.enabled && config.visualizer.showPathSearches) {

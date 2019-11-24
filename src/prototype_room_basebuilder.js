@@ -1,5 +1,12 @@
 'use strict';
 
+/**
+ * posIsIn position is in array
+ *
+ * @param {object} pos - The position
+ * @param {array} array - Array of positions
+ * @return {boolean} - position is in array
+ */
 function posIsIn(pos, array) {
   if (!array) {
     return false;

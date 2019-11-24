@@ -43,7 +43,7 @@ Room.prototype.checkExitsAreReachable = function() {
 
   const exits = this.find(FIND_EXIT);
   const room = this;
-  const callbackNew = function(roomName) {
+  const callbackNew = function() {
     const costMatrix = room.getMemoryCostMatrix();
     return costMatrix;
   };
@@ -58,7 +58,7 @@ Room.prototype.checkExitsAreReachable = function() {
       targets, {
         roomCallback: callbackNew,
         maxRooms: 1,
-      }
+      },
     );
 
     if (search.incomplete) {
@@ -66,7 +66,7 @@ Room.prototype.checkExitsAreReachable = function() {
         exit,
         targets, {
           maxRooms: 1,
-        }
+        },
       );
       for (const pathPos of search.path) {
         if (inLayer(this, pathPos)) {
@@ -175,7 +175,7 @@ Room.prototype.closeExitsByPath = function() {
     targets, {
       roomCallback: callbackNew,
       maxRooms: 1,
-    }
+    },
   );
 
   if (search.incomplete) {

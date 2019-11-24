@@ -182,7 +182,7 @@ roles.scoutnextroom.action = function(creep) {
       // TODO Can prevent the creep move through the room (base: W1N7, room: W2N7, private server)
       roomCallback: creep.room.getCostMatrixCallback(targetPosObject, true),
       maxRooms: 1,
-    }
+    },
   );
 
   if (config.visualizer.enabled && config.visualizer.showPathSearches) {

@@ -17,7 +17,7 @@ Creep.prototype.handleStructurer = function() {
       range: 1,
     }, {
       maxRooms: 1,
-    }
+    },
   );
 
   if (config.visualizer.enabled && config.visualizer.showPathSearches) {
@@ -50,7 +50,7 @@ Creep.prototype.cleanController = function() {
       range: 1,
     }, {
       maxRooms: 1,
-    }
+    },
   );
   if (config.visualizer.enabled && config.visualizer.showPathSearches) {
     visualizer.showSearch(search);

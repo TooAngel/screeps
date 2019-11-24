@@ -230,7 +230,13 @@ Room.prototype.setTowerFillerIterate = function(roomName, offsetDirection) {
 
     const directionNext = posPathObject.getDirectionTo(posPathNext.x, posPathNext.y, posPathNext.roomName);
 
-    const pos = posPathObject.getAdjacentPosition(directionNext + offsetDirection);
+    let pos;
+    try {
+      pos = posPathObject.getAdjacentPosition(directionNext + offsetDirection);
+    } catch (e) {
+      this.log(`setTowerFillerIterate ${e} ${posPathObject} ${directionNext} ${offsetDirection}`);
+      continue;
+    }
 
     if (!pos.checkTowerFillerPos()) {
       continue;
@@ -342,7 +348,7 @@ Room.prototype.checkPositions = function() {
         'observer: ' + this.memory.position.structure.observer.length + ' ' +
         'lab: ' + this.memory.position.structure.lab.length + ' ' +
         'terminal: ' + this.memory.position.structure.terminal.length + ' ' +
-        'nuker: ' + this.memory.position.structure.nuker.length
+        'nuker: ' + this.memory.position.structure.nuker.length,
       );
       return true;
     }

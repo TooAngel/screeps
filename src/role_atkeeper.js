@@ -15,7 +15,7 @@ roles.atkeeper.settings = {
   fillTough: false,
 };
 
-roles.atkeeper.preMove = function(creep, direction) {
+roles.atkeeper.preMove = function(creep) {
   creep.checkForRoutingReached();
 };
 
