@@ -204,7 +204,7 @@ module.exports = function(grunt) {
     },
 
     exec: {
-      test_on_private_server: 'node utils/test_on_server.js',
+      test_on_private_server: 'node utils/test.js',
     },
   });
 

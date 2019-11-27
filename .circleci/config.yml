@@ -17,7 +17,6 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
       - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-      - run: cd test-server; npm install; cd ..
       - run: npm publish || true
       - run: node utils/grafana.js
     test:
@@ -39,7 +38,6 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
       - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-      - run: cd test-server; npm install; cd ..
       - run: npm run test
 workflows:
   version: 2

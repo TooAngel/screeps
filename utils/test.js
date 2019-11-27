@@ -1,22 +1,31 @@
+const fs = require('fs');
 const net = require('net');
 const q = require('q');
 const _ = require('lodash');
 const lib = require('@screeps/launcher/lib/index');
 const {ScreepsAPI} = require('screeps-api');
+const ncp = require('ncp');
+const rimraf = require('rimraf');
+const path = require('path');
 
 const cliPort = 21026;
 const port = 21025;
 
+const dir = 'tmp-test-server';
+
 const players = {
-  // 'W1N7': {x: 43, y: 35},
-  // 'W8N8': {x: 21, y: 28},
-  // 'W8N1': {x: 33, y: 13},
+  'W1N7': {x: 43, y: 35},
+  'W8N8': {x: 21, y: 28},
+  'W8N1': {x: 33, y: 13},
   'W5N1': {x: 10, y: 9},
-  // 'W8N3': {x: 14, y: 17},
+  'W8N3': {x: 14, y: 17},
+  'W7N4': {x: 36, y: 11},
+  'W2N5': {x: 8, y: 26},
 };
 const rooms = Object.keys(players);
+const roomsSeen = {};
 const duration = 600;
-const maxAttempts = 10;
+const maxAttempts = 20;
 const verbose = false;
 const timer = {
   start: Date.now(),
@@ -55,13 +64,47 @@ function sleep(seconds) {
  * @return {boolean}
  */
 function checkForStatus() {
+  let response = true;
   for (const key in status) {
     if (process.argv.length !== 2 || status[key].progress === 0 || status[key].level < 3) {
       console.log(`${key} has no progress ${JSON.stringify(status[key])}`);
-      return false;
+      response = false;
     }
   }
-  return true;
+  return response;
+}
+
+async function initServer() {
+  if (fs.existsSync(dir)) {
+    rimraf.sync(dir);
+  }
+  fs.mkdirSync(dir, 0744);
+  await new Promise(function(resolve) {
+    ncp(path.resolve(__dirname, '../node_modules/@screeps/launcher/init_dist'), dir, (e) => {
+      resolve();
+    });
+  });
+  var configFilename = path.resolve(dir, '.screepsrc');
+  var config = fs.readFileSync(configFilename, {encoding: 'utf8'});
+  config = config.replace(/{{STEAM_KEY}}/, process.env.STEAM_API_KEY);
+  fs.writeFileSync(configFilename, config);
+  fs.chmodSync(path.resolve(dir, 'node_modules/.hooks/install'), '755');
+  fs.chmodSync(path.resolve(dir, 'node_modules/.hooks/uninstall'), '755');
+
+  await new Promise(function(resolve) {
+    fs.copyFile('test-files/mods.json', `${dir}/mods.json`, (err) => {
+      if (err) throw err;
+      resolve();
+    });
+  });
+  try {
+      fs.writeFileSync(path.resolve(dir, 'package.json'), JSON.stringify({
+          name: 'my-screeps-world',
+          version: '0.0.1',
+          private: true
+      }, undefined, '  '), {encoding: 'utf8', flag: 'wx'});
+  }
+  catch(e) {}
 }
 
 /**
@@ -71,21 +114,10 @@ function checkForStatus() {
  * @return {object}
  */
 async function startServer() {
-  const opts = {
-    db: 'test-server/db.json',
-    logdir: 'test-server/logs',
-    modfile: 'test-server/mods.json',
-    assetdir: 'test-server/assets',
-    cli_host: '127.0.0.1',
-    cli_port: cliPort,
-    host: '127.0.0.1',
-    port: port,
-    password: 'tooangel',
-    steam_api_key: process.env.STEAM_API_KEY,
-  };
-
-  return lib.start(opts, process.stdout);
+  process.chdir(dir);
+  return lib.start({}, process.stdout);
 }
+
 
 /**
  * logs event
@@ -190,7 +222,7 @@ const statusUpdater = (event) => {
         console.log(event.data.gameTime, key, 'controller progress', status[key].progress, '& level', status[key].level);
       }
     }
-    console.log(event.data.gameTime, 'status', JSON.stringify(status));
+    console.log(event.data.gameTime, 'status', event.id, JSON.stringify(status[event.id]));
   }
 };
 
@@ -239,8 +271,8 @@ const spawnBots = async function(line, socket) {
     socket.write(`system.pauseSimulation()\r\n`);
     await sleep(5);
     const tickDuration = 100;
-    console.log(`> setTickRate(${tickDuration})`);
-    socket.write(`setTickRate(${tickDuration})\r\n`);
+    console.log(`> utils.setTickRate(${tickDuration})`);
+    socket.write(`utils.setTickRate(${tickDuration})\r\n`);
     mongoPrepared = true;
     for (const room of rooms) {
       console.log('> Spawn bot ' + room + ' as TooAngel');
@@ -262,6 +294,7 @@ const spawnBots = async function(line, socket) {
 const setPassword = function(line, socket) {
   for (const room of rooms) {
     if (line.startsWith(`'User ${room} with bot AI "screeps-bot-tooangel" spawned in ${room}'`)) {
+      roomsSeen[room] = true;
       console.log(`> Set password for ${room}`);
       /* eslint max-len: ["error", 1300] */
       socket.write(`storage.db.users.update({username: '${room}'}, {$set: {password: '70dbaf0462458b31ff9b3d184d06824d1de01f6ad59cae7b5b9c01a8b530875ac502c46985b63f0c147cf59936ac1be302edc532abc38236ab59efecb3ec7f64fad7e4544c1c5a5294a8f6f45204deeb009a31dd6e81e879cfb3b7e63f3d937f412734b1a3fa7bc04bf3634d6bc6503bb0068c3f6b44f3a84b5fa421690a7399799e3be95278381ae2ac158c27f31eef99db1f21e75d285802cda983cd8a73a8a85d03ba45dcc7eb2b2ada362887df10bf74cdcca47f911147fd0946fb5119c888f048000044072dcc29b1c428b40b805cadeee7b3afc1e9d9d546c2a878ff8df9fcf805a28cc8b6e4b78051f0adb33642f1097bf0a189f388860302df6173b8e7955a35b278655df2d7615b54da6c63dc501c7914d726bea325c2225f343dff0068ac42300661664ee5611eb623e1efa379f571d46ba6a0e13a9e3e9c5bb7a772b685258f768216a830c5e9af3685898d98a9935cca2ba5efb5e1e4a9f2745c53bff318bda3e376bcd06b06d87a55045a76a1982f6e3b9fb77d39c2ff5c09c76989d1c779655bc2acdf55879b68f6155d14c26bdca3af5c7fd6de9926dbc091da280e6f7e3d727fa68c89aa8ac25b5e50bd14bf2dbcd452975710ef4b8d61a81c8f6ef2d5584eacfcb1ab4202860320f03313d23076a3b3e085af5f0a9e010ddb0ad5af57ed0db459db0d29aa2bcbcd64588d4c54d0c5265bf82f31349d9456', salt: '7eeb813417828682419582da8f997dea3e848ce8293e68b2dbb2f334b1f8949f'}})\r\n`);
@@ -313,27 +346,18 @@ async function connectToCli() {
   socket.on('data', async (data) => {
     data = data.toString('utf8');
     const line = data.replace(/^< /, '').replace(/\n< /, '');
+    console.log(line);
     if (await spawnBots(line, socket)) {
       return;
     }
     if (setPassword(line, socket)) {
-      return;
-    }
-
-    let parsed;
-    try {
-      parsed = line.substring(26, 60);
-    } catch (e) {
-      console.log(e, line);
-    }
-    if (parsed.indexOf('ok: 1') > -1) {
-      ready++;
-      if (ready >= rooms.length) {
+      if (rooms.length === Object.keys(roomsSeen).length) {
         console.log('> Listen to the log');
         followLog();
         await sleep(5);
         console.log(`> system.resumeSimulation()`);
         socket.write(`system.resumeSimulation()\r\n`);
+        return;
       }
       return;
     }
@@ -360,6 +384,7 @@ async function connectToCli() {
  * @return {undefined}
  */
 async function main() {
+  await initServer();
   await startServer();
   await sleep(5);
   try {
