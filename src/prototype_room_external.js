@@ -64,15 +64,15 @@ Room.prototype.externalHandleRoom = function() {
     }
   }
 
-  if (config.keepers.enabled) {
-    // todo-msc !this.controller => Highway or Source Keeper
-    const sourceKeepers = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'owner.username', ['Source Keeper']);
-    if (!this.controller && (sourceKeepers.length > 0)) {
-      this.memory.lastSeen = Game.time;
-      this.memory.sourceKeeperRoom = true;
+  // todo-msc !this.controller => Highway or Source Keeper
+  const sourceKeepers = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'owner.username', ['Source Keeper']);
+  if (!this.controller && (sourceKeepers.length > 0)) {
+    this.memory.lastSeen = Game.time;
+    this.memory.sourceKeeperRoom = true;
+    if (config.keepers.enabled) {
       this.handleSourceKeeperRoom();
-      return false;
     }
+    return false;
   }
   delete Memory.rooms[this.roomName];
   return false;
@@ -247,26 +247,38 @@ Room.prototype.checkAndSpawnReserver = function() {
     }
   }
 
-  const reserverSpawn = {
-    role: 'reserver',
-    level: 2,
-    routing: {
-      targetRoom: this.name,
-      targetId: this.controller.id,
-      reached: false,
-      routePos: 0,
-      pathPos: 0,
-    },
-  };
-  // TODO move the creep check from the reserver to here and spawn only sourcer (or one part reserver) when controller.level < 4
-  let energyNeeded = 1300;
-  if (baseRoom.misplacedSpawn) {
-    energyNeeded += 300;
+  this.debugLog('reserver', 'Spawning creep');
+  if (baseRoom.getEnergyCapacityAvailable() >= 2 * (BODYPART_COST.claim + BODYPART_COST.move)) {
+    this.debugLog('reserver', 'Spawning reserver');
+    baseRoom.checkRoleToSpawn('reserver', 1, this.controller.id, this.name, 2);
+  } else if (baseRoom.getEnergyCapacityAvailable() >= BODYPART_COST.claim + BODYPART_COST.move) {
+    this.debugLog('reserver', 'Spawning reserver');
+    baseRoom.checkRoleToSpawn('reserver', 1, this.controller.id, this.name, 1);
   }
-  if (baseRoom.getEnergyCapacityAvailable() >= energyNeeded) {
-    if (!baseRoom.inQueue(reserverSpawn)) {
-      baseRoom.checkRoleToSpawn('reserver', 1, this.controller.id, this.name, 2);
+};
+
+const checkSourcerMatch = function(sourcers, sourceId) {
+  for (let i = 0; i < sourcers.length; i++) {
+    const sourcer = Game.creeps[sourcers[i].name];
+    if (sourcer.memory.routing.targetId === sourceId) {
+      return true;
     }
+  }
+  return false;
+};
+
+Room.prototype.checkSourcer = function() {
+  this.debugLog('reserver', 'checkSourcer');
+  const sources = this.find(FIND_SOURCES);
+  const sourcers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer']);
+
+  if (sourcers.length < sources.length) {
+    const sourceParse = (source) => {
+      if (!checkSourcerMatch(sourcers, source.pos)) {
+        Game.rooms[this.memory.reservation.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
+      }
+    };
+    _.each(sources, (sourceParse));
   }
 };
 
@@ -290,6 +302,8 @@ Room.prototype.handleReservedRoom = function() {
   if (reservers.length === 0) {
     this.checkAndSpawnReserver();
   }
+
+  this.checkSourcer();
   return false;
 };
 
@@ -354,7 +368,8 @@ Room.prototype.handleUnreservedRoom = function() {
     }
   }
 
-  if (this.memory.reservation !== undefined) {
+  if (this.memory.reservation) {
+    this.debugLog('reserver', 'handleUnreservedRoom reserved room');
     this.memory.lastChecked = Game.time;
     const reservation = this.memory.reservation;
     if (this.name === reservation.base) {
@@ -364,6 +379,7 @@ Room.prototype.handleUnreservedRoom = function() {
     }
     this.memory.state = 'Reserved';
     this.checkAndSpawnReserver();
+    this.checkSourcer();
   }
   return true;
 };

@@ -31,6 +31,7 @@ brain.getMarketOrderAverage = (type, resource) => Memory.orders[type][resource] 
 brain.getMarketOrder = (type, resource, property) => Memory.orders[type][resource] && Memory.orders[type][resource][property] ? Memory.orders[type][resource][property] : null;
 
 brain.buyPower = function() {
+  brain.debugLog('brain', 'buyPower');
   if (!config.market.buyPower) {
     return false;
   }
@@ -75,6 +76,7 @@ brain.handleIncomingTransactionsTimeFilter = (object) => {
 };
 
 brain.handleIncomingTransactions = function() {
+  brain.debugLog('brain', 'prepareMemory');
   const transactions = Game.market.incomingTransactions;
   const current = _.filter(transactions, brain.handleIncomingTransactionsTimeFilter);
 

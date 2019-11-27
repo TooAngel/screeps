@@ -21,11 +21,6 @@ Room.prototype.myHandleRoom = function() {
   this.memory.lastSeen = Game.time;
   this.memory.constructionSites = this.find(FIND_CONSTRUCTION_SITES);
 
-  // TODO Fix for after `delete Memory.rooms`
-  if (!this.memory.position || !this.memory.position.structure) {
-    this.setup();
-  }
-
   if (!this.memory.queue) {
     this.memory.queue = [];
   }
@@ -498,11 +493,13 @@ Room.prototype.executeRoom = function() {
     this.checkRoleToSpawn('repairer');
   }
 
-  this.handleLinks();
-  this.handleObserver();
-  this.handlePowerSpawn();
-  this.handleTerminal();
-  this.handleNukeAttack();
+  if (this.memory.setup && this.memory.setup.completed) {
+    this.handleLinks();
+    this.handleObserver();
+    this.handlePowerSpawn();
+    this.handleTerminal();
+    this.handleNukeAttack();
+  }
   this.spawnCheckForCreate();
   this.handleMarket();
   brain.stats.addRoom(this.name, cpuUsed);

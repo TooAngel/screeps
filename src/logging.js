@@ -1,3 +1,9 @@
+brain.debugLog = function(type, ...messages) {
+  if (config.debug[type]) {
+    console.log(`${Game.time} ${messages.join(' ')}`);
+  }
+};
+
 Room.prototype.log = function(...messages) {
   console.log(`${Game.time} ${this.name.rpad(' ', 27)} ${messages.join(' ')}`);
 };

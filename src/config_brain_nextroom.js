@@ -1,6 +1,7 @@
 'use strict';
 
 brain.handleNextroom = function() {
+  brain.debugLog('brain', 'handleNextroom');
   if (Memory.myRooms &&
     Memory.myRooms.length < Game.gcl.level &&
     Memory.myRooms.length < config.nextRoom.maxRooms &&

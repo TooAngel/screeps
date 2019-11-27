@@ -2,67 +2,46 @@
 
 Room.prototype.initSetController = function() {
   if (this.controller) {
-    const costMatrix = this.getMemoryCostMatrix();
     const upgraderPos = this.controller.pos.getBestNearPosition({ignorePositions: true, ignorePath: true});
-    this.memory.position.creep[this.controller.id] = upgraderPos;
-    costMatrix.set(upgraderPos.x, upgraderPos.y, config.layout.creepAvoid);
-    this.setMemoryCostMatrix(costMatrix);
+    this.setPosition(this.controller.id, upgraderPos, config.layout.creepAvoid, 'creep');
   }
 };
 
 Room.prototype.initSetSources = function() {
   const sources = this.find(FIND_SOURCES);
-  const costMatrix = this.getMemoryCostMatrix();
   for (const source of sources) {
     const sourcer = source.pos.getFirstNearPosition({ignorePath: true});
-    this.memory.position.creep[source.id] = sourcer;
-    // TODO E.g. E11S8 it happens that sourcer has no position
-    if (sourcer) {
-      const link = sourcer.getFirstNearPosition();
-      this.memory.position.structure.link.push(link);
-      costMatrix.set(link.x, link.y, config.layout.structureAvoid);
-      this.setMemoryCostMatrix(costMatrix);
-    }
+    this.setPosition(source.id, sourcer, config.layout.creepAvoid, 'creep');
+    this.setPosition(STRUCTURE_LINK, sourcer.getFirstNearPosition());
   }
 };
 
 Room.prototype.initSetMinerals = function() {
-  const costMatrix = this.getMemoryCostMatrix();
   const minerals = this.find(FIND_MINERALS);
   for (const mineral of minerals) {
     // const extractor = mineral.pos.getFirstNearPosition();
     const extractor = mineral.pos.getBestNearPosition();
-    this.memory.position.creep[mineral.id] = extractor;
-    this.memory.position.structure.extractor.push(mineral.pos);
-    costMatrix.set(extractor.x, extractor.y, config.layout.creepAvoid);
-    this.setMemoryCostMatrix(costMatrix);
+    this.setPosition(mineral.id, extractor, config.layout.creepAvoid, 'creep');
+    this.setPosition(STRUCTURE_EXTRACTOR, mineral.pos, config.layout.structureAvoid);
   }
 };
 
 Room.prototype.initSetStorageAndPathStart = function() {
-  const costMatrix = this.getMemoryCostMatrix();
-  const upgraderPos = this.memory.position.creep[this.controller.id];
+  let costMatrix = this.getMemoryCostMatrix();
+  const upgraderPos = this.memory.position.creep[this.controller.id][0];
   const storagePos = upgraderPos.getBestNearPosition({ignorePath: true});
-
-  this.memory.position.structure.storage.push(storagePos);
-  // TODO should also be done for the other structures
-  costMatrix.set(storagePos.x, storagePos.y, config.layout.structureAvoid);
-  this.setMemoryCostMatrix(costMatrix);
-
-  this.memory.position.creep.pathStart = storagePos.getFirstNearPosition({ignorePath: true});
+  this.setPosition(STRUCTURE_STORAGE, storagePos);
+  costMatrix = this.getMemoryCostMatrix();
+  this.debugLog('baseBuilding', `Storage position ${storagePos} costMatrix value before path ${costMatrix.get(storagePos.x, storagePos.y)}`);
+  this.memory.position.creep.pathStart = [storagePos.getWorseNearPosition({ignorePath: true})];
 
   const route = [{
     room: this.name,
   }];
   const pathUpgrader = this.getPath(route, 0, 'pathStart', this.controller.id, true);
-  // TODO exclude the last position (creepAvoid) in all paths
-  for (const pos of pathUpgrader) {
-    if (this.memory.position.creep[this.controller.id].isEqualTo(pos.x, pos.y)) {
-      continue;
-    }
-    costMatrix.set(pos.x, pos.y, config.layout.pathAvoid);
-  }
+  this.setCostMatrixPath(costMatrix, pathUpgrader);
   this.setMemoryCostMatrix(costMatrix);
+  this.debugLog('baseBuilding', `Upgrader position ${upgraderPos} costMatrix value after path ${costMatrix.get(upgraderPos.x, upgraderPos.y)}`);
   return {
     storagePos: storagePos,
     route: route,
@@ -70,16 +49,17 @@ Room.prototype.initSetStorageAndPathStart = function() {
 };
 
 Room.prototype.setFillerArea = function(storagePos, route) {
-  const costMatrix = this.getMemoryCostMatrix();
+  let costMatrix = this.getMemoryCostMatrix();
 
   const fillerPos = storagePos.getBestNearPosition();
-  this.memory.position.creep.filler = fillerPos;
-  costMatrix.set(fillerPos.x, fillerPos.y, config.layout.creepAvoid);
-  this.setMemoryCostMatrix(costMatrix);
+  this.setPosition('filler', fillerPos, config.layout.creepAvoid, 'creep');
+  costMatrix = this.getMemoryCostMatrix();
+  this.debugLog('baseBuilding', `Filler position ${fillerPos} costMatrix value before path ${costMatrix.get(fillerPos.x, fillerPos.y)}`);
 
   const pathFiller = this.getPath(route, 0, 'pathStart', 'filler', true);
   this.setCostMatrixPath(costMatrix, pathFiller);
   this.setMemoryCostMatrix(costMatrix);
+  this.debugLog('baseBuilding', `Filler position ${fillerPos} costMatrix value after path ${costMatrix.get(fillerPos.x, fillerPos.y)}`);
 
   const fillerNearPositions = Array.from(fillerPos.findNearPosition());
   if (fillerNearPositions.length < 1) {
@@ -88,9 +68,7 @@ Room.prototype.setFillerArea = function(storagePos, route) {
   }
 
   const linkStoragePos = fillerNearPositions.shift();
-  this.memory.position.structure.link.unshift(linkStoragePos);
-  costMatrix.set(linkStoragePos.x, linkStoragePos.y, config.layout.structureAvoid);
-  this.setMemoryCostMatrix(costMatrix);
+  this.setPosition(STRUCTURE_LINK, linkStoragePos);
 
   try {
     this.setPosition(STRUCTURE_POWER_SPAWN, fillerNearPositions.shift());
@@ -101,56 +79,25 @@ Room.prototype.setFillerArea = function(storagePos, route) {
   }
 };
 
-Room.prototype.addTerminalToFillerArea = function() {
-  const fillerPos = this.memory.position.creep.filler;
-  const pathStart = this.memory.position.creep.pathStart;
-  const getNearPathPos = (pos) => Array.from(pos.getAllAdjacentPositions()).find((p) => p.inPath() && !p.inPositions() || p.isEqualTo(pathStart));
-
-  for (const terminalPos of fillerPos.findNearPosition()) {
-    const nearPathPos = getNearPathPos(terminalPos);
-    if (nearPathPos) {
-      this.setPosition(STRUCTURE_TERMINAL, terminalPos);
-      this.memory.position.creep.terminal = nearPathPos;
-      this.debugLog('baseBuilding', 'set terminal in free spot');
-      return;
+Room.prototype.addTerminal = function() {
+  const minerals = this.find(FIND_MINERALS);
+  const extractorPosOrg = this.memory.position.creep[minerals[0].id][0];
+  const extractorPos = new RoomPosition(extractorPosOrg.x, extractorPosOrg.y, extractorPosOrg.roomName);
+  const getNearPathPos = (pos) => Array.from(pos.getAllAdjacentPositions()).find((p) => p.inPath() && !p.inPositions());
+  try {
+    for (const terminalPos of extractorPos.findNearPosition()) {
+      const nearPathPos = getNearPathPos(terminalPos);
+      if (nearPathPos) {
+        this.setPosition(STRUCTURE_TERMINAL, terminalPos);
+        this.debugLog('baseBuilding', 'set terminal in free spot');
+        return;
+      }
     }
+  } catch (e) {
+    console.log(`${e} ${JSON.stringify(extractorPos)} ${typeof extractorPos} ${JSON.stringify(extractorPosOrg)} ${typeof extractorPosOrg} ${extractorPos.findNearPosition}`);
   }
-
-  const nextPos = fillerPos.getFirstNearPosition();
-  if (!nextPos) {
-    this.log('addTerminalToFillerArea can not find position');
-    return;
-  }
-  const trySwapPos = (structureType) => {
-    const nearPathPos = getNearPathPos(this.memory.position.structure[structureType][0]);
-    if (nearPathPos) {
-      this.memory.position.structure.terminal.push(this.memory.position.structure[structureType][0]);
-      this.memory.position.creep.terminal = nearPathPos;
-      this.memory.position.structure[structureType][0] = nextPos;
-      const costMatrix = this.getMemoryCostMatrix();
-      costMatrix.set(nextPos.x, nextPos.y, config.layout.structureAvoid);
-      this.setMemoryCostMatrix(costMatrix);
-      return true;
-    }
-    return false;
-  };
-
-  if (trySwapPos(STRUCTURE_POWER_SPAWN)) {
-    this.debugLog('baseBuilding', `set terminal instead ${STRUCTURE_POWER_SPAWN}`);
-    return;
-  }
-
-  if (trySwapPos(STRUCTURE_TOWER)) {
-    this.debugLog('baseBuilding', `set terminal instead ${STRUCTURE_TOWER}`);
-    return;
-  }
-
-  if (trySwapPos(STRUCTURE_LINK)) {
-    this.debugLog('baseBuilding', `set terminal instead ${STRUCTURE_LINK}`);
-    return;
-  }
-
-  throw new Error(`Can't set layout for room ${this.name}. Can't set terminal near path`);
+  this.log(`Can't find a position for the terminal`);
+  return;
 };
 
 Room.prototype.updatePosition = function() {
@@ -183,8 +130,12 @@ Room.prototype.updatePosition = function() {
 
   if (this.controller && this.controller.my) {
     const startPos = this.initSetStorageAndPathStart();
+
     this.costMatrixSetSourcePath();
     this.setFillerArea(startPos.storagePos, startPos.route);
+    const costMatrix = this.getMemoryCostMatrix();
+    const upgraderPos = this.memory.position.creep[this.controller.id][0];
+    this.debugLog('baseBuilding', `Upgrader position ${upgraderPos} costMatrix value after setFillerArea ${costMatrix.get(upgraderPos.x, upgraderPos.y)}`);
   }
 
   // find the most remote position to place the room summary visual
@@ -213,8 +164,15 @@ Room.prototype.updatePosition = function() {
 
 Room.prototype.setPosition = function(type, pos, value = config.layout.structureAvoid, positionType = 'structure') {
   const costMatrix = this.getMemoryCostMatrix();
+  if (!this.memory.position[positionType]) {
+    this.memory.position[positionType] = {};
+  }
+  if (!this.memory.position[positionType][type]) {
+    this.memory.position[positionType][type] = [];
+  }
   this.memory.position[positionType][type].push(pos);
-  costMatrix.set(pos.x, pos.y, value);
+  this.debugLog('baseBuilding', `Increasing ${pos} ${type} ${positionType} with ${value}`);
+  this.increaseCostMatrixValue(costMatrix, pos, value);
   this.setMemoryCostMatrix(costMatrix);
 };
 
@@ -292,7 +250,6 @@ Room.prototype.setLabs = function(allPaths) {
     return !p.isEqualTo(lab1Pos) && !p.isEqualTo(lab2Pos) && p.inRangeTo(lab2Pos, 2) && p.validPosition() &&
       path.slice(Math.max(0, pathI - 3), Math.min(path.length - 1, pathI + 3)).some((pp) => p.isNearTo(pp.x, pp.y));
   };
-  const isNear = (p1) => (p2) => p2.isNearTo(p1);
 
   const pathImax = this.getMemoryPath(allPaths[allPaths.length - 1].name).length;
 
@@ -322,12 +279,6 @@ Room.prototype.setLabs = function(allPaths) {
         for (const pos of labResultPoss) {
           if (this.memory.position.structure.lab.length < CONTROLLER_STRUCTURES.lab[8]) {
             this.setPosition(STRUCTURE_LAB, pos);
-          }
-        }
-        for (let i = pathI; i < Math.min(path.length, pathI + 3); ++i) {
-          const lastPathPos = RoomPosition.fromJSON(path[i]);
-          if (labResultPoss.some(isNear(lastPathPos))) {
-            this.memory.position.creep.labs = lastPathPos;
           }
         }
         room.debugLog('baseBuilding', 'All labs set: ' + pathI);
@@ -454,50 +405,54 @@ Room.prototype.costMatrixSetMineralPath = function() {
 };
 
 Room.prototype.costMatrixPathFromStartToExit = function(exits) {
-  const costMatrix = this.getMemoryCostMatrix();
-  for (const endDir in exits) {
-    if (!endDir) {
-      continue;
-    }
-    const end = exits[endDir];
-    const route = [{
-      room: this.name,
-    }, {
-      room: end,
-    }];
-    const path = this.getPath(route, 0, 'pathStart', undefined, true);
-    this.setCostMatrixPath(costMatrix, path);
-    this.setMemoryCostMatrix(costMatrix);
-  }
-};
-
-Room.prototype.costMatrixPathCrossings = function(exits) {
-  const costMatrix = this.getMemoryCostMatrix();
-  for (const startDir in exits) {
-    if (!startDir) {
-      continue;
-    }
-    const start = exits[startDir];
+  return () => {
+    const costMatrix = this.getMemoryCostMatrix();
     for (const endDir in exits) {
       if (!endDir) {
         continue;
       }
       const end = exits[endDir];
-      if (start === end) {
-        continue;
-      }
       const route = [{
-        room: start,
-      }, {
         room: this.name,
       }, {
         room: end,
       }];
-      const path = this.getPath(route, 1, undefined, undefined, true);
+      const path = this.getPath(route, 0, 'pathStart', undefined, true);
       this.setCostMatrixPath(costMatrix, path);
       this.setMemoryCostMatrix(costMatrix);
     }
-  }
+  };
+};
+
+Room.prototype.costMatrixPathCrossings = function(exits) {
+  return () => {
+    const costMatrix = this.getMemoryCostMatrix();
+    for (const startDir in exits) {
+      if (!startDir) {
+        continue;
+      }
+      const start = exits[startDir];
+      for (const endDir in exits) {
+        if (!endDir) {
+          continue;
+        }
+        const end = exits[endDir];
+        if (start === end) {
+          continue;
+        }
+        const route = [{
+          room: start,
+        }, {
+          room: this.name,
+        }, {
+          room: end,
+        }];
+        const path = this.getPath(route, 1, undefined, undefined, true);
+        this.setCostMatrixPath(costMatrix, path);
+        this.setMemoryCostMatrix(costMatrix);
+      }
+    }
+  };
 };
 
 const checkForSurroundingWalls = function(pos, valueAdd) {
@@ -591,7 +546,7 @@ Room.prototype.checkForMisplacedSpawn = function() {
   for (const spawn of spawns) {
     if (!this.checkForSpawnPosition(spawn.pos)) {
       this.memory.misplacedSpawn = true;
-      this.log(`Spawn ${spawn.pos} is misplaced, not in positions ${JSON.stringify(this.memory.position.structure.spawn)} (prototype_room_init.checkForMisplacedSpawn)`);
+      this.debugLog('baseBuilding', `Spawn [${spawn.pos.x}, ${spawn.pos.y}] is misplaced, not in positions ${JSON.stringify(this.memory.position.structure[spawn.structureType].map((o) => `${o.x}, ${o.y}`))} (prototype_room_init.checkForMisplacedSpawn)`); // eslint-disable-line max-len
     }
   }
 };
@@ -612,21 +567,81 @@ Room.prototype.setupStructures = function() {
   this.memory.position.version = config.layout.version;
 };
 
-Room.prototype.setup = function() {
+Room.prototype.stepExecute = function(func, name) {
+  if (!this.memory.setup.steps[name]) {
+    func.bind(this)();
+  }
+  this.memory.setup.steps[name] = true;
+  if (Game.cpu.getUsed() >= Game.cpu.limit) {
+    return false;
+  }
+  return true;
+};
+
+Room.prototype.cleanupMemory = function() {
+  delete this.memory.walls;
+
   delete this.memory.constants;
-  this.debugLog('baseBuilding', 'costmatrix.setup called');
-  this.memory.controllerLevel = {};
-  this.updatePosition();
+  delete this.memory.routing;
+  delete this.memory.position;
+  delete this.memory.summaryCenter;
+  cache.rooms[this.name] = {
+    find: {},
+    routing: {},
+    costMatrix: {},
+    created: Game.time,
+  };
+};
+
+Room.prototype.setup = function() {
+  if (this.memory.setup) {
+    if (this.memory.setup.completed) {
+      delete this.memory.setup;
+    } else {
+      this.debugLog('baseBuilding', `Continuing setup ${JSON.stringify(this.memory.setup)}`);
+    }
+  }
+  this.memory.setup = this.memory.setup || {
+    steps: {},
+  };
+
+  if (!this.stepExecute(this.cleanupMemory, 'cleanupMemory')) {
+    return false;
+  }
+
+  if (!this.stepExecute(this.updatePosition, 'updatePosition')) {
+    return false;
+  }
 
   const exits = Game.map.describeExits(this.name);
   if (this.controller) {
-    this.costMatrixSetMineralPath();
-    this.costMatrixPathFromStartToExit(exits);
+    if (!this.stepExecute(this.costMatrixSetMineralPath, 'costMatrixSetMineralPath')) {
+      return false;
+    }
+    if (!this.stepExecute(this.costMatrixPathFromStartToExit(exits), 'costMatrixPathFromStartToExit')) {
+      return false;
+    }
   }
 
-  this.costMatrixPathCrossings(exits);
-  this.addTerminalToFillerArea();
-  this.setupStructures();
-  this.blockWrongSpawnExits();
-  this.checkForMisplacedSpawn();
+  if (!this.stepExecute(this.costMatrixPathCrossings(exits), 'costMatrixPathCrossings')) {
+    return false;
+  }
+
+  if (!this.stepExecute(this.addTerminal, 'addTerminal')) {
+    return false;
+  }
+
+  if (!this.stepExecute(this.setupStructures, 'setupStructures')) {
+    return false;
+  }
+
+  if (!this.stepExecute(this.blockWrongSpawnExits, 'blockWrongSpawnExits')) {
+    return false;
+  }
+
+  if (!this.stepExecute(this.checkForMisplacedSpawn, 'checkForMisplacedSpawn')) {
+    return false;
+  }
+  this.memory.setup.completed = true;
+  return true;
 };

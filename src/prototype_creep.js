@@ -85,6 +85,7 @@ Creep.prototype.checkForHandle = function() {
 };
 
 Creep.prototype.handle = function() {
+  this.memory.room = this.pos.roomName;
   if (!this.checkForHandle()) {
     return;
   }
@@ -113,6 +114,7 @@ Creep.prototype.handle = function() {
       this.name + ' ' +
       this.id + ' ' +
       JSON.stringify(this.pos) + ' ' +
+      JSON.stringify(this.memory) + ' ' +
       err;
     if (err !== null) {
       message += '\n' + err.stack;
@@ -122,34 +124,27 @@ Creep.prototype.handle = function() {
     Game.notify(message, 30);
   } finally {
     if (this.fatigue === 0) {
-      if (this.memory.last === undefined) {
-        this.memory.last = {};
+      if (this.memory.lastPositions === undefined) {
+        this.memory.lastPositions = [];
       }
-      const last = this.memory.last;
-      this.memory.last = {
-        pos1: this.pos,
-        pos2: last.pos1,
-        pos3: last.pos2,
-      };
+      this.memory.lastPositions.unshift(this.pos);
+      this.memory.lastPositions = this.memory.lastPositions.slice(0, 5);
     }
   }
 };
 
 Creep.prototype.isStuck = function() {
-  if (!this.memory.last) {
-    return false;
-  }
-  if (!this.memory.last.pos2) {
-    return false;
-  }
-  if (!this.memory.last.pos3) {
+  if (!this.memory.lastPositions) {
     return false;
   }
   const creep = this;
-  const filter = (pos) => {
-    return creep.pos.isEqualTo(pos.x, pos.y) ? 1 : 0;
+  const filter = (accumulator, currentValue) => {
+    const value = creep.pos.isEqualTo(currentValue.x, currentValue.y) ? 1 : 0;
+    return accumulator + value;
   };
-  return _.sum(_.map(this.memory.last, filter)) > 1;
+  const sum = this.memory.lastPositions.reduce(filter, 0);
+  this.creepLog(`isStuck sum: ${sum} lastPositions: ${JSON.stringify(this.memory.lastPositions)}`);
+  return sum > 2;
 };
 
 Creep.prototype.getEnergyFromStructure = function() {
@@ -236,7 +231,8 @@ Creep.prototype.buildRoad = function() {
   constructionSites = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD]);
   if (
     constructionSites.length <= config.buildRoad.maxConstructionSitesRoom &&
-    Object.keys(Game.constructionSites).length < config.buildRoad.maxConstructionSitesTotal
+    Object.keys(Game.constructionSites).length < config.buildRoad.maxConstructionSitesTotal &&
+    this.memory.routing.pathPos >= 0
   // && this.pos.inPath()
   ) {
     const returnCode = this.pos.createConstructionSite(STRUCTURE_ROAD);

@@ -175,6 +175,7 @@ Creep.prototype.getEnergyFromStorage = function() {
 };
 
 Creep.prototype.repairStructure = function() {
+  this.creepLog('repairStructure');
   if (this.memory.target) {
     const toRepair = Game.getObjectById(this.memory.target);
     if (!toRepair || toRepair === null) {
@@ -184,14 +185,17 @@ Creep.prototype.repairStructure = function() {
     }
 
     if (toRepair instanceof ConstructionSite) {
+      this.creepLog(`building constructionSite ${JSON.stringify(toRepair)}`);
       this.build(toRepair);
       this.moveToMy(toRepair.pos, 3);
       return true;
     } else if (toRepair.hits < 10000 || toRepair.hits < this.memory.step + 10000) {
+      this.creepLog(`repairing structure ${JSON.stringify(toRepair)}`);
       this.repair(toRepair);
       if (this.fatigue === 0) {
         const range = this.pos.getRangeTo(toRepair);
         if (range <= 3) {
+          this.creepLog(`moveRandom ${JSON.stringify(toRepair)}`);
           this.moveRandomWithin(toRepair);
         } else {
           this.creepLog('repairStructure moveToMy target:', JSON.stringify(toRepair.pos));

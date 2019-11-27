@@ -11,11 +11,16 @@ Room.prototype.buildBase = function() {
   this.memory.controllerLevel = this.memory.controllerLevel || {};
 
   if (!this.memory.controllerLevel['setup_level_' + this.controller.level]) {
-    if (this.controller.level === 1) {
-      if (!this.memory.position) {
-        this.setup();
+    if (Game.cpu.tickLimit > Game.cpu.bucket) {
+      // this.log(`Skipping room_controller.js execution CPU limit: ${Game.cpu.limit} tickLimit: ${Game.cpu.tickLimit} bucket: ${Game.cpu.bucket}`);
+      return;
+    }
+    if (this.controller.level === 1 || this.controller.level === 2) {
+      if (!this.setup()) {
+        return;
       }
     }
+    this.updateCostMatrix();
     resetCounters(this);
     this.memory.controllerLevel['setup_level_' + this.controller.level] = Game.time;
   }
@@ -76,6 +81,7 @@ Room.prototype.buildBase = function() {
 
   // version: this.memory.position.version is maybe not the best idea
   if (!this.memory.position || this.memory.position.version !== config.layout.version) {
+    this.debugLog('baseBuilding', 'New layout version, rebuilding');
     this.setup();
   }
 };

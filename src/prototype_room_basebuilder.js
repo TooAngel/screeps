@@ -101,7 +101,7 @@ Room.prototype.destroyStructure = function(structure) {
       }
       return false;
     }
-    this.log(`Spawn ${structure.pos} is misplaced, not in positions ${JSON.stringify(this.memory.position.structure[structure.structureType])} (prototype_room_basebuilder.destroyStructure)`);
+    this.log(`Spawn [${structure.pos.x}, ${structure.pos.y}] is misplaced, not in positions ${JSON.stringify(this.memory.position.structure[structure.structureType].map((o) => `${o.x}, ${o.y}`))} (prototype_room_basebuilder.destroyStructure)`); // eslint-disable-line max-len
     this.memory.misplacedSpawn = true;
 
     // Build ramparts around the spawn if wallThickness > 1

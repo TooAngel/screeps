@@ -19,7 +19,8 @@ roles.carry.settings = {
   param: ['energyCapacityAvailable'],
   prefixString: {
     300: '',
-    550: 'W',
+    550: 'MW',
+    600: 'W',
   },
   layoutString: 'CM',
   amount: config.carry.sizes,
@@ -107,11 +108,15 @@ roles.carry.dismantleStructure = function(creep, directions) {
 
 roles.carry.preMove = function(creep, directions) {
   // TODO When does this happen? (Not on path?) - Handle better
-  if (!directions) {
-    this.log('role_carry.preMove - No directions, why?');
+  if (!directions || Object.keys(directions).length === 0) {
+    if (creep.memory.routing.pathPos < 0) {
+      return false;
+    }
+    creep.log(`role_carry.preMove - No directions, why? pathPos: ${creep.memory.routing.pathPos}`);
     creep.say('No directions');
     return false;
   }
+  creep.creepLog(`preMove directions check ${JSON.stringify(directions)}`);
 
   roles.carry.checkHelperEmptyStorage(creep);
 
@@ -119,15 +124,19 @@ roles.carry.preMove = function(creep, directions) {
   const fleeFromSourceKeeper = creep.checkForSourceKeeper();
   moveToStorage = moveToStorage || fleeFromSourceKeeper;
   if (moveToStorage) {
+    creep.creepLog(`preMove moveToStorage`);
     if (creep.inBase()) {
       const transferred = creep.transferToStructures();
+      creep.creepLog(`preMove transferToStructures ${JSON.stringify(transferred)}`);
       if (transferred) {
         const energyLeft = creep.carry.energy - transferred.transferred;
         if (energyLeft > 0) { // Better use `checkCarryEnergyForBringingBackToStorage` to be accurate
           if (transferred.moreStructures) {
+            creep.creepLog(`preMove transferred.moreStructures energyLeft ${energyLeft} ${JSON.stringify(transferred)}`);
             return true;
           }
         } else {
+          creep.creepLog(`preMove transferred.moreStructures no energyLeft ${energyLeft} ${JSON.stringify(transferred)}`);
           creep.memory.routing.reverse = false;
           return false;
         }
@@ -139,14 +148,17 @@ roles.carry.preMove = function(creep, directions) {
         creep.memory.routing.reverse = false;
         return false;
       }
+    }
 
-      if (directions.backwardDirection && directions.backwardDirection !== null) {
-        const transferred = creep.transferToCreep(directions.backwardDirection);
-        creep.memory.routing.reverse = !transferred;
-        return false;
-      }
+    creep.creepLog(`preMove transferToCreep directions check ${JSON.stringify(directions)}`);
+    if (directions.backwardDirection && directions.backwardDirection !== null) {
+      creep.creepLog('Trying to transfer to creep');
+      const transferred = creep.transferToCreep(directions.backwardDirection);
+      creep.memory.routing.reverse = !transferred;
+      return false;
     }
   } else {
+    creep.creepLog(`preMove not moveToStorage`);
     if (creep.memory.routing.pathPos > 1) {
       // TODO these two methods seems pretty similar, should be unified
       moveToStorage = creep.pickupEnergy();
@@ -174,7 +186,7 @@ roles.carry.preMove = function(creep, directions) {
 
 roles.carry.action = function(creep) {
   // TODO log when this happens, carry is getting energy from the source
-  // creep.log('ACTION');
+  creep.creepLog('ACTION');
   const source = Game.getObjectById(creep.memory.routing.targetId);
   if (source === null) {
     creep.say('sfener');
@@ -219,9 +231,8 @@ roles.carry.action = function(creep) {
 
   // End of path, can't harvest, suicide (otherwise the sourcer get's stuck)
   if (!reverse && creep.body.filter((part) => part.type === WORK).length === 0) {
-    // const path = creep.prepareRoutingMemory();
-    // creep.moveByPathMy(path);
-    creep.log('Suicidn because end of path, no energy, do not want to get in the way of the sourcer');
+    // creep.log('Suiciding because end of path, no energy, do not want to get in the way of the sourcer (better recycle?)');
+    creep.memory.killed = true;
     creep.suicide();
   }
 

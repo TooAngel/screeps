@@ -1,17 +1,16 @@
-const fs = require('fs');
 const net = require('net');
 const q = require('q');
 const _ = require('lodash');
-const lib = require('@screeps/launcher/lib/index');
 const {ScreepsAPI} = require('screeps-api');
-const ncp = require('ncp');
-const rimraf = require('rimraf');
-const path = require('path');
+
+const {setPassword, sleep, initServer, startServer, spawnBots, helpers, logConsole, followLog} = require('./testHelpers');
 
 const cliPort = 21026;
 const port = 21025;
 
-const dir = 'tmp-test-server';
+const verbose = false;
+
+const tickDuration = 10;
 
 const players = {
   'W1N7': {x: 43, y: 35},
@@ -22,18 +21,45 @@ const players = {
   'W7N4': {x: 36, y: 11},
   'W2N5': {x: 8, y: 26},
 };
-const rooms = Object.keys(players);
-const roomsSeen = {};
-const duration = 600;
-const maxAttempts = 10;
-const verbose = false;
-const timer = {
-  start: Date.now(),
-  end: null,
-};
 
+const milestones = [
+  {tick: 30, check: {structures: 1}},
+  {tick: 500, check: {level: 2}, required: true},
+  {tick: 1700, check: {structures: 2}},
+  {tick: 2800, check: {structures: 3}},
+  {tick: 3300, check: {structures: 4}},
+  {tick: 3900, check: {structures: 5}},
+  {tick: 4300, check: {structures: 6}},
+  {tick: 13000, check: {level: 3}, required: true},
+  {tick: 14200, check: {structures: 7}},
+  {tick: 14300, check: {structures: 8}},
+  {tick: 14500, check: {structures: 9}},
+  {tick: 14700, check: {structures: 10}},
+  {tick: 1500, check: {structures: 11}},
+  {tick: 4200, check: {structures: 12}},
+  {tick: 123000, check: {level: 4}},
+  {tick: 4200, check: {structures: 13}},
+  {tick: 4200, check: {structures: 14}},
+  {tick: 4200, check: {structures: 15}},
+  {tick: 4200, check: {structures: 16}},
+];
+
+const playerRoom = 'W8N3';
+const rooms = Object.keys(players);
 const controllerRooms = {};
 const status = {};
+let lastTick = 0;
+
+process.once('SIGINT', function (code) {
+  console.log('SIGINT received...');
+  console.log(`${lastTick} End of simulation`);
+  console.log('Status:');
+  console.log(JSON.stringify(status, null, 2));
+  console.log('Milestones:');
+  console.log(JSON.stringify(milestones, null, 2));
+  process.exit();
+});
+
 for (const room of rooms) {
   status[room] = {
     controller: null,
@@ -45,28 +71,119 @@ for (const room of rooms) {
   };
 }
 
-let mongoPrepared = false;
+let botsSpawned = false;
 
-/**
- * sleep method
- *
- * Helper method to sleep for amount of seconds.
- * @param {number} seconds Amount of seconds to sleep
- * @return {object}
- */
-function sleep(seconds) {
-  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+class Tester {
+  constructor(length) {
+    this.roomsSeen = {};
+    if (process.argv.length > 2) {
+      try {
+        this.maxRuntime = parseInt(process.argv[2]) * 60;
+      } catch (e) {
+        console.log(`Cannot parse runtime argument ${process.argv} ${e}`);
+      }
+    }
+  }
+
+  /**
+   *
+   * @param {string} line
+   * @param {object} defer
+   * @return {undefined}
+   */
+  async checkForSucces(line, defer) {
+    if (botsSpawned && line.startsWith(`'OK'`)) {
+      console.log(`> Start the simulation with runtime ${this.maxRuntime / 60} minutes`);
+      if (this.maxRuntime) {
+        await sleep(this.maxRuntime);
+        console.log(`${lastTick} End of simulation`);
+        console.log('Status:');
+        console.log(JSON.stringify(status, null, 2));
+        console.log('Milestones:');
+        console.log(JSON.stringify(milestones, null, 2));
+        const failes = milestones.filter((milestone) => milestone.required && !milestone.success);
+        if (failes.length > 0) {
+          for (const fail of failes) {
+            console.log(`${lastTick} Milestone failed ${JSON.stringify(fail)}`)
+          }
+          console.log(`${lastTick} Status check: failed`);
+          defer.reject('Not all milestones are hit.');
+          return
+        }
+        console.log(`${lastTick} Status check: passed`);
+        defer.resolve();
+      }
+    }
+  }
+
+  /**
+   * execute method
+   *
+   * Connects via cli
+   * - Spawn to bot
+   * - Sets the password for the user
+   * - triggers `followLog`
+   * - Starts the simulation
+   * - Waits
+   * - Reads the controller data and checks controller progress
+   * @return {object}
+   */
+  async execute() {
+    const defer = q.defer();
+    const socket = net.connect(cliPort, '127.0.0.1');
+
+    socket.on('data', async (raw) => {
+      const data = raw.toString('utf8');
+      const line = data.replace(/^< /, '').replace(/\n< /, '');
+      if (await spawnBots(line, socket, rooms, players, tickDuration)) {
+        botsSpawned = true;
+        return;
+      }
+      if (setPassword(line, socket, rooms, this.roomsSeen, playerRoom)) {
+        if (rooms.length === Object.keys(this.roomsSeen).length) {
+          console.log('> Listen to the log');
+          followLog(rooms, logConsole, statusUpdater);
+          await sleep(5);
+          console.log(`> system.resumeSimulation()`);
+          socket.write(`system.resumeSimulation()\r\n`);
+        }
+        return;
+      }
+
+      await this.checkForSucces(line, defer);
+    });
+
+    socket.on('connect', () => {console.log('connected');});
+    socket.on('error', (error) => {defer.reject(error);});
+
+    return defer.promise;
+  }
+
+  async run() {
+    const start = Date.now();
+    await initServer();
+    await startServer();
+    await sleep(5);
+    let exitCode = 0;
+    try {
+      await this.execute();
+      console.log(`${lastTick} Yeah`);
+    } catch (e) {
+      exitCode = 1;
+      console.log(`${lastTick} ${e}`);
+    }
+    const end = Date.now();
+    console.log(`${lastTick} seconds elapsed ${Math.floor((end - start) / 1000)}`);
+    /* eslint no-process-exit: "off" */
+    process.exit(exitCode);
+  }
 }
 
-/**
- * checks for controller progress and level
- *
- * @param {object} status
- * @return {boolean}
- */
-function checkForStatus() {
-  let response = true;
-  console.log('-------------------------------')
+const printCurrentStatus = function(gameTime) {
+  if (!verbose) {
+    return;
+  }
+  console.log('-------------------------------');
   const keys = Object.keys(status);
   keys.sort((a, b) => {
     if (status[a].level === status[b].level) {
@@ -75,153 +192,9 @@ function checkForStatus() {
     return status[a].level - status[b].level
   });
   for (const key of keys) {
-    if (process.argv.length !== 2 || status[key].progress === 0 || status[key].level < 3) {
-      console.log(`${key} not at threshold level ${status[key].level} < 3 and progress ${status[key].progress} === 0 ${JSON.stringify(status[key])}`);
-      response = false;
-    }
+    console.log(`${gameTime} Status: room ${key} level: ${status[key].level} progress: ${status[key].progress} structures: ${status[key].structures} creeps: ${status[key].creeps}`);
   }
-  return response;
 }
-
-async function initServer() {
-  if (fs.existsSync(dir)) {
-    rimraf.sync(dir);
-  }
-  fs.mkdirSync(dir, 0744);
-  await new Promise(function(resolve) {
-    ncp(path.resolve(__dirname, '../node_modules/@screeps/launcher/init_dist'), dir, (e) => {
-      resolve();
-    });
-  });
-  var configFilename = path.resolve(dir, '.screepsrc');
-  var config = fs.readFileSync(configFilename, {encoding: 'utf8'});
-  config = config.replace(/{{STEAM_KEY}}/, process.env.STEAM_API_KEY);
-  fs.writeFileSync(configFilename, config);
-  fs.chmodSync(path.resolve(dir, 'node_modules/.hooks/install'), '755');
-  fs.chmodSync(path.resolve(dir, 'node_modules/.hooks/uninstall'), '755');
-
-  await new Promise(function(resolve) {
-    fs.copyFile('test-files/mods.json', `${dir}/mods.json`, (err) => {
-      if (err) throw err;
-      resolve();
-    });
-  });
-  try {
-      fs.writeFileSync(path.resolve(dir, 'package.json'), JSON.stringify({
-          name: 'my-screeps-world',
-          version: '0.0.1',
-          private: true
-      }, undefined, '  '), {encoding: 'utf8', flag: 'wx'});
-  }
-  catch(e) {}
-}
-
-/**
- * startServer method
- *
- * Starts the private server
- * @return {object}
- */
-async function startServer() {
-  process.chdir(dir);
-  return lib.start({}, process.stdout);
-}
-
-/**
- * logs event
- *
- * @param {object} event
- */
-const logConsole = function(event) {
-  if (!event.data || !event.data.messages) {
-    return;
-  }
-
-  if (event.data.messages.results.length > 0) {
-    console.log('result', event.data.messages.results);
-  }
-
-  if (event.data.messages.log.length > 0) {
-    for (let logIndex = 0; logIndex < event.data.messages.log.length; logIndex++) {
-      console.log(event.data.messages.log[logIndex]);
-    }
-  }
-};
-
-
-const filter = {
-  controller: (o) => {
-    if (o && o.type) {
-      return o.type === 'controller';
-    }
-    return false;
-  },
-  controllerById: (o, id) => {
-    if (o && id) {
-      return Object.keys(controllerRooms).indexOf(id) > -1;
-    }
-    return false;
-  },
-  creeps: (o) => {
-    if (o && o.type) {
-      return o.type === 'creep';
-    }
-    return false;
-  },
-  structures: (o) => {
-    if (o && o.type) {
-      return o.type === 'spawn' || o.type == 'extension';
-    }
-    return false;
-  },
-};
-
-const helpers = {
-  initControllerID: function(event) {
-    if (status[event.id].controller === null) {
-      status[event.id].controller = _.filter(event.data.objects, filter.controller)[0];
-      status[event.id].controller = status[event.id].controller._id;
-      controllerRooms[status[event.id].controller] = event.id;
-    }
-  },
-  updateCreeps: function(event) {
-    const creeps = _.filter(event.data.objects, filter.creeps);
-    if (_.size(creeps) > 0) {
-      if (verbose) {
-        console.log(event.data.gameTime, 'creeps', JSON.stringify(_.omit(creeps, ['meta', '$loki'])));
-      }
-      status[event.id].creeps += _.size(creeps);
-    }
-  },
-  updateStructures: function(event) {
-    const structures = _.filter(event.data.objects, filter.structures);
-    if (_.size(structures) > 0) {
-      if (verbose) {
-        console.log(event.data.gameTime, 'structures', JSON.stringify(_.omit(structures, ['meta', '$loki'])));
-      }
-      status[event.id].structures += _.size(structures);
-    }
-  },
-  updateController: function(event) {
-    const controllers = _.pick(event.data.objects, Object.keys(controllerRooms));
-    for (const controllerId of Object.keys(controllers)) {
-      const controller = controllers[controllerId];
-      const roomName = controllerRooms[controllerId];
-      if (status[roomName] === undefined) {
-        continue;
-      }
-      if (controller.progress >= 0) {
-        status[roomName].progress = controller.progress;
-      }
-      if (controller.level >= 0) {
-        status[roomName].level = controller.level;
-      }
-      if (verbose) {
-        console.log(event.data.gameTime, 'controller', JSON.stringify(_.omit(controller, ['meta'])));
-      }
-    }
-  },
-};
 
 /**
  * updates the stauts object
@@ -229,175 +202,56 @@ const helpers = {
  * @param {object} event
  */
 const statusUpdater = (event) => {
-  helpers.initControllerID(event);
+  if (event.data.gameTime !== lastTick) {
+    lastTick = event.data.gameTime;
+    if (event.data.gameTime % 300 === 0) {
+      printCurrentStatus(event.data.gameTime);
+    }
+    for (const milestone of milestones) {
+      const failedRooms = [];
+      if (typeof milestone.success === 'undefined' || milestone.success === null) {
+        let success = Object.keys(status).length === Object.keys(players).length;
+        for (const room of Object.keys(status)) {
+          for (const key of Object.keys(milestone.check)) {
+            if (status[room][key] < milestone.check[key]) {
+              success = false;
+              failedRooms.push(room);
+              break;
+            }
+          }
+        }
+        if (success) {
+          milestone.success = event.data.gameTime < milestone.tick;
+          milestone.tickReached = event.data.gameTime;
+          console.log('===============================');
+          console.log(`${event.data.gameTime} Milestone: Success ${JSON.stringify(milestone)}`);
+        }
+      }
+
+      if (milestone.success) {
+        if (milestone.tick === event.data.gameTime) {
+          console.log('===============================');
+          console.log(`${event.data.gameTime} Milestone: Reached ${JSON.stringify(milestone)}`)
+        }
+        continue;
+      }
+
+      if (milestone.tick === event.data.gameTime) {
+        milestone.failedRooms = failedRooms;
+        console.log('===============================');
+        console.log(`${event.data.gameTime} Milestone: Failed ${JSON.stringify(milestone)} status: ${JSON.stringify(status)}`);
+        continue;
+      }
+    }
+  }
+
+  helpers.initControllerID(event, status, controllerRooms);
   if (_.size(event.data.objects) > 0) {
-    helpers.updateCreeps(event);
-    helpers.updateStructures(event);
-    helpers.updateController(event);
-  }
-
-  if (event.data.gameTime % 300 === 0) {
-    if (verbose) {
-      console.log(event.data.gameTime, 'action objects in room', _.size(event.data.objects));
-      for (const key of Object.keys(status)) {
-        console.log(event.data.gameTime, key, 'spawned creeps', status[key].creeps);
-        console.log(event.data.gameTime, key, 'controller progress', status[key].progress, '& level', status[key].level);
-      }
-    }
-    console.log(`${event.data.gameTime} Status: room ${event.id} level: ${status[event.id].level} progress: ${status[event.id].progress} creeps: ${status[event.id].creeps} structures: ${status[event.id].structures}`);
+    helpers.updateCreeps(event, status);
+    helpers.updateStructures(event, status);
+    helpers.updateController(event, status, controllerRooms);
   }
 };
-
-/**
- * followLog method
- *
- * Connects to the api and reads and prints the console log, if messages
- * are available
- *
- * @return {undefined}
- */
-async function followLog() {
-  for (const room of rooms) {
-    const api = new ScreepsAPI({
-      email: room,
-      password: 'tooangel',
-      protocol: 'http',
-      hostname: '127.0.0.1',
-      port: port,
-      path: '/',
-    });
-
-    await api.auth();
-
-    api.socket.connect();
-    api.socket.on('connected', ()=> {});
-    api.socket.on('auth', (event)=> {});
-    api.socket.subscribe('console', logConsole);
-    api.socket.subscribe('room:' + room, statusUpdater);
-  }
-}
-
-/**
- * spawns TooAngel Bot
- *
- * @param {string} line
- * @param {object} socket
- * @return {boolean}
- */
-const spawnBots = async function(line, socket) {
-  if (line.startsWith(`Screeps server v`)) {
-    console.log(`> system.resetAllData()`);
-    socket.write(`system.resetAllData()\r\n`);
-    await sleep(5);
-    console.log(`> system.pauseSimulation()`);
-    socket.write(`system.pauseSimulation()\r\n`);
-    await sleep(5);
-    const tickDuration = 100;
-    console.log(`> utils.setTickRate(${tickDuration})`);
-    socket.write(`utils.setTickRate(${tickDuration})\r\n`);
-    mongoPrepared = true;
-    for (const room of rooms) {
-      console.log('> Spawn bot ' + room + ' as TooAngel');
-      socket.write(`bots.spawn('screeps-bot-tooangel', '${room}', {username: '${room}', cpu: 100, gcl: 1, x: ${players[room].x}, y: ${players[room].y}})\r\n`);
-      await sleep(1);
-    }
-    return true;
-  }
-  return false;
-};
-
-/**
- * sets password for TooAngel user
- *
- * @param {string} line
- * @param {object} socket
- * @return {boolean}
- */
-const setPassword = function(line, socket) {
-  for (const room of rooms) {
-    if (line.startsWith(`'User ${room} with bot AI "screeps-bot-tooangel" spawned in ${room}'`)) {
-      roomsSeen[room] = true;
-      console.log(`> Set password for ${room}`);
-      /* eslint max-len: ["error", 1300] */
-      socket.write(`storage.db.users.update({username: '${room}'}, {$set: {password: '70dbaf0462458b31ff9b3d184d06824d1de01f6ad59cae7b5b9c01a8b530875ac502c46985b63f0c147cf59936ac1be302edc532abc38236ab59efecb3ec7f64fad7e4544c1c5a5294a8f6f45204deeb009a31dd6e81e879cfb3b7e63f3d937f412734b1a3fa7bc04bf3634d6bc6503bb0068c3f6b44f3a84b5fa421690a7399799e3be95278381ae2ac158c27f31eef99db1f21e75d285802cda983cd8a73a8a85d03ba45dcc7eb2b2ada362887df10bf74cdcca47f911147fd0946fb5119c888f048000044072dcc29b1c428b40b805cadeee7b3afc1e9d9d546c2a878ff8df9fcf805a28cc8b6e4b78051f0adb33642f1097bf0a189f388860302df6173b8e7955a35b278655df2d7615b54da6c63dc501c7914d726bea325c2225f343dff0068ac42300661664ee5611eb623e1efa379f571d46ba6a0e13a9e3e9c5bb7a772b685258f768216a830c5e9af3685898d98a9935cca2ba5efb5e1e4a9f2745c53bff318bda3e376bcd06b06d87a55045a76a1982f6e3b9fb77d39c2ff5c09c76989d1c779655bc2acdf55879b68f6155d14c26bdca3af5c7fd6de9926dbc091da280e6f7e3d727fa68c89aa8ac25b5e50bd14bf2dbcd452975710ef4b8d61a81c8f6ef2d5584eacfcb1ab4202860320f03313d23076a3b3e085af5f0a9e010ddb0ad5af57ed0db459db0d29aa2bcbcd64588d4c54d0c5265bf82f31349d9456', salt: '7eeb813417828682419582da8f997dea3e848ce8293e68b2dbb2f334b1f8949f'}})\r\n`);
-      return true;
-    }
-  }
-  return false;
-};
-
-/**
- *
- * @param {string} line
- * @param {object} defer
- * @return {undefined}
- */
-async function checkForSucces(line, defer) {
-  let attempts = 0;
-  if (mongoPrepared && line.startsWith(`'OK'`)) {
-    console.log('> Start the simulation');
-    for (attempts; attempts <= maxAttempts; attempts++) {
-      await sleep(duration);
-      if (checkForStatus()) {
-        console.log(`Status check ${attempts}: passed`);
-        defer.resolve();
-      } else {
-        console.log(`Status check ${attempts}: failed`);
-      }
-    }
-    defer.reject('No progress');
-  }
-}
-
-/**
- * connectToCli method
- *
- * Connects via cli
- * - Spawn to bot
- * - Sets the password for the user
- * - triggers `followLog`
- * - Starts the simulation
- * - Waits
- * - Reads the controller data and checks controller progress
- * @return {object}
- */
-async function connectToCli() {
-  const defer = q.defer();
-  const socket = net.connect(cliPort, '127.0.0.1');
-  let ready = 0;
-
-  socket.on('data', async (data) => {
-    data = data.toString('utf8');
-    const line = data.replace(/^< /, '').replace(/\n< /, '');
-    if (await spawnBots(line, socket)) {
-      return;
-    }
-    if (setPassword(line, socket)) {
-      if (rooms.length === Object.keys(roomsSeen).length) {
-        console.log('> Listen to the log');
-        followLog();
-        await sleep(5);
-        console.log(`> system.resumeSimulation()`);
-        socket.write(`system.resumeSimulation()\r\n`);
-        return;
-      }
-      return;
-    }
-
-    await checkForSucces(line, defer);
-    // console.log('socket.data:' + line);
-  });
-
-  socket.on('connect', () => {
-    console.log('connected');
-  });
-
-  socket.on('error', (error) => {
-    defer.reject(error);
-  });
-
-  return defer.promise;
-}
 
 /**
  * main method
@@ -406,25 +260,7 @@ async function connectToCli() {
  * @return {undefined}
  */
 async function main() {
-  await initServer();
-  await startServer();
-  await sleep(5);
-  try {
-    await connectToCli();
-    timer.end = Date.now();
-    console.log('seconds elapsed ' + Math.floor((timer.end - timer.start) / 1000));
-    console.log('status', JSON.stringify(status));
-    console.log('Yeah');
-    /* eslint no-process-exit: "off" */
-    process.exit(0);
-  } catch (e) {
-    timer.end = Date.now();
-    console.log('seconds elapsed ' + Math.floor((timer.end - timer.start) / 1000));
-    console.log('status', JSON.stringify(status));
-    console.log(e);
-    console.log('!!! No progress on the controller !!!');
-    /* eslint no-process-exit: "off" */
-    process.exit(1);
-  }
+  const tester = new Tester();
+  await tester.run();
 }
 main();
