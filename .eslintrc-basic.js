@@ -1,5 +1,5 @@
 module.exports = {
-  "extends": "google",
+  "extends": ["google", '.eslintrc-slow'],
   "parserOptions": {
     "ecmaVersion": 2018
   },

@@ -44,9 +44,7 @@ Creep.prototype.handleSourcer = function() {
     return false;
   }
   this.buildContainer();
-  if (!this.room.controller || !this.room.controller.my || this.room.controller.level >= 2) {
-    this.spawnCarry();
-  }
+  this.spawnCarry();
   if (this.inBase()) {
     this.baseHarvesting();
   } else {
@@ -59,6 +57,7 @@ Creep.prototype.spawnCarry = function() {
     this.memory.wait -= 1;
     return false;
   }
+
   const baseRoom = Game.rooms[this.memory.base];
   const carrySettings = baseRoom.getSettings(baseRoom.creepMem('carry', this.memory.routing.targetId, this.memory.routing.targetRoom));
   const parts = {
@@ -81,16 +80,6 @@ Creep.prototype.spawnCarry = function() {
   for (const container of containers) {
     resourceAtPosition += _.sum(container.store);
   }
-  const levelToSendNext = global.utils.levelToSendNext(baseRoom, parts);
-
-  if (resourceAtPosition > levelToSendNext) {
-    const returnValue = baseRoom.checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
-    if (returnValue !== OK && config.debug.queue) {
-      baseRoom.log('checkRoleToSpawn', 'carry', resourceAtPosition, levelToSendNext, returnValue, this.memory.routing.targetRoom, this.memory.routing.targetId);
-    }
-  } else if (config.debug.queue) {
-    baseRoom.log('checkRoleToSpawn', 'carry', resourceAtPosition, levelToSendNext, this.memory.routing.targetRoom, this.memory.routing.targetId);
-  }
   if (resourceAtPosition > parts.carryParts.carry * CARRY_CAPACITY) {
     Game.rooms[this.memory.base].checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
   } else if (resourceAtPosition <= HARVEST_POWER * parts.sourcerWork) {
@@ -101,41 +90,18 @@ Creep.prototype.spawnCarry = function() {
       nearCarries[0].memory.recycle = true;
     }
   }
-  this.memory.wait = this.getCarrySpawnInterval(parts, resourceAtPosition) * 3;
+  this.memory.wait = this.getCarrySpawnInterval();
   return this.memory.wait;
 };
 
-/*
- Time between carrys should be proportional to % of energy the carry will carry in his life as :
- Energy harvested in sourcer life :
- `1500 * (HARVEST_POWER * workParts) = A`
- Energy carried by carry :
- `1500 * carryCapacity / carryTravelTime = B`
- `B/A = carryCapacity /( carryTravelTime * harvestpower * workParts) `
- This result should be interpreted as spawn a creep each 1500 ticks is B/A = 1. One each 750 ticks if it's 1/2.
- then we just have to multiply it by 1500 and floor all for have a rounded value.
- The distance coeff is for take care of surpopulation in parents rooms, then far rooms will call less carry. Not even sure we need it.
+/**
+ * getCarrySpawnInterval
+ *
+ * The interval is calculated via the time from the spawn to the source
+ * (timeToTravel) plus some offset for delays
+ *
+ * @return {number}
  */
-
-Creep.prototype.getCarrySpawnInterval = function(parts, resourcesDroped) {
-  if (!this.memory.pathDatas) {
-    this.memory.pathDatas = {plain: 10};
-  }
-
-  const {sourcerWork, carryParts} = parts;
-  let travelTime = 0;
-
-  let terrain;
-  const terrainCost = {plain: 1, swamp: 5, road: 0.5};
-  for (terrain of ['plain', 'swamp', 'road']) {
-    travelTime += this.memory.pathDatas[terrain] * Math.max(1, terrainCost[terrain] * Math.ceil(carryParts.work / carryParts.move));
-    travelTime += this.memory.pathDatas[terrain] * Math.max(1, terrainCost[terrain] * Math.ceil((carryParts.work + carryParts.carry) / carryParts.move));
-  }
-
-  const sourceFullFilled = Game.getObjectById(this.memory.routing.targetId).energyCapacity / 3000;
-  // const distance = this.getRoute(this.room.name, this.memory.base).length || Game.map.getRoomLinearDistance(this.room.name, this.memory.base);
-  const waitTime = Math.floor(1500 * carryParts.carry * CARRY_CAPACITY /* * distance */ / ((sourceFullFilled * HARVEST_POWER * sourcerWork + resourcesDroped) * travelTime));
-  const spawnTime = _.sum(carryParts) * CREEP_SPAWN_TIME;
-  // return Math.max(waitTime, config.carry.minSpawnRate);
-  return Math.max(waitTime, spawnTime);
+Creep.prototype.getCarrySpawnInterval = function() {
+  return this.memory.timeToTravel + 50;
 };

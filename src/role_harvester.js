@@ -44,6 +44,12 @@ roles.harvester.buildRoad = true;
 roles.harvester.boostActions = ['capacity'];
 
 roles.harvester.preMove = function(creep, directions) {
+  if (!creep.room.storage || !creep.room.storage.my || creep.room.memory.misplacedSpawn || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
+    creep.harvesterBeforeStorage();
+    creep.memory.routing.reached = true;
+    return true;
+  }
+
   const resources = creep.room.find(FIND_DROPPED_RESOURCES, {
     filter: Creep.pickableResources(creep),
   });
@@ -71,12 +77,6 @@ roles.harvester.preMove = function(creep, directions) {
         return true;
       }
     }
-  }
-
-  if (!creep.room.storage || !creep.room.storage.my || creep.room.memory.misplacedSpawn || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
-    creep.harvesterBeforeStorage();
-    creep.memory.routing.reached = true;
-    return true;
   }
 
   creep.memory.routing.targetId = 'harvester';

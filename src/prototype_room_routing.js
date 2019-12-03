@@ -89,7 +89,6 @@ Room.prototype.buildPath = function(route, routePos, from, to) {
       plainCost: config.layout.plainCost,
     },
   );
-  this.log(JSON.stringify(search));
 
   search.path.splice(0, 0, start);
   search.path.push(end);

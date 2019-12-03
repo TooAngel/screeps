@@ -141,20 +141,27 @@ Creep.prototype.followPath = function(action) {
   }
   const path = this.prepareRoutingMemory();
   if (!path) {
+    this.log('No path found');
     return false;
   }
   const directions = this.getDirections(path);
   if (this.unit().preMove && this.unit().preMove(this, directions)) {
     return true;
   }
+
   // Recalculate the directions, if `preMove` changed `memory.routing.reversed`
   this.getDirections(path);
   this.getPathPos(path);
   this.killPrevious(path);
   if (this.followPathWithTargetId(path)) {
-    return action(this);
+    const actionResult = action(this);
+    if (!actionResult) {
+      this.log('prototype_creep_routing.followPath - followPathWithTargetId');
+    }
+    return actionResult;
   }
-  return this.moveByPathMy(path);
+  const moveByPathMyResult = this.moveByPathMy(path);
+  return moveByPathMyResult;
 };
 
 Creep.prototype.followPathWithoutTargetId = function() {
@@ -230,18 +237,29 @@ Creep.prototype.moveByPathMy = function(path, pathPos, directions) {
   if (this.fatigue > 0) {
     return true;
   }
+
+  if (this.isStuck()) {
+    this.moveRandom();
+    this.say('stuck');
+    return true;
+  }
+
   pathPos = pathPos || this.memory.routing.pathPos;
   if (pathPos < 0) {
-    return this.moveBackToPath(path);
+    const moveBackToPathResult = this.moveBackToPath(path);
+    if (!moveBackToPathResult) {
+      this.log('prototype_creep_routing.moveByPathMy - moveBackToPath');
+    }
+    return moveBackToPathResult;
   }
 
   this.buildRoad();
 
   directions = directions || this.getDirections(path);
   if (!validateDirections(directions)) {
-    if (config.debug.routing) {
-      this.log(`${Game.time} moveByPathMy: Directions invalid pathPos: ${pathPos} path[pathPos]: ${path[pathPos]} directions: ${global.ex(directions, 1)}`);
-    }
+    // if (config.debug.routing) {
+    this.log(`${Game.time} moveByPathMy: Directions invalid pathPos: ${pathPos} path[pathPos]: ${path[pathPos]} directions: ${global.ex(directions, 1)}`);
+    // }
     return false;
   }
 

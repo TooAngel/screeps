@@ -146,14 +146,20 @@ roles.storagefiller.movePowerAndEnergy = function(creep) {
   return false;
 };
 
-roles.storagefiller.action = function(creep) {
+roles.storagefiller.memoryCleanup = function(creep) {
   if (!creep.memory.routing.targetId && creep.memory.routing.reached) {
+    creep.log('role_storagefiller.memoryCleanup - targetId is missing and target is reached, why?');
     creep.memory.routing.reached = false;
     creep.memory.routing.targetId = 'filler';
   }
   if (creep.memory.routing.reached && creep.memory.routing.pathPos === 0) {
+    creep.log('role_storagefiller.memoryCleanup - reached but pathPos === 0, why? why is this a problem?');
     creep.memory.routing.reached = false;
   }
+};
+
+roles.storagefiller.action = function(creep) {
+  roles.storagefiller.memoryCleanup(creep);
 
   creep.setNextSpawn();
   creep.spawnReplacement(1);

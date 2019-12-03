@@ -23,3 +23,4 @@ test-server/logs/
 tests/logs/
 tests/db.json
 tmp-test-server/
+server/
