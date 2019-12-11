@@ -34,11 +34,13 @@ Creep.prototype.searchPath = function(target, range=1) {
 };
 
 Creep.prototype.moveMy = function(target) {
-  const moveResponse = this.move(this.pos.getDirectionTo(target));
+  const direction = this.pos.getDirectionTo(target);
+  const moveResponse = this.move(direction);
   if (moveResponse !== OK && moveResponse !== ERR_NO_BODYPART) {
     this.log(`pos: ${this.pos} target ${target}`);
-    throw new Error(`moveToMy this.move(${this.pos.getDirectionTo(target)}); => ${moveResponse}`);
+    throw new Error(`moveToMy(${target}) this.move(${this.pos.getDirectionTo(target)}); => ${moveResponse}`);
   }
+  this.creepLog(`moveMy direction ${direction} moveResponse ${moveResponse}`);
   return moveResponse === OK;
 };
 
@@ -59,13 +61,16 @@ Creep.prototype.moveToMy = function(target, range=1) {
 
   // Fallback to moveTo when the path is incomplete and the creep is only switching positions
   if (search.path.length < 2 && search.incomplete) {
+    this.creepLog(`moveToMy(${target}, ${range}) pos: ${this.pos} search incomplete search: ${JSON.stringify(search)}`);
     this.room.debugLog('routing', `moveToMy fallback target: ${JSON.stringify(target)} range: ${range} search: ${JSON.stringify(search)}`);
     return this.moveTo(target, {range: range});
   }
-
+  this.creepLog(`moveToMy(${target}, ${range}) pos: ${this.pos} search: ${JSON.stringify(search)}`);
   target = search.path[0] || target.pos || target;
 
-  return this.moveMy(target, search);
+  const moveMyResult = this.moveMy(target, search);
+  this.creepLog(`moveMyResult ${moveMyResult}`);
+  return moveMyResult;
 };
 
 Creep.prototype.moveRandom = function(onPath) {
@@ -96,7 +101,12 @@ Creep.prototype.moveRandomWithin = function(goal, dist = 3, goal2 = false) {
   let direction = 0;
   for (let i = 0; i < 8; i++) {
     direction = RoomPosition.changeDirection(startDirection, i);
-    const pos = this.pos.getAdjacentPosition(direction);
+    let pos;
+    try {
+      pos = this.pos.getAdjacentPosition(direction);
+    } catch (e) {
+      continue;
+    }
     if (pos.isBorder(-1)) {
       continue;
     }

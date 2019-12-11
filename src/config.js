@@ -23,13 +23,14 @@ global.config = {
   },
   visualizer: {
     enabled: false,
-    showRoomPaths: true,
+    showRoomPaths: false,
     showCreepPaths: false,
     showPathSearches: false,
     showStructures: false,
     showCreeps: false,
     showBlockers: false,
     showCostMatrixes: false,
+    showCostMatrixValues: false,
   },
 
   quests: {
@@ -59,7 +60,7 @@ global.config = {
   stats: {
     screepsPlusEnabled: false,
     screepsPlusToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRvb2FuZ2VscyIsImlhdCI6MTQ4MzU2MTU3OSwiYXVkIjoic2NyZWVwc3BsLnVzIiwiaXNzIjoic2NyZWVwc3BsLnVzIn0.NhobT7Jg8bOAg-MYqrYsgeMgXEVXGVYG9s3G9Qpfm-o',
-    enabled: true,
+    enabled: false,
     summary: false,
   },
 
@@ -74,6 +75,7 @@ global.config = {
       rooms: [], // Rooms for debug output, e.g. ['E21N8']
     },
     power: false,
+    reserver: false,
     nextroomer: false,
     quests: false,
     revive: false,
@@ -84,6 +86,7 @@ global.config = {
     energyTransfer: false,
     constructionSites: false,
     routing: false,
+    brain: false,
   },
 
   tower: {
@@ -166,10 +169,11 @@ global.config = {
     sizes: {
       0: [3, 3], // RCL 1
       550: [4, 4], // RCL 2
-      800: [6, 6], // RCL 3
-      1300: [6, 11], // RCL 4
-      1800: [8, 15], // RCL 5
-      2300: [11, 21], // RCL 6
+      600: [5, 3], // RCL 3 first extension, most of the roads should be build
+      800: [5, 3], // RCL 3
+      1300: [7, 4], // RCL 4
+      1800: [9, 5], // RCL 5
+      2300: [11, 6], // RCL 6
     },
     minSpawnRate: 50,
     // Percentage should increase from base to target room. Decrease may cause stack on border
@@ -181,7 +185,7 @@ global.config = {
 
   creep: {
     renewOffset: 0,
-    queueTtl: 100,
+    queueTtl: 150,
     structurer: true,
     structurerInterval: 1500,
     structurerMinEnergy: 1300,
@@ -220,16 +224,17 @@ global.config = {
   layout: {
     plainCost: 5,
     swampCost: 8,
-    borderAvoid: 20,
+    borderAvoid: 40,
     skLairAvoidRadius: 5,
-    skLairAvoid: 30,
-    wallAvoid: 10,
-    sourceAvoid: 20,
+    skLairAvoid: 50,
+    wallAvoid: 20,
+    plainAvoid: 10,
+    sourceAvoid: 60,
     pathAvoid: 1,
     structureAvoid: 0xFF,
     creepAvoid: 0xFF,
     wallThickness: 1,
-    version: 19,
+    version: 20,
   },
 
   terminal: {

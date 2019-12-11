@@ -3,25 +3,6 @@
 RoomPosition.prototype.findClosestStructureWithMissingEnergyByRange = function(filter) {
   const structure = this.findClosestByRange(FIND_MY_STRUCTURES, {
     filter: (object) => (object.store && object.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && (!filter || filter(object))),
-    // TODO on the test server the spawn and tower return null as capacity, this is a workaround
-  //   filter: (object) => {
-  //     if (!object.store) {
-  //       return false;
-  //     }
-  //     if (filter && !filter(object)) {
-  //       return false;
-  //     }
-  //     let capacity = object.store.getCapacity(RESOURCE_ENERGY);
-  //     if (!capacity) {
-  //       if (object.structureType === STRUCTURE_SPAWN) {
-  //         capacity = 300;
-  //       } else if (object.structureType === STRUCTURE_TOWER) {
-  //         capacity = 1000;
-  //       }
-  //     }
-  //     const used = object.store.getUsedCapacity(RESOURCE_ENERGY);
-  //     return capacity - used > 0;
-  //   },
   });
   return structure;
 };
@@ -109,7 +90,7 @@ RoomPosition.prototype.getAllAdjacentPositions = function* () {
     try {
       yield this.getAdjacentPosition(direction);
     } catch (e) {
-      this.log(e);
+      // This happens when the RoomPosition is invalid
       continue;
     }
   }
@@ -151,7 +132,7 @@ RoomPosition.prototype.inPath = function() {
   return room.getMemoryPathsSet()[`${this.x} ${this.y}`];
 };
 
-RoomPosition.prototype.inPositions = function(opts = {}) {
+RoomPosition.prototype.inPositions = function() {
   const room = this.getRoom();
 
   if (!room.memory.position) {
@@ -159,49 +140,27 @@ RoomPosition.prototype.inPositions = function(opts = {}) {
   }
 
   for (const creepId of Object.keys(room.memory.position.creep)) {
-    let pos = room.memory.position.creep[creepId];
-    if (!pos) {
-      // TODO introduce this.log()
-      // console.log('inPositions:', this.roomName, creepId);
+    if (!room.memory.position.creep[creepId]) {
+      // TODO when does this happen?
       continue;
     }
-    if (pos[0]) {
-      // TODO towerfiller can have multiple positions
-      // All creep positions should be stored as a list and iterated here
-      // this.log(creepId);
-      // this.log(`this ${this}`);
-      // this.log(`pos ${JSON.stringify(pos)} ${typeof pos}`);
-      pos = pos[0];
-    }
-    if (!pos || pos.length === 0) {
-      // TODO If list, but element is undefined, something in the room setup is
-      // messed up
-      // TODO introduce this.log()
-      // console.log('inPositions:', this.roomName, creepId);
-      continue;
-    }
-    if (pos === -Infinity) {
-      // TODO also not sure where this comes from
-      continue;
-    }
-    if (this.isEqualTo(pos.x, pos.y)) {
-      if (opts.debug) {
-        this.log(`equals to creep ${creepId}`);
+    try {
+      for (const pos of room.memory.position.creep[creepId]) {
+        if (!pos) {
+          continue;
+        }
+        if (this.isEqualTo(pos.x, pos.y)) {
+          return true;
+        }
       }
-      return true;
+    } catch (e) {
+      console.log(`inPositions ${creepId} ${room.memory.position.creep[creepId]} ${e}`);
     }
   }
+
   for (const structureId of Object.keys(room.memory.position.structure)) {
-    const poss = room.memory.position.structure[structureId];
-    for (const pos of poss) {
-      // TODO special case e.g. when powerSpawn can't be set on costmatrix.setup - need to be fixed there
-      if (!pos) {
-        continue;
-      }
+    for (const pos of room.memory.position.structure[structureId]) {
       if (this.isEqualTo(pos.x, pos.y)) {
-        if (opts.debug) {
-          this.log(`equals to structure ${structureId}`);
-        }
         return true;
       }
     }
@@ -270,6 +229,10 @@ RoomPosition.prototype.getLastNearPosition = function(...args) {
 
 RoomPosition.prototype.getBestNearPosition = function(...args) {
   return _.max(Array.from(this.findNearPosition(...args)), (pos) => Array.from(pos.findNearPosition(...args)).length);
+};
+
+RoomPosition.prototype.getWorseNearPosition = function(...args) {
+  return _.max(Array.from(this.findNearPosition(...args)), (pos) => -1 * Array.from(pos.findNearPosition(...args)).length);
 };
 
 RoomPosition.prototype.findNearPosition = function* (...args) {

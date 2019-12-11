@@ -103,23 +103,18 @@ if (config.visualizer.enabled) {
         if (room.memory.position) {
           const creeps = room.memory.position.creep;
           for (const positionName of Object.keys(creeps)) {
-            if (creeps[positionName]) {
-              if (creeps[positionName].x || creeps[positionName].y) {
-                let text = positionName.substr(0, 1);
-                const target = Game.getObjectById(positionName);
-                if (target) {
-                  if (target.structureType) {
-                    text = target.structureType.substr(0, 1);
-                  } else {
-                    text = 's'; // source
-                  }
-                }
-                this.drawPosition(rv, creeps[positionName], text, 'yellow');
+            let text = positionName.substr(0, 1);
+            const target = Game.getObjectById(positionName);
+            if (target) {
+              if (target.structureType) {
+                text = target.structureType.substr(0, 1);
               } else {
-                const text = positionName.substr(0, 1); // always 't'
-                for (const towerfiller of creeps[positionName]) {
-                  this.drawPosition(rv, towerfiller, text, 'yellow');
-                }
+                text = 's'; // source
+              }
+            }
+            for (const creep of creeps[positionName]) {
+              if (creep) {
+                this.drawPosition(rv, creep, text, 'yellow');
               }
             }
           }
@@ -133,9 +128,23 @@ if (config.visualizer.enabled) {
       if (cm) {
         for (let x = 0; x < 50; ++x) {
           for (let y = 0; y < 50; ++y) {
+            let fill = '#00FF00';
+            const value = cm.get(x, y);
+            const calculated = Math.min(255, 5 * value);
+            if (config.visualizer.showCostMatrixValues) {
+              this.drawPosition(rv, new RoomPosition(x, y, roomName), value, 'blue');
+            }
+
+            if (value) {
+              fill = `#${(0.8 * calculated).toString(16)}0A0A`;
+            }
+            let opacity = 0;
+            if (value > 0) {
+              opacity = 0.15 + 0.3 * (calculated / 255);
+            }
             rv.rect(x - 0.5, y - 0.5, 1, 1, {
-              fill: 'pink',
-              opacity: Math.pow(cm.get(x, y) / 255, 1 / 4),
+              fill: fill,
+              opacity: opacity,
             });
           }
         }
@@ -228,6 +237,9 @@ global.visualizer.myRoomDatasDraw = function(roomName) {
     for (let id = 0; id < 2; id++) {
       lowest = lowestInQueue[id];
       lines.push({label: `Lowest ${labels[id]}: ${lowest.role} --> ${(lowest.routing && lowest.routing.targetRoom) || '?'} | TTL: ${lowest.ttl || '?'}`});
+    }
+    for (const item of room.memory.queue) {
+      lines.push({label: `- ${item.role} --> ${(item.routing && item.routing.targetRoom) || '?'} | TTL: ${item.ttl || '?'}`});
     }
   }
   let y = 0;

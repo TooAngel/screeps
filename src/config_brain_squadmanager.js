@@ -57,6 +57,7 @@ brain.isFriend = function(name) {
 };
 
 brain.handleSquadmanager = function() {
+  brain.debugLog('brain', 'handleSquadmanager');
   for (const squadIndex of Object.keys(Memory.squads)) {
     const squad = Memory.squads[squadIndex];
     if (!squad.siege || Object.keys(squad.siege).length === 0) {

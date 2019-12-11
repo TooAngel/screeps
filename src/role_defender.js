@@ -16,7 +16,7 @@ roles.defender.settings = {
     1: [2, 1, 1],
     8: [4, 1, 1],
   },
-  fillTough: true,
+  // fillTough: true,
 };
 
 roles.defender.action = function(creep) {
@@ -48,6 +48,7 @@ roles.defender.preMove = function(creep) {
   creep.selfHeal();
   const target = creep.findClosestEnemy();
   if (target !== null) {
+    creep.creepLog(`preMove foundClosestEnemy ${target}`);
     creep.handleDefender();
     return true;
   }

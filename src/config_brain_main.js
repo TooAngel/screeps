@@ -2,17 +2,8 @@
 
 global.cpuUsed = 0;
 
-// room execution via sigmoid function
-// all rooms execute every config.main.executeAll ticks
 brain.main.roomExecution = function() {
-  if (Game.time % config.main.executeAll === 0) {
-    Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
-  } else {
-    /** @see https://github.com/TooAngel/screeps/pull/498#discussion-diff-165847270R92 */
-    const roomList = config.main.randomExecution ? _.shuffle(Game.rooms) : Game.rooms;
-    global.cpuUsed = Game.cpu.getUsed();
-    Memory.myRooms = _(roomList).filter(brain.main.roomFilter).map((r) => r.name).value();
-  }
+  Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
 };
 
 brain.main.cleanUpDyingCreep = function(name) {

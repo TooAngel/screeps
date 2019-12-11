@@ -42,7 +42,7 @@ Room.prototype.spawnCheckForCreate = function() {
     return true;
   }
   if (creep.ttl === 0) {
-    this.log('TTL reached, skipping: ' + JSON.stringify(_.omit(creep, ['level'])));
+    this.log('TTL reached, skipping: ' + JSON.stringify(creep));
     this.memory.queue.shift();
     return false;
   }

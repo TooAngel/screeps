@@ -3,6 +3,12 @@
 Creep.prototype.cantHarvest = function(source) {
   const returnCode = this.harvest(source);
   if (returnCode !== OK && returnCode !== ERR_NOT_ENOUGH_RESOURCES) {
+    if (returnCode === ERR_NOT_OWNER) {
+      this.log('Suiciding, someone else reserved the controller');
+      this.memory.killed = true;
+      this.suicide();
+      return false;
+    }
     if (returnCode === ERR_NO_BODYPART) {
       this.room.checkRoleToSpawn('defender', 2, undefined, this.room.name);
       this.respawnMe();
@@ -59,7 +65,8 @@ Creep.prototype.spawnCarry = function() {
   }
 
   const baseRoom = Game.rooms[this.memory.base];
-  const carrySettings = baseRoom.getSettings(baseRoom.creepMem('carry', this.memory.routing.targetId, this.memory.routing.targetRoom));
+  const creepMemory = baseRoom.creepMem('carry', this.memory.routing.targetId, this.memory.routing.targetRoom);
+  const carrySettings = baseRoom.getSettings(creepMemory);
   const parts = {
     sourcerWork: this.body.filter((part) => part.type === WORK).length,
     carryParts: {
@@ -80,9 +87,9 @@ Creep.prototype.spawnCarry = function() {
   for (const container of containers) {
     resourceAtPosition += _.sum(container.store);
   }
-  if (resourceAtPosition > parts.carryParts.carry * CARRY_CAPACITY) {
+  if (!Game.rooms[this.memory.base].inQueue(creepMemory) && resourceAtPosition > parts.carryParts.carry * CARRY_CAPACITY) {
     Game.rooms[this.memory.base].checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
-  } else if (resourceAtPosition <= HARVEST_POWER * parts.sourcerWork) {
+  } else if (1 * resourceAtPosition <= HARVEST_POWER * parts.sourcerWork) {
     const nearCarries = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 2, 'memory.role', ['carry'], {
       filter: (creep) => creep.memory.routing.targetId === this.memory.routing.targetId,
     });

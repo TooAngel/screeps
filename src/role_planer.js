@@ -12,6 +12,7 @@ roles.planer = {};
 roles.planer.settings = {
   layoutString: 'MCW',
   amount: [2, 1, 1],
+  maxLayoutAmount: 20,
 };
 
 roles.planer.action = function(creep) {

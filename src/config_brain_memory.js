@@ -36,16 +36,23 @@ brain.addToStats = function(name) {
 brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
   let hostiles = [];
   let room = {};
+  let memoryRoom = {};
+  if (creepMemory.room) {
+    room = Game.rooms[creepMemory.room];
+    memoryRoom = Memory.rooms[creepMemory.room];
+  }
   let structures = [];
   let sourceKeepers = [];
   if (Memory.creeps[name].routing && Memory.creeps[name].routing.route && Memory.creeps[name].routing.routePos && Memory.creeps[name].routing.route[Memory.creeps[name].routing.routePos]) {
-    room = Game.rooms[Memory.creeps[name].routing.route[Memory.creeps[name].routing.routePos].room];
-    hostiles = room.find(FIND_CREEPS);
-    structures = room.find(FIND_STRUCTURES);
-    sourceKeepers = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'owner.username', ['Source Keeper']);
+    // room = Game.rooms[Memory.creeps[name].routing.route[Memory.creeps[name].routing.routePos].room];
+    if (room) {
+      hostiles = room.find(FIND_CREEPS);
+      structures = room.find(FIND_STRUCTURES);
+      sourceKeepers = room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'owner.username', ['Source Keeper']);
+    }
   }
-  if (hostiles.length === 0 || hostiles[0].owner.username !== 'Invader') {
-    console.log(`${Game.time} ${room.name} ${name} Not in Game.creeps lived ${Game.time - creepMemory.born} hostiles: ${hostiles.length} structures: ${structures.length} sourceKeepers: ${sourceKeepers} memory: ${JSON.stringify(Memory.creeps[name])}`); // eslint-disable-line max-len
+  if (hostiles.length === 0 || hostiles[0].owner.username !== 'Invader' || !(memoryRoom || {}).sourceKeeperRoom) {
+    console.log(`${Game.time} ${room.name} ${name} Not in Game.creeps lived ${Game.time - creepMemory.born} hostiles: ${hostiles.length} structures: ${structures.length} sourceKeepers: ${sourceKeepers.length} memory: ${JSON.stringify(Memory.creeps[name])} ${JSON.stringify(memoryRoom)}`); // eslint-disable-line max-len
   }
   if (Game.time - creepMemory.born < 20) {
     return;
@@ -192,6 +199,7 @@ Upgrade less: ${strings.upgradeLess}
 };
 
 brain.prepareMemory = function() {
+  brain.debugLog('brain', 'prepareMemory');
   Memory.username = Memory.username || _.chain(Game.rooms).map('controller').flatten().filter('my').map('owner.username').first().value();
   Memory.myRooms = Memory.myRooms || [];
   Memory.squads = Memory.squads || {};

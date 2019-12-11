@@ -91,6 +91,7 @@ Creep.prototype.getDirections = function(path) {
     nextPos = path[pathPos - 1];
     backwardDirection = currentPos.getDirectionTo(nextPos.x, nextPos.y);
   }
+  this.creepLog(`getDirections nextPos: ${nextPos}`);
 
   if (this.memory.routing.reverse) {
     offset = -1;
@@ -100,13 +101,15 @@ Creep.prototype.getDirections = function(path) {
     direction = forwardDirection;
   }
 
-  return {
+  const directions = {
     forwardDirection: forwardDirection,
     backwardDirection: backwardDirection,
     direction: direction,
     pathOffset: offset,
     reverse: this.memory.routing.reverse,
   };
+  this.creepLog(`getDirections directions: ${JSON.stringify(directions)}`);
+  return directions;
 };
 
 // TODO Maybe execute on creep creation
@@ -139,10 +142,18 @@ Creep.prototype.followPath = function(action) {
   if (this.followPathWithoutTargetId()) {
     return action(this);
   }
-  const path = this.prepareRoutingMemory();
+  let path;
+  try {
+    path = this.prepareRoutingMemory();
+  } catch (e) {
+    this.log(`Suiciding, cannot prepare routing ${e} ${e.stack}`);
+    this.suicide();
+    return true;
+  }
+  this.creepLog(`followPath path: ${JSON.stringify(path)}`);
   if (!path) {
-    this.log('No path found');
-    return false;
+    this.log(`No path found to ${this.memory.routing.targetId} object: ${Game.getObjectById(this.memory.routing.targetId)}`);
+    return true;
   }
   const directions = this.getDirections(path);
   if (this.unit().preMove && this.unit().preMove(this, directions)) {
@@ -234,6 +245,8 @@ function validateDirections(directions) {
  * @return {boolean} true if a way was found to move the creep
  **/
 Creep.prototype.moveByPathMy = function(path, pathPos, directions) {
+  this.buildRoad();
+
   if (this.fatigue > 0) {
     return true;
   }
@@ -245,7 +258,7 @@ Creep.prototype.moveByPathMy = function(path, pathPos, directions) {
   }
 
   pathPos = pathPos || this.memory.routing.pathPos;
-  if (pathPos < 0) {
+  if (pathPos === null || pathPos < 0) {
     const moveBackToPathResult = this.moveBackToPath(path);
     if (!moveBackToPathResult) {
       this.log('prototype_creep_routing.moveByPathMy - moveBackToPath');
@@ -253,16 +266,18 @@ Creep.prototype.moveByPathMy = function(path, pathPos, directions) {
     return moveBackToPathResult;
   }
 
-  this.buildRoad();
 
   directions = directions || this.getDirections(path);
   if (!validateDirections(directions)) {
-    // if (config.debug.routing) {
-    this.log(`${Game.time} moveByPathMy: Directions invalid pathPos: ${pathPos} path[pathPos]: ${path[pathPos]} directions: ${global.ex(directions, 1)}`);
-    // }
+    if (pathPos === path.length - 1 && !directions.reverse) {
+      this.creepLog(`${Game.time} moveByPathMy: Directions invalid, but last pos pathPos: ${pathPos} path.length: ${path.length} path[pathPos]: ${path[pathPos]} directions: ${global.ex(directions, 1)}`);
+      return true;
+    }
+    this.log(`${Game.time} moveByPathMy: Directions invalid pathPos: ${pathPos} path.length: ${path.length} path[pathPos]: ${path[pathPos]} directions: ${global.ex(directions, 1)}`);
     return false;
   }
 
+  this.creepLog(`moveByPathMy move(${directions.direction})`);
   const moveResponse = this.move(directions.direction);
   if (moveResponse !== OK && moveResponse !== ERR_NO_BODYPART && !this.pos.isBorder()) {
     // TODO carries sometimes run into this issues when switching between rooms

@@ -1,6 +1,7 @@
 'use strict';
 
 brain.handleQuests = function() {
+  brain.debugLog('brain', 'handleQuests');
   Memory.quests = Memory.quests || {};
   for (const id of Object.keys(Memory.quests)) {
     const quest = Memory.quests[id];

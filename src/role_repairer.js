@@ -19,10 +19,23 @@ roles.repairer.settings = {
 
 roles.repairer.boostActions = ['repair'];
 
+roles.repairer.preMove = function(creep, directions) {
+  if (creep.memory.routing && creep.memory.routing.targetId) {
+    if (Game.getObjectById(creep.memory.routing.targetId) === null) {
+      creep.creepLog('target does not exist anymore');
+      delete creep.memory.routing.targetId;
+      roles.repairer.action(creep);
+      return true;
+    }
+  }
+};
+
 roles.repairer.action = function(creep) {
   creep.setNextSpawn();
   creep.spawnReplacement(1);
+  creep.creepLog('action');
   creep.pickupEnergy();
+  creep.creepLog('action after pickupEnergy');
   if (!creep.memory.move_wait) {
     creep.memory.move_wait = 0;
   }

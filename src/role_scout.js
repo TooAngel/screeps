@@ -171,7 +171,7 @@ roles.scout.action = function(creep) {
       return false;
     }
 
-    if (creep.memory.last && creep.memory.last.pos3 && creep.pos.roomName !== creep.memory.last.pos3.roomName) {
+    if (creep.isStuck()) {
       creep.moveTo(25, 25);
       return true;
     }
@@ -197,7 +197,7 @@ roles.scout.action = function(creep) {
       creep.memory.stuck = 0;
     }
 
-    if (search.path.length === 0) {
+    if (search.path.length === 0 || search.incomplete) {
       creep.say('hello', true);
       //       creep.log(creep.pos + ' ' + targetPosObject + ' ' + JSON.stringify(search));
       if (creep.isStuck() && creep.pos.isBorder(-1)) {
@@ -211,13 +211,16 @@ roles.scout.action = function(creep) {
       // if (search.path.length > 0) {
       // creep.move(creep.pos.getDirectionTo(search.path[0]));
       // } else {
-      creep.moveTo(targetPosObject, {
-        ignoreCreeps: true,
-        costCallback: creep.room.getCostMatrixCallback(),
-      });
+      creep.creepLog(`scout.action no search targetPosObject ${JSON.stringify(targetPosObject)}`);
+      // creep.moveTo(targetPosObject, {
+      //   ignoreCreeps: true,
+      //   costCallback: creep.room.getCostMatrixCallback(),
+      // });
+      creep.moveTo(targetPosObject);
       // }
       return true;
     }
+    creep.creepLog(`scout.action search ${JSON.stringify(search)}`);
     creep.say(creep.pos.getDirectionTo(search.path[0]));
     creep.move(creep.pos.getDirectionTo(search.path[0]));
   };
