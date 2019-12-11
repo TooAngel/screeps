@@ -26,7 +26,7 @@ const milestones = [
   {tick: 30, check: {structures: 1}},
   {tick: 500, check: {level: 2}, required: true},
   {tick: 1700, check: {structures: 2}},
-  {tick: 2800, check: {structures: 3}},
+  {tick: 3013, check: {structures: 3}},
   {tick: 3300, check: {structures: 4}},
   {tick: 3900, check: {structures: 5}},
   {tick: 4300, check: {structures: 6}},
@@ -35,13 +35,13 @@ const milestones = [
   {tick: 14300, check: {structures: 8}},
   {tick: 14500, check: {structures: 9}},
   {tick: 14700, check: {structures: 10}},
-  {tick: 1500, check: {structures: 11}},
-  {tick: 4200, check: {structures: 12}},
+  {tick: 12929, check: {structures: 11}},
+  {tick: 20000, check: {structures: 12}},
   {tick: 123000, check: {level: 4}},
-  {tick: 4200, check: {structures: 13}},
-  {tick: 4200, check: {structures: 14}},
-  {tick: 4200, check: {structures: 15}},
-  {tick: 4200, check: {structures: 16}},
+  {tick: 20000, check: {structures: 13}},
+  {tick: 20000, check: {structures: 14}},
+  {tick: 20000, check: {structures: 15}},
+  {tick: 20000, check: {structures: 16}},
 ];
 
 const playerRoom = 'W8N3';
