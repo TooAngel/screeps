@@ -19,7 +19,7 @@ roles.repairer.settings = {
 
 roles.repairer.boostActions = ['repair'];
 
-roles.repairer.preMove = function(creep, directions) {
+roles.repairer.preMove = function(creep) {
   if (creep.memory.routing && creep.memory.routing.targetId) {
     if (Game.getObjectById(creep.memory.routing.targetId) === null) {
       creep.creepLog('target does not exist anymore');

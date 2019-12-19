@@ -158,18 +158,13 @@ roles.storagefiller.memoryCleanup = function(creep) {
   }
 };
 
-roles.storagefiller.action = function(creep) {
-  roles.storagefiller.memoryCleanup(creep);
-
-  creep.setNextSpawn();
-  creep.spawnReplacement(1);
-  creep.pickupEnergy();
-
-  // todo-msc move power and energy to power spawn
-  if (roles.storagefiller.movePowerAndEnergy(creep)) {
-    return true;
-  }
-
+/**
+ * transferMinerals - transfers non energy or power resources
+ *
+ * @param {object} creep - The creep
+ * @return {boolean} If this was successful
+ **/
+function transferMinerals(creep) {
   for (const resourceType of Object.keys(creep.carry)) {
     if (resourceType !== RESOURCE_ENERGY && resourceType !== RESOURCE_POWER) {
       const structureToStore = roles.storagefiller.checkResourceStore(creep, resourceType);
@@ -179,21 +174,32 @@ roles.storagefiller.action = function(creep) {
       }
     }
   }
+  return false;
+}
 
-  const towers = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER], {
-    filter: (tower) => tower.energy <= 0.5 * tower.energyCapacity,
-  });
-
-  if (creep.room.controller.level === 4) {
-    if (towers.length > 0) {
-      if (creep.carry.energy === 0) {
-        creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
-      } else {
-        creep.transfer(towers[0], RESOURCE_ENERGY);
-      }
+/**
+ * transferEnergyToTower - transfers energy to the tower
+ *
+ * @param {object} creep - The creep
+ * @param {list} towers - The towers
+ * @return {void}
+ **/
+function transferEnergyToTower(creep, towers) {
+  for (const tower of towers) {
+    const returnCode = creep.transfer(tower, RESOURCE_ENERGY);
+    if (returnCode === OK) {
+      return true;
     }
   }
+}
 
+/**
+ * checkForLink - Checks if there is a link close by
+ *
+ * @param {object} creep - The creep
+ * @return {boolean} - If no link was found
+ **/
+function checkForLink(creep) {
   if (!creep.memory.link) {
     const links = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
     if (links.length === 0) {
@@ -201,14 +207,19 @@ roles.storagefiller.action = function(creep) {
     }
     creep.memory.link = links[0].id;
   }
+}
 
-  const storage = creep.room.storage;
-  const link = Game.getObjectById(creep.memory.link);
-  if (link === null) {
-    delete creep.memory.link;
-    return true;
-  }
 
+/**
+ * underAttack - If the room is under attack fill the tower
+ *
+ * @param {object} creep - The creep
+ * @param {list} towers - The towers
+ * @param {object} storage - The storage
+ * @param {object} link - The link
+ * @return {void}
+ **/
+function underAttackFillTower(creep, towers, storage, link) {
   const room = Game.rooms[creep.room.name];
   if (room.memory.attackTimer > 50 && room.controller.level > 6) {
     creep.withdraw(storage, RESOURCE_ENERGY);
@@ -221,24 +232,70 @@ roles.storagefiller.action = function(creep) {
     creep.transfer(link, RESOURCE_ENERGY);
     return true;
   }
+}
 
-  if (creep.withdraw(link, RESOURCE_ENERGY) === OK) {
-    return true;
-  }
-
-  for (const tower of towers) {
-    const returnCode = creep.transfer(tower, RESOURCE_ENERGY);
-    if (returnCode === OK) {
-      return true;
-    }
-  }
-
+/**
+ * pickupDroppedResources - Picks up dropped resources
+ *
+ * @param {object} creep - The creep
+ * @return {boolean} - Resources were picked up
+ **/
+function pickupDroppedResources(creep) {
   const resources = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1);
   if (resources.length > 0) {
     const returnCode = creep.pickup(resources[0]);
     if (returnCode === OK) {
       return true;
     }
+  }
+}
+
+roles.storagefiller.action = function(creep) {
+  roles.storagefiller.memoryCleanup(creep);
+
+  creep.setNextSpawn();
+  creep.spawnReplacement(1);
+  creep.pickupEnergy();
+
+  // todo-msc move power and energy to power spawn
+  if (roles.storagefiller.movePowerAndEnergy(creep)) {
+    return true;
+  }
+
+  if (transferMinerals(creep)) {
+    return true;
+  }
+
+  const towers = creep.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER], {
+    filter: (tower) => tower.energy <= 0.5 * tower.energyCapacity,
+  });
+
+  if (checkForLink(creep)) {
+    return true;
+  }
+
+
+  const storage = creep.room.storage;
+  const link = Game.getObjectById(creep.memory.link);
+  if (link === null) {
+    delete creep.memory.link;
+    return true;
+  }
+
+  if (underAttackFillTower(creep, towers, storage, link)) {
+    return true;
+  }
+
+  if (creep.withdraw(link, RESOURCE_ENERGY) === OK) {
+    return true;
+  }
+
+  if (transferEnergyToTower(creep, towers)) {
+    return true;
+  }
+
+  if (pickupDroppedResources(creep)) {
+    return true;
   }
 
   for (const resourceType of Object.keys(creep.carry)) {
