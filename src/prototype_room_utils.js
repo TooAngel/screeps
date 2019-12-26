@@ -87,6 +87,10 @@ Room.prototype._findPropertyFilterResolveOutdatedCacheOne = function(cache) {
   cache.resolveTime = Game.time;
 };
 
+Room.prototype.findSpawns = function() {
+  return this.find(FIND_MY_STRUCTURES, (structure) => structure.structureType === STRUCTURE_SPAWN);
+};
+
 Room.prototype.closestSpawn = function(target) {
   const pathLength = {};
   const roomsMy = this.sortMyRoomsByLinearDistance(target);

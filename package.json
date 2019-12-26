@@ -5,9 +5,9 @@
   "main": "src/main.js",
   "screeps_bot": true,
   "dependencies": {
-    "rimraf": "^3.0.0",
-    "screepsmod-admin-utils": "^1.10.3",
-    "screepsmod-auth": "^2.4.7"
+    "rimraf": "3.0.0",
+    "screepsmod-admin-utils": "1.11.0",
+    "screepsmod-auth": "2.4.7"
   },
   "devDependencies": {
     "chai": "4.2.0",

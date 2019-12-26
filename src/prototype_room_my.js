@@ -341,42 +341,13 @@ Room.prototype.getHarvesterAmount = function() {
   return amount;
 };
 
-Room.prototype.executeRoom = function() {
-  const cpuUsed = Game.cpu.getUsed();
-  this.buildBase();
-  this.memory.attackTimer = this.memory.attackTimer || 0;
-  const spawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
-  const hostiles = this.find(FIND_HOSTILE_CREEPS, {
-    filter: this.findAttackCreeps,
-  });
+Room.prototype.handleAttackTimer = function(hostiles) {
   if (hostiles.length === 0) {
     this.memory.attackTimer = Math.max(this.memory.attackTimer - 5, 0);
     // Make sure we don't spawn towerFiller on reducing again
     if (this.memory.attackTimer % 5 === 0) {
       this.memory.attackTimer--;
     }
-  }
-
-  if (spawns.length === 0) {
-    this.reviveRoom();
-  } else if (this.energyCapacityAvailable < config.room.reviveEnergyCapacity) {
-    this.reviveRoom();
-    if (hostiles.length > 0) {
-      this.controller.activateSafeMode();
-    }
-  } else {
-    this.memory.active = true;
-  }
-
-  const nextroomers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['nextroomer'], {
-    filter: (object) => object.memory.base !== this.name,
-  });
-  // Room is build up while nextroomers are in the room and sourcerers are too small
-  const building = nextroomers.length > 0 && this.energyCapacityAvailable <= 600;
-
-  if (!building) {
-    const amount = this.getHarvesterAmount();
-    this.checkRoleToSpawn('harvester', amount);
   }
 
   if (this.memory.attackTimer > 100) {
@@ -386,6 +357,7 @@ Room.prototype.executeRoom = function() {
       this.controller.activateSafeMode();
     }
   }
+
   if (this.memory.attackTimer >= 50 && this.controller.level > 6) {
     const towers = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER]);
     if (towers.length === 0) {
@@ -400,13 +372,6 @@ Room.prototype.executeRoom = function() {
           });
         }
       }
-    }
-  }
-
-  const idiotCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
-  if (idiotCreeps.length > 0) {
-    for (const idiotCreep of idiotCreeps) {
-      brain.increaseIdiot(idiotCreep.owner.username);
     }
   }
 
@@ -432,24 +397,43 @@ Room.prototype.executeRoom = function() {
       Game.notify(this.name + ' Under attack from ' + hostiles[0].owner.username + ' at ' + Game.time);
     }
   }
+};
 
-  if (Memory.myRooms && (Memory.myRooms.length < 5) && building) {
-    brain.stats.addRoom(this.name, cpuUsed);
-    return true;
+Room.prototype.handleReviveRoom = function(hostiles) {
+  const spawns = this.findSpawns();
+  if (spawns.length === 0) {
+    this.reviveRoom();
+  } else if (this.energyCapacityAvailable < config.room.reviveEnergyCapacity) {
+    this.reviveRoom();
+    if (hostiles.length > 0) {
+      this.controller.activateSafeMode();
+    }
+  } else {
+    this.memory.active = true;
   }
+};
 
-  this.checkForEnergyTransfer();
+Room.prototype.checkForBuilding = function(nextroomers) {
+  // Room is build up while nextroomers are in the room and sourcerers are too small
+  const building = nextroomers.length > 0 && this.energyCapacityAvailable <= 600;
 
-  this.checkAndSpawnSourcer();
-
-  if (this.controller.level >= 4 && this.storage && this.storage.my && !this.memory.misplacedSpawn) {
-    this.checkRoleToSpawn('storagefiller', 1, 'filler');
+  if (!building) {
+    const amount = this.getHarvesterAmount();
+    this.checkRoleToSpawn('harvester', amount);
   }
+  return building;
+};
 
-  if (this.storage && this.storage.my && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
-    this.checkRoleToSpawn('upgrader', 1, this.controller.id);
+Room.prototype.handleIdiot = function() {
+  const idiotCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
+  if (idiotCreeps.length > 0) {
+    for (const idiotCreep of idiotCreeps) {
+      brain.increaseIdiot(idiotCreep.owner.username);
+    }
   }
+};
 
+Room.prototype.checkForPlaner = function() {
   const constructionSites = this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART], {inverse: true});
   if (constructionSites.length > 0) {
     let amount = 1;
@@ -465,6 +449,9 @@ Room.prototype.executeRoom = function() {
   } else if (this.memory.misplacedSpawn && this.storage && this.storage.store.energy > 20000 && this.energyAvailable >= this.energyCapacityAvailable - 300) {
     this.checkRoleToSpawn('planer', 4);
   }
+};
+
+Room.prototype.checkForExtractor = function() {
   const extractors = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_EXTRACTOR]);
   if (this.terminal && extractors.length > 0) {
     const minerals = this.find(FIND_MINERALS);
@@ -475,6 +462,40 @@ Room.prototype.executeRoom = function() {
       }
     }
   }
+};
+
+Room.prototype.executeRoom = function() {
+  const cpuUsed = Game.cpu.getUsed();
+  this.buildBase();
+  this.memory.attackTimer = this.memory.attackTimer || 0;
+  const hostiles = this.find(FIND_HOSTILE_CREEPS, {
+    filter: this.findAttackCreeps,
+  });
+  this.handleAttackTimer(hostiles);
+  this.handleReviveRoom(hostiles);
+
+  const nextroomers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['nextroomer'], {
+    filter: (object) => object.memory.base !== this.name,
+  });
+  // Room is build up while nextroomers are in the room and sourcerers are too small
+  const building = this.checkForBuilding(nextroomers);
+
+  this.handleIdiot();
+  this.checkForEnergyTransfer();
+
+  this.checkAndSpawnSourcer();
+
+  if (this.controller.level >= 4 && this.storage && this.storage.my && !this.memory.misplacedSpawn) {
+    this.checkRoleToSpawn('storagefiller', 1, 'filler');
+  }
+
+  if (this.storage && this.storage.my && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
+    this.checkRoleToSpawn('upgrader', 1, this.controller.id);
+  }
+
+  this.checkForPlaner();
+  this.checkForExtractor();
+
   if (config.mineral.enabled && this.terminal && this.storage) {
     const labs = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB]);
     if ((!this.memory.cleanup || this.memory.cleanup <= 10) && (_.size(labs) > 2)) {

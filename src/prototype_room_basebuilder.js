@@ -26,7 +26,13 @@ function posIsIn(pos, array) {
   return false;
 }
 
-Room.prototype.destroyStructure = function(structure) {
+/**
+ * destroyStructureWall - Destroys wall structures
+ *
+ * @param {object} structure - The structure
+ * @return {boolean} If handled
+ **/
+Room.prototype.destroyStructureWall = function(structure) {
   if (structure.structureType === STRUCTURE_WALL) {
     if (!structure.hits) {
       return false;
@@ -50,6 +56,12 @@ Room.prototype.destroyStructure = function(structure) {
     }
     this.log('destroyStructure: wall not found in memory, destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
     structure.destroy();
+    return true;
+  }
+};
+
+Room.prototype.destroyStructure = function(structure) {
+  if (this.destroyStructureWall(structure)) {
     return true;
   }
   if (structure.structureType === STRUCTURE_ROAD) {
