@@ -8,7 +8,7 @@ jobs:
       - run: npm install
       - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
       - run: npm publish || true
-      - run: node utils/grafana.js
+      - run: npm deploy
     test:
       docker:
         - image: circleci/node:10.16.3-stretch
