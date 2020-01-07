@@ -250,6 +250,25 @@ function pickupDroppedResources(creep) {
   }
 }
 
+/**
+ * getEnergyFromTerminal - Withdraws energy from terminal
+ *
+ * @param {object} creep - The creep
+ * @return {void}
+ **/
+function getEnergyFromTerminal(creep) {
+  if (creep.room.terminal &&
+    ((creep.room.terminal.store.energy > config.terminal.minEnergyAmount + creep.carryCapacity) ||
+    (creep.room.storage.store.energy < creep.room.terminal.store.energy))
+  ) {
+    if (creep.carry.energy === 0) {
+      creep.withdraw(creep.room[STRUCTURE_TERMINAL], RESOURCE_ENERGY);
+    } else {
+      creep.transfer(creep.room[STRUCTURE_STORAGE], RESOURCE_ENERGY);
+    }
+  }
+}
+
 roles.storagefiller.action = function(creep) {
   roles.storagefiller.memoryCleanup(creep);
 
@@ -273,7 +292,6 @@ roles.storagefiller.action = function(creep) {
   if (checkForLink(creep)) {
     return true;
   }
-
 
   const storage = creep.room.storage;
   const link = Game.getObjectById(creep.memory.link);
@@ -306,16 +324,7 @@ roles.storagefiller.action = function(creep) {
     }
   }
 
-  if (creep.room.terminal &&
-    ((creep.room.terminal.store.energy > config.terminal.minEnergyAmount + creep.carryCapacity) ||
-    (creep.room.storage.store.energy < creep.room.terminal.store.energy))
-  ) {
-    if (creep.carry.energy === 0) {
-      creep.withdraw(creep.room[STRUCTURE_TERMINAL], RESOURCE_ENERGY);
-    } else {
-      creep.transfer(creep.room[STRUCTURE_STORAGE], RESOURCE_ENERGY);
-    }
-  }
+  getEnergyFromTerminal(creep);
 
   // todo-msc if (creep.room.storage.store.energy < creep.room.terminal.store.energy) then
   // todo-msc move energy from terminal to storage
