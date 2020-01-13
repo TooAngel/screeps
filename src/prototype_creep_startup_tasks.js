@@ -174,6 +174,27 @@ Creep.prototype.getEnergyFromStorage = function() {
   return true;
 };
 
+Creep.prototype.actuallyRepairStructure = function(toRepair) {
+  this.creepLog(`repairing structure ${JSON.stringify(toRepair)}`);
+  this.repair(toRepair);
+  if (this.fatigue === 0) {
+    const range = this.pos.getRangeTo(toRepair);
+    if (range <= 3) {
+      this.creepLog(`moveRandom ${JSON.stringify(toRepair)}`);
+      this.moveRandomWithin(toRepair);
+    } else {
+      this.creepLog('repairStructure moveToMy target:', JSON.stringify(toRepair.pos));
+      const returnCode = this.moveToMy(toRepair.pos, 3);
+      this.memory.lastPosition = this.pos;
+      if (returnCode === true) {
+        return true;
+      }
+      this.log('config_creep_resources.repairStructure moveByPath.returnCode: ' + returnCode);
+      return true;
+    }
+  }
+};
+
 Creep.prototype.repairStructure = function() {
   this.creepLog('repairStructure');
   if (this.memory.target) {
@@ -190,23 +211,8 @@ Creep.prototype.repairStructure = function() {
       this.moveToMy(toRepair.pos, 3);
       return true;
     } else if (toRepair.hits < 10000 || toRepair.hits < this.memory.step + 10000) {
-      this.creepLog(`repairing structure ${JSON.stringify(toRepair)}`);
-      this.repair(toRepair);
-      if (this.fatigue === 0) {
-        const range = this.pos.getRangeTo(toRepair);
-        if (range <= 3) {
-          this.creepLog(`moveRandom ${JSON.stringify(toRepair)}`);
-          this.moveRandomWithin(toRepair);
-        } else {
-          this.creepLog('repairStructure moveToMy target:', JSON.stringify(toRepair.pos));
-          const returnCode = this.moveToMy(toRepair.pos, 3);
-          this.memory.lastPosition = this.pos;
-          if (returnCode === true) {
-            return true;
-          }
-          this.log('config_creep_resources.repairStructure moveByPath.returnCode: ' + returnCode);
-          return true;
-        }
+      if (this.actuallyRepairStructure(toRepair)) {
+        return true;
       }
     } else {
       delete this.memory.target;

@@ -60,20 +60,25 @@ Room.prototype.destroyStructureWall = function(structure) {
   }
 };
 
+Room.prototype.destroyStructureRoad = function(structure) {
+  for (const pathName of Object.keys(this.getMemoryPaths())) {
+    for (const pos of this.getMemoryPath(pathName)) {
+      if (structure.pos.isEqualTo(pos.x, pos.y)) {
+        return false;
+      }
+    }
+  }
+  this.log('destroyStructure: not found in paths, destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos) + ' ' + JSON.stringify(Object.keys(this.getMemoryPaths())));
+  structure.destroy();
+  return true;
+};
+
 Room.prototype.destroyStructure = function(structure) {
   if (this.destroyStructureWall(structure)) {
     return true;
   }
   if (structure.structureType === STRUCTURE_ROAD) {
-    for (const pathName of Object.keys(this.getMemoryPaths())) {
-      for (const pos of this.getMemoryPath(pathName)) {
-        if (structure.pos.isEqualTo(pos.x, pos.y)) {
-          return false;
-        }
-      }
-    }
-    this.log('destroyStructure: not found in paths, destroying: ' + structure.structureType + ' ' + JSON.stringify(structure.pos) + ' ' + JSON.stringify(Object.keys(this.getMemoryPaths())));
-    structure.destroy();
+    this.destroyStructureRoad(structure);
     return true;
   }
   if (structure.structureType === STRUCTURE_RAMPART) {

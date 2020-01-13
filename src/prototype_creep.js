@@ -174,6 +174,26 @@ Creep.prototype.getEnergyFromStructure = function() {
   }
 };
 
+Creep.prototype.notBuildRoadWithLowEnergyButOnSwamp = function() {
+  if (this.room.controller && this.room.controller.my &&
+    this.room.energyCapacityAvailable < 550 &&
+    this.pos.lookFor(LOOK_TERRAIN)[0] !== 'swamp') {
+    return true;
+  }
+};
+
+Creep.prototype.repairRoadOnSpot = function() {
+  const structures = this.pos.lookFor(LOOK_STRUCTURES);
+  if (structures.length > 0) {
+    for (const structure of structures) {
+      if ((structure.structureType === STRUCTURE_ROAD) && (structure.hits < structure.hitsMax)) {
+        this.repair(structure);
+        return true;
+      }
+    }
+  }
+};
+
 Creep.prototype.buildRoad = function() {
   if (!this.unit().buildRoad) {
     return false;
@@ -184,9 +204,7 @@ Creep.prototype.buildRoad = function() {
     return false;
   }
 
-  if (this.room.controller && this.room.controller.my &&
-    this.room.energyCapacityAvailable < 550 &&
-    this.pos.lookFor(LOOK_TERRAIN)[0] !== 'swamp') {
+  if (this.notBuildRoadWithLowEnergyButOnSwamp()) {
     return false;
   }
 
@@ -207,14 +225,8 @@ Creep.prototype.buildRoad = function() {
     return true;
   }
 
-  const structures = this.pos.lookFor(LOOK_STRUCTURES);
-  if (structures.length > 0) {
-    for (const structure of structures) {
-      if ((structure.structureType === STRUCTURE_ROAD) && (structure.hits < structure.hitsMax)) {
-        this.repair(structure);
-        return true;
-      }
-    }
+  if (this.repairRoadOnSpot()) {
+    return true;
   }
 
   const creep = this;

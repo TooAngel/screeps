@@ -80,14 +80,14 @@ function nextState(creep) {
 }
 
 /**
- * Get a resource from a target
+ * getFullCapacity - Transfers on full energy
  *
  * @param {object} creep - The creep to interact with.
  * @param {object} target - The target to get the resource from.
  * @param {string} resource - The resource to get.
  * @return {boolean} If it was an success
  */
-function get(creep, target, resource) {
+function getFullCapacity(creep, target, resource) {
   if (_.sum(creep.carry) === creep.carryCapacity) {
     if (target instanceof StructureTerminal) {
       if (creep.pos.isNearTo(target)) {
@@ -103,6 +103,20 @@ function get(creep, target, resource) {
       }
       nextState(creep);
     }
+    return true;
+  }
+}
+
+/**
+ * Get a resource from a target
+ *
+ * @param {object} creep - The creep to interact with.
+ * @param {object} target - The target to get the resource from.
+ * @param {string} resource - The resource to get.
+ * @return {boolean} If it was an success
+ */
+function get(creep, target, resource) {
+  if (getFullCapacity(creep, target, resource)) {
     return;
   }
 
@@ -402,6 +416,32 @@ function checkNuke(creep) {
   return false;
 }
 
+const handleReactions = function(creep, room) {
+  const lab0 = Game.getObjectById(room.memory.reaction.labs[0]);
+  const lab1 = Game.getObjectById(room.memory.reaction.labs[1]);
+  const lab2 = Game.getObjectById(room.memory.reaction.labs[2]);
+
+  if (lab0 === null || lab1 === null || lab2 === null) {
+    delete creep.room.memory.reaction;
+  } else {
+    if (lab0.cooldown === 0) {
+      const returnCode = lab0.runReaction(lab1, lab2);
+      if (returnCode === ERR_NOT_ENOUGH_RESOURCES) {
+        if (!creep.checkLabEnoughMineral(lab1, room.memory.reaction.result.first) || !creep.checkLabEnoughMineral(lab2, room.memory.reaction.result.second)) {
+          cleanUpLabs(creep);
+        }
+      }
+    }
+  }
+  if (lab0.mineralAmount > lab0.mineralCapacity - 100 && creep.room.memory.reaction) {
+    creep.room.memory.fullLab = 1;
+  }
+
+  if (lab0.mineralAmount < 100) {
+    creep.room.memory.fullLab = 0;
+  }
+};
+
 const execute = function(creep) {
   if (!creep.room.terminal) {
     creep.suicide();
@@ -415,33 +455,8 @@ const execute = function(creep) {
 
   const room = Game.rooms[creep.room.name];
 
-  let lab0;
-  let lab1;
-  let lab2;
   if (room.memory.reaction) {
-    lab0 = Game.getObjectById(room.memory.reaction.labs[0]);
-    lab1 = Game.getObjectById(room.memory.reaction.labs[1]);
-    lab2 = Game.getObjectById(room.memory.reaction.labs[2]);
-
-    if (lab0 === null || lab1 === null || lab2 === null) {
-      delete creep.room.memory.reaction;
-    } else {
-      if (lab0.cooldown === 0) {
-        const returnCode = lab0.runReaction(lab1, lab2);
-        if (returnCode === ERR_NOT_ENOUGH_RESOURCES) {
-          if (!creep.checkLabEnoughMineral(lab1, room.memory.reaction.result.first) || !creep.checkLabEnoughMineral(lab2, room.memory.reaction.result.second)) {
-            cleanUpLabs(creep);
-          }
-        }
-      }
-    }
-    if (lab0.mineralAmount > lab0.mineralCapacity - 100 && creep.room.memory.reaction) {
-      creep.room.memory.fullLab = 1;
-    }
-
-    if (lab0.mineralAmount < 100) {
-      creep.room.memory.fullLab = 0;
-    }
+    handleReactions(creep, room);
   }
 
   if (creep.room.memory.fullLab === 1) {
