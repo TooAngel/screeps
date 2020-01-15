@@ -236,17 +236,22 @@ Room.prototype.checkNeedHelp = function() {
   return false;
 };
 
+Room.prototype.checkCanHelpInitNearestRoom = function() {
+  let nearestRoom = this.memory.nearestRoom;
+  if (!nearestRoom || !Memory.rooms[nearestRoom] || !Memory.rooms[nearestRoom].needHelp) {
+    nearestRoom = this.nearestRoomName(Memory.needEnergyRooms, config.carryHelpers.maxDistance);
+    this.memory.nearestRoom = nearestRoom;
+  }
+};
+
 Room.prototype.checkCanHelp = function() {
   let returnValue = 'no';
   if (!Memory.needEnergyRooms || Memory.needEnergyRooms.length === 0) {
     return returnValue;
   }
 
-  let nearestRoom = this.memory.nearestRoom;
-  if (!nearestRoom || !Memory.rooms[nearestRoom] || !Memory.rooms[nearestRoom].needHelp) {
-    nearestRoom = this.nearestRoomName(Memory.needEnergyRooms, config.carryHelpers.maxDistance);
-    this.memory.nearestRoom = nearestRoom;
-  }
+  this.checkCanHelpInitNearestRoom();
+  const nearestRoom = this.memory.nearestRoom;
   if (!Game.rooms[nearestRoom] || !Memory.rooms[nearestRoom].needHelp) {
     _.remove(Memory.needEnergyRooms, (r) => r === nearestRoom);
   }
@@ -464,6 +469,18 @@ Room.prototype.checkForExtractor = function() {
   }
 };
 
+Room.prototype.checkForMiner = function() {
+  if (config.mineral.enabled && this.terminal && this.storage) {
+    const labs = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB]);
+    if ((!this.memory.cleanup || this.memory.cleanup <= 10) && (_.size(labs) > 2)) {
+      this.checkRoleToSpawn('mineral');
+    }
+    if ((Game.time + this.controller.pos.x + this.controller.pos.y) % 10000 < 10) {
+      this.memory.cleanup = 0;
+    }
+  }
+};
+
 Room.prototype.executeRoom = function() {
   const cpuUsed = Game.cpu.getUsed();
   this.buildBase();
@@ -495,16 +512,7 @@ Room.prototype.executeRoom = function() {
 
   this.checkForPlaner();
   this.checkForExtractor();
-
-  if (config.mineral.enabled && this.terminal && this.storage) {
-    const labs = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB]);
-    if ((!this.memory.cleanup || this.memory.cleanup <= 10) && (_.size(labs) > 2)) {
-      this.checkRoleToSpawn('mineral');
-    }
-    if ((Game.time + this.controller.pos.x + this.controller.pos.y) % 10000 < 10) {
-      this.memory.cleanup = 0;
-    }
-  }
+  this.checkForMiner();
 
   if (!building && nextroomers.length === 0) {
     this.handleScout();

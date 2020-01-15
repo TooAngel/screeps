@@ -194,7 +194,7 @@ Creep.prototype.repairRoadOnSpot = function() {
   }
 };
 
-Creep.prototype.buildRoad = function() {
+Creep.prototype.checkIfBuildRoadIsPossible = function() {
   if (!this.unit().buildRoad) {
     return false;
   }
@@ -218,6 +218,14 @@ Creep.prototype.buildRoad = function() {
   }
 
   if (this.room.controller && !this.room.controller.my && this.room.controller.owner) {
+    return false;
+  }
+
+  return true;
+};
+
+Creep.prototype.buildRoad = function() {
+  if (!this.checkIfBuildRoadIsPossible()) {
     return false;
   }
 

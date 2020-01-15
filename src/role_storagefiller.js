@@ -82,6 +82,35 @@ roles.storagefiller.checkResourceStore = function(creep, resourceType, withdraw 
   }
 };
 
+const transferOrWithdraw = function(creep, option, powerSpawn) {
+  let returnCode = false;
+  let resource;
+  let structur;
+
+  // put
+  if (option.carry.sum > 0) {
+    if (option.carry.energy > 0) {
+      resource = RESOURCE_ENERGY;
+    } else if (option.carry.power > 0) {
+      resource = RESOURCE_POWER;
+    }
+    returnCode = creep.transfer(powerSpawn, resource);
+  } else { // pickup
+    if (option.need.energy) {
+      resource = RESOURCE_ENERGY;
+    } else if (option.need.power) {
+      resource = RESOURCE_POWER;
+    }
+    if (creep.room.terminal.store[resource] > 0) {
+      structur = STRUCTURE_TERMINAL;
+    } else if (creep.room.storage.store[resource] > 0) {
+      structur = STRUCTURE_STORAGE;
+    }
+    returnCode = creep.withdraw(creep.room[structur], resource);
+  }
+  return returnCode;
+};
+
 // todo-msc can we simplyfy this? check both resources (power, energy) and termiinal and storage
 roles.storagefiller.movePowerAndEnergy = function(creep) {
   const powerSpawn = Game.getObjectById(creep.room.memory.constants.powerSpawn);
@@ -112,30 +141,7 @@ roles.storagefiller.movePowerAndEnergy = function(creep) {
         }
         return false;
       }
-      let returnCode = false;
-      let resource;
-      let strucktur;
-      // put
-      if (option.carry.sum > 0) {
-        if (option.carry.energy > 0) {
-          resource = RESOURCE_ENERGY;
-        } else if (option.carry.power > 0) {
-          resource = RESOURCE_POWER;
-        }
-        returnCode = creep.transfer(powerSpawn, resource);
-      } else { // pickup
-        if (option.need.energy) {
-          resource = RESOURCE_ENERGY;
-        } else if (option.need.power) {
-          resource = RESOURCE_POWER;
-        }
-        if (creep.room.terminal.store[resource] > 0) {
-          strucktur = STRUCTURE_TERMINAL;
-        } else if (creep.room.storage.store[resource] > 0) {
-          strucktur = STRUCTURE_STORAGE;
-        }
-        returnCode = creep.withdraw(creep.room[strucktur], resource);
-      }
+      const returnCode = transferOrWithdraw(creep, option, powerSpawn);
 
       if (returnCode === OK) {
         return true;

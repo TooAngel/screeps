@@ -291,12 +291,23 @@ Room.prototype.sortParts = function(parts, layout) {
   });
 };
 
+Room.prototype.getPartConfigMaxBodyLength = function(prefixString, sufixString) {
+  let maxBodyLength = MAX_CREEP_SIZE;
+  if (prefixString) {
+    maxBodyLength -= prefixString.length;
+  }
+  if (sufixString) {
+    maxBodyLength -= sufixString.length;
+  }
+  return maxBodyLength;
+};
+
 /**
  * Room.prototype.getPartsConfig use for generate adapted body
  *
  * @param {Collection} creep queue's creep spawn basic datas
+ * @return {object} The part Config or false
  */
-
 Room.prototype.getPartConfig = function(creep) {
   let energyAvailable = this.energyAvailable;
   const settings = this.getSettings(creep);
@@ -307,13 +318,7 @@ Room.prototype.getPartConfig = function(creep) {
     sufixString,
     fillTough} = settings;
   let layoutString = settings.layoutString;
-  let maxBodyLength = MAX_CREEP_SIZE;
-  if (prefixString) {
-    maxBodyLength -= prefixString.length;
-  }
-  if (sufixString) {
-    maxBodyLength -= sufixString.length;
-  }
+  const maxBodyLength = this.getPartConfigMaxBodyLength();
 
   const prefix = this.getPartsStringDatas(prefixString, energyAvailable);
   if (prefix.fail) {

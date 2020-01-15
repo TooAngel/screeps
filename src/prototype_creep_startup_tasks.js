@@ -195,30 +195,7 @@ Creep.prototype.actuallyRepairStructure = function(toRepair) {
   }
 };
 
-Creep.prototype.repairStructure = function() {
-  this.creepLog('repairStructure');
-  if (this.memory.target) {
-    const toRepair = Game.getObjectById(this.memory.target);
-    if (!toRepair || toRepair === null) {
-      this.say('No target');
-      delete this.memory.target;
-      return false;
-    }
-
-    if (toRepair instanceof ConstructionSite) {
-      this.creepLog(`building constructionSite ${JSON.stringify(toRepair)}`);
-      this.build(toRepair);
-      this.moveToMy(toRepair.pos, 3);
-      return true;
-    } else if (toRepair.hits < 10000 || toRepair.hits < this.memory.step + 10000) {
-      if (this.actuallyRepairStructure(toRepair)) {
-        return true;
-      }
-    } else {
-      delete this.memory.target;
-    }
-  }
-
+Creep.prototype.repairStructureWithIncomingNuke = function() {
   const nukes = this.room.find(FIND_NUKES);
   if (nukes.length > 0) {
     const spawns = this.room.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
@@ -243,6 +220,35 @@ Creep.prototype.repairStructure = function() {
         }
       }
     }
+  }
+};
+
+Creep.prototype.repairStructure = function() {
+  this.creepLog('repairStructure');
+  if (this.memory.target) {
+    const toRepair = Game.getObjectById(this.memory.target);
+    if (!toRepair || toRepair === null) {
+      this.say('No target');
+      delete this.memory.target;
+      return false;
+    }
+
+    if (toRepair instanceof ConstructionSite) {
+      this.creepLog(`building constructionSite ${JSON.stringify(toRepair)}`);
+      this.build(toRepair);
+      this.moveToMy(toRepair.pos, 3);
+      return true;
+    } else if (toRepair.hits < 10000 || toRepair.hits < this.memory.step + 10000) {
+      if (this.actuallyRepairStructure(toRepair)) {
+        return true;
+      }
+    } else {
+      delete this.memory.target;
+    }
+  }
+
+  if (this.repairStructureWithIncomingNuke()) {
+    return true;
   }
 
   // Repair low ramparts
