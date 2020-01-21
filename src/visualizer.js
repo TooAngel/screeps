@@ -207,22 +207,29 @@ if (config.visualizer.enabled) {
   };
 }
 
-global.visualizer.myRoomDatasDraw = function(roomName) {
-  const fontSize = 0.65;
-  const room = Game.rooms[roomName];
+const getLines = function(room) {
   const energy = (room.memory.energyStats && Math.floor(room.memory.energyStats.average)) ||
     room.energyAvailable;
   const storedE = room.storage ? room.storage.store[RESOURCE_ENERGY] : 0;
   const queueL = room.memory.queue ? room.memory.queue.length : 0;
   const rclP = Math.floor(100 * (room.controller.progressTotal ? room.controller.progress / room.controller.progressTotal : 1));
 
-  const color = (coeff) => `rgb(${Math.floor(-(coeff - 1) * 255)},${Math.floor(coeff * 255)},0)`;
   const lines = [
     {label: `Energy Average :`, value: energy, coeff: energy / room.energyCapacityAvailable},
     {label: `Stored Energy :`, value: storedE, coeff: Math.min(storedE, 500000) / 500000},
     {label: `Queue length :`, value: queueL, coeff: (20 - Math.min(queueL, 20)) / 20},
     {label: `RCL ${room.controller.level} progress :`, value: rclP, coeff: rclP / 100},
   ];
+  return lines;
+};
+
+global.visualizer.myRoomDatasDraw = function(roomName) {
+  const room = Game.rooms[roomName];
+  const lines = getLines(room);
+
+  const fontSize = 0.65;
+  const color = (coeff) => `rgb(${Math.floor(-(coeff - 1) * 255)},${Math.floor(coeff * 255)},0)`;
+
   if (config.stats.summary && Memory.summary) {
     const rclSpeed = Math.floor(room.memory.upgraderUpgrade / (Game.time % 100 || 1));
     lines.push({label: `RCL speed:`, value: rclSpeed, coeff: rclSpeed / 50});

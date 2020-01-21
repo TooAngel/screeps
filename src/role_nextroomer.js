@@ -188,6 +188,19 @@ roles.nextroomer.underSiege = function(creep) {
   return false;
 };
 
+const handleTower = function(creep) {
+  if (creep.carry.energy > 0) {
+    const towers = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER], {
+      filter: (object) => object.energy < 10,
+    });
+    if (towers.length) {
+      creep.moveTo(towers[0]);
+      creep.transfer(towers[0], RESOURCE_ENERGY);
+      return true;
+    }
+  }
+};
+
 roles.nextroomer.settle = function(creep) {
   creep.creepLog('settle');
   const room = Game.rooms[creep.room.name];
@@ -210,15 +223,8 @@ roles.nextroomer.settle = function(creep) {
     return roles.nextroomer.underSiege(creep);
   }
 
-  if (creep.carry.energy > 0) {
-    const towers = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER], {
-      filter: (object) => object.energy < 10,
-    });
-    if (towers.length) {
-      creep.moveTo(towers[0]);
-      creep.transfer(towers[0], RESOURCE_ENERGY);
-      return true;
-    }
+  if (handleTower(creep)) {
+    return true;
   }
 
   if ((creep.room.energyCapacityAvailable < 300) && (creep.room.exectueEveryTicks(50))) {

@@ -107,6 +107,22 @@ function getFullCapacity(creep, target, resource) {
   }
 }
 
+const getAmount = function(creep, target, resource) {
+  let amount = 0;
+  if (target instanceof StructureTerminal) {
+    if (resource === 'energy') {
+      amount = Math.min(target.store[resource], creep.carryCapacity - _.sum(creep.carry));
+    } else {
+      amount = Math.min(target.store[resource], creep.carryCapacity / 2);
+    }
+  }
+
+  if (target instanceof StructureLab) {
+    amount = Math.min(target.mineralAmount, creep.carryCapacity - _.sum(creep.carry));
+  }
+  return amount;
+};
+
 /**
  * Get a resource from a target
  *
@@ -144,21 +160,7 @@ function get(creep, target, resource) {
     return;
   }
 
-  let amount = 0;
-  if (target instanceof StructureTerminal) {
-    if (resource === 'energy') {
-      amount = Math.min(target.store[resource], creep.carryCapacity - _.sum(creep.carry));
-    } else {
-      amount = Math.min(target.store[resource], creep.carryCapacity / 2);
-    }
-  }
-
-  if (target instanceof StructureLab) {
-    amount = Math.min(target.mineralAmount, creep.carryCapacity - _.sum(creep.carry));
-    //    if (target.mineral != resource) {
-    //      delete creep.room.memory.reaction;
-    //    }
-  }
+  const amount = getAmount(creep, target, resource);
 
   if (amount === 0) {
     if (config.debug.mineral) {

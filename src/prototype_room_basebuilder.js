@@ -73,6 +73,31 @@ Room.prototype.destroyStructureRoad = function(structure) {
   return true;
 };
 
+Room.prototype.buildRampartsAroundSpawns = function() {
+  // Build ramparts around the spawn if wallThickness > 1
+  if (config.layout.wallThickness > 1) {
+    const costMatrixBase = this.getMemoryCostMatrix();
+    const spawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+
+    for (const spawn of spawns) {
+      for (let x = -1; x < 2; x++) {
+        for (let y = -1; y < 2; y++) {
+          if (spawn.pos.x + x >= 0 && spawn.pos.y + y >= 0 && spawn.pos.x + x < 50 && spawn.pos.y + y < 50) {
+            const pos = new RoomPosition(spawn.pos.x + x, spawn.pos.y + y, spawn.pos.roomName);
+            this.memory.walls.ramparts.push(pos);
+            costMatrixBase.set(pos.x, pos.y, 0);
+            const walls = pos.findInRangePropertyFilter(FIND_STRUCTURES, 0, 'structureType', [STRUCTURE_WALL]);
+            for (const wall of walls) {
+              wall.destroy();
+            }
+          }
+        }
+      }
+    }
+    this.setMemoryCostMatrix(costMatrixBase);
+  }
+};
+
 Room.prototype.destroyStructure = function(structure) {
   if (this.destroyStructureWall(structure)) {
     return true;
@@ -121,28 +146,7 @@ Room.prototype.destroyStructure = function(structure) {
     this.log(`Spawn [${structure.pos.x}, ${structure.pos.y}] is misplaced, not in positions ${JSON.stringify(this.memory.position.structure[structure.structureType].map((o) => `${o.x}, ${o.y}`))} (prototype_room_basebuilder.destroyStructure)`); // eslint-disable-line max-len
     this.memory.misplacedSpawn = true;
 
-    // Build ramparts around the spawn if wallThickness > 1
-    if (config.layout.wallThickness > 1) {
-      const costMatrixBase = this.getMemoryCostMatrix();
-      const spawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
-
-      for (const spawn of spawns) {
-        for (let x = -1; x < 2; x++) {
-          for (let y = -1; y < 2; y++) {
-            if (spawn.pos.x + x >= 0 && spawn.pos.y + y >= 0 && spawn.pos.x + x < 50 && spawn.pos.y + y < 50) {
-              const pos = new RoomPosition(spawn.pos.x + x, spawn.pos.y + y, spawn.pos.roomName);
-              this.memory.walls.ramparts.push(pos);
-              costMatrixBase.set(pos.x, pos.y, 0);
-              const walls = pos.findInRangePropertyFilter(FIND_STRUCTURES, 0, 'structureType', [STRUCTURE_WALL]);
-              for (const wall of walls) {
-                wall.destroy();
-              }
-            }
-          }
-        }
-      }
-      this.setMemoryCostMatrix(costMatrixBase);
-    }
+    this.buildRampartsAroundSpawns();
   }
   return false;
 };
@@ -287,9 +291,7 @@ Room.prototype.setupStructure = function(structure) {
   return false;
 };
 
-Room.prototype.buildStructures = function() {
-  // TODO reduce noise
-  // this.log('buildStructures: ' + this.memory.controllerLevel.buildStructuresInterval);
+Room.prototype.checkBuildStructureValidity = function() {
   if (!this.memory.position) {
     this.log('No position buildStructures');
     this.setup();
@@ -307,6 +309,13 @@ Room.prototype.buildStructures = function() {
   }
 
   if (Object.keys(Game.constructionSites).length >= 100) {
+    return false;
+  }
+  return true;
+};
+
+Room.prototype.buildStructures = function() {
+  if (!this.checkBuildStructureValidity()) {
     return false;
   }
 

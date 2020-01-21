@@ -1,30 +1,38 @@
 'use strict';
 
-Room.prototype.buildBase = function() {
-  const resetCounters = function(room) {
-    room.memory.controllerLevel.checkPathInterval = 1;
-    room.memory.controllerLevel.checkWrongStructureInterval = 1;
-    room.memory.controllerLevel.buildStructuresInterval = 1;
-    room.memory.controllerLevel.buildBlockersInterval = 1;
-  };
+const resetCounters = function(room) {
+  room.memory.controllerLevel.checkPathInterval = 1;
+  room.memory.controllerLevel.checkWrongStructureInterval = 1;
+  room.memory.controllerLevel.buildStructuresInterval = 1;
+  room.memory.controllerLevel.buildBlockersInterval = 1;
+};
 
-  this.memory.controllerLevel = this.memory.controllerLevel || {};
-
+Room.prototype.buildBaseUnseenControllerLevel = function() {
   if (!this.memory.controllerLevel['setup_level_' + this.controller.level]) {
     if (Game.cpu.tickLimit > Game.cpu.bucket) {
       // this.log(`Skipping room_controller.js execution CPU limit: ${Game.cpu.limit} tickLimit: ${Game.cpu.tickLimit} bucket: ${Game.cpu.bucket}`);
-      return;
+      return true;
     }
     if (this.controller.level === 1 || this.controller.level === 2) {
       if (!this.setup()) {
-        return;
+        return true;
       }
     }
     this.updateCostMatrix();
     resetCounters(this);
     this.memory.controllerLevel['setup_level_' + this.controller.level] = Game.time;
   }
+};
 
+const executeTask = function(room, name) {
+  if (room[name]()) {
+    room.memory.controllerLevel[name + 'Interval'] = 1;
+  } else {
+    room.memory.controllerLevel[name + 'Interval']++;
+  }
+};
+
+Room.prototype.buildBaseCheckPath = function() {
   if (this.controller.level > 2 && this.exectueEveryTicks(this.memory.controllerLevel.checkPathInterval)) {
     if (this.checkPath(this)) {
       resetCounters(this);
@@ -32,6 +40,15 @@ Room.prototype.buildBase = function() {
       this.memory.controllerLevel.checkPathInterval++;
     }
   }
+};
+
+Room.prototype.buildBase = function() {
+  this.memory.controllerLevel = this.memory.controllerLevel || {};
+  if (this.buildBaseUnseenControllerLevel()) {
+    return;
+  }
+
+  this.buildBaseCheckPath();
 
   if (!this.memory.controllerLevel.checkWrongStructureInterval) {
     this.memory.controllerLevel.checkWrongStructureInterval = 1;
@@ -44,22 +61,11 @@ Room.prototype.buildBase = function() {
     }
   }
 
-  // TODO Add build ramparts and walls
-
-  const room = this;
-  const executeTask = function(name) {
-    if (room[name]()) {
-      room.memory.controllerLevel[name + 'Interval'] = 1;
-    } else {
-      room.memory.controllerLevel[name + 'Interval']++;
-    }
-  };
-
   if (!this.memory.controllerLevel.buildStructuresInterval) {
     this.memory.controllerLevel.buildStructuresInterval = 1;
   }
   if (this.exectueEveryTicks(this.memory.controllerLevel.buildStructuresInterval)) {
-    executeTask('buildStructures');
+    executeTask(this, 'buildStructures');
   }
 
   if (!this.memory.controllerLevel.checkBlockersInterval) {
@@ -70,11 +76,11 @@ Room.prototype.buildBase = function() {
   }
   if (this.memory.controllerLevel.buildStructuresInterval > 1) {
     if (this.exectueEveryTicks(this.memory.controllerLevel.checkBlockersInterval)) {
-      executeTask('checkBlockers');
+      executeTask(this, 'checkBlockers');
     }
     if (this.exectueEveryTicks(this.memory.controllerLevel.buildBlockersInterval)) {
       if (this.controller.level >= 2) {
-        executeTask('buildBlockers');
+        executeTask(this, 'buildBlockers');
       }
     }
   }
