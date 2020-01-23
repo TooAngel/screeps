@@ -71,13 +71,13 @@ async function updateDashboard(path) {
   console.log(response);
 }
 
-async function fetchDashboards() {
-  const list = await getDashboardList();
-  for (const item of Object.keys(list)) {
-    const dashboard = await getDashboard(list[item].uri);
-    fs.writeFileSync('grafana/tmp/' + list[item].uri + '.json', JSON.stringify(dashboard), 'utf8');
-  }
-}
+// async function fetchDashboards() {
+//   const list = await getDashboardList();
+//   for (const item of Object.keys(list)) {
+//     const dashboard = await getDashboard(list[item].uri);
+//     fs.writeFileSync('grafana/tmp/' + list[item].uri + '.json', JSON.stringify(dashboard), 'utf8');
+//   }
+// }
 
 function main() {
   getDashboards();

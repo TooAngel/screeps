@@ -1,12 +1,10 @@
 const net = require('net');
 const q = require('q');
 const _ = require('lodash');
-const {ScreepsAPI} = require('screeps-api');
 
 const {setPassword, sleep, initServer, startServer, spawnBots, helpers, logConsole, followLog} = require('./testHelpers');
 
 const cliPort = 21026;
-const port = 21025;
 
 const verbose = false;
 
@@ -50,7 +48,7 @@ const controllerRooms = {};
 const status = {};
 let lastTick = 0;
 
-process.once('SIGINT', function (code) {
+process.once('SIGINT', (code) => {
   console.log('SIGINT received...');
   console.log(`${lastTick} End of simulation`);
   console.log('Status:');
@@ -78,7 +76,7 @@ class Tester {
     this.roomsSeen = {};
     if (process.argv.length > 2) {
       try {
-        this.maxRuntime = parseInt(process.argv[2]) * 60;
+        this.maxRuntime = parseInt(process.argv[2], 10) * 60;
       } catch (e) {
         console.log(`Cannot parse runtime argument ${process.argv} ${e}`);
       }
@@ -104,11 +102,11 @@ class Tester {
         const failes = milestones.filter((milestone) => milestone.required && !milestone.success);
         if (failes.length > 0) {
           for (const fail of failes) {
-            console.log(`${lastTick} Milestone failed ${JSON.stringify(fail)}`)
+            console.log(`${lastTick} Milestone failed ${JSON.stringify(fail)}`);
           }
           console.log(`${lastTick} Status check: failed`);
           defer.reject('Not all milestones are hit.');
-          return
+          return;
         }
         console.log(`${lastTick} Status check: passed`);
         defer.resolve();
@@ -153,8 +151,12 @@ class Tester {
       await this.checkForSucces(line, defer);
     });
 
-    socket.on('connect', () => {console.log('connected');});
-    socket.on('error', (error) => {defer.reject(error);});
+    socket.on('connect', () => {
+      console.log('connected');
+    });
+    socket.on('error', (error) => {
+      defer.reject(error);
+    });
 
     return defer.promise;
   }
@@ -189,12 +191,12 @@ const printCurrentStatus = function(gameTime) {
     if (status[a].level === status[b].level) {
       return status[a].progress - status[b].progress;
     }
-    return status[a].level - status[b].level
+    return status[a].level - status[b].level;
   });
   for (const key of keys) {
     console.log(`${gameTime} Status: room ${key} level: ${status[key].level} progress: ${status[key].progress} structures: ${status[key].structures} creeps: ${status[key].creeps}`);
   }
-}
+};
 
 /**
  * updates the stauts object
@@ -231,7 +233,7 @@ const statusUpdater = (event) => {
       if (milestone.success) {
         if (milestone.tick === event.data.gameTime) {
           console.log('===============================');
-          console.log(`${event.data.gameTime} Milestone: Reached ${JSON.stringify(milestone)}`)
+          console.log(`${event.data.gameTime} Milestone: Reached ${JSON.stringify(milestone)}`);
         }
         continue;
       }
