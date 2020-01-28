@@ -113,6 +113,10 @@ const transferOrWithdraw = function(creep, option, powerSpawn) {
 
 // todo-msc can we simplyfy this? check both resources (power, energy) and termiinal and storage
 roles.storagefiller.movePowerAndEnergy = function(creep) {
+  if (!creep.room.memory.constants) {
+    // After deleting room memory this fails
+    return false;
+  }
   const powerSpawn = Game.getObjectById(creep.room.memory.constants.powerSpawn);
   if (powerSpawn && creep.room.terminal && creep.room.storage) {
     // todo-msc do we have power at all

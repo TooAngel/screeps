@@ -154,7 +154,7 @@ Creep.prototype.handleExtractor = function() {
 
   const minerals = this.room.find(FIND_MINERALS);
   if (minerals.length > 0) {
-    const posMem = this.room.memory.position.creep[minerals[0].id];
+    const posMem = this.room.memory.position.creep[minerals[0].id][0];
     // TODO this could be moved to `creep.moveToMy`, just need to unify the parameter
     if (this.pos.x !== posMem.x || this.pos.y !== posMem.y) {
       const pos = new RoomPosition(posMem.x, posMem.y, posMem.roomName);

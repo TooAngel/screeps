@@ -188,6 +188,29 @@ roles.nextroomer.underSiege = function(creep) {
   return false;
 };
 
+const getMethods = function(creep) {
+  const methods = [Creep.getEnergy];
+  if (creep.room.controller.ticksToDowngrade < 1500 || creep.room.controller.progress > creep.room.controller.progressTotal) {
+    methods.push(Creep.upgradeControllerTask);
+  }
+
+  const spawnCSs = creep.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_SPAWN]);
+  const spawns = creep.room.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+  if (spawns.length === 0 && spawnCSs.length > 0) {
+    methods.push(Creep.constructTask);
+  }
+
+  const structures = creep.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_CONTROLLER], {inverse: true});
+  if (creep.room.controller.level >= 3 && structures.length > 0) {
+    methods.push(Creep.constructTask);
+  }
+
+  if (creep.room.controller.level < 8) {
+    methods.push(Creep.upgradeControllerTask);
+  }
+  return methods;
+};
+
 const handleTower = function(creep) {
   if (creep.carry.energy > 0) {
     const towers = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER], {
@@ -234,26 +257,7 @@ roles.nextroomer.settle = function(creep) {
     }
   }
 
-  const methods = [Creep.getEnergy];
-  if (creep.room.controller.ticksToDowngrade < 1500 || creep.room.controller.progress > creep.room.controller.progressTotal) {
-    methods.push(Creep.upgradeControllerTask);
-  }
-
-  const spawnCSs = creep.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_SPAWN]);
-  const spawns = creep.room.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
-  if (spawns.length === 0 && spawnCSs.length > 0) {
-    methods.push(Creep.constructTask);
-  }
-
-  const structures = creep.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_CONTROLLER], {inverse: true});
-  if (creep.room.controller.level >= 3 && structures.length > 0) {
-    methods.push(Creep.constructTask);
-  }
-
-  if (creep.room.controller.level < 8) {
-    methods.push(Creep.upgradeControllerTask);
-  }
-
+  const methods = getMethods(creep);
   methods.push(Creep.transferEnergy);
   creep.creepLog(`Creep execute`);
   return Creep.execute(creep, methods);

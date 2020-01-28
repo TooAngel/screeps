@@ -139,11 +139,11 @@ Creep.prototype.moveCreep = function(position, direction) {
     if (creeps[0] && !creeps[0].memory.routing) {
       creeps[0].memory.routing = {};
     }
-    if ((role === 'sourcer' || role === 'reserver') && creeps[0].memory.role !== 'harvester' && !creeps[0].memory.routing.reverse) {
+    const targetRole = creeps[0].memory.role;
+    if ((role === 'sourcer' || role === 'reserver') && targetRole !== 'harvester' && !creeps[0].memory.routing.reverse) {
       creeps[0].move(direction);
       return true;
     }
-    const targetRole = creeps[0].memory.role;
     if (role === 'defendmelee' ||
       targetRole === 'harvester' ||
       targetRole === 'carry') {

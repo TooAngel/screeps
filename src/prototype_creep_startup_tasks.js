@@ -223,21 +223,33 @@ Creep.prototype.repairStructureWithIncomingNuke = function() {
   }
 };
 
+Creep.prototype.repairStructureGetTarget = function() {
+  const toRepair = Game.getObjectById(this.memory.target);
+  if (!toRepair || toRepair === null) {
+    this.say('No target');
+    delete this.memory.target;
+    return false;
+  }
+  return toRepair;
+};
+
+Creep.prototype.repairStructureCreateConstructionSite = function(toRepair) {
+  this.creepLog(`building constructionSite ${JSON.stringify(toRepair)}`);
+  this.build(toRepair);
+  this.moveToMy(toRepair.pos, 3);
+  return true;
+};
+
 Creep.prototype.repairStructure = function() {
   this.creepLog('repairStructure');
   if (this.memory.target) {
-    const toRepair = Game.getObjectById(this.memory.target);
-    if (!toRepair || toRepair === null) {
-      this.say('No target');
-      delete this.memory.target;
+    const toRepair = this.repairStructureGetTarget();
+    if (!toRepair) {
       return false;
     }
 
     if (toRepair instanceof ConstructionSite) {
-      this.creepLog(`building constructionSite ${JSON.stringify(toRepair)}`);
-      this.build(toRepair);
-      this.moveToMy(toRepair.pos, 3);
-      return true;
+      return this.repairStructureCreateConstructionSite(toRepair);
     } else if (toRepair.hits < 10000 || toRepair.hits < this.memory.step + 10000) {
       if (this.actuallyRepairStructure(toRepair)) {
         return true;
