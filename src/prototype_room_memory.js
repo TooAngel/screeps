@@ -87,6 +87,23 @@ Room.prototype.checkCache = function() {
   }
 };
 
+const pathMissingInCache = function(room, item) {
+  let path;
+  try {
+    path = Room.stringToPath(room.memory.routing[item].path);
+  } catch (e) {
+    path = room.memory.routing[item].path;
+    room.memory.routing[item].path = Room.pathToString(path);
+  }
+
+  cache.rooms[room.name].routing[item] = {
+    path: path,
+    created: room.memory.routing[item].created,
+    fixed: room.memory.routing[item].fixed,
+    name: room.memory.routing[item].name,
+  };
+};
+
 /**
  * Returns all paths for this room from cache. Checks if cache and memory
  * paths fit, otherwise populate cache.
@@ -99,21 +116,7 @@ Room.prototype.getMemoryPaths = function() {
   const cacheKeys = Object.keys(cache.rooms[this.name].routing).sort();
   const diff = _.difference(memoryKeys, cacheKeys);
   for (const item of diff) {
-    //    this.log(`getPaths ${item} missing in cache`);
-    let path;
-    try {
-      path = Room.stringToPath(this.memory.routing[item].path);
-    } catch (e) {
-      path = this.memory.routing[item].path;
-      this.memory.routing[item].path = Room.pathToString(path);
-    }
-
-    cache.rooms[this.name].routing[item] = {
-      path: path,
-      created: this.memory.routing[item].created,
-      fixed: this.memory.routing[item].fixed,
-      name: this.memory.routing[item].name,
-    };
+    pathMissingInCache(this, item);
   }
   return cache.rooms[this.name].routing;
 };
@@ -149,20 +152,7 @@ Room.prototype.getMemoryPath = function(name) {
   }
 
   if (this.memory.routing[name] && isValid(this.memory.routing[name])) {
-    //    this.log(`getPath ${name} missing in cache`);
-    let path;
-    try {
-      path = Room.stringToPath(this.memory.routing[name].path);
-    } catch (e) {
-      path = this.memory.routing[name].path;
-      this.memory.routing[name].path = Room.pathToString(path);
-    }
-    cache.rooms[this.name].routing[name] = {
-      path: path,
-      created: this.memory.routing[name].created,
-      fixed: this.memory.routing[name].fixed,
-      name: this.memory.routing[name].name,
-    };
+    pathMissingInCache(this, name);
     return cache.rooms[this.name].routing[name].path;
   }
   return false;

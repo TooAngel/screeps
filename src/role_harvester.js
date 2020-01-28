@@ -48,17 +48,18 @@ roles.harvester.updateSettings = function(room) {
 roles.harvester.buildRoad = true;
 roles.harvester.boostActions = ['capacity'];
 
-const beforeStorage = function(creep) {
+const harvesterBeforeStorage = function(creep) {
   if (!creep.room.storage || !creep.room.storage.my || creep.room.memory.misplacedSpawn || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
     creep.harvesterBeforeStorage();
-    creep.memory.routing.reached = true;
+    creep.memory.routing.reached = false;
     return true;
   }
+  return false;
 };
 
 roles.harvester.preMove = function(creep, directions) {
   creep.creepLog(`preMove`);
-  if (beforeStorage(creep)) {
+  if (harvesterBeforeStorage(creep)) {
     return true;
   }
 
@@ -132,9 +133,7 @@ roles.harvester.action = function(creep) {
     creep.memory.routing.targetId = 'harvester';
   }
 
-  if (!creep.room.storage || !creep.room.storage.my || creep.room.memory.misplacedSpawn || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
-    creep.harvesterBeforeStorage();
-    creep.memory.routing.reached = false;
+  if (harvesterBeforeStorage(creep)) {
     return true;
   }
 

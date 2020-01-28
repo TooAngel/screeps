@@ -15,6 +15,9 @@ const port = 21025;
  * Connects to the api and reads and prints the console log, if messages
  * are available
  *
+ * @param {list} rooms - The rooms
+ * @param {function} logConsole - Function to handle console logging
+ * @param {function} statusUpdater - Function to handle status updates
  * @return {undefined}
  */
 async function followLog(rooms, logConsole, statusUpdater) {
@@ -44,6 +47,9 @@ module.exports.followLog = followLog;
  *
  * @param {string} line
  * @param {object} socket
+ * @param {list} rooms
+ * @param {object} roomsSeen
+ * @param {string} playerRoom
  * @return {boolean}
  */
 const setPassword = function(line, socket, rooms, roomsSeen, playerRoom) {
@@ -80,33 +86,34 @@ async function initServer() {
   if (fs.existsSync(dir)) {
     rimraf.sync(dir);
   }
-  fs.mkdirSync(dir, 0744);
-  await new Promise(function(resolve) {
+  fs.mkdirSync(dir, '0744');
+  await new Promise(((resolve) => {
     ncp(path.resolve(__dirname, '../node_modules/@screeps/launcher/init_dist'), dir, (e) => {
       resolve();
     });
-  });
-  var configFilename = path.resolve(dir, '.screepsrc');
-  var config = fs.readFileSync(configFilename, {encoding: 'utf8'});
+  }));
+  const configFilename = path.resolve(dir, '.screepsrc');
+  let config = fs.readFileSync(configFilename, {encoding: 'utf8'});
   config = config.replace(/{{STEAM_KEY}}/, process.env.STEAM_API_KEY);
   fs.writeFileSync(configFilename, config);
   fs.chmodSync(path.resolve(dir, 'node_modules/.hooks/install'), '755');
   fs.chmodSync(path.resolve(dir, 'node_modules/.hooks/uninstall'), '755');
 
-  await new Promise(function(resolve) {
+  await new Promise(((resolve) => {
     fs.copyFile('test-files/mods.json', `${dir}/mods.json`, (err) => {
       if (err) throw err;
       resolve();
     });
-  });
+  }));
   try {
-      fs.writeFileSync(path.resolve(dir, 'package.json'), JSON.stringify({
-          name: 'my-screeps-world',
-          version: '0.0.1',
-          private: true
-      }, undefined, '  '), {encoding: 'utf8', flag: 'wx'});
+    fs.writeFileSync(path.resolve(dir, 'package.json'), JSON.stringify({
+      name: 'my-screeps-world',
+      version: '0.0.1',
+      private: true,
+    }, undefined, '  '), {encoding: 'utf8', flag: 'wx'});
+  } catch (e) {
+    console.log(e);
   }
-  catch(e) {}
 }
 module.exports.initServer = initServer;
 
@@ -125,7 +132,8 @@ module.exports.startServer = startServer;
 /**
  * logs event
  *
- * @param {object} event
+ * @param {string} room
+ * @return {void}
  */
 const logConsole = function(room) {
   return (event) => {
@@ -157,13 +165,14 @@ const logConsole = function(room) {
 };
 module.exports.logConsole = logConsole;
 
-
-
 /**
  * spawns TooAngel Bot
  *
  * @param {string} line
  * @param {object} socket
+ * @param {list} rooms
+ * @param {list} players
+ * @param {number} tickDuration
  * @return {boolean}
  */
 const spawnBots = async function(line, socket, rooms, players, tickDuration) {
@@ -202,7 +211,7 @@ const filter = {
   },
   structures: (o) => {
     if (o && o.type) {
-      return o.type === 'spawn' || o.type == 'extension';
+      return o.type === 'spawn' || o.type === 'extension';
     }
     return false;
   },
