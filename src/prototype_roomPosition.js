@@ -154,7 +154,7 @@ RoomPosition.prototype.inPositions = function() {
         }
       }
     } catch (e) {
-      console.log(`inPositions ${creepId} ${room.memory.position.creep[creepId]} ${e}`);
+      this.log(`inPositions ${creepId} ${room.memory.position.creep[creepId]} ${e}`);
     }
   }
 

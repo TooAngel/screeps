@@ -24,7 +24,7 @@ roles.reserver.updateSettings = function(room, creep) {
     };
   }
   if (level === 5) {
-    room.log('Build super reserver');
+    room.debugLog('reserver', 'Build super reserver');
     return {
       amount: [5, 5],
     };

@@ -26,130 +26,109 @@ const claimRoom = function(creep) {
   }
 };
 
-roles.scoutnextroom.action = function(creep) {
-  creep.notifyWhenAttacked(false);
-  if (claimRoom(creep)) {
-    return true;
+const checkNewRoom = function(creep, opponentRoom) {
+  if (creep.inBase()) {
+    return false;
   }
 
+  if (opponentRoom) {
+    return false;
+  }
+
+  if (!creep.room.controller) {
+    creep.log('No controller');
+    return false;
+  }
+  const sources = creep.room.find(FIND_SOURCES);
+  if (sources.length < 2) {
+    creep.log('Not enough sources');
+    return false;
+  }
+
+  for (const roomName of Memory.myRooms) {
+    const distance = Game.map.getRoomLinearDistance(creep.room.name, roomName);
+    if (distance < config.nextRoom.minNewRoomDistance) {
+      creep.log('To close to: ' + roomName + ' ' + distance);
+      return false;
+    }
+  }
+
+  creep.memory.claimRoom = true;
+  creep.moveTo(creep.room.controller.pos);
+  creep.log('claim');
+  return true;
+};
+
+const handleTarget = function(creep, exits) {
+  const startDirection = _.random(1, 4) * 2;
+  const backwardsDirection = RoomPosition.oppositeDirection(creep.memory.dir);
+
+  if (!creep.memory.base) {
+    return false;
+  }
+
+  for (let i = 1; i < 8; i += 2) {
+    // Don't go back
+    const direction = RoomPosition.changeDirection(startDirection, i);
+    if (direction === backwardsDirection) {
+      continue;
+    }
+
+    const roomName = exits[direction];
+    if (typeof(roomName) === 'undefined') {
+      continue;
+    }
+
+    const exit = creep.room.findExitTo(roomName);
+    if (exit === -2) {
+      continue;
+    }
+
+    const exitPos = creep.pos.findClosestByPath(exit, {
+      ignoreCreeps: true,
+    });
+
+    if (!exitPos) {
+      continue;
+    }
+
+    const route = Game.map.findRoute(creep.memory.base, roomName);
+    const maxRoute = 10;
+    if (route.length > maxRoute) {
+      continue;
+    }
+
+    // Way blocked
+    const search = PathFinder.search(
+      creep.pos,
+      exitPos, {
+        maxRooms: 1,
+      });
+    if (search.incomplete) {
+      continue;
+    }
+
+    creep.memory.target = exitPos;
+    creep.memory.goalRoom = roomName;
+    creep.memory.dir = direction;
+    return true;
+  }
+  return false;
+};
+
+const checkForNewRoom = function(creep) {
   if (!creep.memory.target || creep.memory.target === null || creep.memory.target.roomName !== creep.room.name) {
     const hostileCreeps = creep.room.getEnemys();
 
     let opponentRoom = hostileCreeps.length > 0;
     if (!creep.inBase()) {
       opponentRoom = opponentRoom || (creep.room.controller && creep.room.controller.my);
-
-      // TODO No way to controller doesn't mean it is an opponentRoom
-      //      if (creep.room.controller) {
-      //        var path = creep.pos.findPathTo(creep.room.controller.pos);
-      //        if (path.length === 0) {
-      //          creep.log('Can not find way to controller');
-      //          opponentRoom = true;
-      //        } else {
-      //
-      //          let lastPos = path[path.length - 1];
-      //          if (!creep.room.controller.pos.isEqualTo(lastPos.x, lastPos.y)) {
-      //            creep.log('Can not find way to controller');
-      //            opponentRoom = true;
-      //          }
-      //        }
-      //      }
     }
-
-    const checkNewRoom = function(creep, opponentRoom) {
-      if (creep.inBase()) {
-        return false;
-      }
-
-      if (opponentRoom) {
-        return false;
-      }
-
-      if (!creep.room.controller) {
-        creep.log('No controller');
-        return false;
-      }
-      const sources = creep.room.find(FIND_SOURCES);
-      if (sources.length < 2) {
-        creep.log('Not enough sources');
-        return false;
-      }
-
-      for (const roomName of Memory.myRooms) {
-        const distance = Game.map.getRoomLinearDistance(creep.room.name, roomName);
-        if (distance < config.nextRoom.minNewRoomDistance) {
-          creep.log('To close to: ' + roomName + ' ' + distance);
-          return false;
-        }
-      }
-
-      creep.memory.claimRoom = true;
-      creep.moveTo(creep.room.controller.pos);
-      creep.log('claim');
-      return true;
-    };
 
     if (checkNewRoom(creep, opponentRoom)) {
       return true;
     }
     const exits = Game.map.describeExits(creep.room.name);
-
-    const handleTarget = function(creep, exits) {
-      const startDirection = _.random(1, 4) * 2;
-      const backwardsDirection = RoomPosition.oppositeDirection(creep.memory.dir);
-
-      if (!creep.memory.base) {
-        return false;
-      }
-
-      for (let i = 1; i < 8; i += 2) {
-        // Don't go back
-        const direction = RoomPosition.changeDirection(startDirection, i);
-        if (direction === backwardsDirection) {
-          continue;
-        }
-
-        const roomName = exits[direction];
-        if (typeof(roomName) === 'undefined') {
-          continue;
-        }
-
-        const exit = creep.room.findExitTo(roomName);
-        if (exit === -2) {
-          continue;
-        }
-
-        const exitPos = creep.pos.findClosestByPath(exit, {
-          ignoreCreeps: true,
-        });
-
-        if (!exitPos) {
-          continue;
-        }
-
-        const route = Game.map.findRoute(creep.memory.base, roomName);
-        const maxRoute = 10;
-        if (route.length > maxRoute) {
-          continue;
-        }
-
-        // Way blocked
-        const search = PathFinder.search(
-          creep.pos,
-          exitPos, {
-            maxRooms: 1,
-          });
-        if (search.incomplete) {
-          continue;
-        }
-
-        creep.memory.target = exitPos;
-        creep.memory.goalRoom = roomName;
-        creep.memory.dir = direction;
-        return true;
-      }
-      return false;
-    };
 
     if (opponentRoom || !handleTarget(creep, exits)) {
       // Go back, no other way
@@ -165,6 +144,17 @@ roles.scoutnextroom.action = function(creep) {
       creep.memory.target = exit;
       creep.memory.dir = RoomPosition.oppositeDirection(creep.memory.dir);
     }
+  }
+};
+
+roles.scoutnextroom.action = function(creep) {
+  creep.notifyWhenAttacked(false);
+  if (claimRoom(creep)) {
+    return true;
+  }
+
+  if (checkForNewRoom(creep)) {
+    return true;
   }
 
   if (!creep.memory.target) {

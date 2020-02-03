@@ -1,6 +1,10 @@
 'use strict';
 
 const resetCounters = function(room) {
+  if (!room.memory.controllerLevel) {
+    // After deleting room memory this was an issue
+    room.memory.controllerLevel = {};
+  }
   room.memory.controllerLevel.checkPathInterval = 1;
   room.memory.controllerLevel.checkWrongStructureInterval = 1;
   room.memory.controllerLevel.buildStructuresInterval = 1;
@@ -37,6 +41,10 @@ Room.prototype.buildBaseCheckPath = function() {
     if (this.checkPath(this)) {
       resetCounters(this);
     } else {
+      if (!this.memory.controllerLevel) {
+        // After deleting room memories this ran into an issue
+        resetCounters(this);
+      }
       this.memory.controllerLevel.checkPathInterval++;
     }
   }

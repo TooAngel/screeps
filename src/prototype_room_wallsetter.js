@@ -109,6 +109,39 @@ Room.prototype.initMemoryWalls = function() {
   }
 };
 
+const callbackcloseExitsByPath = function(room) {
+  return (roomName, costMatrix) => {
+    if (!costMatrix) {
+      costMatrix = new PathFinder.CostMatrix();
+    }
+    for (const avoidIndex of Object.keys(room.memory.walls.ramparts)) {
+      const avoidPos = room.memory.walls.ramparts[avoidIndex];
+      costMatrix.set(avoidPos.x, avoidPos.y, 0xFF);
+    }
+    for (const avoidIndex of Object.keys(room.memory.walls.layer[room.memory.walls.layer_i])) {
+      const avoidPos = room.memory.walls.layer[room.memory.walls.layer_i][avoidIndex];
+      costMatrix.set(avoidPos.x, avoidPos.y, 0xFF);
+    }
+
+    return costMatrix;
+  };
+};
+
+const getTargets = function(room) {
+  const targets = [{
+    pos: room.controller.pos,
+    range: 1,
+  }];
+  const sources = room.find(FIND_SOURCES);
+  for (const sourceId of Object.keys(sources)) {
+    targets.push({
+      pos: sources[sourceId].pos,
+      range: 1,
+    });
+  }
+  return targets;
+};
+
 Room.prototype.closeExitsByPath = function() {
   if (this.memory.walls && this.memory.walls.finished) {
     return false;
@@ -143,41 +176,12 @@ Room.prototype.closeExitsByPath = function() {
     return true;
   }
 
-  const room = this;
-  const callbackNew = function(roomName, costMatrix) {
-    if (!costMatrix) {
-      costMatrix = new PathFinder.CostMatrix();
-    }
-    for (const avoidIndex of Object.keys(room.memory.walls.ramparts)) {
-      const avoidPos = room.memory.walls.ramparts[avoidIndex];
-      costMatrix.set(avoidPos.x, avoidPos.y, 0xFF);
-    }
-    for (const avoidIndex of Object.keys(room.memory.walls.layer[room.memory.walls.layer_i])) {
-      const avoidPos = room.memory.walls.layer[room.memory.walls.layer_i][avoidIndex];
-      costMatrix.set(avoidPos.x, avoidPos.y, 0xFF);
-    }
-
-    return costMatrix;
-  };
-
   const exit = exits[this.memory.walls.exit_i];
-
-  const targets = [{
-    pos: this.controller.pos,
-    range: 1,
-  }];
-  const sources = this.find(FIND_SOURCES);
-  for (const sourceId of Object.keys(sources)) {
-    targets.push({
-      pos: sources[sourceId].pos,
-      range: 1,
-    });
-  }
-
+  const targets = getTargets(this);
   const search = PathFinder.search(
     exit,
     targets, {
-      roomCallback: callbackNew,
+      roomCallback: callbackcloseExitsByPath(this),
       maxRooms: 1,
     },
   );

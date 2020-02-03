@@ -2,6 +2,10 @@
 
 Room.prototype.updateCostMatrix = function() {
   const costMatrix = this.getCostMatrix();
+  if (!this.memory.position) {
+    // After delete the room memory the script got stuck here
+    return;
+  }
   for (const positionType of Object.keys(this.memory.position)) {
     if (positionType === 'pathEndLevel' || positionType === 'version') {
       continue;

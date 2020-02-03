@@ -346,7 +346,7 @@ Room.prototype.getHarvesterAmount = function() {
   return amount;
 };
 
-Room.prototype.handleAttackTimer = function(hostiles) {
+Room.prototype.decreaseAttackTimer = function(hostiles) {
   if (hostiles.length === 0) {
     this.memory.attackTimer = Math.max(this.memory.attackTimer - 5, 0);
     // Make sure we don't spawn towerFiller on reducing again
@@ -354,6 +354,10 @@ Room.prototype.handleAttackTimer = function(hostiles) {
       this.memory.attackTimer--;
     }
   }
+};
+
+Room.prototype.handleAttackTimer = function(hostiles) {
+  this.decreaseAttackTimer(hostiles);
 
   if (this.memory.attackTimer > 100) {
     // TODO better metric for SafeMode
