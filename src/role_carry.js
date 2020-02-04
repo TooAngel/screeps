@@ -106,7 +106,7 @@ roles.carry.dismantleStructure = function(creep, directions) {
   }
 };
 
-roles.carry.preMove = function(creep, directions) {
+const validateDirections = function(creep, directions) {
   // TODO When does this happen? (Not on path?) - Handle better
   if (!directions || Object.keys(directions).length === 0) {
     if (creep.memory.routing.pathPos < 0) {
@@ -114,6 +114,13 @@ roles.carry.preMove = function(creep, directions) {
     }
     creep.log(`role_carry.preMove - No directions, why? pathPos: ${creep.memory.routing.pathPos}`);
     creep.say('No directions');
+    return false;
+  }
+  return true;
+};
+
+roles.carry.preMove = function(creep, directions) {
+  if (!validateDirections(creep, directions)) {
     return false;
   }
   creep.creepLog(`preMove directions check ${JSON.stringify(directions)}`);

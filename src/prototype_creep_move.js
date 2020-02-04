@@ -127,38 +127,51 @@ Creep.prototype.moveRandomWithin = function(goal, dist = 3, goal2 = false) {
   this.move(direction);
 };
 
+const getCreepsAtPosition = function(position, creep) {
+  const pos = new RoomPosition(position.x, position.y, creep.room.name);
+  const creeps = pos.lookFor('creep');
+  return creeps;
+};
+
+Creep.prototype.moveCreepCheckRoleAndTarget = function(creep, direction) {
+  const role = this.memory.role;
+
+  if (creep && !creep.memory.routing) {
+    creep.memory.routing = {};
+  }
+  const targetRole = creep.memory.role;
+  if ((role === 'sourcer' || role === 'reserver') && targetRole !== 'harvester' && !creep.memory.routing.reverse) {
+    creep.move(direction);
+    return true;
+  }
+  if (role === 'defendmelee' ||
+    targetRole === 'harvester' ||
+    targetRole === 'carry') {
+    creep.move(direction);
+    return true;
+  }
+  if (role === 'upgrader' &&
+    targetRole === 'storagefiller') {
+    creep.move(direction);
+    return true;
+  }
+  if (role === 'upgrader' &&
+    (targetRole === 'harvester' || targetRole === 'sourcer' || targetRole === 'upgrader')) {
+    this.log('config_creep_move suicide ' + targetRole);
+    creep.suicide();
+    return true;
+  }
+};
+
 Creep.prototype.moveCreep = function(position, direction) {
   if (position.isBorder(-1)) {
     return false;
   }
 
-  const pos = new RoomPosition(position.x, position.y, this.room.name);
-  const creeps = pos.lookFor('creep');
+  const creeps = getCreepsAtPosition(position, this);
   if (creeps.length > 0 && creeps[0].memory) {
-    const role = this.memory.role;
-    if (creeps[0] && !creeps[0].memory.routing) {
-      creeps[0].memory.routing = {};
-    }
-    const targetRole = creeps[0].memory.role;
-    if ((role === 'sourcer' || role === 'reserver') && targetRole !== 'harvester' && !creeps[0].memory.routing.reverse) {
-      creeps[0].move(direction);
-      return true;
-    }
-    if (role === 'defendmelee' ||
-      targetRole === 'harvester' ||
-      targetRole === 'carry') {
-      creeps[0].move(direction);
-      return true;
-    }
-    if (role === 'upgrader' &&
-      targetRole === 'storagefiller') {
-      creeps[0].move(direction);
-      return true;
-    }
-    if (role === 'upgrader' &&
-      (targetRole === 'harvester' || targetRole === 'sourcer' || targetRole === 'upgrader')) {
-      this.log('config_creep_move suicide ' + targetRole);
-      creeps[0].suicide();
+    const creep = creeps[0];
+    if (this.getCreepsAtPositionCheckRoleAndTarget(creep, direction)) {
       return true;
     }
   }
