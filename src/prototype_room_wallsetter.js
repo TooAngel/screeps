@@ -148,12 +148,6 @@ Room.prototype.closeExitsByPath = function() {
   }
 
   this.initMemoryWalls();
-  // this.log('closeExitsByPath layer: ' + this.memory.walls.layer_i + ' exit: ' + this.memory.walls.exit_i + ' walls: ' + this.memory.walls.layer[this.memory.walls.layer_i].length);
-
-  let ignores = [];
-  for (let i = 0; i < this.memory.walls.layer_i; i++) {
-    ignores = ignores.concat(this.memory.walls.layer[i]);
-  }
 
   const exits = this.find(FIND_EXIT);
   if (this.memory.walls.exit_i >= exits.length) {
@@ -167,9 +161,6 @@ Room.prototype.closeExitsByPath = function() {
         this.log('Wall setup finished');
       }
       this.memory.walls.finished = true;
-
-      // TODO disabled, too many ramparts
-      //       this.checkExitsAreReachable();
 
       return false;
     }

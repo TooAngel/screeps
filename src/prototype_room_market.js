@@ -189,16 +189,21 @@ Room.prototype.sendEnergyAmountToMyRoom = function() {
 Room.prototype.sendEnergyToMyRooms = function() {
   if (this.canSendEnergyToMyRooms()) {
     const myRoom = _.shuffle(Memory.needEnergyRooms)[0];
+    const room = Game.rooms[myRoom];
+    if (!room) {
+      Memory.needEnergyRooms.splice( Memory.needEnergyRooms.indexOf(myRoom), 1 );
+      return;
+    }
     const amount = this.sendEnergyAmountToMyRoom();
     const shouldSendEnergyToRoom = Game.rooms[myRoom].terminal && (Game.rooms[myRoom].terminal.store[RESOURCE_ENERGY] < config.terminal.maxEnergyAmount);
     if (shouldSendEnergyToRoom) {
       const success = OK === this.terminal.send(RESOURCE_ENERGY, amount, myRoom, 'send energy ' + this.name + ' ' + myRoom);
       if (success) {
         const cost = Game.market.calcTransactionCost(amount, this.name, myRoom);
-        this.log('sendEnergyToMyRooms', myRoom, amount, cost, this.terminal.store[RESOURCE_ENERGY]);
+        this.debugLog('market', 'sendEnergyToMyRooms', myRoom, amount, cost, this.terminal.store[RESOURCE_ENERGY]);
         return true;
       } else {
-        this.log('FAILED:sendEnergyToMyRooms', myRoom, amount, this.terminal.store[RESOURCE_ENERGY]);
+        this.debugLog('market', 'FAILED:sendEnergyToMyRooms', myRoom, amount, this.terminal.store[RESOURCE_ENERGY]);
       }
     }
   }

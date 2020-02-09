@@ -307,11 +307,17 @@ Room.prototype.handleReservedRoom = function() {
   return false;
 };
 
+Room.prototype.handleUnreservedRoomRecentlyChecked = function() {
+  if (this.memory.lastChecked !== undefined &&
+    Game.time - this.memory.lastChecked < 500) {
+    return true;
+  }
+};
+
 Room.prototype.handleUnreservedRoom = function() {
   this.memory.state = 'Unreserved';
   this.memory.lastSeen = Game.time;
-  if (this.memory.lastChecked !== undefined &&
-    Game.time - this.memory.lastChecked < 500) {
+  if (this.handleUnreservedRoomRecentlyChecked()) {
     return true;
   }
 
