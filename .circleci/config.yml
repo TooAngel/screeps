@@ -18,7 +18,9 @@ jobs:
       - checkout
       - run: npm install
       - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-      - run: npm run test
+      - run:
+          command: npm run test
+          no_output_timeout: 10800
 workflows:
   version: 2
   test_and_deploy:
