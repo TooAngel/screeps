@@ -30,8 +30,8 @@ The AI is deployable on a private screeps server, follow the information on
 
 This is not a good example for code quality or structure, most LOCs written
 while fighting or other occasions which needed quick fixes or in the ingame
-editor (getting better :-)). But I think there are a couple of funny ideas. Every contribution is
-welcome.
+editor (getting better :-)). But I think there are a couple of funny ideas.
+Every contribution is welcome.
 
 ## Features
 
@@ -59,6 +59,13 @@ E.g.:
 Add a `src/config_local.js` to overwrite configuration values. Copy
 `config_local.js.example` to `src/config_local.js` as an example. `src/config.js`
 has the default values.
+
+## Debugging
+
+Within the `config_local.js` certain `config.debug` flags can be enabled.
+To add debug messages `Room.debugLog(TYPE, MESSAGE)` and
+`Creep.creepLog(MESSAGE)` are suggested. Especially the `creepLog` allows
+granular output of the creep behavior based on the room and the creep role.
 
 ## Upload
 

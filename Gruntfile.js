@@ -212,7 +212,7 @@ module.exports = function(grunt) {
   grunt.registerTask('default', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
   grunt.registerTask('release', ['eslint:fix', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
   grunt.registerTask('local', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
-  grunt.registerTask('test', ['eslint:check', 'exec:test_on_private_server']);
+  grunt.registerTask('test', ['eslint:check', 'mochaTest', 'exec:test_on_private_server']);
   grunt.registerTask('dev', ['eslint:fix']);
   grunt.registerTask('deploy', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
   grunt.registerTask('requireFile', 'Creates an empty file', () => {

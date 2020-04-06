@@ -47,7 +47,6 @@ Room.prototype.myHandleRoom = function() {
 };
 
 Room.prototype.getLinkStorage = function() {
-  this.memory.constants = this.memory.constants || {};
   if (this.memory.constants.linkStorage) {
     const link = Game.getObjectById(this.memory.constants.linkStorage);
     if (link && link !== null) {
@@ -65,11 +64,47 @@ Room.prototype.getLinkStorage = function() {
   }
 };
 
-Room.prototype.handleLinks = function() {
-  if (this.memory.attackTimer <= 0) {
-    this.memory.underSiege = false;
+/**
+ * isUnexpectedLinkTransferReturnCode - Returns true on unexpected returnCode
+ *
+ * - OK: is fine
+ * - ERR_NOT_ENOUGH_RESOURCES: Somehow it wasn't filled, but fine
+ * - ERR_TIRED: Came back early, not sure why this is included, but also fine
+ * could be removed here for optimization / error checking
+ * - ERR_RCL_NOT_ENOUGH: Room got downgraded, so okay if the link is not active
+ *
+ * @param {number} returnCode - The returnCode of the transferEnergy operation
+ * @return {boolean} - If the returnCode is unexpected
+ */
+function isUnexpectedLinkTransferReturnCode(returnCode) {
+  return returnCode !== OK &&
+      returnCode !== ERR_NOT_ENOUGH_RESOURCES &&
+      returnCode !== ERR_TIRED &&
+      returnCode !== ERR_RCL_NOT_ENOUGH;
+}
+
+Room.prototype.handleLinksTransferEnergy = function(links, linkIndex, linkStorage) {
+  if (this.memory.attackTimer > 50 && this.controller.level > 6) {
+    // If under attack, only fetch from links next to the sourcer
+    // and transfer to the other links
+    for (let i = 1; i < 3; i++) {
+      const linkSourcer = this.memory.position.structure.link[i];
+      if (links[linkIndex].pos.isEqualTo(linkSourcer.x, linkSourcer.y)) {
+        links[linkIndex].transferEnergy(linkStorage);
+        return true;
+      }
+    }
+    linkStorage.transferEnergy(links[linkIndex]);
+    return;
   }
 
+  const returnCode = links[linkIndex].transferEnergy(linkStorage);
+  if (isUnexpectedLinkTransferReturnCode(returnCode)) {
+    links[linkIndex].log('handleLinks.transferEnergy returnCode: ' + returnCode + ' targetPos: ' + linkStorage.pos);
+  }
+};
+
+Room.prototype.handleLinks = function() {
   const linkStorage = this.getLinkStorage();
   // Only send energy if linkStorage is set and free capacity is higher or equals than 400 Energy
   if (!linkStorage || linkStorage.store.getFreeCapacity(RESOURCE_ENERGY) < 400) {
@@ -82,26 +117,9 @@ Room.prototype.handleLinks = function() {
 
   if (links.length > 0) {
     const time = Game.time % (links.length * 12);
-    const link = (time / 12);
-    if (time % 12 === 0 && links.length - 1 >= link) {
-      if (this.memory.attackTimer > 50 && this.controller.level > 6) {
-        for (let i = 1; i < 3; i++) {
-          const linkSourcer = this.memory.position.structure.link[i];
-          if (links[link].pos.isEqualTo(linkSourcer.x, linkSourcer.y)) {
-            links[link].transferEnergy(linkStorage);
-            return true;
-          }
-        }
-        linkStorage.transferEnergy(links[link]);
-      } else {
-        const returnCode = links[link].transferEnergy(linkStorage);
-        if (returnCode !== OK &&
-            returnCode !== ERR_NOT_ENOUGH_RESOURCES &&
-            returnCode !== ERR_TIRED &&
-            returnCode !== ERR_RCL_NOT_ENOUGH) {
-          links[link].log('handleLinks.transferEnergy returnCode: ' + returnCode + ' targetPos: ' + linkStorage.pos);
-        }
-      }
+    const linkIndex = (time / 12);
+    if (time % 12 === 0 && links.length - 1 >= linkIndex) {
+      this.handleLinksTransferEnergy(links, linkIndex, linkStorage);
     }
   }
 };
@@ -129,81 +147,68 @@ Room.prototype.savePowerSpawnId = function(powerSpawn) {
   }
 };
 
-Room.prototype.handleObserver = function() {
-  if (this.name === 'sim') {
-    return false;
+Room.prototype.getRoomNameToObserve = function() {
+  // TODO scan full range, first implementation
+  const nameSplit = this.splitRoomName();
+  const observerRange = Math.max(Math.min(config.room.observerRange, OBSERVER_RANGE), 1);
+  const fullLength = 2 * observerRange + 1;
+  const numberOfFields = fullLength * fullLength;
+  const offset = Game.time % numberOfFields;
+  const xOffset = Math.floor(offset / fullLength) - observerRange;
+  const yOffset = Math.floor(offset % fullLength) - observerRange;
+
+  let xPos = +nameSplit[2] + xOffset;
+  let yPos = +nameSplit[4] + yOffset;
+  let xDir = nameSplit[1];
+  let yDir = nameSplit[3];
+
+  if (xPos < 0) {
+    xDir = xDir === 'E' ? 'W' : 'E';
+    xPos = xPos * -1 - 1;
   }
 
+  if (yPos < 0) {
+    yDir = yDir === 'N' ? 'S' : 'N';
+    yPos = yPos * -1 - 1;
+  }
+
+  return xDir + xPos + yDir + yPos;
+};
+
+Room.prototype.handleObserver = function() {
+  // This could be made a helper function for all handleSTRUCTURE metods
+  // and used at the caller
+  // something like: `execute('STRUCTURE_OBSERVER', handleObserver)`
   if (CONTROLLER_STRUCTURES.observer[this.controller.level] === 0) {
     return false;
   }
-  const observers = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_OBSERVER]);
-  if (observers.length > 0) {
-    if (!this.memory.observe_rooms) {
-      // TODO manage switch from E to W and S to N
-      this.memory.observe_rooms = [];
-      const nameSplit = this.splitRoomName();
-      for (let x = +nameSplit[2] - 5; x <= +nameSplit[2] + 5; x++) {
-        for (let y = +nameSplit[4] - 5; y <= +nameSplit[4] + 5; y++) {
-          if (x % 10 === 0 || y % 10 === 0) {
-            this.memory.observe_rooms.push(nameSplit[1] + x + nameSplit[3] + y);
-          }
-        }
-      }
-    }
-
-    // TODO scan full range, first implementation
-    const nameSplit = this.splitRoomName();
-    const observerRange = Math.max(Math.min(config.room.observerRange, OBSERVER_RANGE), 1);
-    const fullLength = 2 * observerRange + 1;
-    const numberOfFields = fullLength * fullLength;
-    const offset = Game.time % numberOfFields;
-    const xOffset = Math.floor(offset / fullLength) - observerRange;
-    const yOffset = Math.floor(offset % fullLength) - observerRange;
-
-    let xPos = +nameSplit[2] + xOffset;
-    let yPos = +nameSplit[4] + yOffset;
-    let xDir = nameSplit[1];
-    let yDir = nameSplit[3];
-
-    if (xPos < 0) {
-      xDir = xDir === 'E' ? 'W' : 'E';
-      xPos = xPos * -1 - 1;
-    }
-
-    if (yPos < 0) {
-      yDir = yDir === 'N' ? 'S' : 'N';
-      yPos = yPos * -1 - 1;
-    }
-
-    const roomObserve = xDir + xPos + yDir + yPos;
-    const returnCode = observers[0].observeRoom(roomObserve);
-    if (config.debug.observer) {
-      this.log(`${observers[0]} observing ${roomObserve}`);
-    }
-    if (returnCode !== OK) {
-      this.log('observer returnCode: ' + returnCode + ' ' + roomObserve + ' ' + fullLength + ' ' + numberOfFields + ' ' + offset + ' ' + xOffset + ' ' + yOffset);
-    }
+  const observers = this.room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_OBSERVER}});
+  if (observers.length === 0) {
+    return false;
   }
+
+  const roomObserve = this.getRoomNameToObserve();
+  const returnCode = observers[0].observeRoom(roomObserve);
+  this.debugLog('observer', `${observers[0]} observing ${roomObserve}`);
+  if (returnCode !== OK) {
+    this.log('observer returnCode: ' + returnCode + ' ' + roomObserve);
+  }
+  return true;
 };
 
 Room.prototype.handleScout = function() {
-  if (this.name === 'sim') {
-    return false;
-  }
-  const observers = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_OBSERVER]);
-  const levelCheck = (this.controller.level >= 2 && this.controller.level < 8) || (this.controller.level === 8 && observers.length === 0);
+  const observers = this.getObservers();
   const shouldSpawn = (
     this.exectueEveryTicks(config.room.scoutInterval) &&
-    levelCheck &&
-    this.memory.queue.length === 0 &&
+    observers.length === 0 &&
+    this.memory.queue.length === 0 && // TODO do we want to do that, or just depriotize in the queue?
     config.room.scout
   );
   if (shouldSpawn) {
     const scoutSpawn = {
       role: 'scout',
       routing: {
-        targetRoom: this.name,
+        targetRoom: this.name, // TODO do we need this, I don't think we should
       },
     };
     if (!this.inQueue(scoutSpawn)) {
@@ -245,6 +250,15 @@ Room.prototype.checkCanHelpInitNearestRoom = function() {
   }
 };
 
+// TODO I think the helper logic can be simplified:
+// - A room checks regularly if it needs help
+// - If it needs help, it looks for the nearest rooms
+// and inserts carries with switched baseRoom and targetRoom
+// - Carry logic needs to handle this
+// - This method can be removed
+//
+// Anyway: The method shouldn't return strings, but log these directly
+// and return a boolean
 Room.prototype.checkCanHelp = function() {
   let returnValue = 'no';
   if (!Memory.needEnergyRooms || Memory.needEnergyRooms.length === 0) {
@@ -330,44 +344,45 @@ Room.prototype.checkForEnergyTransfer = function(force) {
 };
 
 Room.prototype.getHarvesterAmount = function() {
-  let amount = 1;
   if (!this.storage) {
-    amount = 2;
-  } else {
-    if (this.storage.store.energy < config.creep.energyFromStorageThreshold && this.controller.level < 5) {
-      amount = 3;
-    }
-    if (this.storage.store.energy > 2 * config.creep.energyFromStorageThreshold && this.controller.level > 6 && this.energyAvailable > 2000 && this.memory.queue.length > 4) {
-      amount = 2;
-    }
-    if (!this.storage.my) {
-      amount = 10;
-    }
+    return 2;
   }
-  return amount;
+  if (!this.storage.my) {
+    return 10;
+  }
+  if (this.controller.level < 5 && this.storage.store.energy < config.creep.energyFromStorageThreshold) {
+    return 3;
+  }
+  return 1;
 };
 
-Room.prototype.decreaseAttackTimer = function(hostiles) {
+Room.prototype.handleAttackTimer = function(hostiles) {
+  this.memory.attackTimer = this.memory.attackTimer || 0;
   if (hostiles.length === 0) {
     this.memory.attackTimer = Math.max(this.memory.attackTimer - 5, 0);
     // Make sure we don't spawn towerFiller on reducing again
     if (this.memory.attackTimer % 5 === 0) {
       this.memory.attackTimer--;
     }
+    if (this.memory.attackTimer <= 0) {
+      this.memory.underSiege = false;
+    }
+  } else {
+    this.memory.attackTimer++;
   }
 };
 
-Room.prototype.handleAttackTimer = function(hostiles) {
-  this.decreaseAttackTimer(hostiles);
-
+Room.prototype.checkForSafeMode = function() {
   if (this.memory.attackTimer > 100) {
     // TODO better metric for SafeMode
-    const enemies = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
+    const enemies = this.findOtherPlayerCreeps();
     if (enemies > 0) {
       this.controller.activateSafeMode();
     }
   }
+};
 
+Room.prototype.spawnTowerFiller = function() {
   if (this.memory.attackTimer >= 50 && this.controller.level > 6) {
     const towers = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER]);
     if (towers.length === 0) {
@@ -384,29 +399,41 @@ Room.prototype.handleAttackTimer = function(hostiles) {
       }
     }
   }
+};
 
-  if (hostiles.length > 0) {
-    this.memory.attackTimer++;
-
-    if (this.memory.attackTimer > 15) {
-      let role = 'defendranged';
-      if (this.memory.attackTimer > 300) {
-        role = 'defendmelee';
-      }
-      if (this.exectueEveryTicks(250)) {
-        this.checkRoleToSpawn(role, 1, undefined, this.name, 1, this.name);
-      }
+Room.prototype.spawnDefender = function() {
+  if (this.memory.attackTimer > 15) {
+    if (this.exectueEveryTicks(250)) {
+      const role = this.memory.attackTimer > 300 ? 'defendmelee' : 'defendranged';
+      this.checkRoleToSpawn(role, 1, undefined, this.name, 1, this.name);
     }
+  }
+};
 
+Room.prototype.spawnDefender = function(hostiles) {
+  if (hostiles.length === 0) {
+    return;
+  }
+
+  this.spawnDefender();
+
+  // TODO when another player attacks and there are invaeds `hostiles[0]` would
+  // be the wrong check
+  if (hostiles[0].owner.username !== 'Invader') {
     if (this.exectueEveryTicks(10)) {
-      if (hostiles[0].owner.username !== 'Invader' || config.debug.invader) {
-        this.log('Under attack from ' + hostiles[0].owner.username);
-      }
+      this.debugLog('invader', 'Under attack from ' + hostiles[0].owner.username);
     }
-    if (hostiles[0].owner.username !== 'Invader' && !brain.isFriend(hostiles[0].owner.username)) {
+    if (!brain.isFriend(hostiles[0].owner.username)) {
       Game.notify(this.name + ' Under attack from ' + hostiles[0].owner.username + ' at ' + Game.time);
     }
   }
+};
+
+Room.prototype.handleAttack = function(hostiles) {
+  this.handleAttackTimer(hostiles);
+  this.checkForSafeMode();
+  this.spawnTowerFiller();
+  this.spawnDefender(hostiles);
 };
 
 Room.prototype.handleReviveRoom = function(hostiles) {
@@ -443,59 +470,100 @@ Room.prototype.handleIdiot = function() {
   }
 };
 
+Room.prototype.getPlanerAmount = function(constructionSites) {
+  let amount = 1;
+  if (this.controller.level >= 4 && this.memory.misplacedSpawn) {
+    amount = 3;
+  }
+  for (const cs of constructionSites) {
+    if (cs.structureType === STRUCTURE_STORAGE) {
+      amount = 6;
+    }
+  }
+  return amount;
+};
+
 Room.prototype.checkForPlaner = function() {
   const constructionSites = this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART], {inverse: true});
-  if (constructionSites.length > 0) {
-    let amount = 1;
-    // TODO rethink this logic, the second (3) overwrites the 6
-    // maybe something generic would be cooler something like `amount = misplacedSpawn ? room.level : 1`
-    for (const cs of constructionSites) {
-      if (cs.structureType === STRUCTURE_STORAGE) {
-        amount = 6;
-      }
+  if (constructionSites.length === 0) {
+    if (this.memory.misplacedSpawn && this.storage && this.storage.store.energy > 20000 && this.energyAvailable >= this.energyCapacityAvailable - 300) {
+      this.checkRoleToSpawn('planer', 4);
     }
-    if (this.controller.level >= 4 && this.memory.misplacedSpawn) {
-      amount = 3;
-    }
-    this.checkRoleToSpawn('planer', amount);
-  } else if (this.memory.misplacedSpawn && this.storage && this.storage.store.energy > 20000 && this.energyAvailable >= this.energyCapacityAvailable - 300) {
-    this.checkRoleToSpawn('planer', 4);
+    return;
   }
+
+  const amount = this.getPlanerAmount(constructionSites);
+  this.checkRoleToSpawn('planer', amount);
+};
+
+Room.prototype.isRoomReadyForExtractor = function() {
+  if (CONTROLLER_STRUCTURES[STRUCTURE_EXTRACTOR][this.controller.level] === 0) {
+    return false;
+  }
+  if (!this.terminal) {
+    return false;
+  }
+  const extractors = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_EXTRACTOR]);
+  if (extractors.length === 0) {
+    return false;
+  }
+  return true;
 };
 
 Room.prototype.checkForExtractor = function() {
-  const extractors = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_EXTRACTOR]);
-  if (this.terminal && extractors.length > 0) {
-    const minerals = this.find(FIND_MINERALS);
-    if (minerals.length > 0 && minerals[0].mineralAmount > 0) {
-      const amount = this.terminal.store[minerals[0].mineralType] || 0;
-      if (amount < config.mineral.storage) {
-        this.checkRoleToSpawn('extractor');
-      }
+  if (!this.isRoomReadyForExtractor()) {
+    return false;
+  }
+
+  const minerals = this.find(FIND_MINERALS);
+  if (minerals.length > 0 && minerals[0].mineralAmount > 0) {
+    const amount = this.terminal.store[minerals[0].mineralType] || 0;
+    if (amount < config.mineral.storage) {
+      this.checkRoleToSpawn('extractor');
     }
   }
 };
 
-Room.prototype.checkForMiner = function() {
-  if (config.mineral.enabled && this.terminal && this.storage) {
-    const labs = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB]);
-    if ((!this.memory.cleanup || this.memory.cleanup <= 10) && (_.size(labs) > 2)) {
-      this.checkRoleToSpawn('mineral');
-    }
-    if ((Game.time + this.controller.pos.x + this.controller.pos.y) % 10000 < 10) {
-      this.memory.cleanup = 0;
-    }
+Room.prototype.isRoomReadyForMineralHandling = function() {
+  if (!config.mineral.enabled) {
+    return false;
   }
+  if (!this.terminal) {
+    return false;
+  }
+  if (!this.storage) {
+    return false;
+  }
+  return true;
+};
+
+Room.prototype.checkForMiner = function() {
+  if (!this.isRoomReadyForMineralHandling()) {
+    return false;
+  }
+
+  const labs = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB]);
+  if ((!this.memory.cleanup || this.memory.cleanup <= 10) && (_.size(labs) > 2)) {
+    this.checkRoleToSpawn('mineral');
+  }
+  if ((Game.time + this.controller.pos.x + this.controller.pos.y) % 10000 < 10) {
+    this.memory.cleanup = 0;
+  }
+};
+
+Room.prototype.handleEconomyStructures = function() {
+  this.handleLinks();
+  this.handleObserver();
+  this.handlePowerSpawn();
+  this.handleTerminal();
 };
 
 Room.prototype.executeRoom = function() {
   const cpuUsed = Game.cpu.getUsed();
   this.buildBase();
-  this.memory.attackTimer = this.memory.attackTimer || 0;
-  const hostiles = this.find(FIND_HOSTILE_CREEPS, {
-    filter: this.findAttackCreeps,
-  });
-  this.handleAttackTimer(hostiles);
+  this.memory.constants = this.memory.constants || {};
+  const hostiles = this.find(FIND_HOSTILE_CREEPS, {filter: this.findAttackCreeps});
+  this.handleAttack(hostiles);
   this.handleReviveRoom(hostiles);
 
   const nextroomers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['nextroomer'], {
@@ -506,13 +574,10 @@ Room.prototype.executeRoom = function() {
 
   this.handleIdiot();
   this.checkForEnergyTransfer();
-
   this.checkAndSpawnSourcer();
-
   if (this.controller.level >= 4 && this.storage && this.storage.my && !this.memory.misplacedSpawn) {
     this.checkRoleToSpawn('storagefiller', 1, 'filler');
   }
-
   if (this.storage && this.storage.my && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
     this.checkRoleToSpawn('upgrader', 1, this.controller.id);
   }
@@ -530,16 +595,53 @@ Room.prototype.executeRoom = function() {
   }
 
   if (this.memory.setup && this.memory.setup.completed) {
-    this.handleLinks();
-    this.handleObserver();
-    this.handlePowerSpawn();
-    this.handleTerminal();
+    this.handleEconomyStructures();
     this.handleNukeAttack();
   }
   this.spawnCheckForCreate();
   this.handleMarket();
   brain.stats.addRoom(this.name, cpuUsed);
   return true;
+};
+
+// TODO find a proper value for config.revive.reviverMaxQueue,
+// TODO find meaningful config value for config.revive.reviverMinEnergy
+const notSuitableRoom = function(roomMy, roomOther) {
+  if (!roomOther) {
+    roomMy.debugLog('revive', `No roomOther`);
+    return true;
+  }
+  if (roomMy.name === roomOther.name) {
+    roomMy.debugLog('revive', `Same room`);
+    return true;
+  }
+  if (!roomOther.memory || !roomOther.memory.active) {
+    roomMy.debugLog('revive', `Other room ${roomOther} not active`);
+    return true;
+  }
+  if (!roomOther.storage || roomOther.storage.store.energy < config.revive.otherMinStorageAvailable) {
+    roomMy.debugLog('revive', `Other room ${roomOther} no storage`);
+    return true;
+  }
+  if (!roomOther.memory.queue || roomOther.memory.queue.length > config.revive.reviverMaxQueue) {
+    roomMy.debugLog('revive', `Other room ${roomOther} no queue`);
+    return true;
+  }
+  if (roomOther.energyCapacityAvailable < config.revive.reviverMinEnergy) {
+    roomMy.debugLog('revive', `Other room ${roomOther} no energy`);
+    return true;
+  }
+  return false;
+};
+
+const checkForRoute = function(room, roomOther) {
+  const route = room.findRoute(roomOther.name, room.name);
+  // TODO Instead of skipping we could try to free up the way: nextroomerattack or squad
+  if (route.length === 0) {
+    roomOther.log('No route to other room: ' + roomOther.name);
+    return true;
+  }
+  return false;
 };
 
 Room.prototype.reviveMyNow = function() {
@@ -550,72 +652,21 @@ Room.prototype.reviveMyNow = function() {
     return Game.map.getRoomLinearDistance(room.name, object);
   };
   const roomsMy = _.sortBy(Memory.myRooms, sortByDistance);
-  // TODO find a proper value for config.revive.reviverMaxQueue,
-  // TODO find meaningful config value for config.revive.reviverMinEnergy
-  const notSuitableRoom = function(roomName, roomOther) {
-    if (room.name === roomName) {
-      if (config.debug.revive) {
-        room.log(`Same room`);
-      }
-      return true;
-    }
-    if (!roomOther || !roomOther.memory || !roomOther.memory.active) {
-      if (config.debug.revive) {
-        room.log(`Other room ${roomOther} not active`);
-      }
-      return true;
-    }
-    if (!roomOther.storage || roomOther.storage.store.energy < config.revive.otherMinStorageAvailable) {
-      if (config.debug.revive) {
-        room.log(`Other room ${roomOther} no storage`);
-      }
-      return true;
-    }
-    if (!roomOther.memory.queue || roomOther.memory.queue.length > config.revive.reviverMaxQueue) {
-      if (config.debug.revive) {
-        room.log(`Other room ${roomOther} no queue`);
-      }
-      return true;
-    }
-    if (roomOther.energyCapacityAvailable < config.revive.reviverMinEnergy) {
-      if (config.debug.revive) {
-        room.log(`Other room ${roomOther} no energy`);
-      }
-      return true;
-    }
-    return false;
-  };
-
-  const checkForRoute = function(roomOther) {
-    const route = room.findRoute(roomOther.name, room.name);
-    // TODO Instead of skipping we could try to free up the way: nextroomerattack or squad
-    if (route.length === 0) {
-      roomOther.log('No route to other room: ' + roomOther.name);
-      return true;
-    }
-    return false;
-  };
 
   const callNextRoomer = (roomName) => {
     if (nextroomerCalled > config.nextRoom.numberOfNextroomers) {
-      if (config.debug.revive) {
-        room.log(`No nextroomer too many called ${nextroomerCalled} / ${config.nextRoom.numberOfNextroomers}`);
-      }
+      room.debugLog('revive', `No nextroomer too many called ${nextroomerCalled} / ${config.nextRoom.numberOfNextroomers}`);
       return false;
     }
     const roomOther = Game.rooms[roomName];
-    if (notSuitableRoom(roomName, roomOther)) {
-      if (config.debug.revive) {
-        room.log(`No nextroomer noNeedNextroomers ${roomOther}`);
-      }
+    if (notSuitableRoom(room, roomOther)) {
+      room.debugLog('revive', `No nextroomer noNeedNextroomers ${roomOther}`);
       return false;
     }
     const distance = Game.map.getRoomLinearDistance(this.name, roomName);
     if (distance < config.nextRoom.maxDistance) {
-      if (checkForRoute(roomOther)) {
-        if (config.debug.revive) {
-          room.log(`No nextroomer checkForRoute`);
-        }
+      if (checkForRoute(room, roomOther)) {
+        room.debugLog('revive', `No nextroomer checkForRoute`);
         return false;
       }
 
@@ -629,10 +680,9 @@ Room.prototype.reviveMyNow = function() {
       return {called: nextroomerCalled, base: roomOther, to: this.name};
     }
   };
+
   const nextroomers = _.map(roomsMy, callNextRoomer);
-  if (config.debug.revive) {
-    this.log('nextroomers ', nextroomers);
-  }
+  this.debugLog('revive', 'nextroomers ', nextroomers);
   return nextroomerCalled;
 };
 

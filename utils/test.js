@@ -225,16 +225,17 @@ const statusUpdater = (event) => {
         if (success) {
           milestone.success = event.data.gameTime < milestone.tick;
           milestone.tickReached = event.data.gameTime;
-          console.log('===============================');
-          console.log(`${event.data.gameTime} Milestone: Success ${JSON.stringify(milestone)}`);
+          if (milestone.success) {
+            console.log('===============================');
+            console.log(`${event.data.gameTime} Milestone: Success ${JSON.stringify(milestone)}`);
+          } else {
+            console.log('===============================');
+            console.log(`${event.data.gameTime} Milestone: Reached too late ${JSON.stringify(milestone)}`);
+          }
         }
       }
 
       if (milestone.success) {
-        if (milestone.tick === event.data.gameTime) {
-          console.log('===============================');
-          console.log(`${event.data.gameTime} Milestone: Reached ${JSON.stringify(milestone)}`);
-        }
         continue;
       }
 

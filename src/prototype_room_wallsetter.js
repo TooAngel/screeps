@@ -93,7 +93,7 @@ const inLayer = function(room, pos) {
 
 Room.prototype.initMemoryWalls = function() {
   if (!this.memory.walls || !this.memory.walls.layer) {
-    this.log('closeExitsByPath: Reset walls');
+    this.debugLog('baseBuilding', 'closeExitsByPath: Reset walls');
     this.memory.walls = {
       exit_i: 0,
       ramparts: [],
