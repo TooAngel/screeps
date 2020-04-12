@@ -1,13 +1,13 @@
 'use strict';
 
-require('require');
-require('prototype_creep_startup_tasks');
-require('prototype_creep_move');
-require('prototype_roomPosition');
-require('prototype_room_init');
-require('prototype_room_costmatrix');
-require('visualizer');
-require('screepsplus');
+require('./require');
+require('./prototype_creep_startup_tasks');
+require('./prototype_creep_move');
+require('./prototype_roomPosition');
+require('./prototype_room_init');
+require('./prototype_room_costmatrix');
+require('./visualizer');
+require('./screepsplus');
 
 global.tickLimit = global.cpuLimit();
 global.load = Math.round(Game.cpu.getUsed());
