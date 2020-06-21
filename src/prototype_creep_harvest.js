@@ -1,104 +1,114 @@
 'use strict';
 
-function existInArray(array, item) {
-  for (var i in array) {
-    if (array[i].role === item.role) {
-      return true;
+Creep.prototype.cantHarvest = function(source) {
+  const returnCode = this.harvest(source);
+  if (returnCode !== OK && returnCode !== ERR_NOT_ENOUGH_RESOURCES) {
+    if (returnCode === ERR_NOT_OWNER) {
+      this.log('Suiciding, someone else reserved the controller');
+      this.memory.killed = true;
+      this.suicide();
+      return false;
+    }
+    if (returnCode === ERR_NO_BODYPART) {
+      this.room.checkRoleToSpawn('defender', 2, undefined, this.room.name);
+      this.respawnMe();
+      this.suicide();
+      return false;
+    }
+    if (returnCode === ERR_TIRED) {
+      return false;
+    }
+    this.log('harvest: ' + returnCode);
+    return false;
+  }
+  return true;
+};
+
+Creep.prototype.baseHarvesting = function() {
+  if (!this.memory.link) {
+    const links = this.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
+    if (links.length > 0) {
+      this.memory.link = links[0].id;
     }
   }
-  return false;
-}
+  const link = Game.getObjectById(this.memory.link);
+  if (link) {
+    this.transfer(link, RESOURCE_ENERGY);
+    const resources = this.pos.findInRangePropertyFilter(FIND_DROPPED_RESOURCES, 1, 'resourceType', [RESOURCE_ENERGY]);
+    if (resources.length > 0) {
+      this.pickup(resources);
+    }
+  }
+};
 
 Creep.prototype.handleSourcer = function() {
   this.setNextSpawn();
   this.spawnReplacement();
-  let room = Game.rooms[this.room.name];
-  let targetId = this.memory.routing.targetId;
-  var source = Game.getObjectById(targetId);
-
-  let target = source;
-  let returnCode = this.harvest(source);
-  if (returnCode != OK && returnCode != ERR_NOT_ENOUGH_RESOURCES) {
-    this.log('harvest: ' + returnCode);
+  const targetId = this.memory.routing.targetId;
+  const source = Game.getObjectById(targetId);
+  if (!this.cantHarvest(source)) {
     return false;
   }
-
   this.buildContainer();
-
-  if (!this.room.controller || !this.room.controller.my || this.room.controller.level >= 2) {
-    this.spawnCarry();
-  }
-
+  this.spawnCarry();
   if (this.inBase()) {
-    if (!this.memory.link) {
-      let links = this.pos.findInRange(FIND_MY_STRUCTURES, 1, {
-        filter: function(object) {
-          if (object.structureType === STRUCTURE_LINK) {
-            return true;
-          }
-          return false;
-        }
-      });
-      if (links.length > 0) {
-        this.memory.link = links[0].id;
-      }
-    }
-
-    let link = Game.getObjectById(this.memory.link);
-    this.transfer(link, RESOURCE_ENERGY);
+    this.baseHarvesting();
+  } else {
+    this.selfHeal();
   }
 };
 
 Creep.prototype.spawnCarry = function() {
-  var energyThreshold = Game.rooms[this.memory.base].controller.level * config.sourcer.spawnCarryLevelMultiplier;
-  var waitTime = config.sourcer.spawnCarryWaitTime;
-
-  var spawn = {
-    role: 'carry',
-    routing: {
-      targetRoom: this.memory.routing.targetRoom,
-      targetId: this.memory.routing.targetId,
-    }
-  };
-
-  // Spawn carry
-  var energies = this.pos.lookFor(LOOK_ENERGY);
-  if (energies.length === 0) {
-    let containers = this.pos.findInRange(FIND_STRUCTURES, 0, {
-      filter: function(object) {
-        if (object.structureType != STRUCTURE_CONTAINER) {
-          return false;
-        }
-        // TODO hardcoded for now, half of the container? Good idea?
-        if (object.store.energy < 1000) {
-          return false;
-        }
-        return true;
-      }
-    });
-    if (containers.length === 0) {
-      return false;
-    }
-  }
-
-  if (energies.length > 0 && energies[0].amount < 50) {
+  if (this.memory.wait > 0) {
+    this.memory.wait -= 1;
     return false;
   }
 
-  if (this.inBase()) {
-    if (energies.length > 0 && energies[0].amount < energyThreshold) {
-      return false;
-    }
+  const baseRoom = Game.rooms[this.memory.base];
+  const creepMemory = baseRoom.creepMem('carry', this.memory.routing.targetId, this.memory.routing.targetRoom);
+  const carrySettings = baseRoom.getSettings(creepMemory);
+  const parts = {
+    sourcerWork: this.body.filter((part) => part.type === WORK).length,
+    carryParts: {
+      move: carrySettings.amount[0],
+      carry: carrySettings.amount[1],
+      work: carrySettings.prefixString === '' ? 0 : 1,
+    },
+  };
+
+  let resourceAtPosition = 0;
+  const resources = this.pos.lookFor(LOOK_RESOURCES);
+  for (const resource of resources) {
+    resourceAtPosition += resource.amount;
   }
 
-  if (!existInArray(Game.rooms[this.memory.base].memory.queue, spawn)) {
-    if (typeof(this.memory.wait) === 'undefined') {
-      this.memory.wait = 0;
-    }
-    if (this.memory.wait <= 0) {
-      Game.rooms[this.memory.base].checkRoleToSpawn('carry', 2, this.memory.routing.targetId, this.memory.routing.targetRoom);
-      this.memory.wait = waitTime;
+  const containers = this.pos.findInRangeStructures(FIND_STRUCTURES, 0, STRUCTURE_CONTAINER);
+
+  for (const container of containers) {
+    resourceAtPosition += _.sum(container.store);
+  }
+  if (!Game.rooms[this.memory.base].inQueue(creepMemory) && resourceAtPosition > parts.carryParts.carry * CARRY_CAPACITY) {
+    Game.rooms[this.memory.base].checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
+  } else if (1 * resourceAtPosition <= HARVEST_POWER * parts.sourcerWork) {
+    const nearCarries = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 2, 'memory.role', ['carry'], {
+      filter: (creep) => creep.memory.routing.targetId === this.memory.routing.targetId,
+    });
+    if (nearCarries.length > 1) {
+      nearCarries[0].memory.recycle = true;
     }
   }
-  this.memory.wait -= 1;
+  this.memory.wait = this.getCarrySpawnInterval();
+  return this.memory.wait;
+};
+
+/**
+ * getCarrySpawnInterval
+ *
+ * The interval is calculated via the time from the spawn to the source
+ * (timeToTravel) plus some offset for delays
+ *
+ * @return {number}
+ */
+Creep.prototype.getCarrySpawnInterval = function() {
+  return this.memory.timeToTravel + 50;
 };

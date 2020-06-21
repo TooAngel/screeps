@@ -1,0 +1,9 @@
+{
+  "mods": [
+    "../node_modules/screepsmod-auth/index.js",
+    "../node_modules/screepsmod-admin-utils/index.js"
+  ],
+  "bots": {
+    "screeps-bot-tooangel": "../src"
+  }
+}

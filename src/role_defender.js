@@ -15,7 +15,8 @@ roles.defender.settings = {
   amount: {
     1: [2, 1, 1],
     8: [4, 1, 1],
-  }
+  },
+  // fillTough: true,
 };
 
 roles.defender.action = function(creep) {
@@ -24,7 +25,7 @@ roles.defender.action = function(creep) {
   }
   // TODO Better in premove
   if (!creep.inBase()) {
-    let walls = creep.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_WALL, STRUCTURE_RAMPART]);
+    const walls = creep.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_WALL, STRUCTURE_RAMPART]);
     if (walls.length > 0) {
       if (!creep.room.controller || !creep.room.controller.my) {
         creep.rangedAttack(walls[0]);
@@ -32,8 +33,8 @@ roles.defender.action = function(creep) {
     }
   }
 
-  creep.heal(creep);
-  var room = Game.rooms[creep.room.name];
+  creep.selfHeal();
+  const room = Game.rooms[creep.room.name];
   if (room.memory.hostile) {
     creep.handleDefender();
     return true;
@@ -43,15 +44,12 @@ roles.defender.action = function(creep) {
   return true;
 };
 
-roles.defender.preMove = function(creep, directions) {
-  creep.heal(creep);
-  let target = creep.findClosestEnemy();
+roles.defender.preMove = function(creep) {
+  creep.selfHeal();
+  const target = creep.findClosestEnemy();
   if (target !== null) {
+    creep.creepLog(`preMove foundClosestEnemy ${target}`);
     creep.handleDefender();
     return true;
   }
-};
-
-roles.defender.execute = function(creep) {
-  creep.log('Execute!!!');
 };

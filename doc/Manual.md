@@ -18,6 +18,16 @@ Soon you can also use (somotaw/master)
 
 `targetId`: Is in this case the ID of the controller in the target room.
 
+## Sending a Signer to leave a message on room's controller
+
+Default one
+
+    Memory.rooms.E19N7.queue.push({role:'signer', routing: {targetRoom:'E18N9', targetId:'5982ff1bb097071b4adc218c'}}) // config.info.signText will be used
+    
+Provide extra message
+    
+    Memory.rooms.E19N7.queue.push({role:'signer', routing: {targetRoom:'E18N9', targetId:'5982ff1bb097071b4adc218c'}, signText: 'I\'m going to claim this room, please stay away'})
+
 ## Claiming the Controller (You need a nearby creep with Claim Part/s)
 
     Game.getObjectById('TheCreepsIdHere').claimController(Game.rooms.RoomNameHere.controller)

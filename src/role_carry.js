@@ -16,15 +16,38 @@ roles.carry.flee = true;
 roles.carry.boostActions = ['capacity'];
 
 roles.carry.settings = {
-  prefixString: 'WMC',
-  layoutString: 'MC',
-  amount: [1, 2]
+  param: ['energyCapacityAvailable'],
+  prefixString: {
+    300: '',
+    550: 'MW',
+    600: 'W',
+  },
+  layoutString: 'CM',
+  amount: config.carry.sizes,
+  maxLayoutAmount: 1,
+};
+
+roles.carry.updateSettings = function(room, creep) {
+  if (creep.helper) {
+    return {
+      prefixString: config.buildRoad.buildToOtherMyRoom ? 'W' : '',
+      layoutString: 'MC',
+      amount: {
+        0: [3, 3], // RCL 1
+        550: [4, 4], // RCL 2
+        800: [6, 6], // RCL 3
+        1300: [11, 11], // RCL 4
+        1800: [15, 15], // RCL 5
+        2300: [21, 21], // RCL 6
+      },
+    };
+  }
 };
 
 roles.carry.checkHelperEmptyStorage = function(creep) {
   // Fix blocked helpers due to empty structure in the room where we get the energy from
   if (creep.room.name === creep.memory.routing.targetRoom) {
-    let targetStructure = Game.getObjectById(creep.memory.routing.targetId);
+    const targetStructure = Game.getObjectById(creep.memory.routing.targetId);
     if (targetStructure === null) {
       creep.suicide();
       return;
@@ -40,120 +63,24 @@ roles.carry.checkHelperEmptyStorage = function(creep) {
   }
 };
 
-roles.carry.handleMisplacedSpawn = function(creep) {
-  // Misplaced spawn
-  // TODO Somehow ugly and maybe better somewhere else
-  if (creep.inBase() && (creep.room.memory.misplacedSpawn || creep.room.controller.level < 3)) {
-    //     creep.say('cmis', true);
-    if (creep.carry.energy > 0) {
-      let structure = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-        filter: function(object) {
-          if (object.energy === object.energyCapacity) {
-            return false;
-          }
-          return true;
-        }
-      });
-      creep.moveTo(structure, {
-        ignoreCreeps: true,
-      });
-      creep.transfer(structure, RESOURCE_ENERGY);
-    } else {
-      let targetId = creep.memory.routing.targetId;
-
-      var source = creep.room.memory.position.creep[targetId];
-      // TODO better the position from the room memory
-      if (source !== null) {
-        let returnCode = creep.moveTo(source, {
-          ignoreCreeps: true
-        });
-        if (creep.pos.getRangeTo(source) > 1) {
-          return true;
-        }
-      }
+roles.carry.checkForHarvesterSpawn = function(creep) {
+  const storage = creep.room.storage;
+  if (!(storage && storage.my && storage.isActive())) {
+    let resourceAtPosition = 0;
+    const resources = creep.pos.lookFor(LOOK_RESOURCES);
+    for (const resource of resources) {
+      resourceAtPosition += resource.amount;
     }
-    return false;
+    let amount = creep.room.getHarvesterAmount();
+    amount += Math.floor(resourceAtPosition / config.carry.callHarvesterPerResources);
+    creep.room.checkRoleToSpawn('harvester', amount);
   }
 };
 
-roles.carry.preMove = function(creep, directions) {
-  roles.carry.checkHelperEmptyStorage(creep);
-
-  if (roles.carry.handleMisplacedSpawn(creep)) {
-    return true;
-  }
-
-  if (!creep.room.controller) {
-    var target = creep.findClosestSourceKeeper();
-    if (target !== null) {
-      let range = creep.pos.getRangeTo(target);
-      if (range > 6) {
-        creep.memory.routing.reverse = false;
-      }
-      if (range < 6) {
-        creep.memory.routing.reverse = true;
-      }
-    }
-  }
-
-  // TODO When does this happen? (Not on path?) - Handle better
-  if (!directions) {
-    creep.say('No directions');
-    return false;
-  }
-
-  let reverse = false;
-  if (!creep.memory.routing.reverse) {
-    reverse = creep.checkForTransfer(directions.forwardDirection);
-  }
-  // define minimum carryPercentage to move back to storage
-  let carryPercentage = 0.1;
-  if (creep.room.name === creep.memory.routing.targetRoom) {
-    carryPercentage = config.carry.carryPercentageExtern;
-  }
-  if (creep.inBase()) {
-    carryPercentage = config.carry.carryPercentageBase;
-  }
-
-  if (_.sum(creep.carry) > carryPercentage * creep.carryCapacity) {
-    reverse = true;
-    if (creep.inBase()) {
-      let transferred = creep.transferToStructures();
-      if (transferred) {
-        if (transferred.moreStructures) {
-          return true;
-        }
-        reverse = creep.carry.energy - transferred.transferred > 0;
-      } else if (!creep.room.storage && creep.memory.routing.pathPos === 0) {
-        creep.say('Drop');
-        creep.drop(RESOURCE_ENERGY);
-        reverse = false;
-      }
-    }
-    // Have to invert the direction
-    let directionTransferInvert = (+directions.backwardDirection + 7) % 8 + 1;
-    if (directionTransferInvert && directionTransferInvert !== null) {
-      let transferred = creep.transferToCreep(directionTransferInvert);
-      reverse = !transferred;
-    }
-  }
-
-  reverse = creep.pickupWhileMoving(reverse);
-  if (reverse) {
-    //     creep.log('reverse');
-    directions.direction = directions.backwardDirection;
-  } else {
-    //     creep.log('not reverse');
-    directions.direction = directions.forwardDirection;
-  }
-  creep.memory.routing.reverse = reverse;
-
-  if (!directions.direction) {
-    return false;
-  }
-  let posForward = creep.pos.getAdjacentPosition(directions.direction);
-  let structures = posForward.lookFor(LOOK_STRUCTURES);
-  for (let structure of structures) {
+roles.carry.dismantleStructure = function(creep, directions) {
+  const posForward = creep.pos.getAdjacentPosition(directions.direction);
+  const structures = posForward.lookFor(LOOK_STRUCTURES);
+  for (const structure of structures) {
     if (structure.structureType === STRUCTURE_ROAD) {
       continue;
     }
@@ -169,6 +96,9 @@ roles.carry.preMove = function(creep, directions) {
     if (structure.structureType === STRUCTURE_STORAGE && structure.my) {
       continue;
     }
+    if (structure.structureType === STRUCTURE_LINK && structure.my) {
+      continue;
+    }
 
     creep.dismantle(structure);
     creep.say('dismantle');
@@ -176,42 +106,126 @@ roles.carry.preMove = function(creep, directions) {
   }
 };
 
+const validateDirections = function(creep, directions) {
+  // TODO When does this happen? (Not on path?) - Handle better
+  if (!directions || Object.keys(directions).length === 0) {
+    if (creep.memory.routing.pathPos < 0) {
+      return false;
+    }
+    creep.log(`role_carry.preMove - No directions, why? pathPos: ${creep.memory.routing.pathPos}`);
+    creep.say('No directions');
+    return false;
+  }
+  return true;
+};
+
+roles.carry.preMove = function(creep, directions) {
+  if (!validateDirections(creep, directions)) {
+    return false;
+  }
+  creep.creepLog(`preMove directions check ${JSON.stringify(directions)}`);
+
+  roles.carry.checkHelperEmptyStorage(creep);
+
+  let moveToStorage = creep.checkCarryEnergyForBringingBackToStorage();
+  const fleeFromSourceKeeper = creep.checkForSourceKeeper();
+  moveToStorage = moveToStorage || fleeFromSourceKeeper;
+  if (moveToStorage) {
+    creep.creepLog(`preMove moveToStorage`);
+    if (creep.inBase()) {
+      const transferred = creep.transferToStructures();
+      creep.creepLog(`preMove transferToStructures ${JSON.stringify(transferred)}`);
+      if (transferred) {
+        const energyLeft = creep.carry.energy - transferred.transferred;
+        if (energyLeft > 0) { // Better use `checkCarryEnergyForBringingBackToStorage` to be accurate
+          if (transferred.moreStructures) {
+            creep.creepLog(`preMove transferred.moreStructures energyLeft ${energyLeft} ${JSON.stringify(transferred)}`);
+            return true;
+          }
+        } else {
+          creep.creepLog(`preMove transferred.moreStructures no energyLeft ${energyLeft} ${JSON.stringify(transferred)}`);
+          creep.memory.routing.reverse = false;
+          return false;
+        }
+      }
+
+      if (creep.memory.routing.pathPos === 0) {
+        creep.drop(RESOURCE_ENERGY);
+        roles.carry.checkForHarvesterSpawn(creep);
+        creep.memory.routing.reverse = false;
+        return false;
+      }
+    }
+
+    creep.creepLog(`preMove transferToCreep directions check ${JSON.stringify(directions)}`);
+    if (directions.backwardDirection && directions.backwardDirection !== null) {
+      creep.creepLog('Trying to transfer to creep');
+      const transferred = creep.transferToCreep(directions.backwardDirection);
+      creep.memory.routing.reverse = !transferred;
+      return false;
+    }
+  } else {
+    creep.creepLog(`preMove not moveToStorage`);
+    if (creep.memory.routing.pathPos > 1) {
+      // TODO these two methods seems pretty similar, should be unified
+      moveToStorage = creep.pickupEnergy();
+      moveToStorage = moveToStorage || creep.pickupWhileMoving();
+    }
+    const energyFromCreep = creep.checkForTransfer(directions.forwardDirection);
+    moveToStorage = moveToStorage || energyFromCreep;
+  }
+
+  moveToStorage = moveToStorage && creep.memory.routing.pathPos !== 0;
+
+  creep.memory.routing.reverse = moveToStorage;
+  if (moveToStorage) {
+    directions.direction = directions.backwardDirection;
+  } else {
+    directions.direction = directions.forwardDirection;
+  }
+  if (!directions.direction) {
+    return false;
+  }
+
+  roles.carry.dismantleStructure(creep, directions);
+  return false;
+};
+
 roles.carry.action = function(creep) {
   // TODO log when this happens, carry is getting energy from the source
-  // creep.log('ACTION');
-  let source = Game.getObjectById(creep.memory.routing.targetId);
+  creep.creepLog('ACTION');
+  const source = Game.getObjectById(creep.memory.routing.targetId);
   if (source === null) {
     creep.say('sfener');
     creep.memory.routing.reached = false;
     creep.memory.routing.reverse = true;
 
-    let sources = creep.pos.findInRange(FIND_SOURCES, 3);
+    const sources = creep.pos.findInRange(FIND_SOURCES, 3);
     if (sources.length > 0) {
       creep.memory.routing.targetId = sources[0].id;
       return true;
     }
 
-    let resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
+    const resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
     if (resource !== null) {
       creep.memory.routing.targetId = resource.id;
       // TODO Use pathfinder
       creep.moveTo(resource);
-      let returnCode = creep.pickup(resource, resource.amount - 1);
+      creep.pickup(resource, resource.amount - 1);
       return true;
     }
   }
   // TODO this should be last position => reverse - In preMove make sure a reverse stays if it is set here
-  let reverse = false;
-  reverse = creep.pickupWhileMoving(reverse);
+  const reverse = creep.pickupWhileMoving();
 
   if (!reverse) {
     creep.harvest(source);
   }
 
   if (!creep.room.controller) {
-    var target = creep.pos.findClosestSourceKeeper();
+    const target = creep.findClosestSourceKeeper();
     if (target !== null) {
-      let range = creep.pos.getRangeTo(target);
+      const range = creep.pos.getRangeTo(target);
       if (range < 5) {
         delete creep.memory.routing.reached;
         creep.memory.routing.reverse = true;
@@ -222,13 +236,12 @@ roles.carry.action = function(creep) {
   creep.memory.routing.reached = false;
   creep.memory.routing.reverse = true;
 
-  return true;
-};
-
-roles.carry.execute = function(creep) {
-  // creep.log('Execute!!!');
-  let target = Game.getObjectById(creep.memory.routing.targetId);
-  if (target === null) {
-    delete creep.memory.routing.targetId;
+  // End of path, can't harvest, suicide (otherwise the sourcer get's stuck)
+  if (!reverse && creep.body.filter((part) => part.type === WORK).length === 0) {
+    // creep.log('Suiciding because end of path, no energy, do not want to get in the way of the sourcer (better recycle?)');
+    creep.memory.killed = true;
+    creep.suicide();
   }
+
+  return true;
 };

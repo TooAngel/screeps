@@ -10,21 +10,25 @@ roles.defendmelee = {};
 
 roles.defendmelee.settings = {
   layoutString: 'MA',
-  amount: [5, 5],
+  amount: [1, 1],
+  fillTough: true,
 };
 
-roles.defendmelee.execute = function(creep) {
-  let hostile = creep.findClosestEnemy();
+roles.defendmelee.action = function(creep) {
+  const hostile = creep.findClosestEnemy();
   if (hostile === null) {
     return Creep.recycleCreep(creep);
   }
-  let search = PathFinder.search(
+  const search = PathFinder.search(
     creep.pos,
     hostile.pos, {
-      roomCallback: creep.room.getCostMatrixCallback(hostile.pos)
+      roomCallback: creep.room.getCostMatrixCallback(hostile.pos),
     });
-  let direction = creep.pos.getDirectionTo(search.path[0]);
-  creep.moveCreep(search.path[0], (direction + 3) % 8 + 1);
-  let returnCode = creep.move(direction);
+  if (config.visualizer.enabled && config.visualizer.showPathSearches) {
+    visualizer.showSearch(search);
+  }
+  const direction = creep.pos.getDirectionTo(search.path[0]);
+  creep.moveCreep(search.path[0], RoomPosition.oppositeDirection(direction));
+  creep.move(direction);
   creep.attack(hostile);
 };

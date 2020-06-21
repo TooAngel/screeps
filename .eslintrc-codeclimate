@@ -1,0 +1,13 @@
+extends:
+  - .eslintrc-base
+
+rules:
+  no-undef: 0
+  complexity: [2, 6]
+  max-statements: [2, 30]
+  require-jsdoc:
+    - error
+    - require:
+        FunctionDeclaration: true
+        MethodDefinition: true
+        ClassDeclaration: true

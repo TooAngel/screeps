@@ -1,0 +1,82 @@
+env:
+  es6: true
+  node: true
+
+globals:
+  config: writable
+  brain: writable
+  roles: writable
+  friends: writable
+  cache: writable
+  visualizer: writable
+
+parserOptions:
+  ecmaVersion: 8
+
+extends:
+  - eslint:recommended
+  - google
+
+# http://eslint.org/docs/rules/
+rules:
+  no-undef: 0
+  require-jsdoc:
+    - error
+    - require:
+        FunctionDeclaration: true
+        MethodDefinition: true
+        ClassDeclaration: true
+  # Possible Errors
+  no-cond-assign: 2
+  no-console: 0
+  no-negated-in-lhs: 2
+
+  complexity: [2, 18]
+
+  # Best Practices
+  accessor-pairs: 2
+  eqeqeq: 2
+  no-alert: 2
+  no-div-regex: 2
+  no-eq-null: 2
+  no-eval: 2
+  no-implied-eval: 2
+  no-iterator: 2
+  no-lone-blocks: 2
+  no-loop-func: 2
+  no-native-reassign: 2
+  no-new-func: 2
+  no-new: 2
+  no-octal-escape: 2
+  no-proto: 2
+  no-return-assign: 2
+  no-script-url: 2
+  no-self-compare: 2
+  no-unused-expressions: 2
+  no-useless-call: 2
+  no-useless-concat: 2
+  no-void: 2
+  radix: 2
+  wrap-iife: 2
+
+  # Variables
+  no-catch-shadow: 2
+  no-label-var: 2
+  no-shadow-restricted-names: 2
+  no-undef-init: 2
+
+  # Node.js and CommonJS
+  callback-return: 2
+  global-require: 2
+  handle-callback-err: 2
+  no-path-concat: 2
+  no-process-exit: 2
+
+  # Stylistic Issues
+  indent: [2, 2]
+  max-len: [2, 240]
+  max-statements-per-line: 2
+
+  # ECMAScript 6
+  prefer-arrow-callback: 2
+  prefer-const: 2

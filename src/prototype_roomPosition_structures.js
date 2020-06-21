@@ -1,25 +1,26 @@
 'use strict';
 
-RoomPosition.prototype.setSpawn = function(posPath, posNext) {
+RoomPosition.prototype.setSpawn = function(path, pathI) {
+  const posNext = path[+pathI + 1];
+  const pathPos = new RoomPosition(path[pathI].x, path[pathI].y, path[pathI].roomName);
   // TODO Check distance to other spawns
-  let room = Game.rooms[this.roomName];
+  const room = Game.rooms[this.roomName];
   if (room.memory.position.structure.spawn.length >= CONTROLLER_STRUCTURES.spawn[8]) {
     return false;
   }
 
-  let pathPosObject = new RoomPosition(posPath.x, posPath.y, this.roomName);
-  let directionStructure = pathPosObject.getDirectionTo(this.x, this.y);
+  const directionStructure = pathPos.getDirectionTo(this.x, this.y);
 
   if (directionStructure === BOTTOM) {
     return true;
   }
 
   if (!posNext) {
-    room.log('No posNext: ' + JSON.stringify(posPath));
+    room.log('No posNext: ' + pathPos);
     return false;
   }
 
-  let directionNext = pathPosObject.getDirectionTo(posNext.x, posNext.y);
+  const directionNext = pathPos.getDirectionTo(posNext.x, posNext.y);
 
   if (directionNext === RIGHT && directionStructure === BOTTOM_RIGHT) {
     return true;
@@ -41,7 +42,7 @@ RoomPosition.prototype.setSpawn = function(posPath, posNext) {
 };
 
 RoomPosition.prototype.setExtension = function() {
-  let room = Game.rooms[this.roomName];
+  const room = Game.rooms[this.roomName];
   if (room.memory.position.structure.extension.length >= CONTROLLER_STRUCTURES.extension[8]) {
     return false;
   }
@@ -49,8 +50,8 @@ RoomPosition.prototype.setExtension = function() {
 };
 
 RoomPosition.prototype.inRamparts = function() {
-  let room = Game.rooms[this.roomName];
-  for (let rampart of room.memory.walls.ramparts) {
+  const room = Game.rooms[this.roomName];
+  for (const rampart of room.memory.walls.ramparts) {
     if (this.isEqualTo(rampart.x, rampart.y)) {
       return true;
     }

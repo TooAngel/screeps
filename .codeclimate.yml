@@ -6,13 +6,10 @@ engines:
       - javascript
   eslint:
     enabled: true
-    checks:
-      comma-dangle:
-        enabled: false
+    config:
+      config: .eslintrc-codeclimate
   fixme:
     enabled: false
 ratings:
   paths:
   - src/**
-exclude_paths:
-- screeps-visual/

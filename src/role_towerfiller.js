@@ -10,55 +10,83 @@ roles.towerfiller = {};
 
 roles.towerfiller.settings = {
   layoutString: 'MC',
-  amount: [1, 4]
+  amount: [1, 4],
 };
 
-roles.towerfiller.execute = function(creep) {
-  if (!creep.memory.target_id) {
-    creep.log('Suiciding to target_id');
-    creep.suicide();
+/**
+ * suicide() - Suicides the creep if necessary
+ *
+ * @param {object} creep - The creep object
+ * @return {boolean} - If the creep was suicided
+ **/
+function suicide(creep) {
+  if (creep.memory.target_id) {
     return false;
   }
-  let room = Game.rooms[creep.room.name];
+
+  creep.log('Suiciding to target_id');
+  creep.suicide();
+  return true;
+}
+
+/**
+ * checkForStructures - Checks for towerfiller and link to get and fetch
+ * energy
+ *
+ * @param {object} creep - The creep object
+ * @return {boolean} - If the creep was suicided
+ **/
+function checkForStructures(creep) {
+  const pos = creep.memory.target_id;
+  const posObject = new RoomPosition(pos.x, pos.y, creep.room.name);
+  const towers = posObject.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER]);
+  const links = posObject.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
+  if (towers.length === 0) {
+    creep.suicide();
+    return true;
+  }
+  if (links.length === 0) {
+    creep.suicide();
+    return true;
+  }
+  creep.memory.tower = towers[0].id;
+  creep.memory.link = links[0].id;
+  return false;
+}
+
+/**
+ * handleEnergy - Transfers energy from link to tower
+ *
+ * @param {object} creep - The creep object
+ * @return {void}
+ **/
+function handleEnergy(creep) {
+  creep.moveTo(creep.memory.target_id.x, creep.memory.target_id.y);
+  const link = Game.getObjectById(creep.memory.link);
+  const tower = Game.getObjectById(creep.memory.tower);
+  creep.withdraw(link, RESOURCE_ENERGY);
+  const returnCode = creep.transfer(tower, RESOURCE_ENERGY);
+  if (returnCode === OK) {
+    creep.setNextSpawn();
+  }
+}
+
+roles.towerfiller.action = function(creep) {
+  if (suicide(creep)) {
+    return false;
+  }
+
+  const room = Game.rooms[creep.room.name];
   if (room.memory.attackTimer > 50 && room.controller.level > 6) {
     creep.spawnReplacement();
   }
 
   if (!creep.memory.link) {
-    let getTower = function(object) {
-      return object.structureType === STRUCTURE_TOWER;
-    };
-    let getLink = function(object) {
-      return object.structureType === STRUCTURE_LINK;
-    };
-
-    let pos = creep.memory.target_id;
-    let posObject = new RoomPosition(pos.x, pos.y, creep.room.name);
-    let towers = posObject.findInRange(FIND_STRUCTURES, 1, {
-      filter: getTower
-    });
-    let links = posObject.findInRange(FIND_STRUCTURES, 1, {
-      filter: getLink
-    });
-    if (towers.length === 0) {
-      creep.suicide();
+    if (!checkForStructures(creep)) {
       return false;
     }
-    if (links.length === 0) {
-      creep.suicide();
-      return false;
-    }
-    creep.memory.tower = towers[0].id;
-    creep.memory.link = links[0].id;
   }
 
-  creep.moveTo(creep.memory.target_id.x, creep.memory.target_id.y);
-  let link = Game.getObjectById(creep.memory.link);
-  let tower = Game.getObjectById(creep.memory.tower);
-  link.transferEnergy(creep);
-  let returnCode = creep.transfer(tower, RESOURCE_ENERGY);
-  if (returnCode === OK) {
-    creep.setNextSpawn();
-  }
+  handleEnergy(creep);
   return true;
 };

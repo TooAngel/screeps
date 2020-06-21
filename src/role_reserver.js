@@ -14,19 +14,25 @@ roles.reserver.flee = false;
 
 roles.reserver.settings = {
   layoutString: 'MK',
-  maxLayoutAmout: 1,
+  maxLayoutAmount: 1,
 };
 roles.reserver.updateSettings = function(room, creep) {
-  let level = creep.level ? creep.level : 1;
-  if (level === 5) {
-    room.log('Build super reserver');
+  const level = creep.level ? creep.level : 1;
+  if (level === 2) {
     return {
-      amount: [5, 5]
+      amount: [2, 2],
+    };
+  }
+  if (level === 5) {
+    room.debugLog('reserver', 'Build super reserver');
+    return {
+      amount: [5, 5],
     };
   }
 };
 
 roles.reserver.action = function(creep) {
+  creep.mySignController();
   if (!creep.memory.routing.targetId) {
     // TODO check when this happens and fix it
     creep.log('creep_reserver.action No targetId !!!!!!!!!!!' + JSON.stringify(creep.memory));
@@ -40,8 +46,4 @@ roles.reserver.action = function(creep) {
 
   creep.handleReserver();
   return true;
-};
-
-roles.reserver.execute = function(creep) {
-  creep.log('Execute!!!');
 };

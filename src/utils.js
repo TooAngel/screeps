@@ -1,3 +1,10 @@
+// courtesy of @warinternal Aug 2016
+global.ex = (x, y) => (y) ? JSON.stringify(x) : JSON.stringify(x, null, 2);
+// https://en.wikipedia.org/wiki/Sigmoid_function
+global.sigmoid = (x) => 1 + Math.tanh((2 * x) - 1);
+// sigmoid on Game.cpu.limit + Game.cpu.bucket
+global.cpuLimit = () => _.ceil(Game.cpu.limit * global.sigmoid(Game.cpu.bucket / 10000));
+
 /**
  * this should be a collection of useful functions,
  * they should be as general as they can be, so we can use them as often as possible
@@ -7,15 +14,25 @@ global.utils = {
    * return object.length if exist else return _.size
    *
    * @param {Array} object
-   * @returns {*}
+   * @return {Number}
    */
   returnLength: function returnLength(object) {
     return (object && object.length) ? object.length : _.size(object);
   },
 
+  showIdiots: function() {
+    const idiots = _.sortBy(Memory.players, (o) => {
+      return -o.idiot;
+    });
+    for (let i = 0; i < idiots.length; i++) {
+      const idiot = idiots[i];
+      console.log(idiot.name, idiot.idiot, idiot.level, idiot.counter);
+    }
+  },
+
   checkPlayers: function() {
-    for (let name in Memory.players) {
-      let player = Memory.players[name];
+    for (const name of Object.keys(Memory.players)) {
+      const player = Memory.players[name];
       if (player.name === undefined) {
         player.name = name;
         console.log(`Missing name: ${name}`);
@@ -37,7 +54,7 @@ global.utils = {
   },
 
   roomCheck: function() {
-    for (let roomName in Memory.rooms) {
+    for (const roomName in Memory.rooms) {
       if (Memory.rooms[roomName].state === 'Occupied') {
         console.log(`${roomName} ${Memory.rooms[roomName].player}`);
       }
@@ -46,8 +63,8 @@ global.utils = {
 
   terminals: function() {
     console.log('Terminals:');
-    for (let roomName of Memory.myRooms) {
-      let room = Game.rooms[roomName];
+    for (const roomName of Memory.myRooms) {
+      const room = Game.rooms[roomName];
       if (room.terminal) {
         console.log(`${roomName} ${JSON.stringify(room.terminal.store)}`);
       }
@@ -55,100 +72,51 @@ global.utils = {
   },
 
   csstats: function() {
-    let aggregate = function(result, value, key) {
+    const aggregate = function(result, value) {
       result[value.pos.roomName] = (result[value.pos.roomName] || (result[value.pos.roomName] = 0)) + 1;
       return result;
     };
-    let resultReduce = _.reduce(Game.constructionSites, aggregate, {});
+    const resultReduce = _.reduce(Game.constructionSites, aggregate, {});
     console.log(JSON.stringify(resultReduce));
   },
 
   memory: function() {
-    for (let keys in Memory) {
+    for (const keys of Object.keys(Memory)) {
       console.log(keys, JSON.stringify(Memory[keys]).length);
     }
   },
 
   memoryRooms: function() {
-    for (let keys in Memory.rooms) {
+    for (const keys of Object.keys(Memory.rooms)) {
       console.log(keys, JSON.stringify(Memory.rooms[keys]).length);
     }
   },
 
   memoryRoom: function(roomName) {
-    for (let keys in Memory.rooms[roomName]) {
+    for (const keys of Object.keys(Memory.rooms[roomName])) {
       console.log(keys, JSON.stringify(Memory.rooms[roomName][keys]).length);
     }
   },
 
   showReserveredRooms: function() {
-    for (let roomName in Memory.rooms) {
-      let room = Memory.rooms[roomName];
+    for (const roomName of Object.keys(Memory.rooms)) {
+      const room = Memory.rooms[roomName];
       if (room.state === 'Reserved') {
         console.log(roomName, JSON.stringify(room.reservation));
       }
     }
   },
 
-  checkMinerals: function() {
-    let minerals = {};
-    for (let name of Memory.myRooms) {
-      let room = Game.rooms[name];
-      if (room.terminal) {
-        console.log(name, JSON.stringify(room.terminal.store));
-        for (let mineral in room.terminal.store) {
-          if (mineral === 'U') {
-            console.log(room.name, room.terminal.store[mineral]);
-          }
-          if (!minerals[mineral]) {
-            minerals[mineral] = room.terminal.store[mineral];
-          } else {
-            minerals[mineral] += room.terminal.store[mineral];
-          }
-        }
-      }
-    }
-
-    console.log(JSON.stringify(minerals));
-    console.log(minerals.U);
-  },
-
-  findRoomsWithMineralsToTransfer: function() {
-    let minerals = {};
-    for (let name of Memory.myRooms) {
-      let room = Game.rooms[name];
-      if (room.terminal) {
-        if (room.terminal.store.energy < 10000) {
-          continue;
-        }
-        console.log(name, JSON.stringify(room.terminal.store));
-        for (let mineral in room.terminal.store) {
-          if (mineral === 'U') {
-            console.log(room.name, room.terminal.store[mineral]);
-          }
-          if (!minerals[mineral]) {
-            minerals[mineral] = room.terminal.store[mineral];
-          } else {
-            minerals[mineral] += room.terminal.store[mineral];
-          }
-        }
-      }
-    }
-
-    console.log(JSON.stringify(minerals));
-    console.log(minerals.U);
-  },
-
   queueCheck: function(roomName) {
     // todo move to global.utils
     // todo save functions by prop so creation should only be once
-    let prop = function(prop) {
+    const prop = function(prop) {
       return function(object) {
         return object[prop];
       };
     };
 
-    var found = _.countBy(Memory.rooms[roomName].queue, prop('role'));
+    const found = _.countBy(Memory.rooms[roomName].queue, prop('role'));
     console.log(JSON.stringify(found));
     return found;
   },
@@ -157,7 +125,7 @@ global.utils = {
     if (!stringParts || typeof(stringParts) !== 'string') {
       return;
     }
-    let partsConversion = {
+    const partsConversion = {
       M: MOVE,
       C: CARRY,
       A: ATTACK,
@@ -167,10 +135,90 @@ global.utils = {
       H: HEAL,
       K: CLAIM,
     };
-    let arrayParts = [];
+    const arrayParts = [];
     for (let i = 0; i < stringParts.length; i++) {
       arrayParts.push(partsConversion[stringParts.charAt(i)]);
     }
     return arrayParts;
   },
+
+  splitRoomName: function(name) {
+    const patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
+    return patt.exec(name);
+  },
+
+  routeCallbackRoomHandle: function(roomName) {
+    let returnValue;
+    if (Memory.rooms[roomName].state === 'Occupied') {
+      // console.log(Game.time, `Creep.prototype.getRoute: Do not route through occupied rooms ${roomName}`);
+      if (config.path.allowRoutingThroughFriendRooms && friends.indexOf(Memory.rooms[roomName].player) > -1) {
+        console.log('routing through friendly room' + roomName);
+        returnValue = 1;
+      } else {
+        // console.log(Game.time, 'Not routing through enemy room' + roomName);
+        returnValue = Infinity;
+      }
+    }
+    if (Memory.rooms[roomName].state === 'Blocked') {
+      // console.log(Game.time, `Creep.prototype.getRoute: Do not route through blocked rooms ${roomName}`);
+      returnValue = Infinity;
+    }
+    return returnValue;
+  },
+
+  routeCallback: function(to, useHighWay) {
+    return function(roomName) {
+      let returnValue = Infinity;
+      if (roomName === to) {
+        returnValue = 1;
+      } else {
+        if (Memory.rooms[roomName]) {
+          returnValue = global.utils.routeCallbackRoomHandle(roomName);
+        }
+        if (useHighWay) {
+          const nameSplit = global.utils.splitRoomName(roomName);
+          if (nameSplit[2] % 10 === 0 || nameSplit[4] % 10 === 0) {
+            returnValue = 0.5;
+          } else {
+            returnValue = 2;
+          }
+        } else {
+          returnValue = 1;
+        }
+      }
+      return returnValue;
+    };
+  },
+
+  // unclaim functions
+  killCreeps: function(room) {
+    const creepsToKill = _.filter(Game.creeps, (c) => c.memory.base === room.name);
+    room.log('creepsToKill', _.size(creepsToKill), _.map(creepsToKill, (c) => c.suicide()));
+  },
+
+  removeConstructionSites: function(room) {
+    const sites = _.size(room.memory.constructionSites);
+    if (room.memory.constructionSites && sites) {
+      room.memory.constructionSites[0].remove();
+    }
+    return sites > 0 ? (sites - 1) : 0;
+  },
+
+  removeNextStructure: function(room) {
+    let returnValue;
+    const myStructuresToDestroy = _.sortBy(room.find(FIND_MY_STRUCTURES), (s) => s.hitsMax);
+    const controller = myStructuresToDestroy.shift();
+    if (_.size(myStructuresToDestroy) > 0) {
+      returnValue = myStructuresToDestroy[0].destroy();
+    } else {
+      returnValue = controller.unclaim();
+      delete Memory.rooms[room.name];
+    }
+    room.log('removeNextStructure returns', returnValue,
+      'next structure', myStructuresToDestroy[0],
+      'total structures', _.size(myStructuresToDestroy),
+      'controller', global.ex(controller));
+    return returnValue;
+  },
+
 };

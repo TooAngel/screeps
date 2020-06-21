@@ -1,0 +1,34 @@
+version: 2
+jobs:
+    deploy:
+      docker:
+        - image: circleci/node:10.16.3-stretch
+      steps:
+      - checkout
+      - run: npm install
+      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run: npm publish || true
+      - run: npm run deploy
+    test:
+      docker:
+        - image: circleci/node:10.16.3-stretch
+        - image: mongo:latest
+        - image: redis:latest
+      steps:
+      - checkout
+      - run: npm install
+      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run:
+          command: npm run test
+          no_output_timeout: 10800
+workflows:
+  version: 2
+  test_and_deploy:
+    jobs:
+      - test
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master

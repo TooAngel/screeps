@@ -16,3 +16,11 @@ account.screeps.com.js
 
 ##Autocomplete
 ScreepsAutocomplete/
+steam_appid.txt
+
+.screepsrctest-server/logs/
+test-server/logs/
+tests/logs/
+tests/db.json
+tmp-test-server/
+server/

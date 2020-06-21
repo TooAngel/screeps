@@ -11,135 +11,80 @@ roles.atkeeper = {};
 
 roles.atkeeper.settings = {
   layoutString: 'MRH',
-  amount: [2, 1, 1]
+  amount: [18, 6, 12],
+  fillTough: false,
+};
+
+roles.atkeeper.preMove = function(creep) {
+  creep.checkForRoutingReached();
 };
 
 roles.atkeeper.action = function(creep) {
-  //TODO Untested
+  // TODO Untested
   creep.spawnReplacement();
   creep.setNextSpawn();
-
-  let heal = function(creep) {
-    if (creep.hits < 500) {
-      var target = creep.pos.findClosestSourceKeeper();
-      var range = creep.pos.getRangeTo(target);
-      creep.heal(creep);
-      if (range <= 3) {
-        var direction = creep.pos.getDirectionTo(target);
-        direction = (direction + 3) % 8 + 1;
-        var pos = creep.pos.getAdjacentPosition(direction);
-        var terrain = pos.lookFor(LOOK_TERRAIN)[0];
-        if (terrain === 'wall') {
-          direction = (Math.random() * 8) + 1;
+  const creepsRolesToHeal = ['atkeeper', 'atkeepermelee', 'sourcer', 'carry', 'extractor'];
+  const center = new RoomPosition(25, 25, creep.memory.routing.targetRoom);
+  const moveToCenter = function(creep, near) {
+    near = near || 10;
+    if (Game.time % 3 > 0) {
+      return creep.moveToMy(center, near);
+    } else {
+      return creep.moveRandomWithin(center, near);
+    }
+  };
+  const damaged = (o) => o.isDamaged() < 1;
+  const healAndMove = function(creep) {
+    let creepsDamaged = creep.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', creepsRolesToHeal, {
+      filter: damaged,
+    });
+    let creepsNearDamaged = creep.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 3, 'memory.role', creepsRolesToHeal, {
+      filter: damaged,
+    });
+    creepsDamaged = _.sortBy(creepsDamaged, (c)=> c.isDamaged());
+    creepsNearDamaged = _.sortBy(creepsNearDamaged, (c)=> c.isDamaged());
+    if (creepsDamaged.length > 0 || creepsNearDamaged.length > 0) {
+      const first = creepsNearDamaged[0] || creepsDamaged[0];
+      if (first && first.pos) {
+        creep.heal(first);
+        creep.rangedHeal(first);
+        if (center.getRangeTo(first) < 12) {
+          creep.moveTo(first.pos, {ignoreCreeps: false, reusePath: 2});
+        } else if ((first.memory.role === 'sourcer') || (first.memory.role === 'extractor')) {
+          creep.moveTo(first.pos, {ignoreCreeps: false, reusePath: 2});
         }
-        creep.move(direction);
-      } else if (range >= 5) {
-        creep.moveTo(target);
+        return true;
       }
-      creep.rangedAttack(target);
-      return true;
+    }
+    return false;
+  };
+  const fightRangedInvaders = function(creep) {
+    if (creep.getActiveBodyparts(RANGED_ATTACK) === 0) {
+      return false;
+    }
+    const hostile = creep.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader']);
+    if (hostile) {
+      return creep.fightRanged(hostile);
     }
     return false;
   };
 
-  let attack = function(creep) {
-    var target = creep.pos.findClosestSourceKeeper();
-    var range;
-    var direction;
-
-    if (creep.hits < creep.hitsMax) {
-      creep.heal(creep);
-      creep.rangedAttack(target);
-      range = creep.pos.getRangeTo(target);
-      if (range >= 5) {
-        creep.moveTo(target);
-      }
-      if (range < 3) {
-        direction = creep.pos.getDirectionTo(target);
-        creep.move((direction + 4) % 8);
-      }
-      return true;
-    } else {
-      var my_creeps = creep.pos.findInRange(FIND_MY_CREEPS, 1, {
-        filter: function(object) {
-          return object.hits < object.hitsMax;
-        }
-      });
-      if (my_creeps.length > 0) {
-        creep.heal(my_creeps[0]);
-      }
-    }
-
-    if (!target || target === null) {
-      var my_creep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-        filter: function(object) {
-          if (object.hits === object.hitsMax) {
-            return false;
-          }
-          if (object.memory.role === 'atkeeper') {
-            return false;
-          }
-          return true;
-        }
-      });
-      if (my_creep !== null) {
-        creep.moveTo(my_creep);
-        creep.rangedHeal(my_creep);
+  if (creep.room.name === creep.memory.routing.targetRoom) {
+    if (!fightRangedInvaders(creep)) {
+      moveToCenter(creep);
+      if (healAndMove(creep)) {
         return true;
       }
-
-      var source_keepers = creep.room.find(FIND_STRUCTURES, {
-        filter: function(object) {
-          if (!object.owner) {
-            return false;
-          }
-          return object.owner.username === 'Source Keeper';
-        }
-      });
-      var min_spawn_time = 500;
-      var min_source_keeper = null;
-      for (var i in source_keepers) {
-        var source_keeper = source_keepers[i];
-        if (source_keeper.ticksToSpawn < min_spawn_time) {
-          min_spawn_time = source_keeper.ticksToSpawn;
-          min_source_keeper = source_keeper;
+      if (creep.room.keeperTeamReady()) {
+        if (healAndMove(creep)) {
+          return true;
         }
       }
-
-      if (min_source_keeper === null) {
-        creep.moveRandom();
-      } else {
-        range = creep.pos.getRangeTo(min_source_keeper);
-        if (range > 3) {
-          creep.moveTo(min_source_keeper);
-        }
-      }
+    } else {
+      creep.selfHeal();
       return true;
     }
-    range = creep.pos.getRangeTo(target);
-    if (range > 3) {
-      creep.moveTo(target);
-    }
-
-    creep.rangedAttack(target);
-    if (range < 3) {
-      direction = creep.pos.getDirectionTo(target);
-      creep.move((direction + 4) % 8);
-    }
-    return true;
-  };
-
-  if (heal(creep)) {
-    return true;
   }
 
-  if (attack(creep)) {
-    return true;
-  }
-  creep.heal(creep);
-  return true;
-};
-
-roles.atkeeper.execute = function(creep) {
-  creep.log('Execute!!!');
+  return moveToCenter(creep);
 };
