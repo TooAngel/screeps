@@ -87,6 +87,9 @@ global.config = {
     constructionSites: false,
     routing: false,
     brain: false,
+    // Check bugs:
+    // - check wrong link order
+    checkbugs: false,
   },
 
   tower: {
@@ -138,6 +141,18 @@ global.config = {
     disabled: false,
     energyForCreeps: 800000,
     energyForSpawn: 250000,
+  },
+
+  pixel: {
+    enabled: false,
+    minBucketAfter: 2500,
+  },
+
+  ticksummary: {
+    bucket: false,
+    gcl: false,
+    room: false,
+    seperator: false,
   },
 
   buildRoad: {

@@ -80,7 +80,6 @@ brain.main.execute = function() {
     console.log(`${Game.time} Skipping tick CPU Bucket too low. bucket: ${Game.cpu.bucket} tickLimit: ${Game.cpu.tickLimit} limit: ${Game.cpu.limit}`);
     return;
   }
-
   Memory.time = Game.time;
   try {
     brain.prepareMemory();
@@ -103,4 +102,14 @@ brain.main.execute = function() {
   brain.stats.add(['cpu'], {
     used: Game.cpu.getUsed(),
   });
+
+  if (global.config.ticksummary.gcl) {
+    console.log(`${Game.time} GCL ${Game.gcl.level}: ${global.utils.lpadround(Game.gcl.progress/Game.gcl.progressTotal*100, 3, 5)} %  ${Math.round(Game.gcl.progress)}/${Math.round(Game.gcl.progressTotal)}`);
+  }
+  if (global.config.ticksummary.bucket) {
+    console.log(`${Game.time} Bucket: ${Game.cpu.bucket}`);
+  }
+  if (global.config.ticksummary.seperator) {
+    console.log(Game.time, '-----------');
+  }
 };

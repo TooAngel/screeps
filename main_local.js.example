@@ -1,0 +1,7 @@
+module.exports = function() {
+  try{
+    console.log('mainLocal');
+  } catch (e) {
+    console.log(e.stack);
+  }
+}
