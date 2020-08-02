@@ -183,14 +183,7 @@ Creep.prototype.fightRanged = function(target) {
   }
 
   const returnCode = this.moveToMy(target.pos, 3);
-  if (returnCode === OK) {
-    return true;
-  }
-  if (returnCode === ERR_TIRED) {
-    return true;
-  }
-
-  this.log('creep_ranged.attack_without_rampart returnCode: ' + returnCode);
+  return returnCode;
 };
 
 Creep.prototype.siege = function() {

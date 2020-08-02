@@ -52,7 +52,9 @@ brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
     }
   }
   if (hostiles.length === 0 || hostiles[0].owner.username !== 'Invader' || !(memoryRoom || {}).sourceKeeperRoom) {
-    console.log(`${Game.time} ${room.name} ${name} Not in Game.creeps lived ${Game.time - creepMemory.born} hostiles: ${hostiles.length} structures: ${structures.length} sourceKeepers: ${sourceKeepers.length} memory: ${JSON.stringify(Memory.creeps[name])} ${JSON.stringify(memoryRoom)}`); // eslint-disable-line max-len
+    if (creepMemory.role !== 'scout') { // Remove noise, I guess scouts are killed by other players, but the room can't be accessed anymore. So maybe store the number of creeps in the room memory / cache
+      console.log(`${Game.time} ${room.name} ${name} Not in Game.creeps lived ${Game.time - creepMemory.born} hostiles: ${hostiles.length} structures: ${structures.length} sourceKeepers: ${sourceKeepers.length} memory: ${JSON.stringify(Memory.creeps[name])} ${JSON.stringify(memoryRoom)}`); // eslint-disable-line max-len
+    }
   }
   if (Game.time - creepMemory.born < 20) {
     return;

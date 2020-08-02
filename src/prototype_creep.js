@@ -259,7 +259,7 @@ Creep.prototype.buildRoad = function() {
     if (returnCode === OK) {
       return true;
     }
-    if (returnCode !== OK && returnCode !== ERR_INVALID_TARGET && returnCode !== ERR_FULL) {
+    if (returnCode !== ERR_INVALID_TARGET && returnCode !== ERR_FULL && returnCode !== ERR_NOT_OWNER) {
       this.log('Road: ' + this.pos + ' ' + returnCode + ' pos: ' + this.pos);
     }
     return false;

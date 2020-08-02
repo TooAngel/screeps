@@ -1,5 +1,7 @@
 'use strict';
 
+// TODO Do we need this?
+
 /**
  * Provides structure memory.
  */
@@ -14,7 +16,7 @@ Object.defineProperty(Structure.prototype, 'memory', {
     return Memory.structures[this.id];
   },
   set: function(v) {
-    return _.set(Memory, 'structures.' + this.id, v);
+    _.set(Memory, 'structures.' + this.id, v);
   },
   configurable: true,
   enumerable: false,
