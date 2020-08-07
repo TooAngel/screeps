@@ -446,6 +446,8 @@ Room.prototype.checkForPlaner = function() {
   const constructionSites = this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART], {inverse: true});
   if (constructionSites.length > 0) {
     let amount = 1;
+    // TODO rethink this logic, the second (3) overwrites the 6
+    // maybe something generic would be cooler something like `amount = misplacedSpawn ? room.level : 1`
     for (const cs of constructionSites) {
       if (cs.structureType === STRUCTURE_STORAGE) {
         amount = 6;
