@@ -99,7 +99,7 @@ class Tester {
         console.log(JSON.stringify(status, null, 2));
         console.log('Milestones:');
         console.log(JSON.stringify(milestones, null, 2));
-        const failes = milestones.filter((milestone) => milestone.required && !milestone.success);
+        const failes = milestones.filter((milestone) => milestone.required && milestone.tick < lastTick && !milestone.success);
         if (failes.length > 0) {
           for (const fail of failes) {
             console.log(`${lastTick} Milestone failed ${JSON.stringify(fail)}`);
