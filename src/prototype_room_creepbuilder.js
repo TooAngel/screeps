@@ -53,20 +53,31 @@ Room.prototype.spawnCheckForCreate = function() {
   return false;
 };
 
+/**
+ * isSameCreep - Checks if two creeps are matching in role, targetId and
+ * targetRoom
+ *
+ * @param  {object} first the first creep
+ * @param  {object} second the second creep
+ * @return {boolean} both creeps have the same role, targetId and targetRoom
+ */
+Room.prototype.isSameCreep = function(first, second) {
+  if (first.role !== second.role) {
+    return false;
+  }
+  if (first.routing.targetRoom !== second.routing.targetRoom) {
+    return false;
+  }
+  if (first.routing.targetId !== second.routing.targetId) {
+    return false;
+  }
+  return true;
+};
+
 Room.prototype.inQueue = function(creepMemory) {
   this.memory.queue = this.memory.queue || [];
   for (const item of this.memory.queue) {
-    if (creepMemory.role !== item.role) {
-      continue;
-    }
-    if (!item.routing) {
-      this.log('No item routing: ' + JSON.stringify(item));
-      if (item.role !== 'scout') {
-        this.log('inQueue: no routing: ' + JSON.stringify(item) + ' ' + JSON.stringify(creepMemory));
-      }
-      continue;
-    }
-    if (creepMemory.routing.targetId === item.routing.targetId && creepMemory.routing.targetRoom === item.routing.targetRoom) {
+    if (this.isSameCreep(creepMemory, item)) {
       return true;
     }
   }
@@ -88,34 +99,14 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
 
   let j = 0;
   for (const creep of creeps) {
-    const iMem = Memory.creeps[creep.name];
-
-    if (!iMem) {
-      this.log(`${creep} ${creep.name} ${Array.isArray(creep)} ${creep instanceof Array} ${typeof creep} ${Object.keys(creep)}`);
-      this.log(`inRoom no iMem ${JSON.stringify(creep)}`);
-      this.log(`inRoom no iMem ${creep.name}`);
-      continue;
-    }
-    if (creepMemory.role !== iMem.role) {
+    const item = Memory.creeps[creep.name];
+    if (!this.isSameCreep(creepMemory, item)) {
       continue;
     }
 
-    if (iMem.routing) {
-      if (creepMemory.routing.targetRoom && creepMemory.routing.targetRoom !== iMem.routing.targetRoom) {
-        continue;
-      }
-      if (creepMemory.routing.targetId && creepMemory.routing.targetId !== iMem.routing.targetId) {
-        continue;
-      }
-    }
     j++;
     if (j >= amount) {
       this.memory.roles[creepMemory.role] = true;
-      /**
-       if (config.debug.queue) {
-        this.log('Already enough ' + creepMemory.role);
-      }
-       **/
       return true;
     }
   }
@@ -380,8 +371,8 @@ Room.prototype.getCreepConfig = function(creep) {
   }
   const id = _.random(1, 9999);
   const name = role + '-' + id;
-  const partConfig = this.getPartConfig(creep);
-  if (!partConfig) {
+  const body = this.getPartConfig(creep);
+  if (!body) {
     return;
   }
   const memory = Object.assign({}, creep, {
@@ -394,10 +385,20 @@ Room.prototype.getCreepConfig = function(creep) {
     buildRoad: unit.buildRoad,
     routing: creep.routing || {targetRoom: this.name},
   });
-  return {
-    name: name,
+
+  const opts = {
     memory: memory,
-    partConfig: partConfig,
+  };
+  if (!this.memory.misplacedSpawn && Game.time > 10) {
+    // On misplaced spawn the top field could be blocked
+    // On spawning the first harvester the `misplacedSpawn` is not necessarily
+    // set, so checking for `Game.time`
+    opts.directions = [TOP];
+  }
+  return {
+    body: body,
+    name: name,
+    opts: opts,
   };
 };
 
@@ -413,15 +414,15 @@ Room.prototype.spawnCreateCreep = function(creep) {
     return;
   }
 
-  const creepConfig = this.getCreepConfig(creep);
-  if (!creepConfig) {
+  const config = this.getCreepConfig(creep);
+  if (!config) {
     return false;
   }
 
   for (const spawn of spawns) {
-    const returnCode = spawn.createCreep(creepConfig.partConfig, creepConfig.name, creepConfig.memory);
-    if (returnCode !== creepConfig.name) {
-      this.log(`spawnCreateCreep: ${returnCode} ${creepConfig.name}`);
+    const returnCode = spawn.spawnCreep(config.body, config.name, config.opts);
+    if (returnCode !== OK) {
+      this.log(`spawnCreateCreep: ${returnCode} ${JSON.stringify(config)}`);
       continue;
     }
     brain.stats.modifyRoleAmount(creep.role, 1);

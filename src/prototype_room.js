@@ -18,6 +18,22 @@ Room.prototype.handle = function() {
   return this.externalHandleRoom();
 };
 
+Room.prototype.getFirstLinkNextToPosition = function(position) {
+  for (const link of this.memory.position.structure.link) {
+    if (link.x <= position.x + 1 && link.x >= position.x - 1 && link.y <= position.y + 1 && link.y >= position.y - 1) {
+      return link;
+    }
+  }
+};
+
+Room.prototype.checkCorrectLinkPositionForFiller = function() {
+  const fillerPos = this.memory.position.creep.filler[0];
+  const linkPos = this.getFirstLinkNextToPosition(fillerPos);
+  if (linkPos && linkPos.x !== this.memory.position.structure.link[0].x || linkPos.y !== this.memory.position.structure.link[0].y) {
+    this.log(`checkbugs: Wrong linkStorage position! Should be first in room.position.structure.link. Real position: ${JSON.stringify(linkPos)}`);
+  }
+};
+
 Room.prototype.execute = function() {
   this.memory.lastSeen = Game.time;
   try {
@@ -47,17 +63,7 @@ Room.prototype.execute = function() {
     if (global.config.debug.checkbugs) {
       if (this.controller && this.controller.my) {
         if (this.memory.position) {
-          let linkPos = null;
-          const fillerPos = this.memory.position.creep.filler[0];
-          for (const l in this.memory.position.structure.link) {
-            const li = this.memory.position.structure.link[l];
-            if (li.x <= fillerPos.x + 1 && li.x >= fillerPos.x - 1 && li.y <= fillerPos.y + 1 && li.y >= fillerPos.y - 1) {
-              linkPos = li;
-            }
-          }
-          if (linkPos && linkPos.x !== this.memory.position.structure.link[0].x || linkPos.y !== this.memory.position.structure.link[0].y) {
-            console.log(Game.time, 'checkbugs: Wrong linkStorage position! Should be first in room.position.structure.link. Real position: ', JSON.stringify(linkPos));
-          }
+          this.checkCorrectLinkPositionForFiller();
         }
       }
     }

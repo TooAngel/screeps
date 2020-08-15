@@ -36,7 +36,7 @@ module.exports.loop = function() {
   }
   brain.stats.updateCpuStats();
   try {
-    const mainLocal = require('./main_local');
+    const mainLocal = require('./main_local'); // eslint-disable-line global-require
     mainLocal();
   } catch (e) {
     // empty
