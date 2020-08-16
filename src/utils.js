@@ -221,4 +221,8 @@ global.utils = {
     return returnValue;
   },
 
+  // return: String with fixed width for rounded number
+  lpadround: function(nr, lpad, digest) {
+    return nr.toFixed(digest).padStart(lpad + digest + 1);
+  },
 };

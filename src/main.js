@@ -27,5 +27,18 @@ module.exports.loop = function() {
       brain.main.execute();
     }
   }
+  if (global.config.pixel.enabled) {
+    if (typeof PIXEL !== 'undefined') {
+      if (Game.cpu.bucket >= PIXEL_CPU_COST + global.config.pixel.minBucketAfter) {
+        Game.cpu.generatePixel();
+      }
+    }
+  }
   brain.stats.updateCpuStats();
+  try {
+    const mainLocal = require('./main_local');
+    mainLocal();
+  } catch (e) {
+    // empty
+  }
 };

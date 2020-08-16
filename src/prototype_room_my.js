@@ -453,7 +453,7 @@ Room.prototype.checkForPlaner = function() {
         amount = 6;
       }
     }
-    if (this.controller.level === 4 && this.memory.misplacedSpawn) {
+    if (this.controller.level >= 4 && this.memory.misplacedSpawn) {
       amount = 3;
     }
     this.checkRoleToSpawn('planer', amount);
