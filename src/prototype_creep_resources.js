@@ -726,9 +726,18 @@ Creep.prototype.construct = function() {
 };
 
 Creep.prototype.getTransferTargetStructure = function() {
-  const structure = this.pos.findClosestStructureWithMissingEnergyByRange(
+  let structure = this.pos.findClosestStructureWithMissingEnergyByRange(
     (object) => object.structureType !== STRUCTURE_STORAGE,
   );
+  // Harvester should always prefer Spawn and Extensions
+  if (this.memory.role === 'harvester') {
+    const structureSpawnExtension = this.pos.findClosestStructureWithMissingEnergyByRange(
+      (object) => (object.structureType === STRUCTURE_SPAWN || object.structureType === STRUCTURE_EXTENSION),
+    );
+    if (structureSpawnExtension !== null) {
+      structure = structureSpawnExtension;
+    }
+  }
   if (structure === null) {
     if (this.room.storage && this.room.storage.my && this.memory.role !== 'planer') {
       this.memory.target = this.room.storage.id;

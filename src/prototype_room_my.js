@@ -71,7 +71,8 @@ Room.prototype.handleLinks = function() {
   }
 
   const linkStorage = this.getLinkStorage();
-  if (!linkStorage) {
+  // Only send energy if linkStorage is set and free capacity is higher or equals than 400 Energy
+  if (!linkStorage || linkStorage.store.getFreeCapacity(RESOURCE_ENERGY) < 400) {
     return;
   }
 

@@ -62,6 +62,7 @@ brain.stats.add = function(path, newContent) {
     current = current[item];
   }
 
+  // Redundant _.merge automatically alters first object
   current = _.merge(current, newContent);
   return true;
 };
