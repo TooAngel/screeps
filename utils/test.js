@@ -10,6 +10,7 @@ const verbose = false;
 
 const tickDuration = 10;
 
+const playerRoom = 'W8N8';
 const players = {
   'W1N7': {x: 43, y: 35},
   'W8N8': {x: 21, y: 28},
@@ -23,11 +24,11 @@ const players = {
 const milestones = [
   {tick: 30, check: {structures: 1}},
   {tick: 500, check: {level: 2}, required: true},
-  {tick: 1700, check: {structures: 2}},
+  {tick: 1800, check: {structures: 2}},
   {tick: 3013, check: {structures: 3}},
-  {tick: 3300, check: {structures: 4}},
-  {tick: 3900, check: {structures: 5}},
-  {tick: 4300, check: {structures: 6}},
+  {tick: 3500, check: {structures: 4}},
+  {tick: 4300, check: {structures: 5}},
+  {tick: 5000, check: {structures: 6}},
   {tick: 13000, check: {level: 3}, required: true},
   {tick: 14200, check: {structures: 7}},
   {tick: 14300, check: {structures: 8}},
@@ -42,7 +43,6 @@ const milestones = [
   {tick: 20000, check: {structures: 16}},
 ];
 
-const playerRoom = 'W8N3';
 const rooms = Object.keys(players);
 const controllerRooms = {};
 const status = {};
