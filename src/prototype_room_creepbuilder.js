@@ -202,14 +202,10 @@ Room.prototype.getPartsStringDatas = function(parts, energyAvailable) {
 Room.prototype.getSettings = function(creep) {
   const role = creep.role;
   const updateSettings = roles[role].updateSettings && roles[role].updateSettings(this, creep);
-  if (config.debug.spawn) {
-    this.log(`getSettings updateSettings: ${JSON.stringify(updateSettings)}`);
-    this.log(`getSettings roles[role].settings: ${JSON.stringify(roles[role].settings)}`);
-  }
+  this.debugLog('spawn', `getSettings updateSettings: ${JSON.stringify(updateSettings)}`);
+  this.debugLog('spawn', `getSettings roles[role].settings: ${JSON.stringify(roles[role].settings)}`);
   const settings = _.merge({}, roles[role].settings, updateSettings);
-  if (config.debug.spawn) {
-    this.log(`getSettings settings: ${JSON.stringify(settings)}`);
-  }
+  this.debugLog('spawn', `getSettings settings: ${JSON.stringify(settings)}`);
   if (!settings) {
     this.log('try to spawn ', role, ' but settings are not done. Abort spawn');
     return;
@@ -317,14 +313,10 @@ Room.prototype.getPartConfig = function(creep) {
     fillTough} = settings;
   let layoutString = settings.layoutString;
   const maxBodyLength = this.getPartConfigMaxBodyLength();
-  if (config.debug.spawn) {
-    this.log(`getPartConfig settings: ${JSON.stringify(settings)}`);
-  }
+  this.debugLog('spawn', `getPartConfig settings: ${JSON.stringify(settings)}`);
 
   const prefix = this.getPartsStringDatas(prefixString, energyAvailable);
-  if (config.debug.spawn) {
-    this.log(`getPartConfig prefixString: ${JSON.stringify(prefixString)} prefix: ${JSON.stringify(prefix)} energyAvailable: ${JSON.stringify(energyAvailable)}`);
-  }
+  this.debugLog('spawn', `getPartConfig prefixString: ${JSON.stringify(prefixString)} prefix: ${JSON.stringify(prefix)} energyAvailable: ${JSON.stringify(energyAvailable)}`);
   if (prefix.fail) {
     return false;
   }
@@ -333,9 +325,7 @@ Room.prototype.getPartConfig = function(creep) {
 
   layoutString = this.applyAmount(layoutString, amount);
   const layout = this.getPartsStringDatas(layoutString, energyAvailable);
-  if (config.debug.spawn) {
-    this.log(`getPartConfig layoutString: ${JSON.stringify(layoutString)} prefix: ${JSON.stringify(layout)} energyAvailable: ${JSON.stringify(energyAvailable)}`);
-  }
+  this.debugLog('spawn', `getPartConfig layoutString: ${JSON.stringify(layoutString)} prefix: ${JSON.stringify(layout)} energyAvailable: ${JSON.stringify(energyAvailable)}`);
   if (layout.fail || layout.null) {
     return false;
   }
@@ -356,9 +346,7 @@ Room.prototype.getPartConfig = function(creep) {
     parts = parts.concat(sufix.parts || []);
     energyAvailable -= sufix.cost || 0;
   }
-  if (config.debug.spawn) {
-    this.log(`getPartConfig sufixString: ${JSON.stringify(sufixString)} sufix: ${JSON.stringify(sufix)} energyAvailable: ${JSON.stringify(energyAvailable)}`);
-  }
+  this.debugLog('spawn', `getPartConfig sufixString: ${JSON.stringify(sufixString)} sufix: ${JSON.stringify(sufix)} energyAvailable: ${JSON.stringify(energyAvailable)}`);
 
   if (fillTough && parts.length < MAX_CREEP_SIZE) {
     const tough = this.getPartsStringDatas('T', energyAvailable);
