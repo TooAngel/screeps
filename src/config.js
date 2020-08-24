@@ -249,7 +249,7 @@ global.config = {
     structureAvoid: 0xFF,
     creepAvoid: 0xFF,
     wallThickness: 1,
-    version: 20,
+    version: 21,
   },
 
   terminal: {
