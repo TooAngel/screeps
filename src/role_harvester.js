@@ -31,19 +31,7 @@ roles.harvester.settings = {
   maxLayoutAmount: 6,
 };
 roles.harvester.updateSettings = function(room) {
-  // If the energy average is lower than 350 for a longer period at least one low level harvester will be spawned.
-  // Fix for the following problem:
-  // - no room is able to send a nextroomer
-  // - all creeps are dead
-  // - energyAvailable is higher than 300 but lower than 350 for a longer time
-  if (room.memory.energyStats.average <= 350) {
-    // Layoutcost minimum: layout 250 -> 250
-    return {
-      layoutString: 'MWC',
-      amount: [2, 1, 1],
-      maxLayoutAmount: 6,
-    };
-  } else if (room.storage && room.storage.my && room.storage.store.energy > config.creep.energyFromStorageThreshold && room.energyAvailable > 350 && !room.memory.misplacedSpawn) {
+  if (room.storage && room.storage.my && room.storage.store.energy > config.creep.energyFromStorageThreshold && room.energyAvailable >= 350 && !room.memory.misplacedSpawn) {
     // Layoutcost minimum: prefix 250 + layout 100 -> 350
     return {
       prefixString: 'WMC',
