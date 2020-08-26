@@ -65,10 +65,10 @@ Room.prototype.isSameCreep = function(first, second) {
   if (first.role !== second.role) {
     return false;
   }
-  if (first.routing.targetRoom !== second.routing.targetRoom) {
+  if (first.routing.targetRoom && second.routing.targetRoom && first.routing.targetRoom !== second.routing.targetRoom) {
     return false;
   }
-  if (first.routing.targetId !== second.routing.targetId) {
+  if (first.routing.targetId && second.routing.targetId && first.routing.targetId !== second.routing.targetId) {
     return false;
   }
   return true;
