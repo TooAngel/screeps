@@ -1,6 +1,6 @@
 'use strict';
 
-Room.prototype.exectueEveryTicks = function(ticks) {
+Room.prototype.executeEveryTicks = function(ticks) {
   const timer = (ticks > 3000) ? Game.time - Memory.time + 1 : 0;
   let exectue = false;
   if (this.controller) {
@@ -11,11 +11,34 @@ Room.prototype.exectueEveryTicks = function(ticks) {
   return exectue;
 };
 
+/**
+ * initMemory - Initializes the memory if not present
+ * - Sets the number of sources
+ * - Sets the controller id
+ *
+ * @param {object} room - The room to init
+ * @return {void}
+ **/
+function initMemory(room) {
+  if (room.memory.sources === undefined) {
+    room.memory.sources = room.findSources().length;
+  }
+  if (room.memory.controllerId === undefined) {
+    room.memory.controllerId = false;
+    if (room.controller) {
+      room.memory.controllerId = room.controller.id;
+    }
+  }
+  room.memory.hostileCreepCount = room.findEnemys().length;
+}
+
 Room.prototype.handle = function() {
   if (this.controller && this.controller.my) {
-    return this.myHandleRoom();
+    this.myHandleRoom();
+    return true;
   }
-  return this.externalHandleRoom();
+  this.externalHandleRoom();
+  return false;
 };
 
 Room.prototype.getFirstLinkNextToPosition = function(position) {
@@ -35,7 +58,7 @@ Room.prototype.checkCorrectLinkPositionForFiller = function() {
 };
 
 Room.prototype.execute = function() {
-  this.memory.lastSeen = Game.time;
+  initMemory(this);
   try {
     if (global.config.ticksummary.room) {
       const roomStr = `<a href="#!/room/${Game.shard.name}/${this.name}">${this.name}</a>`;
@@ -68,7 +91,7 @@ Room.prototype.execute = function() {
       }
     }
     const returnCode = this.handle();
-    for (const creep of this.find(FIND_MY_CREEPS)) {
+    for (const creep of this.findMyCreeps()) {
       creep.handle();
     }
     return returnCode;
@@ -76,5 +99,7 @@ Room.prototype.execute = function() {
     this.log('Executing room failed: ' + this.name + ' ' + err + ' ' + err.stack);
     Game.notify('Executing room failed: ' + this.name + ' ' + err + ' ' + err.stack, 30);
     return false;
+  } finally {
+    this.memory.lastSeen = Game.time;
   }
 };

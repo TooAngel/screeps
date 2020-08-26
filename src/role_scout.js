@@ -25,42 +25,13 @@ function haveNotSeen(creep, room) {
     creep.memory.skip.indexOf(room) === -1;
 }
 
-/**
- * checkForDefender - Checks if a defender needs to be send
- *
- * @param {object} creep - The creep
- * @return {boolean} - If a defender is send
- **/
-function checkForDefender(creep) {
-  if (!creep.room.controller) {
-    return false;
-  }
-  if (!creep.room.controller.reservation) {
-    return false;
-  }
-  if (creep.room.controller.reservation.username === Memory.username) {
-    return false;
-  }
-  if (!config.external.defendDistance) {
-    return false;
-  }
-
-  const distance = Game.map.getRoomLinearDistance(creep.room.name, creep.memory.base);
-  if (distance > config.external.defendDistance) {
-    return false;
-  }
-
-  creep.log('Spawning defender for external room');
-  Game.rooms[creep.memory.base].checkRoleToSpawn('defender', 1, undefined, creep.room.name);
-  return true;
-}
-
 roles.scout.setup = function(creep) {
   // TODO need to solve this better, introduce while getting rid of `execute()`
   creep.memory.routing.reached = true;
 };
 
 roles.scout.preMove = function(creep) {
+  creep.log(`scout preMove`);
   if (creep.memory.skip === undefined) {
     creep.memory.skip = [];
   }
@@ -71,6 +42,26 @@ roles.scout.preMove = function(creep) {
   }
   return false;
 };
+
+/**
+ * preMove - Replacement for `roles.scout.preMove`, I think the roles `preMove`
+ * is not used, so get rid of it. If this is the case, this method can be
+ * renamed
+ *
+ * @param {object} creep - The creep to preMove
+ * @return {bool} - If the room was not seen
+ **/
+function preMove(creep) {
+  if (creep.memory.skip === undefined) {
+    creep.memory.skip = [];
+  }
+  if (creep.memory.search && creep.memory.search.seen && (creep.memory.search.seen.length > 0) && (creep.memory.search.seen.indexOf(creep.room.name) === -1)) {
+    creep.memory.search.seen.push(creep.room.name);
+    // creep.log('added', creep.room.name, 'to seen', creep.memory.search.seen);
+    return true;
+  }
+  return false;
+}
 
 const setNewTarget = function(creep) {
   for (const room of creep.memory.search.levels[creep.memory.search.level]) {
@@ -100,14 +91,8 @@ const initSearch = function(creep) {
 };
 
 const handleReachedTargetRoom = function(creep) {
-  if (creep.memory.scoutSkip || creep.room.name === creep.memory.search.target) {
-    if (creep.memory.scoutSkip) {
-      creep.memory.skip.push(creep.memory.search.target);
-      delete creep.memory.scoutSkip;
-    } else {
-      checkForDefender(creep);
-      creep.memory.search.seen.push(creep.room.name);
-    }
+  if (creep.room.name === creep.memory.search.target) {
+    creep.memory.search.seen.push(creep.room.name);
     if (!setNewTarget(creep)) {
       creep.memory.search.levels.push([]);
       for (const room of creep.memory.search.levels[creep.memory.search.level]) {
@@ -117,6 +102,10 @@ const handleReachedTargetRoom = function(creep) {
           if (haveNotSeen(creep, roomNext)) {
             creep.memory.search.levels[creep.memory.search.level + 1].push(roomNext);
             creep.memory.search.target = roomNext;
+            if (Math.random() < 0.1) {
+              creep.creepLog(`Randomly skipping room ${roomNext}`);
+              creep.memory.search.seen.push(roomNext);
+            }
           }
         }
       }
@@ -130,11 +119,17 @@ const breadthFirstSearch = function(creep) {
   handleReachedTargetRoom(creep);
 
   if (!creep.memory.search.target) {
-    creep.log('Suiciding: ' + JSON.stringify(creep.memory.search));
+    creep.log('Suiciding: no search target');
     creep.memory.killed = true;
     creep.suicide();
     return true;
   }
+
+  if (creep.isStuck()) {
+    creep.moveTo(25, 25);
+    return true;
+  }
+
   const targetPosObject = new RoomPosition(25, 25, creep.memory.search.target);
 
   let search;
@@ -145,7 +140,8 @@ const breadthFirstSearch = function(creep) {
         pos: targetPosObject,
         range: 20,
       }, {
-        roomCallback: creep.room.getCostMatrixCallback(targetPosObject, true, false, true),
+        // roomCallback: creep.room.getCostMatrixCallback(targetPosObject, true, false, true),
+        roomCallback: creep.room.getBasicCostMatrixCallback(),
       },
     );
 
@@ -161,51 +157,18 @@ const breadthFirstSearch = function(creep) {
     return false;
   }
 
-  if (creep.isStuck()) {
-    creep.moveTo(25, 25);
-    return true;
-  }
-
-  if (creep.isStuck()) {
-    if (creep.memory.stuck > 20) {
-      creep.log('Scout Stuck suicide (role.scount.action)');
-      creep.memory.killed = true;
-      creep.suicide();
-      return true;
-    }
-    if (!creep.memory.stuck) {
-      creep.memory.stuck = 0;
-    }
-    creep.memory.stuck++;
-
-    creep.moveRandom();
-    creep.say('ImStuck ' + creep.memory.stuck, true);
-    return true;
-  } else {
-    creep.memory.stuck = 0;
-  }
 
   if (search.path.length === 0 || search.incomplete) {
     creep.say('hello', true);
-    if (creep.isStuck() && creep.pos.isBorder(-1)) {
-      creep.say('imstuck at the border', true);
-      if (config.room.scoutSkipWhenStuck) {
-        creep.say('skipping', true);
-        creep.memory.scoutSkip = true;
-        delete creep.memory.last; // Delete to reset stuckness.
-      }
-    }
-    creep.creepLog(`scout.action no search targetPosObject ${JSON.stringify(targetPosObject)}`);
     creep.moveTo(targetPosObject);
     return true;
   }
-  creep.creepLog(`scout.action search ${JSON.stringify(search)}`);
   creep.say(creep.pos.getDirectionTo(search.path[0]));
   creep.move(creep.pos.getDirectionTo(search.path[0]));
 };
 
 roles.scout.action = function(creep) {
-  roles.scout.preMove(creep);
+  preMove(creep);
   creep.notifyWhenAttacked(false);
   return breadthFirstSearch(creep);
 };

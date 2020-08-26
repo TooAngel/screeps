@@ -32,10 +32,10 @@ RoomPosition.prototype.log = function(...messages) {
  * @param messages The message to log
  */
 Creep.prototype.creepLog = function(...messages) {
-  if (config.debug.creepLog.roles.indexOf(this.memory.role) < 0) {
+  if (config.debug.creepLog.roles !== '*' && config.debug.creepLog.roles.indexOf(this.memory.role) < 0) {
     return;
   }
-  if (config.debug.creepLog.rooms.indexOf(this.room.name) < 0) {
+  if (config.debug.creepLog.rooms !== '*' && config.debug.creepLog.rooms.indexOf(this.room.name) < 0) {
     return;
   }
   this.log(messages);

@@ -60,9 +60,6 @@ roles.atkeepermelee.action = function(creep) {
     // todo-msc cache target
     const lastTarget = Game.getObjectById(creep.room.memory.lastTarget);
     let target = (lastTarget && lastTarget.hits && lastTarget.hitsMax) ? lastTarget : creep.findClosestSourceKeeper();
-    if (lastTarget && !(lastTarget.hits && lastTarget.hitsMax) && lastTarget.structureType !== 'keeperLair') {
-      creep.log(JSON.stringify(lastTarget));
-    }
     if (target === null) {
       target = creep.findClosestEnemy() || creep.room.getNextSourceKeeperLair();
       creep.room.memory.lastTarget = target.id;

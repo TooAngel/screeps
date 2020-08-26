@@ -66,7 +66,6 @@ Room.prototype.findRoute = function(from, to, useHighWay) {
 
 Room.prototype.buildPath = function(route, routePos, from, to) {
   if (!to) {
-    this.log('newmove: buildPath: no to from: ' + from + ' to: ' + to + ' routePos: ' + routePos + ' route: ' + JSON.stringify(route));
     throw new Error();
   }
   let start;

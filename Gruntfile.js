@@ -16,6 +16,16 @@ module.exports = function(grunt) {
     };
   }
 
+  let account_local;
+  try {
+    account_local = require('./account_local.screeps.com')
+  } catch (e) {
+    account_local = {
+      email: false,
+      password: false,
+    };
+  }
+
   grunt.loadNpmTasks('grunt-screeps');
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-eslint');
@@ -27,15 +37,37 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     screeps: {
-      options: {
-        email: process.env.email || account.email,
-        password: process.env.password || account.password,
-        branch: 'default',
-        ptr: false,
+      main: {
+        options: {
+          email: process.env.email || account.email,
+          password: process.env.password || account.password,
+          branch: 'default',
+          ptr: false,
+        },
+        files: [
+          {
+            src: ['dist/*.js'],
+          }
+        ],
       },
-      dist: {
-        src: ['dist/*.js'],
-      },
+      local: {
+        options: {
+          email: account_local.email,
+          password: account_local.password,
+          branch: account_local.branch,
+          ptr: false,
+          server: {
+            http: account_local.http,
+            port: account_local.port,
+            host: account_local.host,
+          }
+        },
+        files: [
+          {
+            src: ['dist/*.js'],
+          }
+        ],
+      }
     },
     mochaTest: {
       src: ['test/**/*.js'],
@@ -67,9 +99,9 @@ module.exports = function(grunt) {
             'src/config.js',
             'src/config_local.js',
             'src/config_logging.js',
-            'src/config_brain_memory.js',
-            'src/config_brain_nextroom.js',
-            'src/config_brain_squadmanager.js',
+            'src/brain_memory.js',
+            'src/brain_nextroom.js',
+            'src/brain_squadmanager.js',
             'src/config_creep.js',
             'src/config_creep_resources.js',
             'src/config_creep_fight.js',
@@ -107,9 +139,9 @@ module.exports = function(grunt) {
             '!require.js',
             '!config.js',
             '!config_logging.js',
-            '!config_brain_memory.js',
-            '!config_brain_nextroom.js',
-            '!config_brain_squadmanager.js',
+            '!brain_memory.js',
+            '!brain_nextroom.js',
+            '!brain_squadmanager.js',
             '!config_creep.js',
             '!config_creep_resources.js',
             '!config_creep_fight.js',
@@ -154,9 +186,9 @@ module.exports = function(grunt) {
             'require.js',
             'config.js',
             'config_logging.js',
-            'config_brain_memory.js',
-            'config_brain_nextroom.js',
-            'config_brain_squadmanager.js',
+            'brain_memory.js',
+            'brain_nextroom.js',
+            'brain_squadmanager.js',
             'config_creep.js',
             'config_creep_resources.js',
             'config_creep_fight.js',
@@ -209,11 +241,12 @@ module.exports = function(grunt) {
   });
 
   grunt.log.writeln(new Date().toString());
-  grunt.registerTask('default', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
+  grunt.registerTask('default', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:main']);
   grunt.registerTask('release', ['eslint:fix', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
   grunt.registerTask('local', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
   grunt.registerTask('test', ['eslint:check', 'mochaTest', 'exec:test_on_private_server']);
   grunt.registerTask('dev', ['eslint:fix']);
+  grunt.registerTask('screeps_local', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:local']);
   grunt.registerTask('deploy', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
   grunt.registerTask('requireFile', 'Creates an empty file', () => {
     grunt.file.write('dist/require.js', '');

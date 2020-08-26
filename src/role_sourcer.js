@@ -64,14 +64,22 @@ roles.sourcer.preMove = function(creep, directions) {
   return creep.preMoveExtractorSourcer(directions);
 };
 
-roles.sourcer.died = function(name) {
-  // console.log(name, 'died', JSON.stringify(memory));
-  delete Memory.creeps[name];
-};
-
 roles.sourcer.action = function(creep) {
-  creep.pickupEnergy();
   creep.checkForSourceKeeper();
-  creep.handleSourcer();
+
+  creep.setNextSpawn();
+  creep.spawnReplacement();
+
+  const source = Game.getObjectById(creep.memory.routing.targetId);
+  if (!creep.myHarvest(source)) {
+    return false;
+  }
+  creep.buildContainer();
+  creep.spawnCarry();
+  if (creep.inBase()) {
+    creep.baseHarvesting();
+  } else {
+    creep.selfHeal();
+  }
   return true;
 };

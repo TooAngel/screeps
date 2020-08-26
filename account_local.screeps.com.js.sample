@@ -1,0 +1,8 @@
+module.exports = {
+  email: 'W8N1',
+  password: 'tooangel',
+  http: true,
+  host: '192.168.1.120',
+  port: 21025,
+  branch: 't1598603865459',
+};

@@ -37,11 +37,12 @@ global.config = {
     enabled: true,
     endTime: 10000,
     signControllerPercentage: 0.1,
+    checkInterval: 100,
   },
 
   info: {
     signController: true,
-    signText: 'Fully automated TooAngel bot: http://tooangel.github.io/screeps/',
+    signText: 'Fully automated open source bot: http://tooangel.github.io/screeps/',
     resignInterval: 500,
   },
 
@@ -71,8 +72,8 @@ global.config = {
     spawn: false,
     mineral: false,
     creepLog: {
-      roles: [], // Roles for debug output, e.g. ['repairer']
-      rooms: [], // Rooms for debug output, e.g. ['E21N8']
+      roles: [], // Roles for debug output, e.g. ['repairer'] or '*' for all
+      rooms: [], // Rooms for debug output, e.g. ['E21N8'] or '*' for all
     },
     power: false,
     reserver: false,
@@ -87,6 +88,7 @@ global.config = {
     constructionSites: false,
     routing: false,
     brain: false,
+    attack: true,
     // Check bugs:
     // - check wrong link order
     checkbugs: false,
@@ -99,37 +101,33 @@ global.config = {
 
   autoattack: {
     disabled: false,
-    notify: false,
+    notify: true,
     timeBetweenAttacks: 2000,
+    noReservedRoomMinMyRCL: 5,
+    noReservedRoomInRange: 2,
+    noReservedRoomInterval: 1600,
   },
 
   revive: {
     disabled: false,
-    reviverMaxQueue: 4,
-    reviverMinEnergy: 1300,
-    nextroomerInterval: 500,
-    otherMinStorageAvailable: 3000,
+    nextroomerInterval: 400,
   },
 
   nextRoom: {
-    boostToControllerLevel: 4,
     scoutMinControllerLevel: 4,
-    ttlPerRoomForScout: 1500,
-    numberOfNextroomers: 10,
+    intervalToCheck: CREEP_CLAIM_LIFE_TIME,
     maxRooms: 8,
     cpuPerRoom: 13, // Necessary CPU per room, prevent claiming new rooms
-    revive: true,
     // creep max run distance for next room
     // if terminal should send energy rooms should be close
     maxDistance: 10,
     minNewRoomDistance: 2,
     minEnergyForActive: 1000,
-    minDowngradPercent: 90,
     notify: false,
   },
 
   carryHelpers: {
-    ticksUntilHelpCheck: 100,
+    ticksUntilHelpCheck: 400,
     maxHelpersAmount: 5,
     helpTreshold: 1500,
     needTreshold: 750,
@@ -176,8 +174,9 @@ global.config = {
   },
 
   external: {
-    distance: 3,
+    distance: 2,
     defendDistance: 1,
+    checkForReservingInterval: 1499,
   },
 
   carry: {
@@ -200,7 +199,7 @@ global.config = {
 
   creep: {
     renewOffset: 0,
-    queueTtl: 150,
+    queueTtl: 250,
     structurer: true,
     structurerInterval: 1500,
     structurerMinEnergy: 1300,
@@ -222,13 +221,13 @@ global.config = {
       7: 1,
       8: 1,
     },
+    isHealthyStorageThreshold: 50000,
     rebuildLayout: 7654,
     handleNukeAttackInterval: 132,
     reviveEnergyCapacity: 1000,
     reviveEnergyAvailable: 1000,
     scoutInterval: 1499,
-    scoutSkipWhenStuck: true, // Useful for novice areas.
-    scout: true, // TODO somehow broken ?? Is it broken ??
+    scout: true,
     upgraderMinStorage: 0,
     upgraderStorageFactor: 2,
     lastSeenThreshold: 1000000,

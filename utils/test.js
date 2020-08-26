@@ -4,46 +4,8 @@ const _ = require('lodash');
 
 const {setPassword, sleep, initServer, startServer, spawnBots, helpers, logConsole, followLog} = require('./testHelpers');
 
-const cliPort = 21026;
+const {cliPort, verbose, tickDuration, playerRoom, players, rooms, milestones} = require('./testConfig');
 
-const verbose = false;
-
-const tickDuration = 10;
-
-const playerRoom = 'W8N8';
-const players = {
-  'W1N7': {x: 43, y: 35},
-  'W8N8': {x: 21, y: 28},
-  'W8N1': {x: 33, y: 13},
-  'W5N1': {x: 10, y: 9},
-  'W8N3': {x: 14, y: 17},
-  'W7N4': {x: 36, y: 11},
-  'W2N5': {x: 8, y: 26},
-};
-
-const milestones = [
-  {tick: 30, check: {structures: 1}},
-  {tick: 500, check: {level: 2}, required: true},
-  {tick: 1800, check: {structures: 2}},
-  {tick: 3013, check: {structures: 3}},
-  {tick: 3500, check: {structures: 4}},
-  {tick: 4300, check: {structures: 5}},
-  {tick: 5000, check: {structures: 6}},
-  {tick: 13000, check: {level: 3}, required: true},
-  {tick: 14200, check: {structures: 7}},
-  {tick: 14300, check: {structures: 8}},
-  {tick: 14500, check: {structures: 9}},
-  {tick: 14700, check: {structures: 10}},
-  {tick: 12929, check: {structures: 11}},
-  {tick: 20000, check: {structures: 12}},
-  {tick: 123000, check: {level: 4}},
-  {tick: 20000, check: {structures: 13}},
-  {tick: 20000, check: {structures: 14}},
-  {tick: 20000, check: {structures: 15}},
-  {tick: 20000, check: {structures: 16}},
-];
-
-const rooms = Object.keys(players);
 const controllerRooms = {};
 const status = {};
 let lastTick = 0;
@@ -74,6 +36,7 @@ let botsSpawned = false;
 class Tester {
   constructor(length) {
     this.roomsSeen = {};
+    this.maxRuntime = 0;
     if (process.argv.length > 2) {
       try {
         this.maxRuntime = parseInt(process.argv[2], 10) * 60;
@@ -91,8 +54,12 @@ class Tester {
    */
   async checkForSucces(line, defer) {
     if (botsSpawned && line.startsWith(`'OK'`)) {
-      console.log(`> Start the simulation with runtime ${this.maxRuntime / 60} minutes`);
-      if (this.maxRuntime) {
+      let appendix = '';
+      if (this.maxRuntime > 0) {
+        appendix = ` with runtime ${this.maxRuntime / 60} minutes`
+      }
+      console.log(`> Start the simulation${appendix}`);
+      if (this.maxRuntime > 0) {
         await sleep(this.maxRuntime);
         console.log(`${lastTick} End of simulation`);
         console.log('Status:');

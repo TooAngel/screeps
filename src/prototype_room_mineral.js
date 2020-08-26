@@ -1,5 +1,7 @@
 'use strict';
 
+const {findMyRoomsSortByDistance} = require('./helper_findMyRooms');
+
 Room.prototype.getResourceAmountWithNextTiers = function(resource) {
   const resultOH = REACTIONS[RESOURCE_HYDROXIDE][resource];
   const resultXOH = REACTIONS[RESOURCE_CATALYST][resultOH];
@@ -118,14 +120,14 @@ Room.prototype.reactions = function() {
 
 Room.prototype.getMineralType = function() {
   if (this.memory.mineralType === undefined) {
-    const minerals = this.find(FIND_MINERALS);
+    const minerals = this.findMinerals();
     this.memory.mineralType = minerals.length > 0 ? minerals[0].mineralType : null;
   }
   return this.memory.mineralType;
 };
 
 Room.prototype.orderMinerals = function() {
-  if (this.exectueEveryTicks(20)) {
+  if (this.executeEveryTicks(20)) {
     const baseMinerals = [
       RESOURCE_HYDROGEN,
       RESOURCE_OXYGEN,
@@ -141,13 +143,10 @@ Room.prototype.orderMinerals = function() {
     ];
 
     const room = this;
-    const orderByDistance = function(object) {
-      return Game.map.getRoomLinearDistance(room.name, object);
-    };
 
     for (const mineral of baseMinerals) {
       if (!this.terminal.store[mineral] || this.terminal.store[mineral] < 1000) {
-        const roomsOther = _.sortBy(Memory.myRooms, orderByDistance);
+        const roomsOther = findMyRoomsSortByDistance(this.name);
 
         for (const roomOtherName of roomsOther) {
           if (roomOtherName === this.name) {

@@ -114,7 +114,7 @@ brain.stats.addRoom = function(roomName, previousCpu) {
     energy: {
       available: room.energyAvailable,
       capacity: room.energyCapacityAvailable,
-      sources: _.sum(_.map(room.find(FIND_SOURCES), 'energy')),
+      sources: _.sum(_.map(room.findSources(), 'energy')),
     },
     controller: {
       progress: room.controller.progress,

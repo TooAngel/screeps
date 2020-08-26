@@ -31,10 +31,10 @@ brain.getMarketOrderAverage = (type, resource) => Memory.orders[type][resource] 
 brain.getMarketOrder = (type, resource, property) => Memory.orders[type][resource] && Memory.orders[type][resource][property] ? Memory.orders[type][resource][property] : null;
 
 brain.buyPower = function() {
-  brain.debugLog('brain', 'buyPower');
   if (!config.market.buyPower) {
     return false;
   }
+  brain.debugLog('brain', 'buyPower');
   const filterRoomPowerSpawn = (r) => Game.rooms[r] && Game.rooms[r].controller.level === 8 && Game.rooms[r].memory.constants && !!Game.rooms[r].memory.constants.powerSpawn;
   const roomName = _.first(_.filter(_.shuffle(Memory.myRooms), filterRoomPowerSpawn)) || false;
   // low cash
@@ -76,7 +76,6 @@ brain.handleIncomingTransactionsTimeFilter = (object) => {
 };
 
 brain.handleIncomingTransactions = function() {
-  brain.debugLog('brain', 'prepareMemory');
   const transactions = Game.market.incomingTransactions;
   const current = _.filter(transactions, brain.handleIncomingTransactionsTimeFilter);
 

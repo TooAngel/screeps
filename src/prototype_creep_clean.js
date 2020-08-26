@@ -136,6 +136,8 @@ Creep.prototype.cleanSetTargetId = function() {
 
       this.log('structure: ' + structure.id);
       this.memory.routing.targetId = structure.id;
+      // TODO use the proper pathing logic, just a workaround to fix for now
+      this.moveTo(structure.pos);
       return true;
     }
   }

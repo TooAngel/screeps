@@ -1,16 +1,10 @@
 'use strict';
 
+const {findMyRoomsSortByDistance} = require('./helper_findMyRooms');
+
 Room.structureHasEnergy = (structure) => structure.store && structure.store.energy || structure.energy;
 
 Room.structureIsEmpty = (structure) => (!structure.store || _.sum(structure.store) === 0) && !structure.energy && !structure.mineralAmount && !structure.ghodium && !structure.power;
-
-Room.prototype.sortMyRoomsByLinearDistance = function(target) {
-  const sortByLinearDistance = function(object) {
-    return Game.map.getRoomLinearDistance(target, object);
-  };
-
-  return _.sortBy(Memory.myRooms, sortByLinearDistance);
-};
 
 Room.prototype.nearestRoomName = function(roomsNames, limit) {
   const roomName = this.name;
@@ -87,13 +81,9 @@ Room.prototype._findPropertyFilterResolveOutdatedCacheOne = function(cache) {
   cache.resolveTime = Game.time;
 };
 
-Room.prototype.findSpawns = function() {
-  return this.find(FIND_MY_STRUCTURES, (structure) => structure.structureType === STRUCTURE_SPAWN);
-};
-
 Room.prototype.closestSpawn = function(target) {
   const pathLength = {};
-  const roomsMy = this.sortMyRoomsByLinearDistance(target);
+  const roomsMy = findMyRoomsSortByDistance(target);
 
   for (const room of roomsMy) {
     const route = Game.map.findRoute(room, target);
