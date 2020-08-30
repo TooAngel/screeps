@@ -68,7 +68,7 @@ Room.prototype.setFillerArea = function(storagePos, route) {
   }
 
   const linkStoragePos = fillerNearPositions.shift();
-  this.setPosition(STRUCTURE_LINK, linkStoragePos);
+  this.setPosition(STRUCTURE_LINK, linkStoragePos, config.layout.structureAvoid, 'structure', true);
 
   try {
     this.setPosition(STRUCTURE_POWER_SPAWN, fillerNearPositions.shift());
@@ -162,7 +162,7 @@ Room.prototype.updatePosition = function() {
   }
 };
 
-Room.prototype.setPosition = function(type, pos, value = config.layout.structureAvoid, positionType = 'structure') {
+Room.prototype.setPosition = function(type, pos, value = config.layout.structureAvoid, positionType = 'structure', firstStructure = false) {
   const costMatrix = this.getMemoryCostMatrix();
   if (!this.memory.position[positionType]) {
     this.memory.position[positionType] = {};
@@ -170,7 +170,11 @@ Room.prototype.setPosition = function(type, pos, value = config.layout.structure
   if (!this.memory.position[positionType][type]) {
     this.memory.position[positionType][type] = [];
   }
-  this.memory.position[positionType][type].push(pos);
+  if (firstStructure) {
+    this.memory.position[positionType][type].unshift(pos);
+  } else {
+    this.memory.position[positionType][type].push(pos);
+  }
   this.debugLog('baseBuilding', `Increasing ${pos} ${type} ${positionType} with ${value}`);
   this.increaseCostMatrixValue(costMatrix, pos, value);
   this.setMemoryCostMatrix(costMatrix);
