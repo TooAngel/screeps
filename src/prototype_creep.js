@@ -368,7 +368,9 @@ Creep.prototype.killPrevious = function(path) {
   }
 
   if (killWho.ticksToLive > killWho.memory.timeToTravel) {
-    this.log(`kill ${killWhoName} - me ttl: ${this.ticksToLive} they ttl: ${previous.ticksToLive}
+    // TODO this happens sometimes, e.g. `kill other - me ttl: 1473 they ttl: 44`
+    // needs to be investigated (if it is really an issue)
+    this.creepLog(`kill ${killWhoName} - me ttl: ${this.ticksToLive} they ttl: ${previous.ticksToLive}
 me: ${JSON.stringify(this)} Memory: ${JSON.stringify(this.memory)}
 other: ${JSON.stringify(previous)} Memory: ${JSON.stringify(previous.memory)}`);
   }

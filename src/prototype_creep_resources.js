@@ -610,6 +610,7 @@ Creep.prototype.getEnergyFromSource = function() {
     return this.harvestSource(source);
   } else {
     if (range > 1 && range < 4) {
+      // TODO avoid exits here
       this.moveTo(source);
       return true;
     }
