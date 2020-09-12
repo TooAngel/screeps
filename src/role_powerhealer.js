@@ -66,7 +66,7 @@ roles.powerhealer.heal = function(creep) {
       creep.moveTo(attacker);
       return false;
     }
-    const hostileCreeps = creep.room.getEnemys();
+    const hostileCreeps = creep.room.findEnemys();
     if (hostileCreeps.length > 0) {
       attacker = creep.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['powerattacker']);
       creep.moveTo(attacker);

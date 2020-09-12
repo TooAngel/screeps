@@ -222,10 +222,7 @@ function cleanUpLabs(creep) {
       if (creep.carry[resource] === 0) {
         continue;
       }
-      const returnCode = creep.transfer(creep.room.terminal, resource);
-      if (config.debug.mineral) {
-        creep.log(returnCode + ' ' + resource + ' ' + JSON.stringify(resource));
-      }
+      creep.transfer(creep.room.terminal, resource);
       break;
     }
   } else {
@@ -238,11 +235,7 @@ function cleanUpLabs(creep) {
       return false;
     }
     creep.moveToMy(lab.pos);
-
-    const returnCode = creep.withdraw(lab, lab.mineralType);
-    if (config.debug.mineral) {
-      creep.log(returnCode + ' ' + lab.mineralType + ' ' + JSON.stringify(lab));
-    }
+    creep.withdraw(lab, lab.mineralType);
   }
 }
 
@@ -635,9 +628,6 @@ Creep.prototype.boost = function() {
             filter: findLabs,
           });
           if (this.room.terminal.store[boost] || labs.length > 0) {
-            if (config.debug.mineral) {
-              this.log('Could boost with: ' + part + ' ' + boost + ' ' + action + ' terminal: ' + this.room.terminal.store[boost] + ' lab: ' + JSON.stringify(labs));
-            }
             const room = Game.rooms[this.room.name];
             room.memory.boosting = room.memory.boosting || {};
             room.memory.boosting[boost] = room.memory.boosting[boost] || {};

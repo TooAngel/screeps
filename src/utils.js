@@ -206,7 +206,7 @@ global.utils = {
 
   removeNextStructure: function(room) {
     let returnValue;
-    const myStructuresToDestroy = _.sortBy(room.find(FIND_MY_STRUCTURES), (s) => s.hitsMax);
+    const myStructuresToDestroy = _.sortBy(room.findMyStructures(), (s) => s.hitsMax);
     const controller = myStructuresToDestroy.shift();
     if (_.size(myStructuresToDestroy) > 0) {
       returnValue = myStructuresToDestroy[0].destroy();

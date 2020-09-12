@@ -81,8 +81,16 @@ RoomPosition.prototype.getAdjacentPosition = function(direction) {
   if (direction > 8) {
     direction = RoomPosition.fixDirection(direction);
   }
+  const x = this.x + adjacentPos[direction][0];
+  const y = this.y + adjacentPos[direction][1];
 
-  return new RoomPosition(this.x + adjacentPos[direction][0], this.y + adjacentPos[direction][1], this.roomName);
+  try {
+    return new RoomPosition(x, y, this.roomName);
+  } catch (e) {
+    // this.log(`RoomPosition.getAdjacentPosition Exception: ${e} for direction ${direction} x: ${x} y: ${y} roomName: ${this.roomName} stack: ${e.stack}`);
+    // throw e;
+    return;
+  }
 };
 
 RoomPosition.prototype.getAllAdjacentPositions = function* () {

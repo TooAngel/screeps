@@ -123,7 +123,6 @@ roles.carry.preMove = function(creep, directions) {
   if (!validateDirections(creep, directions)) {
     return false;
   }
-  creep.creepLog(`preMove directions check ${JSON.stringify(directions)}`);
 
   roles.carry.checkHelperEmptyStorage(creep);
 
@@ -134,16 +133,13 @@ roles.carry.preMove = function(creep, directions) {
     creep.creepLog(`preMove moveToStorage`);
     if (creep.inBase()) {
       const transferred = creep.transferToStructures();
-      creep.creepLog(`preMove transferToStructures ${JSON.stringify(transferred)}`);
       if (transferred) {
         const energyLeft = creep.carry.energy - transferred.transferred;
         if (energyLeft > 0) { // Better use `checkCarryEnergyForBringingBackToStorage` to be accurate
           if (transferred.moreStructures) {
-            creep.creepLog(`preMove transferred.moreStructures energyLeft ${energyLeft} ${JSON.stringify(transferred)}`);
             return true;
           }
         } else {
-          creep.creepLog(`preMove transferred.moreStructures no energyLeft ${energyLeft} ${JSON.stringify(transferred)}`);
           creep.memory.routing.reverse = false;
           return false;
         }
@@ -157,7 +153,6 @@ roles.carry.preMove = function(creep, directions) {
       }
     }
 
-    creep.creepLog(`preMove transferToCreep directions check ${JSON.stringify(directions)}`);
     if (directions.backwardDirection && directions.backwardDirection !== null) {
       creep.creepLog('Trying to transfer to creep');
       const transferred = creep.transferToCreep(directions.backwardDirection);

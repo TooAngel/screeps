@@ -50,13 +50,12 @@ Creep.prototype.getRoutePos = function(route) {
  * @return {number} - returns the index of the current position in the given route
  */
 Creep.prototype.getPathPos = function(path) {
-  let pathPos = this.memory.routing.pathPos || 0;
-  const pos = path[pathPos];
+  this.memory.routing.pathPos = this.memory.routing.pathPos || 0;
+  const pos = path[this.memory.routing.pathPos];
   if (!pos || !this.pos.isEqualTo(pos.x, pos.y)) {
-    pathPos = _.findIndex(path, (i) => i.x === this.pos.x && i.y === this.pos.y);
-    this.memory.routing.pathPos = pathPos;
+    this.memory.routing.pathPos = _.findIndex(path, (i) => i.x === this.pos.x && i.y === this.pos.y);
   }
-  return pathPos;
+  return this.memory.routing.pathPos;
 };
 
 /**
@@ -108,7 +107,6 @@ Creep.prototype.getDirections = function(path) {
     pathOffset: offset,
     reverse: this.memory.routing.reverse,
   };
-  this.creepLog(`getDirections directions: ${JSON.stringify(directions)}`);
   return directions;
 };
 
@@ -123,9 +121,7 @@ Creep.prototype.prepareRoutingMemory = function() {
   const routePos = this.getRoutePos(route);
   const path = this.room.getPath(route, routePos, 'pathStart', this.memory.routing.targetId);
   if (!path) {
-    this.log(`prepareRoutingMemory no path ${JSON.stringify(route)} ${routePos} ${this.memory.routing.targetId}`);
-    delete this.memory.routing.targetId;
-    return;
+    this.log(`Can not find path for route: ${route} routePos: ${routePos} start: pathStart end: ${this.memory.routing.targetId}`);
   }
   this.getPathPos(path);
   return path;
@@ -150,9 +146,12 @@ Creep.prototype.followPath = function(action) {
     this.suicide();
     return true;
   }
-  this.creepLog(`followPath path: ${JSON.stringify(path)}`);
   if (!path) {
     this.log(`No path found to ${this.memory.routing.targetId} object: ${Game.getObjectById(this.memory.routing.targetId)}`);
+    delete this.memory.routing.targetId;
+    if (this.followPathWithoutTargetId()) {
+      return action(this);
+    }
     return true;
   }
   const directions = this.getDirections(path);
@@ -176,11 +175,21 @@ Creep.prototype.followPath = function(action) {
 };
 
 Creep.prototype.followPathWithoutTargetId = function() {
-  if (!this.memory.routing.targetId && this.room.name === this.memory.routing.targetRoom) {
-    this.memory.routing.reached = true;
-    return true;
+  if (this.room.name !== this.memory.routing.targetRoom) {
+    return false;
   }
-  return false;
+  // `harvester` is a special target id, so needs to be handled here
+  // TODO find a better solution for harvesters
+  const specialTargetIds = ['harvester', 'filler'];
+  if (this.memory.routing.targetId && (specialTargetIds.indexOf(this.memory.routing.targetId) >= 0 || Game.getObjectById(this.memory.routing.targetId))) {
+    return false;
+  }
+  if (this.memory.routing.targetId) {
+    this.creepLog(`followPathWithoutTargetId invalid targetId: ${this.memory.routing.targetId}`);
+  }
+  this.memory.routing.targetId = undefined;
+  this.memory.routing.reached = true;
+  return true;
 };
 
 Creep.prototype.followPathWithTargetId = function(path) {
@@ -273,7 +282,7 @@ Creep.prototype.moveByPathMy = function(path, pathPos, directions) {
       this.creepLog(`${Game.time} moveByPathMy: Directions invalid, but last pos pathPos: ${pathPos} path.length: ${path.length} path[pathPos]: ${path[pathPos]} directions: ${global.ex(directions, 1)}`);
       return true;
     }
-    this.log(`${Game.time} moveByPathMy: Directions invalid pathPos: ${pathPos} path.length: ${path.length} path[pathPos]: ${path[pathPos]} directions: ${global.ex(directions, 1)}`);
+    this.log(`${Game.time} moveByPathMy: Directions invalid pathPos: ${pathPos} path.length: ${path.length} path[pathPos]: ${path[pathPos]} directions: ${global.ex(directions, 1)} path: ${JSON.stringify(path)} stack: ${new Error().stack}`);
     return false;
   }
 

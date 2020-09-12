@@ -229,9 +229,11 @@ function checkForLink(creep) {
  * @param {object} link - The link
  * @return {void}
  **/
-function underAttackFillTower(creep, towers, storage, link) {
+function underAttackFillTower(creep, towers, storage) {
   const room = Game.rooms[creep.room.name];
-  if (room.memory.attackTimer > 50 && room.controller.level > 6) {
+  if (room.memory.attackTimer > 50) {
+    creep.creepLog(`underAttackFillTower ${room.memory.attackTimer}`);
+    // TODO could also make sense from the link, if available
     creep.withdraw(storage, RESOURCE_ENERGY);
     for (const tower of towers) {
       const returnCode = creep.transfer(tower, RESOURCE_ENERGY);
@@ -239,9 +241,8 @@ function underAttackFillTower(creep, towers, storage, link) {
         return true;
       }
     }
-    creep.transfer(link, RESOURCE_ENERGY);
-    return true;
   }
+  return false;
 }
 
 /**
@@ -338,19 +339,24 @@ roles.storagefiller.action = function(creep) {
     filter: (tower) => tower.energy <= 0.5 * tower.energyCapacity,
   });
 
+  const storage = creep.room.storage;
+  if (underAttackFillTower(creep, towers, storage)) {
+    return true;
+  }
+
   if (checkForLink(creep)) {
     return true;
   }
 
-  const storage = creep.room.storage;
   const link = Game.getObjectById(creep.memory.link);
   if (link === null) {
     delete creep.memory.link;
     return true;
   }
 
-  if (underAttackFillTower(creep, towers, storage, link)) {
-    return true;
+  const room = Game.rooms[creep.room.name];
+  if (room.memory.attackTimer > 50) {
+    creep.transfer(link, RESOURCE_ENERGY);
   }
 
   if (creep.withdraw(link, RESOURCE_ENERGY) === OK) {

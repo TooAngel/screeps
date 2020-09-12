@@ -54,7 +54,7 @@ Creep.prototype.moveToHostileConstructionSites = function() {
   });
   if (constructionSite !== null) {
     this.say('kcs');
-    this.log('Kill constructionSite: ' + JSON.stringify(constructionSite));
+    this.log('Kill constructionSite');
     this.moveToMy(constructionSite.pos, 0);
     return true;
   }
@@ -84,11 +84,7 @@ Creep.prototype.handleDefender = function() {
     return true;
   }
 
-  const invaderCores = this.room.find(
-    FIND_HOSTILE_STRUCTURES, {
-      filter: {structureType: STRUCTURE_INVADER_CORE},
-    },
-  );
+  const invaderCores = this.room.findInvaderCore();
   if (invaderCores.length > 0) {
     this.moveTo(invaderCores[0].pos);
     this.rangedAttack(invaderCores[0]);
@@ -150,7 +146,7 @@ Creep.prototype.fightRampart = function(target) {
     return true;
   }
 
-  this.log('creep_fight.fightRampart returnCode: ' + returnCode);
+  // this.log('creep_fight.fightRampart returnCode: ' + returnCode);
 
   return true;
 };

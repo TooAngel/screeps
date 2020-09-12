@@ -19,31 +19,6 @@ roles.defender.settings = {
   // fillTough: true,
 };
 
-roles.defender.action = function(creep) {
-  if (creep.inBase() && creep.memory.reverse) {
-    return Creep.recycleCreep(creep);
-  }
-  // TODO Better in premove
-  if (!creep.inBase()) {
-    const walls = creep.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_WALL, STRUCTURE_RAMPART]);
-    if (walls.length > 0) {
-      if (!creep.room.controller || !creep.room.controller.my) {
-        creep.rangedAttack(walls[0]);
-      }
-    }
-  }
-
-  creep.selfHeal();
-  const room = Game.rooms[creep.room.name];
-  if (room.memory.hostile) {
-    creep.handleDefender();
-    return true;
-  }
-
-  creep.handleDefender();
-  return true;
-};
-
 roles.defender.preMove = function(creep) {
   creep.selfHeal();
   const target = creep.findClosestEnemy();
@@ -52,4 +27,25 @@ roles.defender.preMove = function(creep) {
     creep.handleDefender();
     return true;
   }
+  if (!creep.inMyRoom()) {
+    let targets = creep.pos.findInRangeStructures(FIND_HOSTILE_STRUCTURES);
+    if (targets.length === 0) {
+      targets = creep.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_WALL, STRUCTURE_RAMPART]);
+    }
+    if (targets.length > 0) {
+      if (!creep.room.controller || !creep.room.controller.my) {
+        creep.rangedAttack(targets[0]);
+      }
+    }
+  }
+};
+
+roles.defender.action = function(creep) {
+  if (creep.inBase() && creep.memory.reverse) {
+    return Creep.recycleCreep(creep);
+  }
+
+  creep.selfHeal();
+  creep.handleDefender();
+  return true;
 };

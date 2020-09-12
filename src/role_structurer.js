@@ -81,6 +81,7 @@ function preMoveTargetRoom(creep, directions) {
 }
 
 roles.structurer.preMove = function(creep, directions) {
+  creep.creepLog(`preMove: targetId: ${creep.memory.routing.targetId}`);
   preMoveTargetRoom(creep, directions);
 
   // Routing would end within the wall - this is the fix for that
@@ -97,6 +98,7 @@ roles.structurer.preMove = function(creep, directions) {
 };
 
 roles.structurer.action = function(creep) {
+  creep.creepLog('action');
   if (!creep.room.controller || !creep.room.controller.my) {
     const structure = creep.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD], {
       filter: (object) => object.ticksToDecay !== null,

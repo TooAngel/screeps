@@ -14,14 +14,10 @@ roles.upgrader.settings = {
     1: 'MCW',
   },
   layoutString: {
-    1: 'MW',
-  },
-  amount: {
-    4: [1, 2],
+    1: 'W',
   },
   maxLayoutAmount: {
-    1: 10,
-    8: 1,
+    1: 50,
   },
 };
 
@@ -36,9 +32,7 @@ roles.upgrader.updateSettings = function(room) {
   // 6453 energy in storage are 2 workParts
   // 3000 energy will be put in the controller
 
-  const maxWorkingParts = _.random(36, 48);
   let workParts = Math.floor((room.storage.store.energy + 1) / (CREEP_LIFE_TIME * config.room.upgraderStorageFactor));
-  workParts = Math.min(workParts, maxWorkingParts - 1);
   if (room.controller.level === 8) {
     workParts = Math.min(workParts, 15);
   }

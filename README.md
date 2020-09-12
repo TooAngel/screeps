@@ -12,6 +12,10 @@ https://screeps.com/
 See rendered version:
 http://tooangel.github.io/screeps/
 
+## Quests
+
+Head over to [Quests](doc/Quests.md)
+
 ## For in game room visitors:
 
 Happy to see you visiting one of our rooms. [Visit FAQ to find answers](doc/FAQ.md)

@@ -22,9 +22,7 @@ brain.setConstructionSites = function() {
       constructionSites[csId] = cs.progress;
     }
     Memory.constructionSites = constructionSites;
-    if (config.debug.constructionSites) {
-      console.log(Game.time, 'Known constructionSites: ' + Object.keys(constructionSites).length);
-    }
+    brain.debugLog('constructionSites', `Known constructionSites: ${Object.keys(constructionSites).length}`);
   }
 };
 
@@ -34,28 +32,20 @@ brain.addToStats = function(name) {
 };
 
 brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
-  let hostiles = [];
-  let room = {};
   let memoryRoom = {};
   if (creepMemory.room) {
-    room = Game.rooms[creepMemory.room];
     memoryRoom = Memory.rooms[creepMemory.room];
+  } else {
+    console.log(`${Game.time} ${name} handleUnexpectedDeadCreeps no creepMemory.room creepMemory: ${creepMemory}`);
   }
-  let structures = [];
-  let sourceKeepers = [];
-  if (Memory.creeps[name].routing && Memory.creeps[name].routing.route && Memory.creeps[name].routing.routePos && Memory.creeps[name].routing.route[Memory.creeps[name].routing.routePos]) {
-    // room = Game.rooms[Memory.creeps[name].routing.route[Memory.creeps[name].routing.routePos].room];
-    if (room) {
-      hostiles = room.find(FIND_CREEPS);
-      structures = room.find(FIND_STRUCTURES);
-      sourceKeepers = room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'owner.username', ['Source Keeper']);
-    }
+
+  brain.debugLog(`${Game.time} ${creepMemory.room} ${name} memory hostile: ${memoryRoom.hostileCreepCount}`);
+  if (memoryRoom.hostileCreepCount > 0) {
+    brain.debugLog('brain', `${creepMemory.room} ${name} Not in Game.creeps with hostiles lived ${Game.time - creepMemory.born} hostiles: ${memoryRoom.hostileCreepCount} - I guess killed by hostile`); // eslint-disable-line max-len
+  } else {
+    console.log(`${Game.time} ${creepMemory.room} ${name} Not in Game.creeps without hostiles lived ${Game.time - creepMemory.born} hostiles: ${memoryRoom.hostileCreepCount}`); // eslint-disable-line max-len
   }
-  if (hostiles.length === 0 || hostiles[0].owner.username !== 'Invader' || !(memoryRoom || {}).sourceKeeperRoom) {
-    if (creepMemory.role !== 'scout') { // Remove noise, I guess scouts are killed by other players, but the room can't be accessed anymore. So maybe store the number of creeps in the room memory / cache
-      console.log(`${Game.time} ${room.name} ${name} Not in Game.creeps lived ${Game.time - creepMemory.born} hostiles: ${hostiles.length} structures: ${structures.length} sourceKeepers: ${sourceKeepers.length} memory: ${JSON.stringify(Memory.creeps[name])} ${JSON.stringify(memoryRoom)}`); // eslint-disable-line max-len
-    }
-  }
+
   if (Game.time - creepMemory.born < 20) {
     return;
   }
@@ -82,26 +72,28 @@ brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
 brain.cleanCreeps = function() {
   // Cleanup memory
   for (const name in Memory.creeps) {
-    if (!Game.creeps[name]) {
-      brain.addToStats(name);
-      if ((name.startsWith('reserver') && Memory.creeps[name].born < (Game.time - CREEP_CLAIM_LIFE_TIME)) || Memory.creeps[name].born < (Game.time - CREEP_LIFE_TIME)) {
-        delete Memory.creeps[name];
-        continue;
-      }
-
-      const creepMemory = Memory.creeps[name];
-      if (creepMemory.killed) {
-        delete Memory.creeps[name];
-        continue;
-      }
-
-      if (creepMemory.recycle) {
-        delete Memory.creeps[name];
-        continue;
-      }
-
-      brain.handleUnexpectedDeadCreeps(name, creepMemory);
+    if (Game.creeps[name]) {
+      continue;
     }
+
+    brain.addToStats(name);
+    if ((name.startsWith('reserver') && Memory.creeps[name].born < (Game.time - CREEP_CLAIM_LIFE_TIME)) || Memory.creeps[name].born < (Game.time - CREEP_LIFE_TIME)) {
+      delete Memory.creeps[name];
+      continue;
+    }
+
+    const creepMemory = Memory.creeps[name];
+    if (creepMemory.killed) {
+      delete Memory.creeps[name];
+      continue;
+    }
+
+    if (creepMemory.recycle) {
+      delete Memory.creeps[name];
+      continue;
+    }
+
+    brain.handleUnexpectedDeadCreeps(name, creepMemory);
   }
 };
 
@@ -201,7 +193,6 @@ Upgrade less: ${strings.upgradeLess}
 };
 
 brain.prepareMemory = function() {
-  brain.debugLog('brain', 'prepareMemory');
   Memory.username = Memory.username || _.chain(Game.rooms).map('controller').flatten().filter('my').map('owner.username').first().value();
   Memory.myRooms = Memory.myRooms || [];
   Memory.squads = Memory.squads || {};

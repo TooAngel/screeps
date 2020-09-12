@@ -14,9 +14,7 @@ Creep.prototype.selfHeal = function() {
 };
 
 Creep.prototype.healMyCreeps = function() {
-  const myCreeps = this.room.find(FIND_MY_CREEPS, {
-    filter: (object) => (object.hits < object.hitsMax),
-  });
+  const myCreeps = this.room.findMyHealableCreeps();
   if (myCreeps.length > 0) {
     this.say('heal', true);
     this.moveTo(myCreeps[0]);
@@ -31,17 +29,7 @@ Creep.prototype.healMyCreeps = function() {
 };
 
 Creep.prototype.healAllyCreeps = function() {
-  const allyCreeps = this.room.find(FIND_HOSTILE_CREEPS, {
-    filter: function(object) {
-      if (object.hits === object.hitsMax) {
-        return false;
-      }
-      if (brain.isFriend(object.owner.username)) {
-        return true;
-      }
-      return false;
-    },
-  });
+  const allyCreeps = this.room.findHealableAlliedCreeps();
   if (allyCreeps.length > 0) {
     this.say('heal ally', true);
     this.moveTo(allyCreeps[0]);
@@ -109,7 +97,6 @@ Creep.prototype.healClosestCreep = function(andExit) {
         const exit = this.pos.findClosestByRange(FIND_EXIT);
         this.moveTo(exit);
       } else {
-        this.say(JSON.stringify(myCreep));
         this.moveTo(myCreep);
       }
     }

@@ -46,15 +46,12 @@ brain.main.visualizeRooms = function() {
     try {
       Memory.myRooms.forEach(visualizer.myRoomDatasDraw);
     } catch (e) {
-      console.log('Visualizer Draw Exeception', e);
+      console.log(`Visualizer Draw Exception exception: ${e} stack ${e.stack}`);
     }
     try {
       visualizer.render();
-      if (config.profiler.enabled) {
-        global.profiler.registerObject(visualizer, 'Visualizer');
-      }
     } catch (e) {
-      console.log('Visualizer Render Exeception', e, e.stack);
+      console.log('Visualizer Render Exception', e, e.stack);
     }
   }
 };
@@ -76,7 +73,7 @@ brain.main.updateSkippedRoomsLog = function() {
 };
 
 brain.main.execute = function() {
-  if (Game.time > 1000 && Game.cpu.bucket < 2 * Game.cpu.tickLimit && Game.cpu.bucket < Game.cpu.limit * 10) {
+  if (Game.time > 1000 && Game.cpu.bucket < 1.5 * Game.cpu.tickLimit && Game.cpu.bucket < Game.cpu.limit * 10) {
     console.log(`${Game.time} Skipping tick CPU Bucket too low. bucket: ${Game.cpu.bucket} tickLimit: ${Game.cpu.tickLimit} limit: ${Game.cpu.limit}`);
     return;
   }

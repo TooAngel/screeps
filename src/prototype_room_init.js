@@ -8,7 +8,7 @@ Room.prototype.initSetController = function() {
 };
 
 Room.prototype.initSetSources = function() {
-  const sources = this.find(FIND_SOURCES);
+  const sources = this.findSources();
   for (const source of sources) {
     const sourcer = source.pos.getFirstNearPosition({ignorePath: true});
     this.setPosition(source.id, sourcer, config.layout.creepAvoid, 'creep');
@@ -17,7 +17,7 @@ Room.prototype.initSetSources = function() {
 };
 
 Room.prototype.initSetMinerals = function() {
-  const minerals = this.find(FIND_MINERALS);
+  const minerals = this.findMinerals();
   for (const mineral of minerals) {
     // const extractor = mineral.pos.getFirstNearPosition();
     const extractor = mineral.pos.getBestNearPosition();
@@ -80,7 +80,7 @@ Room.prototype.setFillerArea = function(storagePos, route) {
 };
 
 Room.prototype.addTerminal = function() {
-  const minerals = this.find(FIND_MINERALS);
+  const minerals = this.findMinerals();
   const extractorPosOrg = this.memory.position.creep[minerals[0].id][0];
   const extractorPos = new RoomPosition(extractorPosOrg.x, extractorPosOrg.y, extractorPosOrg.roomName);
   const getNearPathPos = (pos) => Array.from(pos.getAllAdjacentPositions()).find((p) => p.inPath() && !p.inPositions());
@@ -380,7 +380,7 @@ Room.prototype.setStructures = function(path) {
 
 Room.prototype.costMatrixSetSourcePath = function() {
   const costMatrix = this.getMemoryCostMatrix();
-  const sources = this.find(FIND_SOURCES);
+  const sources = this.findSources();
   for (const source of sources) {
     const route = [{
       room: this.name,
@@ -396,7 +396,7 @@ Room.prototype.costMatrixSetSourcePath = function() {
 
 Room.prototype.costMatrixSetMineralPath = function() {
   const costMatrix = this.getMemoryCostMatrix();
-  const minerals = this.find(FIND_MINERALS);
+  const minerals = this.findMinerals();
   for (const mineral of minerals) {
     const route = [{
       room: this.name,
@@ -496,31 +496,6 @@ const sorter = function(object) {
   return value;
 };
 
-/*
- * Places walls at spawn exits which are not on the path
- */
-Room.prototype.blockWrongSpawnExits = function() {
-  for (let spawnId = 0; spawnId < this.memory.position.structure.spawn.length; spawnId++) {
-    const spawnMemory = this.memory.position.structure.spawn[spawnId];
-    const spawn = new RoomPosition(spawnMemory.x, spawnMemory.y, spawnMemory.roomName);
-    for (const adjacentPos of spawn.getAllAdjacentPositions()) {
-      if (adjacentPos.validPosition()) {
-        this.debugLog('baseBuilding', 'Blocking ', adjacentPos, ' with wall - Wrong spawn exit');
-        this.memory.walls = this.memory.walls || {
-          exit_i: 0,
-          ramparts: [],
-          layer_i: 0,
-          // TODO as array?
-          layer: {
-            0: [],
-          },
-        };
-        this.memory.walls.layer[0].push(adjacentPos);
-      }
-    }
-  }
-};
-
 /**
  * checkForSpawnPosition - Checks if the position is in the
  * `memory.position.structure.spawn`.
@@ -546,11 +521,10 @@ Room.prototype.checkForSpawnPosition = function(pos) {
  * @return {undefined}
  **/
 Room.prototype.checkForMisplacedSpawn = function() {
-  const spawns = this.find(FIND_STRUCTURES, {filter: (object) => object.structureType === STRUCTURE_SPAWN});
+  const spawns = this.findMySpawns();
   for (const spawn of spawns) {
     if (!this.checkForSpawnPosition(spawn.pos)) {
       this.memory.misplacedSpawn = true;
-      this.debugLog('baseBuilding', `Spawn [${spawn.pos.x}, ${spawn.pos.y}] is misplaced, not in positions ${JSON.stringify(this.memory.position.structure[spawn.structureType].map((o) => `${o.x}, ${o.y}`))} (prototype_room_init.checkForMisplacedSpawn)`); // eslint-disable-line max-len
     }
   }
 };
@@ -601,8 +575,6 @@ Room.prototype.setup = function() {
   if (this.memory.setup) {
     if (this.memory.setup.completed) {
       delete this.memory.setup;
-    } else {
-      this.debugLog('baseBuilding', `Continuing setup ${JSON.stringify(this.memory.setup)}`);
     }
   }
   this.memory.setup = this.memory.setup || {
@@ -636,10 +608,6 @@ Room.prototype.setup = function() {
   }
 
   if (!this.stepExecute(this.setupStructures, 'setupStructures')) {
-    return false;
-  }
-
-  if (!this.stepExecute(this.blockWrongSpawnExits, 'blockWrongSpawnExits')) {
     return false;
   }
 

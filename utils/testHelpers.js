@@ -8,6 +8,12 @@ const {ScreepsAPI} = require('screeps-api');
 
 const dir = 'tmp-test-server';
 const port = 21025;
+let hostname = '127.0.0.1'
+
+function setHostname(newHostname) {
+  hostname = newHostname;
+}
+module.exports.setHostname = setHostname;
 
 /**
  * followLog method
@@ -20,13 +26,16 @@ const port = 21025;
  * @param {function} statusUpdater - Function to handle status updates
  * @return {undefined}
  */
-async function followLog(rooms, logConsole, statusUpdater) {
+async function followLog(rooms, logConsole, statusUpdater, restrictToRoom) {
   for (const room of rooms) {
+    if (restrictToRoom && room !== restrictToRoom) {
+      continue;
+    }
     const api = new ScreepsAPI({
       email: room,
       password: 'tooangel',
       protocol: 'http',
-      hostname: '127.0.0.1',
+      hostname: hostname,
       port: port,
       path: '/',
     });
@@ -183,8 +192,17 @@ const spawnBots = async function(line, socket, rooms, players, tickDuration) {
     console.log(`> system.pauseSimulation()`);
     socket.write(`system.pauseSimulation()\r\n`);
     await sleep(5);
-    console.log(`> utils.setTickRate(${tickDuration})`);
-    socket.write(`utils.setTickRate(${tickDuration})\r\n`);
+    console.log(`> system.setTickDuration(${tickDuration})`);
+    socket.write(`system.setTickDuration(${tickDuration})\r\n`);
+
+    // Setup NPC terminals
+    for (const room of ['W0N0', 'W10N0', 'W10N10', 'W0N10']) {
+      console.log(`> storage.db['rooms.objects'].insert({ type: 'terminal', room: '${room}', x: 0, y:0 })`);
+      socket.write(`storage.db['rooms.objects'].insert({ type: 'terminal', room: '${room}', x: 0, y:0 })\r\n`);
+      await sleep(1);
+    }
+    await sleep(5);
+
     for (const room of rooms) {
       console.log('> Spawn bot ' + room + ' as TooAngel');
       socket.write(`bots.spawn('screeps-bot-tooangel', '${room}', {username: '${room}', cpu: 100, gcl: 1, x: ${players[room].x}, y: ${players[room].y}})\r\n`);
