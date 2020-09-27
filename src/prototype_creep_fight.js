@@ -198,10 +198,10 @@ Creep.prototype.siege = function() {
     Game.notify(Game.time + ' ' + this.room.name + ' Attacking');
     this.memory.notified = true;
   }
-  const tower = this.pos.findClosestStructure(FIND_HOSTILE_STRUCTURES, STRUCTURE_TOWER);
+  const tower = this.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, STRUCTURE_TOWER);
   let target = tower;
   if (tower === null) {
-    const spawn = this.pos.findClosestStructure(FIND_HOSTILE_STRUCTURES, STRUCTURE_SPAWN);
+    const spawn = this.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, STRUCTURE_SPAWN);
     target = spawn;
   }
   if (target === null) {
