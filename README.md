@@ -4,8 +4,8 @@
 [![CircleCI](https://circleci.com/gh/TooAngel/screeps.svg?style=svg)](https://circleci.com/gh/TooAngel/screeps)
 [![Code Climate](https://codeclimate.com/github/TooAngel/screeps/badges/gpa.svg)](https://codeclimate.com/github/TooAngel/screeps)
 [![npm version](https://badge.fury.io/js/screeps-bot-tooangel.svg)](https://badge.fury.io/js/screeps-bot-tooangel)
-[![gitter](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/screeps-bot-tooangel/Lobby)
 [![slack](https://img.shields.io/badge/slack-17/17-green.svg)](https://screeps.slack.com/messages/tooangels/)
+[![discord](https://www.worlddriven.org/static/images/Discord-Logo-Black.png)](https://discord.gg/RrGFHKb)
 
 https://screeps.com/
 
