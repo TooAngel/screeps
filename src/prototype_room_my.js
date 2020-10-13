@@ -226,25 +226,28 @@ Room.prototype.getHarvesterAmount = function() {
   return 1;
 };
 
+Room.prototype.handleAttackTimerWithoutHostiles = function() {
+  this.memory.attackTimer = Math.max(this.memory.attackTimer - 5, 0);
+  // Make sure we don't spawn towerFiller on reducing again
+  if (this.memory.attackTimer % 5 === 0) {
+    this.memory.attackTimer--;
+  }
+  if (this.memory.attackTimer <= 0) {
+    this.memory.underSiege = false;
+  }
+};
+
 Room.prototype.handleAttackTimer = function(hostiles) {
   this.memory.attackTimer = this.memory.attackTimer || 0;
   if (hostiles.length === 0) {
-    this.memory.attackTimer = Math.max(this.memory.attackTimer - 5, 0);
-    // Make sure we don't spawn towerFiller on reducing again
-    if (this.memory.attackTimer % 5 === 0) {
-      this.memory.attackTimer--;
-    }
-    if (this.memory.attackTimer <= 0) {
-      this.memory.underSiege = false;
-    }
-  } else {
-    if (this.memory.attackTimer > 40) {
-      if (Game.time % 5 === 0) {
-        this.log(`Under attack: hostiles: ${hostiles.length} attackTimer: ${this.memory.attackTimer}`);
-      }
-    }
-    this.memory.attackTimer++;
+    return this.handleAttackTimerWithoutHostiles();
   }
+  if (this.memory.attackTimer > 40) {
+    if (Game.time % 5 === 0) {
+      this.log(`Under attack: hostiles: ${hostiles.length} attackTimer: ${this.memory.attackTimer}`);
+    }
+  }
+  this.memory.attackTimer++;
 };
 
 Room.prototype.checkForSafeMode = function() {
@@ -258,21 +261,25 @@ Room.prototype.checkForSafeMode = function() {
 };
 
 Room.prototype.spawnTowerFiller = function() {
-  if (this.memory.attackTimer >= 50 && this.controller.level > 6) {
-    const towers = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER]);
-    if (towers.length === 0) {
-      this.memory.attackTimer = 47;
-    } else {
-      if (this.memory.attackTimer === 50 && this.memory.position.creep.towerFiller) {
-        for (const towerFillerPos of this.memory.position.creep.towerFiller) {
-          this.log('Spawning towerfiller: ' + this.memory.attackTimer);
-          this.memory.queue.push({
-            role: 'towerfiller',
-            target_id: towerFillerPos,
-          });
-        }
-      }
-    }
+  if (this.memory.attackTimer < 50 || this.controller.level < 6) {
+    return false;
+  }
+  const towers = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER]);
+  if (towers.length === 0) {
+    this.memory.attackTimer = 47;
+    return false;
+  }
+
+  if (this.memory.attackTimer !== 50 || this.memory.position.creep.towerFiller) {
+    return false;
+  }
+
+  for (const towerFillerPos of this.memory.position.creep.towerFiller) {
+    this.log('Spawning towerfiller: ' + this.memory.attackTimer);
+    this.memory.queue.push({
+      role: 'towerfiller',
+      target_id: towerFillerPos,
+    });
   }
 };
 
@@ -311,26 +318,41 @@ Room.prototype.handleAttack = function(hostiles) {
   this.handleDefence(hostiles);
 };
 
+Room.prototype.handleReviveRoomQueueCarry = function(myRoomName) {
+  const room = Game.rooms[myRoomName];
+  if (!room.isHealthy()) {
+    return;
+  }
+  if (Game.map.getRoomLinearDistance(this.name, room.name) > 10) {
+    return;
+  }
+  this.log(`---!!! ${room.name} send energy to ${this.name} !!!---`);
+  room.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, room.storage.id, room.name, undefined, this.name);
+};
+
+Room.prototype.handleReviveRoomSendCarry = function() {
+  if (!this.executeEveryTicks(config.carryHelpers.ticksUntilHelpCheck)) {
+    return false;
+  }
+
+  if (!this.isStruggeling()) {
+    return false;
+  }
+
+  const myCreeps = this.findMyCreeps();
+  if (myCreeps.length === 0) {
+    return false;
+  }
+
+  for (const myRoomName of Memory.myRooms) {
+    this.handleReviveRoomQueueCarry(myRoomName);
+  }
+  return true;
+};
+
 Room.prototype.handleReviveRoom = function(hostiles) {
   // Energy support
-  if (this.executeEveryTicks(config.carryHelpers.ticksUntilHelpCheck)) {
-    if (this.isStruggeling()) {
-      const myCreeps = this.findMyCreeps();
-      if (myCreeps.length > 0) {
-        for (const myRoomName of Memory.myRooms) {
-          const room = Game.rooms[myRoomName];
-          if (!room.isHealthy()) {
-            continue;
-          }
-          if (Game.map.getRoomLinearDistance(this.name, room.name) > 10) {
-            continue;
-          }
-          this.log(`---!!! ${room.name} send energy to ${this.name} !!!---`);
-          room.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, room.storage.id, room.name, undefined, this.name);
-        }
-      }
-    }
-  }
+  this.handleReviveRoomSendCarry();
 
   // Revive
   const spawns = this.findMySpawns();
@@ -535,6 +557,29 @@ const checkForRoute = function(room, roomOther) {
   return false;
 };
 
+Room.prototype.reviveMyNowHelperValid = function(helperRoom) {
+  if (helperRoom.isStruggeling()) {
+    this.debugLog('revive', `No nextroomer is struggeling ${helperRoom.name}`);
+    return false;
+  }
+  // When close before downgrading, just send nextroomers
+  // TODO replace 1500 with CREEP_LIFE_TIME
+  if (this.controller.ticksToDowngrade > 1500 && !helperRoom.isHealthy()) {
+    this.debugLog('revive', `No nextroomer not healthy ${helperRoom.name} ${helperRoom.storage.store.energy}`);
+    return false;
+  }
+  const distance = Game.map.getRoomLinearDistance(this.name, helperRoom.name);
+  if (distance > config.nextRoom.maxDistance) {
+    this.debugLog('revive', `Too far ${helperRoom.name}`);
+    return false;
+  }
+
+  if (checkForRoute(this, helperRoom)) {
+    this.debugLog('revive', `No nextroomer checkForRoute no route to ${helperRoom.name}`);
+    return false;
+  }
+};
+
 Room.prototype.reviveMyNow = function() {
   const myRooms = findMyRoomsSortByDistance(this.name);
   for (const helperRoomName of myRooms) {
@@ -542,24 +587,7 @@ Room.prototype.reviveMyNow = function() {
       continue;
     }
     const helperRoom = Game.rooms[helperRoomName];
-    if (helperRoom.isStruggeling()) {
-      this.debugLog('revive', `No nextroomer is struggeling ${helperRoomName}`);
-      continue;
-    }
-    // When close before downgrading, just send nextroomers
-    // TODO replace 1500 with CREEP_LIFE_TIME
-    if (this.controller.ticksToDowngrade > 1500 && !helperRoom.isHealthy()) {
-      this.debugLog('revive', `No nextroomer not healthy ${helperRoomName} ${helperRoom.storage.store.energy}`);
-      continue;
-    }
-    const distance = Game.map.getRoomLinearDistance(this.name, helperRoomName);
-    if (distance > config.nextRoom.maxDistance) {
-      this.debugLog('revive', `Too far ${helperRoomName}`);
-      continue;
-    }
-
-    if (checkForRoute(this, helperRoom)) {
-      this.debugLog('revive', `No nextroomer checkForRoute no route to ${helperRoomName}`);
+    if (!this.reviveMyNowHelperValid(helperRoom)) {
       continue;
     }
 

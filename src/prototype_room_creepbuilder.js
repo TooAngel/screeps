@@ -62,6 +62,9 @@ Room.prototype.spawnCheckForCreate = function() {
  * @return {boolean} both creeps have the same role, targetId and targetRoom
  */
 Room.prototype.isSameCreep = function(first, second) {
+  if (!first || !second) {
+    return false;
+  }
   if (first.role !== second.role) {
     return false;
   }
