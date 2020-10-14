@@ -51,7 +51,8 @@ Room.prototype.spawnKeepers = function() {
   const baseRoom = Game.rooms[room.memory.base];
   const amount = 1;
   const queueMaxLength = 10;
-  if (baseRoom.memory.energyStats.available < 2000) {
+  // TODO Understand this logic again, I guess redo the complete logic
+  if (!baseRoom.memory.energyStats || baseRoom.memory.energyStats.available < 2000) {
     return false;
   }
   return _.map(keeperPositions, (keeper) => {
