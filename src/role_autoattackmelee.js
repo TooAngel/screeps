@@ -35,7 +35,7 @@ roles.autoattackmelee.action = function(creep) {
   }
 
   if (creep.room.controller.safeMode) {
-    const constructionSites = creep.room.find(FIND_CONSTRUCTION_SITES);
+    const constructionSites = creep.room.findConstructionSites();
     creep.moveTo(constructionSites[0]);
     return true;
   }

@@ -30,11 +30,11 @@ Room.prototype.findAttackCreeps = function(object) {
 };
 
 Room.prototype.handleNukeAttack = function() {
-  if (!this.exectueEveryTicks(config.room.handleNukeAttackInterval)) {
+  if (!this.executeEveryTicks(config.room.handleNukeAttackInterval)) {
     return false;
   }
 
-  const nukes = this.find(FIND_NUKES);
+  const nukes = this.findNukes();
   if (nukes.length === 0) {
     return false;
   }
@@ -63,7 +63,6 @@ Room.prototype.handleNukeAttack = function() {
       if (lookRampart > -1) {
         continue;
       }
-      this.log('Build rampart: ' + JSON.stringify(structure.pos));
       structure.pos.createConstructionSite(STRUCTURE_RAMPART);
     }
   }
@@ -76,9 +75,7 @@ Room.prototype.handleTower = function() {
   if (towers.length === 0) {
     return false;
   }
-  const hostileCreeps = this.find(FIND_HOSTILE_CREEPS, {
-    filter: (object) => !brain.isFriend(object.owner.username),
-  });
+  const hostileCreeps = this.findEnemys();
   if (hostileCreeps.length > 0) {
     let tower;
     const hostileOffset = {};
@@ -100,11 +97,7 @@ Room.prototype.handleTower = function() {
   }
 
   if (config.tower.healMyCreeps) {
-    const myCreeps = this.find(FIND_MY_CREEPS, {
-      filter: function(object) {
-        return object.hits < object.hitsMax;
-      },
-    });
+    const myCreeps = this.findMyHealableCreeps();
     if (myCreeps.length > 0) {
       for (const tower of towers) {
         tower.heal(myCreeps[0]);
@@ -131,7 +124,7 @@ Room.prototype.handleTower = function() {
     if (tower.energy === 0) {
       continue;
     }
-    if (!this.exectueEveryTicks(10)) {
+    if (!this.executeEveryTicks(10)) {
       if (tower.energy < tower.energyCapacity / 2 || this.memory.repair_min > 1000000) {
         continue;
       }

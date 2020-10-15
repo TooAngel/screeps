@@ -4,13 +4,17 @@
 [![CircleCI](https://circleci.com/gh/TooAngel/screeps.svg?style=svg)](https://circleci.com/gh/TooAngel/screeps)
 [![Code Climate](https://codeclimate.com/github/TooAngel/screeps/badges/gpa.svg)](https://codeclimate.com/github/TooAngel/screeps)
 [![npm version](https://badge.fury.io/js/screeps-bot-tooangel.svg)](https://badge.fury.io/js/screeps-bot-tooangel)
-[![gitter](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/screeps-bot-tooangel/Lobby)
 [![slack](https://img.shields.io/badge/slack-17/17-green.svg)](https://screeps.slack.com/messages/tooangels/)
+[![discord](https://www.worlddriven.org/static/images/Discord-Logo-Black.png)](https://discord.gg/RrGFHKb)
 
 https://screeps.com/
 
 See rendered version:
 http://tooangel.github.io/screeps/
+
+## Quests
+
+Head over to [Quests](doc/Quests.md)
 
 ## For in game room visitors:
 
@@ -30,8 +34,8 @@ The AI is deployable on a private screeps server, follow the information on
 
 This is not a good example for code quality or structure, most LOCs written
 while fighting or other occasions which needed quick fixes or in the ingame
-editor (getting better :-)). But I think there are a couple of funny ideas. Every contribution is
-welcome.
+editor (getting better :-)). But I think there are a couple of funny ideas.
+Every contribution is welcome.
 
 ## Features
 
@@ -59,6 +63,13 @@ E.g.:
 Add a `src/config_local.js` to overwrite configuration values. Copy
 `config_local.js.example` to `src/config_local.js` as an example. `src/config.js`
 has the default values.
+
+## Debugging
+
+Within the `config_local.js` certain `config.debug` flags can be enabled.
+To add debug messages `Room.debugLog(TYPE, MESSAGE)` and
+`Creep.creepLog(MESSAGE)` are suggested. Especially the `creepLog` allows
+granular output of the creep behavior based on the room and the creep role.
 
 ## Upload
 

@@ -1,27 +1,33 @@
 'use strict';
 
-Creep.prototype.cantHarvest = function(source) {
+Creep.prototype.myHarvest = function(source) {
   const returnCode = this.harvest(source);
-  if (returnCode !== OK && returnCode !== ERR_NOT_ENOUGH_RESOURCES) {
-    if (returnCode === ERR_NOT_OWNER) {
-      this.log('Suiciding, someone else reserved the controller');
-      this.memory.killed = true;
-      this.suicide();
-      return false;
-    }
-    if (returnCode === ERR_NO_BODYPART) {
-      this.room.checkRoleToSpawn('defender', 2, undefined, this.room.name);
-      this.respawnMe();
-      this.suicide();
-      return false;
-    }
-    if (returnCode === ERR_TIRED) {
-      return false;
-    }
-    this.log('harvest: ' + returnCode);
+  if (returnCode === OK) {
+    return true;
+  }
+  if (returnCode === ERR_NOT_ENOUGH_RESOURCES) {
+    return true;
+  }
+
+  if (returnCode === ERR_NOT_OWNER) {
+    this.log('Suiciding, someone else reserved the controller');
+    this.memory.killed = true;
+    this.suicide();
     return false;
   }
-  return true;
+
+  if (returnCode === ERR_NO_BODYPART) {
+    this.room.checkRoleToSpawn('defender', 2, undefined, this.room.name);
+    this.respawnMe();
+    this.suicide();
+    return false;
+  }
+
+  if (returnCode === ERR_TIRED) {
+    return false;
+  }
+  this.log('harvest: ' + returnCode);
+  return false;
 };
 
 Creep.prototype.baseHarvesting = function() {
@@ -38,23 +44,6 @@ Creep.prototype.baseHarvesting = function() {
     if (resources.length > 0) {
       this.pickup(resources);
     }
-  }
-};
-
-Creep.prototype.handleSourcer = function() {
-  this.setNextSpawn();
-  this.spawnReplacement();
-  const targetId = this.memory.routing.targetId;
-  const source = Game.getObjectById(targetId);
-  if (!this.cantHarvest(source)) {
-    return false;
-  }
-  this.buildContainer();
-  this.spawnCarry();
-  if (this.inBase()) {
-    this.baseHarvesting();
-  } else {
-    this.selfHeal();
   }
 };
 

@@ -93,7 +93,7 @@ const inLayer = function(room, pos) {
 
 Room.prototype.initMemoryWalls = function() {
   if (!this.memory.walls || !this.memory.walls.layer) {
-    this.log('closeExitsByPath: Reset walls');
+    this.debugLog('baseBuilding', 'closeExitsByPath: Reset walls');
     this.memory.walls = {
       exit_i: 0,
       ramparts: [],
@@ -132,7 +132,7 @@ const getTargets = function(room) {
     pos: room.controller.pos,
     range: 1,
   }];
-  const sources = room.find(FIND_SOURCES);
+  const sources = room.findSources();
   for (const sourceId of Object.keys(sources)) {
     targets.push({
       pos: sources[sourceId].pos,
@@ -222,7 +222,7 @@ Room.prototype.closeExitsByPath = function() {
         this.memory.walls.ramparts.push(pathPos);
       } else if (pathPos.inPositions()) {
         structure = STRUCTURE_RAMPART;
-        this.log('pathPos in Positions: ' + pathPos);
+        this.debugLog('baseBuilding', 'closeExitsByPath: pathPos in Positions: ' + pathPos);
         this.memory.walls.ramparts.push(pathPos);
       } else {
         costMatrixBase.set(pathPos.x, pathPos.y, 0xff);
@@ -236,7 +236,6 @@ Room.prototype.closeExitsByPath = function() {
       if (returnCode === ERR_INVALID_TARGET) {
         return false;
       }
-      this.debugLog('baseBuilding', 'Placing ' + structure + ' with ' + returnCode + ' at ' + JSON.stringify(pathPos));
       return true;
     }
   }

@@ -20,7 +20,7 @@ jobs:
       - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
       - run:
           command: npm run test
-          no_output_timeout: 10800
+          no_output_timeout: 2h
 workflows:
   version: 2
   test_and_deploy:

@@ -13,7 +13,7 @@ Creep.prototype.searchPath = function(target, range=1) {
   if (this.room.memory.misplacedSpawn) {
     costMatrixCallback = this.room.getBasicCostMatrixCallback();
   } else {
-    costMatrixCallback = this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName);
+    costMatrixCallback = this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName, false);
   }
   const search = PathFinder.search(
     this.pos, {
@@ -34,6 +34,9 @@ Creep.prototype.searchPath = function(target, range=1) {
 };
 
 Creep.prototype.moveMy = function(target) {
+  if (this.pos.isEqualTo(target)) {
+    return true;
+  }
   const direction = this.pos.getDirectionTo(target);
   const moveResponse = this.move(direction);
   if (moveResponse !== OK && moveResponse !== ERR_NO_BODYPART) {
@@ -61,11 +64,8 @@ Creep.prototype.moveToMy = function(target, range=1) {
 
   // Fallback to moveTo when the path is incomplete and the creep is only switching positions
   if (search.path.length < 2 && search.incomplete) {
-    this.creepLog(`moveToMy(${target}, ${range}) pos: ${this.pos} search incomplete search: ${JSON.stringify(search)}`);
-    this.room.debugLog('routing', `moveToMy fallback target: ${JSON.stringify(target)} range: ${range} search: ${JSON.stringify(search)}`);
     return this.moveTo(target, {range: range});
   }
-  this.creepLog(`moveToMy(${target}, ${range}) pos: ${this.pos} search: ${JSON.stringify(search)}`);
   target = search.path[0] || target.pos || target;
 
   const moveMyResult = this.moveMy(target, search);
@@ -79,6 +79,9 @@ Creep.prototype.moveRandom = function(onPath) {
   for (let i = 0; i < 8; i++) {
     direction = RoomPosition.changeDirection(startDirection, i);
     const pos = this.pos.getAdjacentPosition(direction);
+    if (!pos) {
+      continue;
+    }
     if (pos.isBorder(-1)) {
       continue;
     }
@@ -101,10 +104,8 @@ Creep.prototype.moveRandomWithin = function(goal, dist = 3, goal2 = false) {
   let direction = 0;
   for (let i = 0; i < 8; i++) {
     direction = RoomPosition.changeDirection(startDirection, i);
-    let pos;
-    try {
-      pos = this.pos.getAdjacentPosition(direction);
-    } catch (e) {
+    const pos = this.pos.getAdjacentPosition(direction);
+    if (!pos) {
       continue;
     }
     if (pos.isBorder(-1)) {
@@ -171,7 +172,7 @@ Creep.prototype.moveCreep = function(position, direction) {
   const creeps = getCreepsAtPosition(position, this);
   if (creeps.length > 0 && creeps[0].memory) {
     const creep = creeps[0];
-    if (this.getCreepsAtPositionCheckRoleAndTarget(creep, direction)) {
+    if (this.moveCreepCheckRoleAndTarget(creep, direction)) {
       return true;
     }
   }
@@ -222,19 +223,23 @@ Creep.prototype.preMoveExtractorSourcer = function(directions) {
 };
 
 Creep.prototype.checkForSourceKeeper = function() {
-  if (!this.room.controller) {
-    const target = this.findClosestSourceKeeper();
-    if (target !== null) {
-      const range = this.pos.getRangeTo(target);
-      if (range > 6) {
-        this.memory.routing.reverse = false;
-        return false;
-      }
-      if (range < 6) {
-        this.memory.routing.reverse = true;
-        return true;
-      }
-    }
+  if (this.room.controller) {
+    return false;
+  }
+
+  const target = this.findClosestSourceKeeper();
+  if (!target) {
+    return false;
+  }
+
+  const range = this.pos.getRangeTo(target);
+  if (range > 6) {
+    this.memory.routing.reverse = false;
+    return false;
+  }
+  if (range < 6) {
+    this.memory.routing.reverse = true;
+    return true;
   }
   return false;
 };

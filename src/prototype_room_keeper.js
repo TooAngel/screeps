@@ -120,7 +120,7 @@ Room.prototype.spawnKeepersEveryTicks = function(ticks) {
   if (Game.rooms[this.memory.base] && Game.rooms[this.memory.base].controller) {
     if (Game.rooms[this.memory.base].controller.level >= config.keepers.minControllerLevel) {
       this.checkForWatcher();
-      if (this.exectueEveryTicks(ticks)) {
+      if (this.executeEveryTicks(ticks)) {
         this.updateKeepers();
         if (this.updateClosestSpawn()) {
           returnValue = this.spawnKeepers();
@@ -150,4 +150,3 @@ Room.prototype.getNextSourceKeeperLair = function() {
   const sourceKeeperNext = _.sortBy(sourceKeeper, (object) => object.ticksToSpawn);
   return sourceKeeperNext[0];
 };
-

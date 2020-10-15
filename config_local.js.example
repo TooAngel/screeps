@@ -5,3 +5,12 @@
 config.stats.enabled = true;
 config.stats.summary = true;
 config.profiler.enabled = false;
+
+//--- Enables a summary with all rooms for every tick
+//global.config.ticksummary.bucket = true;
+//global.config.ticksummary.gcl = true;
+//global.config.ticksummary.room = true;
+//global.config.ticksummary.seperator = true; // Adds a seperatorline after each tick
+
+//---  Enables pixel generation for live server.
+//global.config.pixel.enabled = true;

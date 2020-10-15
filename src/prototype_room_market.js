@@ -149,6 +149,9 @@ Room.prototype.sendPowerOwnRooms = function() {
   if (this.terminal && this.terminal.cooldown === 0 && this.terminal.store[RESOURCE_POWER] > 100) {
     let sendOnce = false;
     const powerTransfer = _.map(_.shuffle(Memory.myRooms), (myRoom) => {
+      if (!Game.rooms[myRoom]) {
+        return false;
+      }
       if (Game.rooms[myRoom].terminal && !sendOnce) {
         if (!Game.rooms[myRoom].terminal.store[RESOURCE_POWER] ||
           (Game.rooms[myRoom].terminal.store[RESOURCE_POWER] < 100)) {

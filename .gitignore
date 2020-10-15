@@ -24,3 +24,4 @@ tests/logs/
 tests/db.json
 tmp-test-server/
 server/
+account_local.screeps.com.js

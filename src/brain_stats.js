@@ -13,7 +13,7 @@ brain.stats.init = function() {
     Memory.stats[userName].roles[index] = element;
   });
 
-  if (config.cpuStats.enable) {
+  if (config.cpuStats.enabled) {
     const startCpuWith = {load: global.load, time: Game.time, bucket: Game.cpu.bucket, tickLimit: global.tickLimit};
     Memory.cpuStats = {
       start: startCpuWith,
@@ -62,7 +62,7 @@ brain.stats.add = function(path, newContent) {
     current = current[item];
   }
 
-  current = _.merge(current, newContent);
+  _.merge(current, newContent);
   return true;
 };
 
@@ -114,7 +114,7 @@ brain.stats.addRoom = function(roomName, previousCpu) {
     energy: {
       available: room.energyAvailable,
       capacity: room.energyCapacityAvailable,
-      sources: _.sum(_.map(room.find(FIND_SOURCES), 'energy')),
+      sources: _.sum(_.map(room.findSources(), 'energy')),
     },
     controller: {
       progress: room.controller.progress,
@@ -146,7 +146,7 @@ brain.stats.addRoom = function(roomName, previousCpu) {
 };
 
 brain.stats.updateCpuStats = function() {
-  if (config.cpuStats.enable) {
+  if (config.cpuStats.enabled) {
     Memory.cpuStats.last = {
       load: _.round(Game.cpu.getUsed()),
       time: Game.time,

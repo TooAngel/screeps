@@ -50,16 +50,12 @@ Room.prototype.setCostMatrixStructures = function(costMatrix, structures, value)
 
 Room.prototype.getBasicCostMatrixCallback = function() {
   const callbackInner = (roomName) => {
-    if (roomName !== this.name) {
-      return false;
-    }
     const room = Game.rooms[roomName];
     if (!room) {
-      // TODO not sure how this can happen
-      return false;
+      return new PathFinder.CostMatrix;
     }
 
-    const costMatrix = this.getMemoryCostMatrix();
+    const costMatrix = room.getMemoryCostMatrix();
 
     if (this.memory.misplacedSpawn) {
       const structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
@@ -124,6 +120,16 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
         openExits(0, i);
         openExits(49, i);
       }
+    } else {
+      const closeExits = function(x, y) {
+        costMatrix.set(x, y, 0xff);
+      };
+      for (let i = 0; i < 50; i++) {
+        closeExits(i, 0);
+        closeExits(i, 49);
+        closeExits(0, i);
+        closeExits(49, i);
+      }
     }
     return costMatrix;
   };
@@ -142,7 +148,7 @@ Room.prototype.increaseCostMatrixValue = function(costMatrix, pos, value) {
 };
 
 Room.prototype.setCostMatrixAvoidSources = function(costMatrix) {
-  const sources = this.find(FIND_SOURCES);
+  const sources = this.findSources();
   for (const source of sources) {
     for (const pos of source.pos.getAllPositionsInRange(3)) {
       // if (!pos.inPath()) {
@@ -174,8 +180,8 @@ Room.prototype.getCostMatrix = function() {
 
   const lairs = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_KEEPER_LAIR]);
   if (lairs.length > 0) {
-    const minerals = this.find(FIND_MINERALS);
-    const sources = this.find(FIND_SOURCES);
+    const minerals = this.findMinerals();
+    const sources = this.findSources();
     for (const obj of [...lairs, ...sources, ...minerals]) {
       for (const pos of obj.pos.getAllPositionsInRange(config.layout.skLairAvoidRadius)) {
         this.increaseCostMatrixValue(costMatrix, pos, config.layout.skLairAvoid);

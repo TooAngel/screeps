@@ -15,7 +15,7 @@ roles.squadsiege.settings = {
 };
 
 roles.squadsiege.dismantleSurroundingStructures = function(creep, directions) {
-  if (!directions) {
+  if (!directions || !directions.forwardDirection) {
     return false;
   }
   const posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
@@ -35,7 +35,7 @@ roles.squadsiege.dismantleSurroundingStructures = function(creep, directions) {
 };
 
 roles.squadsiege.preMove = function(creep, directions) {
-  creep.log('preMove');
+  // creep.log('preMove');
   if (!directions) {
     return false;
   }
@@ -65,5 +65,5 @@ roles.squadsiege.action = function(creep) {
       delete creep.memory.routing.reached;
     }
   }
-  creep.siege();
+  return creep.siege();
 };

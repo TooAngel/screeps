@@ -31,7 +31,8 @@ roles.harvester.settings = {
   maxLayoutAmount: 6,
 };
 roles.harvester.updateSettings = function(room) {
-  if (room.storage && room.storage.my && room.storage.store.energy > config.creep.energyFromStorageThreshold && room.energyAvailable > 350 && !room.memory.misplacedSpawn) {
+  if (!room.isStruggeling() && room.energyAvailable >= 350) {
+    // Layoutcost minimum: prefix 250 + layout 100 -> 350
     return {
       prefixString: 'WMC',
       layoutString: 'MC',
@@ -49,7 +50,7 @@ roles.harvester.buildRoad = true;
 roles.harvester.boostActions = ['capacity'];
 
 const harvesterBeforeStorage = function(creep) {
-  if (!creep.room.storage || !creep.room.storage.my || creep.room.memory.misplacedSpawn || (creep.room.storage.store.energy + creep.carry.energy) < config.creep.energyFromStorageThreshold) {
+  if (creep.room.isStruggeling()) {
     creep.harvesterBeforeStorage();
     creep.memory.routing.reached = false;
     return true;

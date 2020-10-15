@@ -21,22 +21,20 @@ Creep.prototype.unit = function() {
  * attaches a Quest.
  **/
 Creep.prototype.mySignController = function() {
-  if (config.info.signController && this.room.exectueEveryTicks(config.info.resignInterval)) {
+  if (config.info.signController && this.room.executeEveryTicks(config.info.resignInterval)) {
     let text = config.info.signText;
-    if (config.quests.enabled && this.memory.role === 'reserver') {
+    if (config.quests.enabled && this.memory.role === 'reserver' && Game.rooms[this.memory.base].terminal) {
       if (Math.random() < config.quests.signControllerPercentage) {
         const quest = {
           id: Math.floor(Math.random() * 100000),
           origin: this.memory.base,
           end: Math.floor(Game.time / 100) * 100 + config.quests.endTime,
           type: 'Quest',
-          info: 'http://tooangel.github.io/screeps/doc/Quests.html',
+          info: 'http://tooangel.github.io/screeps',
         };
         text = JSON.stringify(quest);
         // Memory.quests[quest.id] = quest;
-        if (config.debug.quest) {
-          this.log('Attach quest:', text);
-        }
+        // this.room.debugLog('quest', `Attach quest: ${text}`);
       }
     }
 
@@ -54,6 +52,13 @@ Creep.prototype.mySignController = function() {
  **/
 Creep.prototype.inBase = function() {
   return this.room.name === this.memory.base;
+};
+
+Creep.prototype.inMyRoom = function() {
+  if (!this.room.controller) {
+    return false;
+  }
+  return this.room.controller.my;
 };
 
 /**
@@ -91,6 +96,12 @@ Creep.prototype.handle = function() {
   }
 
   try {
+    if (!this.unit()) {
+      this.log('Unknown role suiciding');
+      this.suicide();
+      return;
+    }
+
     if (this.unit().setup) {
       this.unit().setup(this);
     }
@@ -128,7 +139,7 @@ Creep.prototype.handle = function() {
         this.memory.lastPositions = [];
       }
       this.memory.lastPositions.unshift(this.pos);
-      this.memory.lastPositions = this.memory.lastPositions.slice(0, 5);
+      this.memory.lastPositions = this.memory.lastPositions.slice(0, 7);
     }
   }
 };
@@ -143,8 +154,8 @@ Creep.prototype.isStuck = function() {
     return accumulator + value;
   };
   const sum = this.memory.lastPositions.reduce(filter, 0);
-  this.creepLog(`isStuck sum: ${sum} lastPositions: ${JSON.stringify(this.memory.lastPositions)}`);
-  return sum > 2;
+  const stuck = sum > 4;
+  return stuck;
 };
 
 Creep.prototype.getEnergyFromStructure = function() {
@@ -259,7 +270,7 @@ Creep.prototype.buildRoad = function() {
     if (returnCode === OK) {
       return true;
     }
-    if (returnCode !== OK && returnCode !== ERR_INVALID_TARGET && returnCode !== ERR_FULL) {
+    if (returnCode !== ERR_INVALID_TARGET && returnCode !== ERR_FULL && returnCode !== ERR_NOT_OWNER) {
       this.log('Road: ' + this.pos + ' ' + returnCode + ' pos: ' + this.pos);
     }
     return false;
@@ -368,9 +379,9 @@ Creep.prototype.killPrevious = function(path) {
   }
 
   if (killWho.ticksToLive > killWho.memory.timeToTravel) {
-    this.log(`kill ${killWhoName} - me ttl: ${this.ticksToLive} they ttl: ${previous.ticksToLive}
-me: ${JSON.stringify(this)} Memory: ${JSON.stringify(this.memory)}
-other: ${JSON.stringify(previous)} Memory: ${JSON.stringify(previous.memory)}`);
+    // TODO this happens sometimes, e.g. `kill other - me ttl: 1473 they ttl: 44`
+    // needs to be investigated (if it is really an issue)
+    this.creepLog(`kill ${killWhoName} - me ttl: ${this.ticksToLive} they ttl: ${previous.ticksToLive}`);
   }
   killWho.memory.killed = true;
   killWho.suicide();

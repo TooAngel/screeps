@@ -12,23 +12,6 @@
 
 roles.nextroomer = {};
 
-roles.nextroomer.died = function(name, creepMemory) {
-  if (!creepMemory || !creepMemory.routing || !creepMemory.routing.route || !creepMemory.routing.routePos) {
-    console.log('DIED', name, 'routing not in memory');
-    return true;
-  }
-  if (creepMemory.routing.route[creepMemory.routing.routePos]) {
-    const roomName = creepMemory.routing.route[creepMemory.routing.routePos].room;
-    const message = `${name} ${roomName} ${JSON.stringify(creepMemory)}`;
-    if (roomName === creepMemory.routing.targetRoom) {
-      // TODO make underSiege to a counter
-    }
-    // Works but was annoying due to suppen
-    console.log(Game.time, 'DIED:', message);
-  }
-  return true;
-};
-
 roles.nextroomer.settings = {
   layoutString: 'MWC',
   amount: [6, 3, 3],
@@ -65,7 +48,6 @@ roles.nextroomer.buildRamparts = function(creep) {
   const links = creep.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
   if (links.length) {
     creep.say('dismantle');
-    creep.log(JSON.stringify(links));
     creep.dismantle(links[0]);
     return true;
   }
@@ -168,11 +150,11 @@ roles.nextroomer.underSiege = function(creep) {
       delete creep.memory.targetId;
     }
   }
-  const sources = room.find(FIND_SOURCES);
+  const sources = room.findSources();
   for (const sourceId of Object.keys(sources)) {
     const source = sources[sourceId];
     const sourcerPosMem = room.memory.position.creep[source.id];
-    const sourcerPos = new RoomPosition(sourcerPosMem.x, sourcerPosMem.y, sourcerPosMem.roomName);
+    const sourcerPos = new RoomPosition(sourcerPosMem.x, sourcerPosMem.y, creep.room.name);
 
     if (creep.pos.isEqualTo(sourcerPos)) {
       creep.memory.targetId = source.id;
@@ -250,7 +232,7 @@ roles.nextroomer.settle = function(creep) {
     return true;
   }
 
-  if ((creep.room.energyCapacityAvailable < 300) && (creep.room.exectueEveryTicks(50))) {
+  if ((creep.room.energyCapacityAvailable < 300) && (creep.room.executeEveryTicks(50))) {
     const constructionSites = creep.room.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_LAB, STRUCTURE_NUKER, STRUCTURE_TERMINAL]);
     for (const cs of constructionSites) {
       cs.remove();
@@ -268,9 +250,6 @@ roles.nextroomer.preMove = function(creep, directions) {
     return false;
   }
   if (!directions.forwardDirection) {
-    if (config.debug.nextRoomer) {
-      creep.log(`preMove no forwardDirection, why? (I think not on path) ${JSON.stringify(directions)} ${JSON.stringify(creep.memory)}`);
-    }
     return false;
   }
   const posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);

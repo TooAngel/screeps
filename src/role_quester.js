@@ -37,13 +37,13 @@ roles.quester.questWon = function(creep, quest) {
 roles.quester.handleBuildcs = function(creep, quest) {
   // Give time before end to build the last CS
   if (quest.end - Game.time > 300) {
-    const cs = creep.room.find(FIND_CONSTRUCTION_SITES);
+    const cs = creep.room.findConstructionSites();
     if (cs.length === 0) {
       creep.pos.createConstructionSite(STRUCTURE_ROAD);
     }
   }
   if (quest.end < Game.time) {
-    const cs = creep.room.find(FIND_CONSTRUCTION_SITES);
+    const cs = creep.room.findConstructionSites();
 
     if (cs.length > 0) {
       roles.quester.questLost(creep, quest, 'cs', cs.length);
