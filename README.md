@@ -12,6 +12,10 @@ https://screeps.com/
 See rendered version:
 http://tooangel.github.io/screeps/
 
+This repository is [World Driven](https://www.worlddriven.org). Pull Requests
+are automatically merged and deployed to the
+[Screeps TooAngel account](https://www.screeps.com).
+
 ## Quests
 
 Head over to [Quests](doc/Quests.md)
