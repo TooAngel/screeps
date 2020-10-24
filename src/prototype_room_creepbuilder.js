@@ -403,6 +403,11 @@ Room.prototype.spawnCreateCreep = function(creep) {
   }
 
   for (const spawn of spawns) {
+    let body = config.body;
+    if (body.length > 50) {
+      this.log(`spawnCreateCreep body too long: ${body.length} ${config.name} ${config.opts}`);
+      body = body.splice(0, 50);
+    }
     const returnCode = spawn.spawnCreep(config.body, config.name, config.opts);
     if (returnCode !== OK) {
       this.log(`spawnCreateCreep: ${returnCode} ${JSON.stringify(config)}`);
