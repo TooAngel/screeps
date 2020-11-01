@@ -54,6 +54,57 @@ Room.prototype.spawnCheckForCreate = function() {
 };
 
 /**
+  * isCreepValid - Checks for the basic structurer
+  *
+  * @param {object} creep - The memory of a creep
+  * @return {boolean} - If the creep is valid
+  **/
+function isCreepValid(creep) {
+  if (!creep) {
+    return false;
+  }
+  if (!creep.routing) {
+    return false;
+  }
+  if (!creep.role) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * compareSingleRoutingValue - Compares a single routing value
+ *
+ * @param {object} first - The first creep
+ * @param {object} second - The second creep
+ * @param {string} routingValue - The routing value
+ * @return {boolean} - The value are equal or not set
+ **/
+function compareSingleRoutingValue(first, second, routingValue) {
+  if (first.routing[routingValue] && second.routing[routingValue] && first.routing[routingValue] !== second.routing[routingValue]) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * isEqualRouting - Compares the routing values
+ *
+ * @param {object} first - The first creep
+ * @param {object} second - The second creep
+ * @return {boolean} - If routing is equal
+ **/
+function isEqualRouting(first, second) {
+  if (!compareSingleRoutingValue(first, second, 'targetRoom')) {
+    return false;
+  }
+  if (!compareSingleRoutingValue(first, second, 'targetId')) {
+    return false;
+  }
+  return true;
+}
+
+/**
  * isSameCreep - Checks if two creeps are matching in role, targetId and
  * targetRoom
  *
@@ -62,22 +113,16 @@ Room.prototype.spawnCheckForCreate = function() {
  * @return {boolean} both creeps have the same role, targetId and targetRoom
  */
 Room.prototype.isSameCreep = function(first, second) {
-  if (!first || !second) {
+  if (!isCreepValid(first)) {
+    return false;
+  }
+  if (!isCreepValid(second)) {
     return false;
   }
   if (first.role !== second.role) {
     return false;
   }
-  if (!first.routing) {
-    return false;
-  }
-  if (!second.routing) {
-    return false;
-  }
-  if (first.routing.targetRoom && second.routing.targetRoom && first.routing.targetRoom !== second.routing.targetRoom) {
-    return false;
-  }
-  if (first.routing.targetId && second.routing.targetId && first.routing.targetId !== second.routing.targetId) {
+  if (!isEqualRouting(first, second)) {
     return false;
   }
   return true;
@@ -93,16 +138,21 @@ Room.prototype.inQueue = function(creepMemory) {
   return false;
 };
 
-Room.prototype.inRoom = function(creepMemory, amount = 1) {
-  if (amount === 0) {
-    return false;
-  }
+Room.prototype.getSpawningCreeps = function() {
   const creepsSpawning = [];
   for (const spawn of this.findMySpawns()) {
     if (spawn.spawning) {
       creepsSpawning.push(Game.creeps[spawn.spawning.name]);
     }
   }
+  return creepsSpawning;
+};
+
+Room.prototype.inRoom = function(creepMemory, amount = 1) {
+  if (amount === 0) {
+    return false;
+  }
+  const creepsSpawning = this.getSpawningCreeps();
   const creeps = this.findMyCreeps().concat(creepsSpawning);
   this.memory.roles = this.memory.roles || {};
 
@@ -189,6 +239,47 @@ Room.prototype.getPartsStringDatas = function(parts, energyAvailable) {
 };
 
 /**
+ * findFittingValueFromScale - Finds the fitting value within a scale
+ *
+ * @param {object} setting - The scale
+ * @param {number} value - The value to match the scale
+ * @return {object} - The value to return
+ **/
+function findFittingValueFromScale(setting, value) {
+  let foundKey = 0;
+  if (!setting) {
+    return;
+  }
+  for (const key of Object.keys(setting)) {
+    if (value < key && foundKey !== 0) {
+      break;
+    }
+    foundKey = key;
+  }
+  return setting[foundKey];
+}
+
+/**
+ * isSettingAnObject - Checks is the setting is an object
+ *
+ * @param {object} setting - The setting to check
+ * @return {boolean} - If it is valid
+ **/
+function isSettingAnObject(setting) {
+  // Not sure when this happens
+  if (!setting || setting === null) {
+    return false;
+  }
+  if (_.isArray(setting)) {
+    return false;
+  }
+  if (!_.isObject(setting)) {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Room.prototype.getSettings use for return creep spawn settings
  * adapted to room configuration
  *
@@ -205,29 +296,19 @@ Room.prototype.getSettings = function(creep) {
   }
   const param = settings.param;
   return _.mapValues(settings, (setting) => {
-    // Not sure when this happens
-    if (!setting || setting === null) {
-      return setting;
-    }
     if (!param) {
       return setting;
     }
     for (const parameter of param) {
-      if (_.isString(setting) || _.isNumber(setting) || _.isArray(setting) || _.isBoolean(setting)) {
-        break;
+      if (!isSettingAnObject(setting)) {
+        return setting;
       }
       const valueForI = _.get(this, parameter, 1);
-      let foundKey = 0;
-      if (!setting) {
+      const value = findFittingValueFromScale(setting, valueForI);
+      if (value === undefined) {
         break;
       }
-      for (const key of Object.keys(setting)) {
-        if (valueForI < key && foundKey !== 0) {
-          break;
-        }
-        foundKey = key;
-      }
-      setting = setting[foundKey];
+      setting = value;
     }
     return setting;
   });
@@ -406,7 +487,7 @@ Room.prototype.spawnCreateCreep = function(creep) {
     let body = config.body;
     if (body.length > 50) {
       this.log(`spawnCreateCreep body too long: ${body.length} ${config.name} ${config.opts}`);
-      body = body.splice(0, 50);
+      body = body.splice(50);
     }
     const returnCode = spawn.spawnCreep(config.body, config.name, config.opts);
     if (returnCode !== OK) {

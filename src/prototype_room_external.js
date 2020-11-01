@@ -48,6 +48,17 @@ Room.prototype.isHighwayRoom = function() {
   return false;
 };
 
+Room.prototype.isCenterRoom = function() {
+  if (this.controller) {
+    return false;
+  }
+  const nameSplit = this.splitRoomName();
+  if (nameSplit[2].endsWith('5') && nameSplit[4].endsWith('5')) {
+    return true;
+  }
+  return false;
+};
+
 Room.prototype.checkForQuest = function() {
   if (Game.time - this.memory.lastSeen < config.quests.checkInterval) {
     return;
@@ -65,13 +76,9 @@ Room.prototype.checkForQuest = function() {
   try {
     data = JSON.parse(sign.text);
   } catch (e) {
-    if (sign.text.startsWith('Fully')) {
-      return;
+    if (sign.text.startsWith('{')) {
+      this.log(`checkForQuest JSON.parse text: "${sign.text}" exception: ${e}`);
     }
-    if (sign.text.endsWith('io/screeps/do')) {
-      return;
-    }
-    this.log(`checkForQuest JSON.parse text: "${sign.text}" exception: ${e}`);
     return;
   }
   if (!data.type) {
@@ -145,6 +152,10 @@ Room.prototype.handleNoControllerRooms = function() {
   const sourceKeepers = this.findSourceKeepersStructures();
   if (sourceKeepers.length > 0) {
     return this.handleSourceKeeperRoom();
+  }
+  if (this.isCenterRoom()) {
+    // this.log(`${this.name} is center room`);
+    return;
   }
   this.log('Can not handle this room, no controller, no highway, no source keeper');
   delete Memory.rooms[this.roomName];

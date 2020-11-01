@@ -66,7 +66,7 @@ describe('Room', function() {
         misplacedSpawn: false,
       }
     }
-    assert.equal(true, room.isSameCreep({routing: {}}, {routing: {targetId: 'targetId'}}));
+    assert.equal(true, room.isSameCreep({role: 'harvester', routing: {}}, {role: 'harvester', routing: {targetId: 'targetId'}}));
   });
 
   it('getCreepConfig attackunreserve has heal', function() {

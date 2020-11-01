@@ -30,11 +30,11 @@ Room.prototype.findKeepers = function(roles) {
     return _.map(positions, updateKeepersPos);
   } else {
     // todo-msc try setup?
-    if (this.memory.position) {
-      this.log('no memory.position.creep');
-    } else {
-      this.log('no memory.position');
-    }
+    // if (this.memory.position) {
+    //   this.log('no memory.position.creep');
+    // } else {
+    //   this.log('no memory.position');
+    // }
   }
   return false;
 };
@@ -120,7 +120,9 @@ Room.prototype.spawnKeepersEveryTicks = function(ticks) {
   let returnValue = false;
   if (Game.rooms[this.memory.base] && Game.rooms[this.memory.base].controller) {
     if (Game.rooms[this.memory.base].controller.level >= config.keepers.minControllerLevel) {
-      this.checkForWatcher();
+      // TODO I don't know what the watcher is good for, keeper rooms need to
+      // be redone anyway
+      // this.checkForWatcher();
       if (this.executeEveryTicks(ticks)) {
         this.updateKeepers();
         if (this.updateClosestSpawn()) {
