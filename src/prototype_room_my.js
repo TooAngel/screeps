@@ -578,6 +578,8 @@ Room.prototype.reviveMyNowHelperValid = function(helperRoom) {
     this.debugLog('revive', `No nextroomer checkForRoute no route to ${helperRoom.name}`);
     return false;
   }
+
+  return true;
 };
 
 Room.prototype.reviveMyNow = function() {
