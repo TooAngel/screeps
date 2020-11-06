@@ -25,7 +25,7 @@ module.exports.milestones = [
   {tick: 3300, check: {structures: 4}},
   {tick: 4200, check: {structures: 5}},
   {tick: 4900, check: {structures: 6}},
-  {tick: 13300, check: {level: 3}, required: true},
+  {tick: 14100, check: {level: 3}, required: true},
   {tick: 14200, check: {structures: 7}},
   {tick: 14300, check: {structures: 8}},
   {tick: 14800, check: {structures: 9}},

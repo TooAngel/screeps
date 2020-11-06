@@ -232,7 +232,7 @@ global.config = {
     upgraderStorageFactor: 2,
     lastSeenThreshold: 1000000,
     notify: false,
-    observerRange: OBSERVER_RANGE, // between 1 and 10:OBSERVER_RANGE
+    observerRange: 5, // Reduced to save memory OBSERVER_RANGE, // between 1 and 10:OBSERVER_RANGE
   },
 
   layout: {
