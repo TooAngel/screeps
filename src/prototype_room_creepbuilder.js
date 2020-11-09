@@ -383,7 +383,7 @@ Room.prototype.getPartConfig = function(creep) {
     sufixString,
     fillTough} = settings;
   let layoutString = settings.layoutString;
-  const maxBodyLength = this.getPartConfigMaxBodyLength();
+  const maxBodyLength = this.getPartConfigMaxBodyLength(prefixString, sufixString);
 
   const prefix = this.getPartsStringDatas(prefixString, energyAvailable);
   if (prefix.fail) {

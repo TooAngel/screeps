@@ -558,26 +558,23 @@ const checkForRoute = function(room, roomOther) {
 };
 
 Room.prototype.reviveMyNowHelperValid = function(helperRoom) {
+  let valid = false;
+
   if (helperRoom.isStruggeling()) {
     this.debugLog('revive', `No nextroomer is struggeling ${helperRoom.name}`);
-    return false;
-  }
-  // When close before downgrading, just send nextroomers
-  // TODO replace 1500 with CREEP_LIFE_TIME
-  if (this.controller.ticksToDowngrade > 1500 && !helperRoom.isHealthy()) {
+  } else if (this.controller.ticksToDowngrade > 1500 && !helperRoom.isHealthy()) {
+    // When close before downgrading, just send nextroomers
+    // TODO replace 1500 with CREEP_LIFE_TIME
     this.debugLog('revive', `No nextroomer not healthy ${helperRoom.name} ${helperRoom.storage.store.energy}`);
-    return false;
-  }
-  const distance = Game.map.getRoomLinearDistance(this.name, helperRoom.name);
-  if (distance > config.nextRoom.maxDistance) {
+  } else if (Game.map.getRoomLinearDistance(this.name, helperRoom.name) > config.nextRoom.maxDistance) {
     this.debugLog('revive', `Too far ${helperRoom.name}`);
-    return false;
+  } else if (checkForRoute(this, helperRoom)) {
+    this.debugLog('revive', `No nextroomer checkForRoute no route to ${helperRoom.name}`);
+  } else {
+    valid = true;
   }
 
-  if (checkForRoute(this, helperRoom)) {
-    this.debugLog('revive', `No nextroomer checkForRoute no route to ${helperRoom.name}`);
-    return false;
-  }
+  return valid;
 };
 
 Room.prototype.reviveMyNow = function() {
