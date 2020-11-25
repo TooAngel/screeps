@@ -1,5 +1,13 @@
 'use strict';
 
+Creep.prototype.rangeAttackOutsideOfMyRooms = function(targets) {
+  if (targets.length > 0) {
+    if (!this.room.controller || !this.room.controller.my) {
+      this.rangedAttack(targets[0]);
+    }
+  }
+};
+
 Creep.prototype.findClosestSourceKeeper = function() {
   return this.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Source Keeper']);
 };

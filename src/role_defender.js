@@ -32,11 +32,7 @@ roles.defender.preMove = function(creep) {
     if (targets.length === 0) {
       targets = creep.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_WALL, STRUCTURE_RAMPART]);
     }
-    if (targets.length > 0) {
-      if (!creep.room.controller || !creep.room.controller.my) {
-        creep.rangedAttack(targets[0]);
-      }
-    }
+    creep.rangeAttackOutsideOfMyRooms(targets);
   }
 };
 
