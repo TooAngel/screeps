@@ -33,6 +33,15 @@ roles.squadheal.preMove = function(creep, directions) {
   }
 
   if (creep.memory.squad) {
+    if (!Memory.squads) {
+      Memory.squads = {};
+    }
+    if (!Memory.squads[creep.memory.squad]) {
+      Memory.squads[creep.memory.squad] = {};
+    }
+    if (!Memory.squads[creep.memory.squad].heal) {
+      Memory.squads[creep.memory.squad].heal = {};
+    }
     const squad = Memory.squads[creep.memory.squad];
     if (!squad) {
       creep.log(`There is no squad: ${creep.memory.squad} squads: ${Object.keys(Memory.squads)}`);

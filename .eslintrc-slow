@@ -31,7 +31,7 @@ rules:
   no-console: 0
   no-negated-in-lhs: 2
 
-  complexity: [2, 18]
+  complexity: [2, 17]
 
   # Best Practices
   accessor-pairs: 2

@@ -42,6 +42,15 @@ roles.squadsiege.preMove = function(creep, directions) {
   roles.squadsiege.dismantleSurroundingStructures(creep, directions);
   if (creep.memory.squad) {
     if (!creep.memory.initialized) {
+      if (!Memory.squads) {
+        Memory.squads = {};
+      }
+      if (!Memory.squads[creep.memory.squad]) {
+        Memory.squads[creep.memory.squad] = {};
+      }
+      if (!Memory.squads[creep.memory.squad.siege]) {
+        Memory.squads[creep.memory.squad].siege = {};
+      }
       Memory.squads[creep.memory.squad].siege[creep.id] = {};
       creep.memory.initialized = true;
     }

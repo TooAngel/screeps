@@ -56,7 +56,7 @@ class Tester {
     if (botsSpawned && line.startsWith(`'OK'`)) {
       let appendix = '';
       if (this.maxRuntime > 0) {
-        appendix = ` with runtime ${this.maxRuntime / 60} minutes`
+        appendix = ` with runtime ${this.maxRuntime / 60} minutes`;
       }
       console.log(`> Start the simulation${appendix}`);
       if (this.maxRuntime > 0) {

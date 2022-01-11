@@ -16,11 +16,11 @@ module.exports = function(grunt) {
     };
   }
 
-  let account_local;
+  let accountLocal;
   try {
-    account_local = require('./account_local.screeps.com')
+    accountLocal = require('./account_local.screeps.com');
   } catch (e) {
-    account_local = {
+    accountLocal = {
       email: false,
       password: false,
     };
@@ -47,27 +47,27 @@ module.exports = function(grunt) {
         files: [
           {
             src: ['dist/*.js'],
-          }
+          },
         ],
       },
       local: {
         options: {
-          email: account_local.email,
-          password: account_local.password,
-          branch: account_local.branch,
+          email: accountLocal.email,
+          password: accountLocal.password,
+          branch: accountLocal.branch,
           ptr: false,
           server: {
-            http: account_local.http,
-            port: account_local.port,
-            host: account_local.host,
-          }
+            http: accountLocal.http,
+            port: accountLocal.port,
+            host: accountLocal.host,
+          },
         },
         files: [
           {
             src: ['dist/*.js'],
-          }
+          },
         ],
-      }
+      },
     },
     mochaTest: {
       src: ['test/**/*.js'],

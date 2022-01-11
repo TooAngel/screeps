@@ -153,15 +153,8 @@ Room.prototype.closeExitsByPath = function() {
   if (this.memory.walls.exit_i >= exits.length) {
     this.memory.walls.exit_i = 0;
     this.memory.walls.layer_i++;
-    if (config.debug.baseBuilding) {
-      this.log('Increase layer');
-    }
     if (this.memory.walls.layer_i >= config.layout.wallThickness) {
-      if (config.debug.baseBuilding) {
-        this.log('Wall setup finished');
-      }
       this.memory.walls.finished = true;
-
       return false;
     }
     return true;

@@ -620,10 +620,10 @@ Room.prototype.setRoomInactive = function() {
     });
     addToIdiot = Math.max(addToIdiot, tokens[0].price);
   }
-  this.log('Increase idiot by subscription token');
   const idiotCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
   if (idiotCreeps.length > 0) {
     for (const idiotCreep of idiotCreeps) {
+      this.log(`Increase idiot by subscription token (${addToIdiot}) for ${idiotCreep.owner.username}`);
       brain.increaseIdiot(idiotCreep.owner.username, addToIdiot);
     }
   }

@@ -58,19 +58,25 @@ const harvesterBeforeStorage = function(creep) {
   return false;
 };
 
+/**
+ * pickupResourcesInRange
+ *
+ * @param {object} creep
+ */
+function pickupResourcesInRange(creep) {
+  const resources = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1);
+  if (resources.length > 0) {
+    creep.pickup(Game.getObjectById(resources[0].id));
+  }
+}
+
 roles.harvester.preMove = function(creep, directions) {
   creep.creepLog(`preMove`);
   if (harvesterBeforeStorage(creep)) {
     return true;
   }
 
-  const resources = creep.room.find(FIND_DROPPED_RESOURCES, {
-    filter: Creep.pickableResources(creep),
-  });
-  if (resources.length > 0) {
-    const resource = Game.getObjectById(resources[0].id);
-    creep.pickup(resource);
-  }
+  pickupResourcesInRange(creep);
 
   if (typeof(creep.memory.move_forward_direction) === 'undefined') {
     creep.memory.move_forward_direction = true;
