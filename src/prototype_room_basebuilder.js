@@ -122,8 +122,8 @@ Room.prototype.destroyStructure = function(structure) {
   if (structure.structureType === STRUCTURE_SPAWN) {
     if (this.memory.misplacedSpawn) {
       if (this.storage && this.storage.store.energy > 20000) {
-        const planers = this.findMyCreepsOfRole('planer');
-        if (planers.length > 3) {
+        const builders = this.findMyCreepsOfRole('builder');
+        if (builders.length > 3) {
           this.log('Destroying to rebuild spawn: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
           this.log('-----------------------------------------');
           this.log('ATTENTION: The last spawn is destroyed, a new one will be build automatically, DO NOT RESPAWN');
@@ -147,8 +147,7 @@ Room.prototype.destroyStructure = function(structure) {
 
 Room.prototype.checkPath = function() {
   //  this.log('checkPath: ' + this.memory.controllerLevel.checkPathInterval);
-
-  const path = this.getMemoryPath('pathStart-harvester');
+  const path = this.getMemoryPath('pathStart-universal');
   if (!path) {
     this.log('Skipping checkPath, routing not initialized, try remove memory');
     this.clearMemory();
@@ -316,50 +315,22 @@ Room.prototype.buildStructures = function() {
     return true;
   }
 
-  if (this.setupStructure('spawn')) {
-    return true;
-  }
-  if (this.setupStructure(STRUCTURE_TOWER)) {
-    return true;
-  }
-
-  if (this.setupStructure(STRUCTURE_STORAGE)) {
-    return true;
-  }
-
-  if (this.setupStructure(STRUCTURE_LINK)) {
-    return true;
-  }
-
-  if (this.setupStructure(STRUCTURE_EXTENSION)) {
-    return true;
+  const beforeStorage = [STRUCTURE_SPAWN, STRUCTURE_TOWER, STRUCTURE_STORAGE, STRUCTURE_LINK, STRUCTURE_EXTENSION];
+  for (const structure of beforeStorage) {
+    if (this.setupStructure(structure)) {
+      return true;
+    }
   }
 
   if (!this.storage || this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_LINK]).length > 0) {
     return false;
   }
-  if (this.setupStructure(STRUCTURE_POWER_SPAWN)) {
-    return true;
-  }
 
-  if (this.setupStructure(STRUCTURE_EXTRACTOR)) {
-    return true;
-  }
-
-  if (this.setupStructure(STRUCTURE_OBSERVER)) {
-    return true;
-  }
-
-  if (this.setupStructure(STRUCTURE_TERMINAL)) {
-    return true;
-  }
-
-  if (this.setupStructure(STRUCTURE_LAB)) {
-    return true;
-  }
-
-  if (this.setupStructure(STRUCTURE_NUKER)) {
-    return true;
+  const afterStorage = [STRUCTURE_POWER_SPAWN, STRUCTURE_EXTRACTOR, STRUCTURE_OBSERVER, STRUCTURE_TERMINAL, STRUCTURE_LAB, STRUCTURE_NUKER];
+  for (const structure of afterStorage) {
+    if (this.setupStructure(structure)) {
+      return true;
+    }
   }
 
   return false;

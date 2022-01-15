@@ -10,6 +10,8 @@ globals:
   cache: writable
   visualizer: writable
   PIXEL_CPU_COST: writable
+  describe: writable
+  it: writable
 
 parserOptions:
   ecmaVersion: 8

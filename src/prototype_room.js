@@ -30,6 +30,11 @@ function initMemory(room) {
     }
   }
   room.memory.hostileCreepCount = room.find(FIND_HOSTILE_CREEPS).length;
+
+  // Migration from harvester to universal
+  if (room.memory.routing && !room.memory.routing['pathStart-universal'] && room.memory.routing['pathStart-harvester']) {
+    room.memory.routing['pathStart-universal'] = room.memory.routing['pathStart-harvester'];
+  }
 }
 
 Room.prototype.handle = function() {

@@ -25,8 +25,6 @@ Creep.upgradeControllerTask = function(creep) {
     const returnCode = creep.upgradeController(creep.room.controller);
     if (returnCode !== OK) {
       creep.log('upgradeController: ' + returnCode);
-    } else {
-      creep.upgraderUpdateStats();
     }
     if (resource) {
       creep.moveRandomWithin(creep.room.controller.pos, 3, resource);
@@ -101,7 +99,7 @@ Creep.buildRoads = function(creep) {
 };
 
 Creep.recycleCreep = function(creep) {
-  if (creep.memory.role === 'planer') {
+  if (creep.memory.role === 'builder') {
     creep.room.buildStructures();
   }
 

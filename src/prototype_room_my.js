@@ -86,7 +86,7 @@ function isUnexpectedLinkTransferReturnCode(returnCode) {
 }
 
 Room.prototype.handleLinksTransferEnergy = function(links, linkIndex, linkStorage) {
-  if (this.memory.attackTimer > 50 && this.controller.level > 6) {
+  if (this.isUnderAttack() && this.controller.level > 6) {
     // If under attack, only fetch from links next to the sourcer
     // and transfer to the other links
     for (let i = 1; i < 3; i++) {
@@ -127,7 +127,7 @@ Room.prototype.handleLinks = function() {
 };
 
 Room.prototype.handlePowerSpawn = function() {
-  // added executeEveryTicks 3 for movement of harvesters
+  // added executeEveryTicks 3 for movement of universal
   if (this.executeEveryTicks(3)) {
     const powerSpawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_POWER_SPAWN]);
     if (powerSpawns.length === 0) {
@@ -213,14 +213,14 @@ Room.prototype.handleScout = function() {
   return true;
 };
 
-Room.prototype.getHarvesterAmount = function() {
+Room.prototype.getUniversalAmount = function() {
   if (!this.storage) {
     return 2;
   }
   if (!this.storage.my) {
     return 10;
   }
-  if (this.controller.level < 5 && this.storage.store.energy < config.creep.energyFromStorageThreshold) {
+  if (this.controller.level < 5 && this.storage.isLow()) {
     return 3;
   }
   return 1;
@@ -242,7 +242,7 @@ Room.prototype.handleAttackTimer = function(hostiles) {
   if (hostiles.length === 0) {
     return this.handleAttackTimerWithoutHostiles();
   }
-  if (this.memory.attackTimer > 40) {
+  if (this.isUnderAttack()) {
     if (Game.time % 5 === 0) {
       this.log(`Under attack: hostiles: ${hostiles.length} attackTimer: ${this.memory.attackTimer}`);
     }
@@ -261,7 +261,7 @@ Room.prototype.checkForSafeMode = function() {
 };
 
 Room.prototype.spawnTowerFiller = function() {
-  if (this.memory.attackTimer < 50 || this.controller.level < 6) {
+  if (!this.isUnderAttack() || this.controller.level < 6) {
     return false;
   }
   const towers = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER]);
@@ -378,7 +378,7 @@ Room.prototype.handleIdiot = function() {
   }
 };
 
-Room.prototype.getPlanerAmount = function(constructionSites) {
+Room.prototype.getBuilderAmount = function(constructionSites) {
   let amount = 1;
   if (this.controller.level >= 4 && this.memory.misplacedSpawn) {
     amount = 3;
@@ -391,17 +391,17 @@ Room.prototype.getPlanerAmount = function(constructionSites) {
   return amount;
 };
 
-Room.prototype.checkForPlaner = function() {
+Room.prototype.checkForBuilder = function() {
   const constructionSites = this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART], {inverse: true});
   if (constructionSites.length === 0) {
     if (this.memory.misplacedSpawn && this.storage && this.storage.store.energy > 20000 && this.energyAvailable >= this.energyCapacityAvailable - 300) {
-      this.checkRoleToSpawn('planer', 4);
+      this.checkRoleToSpawn('builder', 4);
     }
     return;
   }
 
-  const amount = this.getPlanerAmount(constructionSites);
-  this.checkRoleToSpawn('planer', amount);
+  const amount = this.getBuilderAmount(constructionSites);
+  this.checkRoleToSpawn('builder', amount);
 };
 
 Room.prototype.isRoomReadyForExtractor = function() {
@@ -427,7 +427,8 @@ Room.prototype.checkForExtractor = function() {
   if (minerals.length > 0 && minerals[0].mineralAmount > 0) {
     const amount = this.terminal.store[minerals[0].mineralType] || 0;
     if (amount < config.mineral.storage) {
-      this.checkRoleToSpawn('extractor');
+      const targetId = minerals[0].id;
+      this.checkRoleToSpawn('extractor', 1, targetId, this.name);
     }
   }
 };
@@ -482,6 +483,10 @@ Room.prototype.isRampingUp = function() {
   return false;
 };
 
+Room.prototype.isUnderAttack = function() {
+  return this.memory.attackTimer > config.myRoom.underAttackMinAttackTimer;
+};
+
 Room.prototype.isStruggeling = function() {
   if (this.isRampingUp()) {
     return true;
@@ -489,8 +494,7 @@ Room.prototype.isStruggeling = function() {
   if (!this.memory.active) {
     return true;
   }
-  // TODO rename the `config.creep` variable - check usage first
-  if (this.storage.store.energy < config.creep.energyFromStorageThreshold) {
+  if (this.storage.isLow()) {
     return true;
   }
   return false;
@@ -515,8 +519,8 @@ Room.prototype.executeRoom = function() {
   this.handleAttack(hostiles);
   this.handleReviveRoom(hostiles);
 
-  const amount = this.getHarvesterAmount();
-  this.checkRoleToSpawn('harvester', amount);
+  const amount = this.getUniversalAmount();
+  this.checkRoleToSpawn('universal', amount);
 
   this.handleIdiot();
   this.checkAndSpawnSourcer();
@@ -528,7 +532,7 @@ Room.prototype.executeRoom = function() {
     this.checkRoleToSpawn('upgrader', 1, this.controller.id);
   }
 
-  this.checkForPlaner();
+  this.checkForBuilder();
   this.checkForExtractor();
   this.checkForMiner();
   this.handleScout();

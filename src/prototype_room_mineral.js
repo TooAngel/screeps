@@ -41,72 +41,76 @@ Room.prototype.getNextReaction = function() {
   return false;
 };
 
-Room.prototype.reactions = function() {
-  if (!this.memory.reaction) {
-    const result = this.getNextReaction();
-    if (!result) {
-      return;
-    }
+Room.prototype.reactionsWithoutReaction = function() {
+  const result = this.getNextReaction();
+  if (!result) {
+    return;
+  }
 
-    const labsAll = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB], {
-      filter: (object) => !object.mineralType || object.mineralType === result.result,
+  const labsAll = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB], {
+    filter: (object) => !object.mineralType || object.mineralType === result.result,
+  });
+
+  let lab;
+  const labs = [];
+  const getNearLabs = function(object) {
+    if (object.id === lab.id) {
+      return false;
+    }
+    if (!object.mineralType) {
+      return true;
+    }
+    if (object.mineralType === result.first) {
+      return true;
+    }
+    if (object.mineralType === result.second) {
+      return true;
+    }
+    return false;
+  };
+
+  for (lab of labsAll) {
+    const labsNear = lab.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 2, 'structureType', [STRUCTURE_LAB], {
+      filter: getNearLabs,
     });
 
-    let lab;
-    const labs = [];
-    const getNearLabs = function(object) {
-      if (object.id === lab.id) {
-        return false;
-      }
-      if (!object.mineralType) {
-        return true;
-      }
-      if (object.mineralType === result.first) {
-        return true;
-      }
-      if (object.mineralType === result.second) {
-        return true;
-      }
-      return false;
-    };
+    if (labsNear.length >= 2) {
+      labs.push(lab.id);
+      //        console.log(lab.mineralType, result.result);
 
-    for (lab of labsAll) {
-      const labsNear = lab.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 2, 'structureType', [STRUCTURE_LAB], {
-        filter: getNearLabs,
-      });
-
-      if (labsNear.length >= 2) {
-        labs.push(lab.id);
-        //        console.log(lab.mineralType, result.result);
-
-        for (const labNear of labsNear) {
-          if (!labNear.mineralType || labNear.mineralType === result.first) {
-            //            console.log(labNear.mineralType, result.first);
-            labs.push(labNear.id);
-            break;
-          }
+      for (const labNear of labsNear) {
+        if (!labNear.mineralType || labNear.mineralType === result.first) {
+          //            console.log(labNear.mineralType, result.first);
+          labs.push(labNear.id);
+          break;
         }
-        for (const labNear of labsNear) {
-          if (labNear.id === labs[1]) {
-            continue;
-          }
-          if (!labNear.mineralType || labNear.mineralType === result.second) {
-            //            console.log(labNear.mineralType, result.second);
-            labs.push(labNear.id);
-            break;
-          }
-        }
-        break;
       }
+      for (const labNear of labsNear) {
+        if (labNear.id === labs[1]) {
+          continue;
+        }
+        if (!labNear.mineralType || labNear.mineralType === result.second) {
+          //            console.log(labNear.mineralType, result.second);
+          labs.push(labNear.id);
+          break;
+        }
+      }
+      break;
     }
-    if (labs.length < 3) {
-      return false;
-    }
-    this.memory.reaction = {
-      result: result,
-      labs: labs,
-    };
-    //    this.log('Setting reaction: ' + JSON.stringify(this.memory.reaction));
+  }
+  if (labs.length < 3) {
+    return false;
+  }
+  this.memory.reaction = {
+    result: result,
+    labs: labs,
+  };
+  //    this.log('Setting reaction: ' + JSON.stringify(this.memory.reaction));
+};
+
+Room.prototype.reactions = function() {
+  if (!this.memory.reaction) {
+    return this.reactionsWithoutReaction();
   }
 
   if (this.getResourceAmountWithNextTiers(this.memory.reaction.result.result) > config.mineral.minAmount &&

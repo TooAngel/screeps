@@ -137,6 +137,39 @@ const getCreepsAtPosition = function(position, creep) {
   return creeps;
 };
 
+/**
+ * moveUniversalAsSourcerReserver
+ *
+ * @param {string} role
+ * @param {object} creep
+ * @param {int} direction
+ * @return {bool}
+ */
+function moveUniversalAsSourcerReserver(role, creep, direction) {
+  if ((role === 'sourcer' || role === 'reserver') && creep.memory.role !== 'universal' && !creep.memory.routing.reverse) {
+    creep.move(direction);
+    return true;
+  }
+}
+
+/**
+ * moveUniversalOrCarryAsDefendmelee
+ *
+ * @param {string} role
+ * @param {object} creep
+ * @param {int} direction
+ * @return {bool}
+ */
+function moveUniversalOrCarryAsDefendmelee(role, creep, direction) {
+  const targetRole = creep.memory.role;
+  if (role === 'defendmelee' ||
+    targetRole === 'universal' ||
+    targetRole === 'carry') {
+    creep.move(direction);
+    return true;
+  }
+}
+
 Creep.prototype.moveCreepCheckRoleAndTarget = function(creep, direction) {
   const role = this.memory.role;
 
@@ -144,14 +177,10 @@ Creep.prototype.moveCreepCheckRoleAndTarget = function(creep, direction) {
     creep.memory.routing = {};
   }
   const targetRole = creep.memory.role;
-  if ((role === 'sourcer' || role === 'reserver') && targetRole !== 'harvester' && !creep.memory.routing.reverse) {
-    creep.move(direction);
+  if (moveUniversalAsSourcerReserver(role, creep, direction)) {
     return true;
   }
-  if (role === 'defendmelee' ||
-    targetRole === 'harvester' ||
-    targetRole === 'carry') {
-    creep.move(direction);
+  if (moveUniversalOrCarryAsDefendmelee(role, creep, direction)) {
     return true;
   }
   if (role === 'upgrader' &&
@@ -160,7 +189,7 @@ Creep.prototype.moveCreepCheckRoleAndTarget = function(creep, direction) {
     return true;
   }
   if (role === 'upgrader' &&
-    (targetRole === 'harvester' || targetRole === 'sourcer' || targetRole === 'upgrader')) {
+    (targetRole === 'universal' || targetRole === 'sourcer' || targetRole === 'upgrader')) {
     this.log('config_creep_move suicide ' + targetRole);
     creep.suicide();
     return true;
@@ -184,6 +213,7 @@ Creep.prototype.moveCreep = function(position, direction) {
 Creep.prototype.preMoveExtractorSourcer = function(directions) {
   this.pickupEnergy();
 
+  // Sourcer keeper handling
   if (!this.room.controller) {
     const target = this.findClosestSourceKeeper();
     if (target !== null) {
@@ -204,6 +234,7 @@ Creep.prototype.preMoveExtractorSourcer = function(directions) {
   if (!directions) {
     return false;
   }
+
   // TODO when is the forwardDirection missing?
   if (directions.forwardDirection) {
     const posForward = this.pos.getAdjacentPosition(directions.forwardDirection);

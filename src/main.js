@@ -12,6 +12,10 @@ require('./screepsplus');
 global.tickLimit = global.cpuLimit();
 global.load = Math.round(Game.cpu.getUsed());
 
+// Init heap data
+global.data = global.data || {};
+global.data.creeps = global.data.creeps || {};
+
 console.log(`${Game.time} Script reload - Load: ${global.load} tickLimit: ${Game.cpu.tickLimit} limit: ${Game.cpu.limit} Bucket: ${Game.cpu.bucket}`);
 
 brain.stats.init();

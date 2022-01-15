@@ -171,23 +171,6 @@ Room.stringToPath = function(string) {
   return path;
 };
 
-Room.test = function() {
-  const original = Memory.rooms.E37N35.routing['pathStart-harvester'].path;
-  const string = Room.pathToString(original);
-  const path = Room.stringToPath(string);
-  for (const i of Object.keys(Memory.rooms.E37N35.routing['pathStart-harvester'].path)) {
-    if (original[i].x !== path[i].x) {
-      console.log('x unequal', i, original[i].x, path[i].x);
-    }
-    if (original[i].y !== path[i].y) {
-      console.log('y unequal', i, original[i].y, path[i].y);
-    }
-    if (original[i].roomName !== path[i].roomName) {
-      console.log('roomName unequal', i, original[i].roomName, path[i].roomName);
-    }
-  }
-};
-
 /**
  * returns resources from structure
  *

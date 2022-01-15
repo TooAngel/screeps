@@ -11,8 +11,13 @@ https://screeps.com/
 See rendered version:
 http://tooangel.github.io/screeps/
 
-This repository is [World Driven](https://www.worlddriven.org). Pull Requests
-are automatically merged and deployed to the
+Nowadays there are a couple of other automated screeps bot around. The
+TooAngel bot layed the groundwork for bots on the private server and the full
+automation idea. It was the first full automated open source code base and
+invented the idea of an community driven merge processes as well as a full
+automated bot deploy process. This was copied by other screeps projects like Quorum.
+
+are automatically merged ([World Driven](https://www.worlddriven.org)) and deployed to the
 [Screeps TooAngel account](https://www.screeps.com).
 
 ## Quests

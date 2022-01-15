@@ -17,7 +17,7 @@ roles.squadheal.settings = {
 roles.squadheal.preMove = function(creep, directions) {
   creep.creepLog('preMove');
   if (creep.hits < creep.hitsMax) {
-    creep.log('preMove heal');
+    creep.creepLog('preMove heal');
     creep.selfHeal();
     creep.memory.routing.reverse = true;
     if (directions) {
