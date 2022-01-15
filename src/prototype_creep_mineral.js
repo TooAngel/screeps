@@ -421,7 +421,7 @@ const handleReactions = function(creep, room) {
   const lab2 = Game.getObjectById(room.memory.reaction.labs[2]);
 
   if (lab0 === null || lab1 === null || lab2 === null) {
-    delete creep.room.memory.reaction;
+    delete room.memory.reaction;
   } else {
     if (lab0.cooldown === 0) {
       const returnCode = lab0.runReaction(lab1, lab2);
@@ -432,14 +432,32 @@ const handleReactions = function(creep, room) {
       }
     }
   }
-  if (lab0.mineralAmount > lab0.mineralCapacity - 100 && creep.room.memory.reaction) {
-    creep.room.memory.fullLab = 1;
+  if (lab0.mineralAmount > lab0.mineralCapacity - 100 && room.memory.reaction) {
+    room.memory.fullLab = 1;
   }
 
   if (lab0.mineralAmount < 100) {
-    creep.room.memory.fullLab = 0;
+    room.memory.fullLab = 0;
   }
 };
+
+/**
+ * updateStateWithFullLab
+ *
+ * When fullLab equals 1
+ * update creep state based on carring resources
+ * @param {object} creep
+ */
+function updateStateWithFullLab(creep) {
+  if (creep.room.memory.fullLab === 1) {
+    if (_.sum(creep.carry) > 0) {
+      creep.memory.state = 0;
+    }
+    if (_.sum(creep.carry) === 0) {
+      creep.memory.state = 8;
+    }
+  }
+}
 
 const execute = function(creep) {
   if (!creep.room.terminal) {
@@ -458,14 +476,8 @@ const execute = function(creep) {
     handleReactions(creep, room);
   }
 
-  if (creep.room.memory.fullLab === 1) {
-    if (_.sum(creep.carry) > 0) {
-      creep.memory.state = 0;
-    }
-    if (_.sum(creep.carry) === 0) {
-      creep.memory.state = 8;
-    }
-  }
+  updateStateWithFullLab(creep);
+
   if (room.memory.boosting && Object.keys(room.memory.boosting).length > 0) {
     if (prepareBoost(creep)) {
       return true;

@@ -33,7 +33,7 @@ roles.reserver.updateSettings = function(room, creep) {
       };
     }
   }
-  room.debugLog('reserver', `role_reserver.updateSettings - Can not access targetRoom`);
+  room.debugLog('reserver', `role_reserver.updateSettings - Can not access targetRoom ${targetRoom}`);
   return {
     maxLayoutAmount: 1,
   };

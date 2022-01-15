@@ -117,7 +117,10 @@ Creep.recycleCreep = function(creep) {
       creep.moveTo(spawn);
     }
     creep.say('recycle');
-    spawn.recycleCreep(creep);
+    const response = spawn.recycleCreep(creep);
+    if (response === OK) {
+      creep.memory.recycle = true;
+    }
   }
   return true;
 };
@@ -162,7 +165,7 @@ Creep.prototype.getEnergyFromStorage = function() {
     return false;
   }
 
-  if (this.carry.energy) {
+  if (this.store.energy) {
     return false;
   }
 
@@ -170,7 +173,7 @@ Creep.prototype.getEnergyFromStorage = function() {
   if (range === 1) {
     this.withdraw(this.room.storage, RESOURCE_ENERGY);
   } else {
-    this.moveToMy(this.room.storage.pos, 1);
+    this.moveToMy(this.room.storage.pos, 1, true);
   }
   return true;
 };
@@ -193,7 +196,7 @@ Creep.prototype.actuallyRepairStructure = function(toRepair) {
     return true;
   }
 
-  const returnCode = this.moveToMy(toRepair.pos, 3);
+  const returnCode = this.moveToMy(toRepair.pos, 3, true);
   if (returnCode === true) {
     this.creepLog('actuallyRepairStructure - moveToMy');
     if (this.pos.roomName !== this.memory.base) {
@@ -292,8 +295,16 @@ Creep.prototype.repairStructure = function() {
   this.creepLog('repairStructure - no nuke');
 
   // Repair low ramparts
-  const lowRamparts = this.pos.findInRangePropertyFilter(FIND_STRUCTURES, 4, 'structureType', [STRUCTURE_RAMPART], {
-    filter: (rampart) => rampart.hits < 10000,
+  const lowRamparts = this.pos.findInRange(FIND_STRUCTURES, 4, {
+    filter: (structure) => {
+      if (structure.structureType !== STRUCTURE_RAMPART) {
+        return false;
+      }
+      if (structure.hits > 10000) {
+        return false;
+      }
+      return true;
+    },
   });
 
   if (lowRamparts.length > 0) {

@@ -7,10 +7,15 @@
 function findRoomsWithinReach(room) {
   const rooms = [];
   for (const myRoom of Memory.myRooms) {
-    const distance = Game.map.getRoomLinearDistance(room, myRoom);
-    console.log(`roomWithinReach room: ${room} myRoom: ${myRoom} distance: ${distance}`);
-    if (config.nextRoom.minNewRoomDistance <= distance && distance < config.nextRoom.maxDistance) {
-      rooms.push(myRoom);
+    try {
+      const distance = Game.map.getRoomLinearDistance(room, myRoom);
+      console.log(`roomWithinReach room: ${room} myRoom: ${myRoom} distance: ${distance}`);
+      if (config.nextRoom.minNewRoomDistance <= distance && distance < config.nextRoom.maxDistance) {
+        rooms.push(myRoom);
+      }
+    } catch (e) {
+      console.log(`Exception: helper_findMyRooms.findRoomsWithinReach ${e} ${room} ${myRoom}`);
+      continue;
     }
   }
   return rooms;

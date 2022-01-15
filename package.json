@@ -43,6 +43,7 @@
     "test": "grunt test",
     "deploy": "grunt deploy",
     "lint": "eslint -c .eslintrc-basic.js src/",
-    "run-test": "git checkout test-server/db.json && node utils/test_on_server.js"
+    "run-test": "git checkout test-server/db.json && node utils/test_on_server.js",
+    "continueTestServer": "docker-compose -f docker-compose-local-run.yml up"
   }
 }

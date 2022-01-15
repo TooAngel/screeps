@@ -34,24 +34,25 @@ Room.prototype.attack42 = function(roomName, spawn) {
 
 const getClosestRoom = function(roomName) {
   const roomsMy = findMyRoomsSortByDistance(roomName);
-  return Game.rooms[roomsMy[0]];
+  const room = Game.rooms[roomsMy[0]];
+  if (room.isHealthy()) {
+    return room;
+  }
+  return false;
 };
 
 const attacks = {
-  attack0: function(room) {
-    const origin = getClosestRoom(room.name);
+  attack0: function(room, origin) {
     origin.checkRoleToSpawn('autoattackmelee', 1, undefined, room.name);
     return true;
   },
 
-  attack1: function(room) {
-    const origin = getClosestRoom(room.name);
+  attack1: function(room, origin) {
     brain.startSquad(origin.name, room.name);
     return true;
   },
 
-  attack2: function(room) {
-    const origin = getClosestRoom(room.name);
+  attack2: function(room, origin) {
     origin.attack42(room.name);
     return true;
   },
@@ -102,17 +103,22 @@ Room.prototype.launchAutoAttack = function(player) {
     this.debugLog('attack', `Too early to attack`);
     return false;
   }
+  const origin = getClosestRoom(this.name);
+  if (!origin) {
+    return false;
+  }
   this.log(`Queuing level ${player.level} attack`);
   if (config.autoattack.notify) {
     Game.notify(Game.time + ' ' + this.name + ' Queuing autoattacker');
   }
-  attacks[`attack${player.level}`](this);
-  player.counter++;
-  if (player.counter > 10) {
-    player.level += 1;
-    player.counter = 0;
+  if (attacks[`attack${player.level}`](this, origin)) {
+    player.counter++;
+    if (player.counter > 10) {
+      player.level += 1;
+      player.counter = 0;
+    }
+    Memory.players[player.name] = player;
   }
-  Memory.players[player.name] = player;
 };
 
 Room.prototype.attackRoom = function() {

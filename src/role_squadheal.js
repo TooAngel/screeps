@@ -72,7 +72,7 @@ roles.squadheal.action = function(creep) {
     }
     return true;
   } else {
-    creep.log('In room');
+    // creep.log('In room');
     // TODO calculate if we would to flip directly back to the previous room
     // get all towers and calculate their potential damage
     // the damage is applied after the first tick
@@ -81,7 +81,7 @@ roles.squadheal.action = function(creep) {
       const exit = creep.pos.findClosestByRange(FIND_EXIT);
       creep.moveTo(exit);
     } else {
-      creep.log('mrandom');
+      // creep.log('mrandom');
       creep.moveRandom();
       creep.squadHeal();
     }

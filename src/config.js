@@ -72,8 +72,10 @@ global.config = {
     spawn: false,
     mineral: false,
     creepLog: {
-      roles: [], // Roles for debug output, e.g. ['repairer'] or '*' for all
-      rooms: [], // Rooms for debug output, e.g. ['E21N8'] or '*' for all
+      // roles: ['repairer'], // Roles for debug output, e.g. ['repairer'] or '*' for all
+      // rooms: ['W7N4', 'W7N5', 'W7N3', 'W8N4', 'W6N4'], // Rooms for debug output, e.g. ['E21N8'] or '*' for all
+      roles: [],
+      rooms: [],
     },
     power: false,
     reserver: false,
@@ -103,8 +105,9 @@ global.config = {
     disabled: false,
     notify: true,
     timeBetweenAttacks: 2000,
+    autoattackMaxRange: 5,
     noReservedRoomMinMyRCL: 5,
-    noReservedRoomInRange: 2,
+    noReservedRoomInRange: 1,
     noReservedRoomInterval: 1600,
   },
 
@@ -217,9 +220,9 @@ global.config = {
       3: 1,
       4: 1,
       5: 1,
-      6: 1,
-      7: 1,
-      8: 1,
+      6: 2,
+      7: 2,
+      8: 2,
     },
     isHealthyStorageThreshold: 50000,
     rebuildLayout: 7654,

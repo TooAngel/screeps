@@ -106,3 +106,17 @@ Room.prototype.findSourceKeepersStructures = function() {
     filter: (object) => object.owner.username === 'Source Keeper',
   });
 };
+
+Room.prototype.findDefenseStructures = function() {
+  return this.find(FIND_STRUCTURES, {
+    filter: (structure) => {
+      return [STRUCTURE_WALL, STRUCTURE_RAMPART].indexOf(structure.structureType) > -1;
+    },
+  });
+};
+
+Room.prototype.findPowerBanks = function() {
+  return this.find(FIND_STRUCTURES, {
+    filter: {structureType: STRUCTURE_POWER_BANK},
+  });
+};

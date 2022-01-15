@@ -48,7 +48,7 @@ Room.prototype.setCostMatrixStructures = function(costMatrix, structures, value)
   }
 };
 
-Room.prototype.getBasicCostMatrixCallback = function() {
+Room.prototype.getBasicCostMatrixCallback = function(withinRoom = false) {
   const callbackInner = (roomName) => {
     const room = Game.rooms[roomName];
     if (!room) {
@@ -60,6 +60,18 @@ Room.prototype.getBasicCostMatrixCallback = function() {
     if (this.memory.misplacedSpawn) {
       const structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
       this.setCostMatrixStructures(costMatrix, structures, config.layout.structureAvoid);
+    }
+
+    if (withinRoom) {
+      const closeExits = function(x, y) {
+        costMatrix.set(x, y, 0xff);
+      };
+      for (let i = 0; i < 50; i++) {
+        closeExits(i, 0);
+        closeExits(i, 49);
+        closeExits(0, i);
+        closeExits(49, i);
+      }
     }
 
     return costMatrix;

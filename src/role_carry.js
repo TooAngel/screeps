@@ -119,6 +119,31 @@ const validateDirections = function(creep, directions) {
   return true;
 };
 
+/**
+ * transferToCreeps
+ *
+ * @param {object} creep
+ * @param {object} directions
+ */
+function transferToCreeps(creep, directions) {
+  creep.creepLog('Trying to transfer to creep');
+  const transferred = creep.transferToCreep(directions.backwardDirection);
+  creep.memory.routing.reverse = !transferred;
+}
+
+/**
+ * getMoveToStorage
+ *
+ * @param {object} creep
+ * @return {bool}
+ */
+function getMoveToStorage(creep) {
+  let moveToStorage = creep.checkCarryEnergyForBringingBackToStorage();
+  const fleeFromSourceKeeper = creep.checkForSourceKeeper();
+  moveToStorage = moveToStorage || fleeFromSourceKeeper;
+  return moveToStorage;
+}
+
 roles.carry.preMove = function(creep, directions) {
   if (!validateDirections(creep, directions)) {
     return false;
@@ -126,9 +151,7 @@ roles.carry.preMove = function(creep, directions) {
 
   roles.carry.checkHelperEmptyStorage(creep);
 
-  let moveToStorage = creep.checkCarryEnergyForBringingBackToStorage();
-  const fleeFromSourceKeeper = creep.checkForSourceKeeper();
-  moveToStorage = moveToStorage || fleeFromSourceKeeper;
+  let moveToStorage = getMoveToStorage(creep);
   if (moveToStorage) {
     creep.creepLog(`preMove moveToStorage`);
     if (creep.inBase()) {
@@ -154,9 +177,7 @@ roles.carry.preMove = function(creep, directions) {
     }
 
     if (directions.backwardDirection && directions.backwardDirection !== null) {
-      creep.creepLog('Trying to transfer to creep');
-      const transferred = creep.transferToCreep(directions.backwardDirection);
-      creep.memory.routing.reverse = !transferred;
+      transferToCreeps(creep, directions);
       return false;
     }
   } else {

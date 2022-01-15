@@ -66,7 +66,22 @@ const harvesterBeforeStorage = function(creep) {
 function pickupResourcesInRange(creep) {
   const resources = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1);
   if (resources.length > 0) {
-    creep.pickup(Game.getObjectById(resources[0].id));
+    creep.pickup(resources[0]);
+  }
+}
+
+/**
+ * handlePathEnd
+ *
+ * @param {object} creep
+ */
+function handlePathEnd(creep) {
+  if (creep.room.memory.position.pathEndLevel) {
+    if (creep.memory.routing.pathPos >= creep.room.memory.position.pathEndLevel[creep.room.controller.level]) {
+      creep.memory.move_forward_direction = false;
+      creep.memory.routing.reverse = true;
+      delete creep.memory.routing.reached;
+    }
   }
 }
 
@@ -125,13 +140,7 @@ roles.harvester.preMove = function(creep, directions) {
     directions.direction = directions.backwardDirection;
   }
 
-  if (creep.room.memory.position.pathEndLevel) {
-    if (creep.memory.routing.pathPos >= creep.room.memory.position.pathEndLevel[creep.room.controller.level]) {
-      creep.memory.move_forward_direction = false;
-      creep.memory.routing.reverse = true;
-      delete creep.memory.routing.reached;
-    }
-  }
+  handlePathEnd(creep);
 };
 
 roles.harvester.action = function(creep) {

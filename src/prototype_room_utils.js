@@ -68,7 +68,7 @@ Room.prototype._findPropertyFilterCacheOne = function(findTarget, property, prop
       result: [],
     };
     for (const propertyValue of Object.keys(cacheTwoItem.result)) {
-      if (properties.includes(propertyValue) !== inverse) {
+      if (properties && properties.includes(propertyValue) !== inverse) {
         Array.prototype.push.apply(cacheOneItem.result, cacheTwoItem.result[propertyValue]);
       }
     }
