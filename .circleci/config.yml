@@ -2,7 +2,7 @@ version: 2
 jobs:
     deploy:
       docker:
-        - image: circleci/node:10.16.3-stretch
+        - image: node:12
       steps:
       - checkout
       - run: npm install
@@ -11,13 +11,12 @@ jobs:
       - run: npm run deploy
     test:
       docker:
-        - image: circleci/node:10.16.3-stretch
+        - image: node:12
         - image: mongo:latest
         - image: redis:latest
       steps:
       - checkout
       - run: npm install
-      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
       - run:
           command: npm run test
           no_output_timeout: 2h

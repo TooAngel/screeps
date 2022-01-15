@@ -50,6 +50,24 @@ Room.prototype.buildBaseCheckPath = function() {
   }
 };
 
+/**
+ * checkWrongStructures
+ *
+ * @param {object} room
+ */
+function checkWrongStructures(room) {
+  if (!room.memory.controllerLevel.checkWrongStructureInterval) {
+    room.memory.controllerLevel.checkWrongStructureInterval = 1;
+  }
+  if (room.memory.walls && room.memory.walls.finished && room.executeEveryTicks(room.memory.controllerLevel.checkWrongStructureInterval)) {
+    if (room.checkWrongStructure(room)) {
+      resetCounters(room);
+    } else {
+      room.memory.controllerLevel.checkWrongStructureInterval++;
+    }
+  }
+}
+
 Room.prototype.buildBase = function() {
   this.memory.controllerLevel = this.memory.controllerLevel || {};
   if (this.buildBaseUnseenControllerLevel()) {
@@ -57,17 +75,7 @@ Room.prototype.buildBase = function() {
   }
 
   this.buildBaseCheckPath();
-
-  if (!this.memory.controllerLevel.checkWrongStructureInterval) {
-    this.memory.controllerLevel.checkWrongStructureInterval = 1;
-  }
-  if (this.memory.walls && this.memory.walls.finished && this.executeEveryTicks(this.memory.controllerLevel.checkWrongStructureInterval)) {
-    if (this.checkWrongStructure(this)) {
-      resetCounters(this);
-    } else {
-      this.memory.controllerLevel.checkWrongStructureInterval++;
-    }
-  }
+  checkWrongStructures(this);
 
   if (!this.memory.controllerLevel.buildStructuresInterval) {
     this.memory.controllerLevel.buildStructuresInterval = 1;

@@ -36,7 +36,7 @@ brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
   if (creepMemory.room) {
     memoryRoom = Memory.rooms[creepMemory.room];
   } else {
-    console.log(`${Game.time} ${name} handleUnexpectedDeadCreeps no creepMemory.room creepMemory: ${creepMemory}`);
+    console.log(`${Game.time} ${name} handleUnexpectedDeadCreeps no creepMemory.room creepMemory: ${JSON.stringify(creepMemory)}`);
   }
 
   brain.debugLog(`${Game.time} ${creepMemory.room} ${name} memory hostile: ${memoryRoom.hostileCreepCount}`);

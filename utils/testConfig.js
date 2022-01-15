@@ -4,8 +4,8 @@ module.exports.verbose = false;
 
 module.exports.tickDuration = 10;
 
-module.exports.playerRoom = 'W8N1';
-players = {
+module.exports.playerRoom = 'W7N4';
+const players = {
   'W1N7': {x: 43, y: 35},
   'W8N8': {x: 21, y: 28},
   'W8N1': {x: 33, y: 13},
@@ -18,8 +18,8 @@ module.exports.players = players;
 module.exports.rooms = Object.keys(players);
 
 module.exports.milestones = [
-  {tick: 30, check: {structures: 1}},
-  {tick: 500, check: {level: 2}, required: true},
+  {tick: 500, check: {structures: 1}},
+  {tick: 900, check: {level: 2}, required: true},
   {tick: 1700, check: {structures: 2}},
   {tick: 2800, check: {structures: 3}},
   {tick: 3300, check: {structures: 4}},

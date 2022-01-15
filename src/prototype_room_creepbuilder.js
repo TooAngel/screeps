@@ -42,7 +42,7 @@ Room.prototype.spawnCheckForCreate = function() {
     return true;
   }
   if (creep.ttl === 0) {
-    this.log(`TTL reached, skipping: ${creep.role}`);
+    this.log(`Stop spawning creeping - TTL reached, skipping: ${creep.role}`);
     this.memory.queue.shift();
     return false;
   }
@@ -368,12 +368,34 @@ Room.prototype.getPartConfigMaxBodyLength = function(prefixString, sufixString) 
 };
 
 /**
+ * getMaxRepeat
+ *
+ * @param {int} energyAvailable
+ * @param {object} layout
+ * @param {int} maxBodyLength
+ * @param {int} maxLayoutAmount
+ * @return {int}
+ */
+function getMaxRepeat(energyAvailable, layout, maxBodyLength, maxLayoutAmount) {
+  let maxRepeat = Math.floor(Math.min(energyAvailable / layout.cost, maxBodyLength / layout.len));
+  if (layout.len === 0) {
+    maxRepeat = 0;
+  }
+  if (maxLayoutAmount !== undefined) {
+    maxRepeat = Math.min(maxLayoutAmount, maxRepeat);
+  }
+  return maxRepeat;
+}
+
+/**
  * Room.prototype.getPartsConfig use for generate adapted body
  *
  * @param {Collection} creep queue's creep spawn basic datas
  * @return {object} The part Config or false
  */
+/* eslint-disable complexity */
 Room.prototype.getPartConfig = function(creep) {
+  // TODO this needs to be rethought and rebuild (more simple)
   let energyAvailable = this.energyAvailable;
   const settings = this.getSettings(creep);
   const {
@@ -397,13 +419,7 @@ Room.prototype.getPartConfig = function(creep) {
   if (layout.fail || layout.null) {
     return false;
   }
-  let maxRepeat = Math.floor(Math.min(energyAvailable / layout.cost, maxBodyLength / layout.len));
-  if (layout.len === 0) {
-    maxRepeat = 0;
-  }
-  if (maxLayoutAmount !== undefined) {
-    maxRepeat = Math.min(maxLayoutAmount, maxRepeat);
-  }
+  const maxRepeat = getMaxRepeat(energyAvailable, layout, maxBodyLength, maxLayoutAmount);
   if (maxRepeat > 0) {
     parts = parts.concat(_.flatten(_.fill(new Array(maxRepeat), layout.parts)));
   }
@@ -425,6 +441,7 @@ Room.prototype.getPartConfig = function(creep) {
 
   return config.creep.sortParts ? this.sortParts(parts, layout) : parts;
 };
+/* eslint-enable complexity */
 
 Room.prototype.getCreepConfig = function(creep) {
   const role = creep.role;
@@ -453,7 +470,7 @@ Room.prototype.getCreepConfig = function(creep) {
   const opts = {
     memory: memory,
   };
-  if (!this.memory.misplacedSpawn && Game.time > 10) {
+  if (!this.memory.misplacedSpawn && Game.time > 500) {
     // On misplaced spawn the top field could be blocked
     // On spawning the first harvester the `misplacedSpawn` is not necessarily
     // set, so checking for `Game.time`

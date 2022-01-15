@@ -476,20 +476,14 @@ const execute = function(creep) {
     return true;
   }
 
-  creep.say('A1');
-
   creep.memory.state = creep.memory.state || 0;
 
   if (!room.memory.reaction) {
     cleanUpLabs(creep);
-    if (config.debug.mineral) {
-      creep.log('No reactions?');
-    }
     return true;
   }
 
   const state = states[creep.memory.state];
-  creep.say(state.name);
 
   let target = creep.room.terminal;
   if (state.destination === STRUCTURE_LAB) {
