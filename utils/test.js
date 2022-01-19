@@ -34,7 +34,7 @@ for (const room of rooms) {
 let botsSpawned = false;
 
 class Tester {
-  constructor(length) {
+  constructor() {
     this.roomsSeen = {};
     this.maxRuntime = 0;
     if (process.argv.length > 2) {

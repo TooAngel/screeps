@@ -184,6 +184,33 @@ Room.prototype.externalHandleRoom = function() {
   return this.handleUnreservedRoom();
 };
 
+/**
+ * spawnPowerTransporters
+ *
+ * @param {object} room
+ * @param {object} powerBank
+ */
+function spawnPowerTransporters(room, powerBank) {
+  if (Memory.powerBanks[room.name].target && Memory.powerBanks[room.name] !== null) {
+    if (Memory.powerBanks[room.name].transporter_called) {
+      return;
+    }
+    if (powerBank.hits < 350000) {
+      const amountPowerTransporter = Math.ceil(powerBank.power / 1000);
+      for (let i = 0; i < amountPowerTransporter; i++) {
+        Game.rooms[Memory.powerBanks[room.name].target].memory.queue.push({
+          role: 'powertransporter',
+          routing: {
+            targetRoom: room.name,
+          },
+        });
+      }
+      room.log('Adding ' + amountPowerTransporter + ' powertransporter at ' + Memory.powerBanks[room.name].target);
+      Memory.powerBanks[room.name].transporter_called = true;
+    }
+  }
+}
+
 Room.prototype.externalHandleHighwayRoom = function() {
   if (config.power.disabled) {
     return false;
@@ -191,31 +218,14 @@ Room.prototype.externalHandleHighwayRoom = function() {
 
   Memory.powerBanks = Memory.powerBanks || {};
 
-  const structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
+  const structures = this.findPowerBanks();
   if (structures.length === 0) {
     delete Memory.powerBanks[this.name];
     return false;
   }
 
   if (Memory.powerBanks[this.name]) {
-    if (Memory.powerBanks[this.name].target && Memory.powerBanks[this.name] !== null) {
-      if (Memory.powerBanks[this.name].transporter_called) {
-        return;
-      }
-      if (structures[0].hits < 350000) {
-        const amountPowerTransporter = Math.ceil(structures[0].power / 1000);
-        for (let i = 0; i < amountPowerTransporter; i++) {
-          Game.rooms[Memory.powerBanks[this.name].target].memory.queue.push({
-            role: 'powertransporter',
-            routing: {
-              targetRoom: this.name,
-            },
-          });
-        }
-        this.log('Adding ' + amountPowerTransporter + ' powertransporter at ' + Memory.powerBanks[this.name].target);
-        Memory.powerBanks[this.name].transporter_called = true;
-      }
-    }
+    spawnPowerTransporters(this, structures[0]);
     return;
   }
 
@@ -443,14 +453,15 @@ function isRouteValidForReservedRoom(room, route) {
  **/
 function filterReservedBy(roomName) {
   return (roomMemory) => {
-    return roomMemory.state === 'Reserved' && roomMemory.reservation.base === roomName;
+    console.log(`${roomName} ${roomMemory.state} ${(roomMemory.reservation || {}).base}`);
+    return roomMemory.state === 'Reserved' && (roomMemory.reservation || {}).base === roomName;
   };
 }
 
 Room.prototype.handleUnreservedRoom = function() {
   this.memory.state = 'Unreserved';
   if (this.isRoomRecentlyChecked()) {
-    return true;
+    return false;
   }
   this.debugLog('reserver', 'handleUnreservedRoom');
 
@@ -468,32 +479,29 @@ Room.prototype.handleUnreservedRoom = function() {
     return true;
   }
 
-  if (!this.executeEveryTicks(config.external.checkForReservingInterval)) {
-    return;
-  }
-
   for (const roomName of findMyRoomsSortByDistance(this.name)) {
     const room = Game.rooms[roomName];
     if (!room) {
       continue;
     }
     const distance = Game.map.getRoomLinearDistance(this.name, room.name);
-    this.debugLog('reserver', `unreserved check linear Distance: ${distance} ${this.name} ${room.name}`);
+    this.debugLog('reserver', `unreserved check linear Distance: ${distance} <= ${config.external.distance} ${this.name} ${room.name}`);
     if (distance > config.external.distance) {
-      break;
+      continue;
     }
     const route = Game.map.findRoute(this.name, room.name);
     const routeDistance = route.length;
-    this.debugLog('reserver', `unreserved check route Distance: ${routeDistance} ${this.name} ${room.name}`);
+    this.debugLog('reserver', `unreserved check route Distance: ${routeDistance} <= ${config.external.distance} ${this.name} ${room.name}`);
     if (routeDistance > config.external.distance) {
       continue;
     }
 
     if (!isRouteValidForReservedRoom(this, route)) {
+      this.debugLog('reserver', 'route not valid');
       continue;
     }
 
-    const reservedRooms = _.filter(Memory.rooms, filterReservedBy(this.name));
+    const reservedRooms = _.filter(Memory.rooms, filterReservedBy(roomName));
     // RCL: target reserved rooms
     const numRooms = config.room.reservedRCL;
     this.debugLog('reserver', `number checked: ${reservedRooms.length} ${numRooms[room.controller.level]}`);

@@ -8,7 +8,7 @@ const {ScreepsAPI} = require('screeps-api');
 
 const dir = 'tmp-test-server';
 const port = 21025;
-let hostname = '127.0.0.1'
+let hostname = '127.0.0.1';
 
 function setHostname(newHostname) {
   hostname = newHostname;
@@ -24,6 +24,7 @@ module.exports.setHostname = setHostname;
  * @param {list} rooms - The rooms
  * @param {function} logConsole - Function to handle console logging
  * @param {function} statusUpdater - Function to handle status updates
+ * @param {string} restrictToRoom - Only log specific room
  * @return {undefined}
  */
 async function followLog(rooms, logConsole, statusUpdater, restrictToRoom) {
@@ -48,6 +49,7 @@ async function followLog(rooms, logConsole, statusUpdater, restrictToRoom) {
     api.socket.subscribe('console', logConsole(room));
     api.socket.subscribe('room:' + room, statusUpdater);
   }
+  return new Promise(() => {});
 }
 module.exports.followLog = followLog;
 
@@ -71,6 +73,7 @@ const setPassword = function(line, socket, rooms, roomsSeen, playerRoom) {
       if (process.env.STEAM_ID && room === playerRoom) {
         console.log(`> Set steam id for ${room}`);
         socket.write(`storage.db.users.update({username: '${room}'}, {$set: {steam: {id: '${process.env.STEAM_ID}'}}})\r\n`);
+        console.log(`>>>>>> Now it is save to connect with the client <<<<<<<<`);
       }
       return true;
     }
@@ -229,7 +232,7 @@ const filter = {
   },
   structures: (o) => {
     if (o && o.type) {
-      return o.type === 'spawn' || o.type === 'extension';
+      return o.type === 'spawn' || o.type === 'extension' || o.type === 'tower' || o.type === 'storage';
     }
     return false;
   },

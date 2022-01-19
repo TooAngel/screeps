@@ -18,6 +18,7 @@ module.exports = function(grunt) {
 
   let accountLocal;
   try {
+    // eslint-disable-next-line global-require
     accountLocal = require('./account_local.screeps.com');
   } catch (e) {
     accountLocal = {
@@ -42,7 +43,19 @@ module.exports = function(grunt) {
           email: process.env.email || account.email,
           password: process.env.password || account.password,
           branch: 'default',
-          ptr: false,
+        },
+        files: [
+          {
+            src: ['dist/*.js'],
+          },
+        ],
+      },
+      season: {
+        options: {
+          email: process.env.email || account.email,
+          token: process.env.token || account.token,
+          branch: 'default',
+          server: 'season',
         },
         files: [
           {
@@ -55,7 +68,6 @@ module.exports = function(grunt) {
           email: accountLocal.email,
           password: accountLocal.password,
           branch: accountLocal.branch,
-          ptr: false,
           server: {
             http: accountLocal.http,
             port: accountLocal.port,
@@ -248,6 +260,7 @@ module.exports = function(grunt) {
   grunt.registerTask('dev', ['eslint:fix']);
   grunt.registerTask('screeps_local', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:local']);
   grunt.registerTask('deploy', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
+  grunt.registerTask('season', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:season']);
   grunt.registerTask('requireFile', 'Creates an empty file', () => {
     grunt.file.write('dist/require.js', '');
   });

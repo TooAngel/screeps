@@ -340,8 +340,8 @@ Creep.prototype.giveSourcersEnergy = function() {
 };
 
 Creep.prototype.pickupEnergy = function() {
-  const resources = this.room.findPropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], {
-    filter: Creep.pickableResources(this),
+  const resources = this.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
+    filter: {resourceType: RESOURCE_ENERGY},
   });
   if (resources.length > 0) {
     const resource = resources[0];
@@ -697,7 +697,7 @@ Creep.prototype.moveToAndBuildConstructionSite = function(target) {
 
   // TODO is this necessary here? Maybe because of the planer
   this.memory.routing.targetId = target.id;
-  this.moveToMy(target.pos, 3);
+  this.moveToMy(target.pos, 3, true);
   return true;
 };
 

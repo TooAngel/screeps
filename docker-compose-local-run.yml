@@ -16,7 +16,7 @@ services:
     working_dir: /mnt
     volumes:
       - ./:/mnt
-    command: ./utils/setupDockerComposeContainer.sh
+    command: ./utils/continueTestServer.sh
     environment:
       - STEAM_API_KEY
       - STEAM_ID
@@ -24,3 +24,17 @@ services:
       - redis
       - mongo
     network_mode: "host"
+  logs:
+    image: node:12
+    working_dir: /mnt
+    volumes:
+      - ./:/mnt
+    command: node utils/followLogs.js localhost true
+    environment:
+      - STEAM_API_KEY
+      - STEAM_ID
+    depends_on:
+      - server
+    network_mode: "host"
+    profiles:
+      - donotstart

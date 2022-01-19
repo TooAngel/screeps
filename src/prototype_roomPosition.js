@@ -33,7 +33,11 @@ RoomPosition.prototype.clearPosition = function(target) {
         return true;
       }
     }
-    console.log('Destroying: ' + structure.structureType);
+    if (structure.structureType === target.structureType) {
+      console.log(`Trying to clear Postition for constructionSite, while target already correct structure: ${structure.structureType} ${structure.pos}`);
+      continue;
+    }
+    console.log(`Destroying: ${structure.structureType} ${structure.pos}`);
     structure.destroy();
   }
 };

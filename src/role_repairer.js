@@ -43,17 +43,16 @@ roles.repairer.action = function(creep) {
   }
 
   if (creep.memory.step <= 0) {
-    const structures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_WALL, STRUCTURE_RAMPART]);
+    const structures = creep.room.findDefenseStructures();
+    let min = WALL_HITS_MAX;
     if (structures.length > 0) {
-      let min = WALL_HITS_MAX;
-
       for (const structure of structures) {
         if (min > structure.hits) {
           min = structure.hits;
         }
       }
-      creep.memory.step = min;
     }
+    creep.memory.step = min;
   }
 
   const methods = [Creep.getEnergy];

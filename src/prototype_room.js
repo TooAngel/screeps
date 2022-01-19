@@ -29,7 +29,7 @@ function initMemory(room) {
       room.memory.controllerId = room.controller.id;
     }
   }
-  room.memory.hostileCreepCount = room.findEnemys().length;
+  room.memory.hostileCreepCount = room.find(FIND_HOSTILE_CREEPS).length;
 }
 
 Room.prototype.handle = function() {

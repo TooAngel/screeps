@@ -99,5 +99,5 @@ Creep.prototype.spawnCarry = function() {
  * @return {number}
  */
 Creep.prototype.getCarrySpawnInterval = function() {
-  return this.memory.timeToTravel + 50;
+  return this.memory.timeToTravel + 80;
 };
