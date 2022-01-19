@@ -559,6 +559,7 @@ Creep.prototype.buildConstructionSite = function(target) {
   } else if (returnCode === ERR_NOT_ENOUGH_RESOURCES) {
     return true;
   } else if (returnCode === ERR_INVALID_TARGET) {
+    this.log(`buildConstructionSite ERR_INVALID_TARGET ${JSON.stringify(target)}`);
     this.moveRandom();
     target.pos.clearPosition(target);
     return true;
@@ -586,7 +587,8 @@ Creep.prototype.construct = function() {
     target = Game.getObjectById(this.memory.routing.targetId);
     this.creepLog('Use memory target', target);
   }
-  if (!target || target === null) {
+  if (!target || target === null || !(target instanceof ConstructionSite)) {
+    this.creepLog('No target');
     delete this.memory.routing.targetId;
     if (this.memory.role === 'nextroomer') {
       target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART], {inverse: true});
@@ -600,7 +602,7 @@ Creep.prototype.construct = function() {
   if (target === null) {
     return false;
   }
-
+  this.creepLog('moveToAndBuildConstructionSite');
   return this.moveToAndBuildConstructionSite(target);
 };
 
@@ -660,123 +662,5 @@ Creep.prototype.transferEnergy = function() {
   } else {
     this.moveToMy(target.pos, 1);
   }
-  return true;
-};
-
-Creep.prototype.reserverSetLevel = function() {
-  this.memory.level = 2;
-  const baseRoom = Game.rooms[this.memory.base];
-  if (baseRoom.getEnergyCapacityAvailable() < 2 * (BODYPART_COST.claim + BODYPART_COST.move) || (this.room.controller.reservation && this.room.controller.reservation.ticksToEnd > 4500)) {
-    this.memory.level = 1;
-  }
-  if (baseRoom.getEnergyCapacityAvailable() >= 5 * (BODYPART_COST.claim + BODYPART_COST.move) || (!this.room.controller.my && this.room.controller.reservation && this.room.controller.reservation.username !== Memory.username)) {
-    this.memory.level = 5;
-  }
-};
-
-const callStructurer = function(creep) {
-  const structurers = creep.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['structurer']);
-  if (structurers.length > 0) {
-    return false;
-  }
-  const resourceStructures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER, STRUCTURE_INVADER_CORE], {inverse: true});
-  if (resourceStructures.length > 0 && !creep.room.controller.my) {
-    creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resourceStructures[0].structureType);
-    Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, creep.room.name);
-    return true;
-  }
-};
-
-const callCleaner = function(creep) {
-  if (creep.inBase()) {
-    return false;
-  }
-
-  if (!Game.rooms[creep.memory.base].storage) {
-    return false;
-  }
-
-  if (!creep.room.executeEveryTicks(1000)) {
-    return false;
-  }
-
-  if (config.creep.structurer) {
-    callStructurer(creep);
-  }
-};
-
-Creep.prototype.callDefender = function() {
-  const hostiles = this.room.findEnemys();
-  const invaderCores = this.room.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_INVADER_CORE}});
-  if (hostiles.length > 0 || invaderCores.length > 0) {
-    // this.log('Reserver under attack');
-    if (!this.memory.defender_called) {
-      Game.rooms[this.memory.base].memory.queue.push({
-        role: 'defender',
-        routing: {
-          targetRoom: this.room.name,
-        },
-      });
-      this.memory.defender_called = true;
-    }
-  }
-};
-
-Creep.prototype.interactWithControllerSuccess = function() {
-  if (this.room.controller.reservation) {
-    this.room.memory.reservation = {
-      base: this.memory.base,
-      tick: Game.time,
-      ticksToLive: this.ticksToLive,
-      reservation: this.room.controller.reservation.ticksToEnd,
-    };
-  }
-  this.memory.targetReached = true;
-  this.setNextSpawn();
-};
-
-Creep.prototype.interactWithController = function() {
-  let returnCode;
-  if (this.room.controller.owner && this.room.controller.owner.username !== Memory.username) {
-    this.say('attack');
-    returnCode = this.attackController(this.room.controller);
-    if (returnCode === ERR_TIRED) {
-      this.respawnMe();
-      this.suicide();
-      return true;
-    }
-  } else {
-    returnCode = this.reserveController(this.room.controller);
-  }
-
-  if (returnCode === OK || returnCode === ERR_NO_BODYPART) {
-    this.interactWithControllerSuccess();
-    return true;
-  }
-  if (returnCode === ERR_NOT_IN_RANGE) {
-    return true;
-  }
-  if (returnCode === ERR_INVALID_TARGET) {
-    return true;
-  }
-
-  this.log('reserver: ' + returnCode);
-};
-
-Creep.prototype.handleReserver = function() {
-  if (this.room.name !== this.memory.routing.targetRoom) {
-    this.memory.routing.reached = false;
-    return false;
-  }
-  this.reserverSetLevel();
-  this.spawnReplacement(1);
-
-  callCleaner(this);
-
-  if (config.creep.reserverDefender) {
-    this.callDefender();
-  }
-
-  this.interactWithController();
   return true;
 };

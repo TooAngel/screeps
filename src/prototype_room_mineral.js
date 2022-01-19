@@ -130,22 +130,44 @@ Room.prototype.getMineralType = function() {
   return this.memory.mineralType;
 };
 
+const baseMinerals = [
+  RESOURCE_HYDROGEN,
+  RESOURCE_OXYGEN,
+  RESOURCE_UTRIUM,
+  RESOURCE_LEMERGIUM,
+  RESOURCE_KEANIUM,
+  RESOURCE_ZYNTHIUM,
+  RESOURCE_CATALYST,
+  RESOURCE_HYDROXIDE,
+  RESOURCE_UTRIUM_LEMERGITE,
+  RESOURCE_ZYNTHIUM_KEANITE,
+  RESOURCE_GHODIUM,
+];
+
+/**
+ * isOtherRoomReady
+ *
+ * @param {object} room
+ * @param {string} roomOtherName
+ * @param {string} mineral
+ * @return {bool}
+ */
+function isOtherRoomReady(room, roomOtherName, mineral) {
+  if (roomOtherName === room.name) {
+    return false;
+  }
+  const roomOther = Game.rooms[roomOtherName];
+  if (!roomOther || roomOther === null) {
+    return false;
+  }
+  if (!roomOther.terminal || !roomOther.terminal.store[mineral] || roomOther.terminal.store[mineral] < 2000) {
+    return false;
+  }
+  return true;
+}
+
 Room.prototype.orderMinerals = function() {
   if (this.executeEveryTicks(20)) {
-    const baseMinerals = [
-      RESOURCE_HYDROGEN,
-      RESOURCE_OXYGEN,
-      RESOURCE_UTRIUM,
-      RESOURCE_LEMERGIUM,
-      RESOURCE_KEANIUM,
-      RESOURCE_ZYNTHIUM,
-      RESOURCE_CATALYST,
-      RESOURCE_HYDROXIDE,
-      RESOURCE_UTRIUM_LEMERGITE,
-      RESOURCE_ZYNTHIUM_KEANITE,
-      RESOURCE_GHODIUM,
-    ];
-
     const room = this;
 
     for (const mineral of baseMinerals) {
@@ -153,16 +175,10 @@ Room.prototype.orderMinerals = function() {
         const roomsOther = findMyRoomsSortByDistance(this.name);
 
         for (const roomOtherName of roomsOther) {
-          if (roomOtherName === this.name) {
+          if (!isOtherRoomReady(room, roomOtherName, mineral)) {
             continue;
           }
           const roomOther = Game.rooms[roomOtherName];
-          if (!roomOther || roomOther === null) {
-            continue;
-          }
-          if (!roomOther.terminal || !roomOther.terminal.store[mineral] || roomOther.terminal.store[mineral] < 2000) {
-            continue;
-          }
           roomOther.memory.mineralOrder = roomOther.memory.mineralOrder || {};
           if (roomOther.memory.mineralOrder[room.name]) {
             break;

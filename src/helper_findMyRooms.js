@@ -9,8 +9,8 @@ function findRoomsWithinReach(room) {
   for (const myRoom of Memory.myRooms) {
     try {
       const distance = Game.map.getRoomLinearDistance(room, myRoom);
-      console.log(`roomWithinReach room: ${room} myRoom: ${myRoom} distance: ${distance}`);
-      if (config.nextRoom.minNewRoomDistance <= distance && distance < config.nextRoom.maxDistance) {
+      // console.log(`roomWithinReach room: ${room} myRoom: ${myRoom} distance: ${distance}`);
+      if (distance < config.nextRoom.maxDistance) {
         rooms.push(myRoom);
       }
     } catch (e) {

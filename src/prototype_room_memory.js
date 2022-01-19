@@ -214,39 +214,25 @@ Room.prototype.setMemoryPath = function(name, path, fixed, perturb = false) {
 };
 
 /**
- * Returns a list of some/all reserved routing positions in the room
+ * Checks the rooms positions
  *
- * @param {Function} filter - optional function used to filter positions
- * @return {Array} all reserved positions
+ * - Gets them from heap, if not my room and not available, create
+ * - If my room, enricht heap from memory, otherwise create
+ *
  */
-Room.prototype.getPositions = function(filter) {
-  if (!this.memory.position) {
-    return [];
+Room.prototype.checkRoomPositions = function() {
+  const data = this.getData();
+  if (data.position) {
+    return;
   }
 
-  const positions = [];
-  for (const creepId of Object.keys(this.memory.position.creep)) {
-    const pos = this.memory.position.creep[creepId];
-    if (!pos) {
-      continue;
-    }
-    if (!filter || filter(pos)) {
-      positions.push(pos);
-    }
+  // if (this.isMy() && this.memory.position) {
+  if (this.memory.position) {
+    data.position = this.memory.position;
+    return;
   }
-  for (const structureId of Object.keys(this.memory.position.structure)) {
-    const poss = this.memory.position.structure[structureId];
-    for (const pos of poss) {
-      if (!pos) {
-        continue;
-      }
-      if (!filter || filter(pos)) {
-        positions.push(pos);
-      }
-    }
-  }
-
-  return positions;
+  this.debugLog('routing', 'checkRoomPositions - no position');
+  this.updatePosition();
 };
 
 /**

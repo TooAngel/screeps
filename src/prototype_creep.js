@@ -88,10 +88,7 @@ Creep.prototype.inBase = function() {
 };
 
 Creep.prototype.inMyRoom = function() {
-  if (!this.room.controller) {
-    return false;
-  }
-  return this.room.controller.my;
+  return this.room.isMy();
 };
 
 /**
@@ -219,7 +216,7 @@ Creep.prototype.getEnergyFromStructure = function() {
 };
 
 Creep.prototype.notBuildRoadWithLowEnergyButOnSwamp = function() {
-  if (this.room.controller && this.room.controller.my &&
+  if (this.room.isMy() &&
     this.room.energyCapacityAvailable < 550 &&
     this.pos.lookFor(LOOK_TERRAIN)[0] !== 'swamp') {
     return true;
@@ -438,11 +435,9 @@ Creep.prototype.respawnMe = function() {
 
 Creep.prototype.spawnReplacement = function(maxOfRole) {
   if (this.memory.nextSpawn) {
-    //    this.say('sr: ' + (this.ticksToLive - this.memory.nextSpawn));
     if (this.ticksToLive === this.memory.nextSpawn) {
       if (maxOfRole) {
         const creepOfRole = this.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', [this.memory.role]);
-
         if (creepOfRole.length > maxOfRole) {
           return false;
         }

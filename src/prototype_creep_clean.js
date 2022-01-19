@@ -108,7 +108,7 @@ Creep.prototype.cleanExits = function() {
 };
 
 Creep.prototype.cleanSetTargetId = function() {
-  if (this.room.controller && !this.room.controller.my) {
+  if (!this.room.isMy()) {
     //    this.log('no targetId');
     if (this.cleanController()) {
       //      this.log('clean controller');

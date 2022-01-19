@@ -112,14 +112,17 @@ Room.prototype.checkForWatcher = function() {
 };
 
 Room.prototype.updateClosestSpawn = function() {
-  this.memory.base = this.closestSpawn(this.name);
+  const data = this.getData();
+  data.base = this.closestSpawn(this.name);
   return this.memory.base;
 };
 
 Room.prototype.spawnKeepersEveryTicks = function(ticks) {
   let returnValue = false;
-  if (Game.rooms[this.memory.base] && Game.rooms[this.memory.base].controller) {
-    if (Game.rooms[this.memory.base].controller.level >= config.keepers.minControllerLevel) {
+  const data = this.getData();
+  const baseRoom = Game.rooms[data.base];
+  if (baseRoom && baseRoom.controller) {
+    if (baseRoom.controller.level >= config.keepers.minControllerLevel) {
       // TODO I don't know what the watcher is good for, keeper rooms need to
       // be redone anyway
       // this.checkForWatcher();
@@ -135,7 +138,7 @@ Room.prototype.spawnKeepersEveryTicks = function(ticks) {
       }
     }
   } else {
-    this.log('Error no Access to ', this.memory.base, 'or its controller');
+    this.log('Error no Access to ', data.base, 'or its controller');
   }
   return returnValue;
 };

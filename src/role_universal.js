@@ -85,6 +85,35 @@ function handlePathEnd(creep) {
   }
 }
 
+/**
+ * handlePathStart
+ *
+ * @param {object} creep
+ * @param {bool} reverse
+ * @return {bool}
+ */
+function handlePathStart(creep, reverse) {
+  if (creep.memory.routing.pathPos === 0) {
+    for (const resource in creep.carry) {
+      if (resource === RESOURCE_ENERGY) {
+        continue;
+      }
+      creep.transfer(creep.room.storage, resource);
+    }
+
+    const returnCode = creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
+    if (returnCode === OK || returnCode === ERR_FULL) {
+      creep.memory.move_forward_direction = true;
+      reverse = false;
+      creep.memory.routing.reverse = false;
+      if (returnCode === OK) {
+        return true;
+      }
+    }
+  }
+  creep.memory.routing.reverse = reverse || !creep.memory.move_forward_direction;
+}
+
 roles.universal.preMove = function(creep, directions) {
   creep.creepLog(`preMove`);
   if (universalBeforeStorage(creep)) {
@@ -116,26 +145,10 @@ roles.universal.preMove = function(creep, directions) {
 
   creep.memory.routing.targetId = 'universal';
 
-  if (creep.memory.routing.pathPos === 0) {
-    for (const resource in creep.carry) {
-      if (resource === RESOURCE_ENERGY) {
-        continue;
-      }
-      creep.transfer(creep.room.storage, resource);
-    }
-
-    const returnCode = creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
-    if (returnCode === OK || returnCode === ERR_FULL) {
-      creep.memory.move_forward_direction = true;
-      reverse = false;
-      creep.memory.routing.reverse = false;
-      if (returnCode === OK) {
-        return true;
-      }
-    }
+  if (handlePathStart(creep, reverse)) {
+    return true;
   }
 
-  creep.memory.routing.reverse = reverse || !creep.memory.move_forward_direction;
   if (directions && creep.memory.routing.reverse) {
     directions.direction = directions.backwardDirection;
   }

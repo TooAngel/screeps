@@ -15,6 +15,7 @@ global.load = Math.round(Game.cpu.getUsed());
 // Init heap data
 global.data = global.data || {};
 global.data.creeps = global.data.creeps || {};
+global.data.rooms = global.data.rooms || {};
 
 console.log(`${Game.time} Script reload - Load: ${global.load} tickLimit: ${Game.cpu.tickLimit} limit: ${Game.cpu.limit} Bucket: ${Game.cpu.bucket}`);
 

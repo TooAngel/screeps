@@ -48,7 +48,7 @@ const action = function(creep) {
 
   const recycleCreep = function(creep) {
     creep.say('recycle');
-    if (creep.room.controller && creep.room.controller.my) {
+    if (creep.room.isMy()) {
       if (creep.memory.countdown > 0) {
         creep.memory.countdown -= 1;
         creep.say('rnd');

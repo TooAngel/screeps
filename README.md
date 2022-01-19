@@ -1,4 +1,4 @@
-# TooAngel Artificial intelligence for screeps
+# TooAngel NPC / bot for screeps
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7cdc61c18abf4b3b89ad6a2f12ca7990)](https://www.codacy.com/app/TooAngel/screeps?utm_source=github.com&utm_medium=referral&utm_content=TooAngel/screeps&utm_campaign=badger)
 [![CircleCI](https://circleci.com/gh/TooAngel/screeps.svg?style=svg)](https://circleci.com/gh/TooAngel/screeps)
@@ -17,7 +17,7 @@ automation idea. It was the first full automated open source code base and
 invented the idea of an community driven merge processes as well as a full
 automated bot deploy process. This was copied by other screeps projects like Quorum.
 
-are automatically merged ([World Driven](https://www.worlddriven.org)) and deployed to the
+Pull Requests are automatically merged ([World Driven](https://www.worlddriven.org)) and deployed to the
 [Screeps TooAngel account](https://www.screeps.com).
 
 ## Quests

@@ -140,7 +140,7 @@ roles.nextroomer.stayAtSource = function(creep, source) {
 };
 
 roles.nextroomer.underSiege = function(creep) {
-  const room = Game.rooms[creep.room.name];
+  const room = creep.room;
   if (creep.memory.targetId) {
     const sourcerPosMem = room.memory.position.creep[creep.memory.targetId];
     const source = Game.getObjectById(creep.memory.targetId);
@@ -151,8 +151,7 @@ roles.nextroomer.underSiege = function(creep) {
     }
   }
   const sources = room.findSources();
-  for (const sourceId of Object.keys(sources)) {
-    const source = sources[sourceId];
+  for (const source of sources) {
     const sourcerPosMem = room.memory.position.creep[source.id];
     const sourcerPos = new RoomPosition(sourcerPosMem.x, sourcerPosMem.y, creep.room.name);
 
@@ -163,7 +162,7 @@ roles.nextroomer.underSiege = function(creep) {
 
     const creeps = sourcerPos.lookFor('creep');
     if (creeps.length === 0) {
-      creep.moveTo(sourcerPos.x, sourcerPos.y);
+      creep.moveTo(sourcerPos);
       return true;
     }
   }

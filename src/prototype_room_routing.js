@@ -110,10 +110,7 @@ Room.prototype.buildPath = function(route, routePos, from, to) {
 
 // Providing the targetId is a bit odd
 Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
-  if (!this.memory.position) {
-    this.debugLog('routing', 'getPath no position');
-    this.updatePosition();
-  }
+  this.checkRoomPositions();
 
   let from = startId;
   if (routePos > 0) {

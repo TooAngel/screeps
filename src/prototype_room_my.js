@@ -17,7 +17,7 @@ Room.prototype.unclaimRoom = function() {
 };
 
 Room.prototype.myHandleRoom = function() {
-  this.memory.state = 'Controlled';
+  this.getData().state = 'Controlled';
   if (!Memory.username) {
     Memory.username = this.controller.owner.username;
   }
@@ -228,10 +228,6 @@ Room.prototype.getUniversalAmount = function() {
 
 Room.prototype.handleAttackTimerWithoutHostiles = function() {
   this.memory.attackTimer = Math.max(this.memory.attackTimer - 5, 0);
-  // Make sure we don't spawn towerFiller on reducing again
-  if (this.memory.attackTimer % 5 === 0) {
-    this.memory.attackTimer--;
-  }
   if (this.memory.attackTimer <= 0) {
     this.memory.underSiege = false;
   }
@@ -257,29 +253,6 @@ Room.prototype.checkForSafeMode = function() {
     if (enemies > 0) {
       this.controller.activateSafeMode();
     }
-  }
-};
-
-Room.prototype.spawnTowerFiller = function() {
-  if (!this.isUnderAttack() || this.controller.level < 6) {
-    return false;
-  }
-  const towers = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER]);
-  if (towers.length === 0) {
-    this.memory.attackTimer = 47;
-    return false;
-  }
-
-  if (this.memory.attackTimer !== 50 || this.memory.position.creep.towerFiller) {
-    return false;
-  }
-
-  for (const towerFillerPos of this.memory.position.creep.towerFiller) {
-    this.log('Spawning towerfiller: ' + this.memory.attackTimer);
-    this.memory.queue.push({
-      role: 'towerfiller',
-      target_id: towerFillerPos,
-    });
   }
 };
 
@@ -314,7 +287,6 @@ Room.prototype.handleDefence = function(hostiles) {
 Room.prototype.handleAttack = function(hostiles) {
   this.handleAttackTimer(hostiles);
   this.checkForSafeMode();
-  this.spawnTowerFiller();
   this.handleDefence(hostiles);
 };
 
@@ -609,10 +581,10 @@ Room.prototype.setRoomInactive = function() {
   try {
     tokens = Game.market.getAllOrders({
       type: ORDER_SELL,
-      resourceType: SUBSCRIPTION_TOKEN,
+      resourceType: CPU_UNLOCK,
     });
   } catch (e) {
-    this.log('No Subscription Tokens for sale adding value of 5,000,000.000');
+    this.log('No CPU_UNLOCK for sale adding value of 5,000,000.000');
     tokens = [{
       price: 5000000.000, // change this value to whatever you feel appropriate enough
     }];
@@ -627,7 +599,7 @@ Room.prototype.setRoomInactive = function() {
   const idiotCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
   if (idiotCreeps.length > 0) {
     for (const idiotCreep of idiotCreeps) {
-      this.log(`Increase idiot by subscription token (${addToIdiot}) for ${idiotCreep.owner.username}`);
+      this.log(`Increase idiot by CPU_UNLOCK (${addToIdiot}) for ${idiotCreep.owner.username}`);
       brain.increaseIdiot(idiotCreep.owner.username, addToIdiot);
     }
   }

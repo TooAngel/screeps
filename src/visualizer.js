@@ -269,45 +269,4 @@ global.visualizer.myRoomDatasDraw = function(roomName) {
     }
     y++;
   }
-
-  if (config.stats.summary && Memory.summary) {
-    const highterQueue = _.chain(Memory.myRooms)
-      .map((roomName) => ({
-        roomName: roomName,
-        length: (Memory.rooms[roomName] && Memory.rooms[roomName].queue) ?
-          -Memory.rooms[roomName].queue.length :
-          0,
-      }))
-      .sortBy('length')
-      .value()[0];
-    const output = `=========================
-      Game time: ${Game.time}
-      Progress: ${(Game.gcl.progress - Memory.progress) / 100}/${Memory.myRooms.length * 15}
-      ConstructionSites: ${Object.keys(Memory.constructionSites).length}
-      -------------------------
-      No storage: ${Memory.summary.storageNoString}
-      Low storage: ${Memory.summary.storageLowString}
-      Middle storage: ${Memory.summary.storageMiddleString}
-      High storage: ${Memory.summary.storageHighString}
-      -------------------------
-      Power storage: ${Memory.summary.storagePower}
-      -------------------------
-      Upgrade less: ${Memory.summary.upgradeLess}
-      -------------------------
-      Highter queue: ${highterQueue.roomName}:${-highterQueue.length}
-      =========================`;
-    const lines = output.split('\n');
-    let summaryCenterX = 25;
-    let summaryTopLineY = 25;
-    if (Memory.rooms[roomName].summaryCenter) {
-      summaryCenterX = Math.min(Math.max(Memory.rooms[roomName].summaryCenter.x, 5), 44);
-      const summaryHeight = lines.length * (fontSize - 0.05);
-      summaryTopLineY = Memory.rooms[roomName].summaryCenter.y - summaryHeight / 2 + (fontSize - 0.05);
-      summaryTopLineY = Math.min(Math.max(summaryTopLineY, 1), 49 - summaryHeight + (fontSize - 0.05));
-    }
-
-    for (let l = 0; l < lines.length; l++) {
-      room.visual.text(lines[l], summaryCenterX, summaryTopLineY + (l * (fontSize - 0.05)), {font: fontSize});
-    }
-  }
 };

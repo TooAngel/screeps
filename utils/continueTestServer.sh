@@ -1,3 +1,3 @@
 npm install
-cd current-world/
+cd tmp-test-server/
 ../node_modules/.bin/screeps start

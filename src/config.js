@@ -50,7 +50,7 @@ global.config = {
 
   info: {
     signController: true,
-    signText: 'Fully automated open source bot: http://tooangel.github.io/screeps/',
+    signText: 'Fully automated open source NPC: http://tooangel.github.io/screeps/',
     resignInterval: 500,
   },
 
@@ -70,7 +70,6 @@ global.config = {
     screepsPlusEnabled: false,
     screepsPlusToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRvb2FuZ2VscyIsImlhdCI6MTQ4MzU2MTU3OSwiYXVkIjoic2NyZWVwc3BsLnVzIiwiaXNzIjoic2NyZWVwc3BsLnVzIn0.NhobT7Jg8bOAg-MYqrYsgeMgXEVXGVYG9s3G9Qpfm-o',
     enabled: false,
-    summary: false,
   },
 
   debug: {
@@ -97,9 +96,6 @@ global.config = {
     routing: false,
     brain: false,
     attack: true,
-    // Check bugs:
-    // - check wrong link order
-    checkbugs: false,
   },
 
   tower: {
@@ -158,7 +154,6 @@ global.config = {
   ticksummary: {
     bucket: false,
     gcl: false,
-    room: false,
     seperator: false,
   },
 
@@ -242,7 +237,7 @@ global.config = {
     scout: true,
     upgraderMinStorage: 0,
     upgraderStorageFactor: 2,
-    lastSeenThreshold: 1000000,
+    lastSeenThreshold: 5000000,
     notify: false,
     observerRange: 5, // Reduced to save memory OBSERVER_RANGE, // between 1 and 10:OBSERVER_RANGE
   },
@@ -312,6 +307,7 @@ global.config = {
       universal: 11,
       defender: 12,
       defendranged: 13,
+      claimer: 14,
       nextroomer: 15,
       carry: 16,
       watcher: 17,

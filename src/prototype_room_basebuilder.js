@@ -94,6 +94,38 @@ Room.prototype.buildRampartsAroundSpawns = function() {
   }
 };
 
+/**
+ * destroyStructureSpawn
+ *
+ * @param {object} room
+ * @param {object} structure
+ * @return {bool}
+ */
+function destroyStructureSpawn(room, structure) {
+  if (room.memory.misplacedSpawn) {
+    if (room.storage && room.storage.store.energy > 20000) {
+      const builders = room.findMyCreepsOfRole('builder');
+      if (builders.length > 3) {
+        room.log('Destroying to rebuild spawn: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
+        room.log('-----------------------------------------');
+        room.log('ATTENTION: The last spawn is destroyed, a new one will be build automatically, DO NOT RESPAWN');
+        room.log('-----------------------------------------');
+        structure.destroy();
+        delete room.memory.misplacedSpawn;
+        room.memory.controllerLevel.checkWrongStructureInterval = 1;
+        delete room.memory.walls;
+        return true;
+      }
+    }
+    return false;
+  }
+  room.log(`Spawn [${structure.pos.x}, ${structure.pos.y}] is misplaced, not in positions (prototype_room_basebuilder.destroyStructure)`); // eslint-disable-line max-len
+  room.memory.misplacedSpawn = true;
+
+  room.buildRampartsAroundSpawns();
+  return false;
+}
+
 Room.prototype.destroyStructure = function(structure) {
   if (structure.structureType === STRUCTURE_WALL) {
     return this.destroyStructureWall(structure);
@@ -120,27 +152,7 @@ Room.prototype.destroyStructure = function(structure) {
     return true;
   }
   if (structure.structureType === STRUCTURE_SPAWN) {
-    if (this.memory.misplacedSpawn) {
-      if (this.storage && this.storage.store.energy > 20000) {
-        const builders = this.findMyCreepsOfRole('builder');
-        if (builders.length > 3) {
-          this.log('Destroying to rebuild spawn: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
-          this.log('-----------------------------------------');
-          this.log('ATTENTION: The last spawn is destroyed, a new one will be build automatically, DO NOT RESPAWN');
-          this.log('-----------------------------------------');
-          structure.destroy();
-          delete this.memory.misplacedSpawn;
-          this.memory.controllerLevel.checkWrongStructureInterval = 1;
-          delete this.memory.walls;
-          return true;
-        }
-      }
-      return false;
-    }
-    this.log(`Spawn [${structure.pos.x}, ${structure.pos.y}] is misplaced, not in positions (prototype_room_basebuilder.destroyStructure)`); // eslint-disable-line max-len
-    this.memory.misplacedSpawn = true;
-
-    this.buildRampartsAroundSpawns();
+    return destroyStructureSpawn(this, structure);
   }
   return false;
 };
@@ -222,9 +234,14 @@ Room.prototype.clearPosition = function(pos, structure) {
   return returnValue;
 };
 
-Room.prototype.setupStructure = function(structure) {
-  const structures = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [structure]);
-  const constructionsites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [structure]);
+/**
+ * setupStructureFinishPriorityStructures
+ *
+ * @param {object} structure
+ * @param {array} constructionsites
+ * @return {bool}
+ */
+function setupStructureFinishPriorityStructures(structure, constructionsites) {
   // Only build one spawn at a time, especially for reviving
   if (structure === STRUCTURE_SPAWN) {
     if (constructionsites.length > 0) {
@@ -232,13 +249,21 @@ Room.prototype.setupStructure = function(structure) {
     }
   }
 
-  // Complete storage before building something else - 2016-10-16
+  // Complete storage before building something else
   if (structure === STRUCTURE_STORAGE) {
     if (constructionsites.length > 0) {
       return true;
     }
   }
+}
 
+Room.prototype.setupStructure = function(structure) {
+  const constructionsites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [structure]);
+  if (setupStructureFinishPriorityStructures(structure, constructionsites)) {
+    return true;
+  }
+
+  const structures = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [structure]);
   const diff = CONTROLLER_STRUCTURES[structure][this.controller.level] -
     (structures.length + constructionsites.length);
   if (diff <= 0) {

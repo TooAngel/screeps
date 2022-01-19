@@ -8,14 +8,14 @@
 
 roles.extractor = {};
 
-roles.extractor.boostActions = ['harvest', 'capacity'];
-
 roles.extractor.settings = {
-  layoutString: 'MCW',
-  amount: [5, 1, 4],
-  maxLayoutAmount: 5,
+  prefixString: 'WMC',
+  layoutString: 'MW',
+  amount: [1, 2],
+  maxLayoutAmount: 999,
 };
 
+roles.extractor.boostActions = ['harvest'];
 roles.extractor.buildRoad = true;
 
 roles.extractor.preMove = function(creep, directions) {
