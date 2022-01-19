@@ -5,10 +5,6 @@ global.brain = {
   main: {},
 };
 global.roles = {};
-global.cache = {
-  rooms: {},
-  segments: {},
-};
 global.profiler = {};
 
 try {
@@ -58,11 +54,6 @@ global.config = {
   performance: {
     serializePath: true,
     costMatrixMemoryMaxGCL: 15,
-  },
-
-  memory: {
-    segments: 20,
-    segmentsEnabled: false,
   },
 
   // use username `tooangels` and password `tooSecretPassword` at https://screepspl.us/grafana
@@ -237,25 +228,25 @@ global.config = {
     scout: true,
     upgraderMinStorage: 0,
     upgraderStorageFactor: 2,
-    lastSeenThreshold: 5000000,
+    lastSeenThreshold: 100000,
     notify: false,
     observerRange: 5, // Reduced to save memory OBSERVER_RANGE, // between 1 and 10:OBSERVER_RANGE
   },
 
   layout: {
-    plainCost: 5,
-    swampCost: 8,
     borderAvoid: 40,
+    creepAvoid: 0xFF,
+    pathAvoid: 1,
+    plainAvoid: 10,
+    plainCost: 5,
     skLairAvoidRadius: 5,
     skLairAvoid: 50,
-    wallAvoid: 20,
-    plainAvoid: 10,
     sourceAvoid: 60,
-    pathAvoid: 1,
     structureAvoid: 0xFF,
-    creepAvoid: 0xFF,
-    wallThickness: 1,
+    swampCost: 8,
     version: 21,
+    wallAvoid: 20,
+    wallThickness: 1,
   },
 
   terminal: {

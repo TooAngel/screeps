@@ -48,7 +48,7 @@ Room.prototype.updateKeepers = function() {
 Room.prototype.spawnKeepers = function() {
   const room = this;
   const keeperPositions = this.memory.keepers;
-  const baseRoom = Game.rooms[room.memory.base];
+  const baseRoom = Game.rooms[this.data.base];
   const amount = 1;
   const queueMaxLength = 10;
   // TODO Understand this logic again, I guess redo the complete logic
@@ -56,8 +56,7 @@ Room.prototype.spawnKeepers = function() {
     return false;
   }
   return _.map(keeperPositions, (keeper) => {
-    // todo-msc remove W4S6
-    if ((baseRoom.memory.queue.length < queueMaxLength) && ((room.name === 'W4S6') || (room.name === 'W4S4'))) {
+    if ((baseRoom.memory.queue.length < queueMaxLength)) {
       return _.map(keeper.roles, (role) => {
         // const returnValue = false;
         // todo-msc fix minerl harvesting
@@ -71,13 +70,13 @@ Room.prototype.spawnKeepers = function() {
         }
         const returnValue = (role.size < amount) ? baseRoom.checkRoleToSpawn(role.role, amount, keeper.posId, room.name, undefined, room.memory.base) : false;
         if (!returnValue && (role.size < amount)) {
-          const creepMemory = baseRoom.creepMem(role.role, keeper.posId, room.name, undefined, room.memory.base);
+          const creepMemory = baseRoom.creepMem(role.role, keeper.posId, room.name, undefined, this.data.base);
           const inQueue = baseRoom.inQueue(creepMemory);
           const inRoom = baseRoom.inRoom(creepMemory, amount);
           room.log('checkRoleToSpawn', returnValue,
             JSON.stringify({
               room: room.name,
-              base: room.memory.base,
+              base: this.data.base,
               posId: keeper.posId,
               size: role.size,
               role: role.role,
@@ -103,7 +102,7 @@ Room.prototype.spawnKeepers = function() {
 };
 
 Room.prototype.checkForWatcher = function() {
-  const baseRoom = Game.rooms[this.memory.base];
+  const baseRoom = Game.rooms[this.data.base];
   const watcher = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['watcher']);
   if (baseRoom && _.size(watcher) < 1) {
     return baseRoom.checkRoleToSpawn('watcher', 1, undefined, this.name);
@@ -112,15 +111,13 @@ Room.prototype.checkForWatcher = function() {
 };
 
 Room.prototype.updateClosestSpawn = function() {
-  const data = this.getData();
-  data.base = this.closestSpawn(this.name);
-  return this.memory.base;
+  this.data.base = this.closestSpawn(this.name);
+  return this.data.base;
 };
 
 Room.prototype.spawnKeepersEveryTicks = function(ticks) {
   let returnValue = false;
-  const data = this.getData();
-  const baseRoom = Game.rooms[data.base];
+  const baseRoom = Game.rooms[this.data.base];
   if (baseRoom && baseRoom.controller) {
     if (baseRoom.controller.level >= config.keepers.minControllerLevel) {
       // TODO I don't know what the watcher is good for, keeper rooms need to
@@ -138,7 +135,7 @@ Room.prototype.spawnKeepersEveryTicks = function(ticks) {
       }
     }
   } else {
-    this.log('Error no Access to ', data.base, 'or its controller');
+    this.log('Error no Access to ', this.data.base, 'or its controller');
   }
   return returnValue;
 };

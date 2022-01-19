@@ -78,10 +78,18 @@ RoomPosition.prototype.getAdjacentPosition = function(direction) {
   const x = this.x + adjacentPos[direction][0];
   const y = this.y + adjacentPos[direction][1];
 
+  if (x < 0 || y < 0) {
+    return false;
+  }
+  if (x > 49 || y > 49) {
+    return false;
+  }
+
   try {
     return new RoomPosition(x, y, this.roomName);
   } catch (e) {
-    // this.log(`RoomPosition.getAdjacentPosition Exception: ${e} for direction ${direction} x: ${x} y: ${y} roomName: ${this.roomName} stack: ${e.stack}`);
+    // TODO do we need to catch it?
+    this.log(`RoomPosition.getAdjacentPosition Exception: ${e} for direction ${direction} x: ${x} y: ${y} roomName: ${this.roomName} stack: ${e.stack}`);
     // throw e;
     return;
   }
@@ -89,11 +97,9 @@ RoomPosition.prototype.getAdjacentPosition = function(direction) {
 
 RoomPosition.prototype.getAllAdjacentPositions = function* () {
   for (let direction = 1; direction <= 8; direction++) {
-    try {
-      yield this.getAdjacentPosition(direction);
-    } catch (e) {
-      // This happens when the RoomPosition is invalid
-      continue;
+    const position = this.getAdjacentPosition(direction);
+    if (position) {
+      yield position;
     }
   }
 };
@@ -131,23 +137,30 @@ RoomPosition.prototype.checkForObstacleStructure = function() {
 
 RoomPosition.prototype.inPath = function() {
   const room = this.getRoom();
-  return room.getMemoryPathsSet()[`${this.x} ${this.y}`];
+  for (const pathName of Object.keys(room.getMemoryPaths())) {
+    const path = room.getMemoryPath(pathName);
+    for (const pos of path) {
+      if (this.x === pos.x && this.y === pos.y) {
+        return true;
+      }
+    }
+  }
+  return false;
 };
 
 RoomPosition.prototype.inPositions = function() {
   const room = this.getRoom();
-
-  if (!room.memory.position) {
+  if (!room.data.positions) {
     return false;
   }
 
-  for (const creepId of Object.keys(room.memory.position.creep)) {
-    if (!room.memory.position.creep[creepId]) {
+  for (const creepId of Object.keys(room.data.positions.creep)) {
+    if (!room.data.positions.creep[creepId]) {
       // TODO when does this happen?
       continue;
     }
     try {
-      for (const pos of room.memory.position.creep[creepId]) {
+      for (const pos of room.data.positions.creep[creepId]) {
         if (!pos) {
           continue;
         }
@@ -156,12 +169,12 @@ RoomPosition.prototype.inPositions = function() {
         }
       }
     } catch (e) {
-      this.log(`inPositions ${creepId} ${room.memory.position.creep[creepId]} ${e}`);
+      this.log(`inPositions ${creepId} ${room.data.positions.creep[creepId]} ${e}`);
     }
   }
 
-  for (const structureId of Object.keys(room.memory.position.structure)) {
-    for (const pos of room.memory.position.structure[structureId]) {
+  for (const structureId of Object.keys((room.data.positions.structure || {}))) {
+    for (const pos of room.data.positions.structure[structureId]) {
       if (this.isEqualTo(pos.x, pos.y)) {
         return true;
       }
@@ -214,7 +227,7 @@ RoomPosition.prototype.validPosition = function(opts = {}) {
     }
     return false;
   }
-  return true;
+  return this.isValid();
 };
 
 RoomPosition.prototype.getFirstNearPosition = function(...args) {

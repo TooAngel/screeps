@@ -25,35 +25,31 @@ Room.isRoomUnderAttack = function(roomName) {
 };
 
 Room.prototype.getCreepPositionForId = function(to) {
-  if (this.memory.position && this.memory.position.creep && this.memory.position.creep[to]) {
-    const pos = this.memory.position.creep[to][0];
+  if (this.data.positions.creep[to]) {
+    const pos = this.data.positions.creep[to][0];
     if (pos) {
       return new RoomPosition(pos.x, pos.y, this.name);
     }
   }
-  const defaultPosition = {
-    creep: {},
-  };
   const target = Game.getObjectById(to);
   if (target === null) {
-    // this.log('getCreepPositionForId: No object: ' + to);
+    this.log('getCreepPositionForId: No object: ' + to);
     return;
   }
-  this.memory.position = this.memory.position || defaultPosition;
-  // TODO not all positions needs to be stored in room memory
+
   try {
-    this.memory.position.creep[to] = [target.pos.findNearPosition().next().value];
+    let pos = target.pos.findNearPosition().next().value;
+    if (!pos) {
+      // this.log('getCreepPositionForId no pos in memory take pos of target: ' + to);
+      pos = Game.getObjectById(to).pos;
+    }
+    this.data.positions.creep[to] = [pos];
+
+    return new RoomPosition(pos.x, pos.y, this.name);
   } catch (e) {
-    console.log(`getCreepPositionForId to: ${to} target: ${target}`);
+    this.log(`getCreepPositionForId to: ${to} target: ${target}`);
     throw e;
   }
-
-  let pos = this.memory.position.creep[to][0];
-  if (!pos) {
-    // this.log('getCreepPositionForId no pos in memory take pos of target: ' + to);
-    pos = Game.getObjectById(to).pos;
-  }
-  return new RoomPosition(pos.x, pos.y, this.name);
 };
 
 // find a route using highway rooms
@@ -91,6 +87,7 @@ Room.prototype.buildPath = function(route, routePos, from, to) {
   if (!end) {
     this.log('No end');
   }
+  this.debugLog('routing', `buildPath start: ${JSON.stringify(start)} ${JSON.stringify(end)}`);
   const search = PathFinder.search(
     start, {
       pos: end,
@@ -102,16 +99,13 @@ Room.prototype.buildPath = function(route, routePos, from, to) {
       plainCost: config.layout.plainCost,
     },
   );
-
   search.path.splice(0, 0, start);
   search.path.push(end);
   return search.path;
 };
 
 // Providing the targetId is a bit odd
-Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
-  this.checkRoomPositions();
-
+Room.prototype.getPath = function(route, routePos, startId, targetId) {
   let from = startId;
   if (routePos > 0) {
     from = route[routePos - 1].room;
@@ -121,16 +115,19 @@ Room.prototype.getPath = function(route, routePos, startId, targetId, fixed) {
     to = route[routePos + 1].room;
   }
 
+  // TODO instead of from-to, order these by name to not have duplicate rooms W1N1-E1S1 and E1S1-W1N1
   const pathName = from + '-' + to;
-  if (!this.getMemoryPath(pathName)) {
-    const path = this.buildPath(route, routePos, from, to);
+  let path = this.getMemoryPath(pathName);
+  if (!path) {
+    this.debugLog('routing', `buildPath ${JSON.stringify(route)} ${routePos} ${from} ${to}`);
+    path = this.buildPath(route, routePos, from, to);
     if (!path) {
       this.debugLog('routing', `getPath: No path, from: ${from} to: ${to}`);
       return;
     }
-    this.setMemoryPath(pathName, path, fixed, true);
+    this.setMemoryPath(pathName, path, true);
   }
-  return this.getMemoryPath(pathName);
+  return path;
 };
 
 Room.prototype.getMyExitTo = function(room) {

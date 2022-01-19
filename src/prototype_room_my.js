@@ -17,11 +17,10 @@ Room.prototype.unclaimRoom = function() {
 };
 
 Room.prototype.myHandleRoom = function() {
-  this.getData().state = 'Controlled';
+  this.data.state = 'Controlled';
   if (!Memory.username) {
     Memory.username = this.controller.owner.username;
   }
-  this.memory.constructionSites = this.findConstructionSites();
 
   if (!this.memory.queue) {
     this.memory.queue = [];
@@ -31,16 +30,10 @@ Room.prototype.myHandleRoom = function() {
   if (hostiles.length === 0) {
     delete this.memory.hostile;
   } else {
-    if (this.memory.hostile) {
-      this.memory.hostile.lastUpdate = Game.time;
-      this.memory.hostile.hostiles = hostiles;
-    } else {
-      // this.log('Hostile creeps: ' + hostiles[0].owner.username);
-      this.memory.hostile = {
-        lastUpdate: Game.time,
-        hostiles: hostiles,
-      };
-    }
+    this.memory.hostile = {
+      lastUpdate: Game.time,
+      hostiles: hostiles,
+    };
   }
   if (this.memory.unclaim) {
     return this.unclaimRoom();
@@ -49,18 +42,21 @@ Room.prototype.myHandleRoom = function() {
 };
 
 Room.prototype.getLinkStorage = function() {
-  if (this.memory.constants.linkStorage) {
-    const link = Game.getObjectById(this.memory.constants.linkStorage);
+  if (!this.data.constants) {
+    this.data.constants = {};
+  }
+  if (this.data.constants.linkStorage) {
+    const link = Game.getObjectById(this.data.constants.linkStorage);
     if (link && link !== null) {
       return link;
     }
   }
-  const linkPos = this.memory.position.structure.link[0];
+  const linkPos = this.data.positions.structure.link[0];
   const linkPosObject = new RoomPosition(linkPos.x, linkPos.y, this.name);
   const structures = linkPosObject.lookFor(LOOK_STRUCTURES);
   for (const structure of structures) {
     if (structure.structureType === STRUCTURE_LINK) {
-      this.memory.constants.linkStorage = structure.id;
+      this.data.constants.linkStorage = structure.id;
       return structure;
     }
   }

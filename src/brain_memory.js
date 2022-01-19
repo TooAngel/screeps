@@ -75,7 +75,10 @@ brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
 
 brain.cleanCreeps = function() {
   // Cleanup memory
-  for (const name in Memory.creeps) {
+  if (!Memory.creeps) {
+    return;
+  }
+  for (const name of Object.keys(Memory.creeps)) {
     if (Game.creeps[name]) {
       continue;
     }

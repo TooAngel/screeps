@@ -1,5 +1,41 @@
 'use strict';
 
+/**
+ * The data property represent the current data of the room stored on the heap
+ */
+Object.defineProperty(Room.prototype, 'data', {
+  get() {
+    if (!global.data.rooms[this.name]) {
+      const data = {
+        routing: {},
+        positions: {
+          creep: {},
+          structure: {},
+        },
+      };
+      if (this.isMy()) {
+        data.positions = this.memory.position || {};
+        // TODO do not store costMatrix in memory, this can be generated from positions
+        data.costMatrix = PathFinder.CostMatrix.deserialize(this.memory.costMatrix);
+        data.routing = {};
+        if (this.memory.routing) {
+          for (const pathName of Object.keys(this.memory.routing)) {
+            const path = Room.stringToPath(this.memory.routing[pathName].path);
+            data.routing[pathName] = {
+              path: path,
+              created: this.memory.routing[pathName].created,
+              fixed: this.memory.routing[pathName].fixed,
+              name: this.memory.routing[pathName].name,
+            };
+          }
+        }
+      }
+      global.data.rooms[this.name] = data;
+    }
+    return global.data.rooms[this.name];
+  },
+});
+
 Room.prototype.executeEveryTicks = function(ticks) {
   const timer = (ticks > 3000) ? Game.time - Memory.time + 1 : 0;
   let exectue = false;
@@ -12,53 +48,25 @@ Room.prototype.executeEveryTicks = function(ticks) {
 };
 
 /**
- * initMemory - Initializes the memory if not present
+ * updateBasicData - Updates basic room data
  * - Sets the number of sources
  * - Sets the controller id
+ * - Sets the hostile count
  *
  * @param {object} room - The room to init
  * @return {void}
  **/
-function initMemory(room) {
-  if (room.memory.sources === undefined) {
-    room.memory.sources = room.findSources().length;
+function updateBasicData(room) {
+  if (room.data.sources === undefined) {
+    room.data.sources = room.findSources().length;
   }
-  if (room.memory.controllerId === undefined) {
-    room.memory.controllerId = false;
+  if (room.data.controllerId === undefined) {
+    room.data.controllerId = false;
     if (room.controller) {
-      room.memory.controllerId = room.controller.id;
+      room.data.controllerId = room.controller.id;
     }
   }
-  room.memory.hostileCreepCount = room.find(FIND_HOSTILE_CREEPS).length;
-}
-
-Room.prototype.getData = function() {
-  if (!global.data.rooms[this.name]) {
-    global.data.rooms[this.name] = {};
-  }
-  return global.data.rooms[this.name];
-};
-
-/**
- * initMemory - Initializes the memory if not present
- * - Sets the number of sources
- * - Sets the controller id
- *
- * @param {object} room - The room to init
- * @return {void}
- **/
-function initCache(room) {
-  const data = room.getData();
-  if (data.sources === undefined) {
-    data.sources = room.findSources().length;
-  }
-  if (data.controllerId === undefined) {
-    data.controllerId = false;
-    if (room.controller) {
-      data.controllerId = room.controller.id;
-    }
-  }
-  data.hostileCreepCount = room.find(FIND_HOSTILE_CREEPS).length;
+  room.data.hostileCreepCount = room.find(FIND_HOSTILE_CREEPS).length;
 }
 
 Room.prototype.isMy = function() {
@@ -66,10 +74,8 @@ Room.prototype.isMy = function() {
 };
 
 Room.prototype.handle = function() {
-  initCache(this);
+  updateBasicData(this);
   if (this.isMy()) {
-    this.memory.lastSeen = Game.time;
-    initMemory(this);
     this.myHandleRoom();
     return true;
   }
@@ -97,6 +103,7 @@ Room.prototype.execute = function() {
     Game.notify('Executing room failed: ' + this.name + ' ' + err + ' ' + err.stack, 30);
     return false;
   } finally {
-    this.getData().lastSeen = Game.time;
+    this.data.lastSeen = Game.time;
+    this.memory.lastSeen = Game.time;
   }
 };

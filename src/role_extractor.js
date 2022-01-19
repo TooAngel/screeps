@@ -29,12 +29,11 @@ roles.extractor.preMove = function(creep, directions) {
  * @return {object} - The tower
  **/
 function getMineral(creep) {
-  const data = creep.getData();
-  if (!data.mineral) {
+  if (!creep.data.mineral) {
     const minerals = creep.room.findMinerals();
-    data.mineral = minerals[0].id;
+    creep.data.mineral = minerals[0].id;
   }
-  return Game.getObjectById(data.mineral);
+  return Game.getObjectById(creep.data.mineral);
 }
 
 roles.extractor.action = function(creep) {

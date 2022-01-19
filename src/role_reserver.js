@@ -87,8 +87,7 @@ function callStructurer(creep) {
  */
 function interactWithControllerSuccess(creep) {
   if (creep.room.controller.reservation) {
-    const data = creep.room.getData();
-    data.reservation = {
+    creep.room.data.reservation = {
       base: creep.memory.base,
       tick: Game.time,
       ticksToLive: creep.ticksToLive,
