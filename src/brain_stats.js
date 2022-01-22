@@ -109,7 +109,6 @@ brain.stats.addRoom = function(roomName, previousCpu) {
   if (!room) {
     return false;
   }
-  room.memory.upgraderUpgrade = room.memory.upgraderUpgrade || 0;
   brain.stats.add(['room', roomName], {
     energy: {
       available: room.energyAvailable,
@@ -118,7 +117,6 @@ brain.stats.addRoom = function(roomName, previousCpu) {
     },
     controller: {
       progress: room.controller.progress,
-      preCalcSpeed: room.memory.upgraderUpgrade / (Game.time % 100),
       progressTotal: room.controller.progressTotal,
     },
     creeps: {

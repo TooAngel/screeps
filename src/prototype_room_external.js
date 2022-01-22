@@ -324,6 +324,9 @@ Room.prototype.checkBlockedPath = function() {
         if (structure.structureType === STRUCTURE_CONTAINER) {
           continue;
         }
+        if (structure.structureType === STRUCTURE_INVADER_CORE) {
+          continue;
+        }
         this.log(`Path ${pathName} blocked on ${pos} due to ${structure.structureType}`);
         return true;
       }
@@ -453,7 +456,6 @@ function isRouteValidForReservedRoom(room, route) {
  **/
 function filterReservedBy(roomName) {
   return (roomMemory) => {
-    console.log(`${roomName} ${roomMemory.state} ${(roomMemory.reservation || {}).base}`);
     return roomMemory.state === 'Reserved' && (roomMemory.reservation || {}).base === roomName;
   };
 }

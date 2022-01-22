@@ -4,25 +4,30 @@ for (const variableName of Object.keys(variables)) {
   global[variableName] = variables[variableName];
 }
 
-global.Room = function (name, energyAvailable) {
+global.Room = function(name, energyAvailable) {
   this.name = name;
   this.energyAvailable = energyAvailable;
   this.memory = {
     energyStats: {},
   };
+  this.controller = {
+    level: 1,
+  };
 };
-global.RoomObject = function () {};
-global.RoomPosition = function (x, y, roomName) {
+global.RoomObject = function() {};
+global.RoomPosition = function(x, y, roomName) {
   this.x = x;
   this.y = y;
   this.roomName = roomName;
 };
-global.Creep = function (role) {
+global.Creep = function(role) {
   this.role = role;
 };
-global.Structure = function () {};
+global.Structure = function() {};
+global.StructureController = function() {};
+global.StructureStorage = function() {};
 global._ = require('lodash');
-global.Game = new function () {
+global.Game = new function() {
   this.time = 1;
   this.cpu = {
     getUsed: () => {},
@@ -30,11 +35,11 @@ global.Game = new function () {
 };
 global.Memory = new function() {};
 
-const main = require('../src/main');
+require('../src/main');
 
-var assert = require('assert');
-describe('Room', function() {
-  it('getCreepConfig downgraded rooms does not break harvester config (issue #585)', function() {
+const assert = require('assert');
+describe('Room', () => {
+  it('getCreepConfig downgraded rooms does not break universal config (issue #585)', () => {
     let room = new Room('W1N1', 500);
     room.storage = {
       my: true,
@@ -43,20 +48,20 @@ describe('Room', function() {
       },
       memory: {
         misplacedSpawn: false,
-      }
-    }
-    const creep = new Creep('harvester');
+      },
+    };
+    const creep = new Creep('universal');
     let config = room.getCreepConfig(creep);
-    assert.equal(config.opts.memory.role, 'harvester');
-    assert.deepEqual(config.body, [ 'move', 'move', 'move', 'move', 'work', 'work', 'carry', 'carry' ]);
+    assert.equal(config.opts.memory.role, 'universal');
+    assert.deepEqual(config.body, ['move', 'move', 'move', 'move', 'work', 'work', 'carry', 'carry']);
 
     room = new Room('W1N1', 300);
     config = room.getCreepConfig(creep);
-    assert.deepEqual(config.body, [ 'move', 'move', 'work', 'carry' ]);
+    assert.deepEqual(config.body, ['move', 'move', 'work', 'carry']);
   });
 
-  it('isSameCreep harvester special case (issue #597)', function() {
-    let room = new Room('W1N1', 400);
+  it('isSameCreep universal special case (issue #597)', () => {
+    const room = new Room('W1N1', 400);
     room.storage = {
       my: true,
       store: {
@@ -64,13 +69,16 @@ describe('Room', function() {
       },
       memory: {
         misplacedSpawn: false,
-      }
-    }
-    assert.equal(true, room.isSameCreep({role: 'harvester', routing: {}}, {role: 'harvester', routing: {targetId: 'targetId'}}));
+      },
+    };
+    assert.equal(true, room.isSameCreep({role: 'universal', routing: {}}, {role: 'universal', routing: {targetId: 'targetId'}}));
   });
 
-  it('getCreepConfig attackunreserve has heal', function() {
-    let room = new Room('W1N1', 1200);
+  it('getCreepConfig attackunreserve has heal', () => {
+    const room = new Room('W1N1', 1200);
+    room.controller = {
+      level: 1,
+    };
     room.storage = {
       my: true,
       store: {
@@ -78,15 +86,15 @@ describe('Room', function() {
       },
       memory: {
         misplacedSpawn: false,
-      }
-    }
+      },
+    };
     const creep = new Creep('attackunreserve');
-    let config = room.getCreepConfig(creep);
+    const config = room.getCreepConfig(creep);
     assert.equal(config.opts.memory.role, 'attackunreserve');
-    assert.deepEqual(config.body, [ 'attack', 'attack', 'attack', 'move', 'move', 'move', 'ranged_attack', 'heal', 'heal', 'move', 'move', 'move' ]);
+    assert.deepEqual(config.body, ['attack', 'attack', 'attack', 'move', 'move', 'move', 'ranged_attack', 'heal', 'heal', 'move', 'move', 'move']);
   });
 
-  it('RoomPosition.isBorder', function() {
+  it('RoomPosition.isBorder', () => {
     assert.equal(true, new RoomPosition(49, 10, 'W1N1').isBorder(-1));
     assert.equal(true, new RoomPosition(0, 10, 'W1N1').isBorder(-1));
     assert.equal(true, new RoomPosition(10, 49, 'W1N1').isBorder(-1));
@@ -96,5 +104,111 @@ describe('Room', function() {
     assert.equal(false, new RoomPosition(1, 10, 'W1N1').isBorder(-1));
     assert.equal(false, new RoomPosition(10, 48, 'W1N1').isBorder(-1));
     assert.equal(false, new RoomPosition(10, 1, 'W1N1').isBorder(-1));
+  });
+
+  it('Upgrader getCreepConfig', () => {
+    const room = new Room('W1N1', 5000);
+    room.storage = {
+      my: true,
+      store: {
+        energy: 1000,
+      },
+      memory: {
+        misplacedSpawn: false,
+      },
+    };
+    const creep = new Creep('upgrader');
+    let config = room.getCreepConfig(creep);
+    assert.equal(config.opts.memory.role, 'upgrader');
+    assert.deepEqual(config.body, ['move', 'carry', 'work']);
+
+    room.storage.store.energy = 6000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work']);
+
+    room.storage.store.energy = 9000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work']);
+
+    room.storage.store.energy = 12000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work']);
+
+    room.storage.store.energy = 15000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work', 'work']);
+
+    room.storage.store.energy = 18000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work', 'work', 'work']);
+
+    room.storage.store.energy = 21000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work', 'work', 'work', 'work']);
+
+    room.storage.store.energy = 24000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work']);
+
+    room.storage.store.energy = 27000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work']);
+
+    room.storage.store.energy = 30000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work']);
+
+    room.storage.store.energy = 33000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work']);
+
+    room.storage.store.energy = 36000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work']);
+
+    room.storage.store.energy = 39000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work']);
+
+    room.storage.store.energy = 42000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work']);
+
+    room.storage.store.energy = 45000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work']);
+
+    room.storage.store.energy = 48000;
+    config = room.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work']);
+
+    const roomLevel8 = new Room('W1N1', 5000);
+    roomLevel8.storage = {
+      my: true,
+      store: {
+        energy: 1000,
+      },
+      memory: {
+        misplacedSpawn: false,
+      },
+    };
+    roomLevel8.controller.level = 8;
+    roomLevel8.storage.store.energy = 48000;
+    config = roomLevel8.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work']);
+
+    const roomLowEnergy = new Room('W1N1', 500);
+    roomLowEnergy.storage = {
+      my: true,
+      store: {
+        energy: 1000,
+      },
+      memory: {
+        misplacedSpawn: false,
+      },
+    };
+    roomLowEnergy.storage.store.energy = 48000;
+    config = roomLowEnergy.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['move', 'carry', 'work', 'work', 'work', 'work']);
   });
 });

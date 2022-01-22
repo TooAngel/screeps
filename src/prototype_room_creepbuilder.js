@@ -472,7 +472,7 @@ Room.prototype.getCreepConfig = function(creep) {
   };
   if (!this.memory.misplacedSpawn && Game.time > 500) {
     // On misplaced spawn the top field could be blocked
-    // On spawning the first harvester the `misplacedSpawn` is not necessarily
+    // On spawning the first universal the `misplacedSpawn` is not necessarily
     // set, so checking for `Game.time`
     opts.directions = [TOP];
   }

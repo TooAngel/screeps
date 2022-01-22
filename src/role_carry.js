@@ -63,7 +63,12 @@ roles.carry.checkHelperEmptyStorage = function(creep) {
   }
 };
 
-roles.carry.checkForHarvesterSpawn = function(creep) {
+/**
+ * checkForUniversalSpawn
+ *
+ * @param {object} creep
+ */
+function checkForUniversalSpawn(creep) {
   const storage = creep.room.storage;
   if (!(storage && storage.my && storage.isActive())) {
     let resourceAtPosition = 0;
@@ -71,11 +76,11 @@ roles.carry.checkForHarvesterSpawn = function(creep) {
     for (const resource of resources) {
       resourceAtPosition += resource.amount;
     }
-    let amount = creep.room.getHarvesterAmount();
-    amount += Math.floor(resourceAtPosition / config.carry.callHarvesterPerResources);
-    creep.room.checkRoleToSpawn('harvester', amount);
+    let amount = creep.room.getUniversalAmount();
+    amount += Math.floor(resourceAtPosition / config.carry.callUniversalPerResources);
+    creep.room.checkRoleToSpawn('universal', amount);
   }
-};
+}
 
 roles.carry.dismantleStructure = function(creep, directions) {
   const posForward = creep.pos.getAdjacentPosition(directions.direction);
@@ -144,6 +149,26 @@ function getMoveToStorage(creep) {
   return moveToStorage;
 }
 
+/**
+ * preMoveNotMoveToStorage
+ *
+ * @param {object} creep
+ * @param {object} directions
+ * @return {bool}
+ */
+function preMoveNotMoveToStorage(creep, directions) {
+  creep.creepLog(`preMove not moveToStorage`);
+  let moveToStorage = false;
+  if (creep.memory.routing.pathPos > 1) {
+    // TODO these two methods seems pretty similar, should be unified
+    moveToStorage = creep.pickupEnergy();
+    moveToStorage = moveToStorage || creep.pickupWhileMoving();
+  }
+  const energyFromCreep = creep.checkForTransfer(directions.forwardDirection);
+  moveToStorage = moveToStorage || energyFromCreep;
+  return moveToStorage;
+}
+
 roles.carry.preMove = function(creep, directions) {
   if (!validateDirections(creep, directions)) {
     return false;
@@ -170,7 +195,7 @@ roles.carry.preMove = function(creep, directions) {
 
       if (creep.memory.routing.pathPos === 0) {
         creep.drop(RESOURCE_ENERGY);
-        roles.carry.checkForHarvesterSpawn(creep);
+        checkForUniversalSpawn(creep);
         creep.memory.routing.reverse = false;
         return false;
       }
@@ -181,14 +206,7 @@ roles.carry.preMove = function(creep, directions) {
       return false;
     }
   } else {
-    creep.creepLog(`preMove not moveToStorage`);
-    if (creep.memory.routing.pathPos > 1) {
-      // TODO these two methods seems pretty similar, should be unified
-      moveToStorage = creep.pickupEnergy();
-      moveToStorage = moveToStorage || creep.pickupWhileMoving();
-    }
-    const energyFromCreep = creep.checkForTransfer(directions.forwardDirection);
-    moveToStorage = moveToStorage || energyFromCreep;
+    moveToStorage = preMoveNotMoveToStorage(creep, directions);
   }
 
   moveToStorage = moveToStorage && creep.memory.routing.pathPos !== 0;

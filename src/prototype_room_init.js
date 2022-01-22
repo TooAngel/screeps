@@ -541,7 +541,7 @@ Room.prototype.setupStructures = function() {
   if (pathI === -1) {
     pathI = path.length - 1;
   }
-  this.setMemoryPath('pathStart-harvester', path.slice(0, pathI + 1), true);
+  this.setMemoryPath('pathStart-universal', path.slice(0, pathI + 1), true);
   this.memory.position.version = config.layout.version;
 };
 

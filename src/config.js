@@ -40,6 +40,14 @@ global.config = {
     checkInterval: 100,
   },
 
+  controller: {
+    aboutToDowngradePercent: 10,
+  },
+
+  storage: {
+    lowValue: 2000,
+  },
+
   info: {
     signController: true,
     signText: 'Fully automated open source bot: http://tooangel.github.io/screeps/',
@@ -72,8 +80,6 @@ global.config = {
     spawn: false,
     mineral: false,
     creepLog: {
-      // roles: ['repairer'], // Roles for debug output, e.g. ['repairer'] or '*' for all
-      // rooms: ['W7N4', 'W7N5', 'W7N3', 'W8N4', 'W6N4'], // Rooms for debug output, e.g. ['E21N8'] or '*' for all
       roles: [],
       rooms: [],
     },
@@ -197,7 +203,7 @@ global.config = {
     carryPercentageBase: 0.1,
     carryPercentageHighway: 0.2,
     carryPercentageExtern: 0.5,
-    callHarvesterPerResources: 100,
+    callUniversalPerResources: 100,
   },
 
   creep: {
@@ -207,9 +213,12 @@ global.config = {
     structurerInterval: 1500,
     structurerMinEnergy: 1300,
     reserverDefender: true,
-    energyFromStorageThreshold: 2000,
     sortParts: true,
     swarmSourceHarvestingMaxParts: 10,
+  },
+
+  myRoom: {
+    underAttackMinAttackTimer: 50,
   },
 
   room: {
@@ -293,14 +302,14 @@ global.config = {
 
   priorityQueue: {
     sameRoom: {
-      harvester: 1,
+      universal: 1,
       sourcer: 2,
       storagefiller: 3,
       defendranged: 4,
       carry: 5,
     },
     otherRoom: {
-      harvester: 11,
+      universal: 11,
       defender: 12,
       defendranged: 13,
       nextroomer: 15,

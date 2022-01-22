@@ -1,52 +1,5 @@
 'use strict';
 
-Creep.prototype.myHarvest = function(source) {
-  const returnCode = this.harvest(source);
-  if (returnCode === OK) {
-    return true;
-  }
-  if (returnCode === ERR_NOT_ENOUGH_RESOURCES) {
-    return true;
-  }
-
-  if (returnCode === ERR_NOT_OWNER) {
-    this.log('Suiciding, someone else reserved the controller');
-    this.memory.killed = true;
-    this.suicide();
-    return false;
-  }
-
-  if (returnCode === ERR_NO_BODYPART) {
-    this.room.checkRoleToSpawn('defender', 2, undefined, this.room.name);
-    this.respawnMe();
-    this.suicide();
-    return false;
-  }
-
-  if (returnCode === ERR_TIRED) {
-    return false;
-  }
-  this.log('harvest: ' + returnCode);
-  return false;
-};
-
-Creep.prototype.baseHarvesting = function() {
-  if (!this.memory.link) {
-    const links = this.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
-    if (links.length > 0) {
-      this.memory.link = links[0].id;
-    }
-  }
-  const link = Game.getObjectById(this.memory.link);
-  if (link) {
-    this.transfer(link, RESOURCE_ENERGY);
-    const resources = this.pos.findInRangePropertyFilter(FIND_DROPPED_RESOURCES, 1, 'resourceType', [RESOURCE_ENERGY]);
-    if (resources.length > 0) {
-      this.pickup(resources);
-    }
-  }
-};
-
 Creep.prototype.spawnCarry = function() {
   if (this.memory.wait > 0) {
     this.memory.wait -= 1;
@@ -82,7 +35,7 @@ Creep.prototype.spawnCarry = function() {
     const nearCarries = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 2, 'memory.role', ['carry'], {
       filter: (creep) => creep.memory.routing.targetId === this.memory.routing.targetId,
     });
-    if (nearCarries.length > 1) {
+    if (nearCarries.length > 2) {
       nearCarries[0].memory.recycle = true;
     }
   }

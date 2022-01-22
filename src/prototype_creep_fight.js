@@ -62,7 +62,7 @@ Creep.prototype.moveToHostileConstructionSites = function() {
   });
   if (constructionSite !== null) {
     this.say('kcs');
-    this.log('Kill constructionSite');
+    this.creepLog('Kill constructionSite');
     this.moveToMy(constructionSite.pos, 0);
     return true;
   }

@@ -36,7 +36,7 @@ brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
   if (creepMemory.room) {
     memoryRoom = Memory.rooms[creepMemory.room];
   } else {
-    console.log(`${Game.time} ${name} handleUnexpectedDeadCreeps no creepMemory.room creepMemory: ${JSON.stringify(creepMemory)}`);
+    console.log(`${Game.time} ${name} handleUnexpectedDeadCreeps no creepMemory.room creepMemory: ${JSON.stringify(creepMemory)} data: ${JSON.stringify(global.data.creeps[name])}`);
   }
 
   brain.debugLog(`${Game.time} ${creepMemory.room} ${name} memory hostile: ${memoryRoom.hostileCreepCount}`);
@@ -52,20 +52,24 @@ brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
 
   if (!creepMemory.role) {
     delete Memory.creeps[name];
+    delete global.data.creeps[name];
     return;
   }
 
   const unit = roles[creepMemory.role];
   if (!unit) {
     delete Memory.creeps[name];
+    delete global.data.creeps[name];
     return;
   }
   if (unit.died) {
     if (unit.died(name, creepMemory)) {
       delete Memory.creeps[name];
+      delete global.data.creeps[name];
     }
   } else {
     delete Memory.creeps[name];
+    delete global.data.creeps[name];
   }
 };
 
@@ -79,17 +83,20 @@ brain.cleanCreeps = function() {
     brain.addToStats(name);
     if ((name.startsWith('reserver') && Memory.creeps[name].born < (Game.time - CREEP_CLAIM_LIFE_TIME)) || Memory.creeps[name].born < (Game.time - CREEP_LIFE_TIME)) {
       delete Memory.creeps[name];
+      delete global.data.creeps[name];
       continue;
     }
 
     const creepMemory = Memory.creeps[name];
     if (creepMemory.killed) {
       delete Memory.creeps[name];
+      delete global.data.creeps[name];
       continue;
     }
 
     if (creepMemory.recycle) {
       delete Memory.creeps[name];
+      delete global.data.creeps[name];
       continue;
     }
 
@@ -126,7 +133,7 @@ brain.cleanRooms = function() {
   }
 };
 
-brain.getStorageStringForRoom = function(strings, room, interval) {
+brain.getStorageStringForRoom = function(strings, room) {
   const addToString = function(variable, name, value) {
     strings[variable] += name + ':' + value + ' ';
   };
@@ -141,11 +148,6 @@ brain.getStorageStringForRoom = function(strings, room, interval) {
   if (room.storage.store[RESOURCE_POWER] && room.storage.store[RESOURCE_POWER] > 0) {
     addToString('storagePower', room.name, room.storage.store[RESOURCE_POWER]);
   }
-  // TODO 15 it should be
-  if (Math.ceil(room.memory.upgraderUpgrade / interval) < 15) {
-    addToString('upgradeLess', room.name, room.memory.upgraderUpgrade / interval);
-  }
-  room.memory.upgraderUpgrade = 0;
 };
 
 brain.printSummary = function() {
@@ -168,12 +170,9 @@ brain.printSummary = function() {
     const room = Game.rooms[name];
     if (!room || !room.storage) {
       strings.storageNoString += name + ' ';
-      if (room) {
-        room.memory.upgraderUpgrade = 0;
-      }
       continue;
     }
-    brain.getStorageStringForRoom(strings, room, interval);
+    brain.getStorageStringForRoom(strings, room);
   }
   Memory.summary = strings;
 

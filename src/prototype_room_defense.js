@@ -70,6 +70,26 @@ Room.prototype.handleNukeAttack = function() {
   return true;
 };
 
+Room.prototype.handleTowerWithEnemys = function(hostileCreeps, towers) {
+  let tower;
+  const hostileOffset = {};
+  const sortHostiles = function(object) {
+    return tower.pos.getRangeTo(object) + (hostileOffset[object.id] || 0);
+  };
+
+  const towersAttacking = _.sortBy(towers, (object) => {
+    const hostile = object.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    return object.pos.getRangeTo(hostile);
+  });
+
+  for (tower of towersAttacking) {
+    const hostilesSorted = _.sortBy(hostileCreeps, sortHostiles);
+    tower.attack(hostilesSorted[0]);
+    hostileOffset[hostilesSorted[0].id] = 100;
+  }
+  return true;
+};
+
 Room.prototype.handleTower = function() {
   const towers = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_TOWER]);
   if (towers.length === 0) {
@@ -77,23 +97,7 @@ Room.prototype.handleTower = function() {
   }
   const hostileCreeps = this.findEnemys();
   if (hostileCreeps.length > 0) {
-    let tower;
-    const hostileOffset = {};
-    const sortHostiles = function(object) {
-      return tower.pos.getRangeTo(object) + (hostileOffset[object.id] || 0);
-    };
-
-    const towersAttacking = _.sortBy(towers, (object) => {
-      const hostile = object.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-      return object.pos.getRangeTo(hostile);
-    });
-
-    for (tower of towersAttacking) {
-      const hostilesSorted = _.sortBy(hostileCreeps, sortHostiles);
-      tower.attack(hostilesSorted[0]);
-      hostileOffset[hostilesSorted[0].id] = 100;
-    }
-    return true;
+    return this.handleTowerWithEnemys(hostileCreeps, towers);
   }
 
   if (config.tower.healMyCreeps) {

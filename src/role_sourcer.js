@@ -64,20 +64,154 @@ roles.sourcer.preMove = function(creep, directions) {
   return creep.preMoveExtractorSourcer(directions);
 };
 
-roles.sourcer.action = function(creep) {
-  creep.checkForSourceKeeper();
+/**
+ * getSource - Gets the source from heap data, or sets if missing
+ *
+ * @param {object} creep - The creep
+ * @return {object} - The tower
+ **/
+function getSource(creep) {
+  const data = creep.getData();
+  if (!data.source) {
+    const source = Game.getObjectById(creep.memory.routing.targetId);
+    data.source = source.id;
+  }
+  return Game.getObjectById(data.source);
+}
 
+/**
+ * harvest
+ *
+ * @param {object} creep
+ * @return {bool}
+ */
+function harvest(creep) {
+  const source = getSource(creep);
+  const returnCode = creep.harvest(source);
+  if (returnCode === OK) {
+    return true;
+  }
+  if (returnCode === ERR_NOT_ENOUGH_RESOURCES) {
+    return true;
+  }
+
+  if (returnCode === ERR_NOT_OWNER) {
+    creep.log('Suiciding, someone else reserved the controller');
+    creep.memory.killed = true;
+    creep.suicide();
+    return false;
+  }
+
+  if (returnCode === ERR_NO_BODYPART) {
+    creep.room.checkRoleToSpawn('defender', 2, undefined, creep.room.name);
+    creep.respawnMe();
+    creep.suicide();
+    return false;
+  }
+
+  if (returnCode === ERR_TIRED) {
+    return false;
+  }
+  creep.log('harvest: ' + returnCode);
+  return false;
+}
+
+/**
+ * transferToLink
+ *
+ * @param {object} creep
+ */
+function transferToLink(creep) {
+  const link = creep.getCloseByLink();
+  if (link) {
+    creep.transfer(link, RESOURCE_ENERGY);
+  }
+}
+
+/**
+ * getContainer - Gets the container from heap data, or sets if missing
+ *
+ * @param {object} creep - The creep
+ * @return {object} - The container
+ **/
+function getContainer(creep) {
+  const data = creep.getData();
+  if (!data.container) {
+    const structures = creep.pos.findInRange(FIND_STRUCTURES, 0, {filter: {structureType: STRUCTURE_CONTAINER}});
+    if (structures.length === 0) {
+      return;
+    }
+    data.container = structures[0].id;
+  }
+  return Game.getObjectById(data.container);
+}
+
+/**
+ * getContainerConstructionSite - Gets the container construction site from heap data, or sets if missing
+ *
+ * @param {object} creep - The creep
+ * @return {object} - The container
+ **/
+function getContainerConstructionSite(creep) {
+  const data = creep.getData();
+  if (!data.containerConstructionSite) {
+    const constructionSites = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 0, {filter: {structureType: STRUCTURE_CONTAINER}});
+    if (constructionSites.length === 0) {
+      return;
+    }
+    data.containerConstructionSite = constructionSites[0].id;
+  }
+  return Game.getObjectById(data.containerConstructionSite);
+}
+
+/**
+ * maintainContainer
+ *
+ * @param {object} creep
+ * @return {bool}
+ */
+function maintainContainer(creep) {
+  if (creep.inBase()) {
+    return false;
+  }
+
+  const container = getContainer(creep);
+  if (container) {
+    if (container.hits < container.hitsMax) {
+      creep.repair(container);
+    }
+    return;
+  }
+
+  const containerConstructionSite = getContainerConstructionSite(creep);
+  if (containerConstructionSite) {
+    creep.build(containerConstructionSite);
+    return;
+  }
+
+  const returnCode = creep.pos.createConstructionSite(STRUCTURE_CONTAINER);
+  if (returnCode === ERR_INVALID_TARGET) {
+    const constructionSites = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 0);
+    for (const constructionSite of constructionSites) {
+      constructionSite.remove();
+    }
+    return false;
+  }
+}
+
+roles.sourcer.action = function(creep) {
   creep.setNextSpawn();
   creep.spawnReplacement();
 
-  const source = Game.getObjectById(creep.memory.routing.targetId);
-  if (!creep.myHarvest(source)) {
+  creep.checkForSourceKeeper();
+
+  if (!harvest(creep)) {
     return false;
   }
-  creep.buildContainer();
+  maintainContainer(creep);
   creep.spawnCarry();
   if (creep.inBase()) {
-    creep.baseHarvesting();
+    transferToLink(creep);
   } else {
     creep.selfHeal();
   }

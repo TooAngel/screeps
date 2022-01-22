@@ -8,6 +8,39 @@ Creep.prototype.initRouting = function() {
 };
 
 /**
+ * getData - Gets the creep data from the heap
+ *
+ * @return {object}
+ */
+Creep.prototype.getData = function() {
+  if (!global.data.creeps[this.name]) {
+    global.data.creeps[this.name] = {};
+  }
+  return global.data.creeps[this.name];
+};
+
+/**
+ * getLink - Gets the link from heap data, or sets if missing
+ *
+ * @param {object} creep - The creep
+ * @return {object} - The link
+ **/
+Creep.prototype.getCloseByLink = function() {
+  if (this.room.controller.level < 5) {
+    return;
+  }
+  const data = this.getData();
+  if (!data.link) {
+    const structures = this.pos.findInRange(FIND_MY_STRUCTURES, 1, {filter: {structureType: STRUCTURE_LINK}});
+    if (structures.length === 0) {
+      return;
+    }
+    data.link = structures[0].id;
+  }
+  return Game.getObjectById(data.link);
+};
+
+/**
  * unit - return the unit configuration for this creep
  *
  * @return {object} - The generic configuration for this creep role
@@ -220,7 +253,7 @@ Creep.prototype.checkIfBuildRoadIsPossible = function() {
   }
 
   // TODO as creep variable
-  if (this.memory.role !== 'carry' && this.memory.role !== 'harvester') {
+  if (this.memory.role !== 'carry' && this.memory.role !== 'universal') {
     this.getEnergyFromStructure();
   }
 

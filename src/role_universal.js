@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * harvester makes sure that extensions are filled
+ * universal makes sure that extensions are filled
  *
  * Before storage or certains store threshold:
  *  - get dropped energy or from source
@@ -10,14 +10,14 @@
  *  - upgrade Controller
  *
  * Proper storage store level:
- *  - Move along the harvester path
+ *  - Move along the universal path
  *  - pathPos === 0 get energy from storage
  *  - transfer energy to extensions in range
  */
 
-roles.harvester = {};
+roles.universal = {};
 
-roles.harvester.settings = {
+roles.universal.settings = {
   param: ['controller.level', 'energyAvailable'],
   layoutString: 'MWC',
   amount: {
@@ -30,7 +30,7 @@ roles.harvester.settings = {
   },
   maxLayoutAmount: 6,
 };
-roles.harvester.updateSettings = function(room) {
+roles.universal.updateSettings = function(room) {
   if (!room.isStruggeling() && room.energyAvailable >= 350) {
     // Layoutcost minimum: prefix 250 + layout 100 -> 350
     return {
@@ -46,12 +46,12 @@ roles.harvester.updateSettings = function(room) {
   }
 };
 
-roles.harvester.buildRoad = true;
-roles.harvester.boostActions = ['capacity'];
+roles.universal.buildRoad = true;
+roles.universal.boostActions = ['capacity'];
 
-const harvesterBeforeStorage = function(creep) {
+const universalBeforeStorage = function(creep) {
   if (creep.room.isStruggeling()) {
-    creep.harvesterBeforeStorage();
+    creep.universalBeforeStorage();
     creep.memory.routing.reached = false;
     return true;
   }
@@ -85,9 +85,9 @@ function handlePathEnd(creep) {
   }
 }
 
-roles.harvester.preMove = function(creep, directions) {
+roles.universal.preMove = function(creep, directions) {
   creep.creepLog(`preMove`);
-  if (harvesterBeforeStorage(creep)) {
+  if (universalBeforeStorage(creep)) {
     return true;
   }
 
@@ -97,7 +97,7 @@ roles.harvester.preMove = function(creep, directions) {
     creep.memory.move_forward_direction = true;
   }
 
-  // changed controll flow: first transferToStructures then harvesterBeforeStorage
+  // changed controll flow: first transferToStructures then universalBeforeStorage
   let reverse = creep.carry.energy === 0;
 
   creep.setNextSpawn();
@@ -114,7 +114,7 @@ roles.harvester.preMove = function(creep, directions) {
     }
   }
 
-  creep.memory.routing.targetId = 'harvester';
+  creep.memory.routing.targetId = 'universal';
 
   if (creep.memory.routing.pathPos === 0) {
     for (const resource in creep.carry) {
@@ -143,13 +143,13 @@ roles.harvester.preMove = function(creep, directions) {
   handlePathEnd(creep);
 };
 
-roles.harvester.action = function(creep) {
+roles.universal.action = function(creep) {
   creep.creepLog(`action`);
   if (!creep.memory.routing.targetId) {
-    creep.memory.routing.targetId = 'harvester';
+    creep.memory.routing.targetId = 'universal';
   }
 
-  if (harvesterBeforeStorage(creep)) {
+  if (universalBeforeStorage(creep)) {
     return true;
   }
 

@@ -4,8 +4,8 @@ Creep.pickableResources = function(creep) {
   return (object) => creep.pos.isNearTo(object);
 };
 
-Creep.prototype.harvesterBeforeStorage = function() {
-  this.creepLog(`harvesterBeforeStorage`);
+Creep.prototype.universalBeforeStorage = function() {
+  this.creepLog(`universalBeforeStorage`);
   const methods = [];
 
   methods.push(Creep.getEnergy);
@@ -13,9 +13,9 @@ Creep.prototype.harvesterBeforeStorage = function() {
   if (this.room.controller && (this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / 10 || this.room.controller.level === 1)) {
     methods.push(Creep.upgradeControllerTask);
   }
-  const harvesters = this.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['harvester']).map((creep) => creep.name);
-  harvesters.sort();
-  if (harvesters.indexOf(this.name) < 2) {
+  const universals = this.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['universal']).map((creep) => creep.name);
+  universals.sort();
+  if (universals.indexOf(this.name) < 2) {
     methods.push(Creep.transferEnergy);
   }
 
@@ -130,36 +130,6 @@ Creep.prototype.pickupWhileMoving = function() {
   return false;
 };
 
-Creep.prototype.handleExtractor = function() {
-  if (!this.room.terminal) {
-    this.suicide();
-    return true;
-  }
-  const carrying = _.sum(this.carry);
-  if (carrying === this.carryCapacity) {
-    this.moveToMy(this.room.terminal.pos, 1);
-    for (const key in this.carry) {
-      if (this.carry[key] === 0) {
-        continue;
-      }
-      this.transfer(this.room.terminal, key);
-      return true;
-    }
-  }
-
-  const minerals = this.room.findMinerals();
-  if (minerals.length > 0) {
-    const posMem = this.room.memory.position.creep[minerals[0].id][0];
-    // TODO this could be moved to `creep.moveToMy`, just need to unify the parameter
-    if (this.pos.x !== posMem.x || this.pos.y !== posMem.y) {
-      const pos = new RoomPosition(posMem.x, posMem.y, posMem.roomName);
-      this.moveToMy(pos, 0);
-    }
-    this.harvest(minerals[0]);
-  }
-  return true;
-};
-
 Creep.prototype.sayIdiotList = function() {
   const say = function(creep) {
     const players = _.filter(Memory.players, (object) => {
@@ -177,97 +147,6 @@ Creep.prototype.sayIdiotList = function() {
     creep.say(sentence[word], true);
   };
   say(this);
-};
-
-Creep.prototype.upgraderUpdateStats = function() {
-  if (!this.room.memory.upgraderUpgrade) {
-    this.room.memory.upgraderUpgrade = 0;
-  }
-  let workParts = 0;
-  for (const partI in this.body) {
-    if (this.body[partI].type === 'work') {
-      workParts++;
-    }
-  }
-  this.room.memory.upgraderUpgrade += Math.min(workParts, this.carry.energy);
-};
-
-Creep.prototype.handleUpgrader = function() {
-  // this.sayIdiotList();
-  this.spawnReplacement(1);
-  if (this.room.memory.attackTimer > 50 && this.room.controller.level > 6) {
-    if (this.room.controller.ticksToDowngrade > 10000) {
-      return true;
-    }
-  }
-  if (this.room.controller.ticksToDowngrade > (CONTROLLER_DOWNGRADE[this.room.controller.level] * config.nextRoom.minDowngradPercent / 100) &&
-    this.room.storage.store.energy < config.creep.energyFromStorageThreshold &&
-    Game.time % 1000 !== 0) {
-    this.creepLog('Skipping controller upgrade, not enough in storage');
-    return true;
-  }
-
-  let returnCode = this.upgradeController(this.room.controller);
-  if (returnCode === OK) {
-    this.upgraderUpdateStats();
-  }
-
-  returnCode = this.withdraw(this.room.storage, RESOURCE_ENERGY);
-  if (returnCode === ERR_FULL || returnCode === OK) {
-    return true;
-  }
-  return true;
-};
-
-Creep.prototype.buildContainerConstructionSite = function() {
-  const returnCode = this.pos.createConstructionSite(STRUCTURE_CONTAINER);
-  if (returnCode === OK) {
-    this.creepLog('Create cs for container');
-    return true;
-  }
-  if (returnCode === ERR_INVALID_TARGET) {
-    const constructionSites = this.pos.findInRange(FIND_CONSTRUCTION_SITES, 0);
-    for (const constructionSite of constructionSites) {
-      constructionSite.remove();
-    }
-    return false;
-  }
-  if (returnCode !== ERR_FULL) {
-    this.log('Container: ' + returnCode + ' pos: ' + this.pos);
-  }
-  return false;
-};
-
-Creep.prototype.buildContainerExecute = function() {
-  if (this.carry.energy < 50) {
-    return false;
-  }
-
-  const constructionSites = this.pos.findInRangeStructures(FIND_CONSTRUCTION_SITES, 0, [STRUCTURE_CONTAINER]);
-  if (constructionSites.length > 0) {
-    const returnCode = this.build(constructionSites[0]);
-    if (returnCode !== OK) {
-      this.log('buildContainerExecute build: ' + returnCode);
-    }
-    return true;
-  }
-
-  return this.buildContainerConstructionSite();
-};
-
-Creep.prototype.buildContainer = function() {
-  if (this.inBase()) {
-    return false;
-  }
-  // TODO Not in base room
-  const objects = this.pos.findInRangeStructures(FIND_STRUCTURES, 0, [STRUCTURE_CONTAINER]);
-  if (objects.length === 0) {
-    return this.buildContainerExecute();
-  }
-  const object = objects[0];
-  if (object.hits < object.hitsMax) {
-    this.repair(object);
-  }
 };
 
 Creep.prototype.withdrawEnergyFromTarget = function(target) {
@@ -432,8 +311,8 @@ const terminalAvailable = function(object) {
   return true;
 };
 
-const harvesterTarget = function(creep, object) {
-  if (creep.memory.role === 'harvester') {
+const universalTarget = function(creep, object) {
+  if (creep.memory.role === 'universal') {
     if (object.structureType === STRUCTURE_STORAGE || object.structureType === STRUCTURE_LINK) {
       return false;
     }
@@ -454,7 +333,7 @@ const filterTransferrables = function(creep, object) {
     return false;
   }
 
-  if (!harvesterTarget(creep, object)) {
+  if (!universalTarget(creep, object)) {
     return false;
   }
 
@@ -695,7 +574,7 @@ Creep.prototype.moveToAndBuildConstructionSite = function(target) {
     return this.buildConstructionSite(target);
   }
 
-  // TODO is this necessary here? Maybe because of the planer
+  // TODO is this necessary here? Maybe because of the builder
   this.memory.routing.targetId = target.id;
   this.moveToMy(target.pos, 3, true);
   return true;
@@ -711,7 +590,7 @@ Creep.prototype.construct = function() {
     delete this.memory.routing.targetId;
     if (this.memory.role === 'nextroomer') {
       target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART], {inverse: true});
-    } else if (this.memory.role === 'harvester') {
+    } else if (this.memory.role === 'universal') {
       target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_RAMPART, STRUCTURE_WALL], {inverse: true});
     } else {
       target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
@@ -729,8 +608,8 @@ Creep.prototype.getTransferTargetStructure = function() {
   let structure = this.pos.findClosestStructureWithMissingEnergyByRange(
     (object) => object.structureType !== STRUCTURE_STORAGE,
   );
-  // Harvester should always prefer Spawn and Extensions
-  if (this.memory.role === 'harvester') {
+  // Universal should always prefer Spawn and Extensions
+  if (this.memory.role === 'universal') {
     const structureSpawnExtension = this.pos.findClosestStructureWithMissingEnergyByRange(
       (object) => (object.structureType === STRUCTURE_SPAWN || object.structureType === STRUCTURE_EXTENSION),
     );
@@ -739,7 +618,7 @@ Creep.prototype.getTransferTargetStructure = function() {
     }
   }
   if (structure === null) {
-    if (this.room.storage && this.room.storage.my && this.memory.role !== 'planer') {
+    if (this.room.storage && this.room.storage.my && this.memory.role !== 'builder') {
       this.memory.target = this.room.storage.id;
     } else {
       return false;
@@ -800,7 +679,7 @@ const callStructurer = function(creep) {
   if (structurers.length > 0) {
     return false;
   }
-  const resourceStructures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], {inverse: true});
+  const resourceStructures = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER, STRUCTURE_INVADER_CORE], {inverse: true});
   if (resourceStructures.length > 0 && !creep.room.controller.my) {
     creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resourceStructures[0].structureType);
     Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, creep.room.name);
@@ -828,7 +707,8 @@ const callCleaner = function(creep) {
 
 Creep.prototype.callDefender = function() {
   const hostiles = this.room.findEnemys();
-  if (hostiles.length > 0) {
+  const invaderCores = this.room.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_INVADER_CORE}});
+  if (hostiles.length > 0 || invaderCores.length > 0) {
     // this.log('Reserver under attack');
     if (!this.memory.defender_called) {
       Game.rooms[this.memory.base].memory.queue.push({

@@ -178,9 +178,9 @@ Creep.prototype.followPathWithoutTargetId = function() {
   if (this.room.name !== this.memory.routing.targetRoom) {
     return false;
   }
-  // `harvester` is a special target id, so needs to be handled here
-  // TODO find a better solution for harvesters
-  const specialTargetIds = ['harvester', 'filler'];
+  // `universal` is a special target id, so needs to be handled here
+  // TODO find a better solution for universal
+  const specialTargetIds = ['universal', 'filler'];
   if (this.memory.routing.targetId && (specialTargetIds.indexOf(this.memory.routing.targetId) >= 0 || Game.getObjectById(this.memory.routing.targetId))) {
     return false;
   }

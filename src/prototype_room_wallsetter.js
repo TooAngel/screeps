@@ -142,6 +142,34 @@ const getTargets = function(room) {
   return targets;
 };
 
+/**
+ * isWallPlaceable
+ *
+ * @param {object} pos
+ * @return {bool}
+ */
+function isWallPlaceable(pos) {
+  const exit = pos.findClosestByRange(FIND_EXIT);
+  const range = pos.getRangeTo(exit);
+  return range > 1;
+}
+
+/**
+ * getWayFound
+ *
+ * @param {array} targets
+ * @param {object} posLastObject
+ * @return {bool}
+ */
+function getWayFound(targets, posLastObject) {
+  for (const target of targets) {
+    if (posLastObject.getRangeTo(target) === 1) {
+      return true;
+    }
+  }
+  return false;
+}
+
 Room.prototype.closeExitsByPath = function() {
   if (this.memory.walls && this.memory.walls.finished) {
     return false;
@@ -180,29 +208,15 @@ Room.prototype.closeExitsByPath = function() {
   const posLastObject = new RoomPosition(posLast.x, posLast.y, this.name);
 
   // TODO check if incomplete just solves the issue
-  let wayFound = false;
-  for (const targetId in targets) {
-    if (posLastObject.getRangeTo(targets[targetId]) === 1) {
-      wayFound = true;
-      //      this.log('Way found true: ' + !search.incomplete);
-      break;
-    }
-    //    this.log('Way found false: ' + search.incomplete);
-  }
+  const wayFound = getWayFound(targets, posLastObject);
   if (!wayFound) {
     this.memory.walls.exit_i++;
     return true;
   }
 
-  const wallPlaceable = function(pos) {
-    const exit = pos.findClosestByRange(FIND_EXIT);
-    const range = pos.getRangeTo(exit);
-    return range > 1;
-  };
-
   for (const pathPosPlain of path) {
     const pathPos = new RoomPosition(pathPosPlain.x, pathPosPlain.y, this.name);
-    if (wallPlaceable(pathPos)) {
+    if (isWallPlaceable(pathPos)) {
       if (inLayer(this, pathPos)) {
         continue;
       }
