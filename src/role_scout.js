@@ -97,6 +97,10 @@ const handleReachedTargetRoom = function(creep) {
       creep.memory.search.levels.push([]);
       for (const room of creep.memory.search.levels[creep.memory.search.level]) {
         const rooms = Game.map.describeExits(room);
+        if (!rooms) {
+          // e.g. in botarena exits are available but the rooms do not exist
+          continue;
+        }
         for (const direction of Object.keys(rooms)) {
           const roomNext = rooms[direction];
           if (haveNotSeen(creep, roomNext)) {

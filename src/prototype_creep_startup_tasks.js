@@ -100,7 +100,9 @@ Creep.buildRoads = function(creep) {
 
 Creep.recycleCreep = function(creep) {
   if (creep.memory.role === 'builder') {
-    creep.room.buildStructures();
+    if (creep.room.buildStructures()) {
+      creep.memory.recycle = false;
+    }
   }
 
   let spawn = creep.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
@@ -159,7 +161,11 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
 };
 
 Creep.prototype.getEnergyFromStorage = function() {
-  if (this.room.isStruggeling()) {
+  if (!this.room.storage) {
+    return false;
+  }
+
+  if (!this.room.memory.misplacedSpawn && this.room.isStruggeling()) {
     return false;
   }
 
@@ -211,7 +217,7 @@ Creep.prototype.repairStructureWithIncomingNuke = function() {
   if (nukes.length === 0) {
     return false;
   }
-  console.log('repairing because of nuke');
+  this.log('repairing because of nuke');
   const spawns = this.room.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
   if (spawns.length === 0) {
     return false;

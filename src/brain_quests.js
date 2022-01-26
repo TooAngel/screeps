@@ -58,7 +58,7 @@ brain.getQuestFromTransactionDescription = function(description) {
     brain.debugLog('quests', 'Quest transaction: No type');
     return false;
   }
-  console.log(data);
+  console.log(JSON.stringify(data));
   for (const key of ['type', 'room', 'id']) {
     if (!data[key]) {
       brain.debugLog('quests', `Incoming transaction no Quest: No ${key}`);
@@ -78,8 +78,8 @@ brain.checkQuestForAcceptance = function(transaction) {
   if (!data) {
     return false;
   }
-  console.log(`Found quest acceptance on transaction`);
   const quest = brain.getQuest(transaction, data);
+  console.log(`Found quest acceptance on transaction ${JSON.stringify(quest)}`);
 
   Memory.quests[data.id] = quest;
 
@@ -91,5 +91,7 @@ brain.checkQuestForAcceptance = function(transaction) {
     end: quest.end,
   };
   const room = Game.rooms[transaction.to];
-  room.terminal.send(RESOURCE_ENERGY, 100, transaction.from, JSON.stringify(response));
+  console.log(`Accept quest: ${JSON.stringify(response)}`);
+  const terminalResponse = room.terminal.send(RESOURCE_ENERGY, 100, transaction.from, JSON.stringify(response));
+  console.log(`terminalResponse ${JSON.stringify(terminalResponse)}`);
 };

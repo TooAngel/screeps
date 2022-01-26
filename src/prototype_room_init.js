@@ -103,7 +103,6 @@ Room.prototype.addTerminal = function() {
 Room.prototype.updatePosition = function() {
   this.checkCache();
   delete this.memory.routing;
-  delete this.memory.summaryCenter;
 
   const costMatrixBase = this.getCostMatrix();
   this.setMemoryCostMatrix(costMatrixBase);
@@ -128,7 +127,7 @@ Room.prototype.updatePosition = function() {
   this.initSetSources();
   this.initSetMinerals();
 
-  if (this.controller && this.controller.my) {
+  if (this.isMy()) {
     const startPos = this.initSetStorageAndPathStart();
 
     this.costMatrixSetSourcePath();
@@ -136,29 +135,6 @@ Room.prototype.updatePosition = function() {
     const costMatrix = this.getMemoryCostMatrix();
     const upgraderPos = this.memory.position.creep[this.controller.id][0];
     this.debugLog('baseBuilding', `Upgrader position ${upgraderPos} costMatrix value after setFillerArea ${costMatrix.get(upgraderPos.x, upgraderPos.y)}`);
-  }
-
-  // find the most remote position to place the room summary visual
-  let bestPosition = null;
-  let bestScore = 0;
-  const reservedPositions = this.getPositions();
-  for (let y = 10; y <= 40; y += 10) {
-    for (let x = 10; x <= 40; x += 10) {
-      let score = 0;
-      const pos = new RoomPosition(x, y, this.name);
-      for (const pos2 of reservedPositions) {
-        score += pos.getRangeTo(pos2);
-      }
-      if (score > bestScore) {
-        bestScore = score;
-        bestPosition = pos;
-      }
-    }
-  }
-  if (bestPosition && (bestPosition.x || bestPosition.y)) {
-    this.memory.summaryCenter = {x: bestPosition.x, y: bestPosition.y};
-  } else {
-    this.memory.summaryCenter = {x: 10, y: 40};
   }
 };
 
@@ -178,70 +154,6 @@ Room.prototype.setPosition = function(type, pos, value = config.layout.structure
   this.debugLog('baseBuilding', `Increasing ${pos} ${type} ${positionType} with ${value}`);
   this.increaseCostMatrixValue(costMatrix, pos, value);
   this.setMemoryCostMatrix(costMatrix);
-};
-
-Room.prototype.setTowerFillerIterate = function(roomName, offsetDirection) {
-  let linkSet = false;
-  let towerFillerSet = false;
-  let positionsFound = false;
-  const path = this.getMemoryPath('pathStart-' + roomName);
-  for (let pathIndex = path.length - 1; pathIndex >= 1; pathIndex--) {
-    const posPath = path[pathIndex];
-    const posPathObject = new RoomPosition(posPath.x, posPath.y, posPath.roomName);
-    const posPathNext = path[pathIndex - 1];
-
-    const directionNext = posPathObject.getDirectionTo(posPathNext.x, posPathNext.y, posPathNext.roomName);
-
-    let pos;
-    try {
-      pos = posPathObject.getAdjacentPosition(directionNext + offsetDirection);
-    } catch (e) {
-      this.log(`setTowerFillerIterate ${e} ${posPathObject} ${directionNext} ${offsetDirection}`);
-      continue;
-    }
-
-    if (!pos.checkTowerFillerPos()) {
-      continue;
-    }
-
-    const terrain = pos.lookFor(LOOK_TERRAIN)[0];
-    if (terrain === 'wall') {
-      break;
-    }
-
-    if (!linkSet) {
-      this.setPosition('link', pos, config.layout.structureAvoid);
-      linkSet = true;
-      continue;
-    }
-    if (!towerFillerSet) {
-      this.setPosition('towerfiller', pos, config.layout.creepAvoid, 'creep');
-      towerFillerSet = true;
-      continue;
-    }
-    this.setPosition('tower', pos, config.layout.structureAvoid);
-    positionsFound = true;
-    break;
-  }
-
-  return positionsFound;
-};
-
-Room.prototype.setTowerFiller = function() {
-  const exits = _.map(Game.map.describeExits(this.name));
-
-  this.memory.position.creep.towerfiller = [];
-  for (let index = 0; index < CONTROLLER_STRUCTURES.tower[8] - 1; index++) {
-    const roomName = exits[index % exits.length];
-    if (!roomName) {
-      break;
-    }
-    for (let offsetDirection = 2; offsetDirection < 7; offsetDirection += 4) {
-      if (this.setTowerFillerIterate(roomName, offsetDirection)) {
-        break;
-      }
-    }
-  }
 };
 
 Room.prototype.setLabs = function(allPaths) {
@@ -362,8 +274,6 @@ Room.prototype.setStructuresIteratePos = function(structurePos, pathI, path) {
 };
 
 Room.prototype.setStructures = function(path) {
-  // this.setTowerFiller();
-
   for (let pathI = 0; pathI < path.length; pathI++) {
     const pathPos = new RoomPosition(path[pathI].x, path[pathI].y, this.name);
     const structurePosIterator = pathPos.findNearPosition();
@@ -562,7 +472,6 @@ Room.prototype.cleanupMemory = function() {
   delete this.memory.constants;
   delete this.memory.routing;
   delete this.memory.position;
-  delete this.memory.summaryCenter;
   cache.rooms[this.name] = {
     find: {},
     routing: {},

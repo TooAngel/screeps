@@ -7,21 +7,6 @@ RoomPosition.prototype.findClosestStructureWithMissingEnergyByRange = function(f
   return structure;
 };
 
-RoomPosition.prototype.checkTowerFillerPos = function() {
-  if (this.isBorder(3)) {
-    return false;
-  }
-
-  if (this.inPositions()) {
-    return false;
-  }
-
-  if (this.inPath()) {
-    return false;
-  }
-  return true;
-};
-
 RoomPosition.prototype.clearPosition = function(target) {
   const structures = this.lookFor('structure');
   for (const structureId of Object.keys(structures)) {

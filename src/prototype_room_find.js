@@ -24,7 +24,6 @@ Room.prototype.findMyStructures = function() {
   return this.find(FIND_MY_STRUCTURES);
 };
 
-
 Room.prototype.findConstructionSites = function() {
   return this.find(FIND_CONSTRUCTION_SITES);
 };
@@ -119,4 +118,16 @@ Room.prototype.findPowerBanks = function() {
   return this.find(FIND_STRUCTURES, {
     filter: {structureType: STRUCTURE_POWER_BANK},
   });
+};
+
+Room.prototype.findDestructableStructures = function() {
+  return this.find(FIND_STRUCTURES, {
+    filter: (structure) => {
+      return [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER, STRUCTURE_INVADER_CORE].indexOf(structure.structureType) < 0;
+    },
+  });
+};
+
+Room.prototype.findTowers = function() {
+  return this.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
 };

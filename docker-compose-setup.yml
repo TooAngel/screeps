@@ -16,7 +16,7 @@ services:
     working_dir: /mnt
     volumes:
       - ./:/mnt
-    command: ./utils/continueTestServer.sh
+    command: ./utils/setupDockerComposeContainer.sh
     environment:
       - STEAM_API_KEY
       - STEAM_ID

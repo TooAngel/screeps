@@ -90,8 +90,42 @@ Room.prototype.handleTowerWithEnemys = function(hostileCreeps, towers) {
   return true;
 };
 
+/**
+ * letTowersRepairStructures
+ *
+ * @param {object} room
+ * @param {array} towers
+ */
+function letTowersRepairStructures(room, towers) {
+  const repairableStructures = (object) => object.hits < object.hitsMax / 2;
+
+  for (const tower of towers) {
+    if (tower.energy === 0) {
+      continue;
+    }
+    if (!room.executeEveryTicks(10)) {
+      if (tower.energy < tower.energyCapacity / 2 || room.memory.repair_min > 1000000) {
+        continue;
+      }
+    }
+
+    const lowRampart = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], {
+      filter: (rampart) => rampart.hits < 10000,
+    });
+
+    let repair = lowRampart;
+    if (lowRampart === null) {
+      repair = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_WALL, STRUCTURE_RAMPART], {
+        inverse: true,
+        filter: repairableStructures,
+      });
+      tower.repair(repair);
+    }
+  }
+}
+
 Room.prototype.handleTower = function() {
-  const towers = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_TOWER]);
+  const towers = this.findTowers();
   if (towers.length === 0) {
     return false;
   }
@@ -122,30 +156,7 @@ Room.prototype.handleTower = function() {
     this.memory.repair_min = 0;
   }
 
-  const repairableStructures = (object) => object.hits < object.hitsMax / 2;
+  letTowersRepairStructures(this, towers);
 
-  for (const tower of towers) {
-    if (tower.energy === 0) {
-      continue;
-    }
-    if (!this.executeEveryTicks(10)) {
-      if (tower.energy < tower.energyCapacity / 2 || this.memory.repair_min > 1000000) {
-        continue;
-      }
-    }
-
-    const lowRampart = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], {
-      filter: (rampart) => rampart.hits < 10000,
-    });
-
-    let repair = lowRampart;
-    if (lowRampart === null) {
-      repair = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_WALL, STRUCTURE_RAMPART], {
-        inverse: true,
-        filter: repairableStructures,
-      });
-      tower.repair(repair);
-    }
-  }
   return true;
 };

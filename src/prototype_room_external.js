@@ -60,7 +60,7 @@ Room.prototype.isCenterRoom = function() {
 };
 
 Room.prototype.checkForQuest = function() {
-  if (Game.time - this.memory.lastSeen < config.quests.checkInterval) {
+  if (Game.time - this.getData().lastSeen < config.quests.checkInterval) {
     return;
   }
   const sign = this.controller.sign;
@@ -105,21 +105,27 @@ Room.prototype.checkForQuest = function() {
     const response = {
       type: 'Quest',
       id: data.id,
-      room: this.roomName,
+      room: this.name,
     };
-    this.log(`checkForQuest apply for quest ${response}`);
-    room.terminal.send(RESOURCE_ENERGY, 100, data.origin, JSON.stringify(response));
+    this.log(`checkForQuest apply for quest ${JSON.stringify(response)}`);
+    const terminalResponse = room.terminal.send(RESOURCE_ENERGY, 100, data.origin, JSON.stringify(response));
+    if (terminalResponse === OK) {
+      this.log(`checkForQuest apply for quest terminalResponse: ${JSON.stringify(terminalResponse)}`);
+      break;
+    } else {
+      this.debugLog('quests', `terminal.send response code: ${terminalResponse}`);
+    }
   }
 };
 
 Room.prototype.handleHostileReservedRoom = function() {
-  this.memory.state = 'HostileReserved';
-
-  if (!this.memory.lastBreakReservationAttempt) {
-    this.memory.lastBreakReservationAttempt = Game.time - config.autoattack.noReservedRoomInterval;
+  const data = this.getData();
+  data.state = 'HostileReserved';
+  if (!data.lastBreakReservationAttempt) {
+    data.lastBreakReservationAttempt = Game.time - config.autoattack.noReservedRoomInterval;
   }
 
-  if (Game.time - this.memory.lastBreakReservationAttempt < config.autoattack.noReservedRoomInterval) {
+  if (Game.time - data.lastBreakReservationAttempt < config.autoattack.noReservedRoomInterval) {
     return;
   }
 
@@ -129,17 +135,18 @@ Room.prototype.handleHostileReservedRoom = function() {
   }
 
   this.debugLog('attack', `room.handleHostileReservedRoom sending creeps from ${nearMyRoomName}`);
-  this.memory.lastBreakReservationAttempt = Game.time;
+  data.lastBreakReservationAttempt = Game.time;
   const nearMyRoom = Game.rooms[nearMyRoomName];
   nearMyRoom.checkRoleToSpawn('attackunreserve', 1, undefined, this.name);
 };
 
 Room.prototype.checkIfRoomIsBlocked = function() {
-  if (!this.memory.blockedCheck || Game.time - this.memory.blockedCheck > 100000) {
-    this.memory.blockedCheck = Game.time;
+  const data = this.getData();
+  if (!data.blockedCheck || Game.time - data.blockedCheck > 100000) {
+    data.blockedCheck = Game.time;
     const blocked = this.checkBlocked();
     if (blocked) {
-      this.memory.state = 'Blocked';
+      data.state = 'Blocked';
     }
   }
 };
@@ -294,7 +301,7 @@ Room.prototype.externalHandleHighwayRoom = function() {
 };
 
 Room.prototype.handleOccupiedRoom = function() {
-  this.memory.state = 'Occupied';
+  this.getData().state = 'Occupied';
   this.memory.player = this.controller.owner.username;
 
   if (this.controller.safeMode) {
@@ -335,7 +342,8 @@ Room.prototype.checkBlockedPath = function() {
 };
 
 Room.prototype.checkAndSpawnReserver = function() {
-  const reservation = this.memory.reservation;
+  const data = this.getData();
+  const reservation = data.reservation;
   if (reservation === undefined) {
     // TODO Check the closest room and set reservation
     this.log('No reservation');
@@ -344,7 +352,7 @@ Room.prototype.checkAndSpawnReserver = function() {
 
   const baseRoom = Game.rooms[reservation.base];
   if (baseRoom === undefined) {
-    delete this.memory.reservation;
+    delete data.reservation;
     return false;
   }
 
@@ -384,7 +392,10 @@ Room.prototype.checkSourcer = function() {
   if (sourcers.length < sources.length) {
     const sourceParse = (source) => {
       if (!checkSourcerMatch(sourcers, source.pos)) {
-        Game.rooms[this.memory.reservation.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
+        const data = this.getData();
+        if (data && data.reservation) {
+          Game.rooms[this.getData().reservation.base].checkRoleToSpawn('sourcer', 1, source.id, source.pos.roomName);
+        }
       }
     };
     _.each(sources, (sourceParse));
@@ -392,16 +403,17 @@ Room.prototype.checkSourcer = function() {
 };
 
 Room.prototype.isRoomRecentlyChecked = function() {
-  if (this.memory.lastChecked !== undefined &&
-    Game.time - this.memory.lastChecked < 500) {
+  const data = this.getData();
+  if (data.lastChecked !== undefined &&
+    Game.time - data.lastChecked < 500) {
     return true;
   }
-  this.memory.lastChecked = Game.time;
+  data.lastChecked = Game.time;
   return false;
 };
 
 Room.prototype.handleReservedRoom = function() {
-  this.memory.state = 'Reserved';
+  this.getData().state = 'Reserved';
   if (this.isRoomRecentlyChecked()) {
     return false;
   }
@@ -432,16 +444,16 @@ function isRouteValidForReservedRoom(room, route) {
   // Only allow pathing through owned rooms or already reserved rooms.
   for (const routeEntry of route) {
     const routeRoomName = routeEntry.room;
-    if (Game.rooms[routeRoomName] === undefined) {
+    if (!Game.rooms[routeRoomName]) {
       room.debugLog('reserver', `unreserved - route check room undefined ${routeRoomName}`);
       return false;
     }
     const routeRoom = Game.rooms[routeRoomName];
-    if (!routeRoom.controller === undefined) {
+    if (!routeRoom.controller) {
       room.debugLog('reserver', `unreserved - route check room controller undefined ${routeRoomName}`);
       return false;
     }
-    if (!routeRoom.controller.my && routeRoom.memory.state !== 'Reserved') {
+    if (!routeRoom.isMy() && routeRoom.getData().state !== 'Reserved') {
       return false;
     }
   }
@@ -455,27 +467,28 @@ function isRouteValidForReservedRoom(room, route) {
  * @return {bool} - If it is reservered by the given roomName
  **/
 function filterReservedBy(roomName) {
-  return (roomMemory) => {
-    return roomMemory.state === 'Reserved' && (roomMemory.reservation || {}).base === roomName;
+  return (roomData) => {
+    return roomData.state === 'Reserved' && (roomData.reservation || {}).base === roomName;
   };
 }
 
 Room.prototype.handleUnreservedRoom = function() {
-  this.memory.state = 'Unreserved';
+  const data = this.getData();
+  data.state = 'Unreserved';
   if (this.isRoomRecentlyChecked()) {
     return false;
   }
   this.debugLog('reserver', 'handleUnreservedRoom');
 
-  if (this.memory.reservation) {
+  if (data.reservation) {
     this.debugLog('reserver', 'handleUnreservedRoom reserved room');
-    const reservation = this.memory.reservation;
+    const reservation = data.reservation;
     if (this.name === reservation.base) {
       this.log('Want to spawn reserver for the base room, why?');
-      delete this.memory.reservation;
+      delete data.reservation;
       return false;
     }
-    this.memory.state = 'Reserved';
+    this.getData().state = 'Reserved';
     this.checkAndSpawnReserver();
     this.checkSourcer();
     return true;
@@ -503,7 +516,7 @@ Room.prototype.handleUnreservedRoom = function() {
       continue;
     }
 
-    const reservedRooms = _.filter(Memory.rooms, filterReservedBy(roomName));
+    const reservedRooms = _.filter(global.data.rooms, filterReservedBy(roomName));
     // RCL: target reserved rooms
     const numRooms = config.room.reservedRCL;
     this.debugLog('reserver', `number checked: ${reservedRooms.length} ${numRooms[room.controller.level]}`);
@@ -511,10 +524,10 @@ Room.prototype.handleUnreservedRoom = function() {
       continue;
     }
 
-    this.memory.reservation = {
+    data.reservation = {
       base: room.name,
     };
-    this.memory.state = 'Reserved';
+    data.state = 'Reserved';
     this.debugLog('reserver', 'unreserved Room reserved');
     return true;
   }
@@ -523,8 +536,9 @@ Room.prototype.handleUnreservedRoom = function() {
 };
 
 Room.prototype.handleSourceKeeperRoom = function() {
-  this.memory.sourceKeeperRoom = true;
-  this.memory.state = 'SourceKeeper';
+  const data = this.getData();
+  data.sourceKeeperRoom = true;
+  data.state = 'SourceKeeper';
   if (config.keepers.enabled) {
     return false;
   }

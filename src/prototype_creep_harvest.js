@@ -24,14 +24,16 @@ Creep.prototype.spawnCarry = function() {
     resourceAtPosition += resource.amount;
   }
 
-  const containers = this.pos.findInRangeStructures(FIND_STRUCTURES, 0, STRUCTURE_CONTAINER);
-
+  const containers = this.pos.findInRange(FIND_STRUCTURES, 0, {filter: {structureType: STRUCTURE_CONTAINER}});
   for (const container of containers) {
     resourceAtPosition += _.sum(container.store);
   }
-  if (!Game.rooms[this.memory.base].inQueue(creepMemory) && resourceAtPosition > parts.carryParts.carry * CARRY_CAPACITY) {
-    Game.rooms[this.memory.base].checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
-  } else if (1 * resourceAtPosition <= HARVEST_POWER * parts.sourcerWork) {
+
+  if (resourceAtPosition > parts.carryParts.carry * CARRY_CAPACITY) {
+    if (!Game.rooms[this.memory.base].inQueue(creepMemory)) {
+      Game.rooms[this.memory.base].checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
+    }
+  } else {
     const nearCarries = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 2, 'memory.role', ['carry'], {
       filter: (creep) => creep.memory.routing.targetId === this.memory.routing.targetId,
     });

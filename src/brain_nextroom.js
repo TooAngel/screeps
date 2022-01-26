@@ -14,26 +14,27 @@ const {findRoomsWithinReach} = require('./helper_findMyRooms');
  * @return {boolean} - If the room is claimable
  **/
 function isClaimableRoom(roomName) {
+  const data = global.data.rooms[roomName];
   if (Memory.myRooms.indexOf(roomName) >= 0) {
     return false;
   }
-  if (!Memory.rooms[roomName].controllerId) {
+  if (!data.controllerId) {
     return false;
   }
-  if (Memory.rooms[roomName].sources < 2) {
+  if (data.sources < 2) {
     return false;
   }
-  if (Memory.rooms[roomName].state === 'Occupied') {
+  if (data.state === 'Occupied') {
     return false;
   }
-  if (Memory.rooms[roomName].state === 'Controlled') {
+  if (data.state === 'Controlled') {
     return false;
   }
-  if (Memory.rooms[roomName].state === 'HostileReserved') {
+  if (data.state === 'HostileReserved') {
     return false;
   }
   // Yes / No ???
-  if (Memory.rooms[roomName].state === 'Reserved') {
+  if (data.state === 'Reserved') {
     return false;
   }
   return true;
@@ -58,30 +59,35 @@ brain.handleNextroom = function() {
   if (Game.time % config.nextRoom.intervalToCheck !== 0) {
     return;
   }
-  brain.debugLog('brain', 'handleNextroom');
+  brain.debugLog('nextroomer', 'handleNextroom');
 
-  const possibleRooms = Object.keys(Memory.rooms).filter(isClaimableRoom);
+  const possibleRooms = Object.keys(global.data.rooms).filter(isClaimableRoom);
   if (possibleRooms.length > 0) {
     const roomsWithinReach = possibleRooms.filter((room) => findRoomsWithinReach(room).length > 0);
-    const selectedRoom = roomsWithinReach[Math.floor(Math.random() * roomsWithinReach.length)];
-    const possibleMyRooms = findRoomsWithinReach(selectedRoom);
+
+    // TODO handle config.nextRoom.minNewRoomDistance and maybe also check good mineral, ....
+    const selectedRoomName = roomsWithinReach[Math.floor(Math.random() * roomsWithinReach.length)];
+
+    const possibleMyRooms = findRoomsWithinReach(selectedRoomName);
     const selectedMyRoom = possibleMyRooms[Math.floor(Math.random() * possibleMyRooms.length)];
-    brain.debugLog('brain', `handleNextroom - Will reserve: ${selectedRoom}`);
-    // TODO selected the closest room to spawn the claimer
-    Game.rooms[selectedMyRoom].checkRoleToSpawn('claimer', 1, Memory.rooms[selectedRoom].controllerId, selectedRoom);
+    brain.debugLog('nextroomer', `handleNextroom - Will reserve: ${selectedRoomName} from ${selectedMyRoom}`);
+    // TODO selected the closest, highest energy, highest spawn idle room to spawn the claimer
+    const room = Game.rooms[selectedMyRoom];
+    const selectedRoomData = global.data.rooms[selectedRoomName];
+    room.checkRoleToSpawn('claimer', 1, selectedRoomData.controllerId, selectedRoomName);
     for (const myRoomName of possibleMyRooms) {
       const myRoom = Game.rooms[myRoomName];
       if (!myRoom.isStruggeling()) {
         continue;
       }
-      myRoom.checkRoleToSpawn('nextroomer', 1, Memory.rooms[selectedRoom].controllerId, selectedRoom);
+      myRoom.checkRoleToSpawn('nextroomer', 1, selectedRoomData.controllerId, selectedRoomName);
     }
     return;
   }
 
   for (const roomName of Memory.myRooms) {
     const room = Game.rooms[roomName];
-    room.log(`brain.handleNextroom spawn scout to find claimable rooms`);
+    room.debugLog('nextroomer', `brain.handleNextroom spawn scout to find claimable rooms`);
     room.checkRoleToSpawn('scout');
   }
 };

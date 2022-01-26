@@ -2,7 +2,7 @@
 
 Creep.prototype.rangeAttackOutsideOfMyRooms = function(targets) {
   if (targets.length > 0) {
-    if (!this.room.controller || !this.room.controller.my) {
+    if (!this.room.isMy()) {
       this.rangedAttack(targets[0]);
     }
   }

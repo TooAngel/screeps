@@ -1,29 +1,40 @@
 'use strict';
 
+/**
+ * updateCostMatrixFromPositions
+ *
+ * @param {object} room
+ * @param {object} costMatrix
+ */
+function updateCostMatrixFromPositions(room, costMatrix) {
+  for (const positionType of Object.keys(room.memory.position)) {
+    if (positionType === 'pathEndLevel' || positionType === 'version') {
+      continue;
+    }
+    for (const type of Object.keys(room.memory.position[positionType])) {
+      for (let i =0; i<room.memory.position[positionType][type].length; i++) {
+        const pos = room.memory.position[positionType][type][i];
+        if (!pos) {
+          room.log(`No pos for positionType: ${positionType} type: ${type} i: ${i}`);
+          continue;
+        }
+        room.debugLog('baseBuilding', `updateCostMatrix ${positionType} ${type} ${pos} ${i}`);
+        if (positionType !== 'structure' || i < CONTROLLER_STRUCTURES[type][room.controller.level]) {
+          room.increaseCostMatrixValue(costMatrix, pos, config.layout[`${positionType}Avoid`]);
+        }
+      }
+    }
+  }
+}
+
 Room.prototype.updateCostMatrix = function() {
   const costMatrix = this.getCostMatrix();
   if (!this.memory.position) {
     // After delete the room memory the script got stuck here
     return;
   }
-  for (const positionType of Object.keys(this.memory.position)) {
-    if (positionType === 'pathEndLevel' || positionType === 'version') {
-      continue;
-    }
-    for (const type of Object.keys(this.memory.position[positionType])) {
-      for (let i =0; i<this.memory.position[positionType][type].length; i++) {
-        const pos = this.memory.position[positionType][type][i];
-        if (!pos) {
-          // TODO debug why
-          continue;
-        }
-        this.debugLog('baseBuilding', `updateCostMatrix ${positionType} ${type} ${pos} ${i}`);
-        if (positionType !== 'structure' || i < CONTROLLER_STRUCTURES[type][this.controller.level]) {
-          this.increaseCostMatrixValue(costMatrix, pos, config.layout[`${positionType}Avoid`]);
-        }
-      }
-    }
-  }
+
+  updateCostMatrixFromPositions(this, costMatrix);
 
   if (this.memory.walls) {
     for (const layer of Object.keys(this.memory.walls.layer)) {

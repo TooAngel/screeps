@@ -42,7 +42,7 @@ Room.prototype.spawnCheckForCreate = function() {
     return true;
   }
   if (creep.ttl === 0) {
-    this.log(`Stop spawning creeping - TTL reached, skipping: ${creep.role}`);
+    this.log(`Stop spawning creep - TTL reached, skipping: ${creep.role}`);
     this.memory.queue.shift();
     return false;
   }
@@ -220,21 +220,16 @@ Room.prototype.getPartsStringDatas = function(parts, energyAvailable) {
     };
   }
   const ret = {};
-  Memory.layoutsCost = Memory.layoutsCost || {};
-  ret.cost = Memory.layoutsCost[parts] || 0;
+  Memory.layoutsCost = {};
+  ret.cost = 0;
   ret.parts = global.utils.stringToParts(parts);
   ret.len = ret.parts.length;
-  if (ret.cost) {
-    ret.fail = ret.cost > energyAvailable;
-    return ret;
-  }
   _.each(ret.parts,
     (p) => {
       ret.cost += BODYPART_COST[p];
       ret.fail = ret.cost > energyAvailable;
     },
   );
-  Memory.layoutsCost[parts] = ret.cost;
   return ret;
 };
 

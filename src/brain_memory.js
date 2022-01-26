@@ -32,18 +32,18 @@ brain.addToStats = function(name) {
 };
 
 brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
-  let memoryRoom = {};
+  let data = {};
   if (creepMemory.room) {
-    memoryRoom = Memory.rooms[creepMemory.room];
+    data = global.data.rooms[creepMemory.room];
   } else {
     console.log(`${Game.time} ${name} handleUnexpectedDeadCreeps no creepMemory.room creepMemory: ${JSON.stringify(creepMemory)} data: ${JSON.stringify(global.data.creeps[name])}`);
   }
 
-  brain.debugLog(`${Game.time} ${creepMemory.room} ${name} memory hostile: ${memoryRoom.hostileCreepCount}`);
-  if (memoryRoom.hostileCreepCount > 0) {
-    brain.debugLog('brain', `${creepMemory.room} ${name} Not in Game.creeps with hostiles lived ${Game.time - creepMemory.born} hostiles: ${memoryRoom.hostileCreepCount} - I guess killed by hostile`); // eslint-disable-line max-len
+  brain.debugLog(`${Game.time} ${creepMemory.room} ${name} memory hostile: ${data.hostileCreepCount}`);
+  if (data.hostileCreepCount > 0) {
+    brain.debugLog('brain', `${creepMemory.room} ${name} Not in Game.creeps with hostiles lived ${Game.time - creepMemory.born} hostiles: ${data.hostileCreepCount} - I guess killed by hostile`); // eslint-disable-line max-len
   } else {
-    console.log(`${Game.time} ${creepMemory.room} ${name} Not in Game.creeps without hostiles lived ${Game.time - creepMemory.born} hostiles: ${memoryRoom.hostileCreepCount}`); // eslint-disable-line max-len
+    console.log(`${Game.time} ${creepMemory.room} ${name} Not in Game.creeps without hostiles lived ${Game.time - creepMemory.born} hostiles: ${data.hostileCreepCount}`); // eslint-disable-line max-len
   }
 
   if (Game.time - creepMemory.born < 20) {
@@ -81,7 +81,9 @@ brain.cleanCreeps = function() {
     }
 
     brain.addToStats(name);
-    if ((name.startsWith('reserver') && Memory.creeps[name].born < (Game.time - CREEP_CLAIM_LIFE_TIME)) || Memory.creeps[name].born < (Game.time - CREEP_LIFE_TIME)) {
+    if ((name.startsWith('reserver') && Memory.creeps[name].born < (Game.time - CREEP_CLAIM_LIFE_TIME)) ||
+        (name.startsWith('claimer') && Memory.creeps[name].born < (Game.time - CREEP_CLAIM_LIFE_TIME)) ||
+        Memory.creeps[name].born < (Game.time - CREEP_LIFE_TIME)) {
       delete Memory.creeps[name];
       delete global.data.creeps[name];
       continue;
@@ -119,13 +121,13 @@ brain.cleanSquads = function() {
 brain.cleanRooms = function() {
   if (Game.time % 300 === 0) {
     for (const name of Object.keys(Memory.rooms)) {
-      // Check for reserved rooms
-      if (!Memory.rooms[name].lastSeen) {
-        console.log(Game.time, 'Deleting ' + name + ' from memory no `last_seen` value');
+      // TODO lastSeen moved to global.data - Rooms seems to be initialized on access, so maybe store still lastSeen and delete if old
+      if (!Memory.rooms[name].lastSeen && Object.keys(Memory.rooms[name]).length > 0) {
+        console.log(`${Game.time} Deleting ${name} from memory no 'lastSeen' value, keys: ${JSON.stringify(Object.keys(Memory.rooms[name]))}`);
         delete Memory.rooms[name];
         continue;
       }
-      if (Memory.rooms[name].lastSeen < Game.time - config.room.lastSeenThreshold) {
+      if (Memory.rooms[name].lastSeen < Game.time - config.room.lastSeenThreshold && Memory.myRooms.indexOf(name) < 0) {
         console.log(Game.time, `Deleting ${name} from memory older than ${config.room.lastSeenThreshold}`);
         delete Memory.rooms[name];
       }

@@ -5,7 +5,7 @@ brain.setMarketOrders = function() {
   Memory.orders[ORDER_BUY] = {};
   Memory.orders[ORDER_SELL] = {};
   for (const order of Game.market.getAllOrders()) {
-    if (order.resourceType === SUBSCRIPTION_TOKEN || Memory.myRooms.includes(order.roomName)) {
+    if (Memory.myRooms.includes(order.roomName)) {
       continue;
     }
     let category = Memory.orders[order.type][order.resourceType];
@@ -63,9 +63,7 @@ brain.handleIncomingTransactionsbyUser = function(transaction) {
   const price = brain.getMarketOrder(ORDER_SELL, transaction.resourceType, 'min') || brain.getMarketOrder(ORDER_BUY, transaction.resourceType, 'max') || 1;
   const value = -1 * transaction.amount * price;
   const room = Game.rooms[transaction.to];
-  if (config.debug.market) {
-    room.log(`Incoming transaction from ${sender}[${transaction.from}] ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
-  }
+  room.debugLog('market', `Incoming transaction from ${sender}[${transaction.from}] ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
   brain.increaseIdiot(sender, value);
   return true;
 };
