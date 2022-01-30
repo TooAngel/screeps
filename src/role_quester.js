@@ -1,5 +1,7 @@
 'use strict';
 
+const {initPlayer} = require('./diplomacy');
+
 /*
  * quester checks if quests are solved
  */
@@ -18,7 +20,7 @@ roles.quester.questLost = function(creep, quest, reason, value) {
 
 roles.quester.questWon = function(creep, quest) {
   const name = quest.player.name;
-  brain.initPlayer();
+  initPlayer(name);
   Memory.players[name].reputation = Memory.players[name].reputation || 0;
   Memory.players[name].reputation += 100;
 

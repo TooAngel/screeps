@@ -1,6 +1,7 @@
 'use strict';
 
 const {findMyRoomsSortByDistance} = require('./helper_findMyRooms');
+const {initPlayer} = require('./diplomacy');
 
 /**
  * Attack42 is called so because 42 is the only true answer :-).
@@ -71,7 +72,7 @@ const addRoom = function(player, room) {
 };
 
 const getPlayer = function(name) {
-  brain.increaseIdiot(name, 0);
+  initPlayer(name);
   return Memory.players[name];
 };
 
@@ -100,14 +101,15 @@ Room.prototype.launchAutoAttack = function(player) {
     Memory.players[player.name] = player;
   }
   if (Game.time < player.lastAttacked + config.autoattack.timeBetweenAttacks) {
-    this.debugLog('attack', `Too early to attack`);
+    // this.debugLog('attack', `Too early to attack`);
     return false;
   }
   const origin = getClosestRoom(this.name);
   if (!origin) {
     return false;
   }
-  this.log(`Queuing level ${player.level} attack`);
+  this.log(`Queuing level ${player.level} attack from ${origin.name}`);
+  player.lastAttacked = Game.time;
   if (config.autoattack.notify) {
     Game.notify(Game.time + ' ' + this.name + ' Queuing autoattacker');
   }

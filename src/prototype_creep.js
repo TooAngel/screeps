@@ -123,16 +123,11 @@ Creep.prototype.handle = function() {
   if (!this.checkForHandle()) {
     return;
   }
-
   try {
     if (!this.unit()) {
       this.log('Unknown role suiciding');
       this.suicide();
       return;
-    }
-
-    if (this.unit().setup) {
-      this.unit().setup(this);
     }
 
     if (!this.memory.boosted && this.boost()) {
@@ -422,6 +417,7 @@ Creep.prototype.respawnMe = function() {
     targetRoom: this.memory.routing.targetRoom,
     targetId: this.memory.routing.targetId,
     route: this.memory.routing.route,
+    type: this.memory.routing.type,
   };
   const spawn = {
     role: this.memory.role,

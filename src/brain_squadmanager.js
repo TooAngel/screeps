@@ -1,35 +1,5 @@
 'use strict';
 
-brain.initPlayer = function(name) {
-  if (!Memory.players[name]) {
-    Memory.players[name] = {
-      name: name,
-      rooms: {},
-      level: 0,
-      counter: 0,
-      idiot: 0,
-      reputation: 0,
-    };
-  }
-};
-
-brain.increaseIdiot = function(name, value) {
-  if (name === 'Invader') {
-    return false;
-  }
-
-  value = value || 1;
-  Memory.players = Memory.players || {};
-
-  brain.initPlayer(name);
-
-  if (!Memory.players[name].idiot) {
-    Memory.players[name].idiot = 0;
-  }
-
-  Memory.players[name].idiot += value;
-};
-
 brain.isFriend = function(name) {
   if (!Memory.players) {
     Memory.players = {};
@@ -44,10 +14,7 @@ brain.isFriend = function(name) {
   if (!Memory.players[name]) {
     return true;
   }
-  if (!Memory.players[name].idiot) {
-    return true;
-  }
-  if (Memory.players[name].idiot <= 0) {
+  if (Memory.players[name].reputation > 0) {
     return true;
   }
   if (name === 'Source Keeper') {

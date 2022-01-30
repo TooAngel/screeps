@@ -114,7 +114,7 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
       return new PathFinder.CostMatrix;
     }
     if (!room.data.costMatrix) {
-      room.debugLog('routing', `getBasicCostMatrixCallback - no costmatrix`);
+      room.debugLog('routing', `getCostMatrixCallback - no costmatrix`);
       room.updatePosition();
       // I think updatePosition sets the correct costmatrix
       // room.updateCostMatrix();

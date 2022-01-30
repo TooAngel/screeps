@@ -54,6 +54,7 @@ queue is used.
    start up phase without relying on anything (storage, links, other creeps).
  - `nextroomer` moves to target room and builds up that room.
  - `repairer` build walls and ramparts.
+ - `builder` Builds construction sites
 
 
 ## Routing

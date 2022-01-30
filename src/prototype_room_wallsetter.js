@@ -170,6 +170,22 @@ function getWayFound(targets, posLastObject) {
   return false;
 }
 
+/**
+ * layerFinished
+ *
+ * @param {object} room
+ * @return {bool}
+ */
+function layerFinished(room) {
+  room.memory.walls.exit_i = 0;
+  room.memory.walls.layer_i++;
+  if (room.memory.walls.layer_i >= config.layout.wallThickness) {
+    room.memory.walls.finished = true;
+    return false;
+  }
+  return true;
+}
+
 Room.prototype.closeExitsByPath = function() {
   if (this.memory.walls && this.memory.walls.finished) {
     return false;
@@ -179,13 +195,7 @@ Room.prototype.closeExitsByPath = function() {
 
   const exits = this.find(FIND_EXIT);
   if (this.memory.walls.exit_i >= exits.length) {
-    this.memory.walls.exit_i = 0;
-    this.memory.walls.layer_i++;
-    if (this.memory.walls.layer_i >= config.layout.wallThickness) {
-      this.memory.walls.finished = true;
-      return false;
-    }
-    return true;
+    return layerFinished(this);
   }
 
   const exit = exits[this.memory.walls.exit_i];

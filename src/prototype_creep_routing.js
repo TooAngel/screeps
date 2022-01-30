@@ -246,6 +246,21 @@ function validateDirections(directions) {
 }
 
 /**
+ * moveByPathMyNoPathPosition
+ *
+ * @param {object} room
+ * @param {array} path
+ * @return {void}
+ */
+function moveByPathMyNoPathPosition(room, path) {
+  const moveBackToPathResult = room.moveBackToPath(path);
+  if (!moveBackToPathResult) {
+    room.log('prototype_creep_routing.moveByPathMy - moveBackToPath');
+  }
+  return moveBackToPathResult;
+}
+
+/**
  * moveByPathMy follows the given path or gets back to the path
  *
  * @param {list} path - The path to follow
@@ -268,11 +283,7 @@ Creep.prototype.moveByPathMy = function(path, pathPos, directions) {
 
   pathPos = pathPos || this.memory.routing.pathPos;
   if (pathPos === null || pathPos < 0) {
-    const moveBackToPathResult = this.moveBackToPath(path);
-    if (!moveBackToPathResult) {
-      this.log('prototype_creep_routing.moveByPathMy - moveBackToPath');
-    }
-    return moveBackToPathResult;
+    return moveByPathMyNoPathPosition(this, path);
   }
 
 

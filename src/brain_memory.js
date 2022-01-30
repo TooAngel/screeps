@@ -124,7 +124,7 @@ brain.cleanSquads = function() {
 brain.cleanRooms = function() {
   if (Game.time % 300 === 0) {
     for (const name of Object.keys(Memory.rooms)) {
-      // TODO lastSeen moved to global.data - Rooms seems to be initialized on access, so maybe store still lastSeen and delete if old
+      // TODO lastSeen moved to global.data - so we should check this, also Memory.rooms should only exist for myRooms
       if (!Memory.rooms[name].lastSeen && Object.keys(Memory.rooms[name]).length > 0) {
         console.log(`${Game.time} Deleting ${name} from memory no 'lastSeen' value, keys: ${JSON.stringify(Object.keys(Memory.rooms[name]))}`);
         delete Memory.rooms[name];

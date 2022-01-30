@@ -37,7 +37,7 @@ Creep.prototype.universalBeforeStorage = function() {
 Creep.prototype.checkCarryEnergyForBringingBackToStorage = function(otherCreep) {
   let offset = 0;
   if (otherCreep) {
-    offset = otherCreep.carry.energy;
+    offset = otherCreep.store.getUsedCapacity();
   }
 
   // define minimum carryPercentage to move back to storage
@@ -49,7 +49,7 @@ Creep.prototype.checkCarryEnergyForBringingBackToStorage = function(otherCreep) 
     carryPercentage = config.carry.carryPercentageBase;
   }
 
-  return offset + _.sum(this.carry) > carryPercentage * this.carryCapacity;
+  return offset + this.store.getUsedCapacity() > carryPercentage * this.store.getCapacity();
 };
 
 // return true if helper can't transfer to creep
@@ -60,7 +60,7 @@ Creep.prototype.checkHelperNoTransfer = function(creep) {
 Creep.prototype.findCreepWhichCanTransfer = function(creeps) {
   for (let i = 0; i < creeps.length; i++) {
     const otherCreep = creeps[i];
-    if (!Game.creeps[otherCreep.name] || otherCreep.carry.energy < 50 || otherCreep.memory.recycle) {
+    if (!Game.creeps[otherCreep.name] || otherCreep.store.getUsedCapacity() < 50 || otherCreep.memory.recycle) {
       continue;
     }
 
@@ -100,7 +100,7 @@ Creep.prototype.pickupWhileMoving = function() {
     return false;
   }
 
-  if (_.sum(this.carry) === this.carryCapacity) {
+  if (_.sum(this.store) === this.store.getCapacity()) {
     return false;
   }
 
@@ -111,7 +111,7 @@ Creep.prototype.pickupWhileMoving = function() {
   if (resources.length > 0) {
     const resource = resources[0];
     const amount = this.pickupOrWithdrawFromSourcer(resource);
-    return _.sum(this.carry) + amount > 0.5 * this.carryCapacity;
+    return _.sum(this.store) + amount > 0.5 * this.store.getCapacity();
   }
 
   if (this.room.name === this.memory.routing.targetRoom) {
@@ -130,25 +130,6 @@ Creep.prototype.pickupWhileMoving = function() {
   return false;
 };
 
-Creep.prototype.sayIdiotList = function() {
-  const say = function(creep) {
-    const players = _.filter(Memory.players, (object) => {
-      return object.idiot && object.idiot > 0;
-    });
-    if (players.length === 0) {
-      return;
-    }
-    const sentence = ['Don\'t', 'like'];
-    for (const player of players) {
-      sentence.push(player.name);
-      sentence.push(player.idiot);
-    }
-    const word = Game.time % sentence.length;
-    creep.say(sentence[word], true);
-  };
-  say(this);
-};
-
 Creep.prototype.withdrawEnergyFromTarget = function(target) {
   let returnValue = false;
   const returnCode = this.withdraw(target, RESOURCE_ENERGY);
@@ -160,10 +141,10 @@ Creep.prototype.withdrawEnergyFromTarget = function(target) {
 
 Creep.prototype.withdrawResourcesFromTarget = function(target) {
   let returnValue = false;
-  const resosurces = Object.keys(target.store) || Object.keys(target.carry);
-  for (const resosurce of resosurces) {
+  const resources = Object.keys(target.store);
+  for (const resource of resources) {
     if (!returnValue) {
-      returnValue = this.withdraw(target, resosurce) === OK;
+      returnValue = this.withdraw(target, resource) === OK;
     }
   }
   return returnValue;
@@ -210,9 +191,11 @@ Creep.prototype.giveSourcersEnergy = function() {
   let returnValue = false;
   const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer']);
   if (sourcers.length > 0) {
-    const returnCode = sourcers[0].transfer(this, RESOURCE_ENERGY);
-    if (returnCode === OK) {
-      returnValue = true;
+    for (const resource of Object.keys(sourcers[0].store)) {
+      const returnCode = sourcers[0].transfer(this, resource);
+      if (returnCode === OK) {
+        returnValue = true;
+      }
     }
   }
   return returnValue;
@@ -242,24 +225,26 @@ Creep.prototype.pickupEnergy = function() {
   return this.giveSourcersEnergy();
 };
 
-const checkCreepForTransfer = function(creep) {
-  if (!Game.creeps[creep.name]) {
+const checkCreepForTransfer = function(otherCreep, thisCreep) {
+  if (!Memory.creeps[otherCreep.name]) {
     return false;
   }
   // don't transfer to extractor, fixes full terminal with 80% energy?
-  if (Game.creeps[creep.name].memory.role === 'extractor') {
+  if (Memory.creeps[otherCreep.name].role === 'extractor') {
     return false;
   }
   // don't transfer to mineral, fixes full terminal with 80% energy?
-  if (Game.creeps[creep.name].memory.role === 'mineral') {
+  if (Memory.creeps[otherCreep.name].role === 'mineral') {
+    return false;
+  }
+  if (!thisCreep.store[RESOURCE_ENERGY] && Memory.creeps[otherCreep.name].role === 'sourcer') {
     return false;
   }
   // Do we want this?
-  if (Game.creeps[creep.name].memory.role === 'powertransporter') {
+  if (Memory.creeps[otherCreep.name].role === 'powertransporter') {
     return false;
   }
-  // can not carry
-  if (creep.carry.energy === creep.carryCapacity) {
+  if (otherCreep.store.getFreeCapacity() === 0) {
     return false;
   }
   return true;
@@ -274,12 +259,14 @@ Creep.prototype.transferToCreep = function(direction) {
   const creeps = adjacentPos.lookFor('creep');
   for (let i = 0; i < creeps.length; i++) {
     const otherCreep = creeps[i];
-    if (!checkCreepForTransfer(otherCreep) || this.checkHelperNoTransfer(otherCreep)) {
+    if (!checkCreepForTransfer(otherCreep, this) || this.checkHelperNoTransfer(otherCreep)) {
       continue;
     }
-    const returnCode = this.transfer(otherCreep, RESOURCE_ENERGY);
-    if (returnCode === OK) {
-      return this.carry.energy * 0.5 <= otherCreep.carryCapacity - otherCreep.carry.energy;
+    for (const resource of Object.keys(this.store)) {
+      const returnCode = this.transfer(otherCreep, resource);
+      if (returnCode === OK) {
+        return this.store.getUsedCapacity() * 0.5 <= otherCreep.store.getCapacity() - otherCreep.store.getUsedCapacity();
+      }
     }
   }
   return false;
@@ -296,7 +283,8 @@ const canStoreEnergy = function(object) {
 const energyAcceptingLink = function(object, room) {
   if (object.structureType === STRUCTURE_LINK) {
     for (let i = 0; i < 3; i++) {
-      if (object.pos.isEqualTo(room.memory.position.structure.link[i].x, room.memory.position.structure.link[i].y)) {
+      const linkPos = room.data.positions.structure.link[i];
+      if (object.pos.isEqualTo(linkPos.x, linkPos.y)) {
         return false;
       }
     }
@@ -338,7 +326,7 @@ const filterTransferrables = function(creep, object) {
   }
 
   if (object.structureType === STRUCTURE_STORAGE ?
-    _.sum(object.store) + _.sum(creep.carry) > object.storeCapacity :
+    _.sum(object.store) + _.sum(creep.store) > object.storeCapacity :
     object.energy === object.energyCapacity) {
     return false;
   }
@@ -348,7 +336,7 @@ const filterTransferrables = function(creep, object) {
 
 Creep.prototype.transferAllResources = function(structure) {
   let transferred = false;
-  for (const resource in this.carry) {
+  for (const resource in this.store) {
     if (!resource) {
       continue;
     }
@@ -358,14 +346,14 @@ Creep.prototype.transferAllResources = function(structure) {
       if (structure.structureType === STRUCTURE_STORAGE) {
         transferableEnergy = structure.storeCapacity - _.sum(structure.store);
       }
-      transferred = Math.min(this.carry[resource], transferableEnergy);
+      transferred = Math.min(this.store[resource], transferableEnergy);
     }
   }
   return transferred;
 };
 
 Creep.prototype.transferToStructures = function() {
-  if (_.sum(this.carry) === 0) {
+  if (_.sum(this.store) === 0) {
     return false;
   }
 
@@ -400,7 +388,7 @@ Creep.prototype.transferToStructures = function() {
 
 Creep.prototype.getEnergyFromSourcer = function() {
   const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer'], {
-    filter: (creep) => creep.carry.energy > 0,
+    filter: (creep) => creep.store.energy > 0,
   });
   if (sourcers.length > 0) {
     const returnCode = sourcers[0].transfer(this, RESOURCE_ENERGY);
@@ -433,7 +421,7 @@ Creep.prototype.moveToSource = function(source, swarm = false) {
 
 Creep.prototype.harvestSource = function(source) {
   this.harvest(source);
-  if (this.carry.energy === this.carryCapacity && this.carryCapacity > 0) {
+  if (this.store.energy === this.store.getCapacity() && this.store.getCapacity() > 0) {
     const creepsWithoutEnergy = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'carry.energy', [0]);
     if (creepsWithoutEnergy.length > 0) {
       this.transfer(creepsWithoutEnergy[0], RESOURCE_ENERGY);
@@ -470,7 +458,7 @@ Creep.prototype.getEnergyFromSource = function() {
 
   this.memory.source = source.id;
   const range = this.pos.getRangeTo(source);
-  if (this.carry.energy > 0 && range > 1) {
+  if (this.store.energy > 0 && range > 1) {
     this.memory.hasEnergy = true; // Stop looking and spend the energy.
     return false;
   }
@@ -494,11 +482,11 @@ Creep.prototype.getEnergyFromSource = function() {
 
 Creep.prototype.setHasEnergy = function() {
   if (this.memory.hasEnergy === undefined) {
-    this.memory.hasEnergy = (this.carry.energy === this.carryCapacity);
-  } else if (this.memory.hasEnergy && this.carry.energy === 0) {
+    this.memory.hasEnergy = (this.store.energy === this.store.getCapacity());
+  } else if (this.memory.hasEnergy && this.store.energy === 0) {
     this.memory.hasEnergy = false;
   } else if (!this.memory.hasEnergy &&
-    _.sum(this.carry) === this.carryCapacity) {
+    _.sum(this.store) === this.store.getCapacity()) {
     this.memory.hasEnergy = true;
   }
 };
@@ -515,7 +503,7 @@ Creep.prototype.getDroppedEnergy = function() {
     this.pickupOrWithdrawFromSourcer(target);
     return true;
   }
-  if (target.energy > (energyRange * 15) * (this.carry.energy + 1)) {
+  if (target.energy > (energyRange * 15) * (this.store.energy + 1)) {
     this.say('dropped');
     this.moveToMy(target.pos, 1);
     return true;

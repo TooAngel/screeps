@@ -154,7 +154,9 @@ function callDefender(creep) {
 roles.reserver.action = function(creep) {
   creep.mySignController();
   creep.setNextSpawn();
-  creep.spawnReplacement();
+  if (creep.room.data.state !== 'Controlled') {
+    creep.spawnReplacement();
+  }
 
   callCleaner(creep);
 

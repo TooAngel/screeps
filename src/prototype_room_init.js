@@ -31,6 +31,10 @@ Room.prototype.initSetSources = function() {
   const sources = this.findSources();
   for (const source of sources) {
     const sourcer = source.pos.getFirstNearPosition({ignorePath: true});
+    if (!sourcer) {
+      this.log(`initSetSources, can't find position ${JSON.stringify(source.pos)}`);
+      continue;
+    }
     this.setPosition(source.id, sourcer, config.layout.creepAvoid, 'creep');
     this.setPosition(STRUCTURE_LINK, sourcer.getFirstNearPosition());
   }
@@ -115,15 +119,16 @@ Room.prototype.addTerminal = function() {
 };
 
 Room.prototype.updatePosition = function() {
+  // this.debugLog('routing', 'updatePosition called');
+  // this.debugLog('routing', `room.data: ${JSON.stringify(this.data)}`);
+  // TODO don't like to delete it here: after deploy some are set (by getPath/buildPath) before the costMatrix is built
+  this.data.positions = {creep: {}, structure: {}};
   this.data.costMatrix = this.getCostMatrix();
   this.initSetController();
   this.initSetSources();
   this.initSetMinerals();
 
   if (this.isMy()) {
-    this.data.positions.structure = {};
-    this.data.routing = {};
-
     const startPos = this.initSetStorageAndPathStart();
     this.costMatrixSetSourcePath();
     this.setFillerArea(startPos.storagePos, startPos.route);
@@ -180,7 +185,7 @@ Room.prototype.setLabs = function(allPaths) {
 };
 
 Room.prototype.checkPositions = function() {
-  for (const type of [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER, STRUCTURE_LINK, STRUCTURE_OBSERVER, STRUCTURE_NUKER]) {
+  for (const type of [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER, STRUCTURE_LINK, STRUCTURE_OBSERVER, STRUCTURE_NUKER, STRUCTURE_FACTORY]) {
     if ((this.data.positions.structure[type] || []).length < CONTROLLER_STRUCTURES[type][8]) {
       let output = 'Structures not found:\n';
       for (const type of Object.keys(this.data.positions.structure)) {
@@ -209,7 +214,7 @@ Room.prototype.areEnergyStructuresPlaced = function() {
 };
 
 Room.prototype.setPositionAux = function(structurePos) {
-  for (const type of [STRUCTURE_TOWER, STRUCTURE_NUKER, STRUCTURE_OBSERVER, STRUCTURE_LINK]) {
+  for (const type of [STRUCTURE_TOWER, STRUCTURE_NUKER, STRUCTURE_OBSERVER, STRUCTURE_LINK, STRUCTURE_FACTORY]) {
     if ((this.data.positions.structure[type] || []).length < CONTROLLER_STRUCTURES[type][8]) {
       this.setPosition(type, structurePos, config.layout.structureAvoid);
       return true;
@@ -449,6 +454,25 @@ Room.prototype.cleanupMemory = function() {
   this.data.created = Game.time;
 };
 
+Room.prototype.setupFinalize = function() {
+  this.log('Setup complete - storing data');
+  this.memory.setup.completed = true;
+  this.memory.position = this.data.positions;
+  this.memory.routing = {};
+  for (const pathName of Object.keys(this.data.routing)) {
+    const item = this.data.routing[pathName];
+    const memoryData = {
+      path: Room.pathToString(item.path),
+      created: item.created,
+      fixed: item.fixed,
+      name: item.name,
+    };
+    this.memory.routing[pathName] = memoryData;
+  }
+  this.setMemoryCostMatrix(this.data.costMatrix);
+  this.log('Setup completed - storing data');
+};
+
 Room.prototype.setup = function() {
   this.debugLog('baseBuilding', `Setup`);
   if (this.memory.setup) {
@@ -493,21 +517,6 @@ Room.prototype.setup = function() {
   if (!this.stepExecute(this.checkForMisplacedSpawn, 'checkForMisplacedSpawn')) {
     return false;
   }
-  this.log('Setup complete - storing data');
-  this.memory.setup.completed = true;
-  this.memory.position = this.data.positions;
-  this.memory.routing = {};
-  for (const pathName of Object.keys(this.data.routing)) {
-    const item = this.data.routing[pathName];
-    const memoryData = {
-      path: Room.pathToString(item.path),
-      created: item.created,
-      fixed: item.fixed,
-      name: item.name,
-    };
-    this.memory.routing[pathName] = memoryData;
-  }
-  this.setMemoryCostMatrix(this.data.costMatrix);
-  this.log('Setup completed - storing data');
+  this.setupFinalize();
   return true;
 };

@@ -45,10 +45,17 @@ On successful finishing a quest a terminal transfer is send
 
 Quests can be:
  - `buildcs` Build all construction sites in the given room
- - **tbd** Write your (or my) name with roads (or walls) in a specific room
+ - **tbd** Write your (or my) name with roads (or walls or creeps) in a specific room
+ - **tbd** Bring `resource` to room
+ - **tbd** Send `resource` via terminal to room
+ - **tbd** Get `resource` via creep from room
  - **tbd** Defend specific room for some time
  - **tbd** Defend your room
  - **tbd** Attack my (or someone else) room
+ - **tbd** Sign controller in room with `[username] smells funny`
+ - **tbd** Dismantle structure `id` in room
+ - **tbd** Solving math problems: Send a creep to a room and `say` math problems and the other creep need to `say` the solution
+ - **tbd** Send a creep with random `BODYPARTS` to a room
  - ...
 
 If necessary the `Quester` creep will watch the progress and needs to stay alive.

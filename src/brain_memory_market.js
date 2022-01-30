@@ -1,5 +1,7 @@
 'use strict';
 
+const {addToReputation} = require('./diplomacy');
+
 brain.setMarketOrders = function() {
   Memory.orders = {};
   Memory.orders[ORDER_BUY] = {};
@@ -61,10 +63,10 @@ brain.handleIncomingTransactionsbyUser = function(transaction) {
     return false;
   }
   const price = brain.getMarketOrder(ORDER_SELL, transaction.resourceType, 'min') || brain.getMarketOrder(ORDER_BUY, transaction.resourceType, 'max') || 1;
-  const value = -1 * transaction.amount * price;
+  const value = transaction.amount * price;
   const room = Game.rooms[transaction.to];
   room.debugLog('market', `Incoming transaction from ${sender}[${transaction.from}] ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
-  brain.increaseIdiot(sender, value);
+  addToReputation(sender, value);
   return true;
 };
 

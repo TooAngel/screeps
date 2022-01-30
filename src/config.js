@@ -87,6 +87,8 @@ global.config = {
     routing: false,
     brain: false,
     attack: true,
+    diplomacy: true,
+    commodities: true,
   },
 
   tower: {
@@ -120,6 +122,16 @@ global.config = {
     minNewRoomDistance: 2,
     minEnergyForActive: 1000,
     notify: false,
+    mineralValues: {
+      [RESOURCE_HYDROGEN]: 15,
+      [RESOURCE_OXYGEN]: 15,
+      [RESOURCE_UTRIUM]: 10,
+      [RESOURCE_LEMERGIUM]: 10,
+      [RESOURCE_KEANIUM]: 10,
+      [RESOURCE_ZYNTHIUM]: 10,
+      [RESOURCE_CATALYST]: 10,
+      [RESOURCE_GHODIUM]: 15,
+    },
   },
 
   carryHelpers: {
@@ -133,8 +145,10 @@ global.config = {
 
   power: {
     disabled: false,
-    energyForCreeps: 800000,
-    energyForSpawn: 250000,
+  },
+
+  commodities: {
+    disabled: false,
   },
 
   pixel: {
@@ -244,9 +258,13 @@ global.config = {
     sourceAvoid: 60,
     structureAvoid: 0xFF,
     swampCost: 8,
-    version: 21,
+    version: 22,
     wallAvoid: 20,
     wallThickness: 1,
+  },
+
+  diplomacy: {
+    checkPlayersInterval: 100,
   },
 
   terminal: {
@@ -295,16 +313,16 @@ global.config = {
       carry: 5,
     },
     otherRoom: {
+      claimer: 6,
       universal: 11,
       defender: 12,
       defendranged: 13,
-      claimer: 14,
       nextroomer: 15,
-      carry: 16,
-      watcher: 17,
-      atkeeper: 18,
-      atkeepermelee: 18,
-      sourcer: 19,
+      sourcer: 16,
+      carry: 17,
+      watcher: 18,
+      atkeeper: 19,
+      atkeepermelee: 19,
       reserver: 20,
     },
   },

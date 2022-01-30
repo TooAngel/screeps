@@ -252,8 +252,13 @@ RoomPosition.prototype.getWorseNearPosition = function(...args) {
 
 RoomPosition.prototype.findNearPosition = function* (...args) {
   for (const posNew of this.getAllAdjacentPositions()) {
+    if (args.debug) {
+      console.log(posNew);
+    }
     if (!posNew.validPosition(...args)) {
-      // console.log(posNew + ' - invalid');
+      if (args.debug) {
+        console.log(posNew + ' - invalid');
+      }
       continue;
     }
     // Single position or array
