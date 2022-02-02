@@ -1,22 +1,22 @@
 'use strict';
 
 /**
+ * The data property represent the current data of the creep stored on the heap
+ */
+Object.defineProperty(Creep.prototype, 'data', {
+  get() {
+    if (!global.data.creeps[this.name]) {
+      global.data.creeps[this.name] = {};
+    }
+    return global.data.creeps[this.name];
+  },
+});
+
+/**
  * initRouting - Makes sure the memory routing object is set
  **/
 Creep.prototype.initRouting = function() {
   this.memory.routing = this.memory.routing || {};
-};
-
-/**
- * getData - Gets the creep data from the heap
- *
- * @return {object}
- */
-Creep.prototype.getData = function() {
-  if (!global.data.creeps[this.name]) {
-    global.data.creeps[this.name] = {};
-  }
-  return global.data.creeps[this.name];
 };
 
 /**
@@ -29,15 +29,14 @@ Creep.prototype.getCloseByLink = function() {
   if (this.room.controller.level < 5) {
     return;
   }
-  const data = this.getData();
-  if (!data.link) {
+  if (!this.data.link) {
     const structures = this.pos.findInRange(FIND_MY_STRUCTURES, 1, {filter: {structureType: STRUCTURE_LINK}});
     if (structures.length === 0) {
       return;
     }
-    data.link = structures[0].id;
+    this.data.link = structures[0].id;
   }
-  return Game.getObjectById(data.link);
+  return Game.getObjectById(this.data.link);
 };
 
 /**

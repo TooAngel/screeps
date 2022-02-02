@@ -608,7 +608,7 @@ Creep.prototype.construct = function() {
 
 Creep.prototype.getTransferTargetStructure = function() {
   let structure = this.pos.findClosestStructureWithMissingEnergyByRange(
-    (object) => object.structureType !== STRUCTURE_STORAGE,
+    (object) => object.structureType !== STRUCTURE_STORAGE && object.structureType !== STRUCTURE_LINK,
   );
   // Universal should always prefer Spawn and Extensions
   if (this.memory.role === 'universal') {

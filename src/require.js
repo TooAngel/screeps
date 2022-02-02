@@ -4,7 +4,6 @@ require('./utils');
 require('./brain_main');
 require('./brain_memory');
 require('./brain_memory_market');
-require('./brain_segments');
 require('./brain_nextroom');
 require('./brain_quests');
 require('./brain_squadmanager');

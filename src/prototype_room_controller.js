@@ -12,16 +12,13 @@ const resetCounters = function(room) {
 };
 
 Room.prototype.buildBaseUnseenControllerLevel = function() {
+  this.memory.controllerLevel = this.memory.controllerLevel || {};
   if (!this.memory.controllerLevel['setup_level_' + this.controller.level]) {
     if (Game.cpu.tickLimit > Game.cpu.bucket) {
       this.debugLog('baseBuilding', `Skipping room_controller.js execution CPU limit: ${Game.cpu.limit} tickLimit: ${Game.cpu.tickLimit} bucket: ${Game.cpu.bucket}`);
       return true;
     }
-    if (this.controller.level === 1 || this.controller.level === 2) {
-      if (!this.setup()) {
-        return true;
-      }
-    }
+    // TODO I don't think we need this here, after change to heap
     this.updateCostMatrix();
     resetCounters(this);
     this.memory.controllerLevel['setup_level_' + this.controller.level] = Game.time;
@@ -69,7 +66,16 @@ function checkWrongStructures(room) {
 }
 
 Room.prototype.buildBase = function() {
-  this.memory.controllerLevel = this.memory.controllerLevel || {};
+  // version: this.memory.position.version is maybe not the best idea
+  if (this.data.positions.version !== config.layout.version) {
+    this.debugLog('baseBuilding', 'New layout version, rebuilding');
+    this.memory = {};
+    this.data.routing = {};
+    this.data.positions = {};
+    this.setup();
+  } else if (!this.memory.setup.completed) {
+    this.setup();
+  }
   if (this.buildBaseUnseenControllerLevel()) {
     return;
   }
@@ -99,12 +105,6 @@ Room.prototype.buildBase = function() {
         executeTask(this, 'buildBlockers');
       }
     }
-  }
-
-  // version: this.memory.position.version is maybe not the best idea
-  if (!this.memory.position || this.memory.position.version !== config.layout.version) {
-    this.debugLog('baseBuilding', 'New layout version, rebuilding');
-    this.setup();
   }
 };
 

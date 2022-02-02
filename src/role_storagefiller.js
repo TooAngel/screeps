@@ -47,15 +47,14 @@ function transferFromLink(creep) {
  * @return {object} - The tower
  **/
 function getTower(creep) {
-  const data = creep.getData();
-  if (!data.tower) {
+  if (!creep.data.tower) {
     const structures = creep.pos.findInRange(FIND_MY_STRUCTURES, 1, {filter: {structureType: STRUCTURE_TOWER}});
     if (structures.length === 0) {
       return;
     }
-    data.tower = structures[0].id;
+    creep.data.tower = structures[0].id;
   }
-  return Game.getObjectById(data.tower);
+  return Game.getObjectById(creep.data.tower);
 }
 
 /**
@@ -65,15 +64,14 @@ function getTower(creep) {
  * @return {object} - The powerSpawn
  **/
 function getPowerSpawn(creep) {
-  const data = creep.getData();
-  if (!data.powerSpawn) {
+  if (!creep.data.powerSpawn) {
     const structures = creep.pos.findInRange(FIND_MY_STRUCTURES, 1, {filter: {structureType: STRUCTURE_POWER_SPAWN}});
     if (structures.length === 0) {
       return;
     }
-    data.powerSpawn = structures[0].id;
+    creep.data.powerSpawn = structures[0].id;
   }
-  return Game.getObjectById(data.powerSpawn);
+  return Game.getObjectById(creep.data.powerSpawn);
 }
 
 roles.storagefiller.action = function(creep) {

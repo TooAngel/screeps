@@ -91,9 +91,6 @@ brain.main.execute = function() {
 
   brain.stats.addRoot();
   brain.main.roomExecution();
-  if (config.memory.segmentsEnabled) {
-    brain.saveMemorySegments();
-  }
   brain.main.visualizeRooms();
   brain.main.updateSkippedRoomsLog();
   brain.stats.add(['cpu'], {

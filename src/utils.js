@@ -196,14 +196,6 @@ global.utils = {
     room.log('creepsToKill', _.size(creepsToKill), _.map(creepsToKill, (c) => c.suicide()));
   },
 
-  removeConstructionSites: function(room) {
-    const sites = _.size(room.memory.constructionSites);
-    if (room.memory.constructionSites && sites) {
-      room.memory.constructionSites[0].remove();
-    }
-    return sites > 0 ? (sites - 1) : 0;
-  },
-
   removeNextStructure: function(room) {
     let returnValue;
     const myStructuresToDestroy = _.sortBy(room.findMyStructures(), (s) => s.hitsMax);

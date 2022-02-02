@@ -31,6 +31,9 @@ Creep.prototype.searchPath = function(target, range=1, withinRoom=false) {
   if (config.visualizer.enabled && config.visualizer.showPathSearches) {
     visualizer.showSearch(search);
   }
+  if (search.path.length < 2 && search.incomplete) {
+    this.log(`moveToMy search.path too short ${JSON.stringify(search)} target: ${target} range: ${range} withinRoom ${withinRoom}`);
+  }
   return search;
 };
 
@@ -63,10 +66,9 @@ Creep.prototype.moveToMy = function(target, range=1, withinRoom=false) {
   }
 
   const search = this.searchPath(target, range, withinRoom);
-
   // Fallback to moveTo when the path is incomplete and the creep is only switching positions
   if (search.path.length < 2 && search.incomplete) {
-    console.log(`moveToMy search.path too short ${JSON.stringify(search)}`);
+    this.log(`moveToMy search.path too short ${JSON.stringify(search)} target: ${target}`);
     return this.moveTo(target, {range: range});
   }
   target = search.path[0] || target.pos || target;

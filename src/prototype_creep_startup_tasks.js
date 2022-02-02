@@ -186,7 +186,7 @@ Creep.prototype.actuallyRepairStructure = function(toRepair) {
   this.creepLog('actuallyRepairStructure');
   const range = this.pos.getRangeTo(toRepair);
   if (range <= 3) {
-    this.creepLog(`actuallyRepairStructure - within range ${range}`);
+    this.creepLog(`actuallyRepairStructure - within range ${range} ${toRepair.pos}`);
     this.repair(toRepair);
     this.moveRandomWithin(toRepair);
 
@@ -255,8 +255,28 @@ Creep.prototype.repairStructureGetTarget = function() {
   return toRepair;
 };
 
+/**
+ * isStructureWithinRepairStepRange
+ *
+ * Repair creeps store a range to with blockers should be repaired.
+ * Structures are combared to this range
+ * @param {object} structure
+ * @param {number} step
+ * @return {bool}
+ */
+function isStructureWithinRepairStepRange(structure, step) {
+  if (structure.hits >= structure.hitsMax) {
+    return false;
+  }
+  if (structure.hits > step + 10000) {
+    return false;
+  }
+  return true;
+}
+
 Creep.prototype.repairKnownTarget = function() {
   if (!this.memory.routing.targetId) {
+    this.creepLog('repairKnownTarget no targetId');
     return false;
   }
 
@@ -264,23 +284,30 @@ Creep.prototype.repairKnownTarget = function() {
   if (!toRepair) {
     return false;
   }
+  this.creepLog('repairKnownTarget toRepair');
 
   if (toRepair instanceof ConstructionSite) {
     if (this.pos.roomName !== this.memory.base) {
       this.log(`Not in my base room why? moveToAndBuildConstructionSite`);
     }
+    this.creepLog('repairKnownTarget moveToAndBuildConstructionSite');
     return this.moveToAndBuildConstructionSite(toRepair);
   }
 
-  if (toRepair.hits < toRepair.hitsMax && (toRepair.hits < 10000 || toRepair.hits < this.memory.step + 10000)) {
-    if (this.pos.roomName !== this.memory.base) {
-      this.log(`Not in my base room why? actuallyRepairStructure`);
-    }
-    return this.actuallyRepairStructure(toRepair);
+  if (!isStructureWithinRepairStepRange(toRepair, this.memory.step)) {
+    delete this.memory.routing.targetId;
+    return false;
   }
 
-  delete this.memory.routing.targetId;
-  return false;
+  if (this.pos.roomName !== this.memory.base) {
+    this.log(`Not in my base room why? actuallyRepairStructure`);
+  }
+  if (toRepair.hits === toRepair.hitsMax) {
+    delete this.memory.routing.targetId;
+    return false;
+  }
+  this.creepLog('repairKnownTarget actuallyRepairStructure');
+  return this.actuallyRepairStructure(toRepair);
 };
 
 Creep.prototype.repairStructure = function() {
@@ -311,6 +338,7 @@ Creep.prototype.repairStructure = function() {
     },
   });
 
+  this.creepLog(`repairStructure - ramparts: ${lowRamparts.length}`);
   if (lowRamparts.length > 0) {
     this.memory.routing.targetId = lowRamparts[0].id;
     this.repairKnownTarget();
@@ -319,6 +347,7 @@ Creep.prototype.repairStructure = function() {
 
   // Build construction sites
   const target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL]);
+  this.creepLog(`repairStructure - constructionSites: ${target}`);
   if (target) {
     this.memory.step = 0;
     this.memory.routing.targetId = target.id;
@@ -330,6 +359,7 @@ Creep.prototype.repairStructure = function() {
   const road = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_ROAD], {
     filter: (object) => object.hits < 0.5 * object.hitsMax,
   });
+  this.creepLog(`repairStructure - road: ${road}`);
   if (road) {
     this.memory.routing.targetId = road.id;
     this.repairKnownTarget();
@@ -337,11 +367,15 @@ Creep.prototype.repairStructure = function() {
   }
 
   // Repair ramparts and walls
-  const step = this.memory.step;
-  const structure = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], {
-    // Newbie zone walls have no hits
-    filter: (object) => object.hits && object.hits < Math.min(step, object.hitsMax),
+  const structure = this.pos.findClosestByRange(FIND_STRUCTURES, {
+    filter: (structure) => {
+      if ([STRUCTURE_RAMPART, STRUCTURE_WALL].indexOf(structure.structureType) < 0) {
+        return false;
+      }
+      return isStructureWithinRepairStepRange(structure, this.memory.step);
+    },
   });
+  this.creepLog(`repairStructure - structure: ${structure}`);
   if (structure) {
     this.memory.routing.targetId = structure.id;
     this.repairKnownTarget();

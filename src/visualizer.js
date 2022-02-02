@@ -151,7 +151,9 @@ global.visualizer = {
 
   showCostMatrixes() {
     for (const room of _.values(Game.rooms)) {
-      this.showCostMatrix(room.name, room.getCostMatrixCallback());
+      if (room.isMy()) {
+        this.showCostMatrix(room.name, room.getCostMatrixCallback());
+      }
     }
   },
 

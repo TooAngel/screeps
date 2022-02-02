@@ -136,8 +136,7 @@ Room.prototype.destroyStructure = function(structure) {
   if (structure.structureType === STRUCTURE_RAMPART) {
     return false;
   }
-
-  if (posIsIn(structure.pos, this.memory.position.structure[structure.structureType])) {
+  if (posIsIn(structure.pos, this.data.positions.structure[structure.structureType])) {
     return false;
   }
 
@@ -269,8 +268,7 @@ Room.prototype.setupStructure = function(structure) {
   if (diff <= 0) {
     return false;
   }
-
-  for (const pos of (this.memory.position.structure[structure] || [])) {
+  for (const pos of (this.data.positions.structure[structure] || [])) {
     // TODO special case e.g. when powerSpawn can't be set on costmatrix.setup - need to be fixed there
     if (!pos) {
       continue;
@@ -308,13 +306,13 @@ Room.prototype.setupStructure = function(structure) {
 };
 
 Room.prototype.checkBuildStructureValidity = function() {
-  if (!this.memory.position) {
+  if (!this.data.positions) {
     this.log('No position buildStructures');
     this.setup();
     return false;
   }
 
-  if (!this.memory.position.structure) {
+  if (!this.data.positions.structure) {
     return false;
   }
 

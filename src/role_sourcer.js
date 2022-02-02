@@ -48,7 +48,7 @@ roles.sourcer.updateSettings = function(room, creep) {
   }
   const target = creep.routing && creep.routing.targetRoom ? creep.routing.targetRoom : room.name;
   const inBase = (target === room.name);
-  if (!inBase && Memory.rooms[target].sourceKeeperRoom) {
+  if (!inBase && (global.data.rooms[target] || {}).sourceKeeperRoom) {
     return {
       prefixString: 'MC',
       layoutString: 'MW',
@@ -71,12 +71,11 @@ roles.sourcer.preMove = function(creep, directions) {
  * @return {object} - The tower
  **/
 function getSource(creep) {
-  const data = creep.getData();
-  if (!data.source) {
+  if (!creep.data.source) {
     const source = Game.getObjectById(creep.memory.routing.targetId);
-    data.source = source.id;
+    creep.data.source = source.id;
   }
-  return Game.getObjectById(data.source);
+  return Game.getObjectById(creep.data.source);
 }
 
 /**
@@ -135,15 +134,14 @@ function transferToLink(creep) {
  * @return {object} - The container
  **/
 function getContainer(creep) {
-  const data = creep.getData();
-  if (!data.container) {
+  if (!creep.data.container) {
     const structures = creep.pos.findInRange(FIND_STRUCTURES, 0, {filter: {structureType: STRUCTURE_CONTAINER}});
     if (structures.length === 0) {
       return;
     }
-    data.container = structures[0].id;
+    creep.data.container = structures[0].id;
   }
-  return Game.getObjectById(data.container);
+  return Game.getObjectById(creep.data.container);
 }
 
 /**
@@ -153,15 +151,14 @@ function getContainer(creep) {
  * @return {object} - The container
  **/
 function getContainerConstructionSite(creep) {
-  const data = creep.getData();
-  if (!data.containerConstructionSite) {
+  if (!creep.data.containerConstructionSite) {
     const constructionSites = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 0, {filter: {structureType: STRUCTURE_CONTAINER}});
     if (constructionSites.length === 0) {
       return;
     }
-    data.containerConstructionSite = constructionSites[0].id;
+    creep.data.containerConstructionSite = constructionSites[0].id;
   }
-  return Game.getObjectById(data.containerConstructionSite);
+  return Game.getObjectById(creep.data.containerConstructionSite);
 }
 
 /**
