@@ -225,27 +225,6 @@ const getLines = function(room) {
   return lines;
 };
 
-const showQueue = function(room, lines) {
-  if (!room.memory.queue) {
-    return;
-  }
-  if (room.memory.queue.length) {
-    const lowestInQueue = [
-      _.chain(room.memory.queue).sortBy((creep) => creep.ttl).value()[0],
-      room.memory.queue[0],
-    ];
-    const labels = ['ttl', 'priority'];
-    let lowest;
-    for (let id = 0; id < 2; id++) {
-      lowest = lowestInQueue[id];
-      lines.push({label: `Lowest ${labels[id]}: ${lowest.role} --> ${(lowest.routing && lowest.routing.targetRoom) || '?'} | TTL: ${lowest.ttl || '?'}`});
-    }
-    for (const item of room.memory.queue) {
-      lines.push({label: `- ${item.role} --> ${(item.routing && item.routing.targetRoom) || '?'} ${(item.routing && item.routing.targetId && item.routing.targetId.substring(0, 5)) || '?'} | TTL: ${item.ttl || '?'}`});
-    }
-  }
-};
-
 global.visualizer.myRoomDatasDraw = function(roomName) {
   const room = Game.rooms[roomName];
   const lines = getLines(room);
@@ -253,7 +232,6 @@ global.visualizer.myRoomDatasDraw = function(roomName) {
   const fontSize = 0.65;
   const color = (coeff) => `rgb(${Math.floor(-(coeff - 1) * 255)},${Math.floor(coeff * 255)},0)`;
 
-  showQueue(room, lines);
   let y = 0;
   let line;
   for (line of lines) {

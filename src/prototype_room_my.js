@@ -1,6 +1,7 @@
 'use strict';
 
 const {findMyRoomsSortByDistance} = require('./helper_findMyRooms');
+const {addToReputation} = require('./diplomacy');
 
 Room.prototype.unclaimRoom = function() {
   // remove creeps if base === this.name
@@ -337,11 +338,11 @@ Room.prototype.handleReviveRoom = function(hostiles) {
   this.memory.active = true;
 };
 
-Room.prototype.handleIdiot = function() {
-  const idiotCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
-  if (idiotCreeps.length > 0) {
-    for (const idiotCreep of idiotCreeps) {
-      brain.increaseIdiot(idiotCreep.owner.username);
+Room.prototype.handleReputation = function() {
+  const hostileCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
+  if (hostileCreeps.length > 0) {
+    for (const hostileCreep of hostileCreeps) {
+      addToReputation(hostileCreep.owner.username, -1);
     }
   }
 };
@@ -479,18 +480,16 @@ Room.prototype.isHealthy = function() {
   return true;
 };
 
-Room.prototype.executeRoom = function() {
-  const cpuUsed = Game.cpu.getUsed();
-  this.buildBase();
-  this.memory.constants = this.memory.constants || {};
+Room.prototype.executeRoomHandleHostiles = function() {
   const hostiles = this.findHostileAttackingCreeps();
   this.handleAttack(hostiles);
   this.handleReviveRoom(hostiles);
+  this.handleReputation();
+};
 
+Room.prototype.executeRoomCheckBasicCreeps = function() {
   const amount = this.getUniversalAmount();
   this.checkRoleToSpawn('universal', amount);
-
-  this.handleIdiot();
   this.checkAndSpawnSourcer();
 
   if (this.controller.level >= 4 && this.storage && this.storage.my) {
@@ -499,7 +498,14 @@ Room.prototype.executeRoom = function() {
   if (this.storage && this.storage.my && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
     this.checkRoleToSpawn('upgrader', 1, this.controller.id);
   }
+};
 
+Room.prototype.executeRoom = function() {
+  const cpuUsed = Game.cpu.getUsed();
+  this.memory.constants = this.memory.constants || {};
+  this.buildBase();
+  this.executeRoomHandleHostiles();
+  this.executeRoomCheckBasicCreeps();
   this.checkForBuilder();
   this.checkForExtractor();
   this.checkForMiner();
@@ -574,29 +580,27 @@ Room.prototype.setRoomInactive = function() {
   this.log('Setting room to underSiege');
   // this.memory.underSiege = true;
   let tokens;
+  let reputationChange = 3000000;
   try {
     tokens = Game.market.getAllOrders({
       type: ORDER_SELL,
       resourceType: CPU_UNLOCK,
     });
   } catch (e) {
-    this.log('No CPU_UNLOCK for sale adding value of 5,000,000.000');
+    this.log(`No CPU_UNLOCK for sale adding value of ${reputationChange}`);
     tokens = [{
-      price: 5000000.000, // change this value to whatever you feel appropriate enough
+      price: reputationChange, // change this value to whatever you feel appropriate enough
     }];
   }
-  let addToIdiot = 3000000;
   if (tokens.length > 0) {
-    tokens = _.sortBy(tokens, (object) => {
-      return -1 * object.price;
-    });
-    addToIdiot = Math.max(addToIdiot, tokens[0].price);
+    tokens.sort((a, b) => b.price-a.price);
+    reputationChange = Math.min(-1 * reputationChange, -1 * Math.abs(tokens[0].price));
   }
-  const idiotCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
-  if (idiotCreeps.length > 0) {
-    for (const idiotCreep of idiotCreeps) {
-      this.log(`Increase idiot by CPU_UNLOCK (${addToIdiot}) for ${idiotCreep.owner.username}`);
-      brain.increaseIdiot(idiotCreep.owner.username, addToIdiot);
+  const hostileCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
+  if (hostileCreeps.length > 0) {
+    for (const hostileCreep of hostileCreeps) {
+      this.log(`Add to reputation by CPU_UNLOCK (${reputationChange}) for ${hostileCreep.owner.username}`);
+      addToReputation(hostileCreep.owner.username, reputationChange);
     }
   }
   this.memory.active = false;

@@ -1,6 +1,7 @@
 'use strict';
 
 const {getMyRoomWithinRange, findMyRoomsSortByDistance} = require('./helper_findMyRooms');
+const {addToReputation} = require('./diplomacy');
 
 Room.prototype.checkBlocked = function() {
   const exits = Game.map.describeExits(this.name);
@@ -196,32 +197,101 @@ Room.prototype.externalHandleRoom = function() {
  * @param {object} powerBank
  */
 function spawnPowerTransporters(room, powerBank) {
-  if (Memory.powerBanks[room.name].target && Memory.powerBanks[room.name] !== null) {
-    if (Memory.powerBanks[room.name].transporter_called) {
-      return;
+  if (Memory.powerBanks[room.name].transporter_called) {
+    return;
+  }
+  if (powerBank.hits < 350000) {
+    const amountPowerTransporter = Math.ceil(powerBank.power / 1000);
+    for (let i = 0; i < amountPowerTransporter; i++) {
+      Game.rooms[Memory.powerBanks[room.name].target].memory.queue.push({
+        role: 'powertransporter',
+        routing: {
+          targetRoom: room.name,
+        },
+      });
     }
-    if (powerBank.hits < 350000) {
-      const amountPowerTransporter = Math.ceil(powerBank.power / 1000);
-      for (let i = 0; i < amountPowerTransporter; i++) {
-        Game.rooms[Memory.powerBanks[room.name].target].memory.queue.push({
-          role: 'powertransporter',
-          routing: {
-            targetRoom: room.name,
-          },
-        });
-      }
-      room.log('Adding ' + amountPowerTransporter + ' powertransporter at ' + Memory.powerBanks[room.name].target);
-      Memory.powerBanks[room.name].transporter_called = true;
-    }
+    room.log('Adding ' + amountPowerTransporter + ' powertransporter at ' + Memory.powerBanks[room.name].target);
+    Memory.powerBanks[room.name].transporter_called = true;
   }
 }
 
 Room.prototype.externalHandleHighwayRoom = function() {
+  this.harvestPower();
+  this.harvestCommodities();
+};
+
+Room.prototype.harvestCommodities = function() {
+  if (config.commodities.disabled) {
+    return false;
+  }
+  if (!Memory.commodities) {
+    Memory.commodities = {};
+  }
+  if (Memory.commodities[this.name]) {
+    if (Memory.commodities[this.name].lastCheck + 1500 > Game.time) {
+      return;
+    }
+    // this.log(`I know this commodity already: ${JSON.stringify(Memory.commodities[this.name])}`);
+    const sourcers = this.findMyCreepsOfRole('sourcers');
+    if (sourcers.length > 0) {
+      return;
+    }
+  }
+  Memory.commodities[this.name] = {
+    lastCheck: Game.time,
+  };
+  const deposits = this.find(FIND_DEPOSITS, {
+    filter: (structure) => structure.lastCooldown < 100,
+  });
+  if (deposits.length === 0) {
+    delete Memory.commodities[this.name];
+    return;
+  }
+  this.debugLog('commodities', `Commodities found ${JSON.stringify(deposits)}`);
+  const baseRoomName = getMyRoomWithinRange(this.name, 6, 6);
+  if (!baseRoomName) {
+    this.debugLog('commodities', 'No room for commodity farming found');
+    return;
+  }
+  Memory.commodities[this.name].base = baseRoomName;
+  this.debugLog('commodities', `Send creeps from ${baseRoomName} to harvest commodities`);
+  Game.rooms[baseRoomName].memory.queue.push({
+    role: 'sourcer',
+    routing: {
+      targetRoom: this.name,
+      targetId: deposits[0].id,
+      type: 'commodity',
+    },
+  });
+  Game.rooms[baseRoomName].memory.queue.push({
+    role: 'carry',
+    routing: {
+      targetRoom: this.name,
+      targetId: deposits[0].id,
+    },
+  });
+  Game.rooms[baseRoomName].memory.queue.push({
+    role: 'carry',
+    routing: {
+      targetRoom: this.name,
+      targetId: deposits[0].id,
+    },
+  });
+};
+
+Room.prototype.harvestPower = function() {
   if (config.power.disabled) {
     return false;
   }
 
   Memory.powerBanks = Memory.powerBanks || {};
+
+  let memoryPowerBank = Memory.powerBanks[this.name];
+  if (memoryPowerBank) {
+    if (memoryPowerBank.lastChecked + 1500 > Game.time) {
+      return false;
+    }
+  }
 
   const structures = this.findPowerBanks();
   if (structures.length === 0) {
@@ -229,78 +299,67 @@ Room.prototype.externalHandleHighwayRoom = function() {
     return false;
   }
 
-  if (Memory.powerBanks[this.name]) {
+  this.debugLog('power', `Found powerbank ticksToDecay: ${structures[0].ticksToDecay}`);
+
+  if (!memoryPowerBank) {
+    Memory.powerBanks[this.name] = {};
+    memoryPowerBank = Memory.powerBanks[this.name];
+  }
+  memoryPowerBank.lastChecked = Game.time;
+  if (memoryPowerBank.target) {
     spawnPowerTransporters(this, structures[0]);
     return;
   }
 
   if (structures[0].ticksToDecay < 3000) {
-    Memory.powerBanks[this.name] = {
-      target: null,
-    };
     return true;
-  } else {
-    let minRoute = 6;
-    let target = null;
-    for (const roomId of Object.keys(Memory.myRooms)) {
-      const room = Game.rooms[Memory.myRooms[roomId]];
-      if (!room || !room.storage || room.storage.store.energy < config.power.energyForCreeps) {
-        continue;
-      }
-      const routeToTest = Game.map.findRoute(this.name, room.name);
-      if (routeToTest.length < minRoute) {
-        minRoute = routeToTest.length;
-        target = room;
-      }
-    }
-    if (target !== null) {
-      Memory.powerBanks[this.name] = {
-        target: target.name,
-        min_route: minRoute,
-      };
-      this.log('--------------> Start power harvesting in: ' + this.name + ' from ' + target.name + ' <----------------');
-      Game.notify('Start power harvesting in: ' + this.name + ' from ' + target.name);
-      Game.rooms[target.name].memory.queue.push({
-        role: 'powerattacker',
-        routing: {
-          targetRoom: this.name,
-        },
-      });
-      Game.rooms[target.name].memory.queue.push({
-        role: 'powerhealer',
-        routing: {
-          targetRoom: this.name,
-        },
-      });
-      Game.rooms[target.name].memory.queue.push({
-        role: 'powerhealer',
-        routing: {
-          targetRoom: this.name,
-        },
-      });
-      Game.rooms[target.name].memory.queue.push({
-        role: 'powerattacker',
-        routing: {
-          targetRoom: this.name,
-        },
-      });
-      Game.rooms[target.name].memory.queue.push({
-        role: 'powerhealer',
-        routing: {
-          targetRoom: this.name,
-        },
-      });
-    } else {
-      Memory.powerBanks[this.name] = {
-        target: null,
-      };
-    }
   }
+
+  const baseRoomName = getMyRoomWithinRange(this.name, 6, 6);
+  if (!baseRoomName) {
+    this.debugLog('power', 'No room found for power farming');
+    return;
+  }
+
+  memoryPowerBank.target = baseRoomName;
+
+  this.log('--------------> Start power harvesting in: ' + this.name + ' from ' + baseRoomName + ' <----------------');
+  Game.notify('Start power harvesting in: ' + this.name + ' from ' + baseRoomName);
+  Memory.rooms[baseRoomName].queue.push({
+    role: 'powerattacker',
+    routing: {
+      targetRoom: this.name,
+    },
+  });
+  Memory.rooms[baseRoomName].queue.push({
+    role: 'powerhealer',
+    routing: {
+      targetRoom: this.name,
+    },
+  });
+  Memory.rooms[baseRoomName].queue.push({
+    role: 'powerhealer',
+    routing: {
+      targetRoom: this.name,
+    },
+  });
+  Memory.rooms[baseRoomName].queue.push({
+    role: 'powerattacker',
+    routing: {
+      targetRoom: this.name,
+    },
+  });
+  Memory.rooms[baseRoomName].queue.push({
+    role: 'powerhealer',
+    routing: {
+      targetRoom: this.name,
+    },
+  });
 };
 
 Room.prototype.handleOccupiedRoom = function() {
   this.data.state = 'Occupied';
-  this.memory.player = this.controller.owner.username;
+  this.data.player = this.controller.owner.username;
 
   if (this.controller.safeMode) {
     return;
@@ -408,9 +467,9 @@ Room.prototype.handleReservedRoom = function() {
     return false;
   }
 
-  const idiotCreeps = this.findHostileAttackingCreeps();
-  for (const idiotCreep of idiotCreeps) {
-    brain.increaseIdiot(idiotCreep.owner.username);
+  const hostileCreeps = this.findHostileAttackingCreeps();
+  for (const hostileCreep of hostileCreeps) {
+    addToReputation(hostileCreep.owner.username, -1);
   }
 
   const reservers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['reserver']);

@@ -459,7 +459,13 @@ function updateStateWithFullLab(creep) {
   }
 }
 
-const execute = function(creep) {
+/**
+ * checkForSuicide
+ *
+ * @param {object} creep
+ * @return {bool}
+ */
+function checkForSuicide(creep) {
   if (!creep.room.terminal) {
     creep.suicide();
     return true;
@@ -467,6 +473,13 @@ const execute = function(creep) {
   if (creep.ticksToLive < 50 && _.sum(creep.carry) === 0) {
     // early suicide to not waste minerals
     creep.suicide();
+    return true;
+  }
+  return false;
+}
+
+const execute = function(creep) {
+  if (checkForSuicide(creep)) {
     return true;
   }
 

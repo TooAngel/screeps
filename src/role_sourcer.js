@@ -57,6 +57,13 @@ roles.sourcer.updateSettings = function(room, creep) {
       maxLayoutAmount: 1,
     };
   }
+  if (creep.routing.type === 'commodity') {
+    return {
+      layoutString: 'MWC',
+      amount: [1, 1, 1],
+      maxLayoutAmount: 30,
+    };
+  }
   return false;
 };
 
@@ -198,7 +205,9 @@ function maintainContainer(creep) {
 
 roles.sourcer.action = function(creep) {
   creep.setNextSpawn();
-  creep.spawnReplacement();
+  if (creep.memory.routing.type !== 'commodity' || creep.memory.routing.reached || Game.getSource(creep).lastCooldown < 50) {
+    creep.spawnReplacement();
+  }
 
   creep.checkForSourceKeeper();
 

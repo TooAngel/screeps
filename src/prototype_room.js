@@ -64,13 +64,17 @@ function updateBasicData(room) {
     room.data.controllerId = false;
     if (room.controller) {
       room.data.controllerId = room.controller.id;
+      if (!room.data.mineral) {
+        const minerals = room.findMinerals();
+        room.data.mineral = minerals[0].mineralType;
+      }
     }
   }
   room.data.hostileCreepCount = room.find(FIND_HOSTILE_CREEPS).length;
 }
 
 Room.prototype.isMy = function() {
-  return this.controller && this.controller.my;
+  return !!(this.controller && this.controller.my);
 };
 
 Room.prototype.handle = function() {
@@ -104,6 +108,8 @@ Room.prototype.execute = function() {
     return false;
   } finally {
     this.data.lastSeen = Game.time;
-    this.memory.lastSeen = Game.time;
+    if (this.isMy()) {
+      this.memory.lastSeen = Game.time;
+    }
   }
 };

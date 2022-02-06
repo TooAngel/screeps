@@ -33,11 +33,44 @@ function isClaimableRoom(roomName) {
   if (data.state === 'HostileReserved') {
     return false;
   }
-  // Yes / No ???
-  if (data.state === 'Reserved') {
-    return false;
-  }
   return true;
+}
+
+/**
+ * getMinLinearDistancetoMyRooms
+ *
+ * @param {string} roomName
+ * @return {number}
+ */
+function getMinLinearDistancetoMyRooms(roomName) {
+  let minDistance = config.nextRoom.maxDistance;
+  for (const myRoom of Memory.myRooms) {
+    const distance = Game.map.getRoomLinearDistance(roomName, myRoom);
+    minDistance = Math.min(distance, minDistance);
+  }
+  return minDistance;
+}
+
+/**
+ * getNextRoomValuatedRoomMap - Evaluates rooms based on mineral and distance
+ * and sort based on the value
+ *
+ * @param {array} rooms
+ * @return {array}
+ */
+function getNextRoomValuatedRoomMap(rooms) {
+  const mineralValues = JSON.parse(JSON.stringify(config.nextRoom.mineralValues));
+  for (const roomName of Memory.myRooms) {
+    mineralValues[global.data.rooms[roomName].mineral] /= 2;
+  }
+  const evaluatedRooms = rooms.map((roomName) => {
+    return {
+      value: getMinLinearDistancetoMyRooms(roomName) + mineralValues[global.data.rooms[roomName].mineral],
+      roomName: roomName,
+    };
+  });
+  evaluatedRooms.sort((a, b) => b.value - a.value);
+  return evaluatedRooms;
 }
 
 brain.handleNextroom = function() {
@@ -64,13 +97,14 @@ brain.handleNextroom = function() {
   const possibleRooms = Object.keys(global.data.rooms).filter(isClaimableRoom);
   if (possibleRooms.length > 0) {
     const roomsWithinReach = possibleRooms.filter((room) => findRoomsWithinReach(room).length > 0);
+    brain.debugLog('nextroomer', `roomsWithinReach: ${JSON.stringify(roomsWithinReach)}`);
 
-    // TODO handle config.nextRoom.minNewRoomDistance and maybe also check good mineral, ....
-    const selectedRoomName = roomsWithinReach[Math.floor(Math.random() * roomsWithinReach.length)];
+    const evaluatedRooms = getNextRoomValuatedRoomMap(roomsWithinReach);
+    const selectedRoomName = evaluatedRooms[0].roomName;
 
     const possibleMyRooms = findRoomsWithinReach(selectedRoomName);
     const selectedMyRoom = possibleMyRooms[Math.floor(Math.random() * possibleMyRooms.length)];
-    brain.debugLog('nextroomer', `handleNextroom - Will reserve: ${selectedRoomName} from ${selectedMyRoom}`);
+    brain.debugLog('nextroomer', `handleNextroom - Will claim: ${selectedRoomName} from ${selectedMyRoom} based on ${JSON.stringify(evaluatedRooms)}`);
     // TODO selected the closest, highest energy, highest spawn idle room to spawn the claimer
     const room = Game.rooms[selectedMyRoom];
     const selectedRoomData = global.data.rooms[selectedRoomName];

@@ -20,16 +20,6 @@ global.utils = {
     return (object && object.length) ? object.length : _.size(object);
   },
 
-  showIdiots: function() {
-    const idiots = _.sortBy(Memory.players, (o) => {
-      return -o.idiot;
-    });
-    for (let i = 0; i < idiots.length; i++) {
-      const idiot = idiots[i];
-      console.log(idiot.name, idiot.idiot, idiot.level, idiot.counter);
-    }
-  },
-
   checkPlayers: function() {
     for (const name of Object.keys(Memory.players)) {
       const player = Memory.players[name];
@@ -46,9 +36,9 @@ global.utils = {
         player.level = 0;
         console.log(`Missing level: ${name}`);
       }
-      if (player.idiot === undefined) {
-        player.idiot = 0;
-        console.log(`Missing idiot: ${name}`);
+      if (player.reputation === undefined) {
+        player.reputation = 0;
+        console.log(`Missing reputation: ${name}`);
       }
     }
   },
@@ -56,7 +46,7 @@ global.utils = {
   roomCheck: function() {
     for (const roomName in Memory.rooms) {
       if (Memory.rooms[roomName].state === 'Occupied') {
-        console.log(`${roomName} ${Memory.rooms[roomName].player}`);
+        console.log(`${roomName} ${global.data.rooms[roomName].player}`);
       }
     }
   },
