@@ -50,6 +50,9 @@ global.visualizer = {
    */
   showStructures() {
     for (const room of _.values(Game.rooms)) {
+      if (!room.isMy()) {
+        continue;
+      }
       const rv = room.visual;
       if (room.memory.position && room.memory.position.structure) {
         const structures = room.memory.position.structure;
@@ -68,6 +71,9 @@ global.visualizer = {
 
   showBlockers() {
     for (const room of _.values(Game.rooms)) {
+      if (!room.isMy()) {
+        continue;
+      }
       const rv = room.visual;
       if (room.memory.walls && room.memory.walls.layer) {
         for (const layer of Object.keys(room.memory.walls.layer)) {
@@ -97,6 +103,9 @@ global.visualizer = {
    */
   showCreeps() {
     for (const room of _.values(Game.rooms)) {
+      if (!room.isMy()) {
+        continue;
+      }
       const rv = room.visual;
       if (room.memory.position) {
         const creeps = room.memory.position.creep;
@@ -151,6 +160,9 @@ global.visualizer = {
 
   showCostMatrixes() {
     for (const room of _.values(Game.rooms)) {
+      if (!room.isMy()) {
+        continue;
+      }
       if (room.isMy()) {
         this.showCostMatrix(room.name, room.getCostMatrixCallback());
       }

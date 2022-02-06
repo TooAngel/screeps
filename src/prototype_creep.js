@@ -13,13 +13,6 @@ Object.defineProperty(Creep.prototype, 'data', {
 });
 
 /**
- * initRouting - Makes sure the memory routing object is set
- **/
-Creep.prototype.initRouting = function() {
-  this.memory.routing = this.memory.routing || {};
-};
-
-/**
  * getLink - Gets the link from heap data, or sets if missing
  *
  * @param {object} creep - The creep

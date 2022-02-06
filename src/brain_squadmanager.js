@@ -66,15 +66,15 @@ brain.addToQueue = function(spawns, roomNameFrom, roomNameTarget, squadName, que
   const outer = function(spawn) {
     return function _addToQueue() {
       if (queueLimit === false) {
-        Game.rooms[roomNameFrom].memory.queue.push({
+        Memory.rooms[roomNameFrom].queue.push({
           role: spawn.role,
           routing: {
             targetRoom: roomNameTarget,
           },
           squad: squadName,
         });
-      } else if (Game.rooms[roomNameFrom].memory.queue.length < queueLimit) {
-        Game.rooms[roomNameFrom].memory.queue.push({
+      } else if (Memory.rooms[roomNameFrom].queue.length < queueLimit) {
+        Memory.rooms[roomNameFrom].queue.push({
           role: spawn.role,
           routing: {
             targetRoom: roomNameTarget,

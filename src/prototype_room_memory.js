@@ -61,12 +61,12 @@ Room.prototype.populatePathToDataFromMemory = function(pathName) {
  * @return {object}
  */
 Room.prototype.getMemoryPaths = function() {
-  if (!this.data.routing) {
-    const pathNames = Object.keys(this.memory.routing).sort();
-    for (const pathName of pathNames) {
-      this.populatePathToDataFromMemory(pathName);
-    }
-  }
+  // if (!this.data.routing) {
+  //   const pathNames = Object.keys(this.memory.routing).sort();
+  //   for (const pathName of pathNames) {
+  //     this.populatePathToDataFromMemory(pathName);
+  //   }
+  // }
   return this.data.routing;
 };
 

@@ -56,6 +56,7 @@ Room.prototype.getCreepPositionForId = function(to) {
 Room.prototype.findRoute = function(from, to, useHighWay) {
   useHighWay = useHighWay || false;
   return Game.map.findRoute(from, to, {
+    // TODO don't use global.utils - these should be manual commands
     routeCallback: global.utils.routeCallback(to, useHighWay),
   });
 };

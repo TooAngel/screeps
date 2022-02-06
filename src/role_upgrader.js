@@ -61,7 +61,7 @@ roles.upgrader.action = function(creep) {
     if (creep.room.isUnderAttack()) {
       return true;
     }
-    if (creep.room.storage.isLow()) {
+    if (creep.room.storage && creep.room.storage.isLow()) {
       return true;
     }
   }
