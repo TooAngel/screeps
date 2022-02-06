@@ -1,5 +1,7 @@
 'use strict';
 
+const {debugLog} = require('./logging');
+
 brain.setConstructionSites = function() {
   if (!Memory.constructionSites) {
     Memory.constructionSites = {};
@@ -22,7 +24,7 @@ brain.setConstructionSites = function() {
       constructionSites[csId] = cs.progress;
     }
     Memory.constructionSites = constructionSites;
-    brain.debugLog('constructionSites', `Known constructionSites: ${Object.keys(constructionSites).length}`);
+    debugLog('constructionSites', `Known constructionSites: ${Object.keys(constructionSites).length}`);
   }
 };
 
@@ -39,9 +41,9 @@ brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
     console.log(`${Game.time} ${name} handleUnexpectedDeadCreeps no creepMemory.room creepMemory: ${JSON.stringify(creepMemory)} data: ${JSON.stringify(global.data.creeps[name])}`);
   }
 
-  brain.debugLog(`${Game.time} ${creepMemory.room} ${name} memory hostile: ${data.hostileCreepCount}`);
+  debugLog(`${Game.time} ${creepMemory.room} ${name} memory hostile: ${data.hostileCreepCount}`);
   if (data.hostileCreepCount > 0) {
-    brain.debugLog('brain', `${creepMemory.room} ${name} Not in Game.creeps with hostiles lived ${Game.time - creepMemory.born} hostiles: ${data.hostileCreepCount} - I guess killed by hostile`); // eslint-disable-line max-len
+    debugLog('brain', `${creepMemory.room} ${name} Not in Game.creeps with hostiles lived ${Game.time - creepMemory.born} hostiles: ${data.hostileCreepCount} - I guess killed by hostile`); // eslint-disable-line max-len
   } else {
     console.log(`${Game.time} ${creepMemory.room} ${name} Not in Game.creeps without hostiles lived ${Game.time - creepMemory.born} hostiles: ${data.hostileCreepCount}`); // eslint-disable-line max-len
   }

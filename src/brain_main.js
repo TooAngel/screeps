@@ -1,6 +1,7 @@
 'use strict';
 
 const {checkPlayers} = require('./diplomacy');
+const {handleQuests} = require('./quests');
 
 global.cpuUsed = 0;
 
@@ -86,7 +87,7 @@ brain.main.execute = function() {
     brain.handleNextroom();
     brain.handleSquadmanager();
     brain.handleIncomingTransactions();
-    brain.handleQuests();
+    handleQuests();
     checkPlayers();
   } catch (e) {
     console.log('Brain Exception', e.stack);

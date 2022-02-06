@@ -109,7 +109,7 @@ Room.prototype.closestSpawn = function(target) {
   }
 
   const shortest = _.sortBy(pathLength, global.utils.returnLength);
-  return _.first(shortest).room;
+  return (_.first(shortest) || {}).room;
 };
 
 Room.prototype.getEnergyCapacityAvailable = function() {

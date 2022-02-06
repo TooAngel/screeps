@@ -64,8 +64,10 @@ global.config = {
   },
 
   debug: {
-    getPartsConfLogs: false,
+    attack: true,
     baseBuilding: false,
+    diplomacy: false,
+    getPartsConfLogs: false,
     queue: false,
     spawn: false,
     mineral: false,
@@ -78,7 +80,6 @@ global.config = {
     nextroomer: false,
     quests: false,
     revive: false,
-    quest: false,
     market: false,
     invader: false,
     cpu: false,
@@ -86,8 +87,6 @@ global.config = {
     constructionSites: false,
     routing: false,
     brain: false,
-    attack: true,
-    diplomacy: true,
     commodities: true,
   },
 
@@ -97,10 +96,8 @@ global.config = {
   },
 
   autoattack: {
-    disabled: false,
     notify: true,
     timeBetweenAttacks: 2000,
-    autoattackMaxRange: 5,
     noReservedRoomMinMyRCL: 5,
     noReservedRoomInRange: 1,
     noReservedRoomInterval: 1600,
@@ -132,6 +129,8 @@ global.config = {
       [RESOURCE_CATALYST]: 10,
       [RESOURCE_GHODIUM]: 15,
     },
+    resourceStats: false,
+    resourceStatsDevider: 10000,
   },
 
   carryHelpers: {
@@ -234,7 +233,6 @@ global.config = {
       8: 2,
     },
     isHealthyStorageThreshold: 50000,
-    rebuildLayout: 7654,
     handleNukeAttackInterval: 132,
     reviveEnergyCapacity: 1000,
     reviveEnergyAvailable: 1000,
@@ -268,10 +266,8 @@ global.config = {
   },
 
   terminal: {
-    // terminals should not have to much enrgy, but not to less
     minEnergyAmount: 40000,
     maxEnergyAmount: 50000,
-    storageMinEnergyAmount: 20000,
   },
 
   mineral: {
@@ -296,8 +292,8 @@ global.config = {
 
     // buy power if we have more credits than config.market.minCredits
     buyPower: false,
-    // 3M credits
-    minCredits: 3000000,
+    // 300M credits
+    minCredits: 300000000,
     // disable to use power only in gathered room
     sendPowerOwnRoom: true,
     // equalizes the energy beween your rooms via termial

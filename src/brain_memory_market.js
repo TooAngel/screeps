@@ -1,6 +1,9 @@
 'use strict';
 
+
+const {debugLog} = require('./logging');
 const {addToReputation} = require('./diplomacy');
+const {checkQuestForAcceptance, checkAppliedQuestForAcceptance} = require('./quests');
 
 brain.setMarketOrders = function() {
   Memory.orders = {};
@@ -36,8 +39,8 @@ brain.buyPower = function() {
   if (!config.market.buyPower) {
     return false;
   }
-  brain.debugLog('brain', 'buyPower');
-  const filterRoomPowerSpawn = (r) => Game.rooms[r] && Game.rooms[r].controller.level === 8 && Game.rooms[r].memory.constants && !!Game.rooms[r].memory.constants.powerSpawn;
+  debugLog('brain', 'buyPower');
+  const filterRoomPowerSpawn = (r) => Game.rooms[r] && Game.rooms[r].controller.level === 8 && Memory.rooms[r] && Memory.rooms[r].constants && !!Memory.rooms[r].constants.powerSpawn;
   const roomName = _.first(_.filter(_.shuffle(Memory.myRooms), filterRoomPowerSpawn)) || false;
   // low cash
   if (Game.market.credits < config.market.minCredits || !roomName) {
@@ -83,6 +86,7 @@ brain.handleIncomingTransactions = function() {
     if (transaction.sender) {
       brain.handleIncomingTransactionsbyUser(transaction);
     }
-    brain.checkQuestForAcceptance(transaction);
+    checkQuestForAcceptance(transaction);
+    checkAppliedQuestForAcceptance(transaction);
   }
 };

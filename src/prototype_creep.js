@@ -59,7 +59,7 @@ Creep.prototype.mySignController = function() {
         };
         text = JSON.stringify(quest);
         // Memory.quests[quest.id] = quest;
-        // this.room.debugLog('quest', `Attach quest: ${text}`);
+        this.room.debugLog('quests', `Attach quest: ${text}`);
       }
     }
 

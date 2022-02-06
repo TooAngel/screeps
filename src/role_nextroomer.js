@@ -141,8 +141,7 @@ roles.nextroomer.stayAtSource = function(creep, source) {
 
 roles.nextroomer.underSiege = function(creep) {
   if (creep.memory.targetId) {
-    console.log(creep.memory.targetId);
-    const sourcerPosMem = creep.room.data.positions.creep[creep.memory.targetId];
+    const sourcerPosMem = creep.room.data.positions.creep[creep.memory.targetId][0];
     const source = Game.getObjectById(creep.memory.targetId);
     if (creep.pos.isEqualTo(sourcerPosMem.x, sourcerPosMem.y)) {
       return roles.nextroomer.stayAtSource(creep, source);
@@ -154,9 +153,7 @@ roles.nextroomer.underSiege = function(creep) {
   console.log(sources);
   for (const source of sources) {
     const sourcerPosMem = creep.room.data.positions.creep[source.id][0];
-    console.log(JSON.stringify(sourcerPosMem));
     const sourcerPos = new RoomPosition(sourcerPosMem.x, sourcerPosMem.y, creep.room.name);
-    console.log(sourcerPos);
     if (creep.pos.isEqualTo(sourcerPos)) {
       creep.memory.targetId = source.id;
       return roles.nextroomer.stayAtSource(creep, source);

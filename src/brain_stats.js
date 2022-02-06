@@ -121,7 +121,7 @@ brain.stats.addRoom = function(roomName, previousCpu) {
     },
     creeps: {
       into: room.find(FIND_CREEPS).length,
-      queue: room.memory.queue.length,
+      queue: Memory[room.name].queue.length,
     },
     cpu: Game.cpu.getUsed() - previousCpu,
   });

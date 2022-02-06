@@ -21,8 +21,8 @@ Room.prototype.findKeepersAt = function(roles, posId) {
 };
 
 Room.prototype.findKeepers = function(roles) {
-  if (this.memory.position && this.memory.position.creep) {
-    const positions = this.memory.position.creep;
+  if (this.data.positions && this.data.positions.creep) {
+    const positions = this.data.positions.creep;
     const room = this;
     const updateKeepersPos = (pos, posId) => {
       return room.findKeepersAt(roles, posId);
@@ -41,13 +41,13 @@ Room.prototype.findKeepers = function(roles) {
 
 Room.prototype.updateKeepers = function() {
   const roles = ['atkeepermelee', 'atkeeper', 'sourcer'];
-  this.memory.keepersRoles = roles;
-  this.memory.keepers = this.findKeepers(roles);
+  this.data.keepersRoles = roles;
+  this.data.keepers = this.findKeepers(roles);
 };
 
 Room.prototype.spawnKeepers = function() {
   const room = this;
-  const keeperPositions = this.memory.keepers;
+  const keeperPositions = this.data.keepers;
   const baseRoom = Game.rooms[this.data.base];
   const amount = 1;
   const queueMaxLength = 10;
