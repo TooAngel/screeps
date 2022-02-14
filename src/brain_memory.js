@@ -134,6 +134,10 @@ brain.cleanRooms = function() {
         console.log(Game.time, `Deleting ${name} from memory older than ${config.room.lastSeenThreshold}`);
         delete Memory.rooms[name];
       }
+      if (Memory.myRooms.indexOf(name) < 0) {
+        console.log(Game.time, `Deleting ${name} from memory, no myRoom ${JSON.stringify(Memory.rooms[name])}`);
+        delete Memory.rooms[name];
+      }
     }
   }
 };

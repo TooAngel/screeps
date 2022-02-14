@@ -203,7 +203,7 @@ function spawnPowerTransporters(room, powerBank) {
   if (powerBank.hits < 350000) {
     const amountPowerTransporter = Math.ceil(powerBank.power / 1000);
     for (let i = 0; i < amountPowerTransporter; i++) {
-      Game.rooms[Memory.powerBanks[room.name].target].memory.queue.push({
+      Memory.rooms[Memory.powerBanks[room.name].target].queue.push({
         role: 'powertransporter',
         routing: {
           targetRoom: room.name,
@@ -255,7 +255,7 @@ Room.prototype.harvestCommodities = function() {
   }
   Memory.commodities[this.name].base = baseRoomName;
   this.debugLog('commodities', `Send creeps from ${baseRoomName} to harvest commodities`);
-  Game.rooms[baseRoomName].memory.queue.push({
+  Memory.rooms[baseRoomName].queue.push({
     role: 'sourcer',
     routing: {
       targetRoom: this.name,
@@ -263,14 +263,14 @@ Room.prototype.harvestCommodities = function() {
       type: 'commodity',
     },
   });
-  Game.rooms[baseRoomName].memory.queue.push({
+  Memory.rooms[baseRoomName].queue.push({
     role: 'carry',
     routing: {
       targetRoom: this.name,
       targetId: deposits[0].id,
     },
   });
-  Game.rooms[baseRoomName].memory.queue.push({
+  Memory.rooms[baseRoomName].queue.push({
     role: 'carry',
     routing: {
       targetRoom: this.name,
@@ -592,7 +592,7 @@ Room.prototype.handleSourceKeeperRoom = function() {
     return false;
   }
 
-  if (!this.memory.base) {
+  if (!this.data.base) {
     this.updateClosestSpawn();
   }
 

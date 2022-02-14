@@ -52,7 +52,7 @@ Room.prototype.updateCostMatrix = function() {
     }
   }
 
-  for (const pathName of Object.keys(this.memory.routing)) {
+  for (const pathName of Object.keys(this.memory.routing || {})) {
     const path = this.getMemoryPath(pathName);
     this.setCostMatrixPath(costMatrix, path);
   }

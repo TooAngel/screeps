@@ -50,8 +50,7 @@ RoomPosition.prototype.setExtension = function() {
 };
 
 RoomPosition.prototype.inRamparts = function() {
-  const room = Game.rooms[this.roomName];
-  for (const rampart of room.memory.walls.ramparts) {
+  for (const rampart of Memory.rooms[this.roomName].walls.ramparts) {
     if (this.isEqualTo(rampart.x, rampart.y)) {
       return true;
     }

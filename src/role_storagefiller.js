@@ -31,7 +31,7 @@ function transferFromLink(creep) {
   }
 
   creep.withdraw(link, RESOURCE_ENERGY);
-  if (tower.store.getFreeCapacity(RESOURCE_ENERGY) > creep.store[RESOURCE_ENERGY]) {
+  if (tower && tower.store.getFreeCapacity(RESOURCE_ENERGY) > creep.store[RESOURCE_ENERGY]) {
     creep.transfer(tower, RESOURCE_ENERGY);
     return true;
   }

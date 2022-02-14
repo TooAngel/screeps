@@ -259,7 +259,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test', ['eslint:check', 'mochaTest', 'exec:test_on_private_server']);
   grunt.registerTask('dev', ['eslint:fix']);
   grunt.registerTask('screeps_local', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:local']);
-  grunt.registerTask('deploy', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
+  grunt.registerTask('deploy', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:main']);
   grunt.registerTask('season', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:season']);
   grunt.registerTask('requireFile', 'Creates an empty file', () => {
     grunt.file.write('dist/require.js', '');

@@ -153,7 +153,7 @@ roles.nextroomer.underSiege = function(creep) {
   const sources = creep.room.findSources();
   console.log(sources);
   for (const source of sources) {
-    const sourcerPosMem = this.data.positions.creep[source.id];
+    const sourcerPosMem = creep.room.data.positions.creep[source.id][0];
     console.log(JSON.stringify(sourcerPosMem));
     const sourcerPos = new RoomPosition(sourcerPosMem.x, sourcerPosMem.y, creep.room.name);
     console.log(sourcerPos);

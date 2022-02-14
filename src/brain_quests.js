@@ -78,6 +78,10 @@ brain.checkQuestForAcceptance = function(transaction) {
   if (!data) {
     return false;
   }
+  if (Memory.quests[data.id]) {
+    console.log(`Quest already ongoing ${JSON.stringify(data)}`);
+    return;
+  }
   const quest = brain.getQuest(transaction, data);
   console.log(`Found quest acceptance on transaction ${JSON.stringify(quest)}`);
 

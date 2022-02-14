@@ -12,17 +12,12 @@ function checkPlayers() {
   }
   Memory.players = Memory.players || {};
   for (const playerName of Object.keys(Memory.players)) {
-    const player = Memory.players[playerName];
-    // if (config.debug.diplomacy) {
-    //   console.log(playerName, JSON.stringify(player));
-    // }
-    player.reputation = player.reputation || 0;
-    // TODO Remove after deploy to production, this is just migrating to reputation
-    if (player.idiot) {
-      player.reputation -= player.idiot;
-      delete player.idiot;
+    if (playerName === '_GrimReaper') {
+      player.reputation = Math.abs(player.reputation);
     }
-    for (const roomName of Object.keys(player.rooms)) {
+    const player = Memory.players[playerName];
+    player.reputation = player.reputation || 0;
+    for (const roomName of Object.keys(player.rooms || {})) {
       const roomData = global.data.rooms[roomName];
       if (roomData) {
         if (roomData.player !== playerName) {

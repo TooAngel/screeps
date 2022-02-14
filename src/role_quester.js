@@ -64,9 +64,12 @@ roles.quester.handleBuildcs = function(creep, quest) {
 roles.quester.action = function(creep) {
   creep.setNextSpawn();
   creep.spawnReplacement();
-
   const quest = Memory.quests[creep.memory.level];
-
+  if (!quest) {
+    creep.log(`Quest ${creep.memory.level} not found, suiciding`);
+    creep.suicide();
+    return;
+  }
   if (quest.quest === 'buildcs') {
     roles.quester.handleBuildcs(creep, quest);
     return true;

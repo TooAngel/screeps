@@ -87,14 +87,6 @@ Room.prototype.handle = function() {
   return false;
 };
 
-Room.prototype.getFirstLinkNextToPosition = function(position) {
-  for (const link of this.memory.position.structure.link) {
-    if (link.x <= position.x + 1 && link.x >= position.x - 1 && link.y <= position.y + 1 && link.y >= position.y - 1) {
-      return link;
-    }
-  }
-};
-
 Room.prototype.execute = function() {
   try {
     const returnCode = this.handle();

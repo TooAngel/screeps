@@ -6,9 +6,6 @@
 
 https://screeps.com/
 
-See rendered version:
-http://tooangel.github.io/screeps/
-
 Nowadays there are a couple of other automated screeps bot around. The
 TooAngel bot layed the groundwork for bots on the private server and the full
 automation idea. It was the first full automated open source code base and
@@ -20,7 +17,7 @@ Pull Requests are automatically merged ([World Driven](https://www.worlddriven.o
 
 ## Use cases
 
-There are different occasions where you get into contact with the TooAngel NPC / bot / source code
+There are different occasions where you get into contact with the TooAngel NPC / bot / source code.
 
 - [As NPC on the public server](doc/NPC.md)
 - [Deployed as bot on a private server](doc/Bot.md)
