@@ -131,3 +131,7 @@ Room.prototype.findDestructableStructures = function() {
 Room.prototype.findTowers = function() {
   return this.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
 };
+
+Room.prototype.findLabs = function() {
+  return this.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_LAB}});
+};

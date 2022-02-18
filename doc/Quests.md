@@ -16,31 +16,7 @@ The reputation weights other players, e.g. players with high
 reputation can pass through reserved or controlled rooms without punishment.
 Other players can send quests to the TooAngel AI, which they solved.
 
-## Communication
-
-Quests locations are controller signs, in the following example in room `W2N7`.
-
-    {"type": "Quest", "id": 0.3451, "origin": "W1N7", info: "http://tooangel.github.io/screeps/doc/Quests.html"}
-
-To apply for the Quest, send a message via Terminal transfer to the `origin` room.
-
-   {"type": "Quest", "id": 0.3451, "room": "W2N7"}
-
- - `room` quest location
-
-On acceptance of the application, a response is send via terminal transfer.
-
-   {"type": "Quest", "id": 0.3451, "room": "W3N8", "quest": "buildcs", "end": 12345653}
-
-  - `room` the room to solve quest
-  - `type` quest type
-  - `end` the end time of the quest
-
-On successful finishing a quest a terminal transfer is send
-
-  {"type": "Quest", "id": 0.3451, "reputation": "100", "result": "won"}
-
- - `reputation` the current reputation of the player
+For communication see: [API](API.md)
 
 
 Quests can be:

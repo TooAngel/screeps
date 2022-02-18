@@ -1,6 +1,7 @@
 'use strict';
 
-const {initPlayer} = require('./diplomacy');
+const {initPlayer, addToReputation} = require('./diplomacy');
+const {debugLog} = require('./logging');
 
 /*
  * quester checks if quests are solved
@@ -21,14 +22,13 @@ roles.quester.questLost = function(creep, quest, reason, value) {
 roles.quester.questWon = function(creep, quest) {
   const name = quest.player.name;
   initPlayer(name);
-  Memory.players[name].reputation = Memory.players[name].reputation || 0;
-  Memory.players[name].reputation += 100;
+  debugLog('diplomacy', `Quest won ${JSON.stringify(quest)}`);
+  addToReputation(name, 100);
 
   creep.log(`Quest won: ${JSON.stringify(quest)}`);
   const response = {
     type: 'Quest',
     id: quest.id,
-    reputation: Memory.players[name].reputation,
     result: 'won',
   };
   creep.room.terminal.send(RESOURCE_ENERGY, 100, quest.player.room, JSON.stringify(response));
@@ -72,6 +72,7 @@ roles.quester.action = function(creep) {
   }
   if (quest.quest === 'buildcs') {
     roles.quester.handleBuildcs(creep, quest);
+    creep.moveRandom();
     return true;
   }
 

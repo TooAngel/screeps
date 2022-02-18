@@ -415,18 +415,20 @@ Room.prototype.isRoomReadyForMineralHandling = function() {
   return true;
 };
 
-Room.prototype.checkForMiner = function() {
+Room.prototype.checkForMineral = function() {
   if (!this.isRoomReadyForMineralHandling()) {
     return false;
   }
 
-  const labs = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB]);
-  if ((!this.memory.cleanup || this.memory.cleanup <= 10) && (_.size(labs) > 2)) {
+  // const labs = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB]);
+  // if ((!this.memory.cleanup || this.memory.cleanup <= 10) && (_.size(labs) > 2)) {
+  if (this.isHealthy() && ((this.data.mineralLastRecyled || Game.time) + 1500 > Game.time)) {
     this.checkRoleToSpawn('mineral');
   }
-  if ((Game.time + this.controller.pos.x + this.controller.pos.y) % 10000 < 10) {
-    this.memory.cleanup = 0;
-  }
+  // }
+  // if ((Game.time + this.controller.pos.x + this.controller.pos.y) % 10000 < 10) {
+  //   this.memory.cleanup = 0;
+  // }
 };
 
 Room.prototype.handleEconomyStructures = function() {
@@ -508,7 +510,7 @@ Room.prototype.executeRoom = function() {
   this.executeRoomCheckBasicCreeps();
   this.checkForBuilder();
   this.checkForExtractor();
-  this.checkForMiner();
+  this.checkForMineral();
   this.handleScout();
   this.handleTower();
   if (this.controller.level > 1 && this.memory.walls && this.memory.walls.finished) {

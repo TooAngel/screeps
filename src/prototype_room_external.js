@@ -1,7 +1,8 @@
 'use strict';
 
 const {getMyRoomWithinRange, findMyRoomsSortByDistance} = require('./helper_findMyRooms');
-const {addToReputation} = require('./diplomacy');
+const {addToReputation, initPlayer, addRoomToPlayer} = require('./diplomacy');
+const {haveActiveQuest} = require('./quests');
 
 Room.prototype.checkBlocked = function() {
   const exits = Game.map.describeExits(this.name);
@@ -64,6 +65,9 @@ Room.prototype.checkForQuest = function() {
   if (Game.time - this.data.lastSeen < config.quests.checkInterval) {
     return;
   }
+  if (haveActiveQuest()) {
+    return;
+  }
   const sign = this.controller.sign;
   if (!sign) {
     return;
@@ -108,9 +112,14 @@ Room.prototype.checkForQuest = function() {
       id: data.id,
       room: this.name,
     };
-    this.log(`checkForQuest apply for quest ${JSON.stringify(response)}`);
+    this.log(`checkForQuest apply for quest from ${room.name} to ${data.origin} ${JSON.stringify(response)}`);
     const terminalResponse = room.terminal.send(RESOURCE_ENERGY, 100, data.origin, JSON.stringify(response));
     if (terminalResponse === OK) {
+      global.data.activeQuest = {
+        state: 'applied',
+        tick: Game.time,
+        quest: data,
+      };
       this.log(`checkForQuest apply for quest terminalResponse: ${JSON.stringify(terminalResponse)}`);
       break;
     } else {
@@ -360,15 +369,14 @@ Room.prototype.harvestPower = function() {
 Room.prototype.handleOccupiedRoom = function() {
   this.data.state = 'Occupied';
   this.data.player = this.controller.owner.username;
+  this.data.controller = {
+    level: this.controller.level,
+  };
+  const player = initPlayer(this.data.player);
+  addRoomToPlayer(player, this);
 
-  if (this.controller.safeMode) {
-    return;
-  }
-
-  const spawns = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
-  if (spawns.length > 0) {
-    this.attackRoom();
-  }
+  this.data.safeMode = this.controller.safeMode;
+  this.data.spawns = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
 };
 
 Room.prototype.checkBlockedPath = function() {

@@ -1,5 +1,7 @@
 'use strict';
 
+
+const {debugLog} = require('./logging');
 const {findRoomsWithinReach} = require('./helper_findMyRooms');
 
 /**
@@ -77,34 +79,54 @@ brain.handleNextroom = function() {
   if (!Memory.myRooms) {
     return;
   }
-
   if (Memory.myRooms.length >= Game.gcl.level) {
-    return;
-  }
-
-  if (Memory.myRooms.length >= config.nextRoom.maxRooms) {
-    return;
-  }
-
-  if ((Memory.myRooms.length + 1) * config.nextRoom.cpuPerRoom >= Game.cpu.limit) {
     return;
   }
   if (Game.time % config.nextRoom.intervalToCheck !== 0) {
     return;
   }
-  brain.debugLog('nextroomer', 'handleNextroom');
+  debugLog('nextroomer', 'handleNextroom !!!!!!!!!!!!!!!!!!!!!!!');
+  if (config.nextRoom.resourceStats) {
+    debugLog('nextroomer', `stats: ${JSON.stringify(global.stats)}`);
+    const myRoomsLength = Memory.myRooms.length;
+    const cpuPerRoom = global.stats.cpuUsed / myRoomsLength;
+    if (cpuPerRoom > global.stats.cpuIdle) {
+      debugLog('nextroomer', `not enough cpu: ${cpuPerRoom} > ${global.stats.cpuIdle}`);
+      return;
+    }
+    const heapPerRoom = global.stats.heapUsed / myRoomsLength;
+    if (heapPerRoom > global.stats.heapFree) {
+      debugLog('nextroomer', `not enough heap: ${heapPerRoom} > ${global.stats.heapFree}`);
+      return;
+    }
+    const memoryPerRoom = global.stats.memoryUsed / myRoomsLength;
+    if (memoryPerRoom > global.stats.memoryFree) {
+      debugLog('nextroomer', `not enough heap: ${memoryPerRoom} > ${global.stats.memoryFree}`);
+      return;
+    }
+  } else {
+    if (Memory.myRooms.length >= 0) { // config.nextRoom.maxRooms) {
+      return;
+    }
+
+    if ((Memory.myRooms.length + 1) * config.nextRoom.cpuPerRoom >= Game.cpu.limit) {
+      return;
+    }
+  }
+
+  debugLog('nextroomer', 'handleNextroom');
 
   const possibleRooms = Object.keys(global.data.rooms).filter(isClaimableRoom);
   if (possibleRooms.length > 0) {
     const roomsWithinReach = possibleRooms.filter((room) => findRoomsWithinReach(room).length > 0);
-    brain.debugLog('nextroomer', `roomsWithinReach: ${JSON.stringify(roomsWithinReach)}`);
+    debugLog('nextroomer', `roomsWithinReach: ${JSON.stringify(roomsWithinReach)}`);
 
     const evaluatedRooms = getNextRoomValuatedRoomMap(roomsWithinReach);
     const selectedRoomName = evaluatedRooms[0].roomName;
 
     const possibleMyRooms = findRoomsWithinReach(selectedRoomName);
     const selectedMyRoom = possibleMyRooms[Math.floor(Math.random() * possibleMyRooms.length)];
-    brain.debugLog('nextroomer', `handleNextroom - Will claim: ${selectedRoomName} from ${selectedMyRoom} based on ${JSON.stringify(evaluatedRooms)}`);
+    debugLog('nextroomer', `handleNextroom - Will claim: ${selectedRoomName} from ${selectedMyRoom} based on ${JSON.stringify(evaluatedRooms)}`);
     // TODO selected the closest, highest energy, highest spawn idle room to spawn the claimer
     const room = Game.rooms[selectedMyRoom];
     const selectedRoomData = global.data.rooms[selectedRoomName];

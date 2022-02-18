@@ -73,7 +73,7 @@ Room.prototype.buildBase = function() {
     this.data.routing = {};
     this.data.positions = {};
     this.setup();
-  } else if (!this.memory.setup.completed) {
+  } else if (!this.memory.setup || !this.memory.setup.completed) {
     this.setup();
   }
   if (this.buildBaseUnseenControllerLevel()) {
