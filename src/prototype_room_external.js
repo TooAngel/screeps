@@ -90,7 +90,7 @@ Room.prototype.checkForQuest = function() {
     this.log(`checkForQuest no type: ${JSON.stringify(data)}`);
     return;
   }
-  if (data.type !== 'Quest') {
+  if (data.type !== 'quest') {
     this.log(`checkForQuest type not quest: ${JSON.stringify(data)}`);
     return;
   }
@@ -108,9 +108,9 @@ Room.prototype.checkForQuest = function() {
       continue;
     }
     const response = {
-      type: 'Quest',
+      type: 'quest',
       id: data.id,
-      room: this.name,
+      action: 'apply',
     };
     this.log(`checkForQuest apply for quest from ${room.name} to ${data.origin} ${JSON.stringify(response)}`);
     const terminalResponse = room.terminal.send(RESOURCE_ENERGY, 100, data.origin, JSON.stringify(response));
@@ -511,6 +511,7 @@ function isRouteValidForReservedRoom(room, route) {
       return false;
     }
     if (!routeRoom.isMy() && routeRoom.data.state !== 'Reserved') {
+      room.debugLog('reserver', `Not reserverd ${routeRoom.name} ${JSON.stringify(routeRoom.data.state)} ${JSON.stringify(routeRoom.data.reservation)}`);
       return false;
     }
   }
@@ -530,10 +531,10 @@ function filterReservedBy(roomName) {
 }
 
 Room.prototype.handleUnreservedRoom = function() {
-  this.data.state = 'Unreserved';
   if (this.isRoomRecentlyChecked()) {
     return false;
   }
+  this.data.state = 'Unreserved';
   this.debugLog('reserver', 'handleUnreservedRoom');
 
   if (this.data.reservation) {
@@ -556,14 +557,26 @@ Room.prototype.handleUnreservedRoom = function() {
       continue;
     }
     const distance = Game.map.getRoomLinearDistance(this.name, room.name);
-    this.debugLog('reserver', `unreserved check linear Distance: ${distance} <= ${config.external.distance} ${this.name} ${room.name}`);
-    if (distance > config.external.distance) {
+    /**
+     * Base reservability on number of spawns, distance and number of sources
+     *
+     * sources: 1, distance: 1, spawns: 1 = 1 fine
+     * sources: 1, distance: 2, spawns: 1 = 0.5 not fine
+     * sources: 2, distance: 2, spawns: 1 = 1 fine
+     * sources: 1, distance: 2, spawns: 2 = 1 fine
+     *
+     */
+    const spawns = room.find(FIND_MY_SPAWNS).length;
+    const threshold = this.data.sources / distance * spawns;
+    this.debugLog('reserver', `unreserved check linear Distance: ${threshold} <= ${this.data.sources} ${distance} ${spawns} ${this.name} ${room.name}`);
+    if (threshold < 1) {
       continue;
     }
     const route = Game.map.findRoute(this.name, room.name);
     const routeDistance = route.length;
-    this.debugLog('reserver', `unreserved check route Distance: ${routeDistance} <= ${config.external.distance} ${this.name} ${room.name}`);
-    if (routeDistance > config.external.distance) {
+    const routeThreshold = this.data.sources / routeDistance * spawns;
+    this.debugLog('reserver', `unreserved check route Distance: ${routeThreshold} <= ${this.data.sources} ${routeDistance} ${spawns} ${this.name} ${room.name}`);
+    if (routeThreshold < 1) {
       continue;
     }
 
@@ -574,6 +587,8 @@ Room.prototype.handleUnreservedRoom = function() {
 
     const reservedRooms = _.filter(global.data.rooms, filterReservedBy(roomName));
     // RCL: target reserved rooms
+
+    // TODO Store `spawnIdle` and base on that
     const numRooms = config.room.reservedRCL;
     this.debugLog('reserver', `number checked: ${reservedRooms.length} ${numRooms[room.controller.level]}`);
     if (reservedRooms.length >= numRooms[room.controller.level]) {

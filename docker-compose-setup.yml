@@ -8,6 +8,8 @@ services:
     command: redis-server --loglevel warning
   mongo:
     image: mongo
+    volumes:
+      - ./tmp-test-server-database/:/data/db
     ports:
       - 27017:27017
     command: mongod --quiet --logpath /dev/null 

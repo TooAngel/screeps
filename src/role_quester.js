@@ -27,7 +27,7 @@ roles.quester.questWon = function(creep, quest) {
 
   creep.log(`Quest won: ${JSON.stringify(quest)}`);
   const response = {
-    type: 'Quest',
+    type: 'quest',
     id: quest.id,
     result: 'won',
   };
