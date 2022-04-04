@@ -39,12 +39,12 @@ function isClaimableRoom(roomName) {
 }
 
 /**
- * getMinLinearDistancetoMyRooms
+ * getMinLinearDistanceToMyRooms
  *
  * @param {string} roomName
  * @return {number}
  */
-function getMinLinearDistancetoMyRooms(roomName) {
+function getMinLinearDistanceToMyRooms(roomName) {
   let minDistance = config.nextRoom.maxDistance;
   for (const myRoom of Memory.myRooms) {
     const distance = Game.map.getRoomLinearDistance(roomName, myRoom);
@@ -67,7 +67,7 @@ function getNextRoomValuatedRoomMap(rooms) {
   }
   const evaluatedRooms = rooms.map((roomName) => {
     return {
-      value: getMinLinearDistancetoMyRooms(roomName) + mineralValues[global.data.rooms[roomName].mineral],
+      value: getMinLinearDistanceToMyRooms(roomName) + mineralValues[global.data.rooms[roomName].mineral],
       roomName: roomName,
     };
   });
@@ -75,7 +75,7 @@ function getNextRoomValuatedRoomMap(rooms) {
   return evaluatedRooms;
 }
 
-brain.handleNextroom = function() {
+brain.handleNextroomer = function() {
   if (!Memory.myRooms) {
     return;
   }
@@ -85,7 +85,7 @@ brain.handleNextroom = function() {
   if (Game.time % config.nextRoom.intervalToCheck !== 0) {
     return;
   }
-  debugLog('nextroomer', 'handleNextroom !!!!!!!!!!!!!!!!!!!!!!!');
+  debugLog('nextroomer', 'handleNextroomer !!!!!!!!!!!!!!!!!!!!!!!');
   if (config.nextRoom.resourceStats) {
     debugLog('nextroomer', `stats: ${JSON.stringify(global.stats)}`);
     const myRoomsLength = Memory.myRooms.length;
@@ -114,7 +114,7 @@ brain.handleNextroom = function() {
     }
   }
 
-  debugLog('nextroomer', 'handleNextroom');
+  debugLog('nextroomer', 'handleNextroomer');
 
   const possibleRooms = Object.keys(global.data.rooms).filter(isClaimableRoom);
   if (possibleRooms.length > 0) {
@@ -126,14 +126,14 @@ brain.handleNextroom = function() {
 
     const possibleMyRooms = findRoomsWithinReach(selectedRoomName);
     const selectedMyRoom = possibleMyRooms[Math.floor(Math.random() * possibleMyRooms.length)];
-    debugLog('nextroomer', `handleNextroom - Will claim: ${selectedRoomName} from ${selectedMyRoom} based on ${JSON.stringify(evaluatedRooms)}`);
+    debugLog('nextroomer', `handleNextroomer - Will claim: ${selectedRoomName} from ${selectedMyRoom} based on ${JSON.stringify(evaluatedRooms)}`);
     // TODO selected the closest, highest energy, highest spawn idle room to spawn the claimer
     const room = Game.rooms[selectedMyRoom];
     const selectedRoomData = global.data.rooms[selectedRoomName];
     room.checkRoleToSpawn('claimer', 1, selectedRoomData.controllerId, selectedRoomName);
     for (const myRoomName of possibleMyRooms) {
       const myRoom = Game.rooms[myRoomName];
-      if (!myRoom.isStruggeling()) {
+      if (!myRoom.isStruggling()) {
         continue;
       }
       myRoom.checkRoleToSpawn('nextroomer', 1, selectedRoomData.controllerId, selectedRoomName);
@@ -143,7 +143,7 @@ brain.handleNextroom = function() {
 
   for (const roomName of Memory.myRooms) {
     const room = Game.rooms[roomName];
-    room.debugLog('nextroomer', `brain.handleNextroom spawn scout to find claimable rooms`);
+    room.debugLog('nextroomer', `brain.handleNextroomer spawn scout to find claimable rooms`);
     room.checkRoleToSpawn('scout');
   }
 };

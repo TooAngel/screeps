@@ -7,7 +7,7 @@ function debugLog(type, ...messages) {
 module.exports.debugLog = debugLog;
 
 Room.prototype.log = function(...messages) {
-  console.log(`${Game.time} ${this.name.rpad(' ', 27)} ${messages.join(' ')}`);
+  console.log(`${Game.time} ${this.name.rightPad(' ', 27)} ${messages.join(' ')}`);
 };
 
 Room.prototype.debugLog = function(type, ...messages) {
@@ -18,12 +18,12 @@ Room.prototype.debugLog = function(type, ...messages) {
 
 RoomObject.prototype.log = function(...messages) {
   const name = this.name || this.structureType;
-  console.log(`${Game.time} ${this.room.name.rpad(' ', 6)} ${name.rpad(' ', 20)} ${this.pos} ${messages.join(' ')}`);
+  console.log(`${Game.time} ${this.room.name.rightPad(' ', 6)} ${name.rightPad(' ', 20)} ${this.pos} ${messages.join(' ')}`);
 };
 
 RoomPosition.prototype.log = function(...messages) {
-  const coords = ('[' + this.x + ',' + this.y + ']').rpad(' ', 20);
-  console.log(`${Game.time} ${this.roomName.rpad(' ', 6)} ${coords} ${messages.join(' ')}`);
+  const coords = ('[' + this.x + ',' + this.y + ']').rightPad(' ', 20);
+  console.log(`${Game.time} ${this.roomName.rightPad(' ', 6)} ${coords} ${messages.join(' ')}`);
 };
 /*
  * Log creep message based on debug config

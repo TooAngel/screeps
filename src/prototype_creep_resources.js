@@ -308,7 +308,7 @@ const universalTarget = function(creep, object) {
   return true;
 };
 
-const filterTransferrables = function(creep, object) {
+const filterTransferable = function(creep, object) {
   if (!canStoreEnergy(object)) {
     return false;
   }
@@ -366,7 +366,7 @@ Creep.prototype.transferToStructures = function() {
     Math.max(1, Math.min(48, this.pos.x + 1)),
     true);
   for (const item of look) {
-    if (filterTransferrables(this, item.structure)) {
+    if (filterTransferable(this, item.structure)) {
       if (transferred) {
         return {
           moreStructures: true,

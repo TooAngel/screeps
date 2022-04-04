@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * autoattackmelle is the first wave of autoattacks
+ * autoattackmelee is the first wave of auto attacks
  *
  * Kills tower and spawn, hostile creeps and construction sites
  */
@@ -18,12 +18,12 @@ roles.autoattackmelee.died = function(name) {
   brain.main.cleanUpDyingCreep(name);
 };
 
-roles.autoattackmelee.preMove = function() {
-  //  creep.log('!!!!!!!!!!!!!!!! Autoattacking');
+roles.autoattackmelee.preMove = function(creep, directions) {
+  creep.creepLog('!!!!!!!!!!!!!!!! Auto Attacking');
 };
 
 roles.autoattackmelee.action = function(creep) {
-  if (config.autoattack.notify && !creep.memory.notified) {
+  if (config.autoAttack.notify && !creep.memory.notified) {
     creep.log('Attacking');
     Game.notify(Game.time + ' ' + creep.room.name + ' Attacking');
     creep.memory.notified = true;

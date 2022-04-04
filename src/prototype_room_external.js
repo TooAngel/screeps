@@ -131,14 +131,14 @@ Room.prototype.checkForQuest = function() {
 Room.prototype.handleHostileReservedRoom = function() {
   this.data.state = 'HostileReserved';
   if (!this.data.lastBreakReservationAttempt) {
-    this.data.lastBreakReservationAttempt = Game.time - config.autoattack.noReservedRoomInterval;
+    this.data.lastBreakReservationAttempt = Game.time - config.autoAttack.noReservedRoomInterval;
   }
 
-  if (Game.time - this.data.lastBreakReservationAttempt < config.autoattack.noReservedRoomInterval) {
+  if (Game.time - this.data.lastBreakReservationAttempt < config.autoAttack.noReservedRoomInterval) {
     return;
   }
 
-  const nearMyRoomName = getMyRoomWithinRange(this.name, config.autoattack.noReservedRoomInRange, config.autoattack.noReservedRoomMinMyRCL);
+  const nearMyRoomName = getMyRoomWithinRange(this.name, config.autoAttack.noReservedRoomInRange, config.autoAttack.noReservedRoomMinMyRCL);
   if (!nearMyRoomName) {
     return;
   }
@@ -308,7 +308,7 @@ Room.prototype.harvestPower = function() {
     return false;
   }
 
-  this.debugLog('power', `Found powerbank ticksToDecay: ${structures[0].ticksToDecay}`);
+  this.debugLog('power', `Found PowerBank ticksToDecay: ${structures[0].ticksToDecay}`);
 
   if (!memoryPowerBank) {
     Memory.powerBanks[this.name] = {};
@@ -480,8 +480,8 @@ Room.prototype.handleReservedRoom = function() {
     addToReputation(hostileCreep.owner.username, -1);
   }
 
-  const reservers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['reserver']);
-  if (reservers.length === 0) {
+  const reserver = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['reserver']);
+  if (reserver.length === 0) {
     this.checkAndSpawnReserver();
   }
 
@@ -491,7 +491,7 @@ Room.prototype.handleReservedRoom = function() {
 
 /**
  * isRouteValidForReservedRoom - Checks if the rooms on the route to the rooms
- * are valid (visible, have a constroller and the state is reserved)
+ * are valid (visible, have a controller and the state is reserved)
  *
  * @param {object} room - The room to check to
  * @param {list} route - A list of route entries
@@ -521,7 +521,7 @@ function isRouteValidForReservedRoom(room, route) {
  * filterReservedBy - Filter for reserved rooms for a specific room
  *
  * @param {string} roomName - The room name to check the reservation base
- * @return {bool} - If it is reservered by the given roomName
+ * @return {bool} - If it is reserved by the given roomName
  **/
 function filterReservedBy(roomName) {
   return (roomData) => {

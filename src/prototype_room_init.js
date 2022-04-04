@@ -369,7 +369,7 @@ Room.prototype.checkForSpawnPosition = function(pos) {
 /**
  * checkForMisplacedSpawn - Compares the current spawn structures positions
  * with the positions for spawns in memory.
- * If a spawn is on an unkown position `room.memory.misplacedSpawn` is set
+ * If a spawn is on an unknown position `room.memory.misplacedSpawn` is set
  * to true.
  *
  * @return {undefined}

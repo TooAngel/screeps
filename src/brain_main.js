@@ -47,7 +47,7 @@ brain.main.profilerInit = function() {
 brain.main.visualizeRooms = function() {
   if (config.visualizer.enabled) {
     try {
-      Memory.myRooms.forEach(visualizer.myRoomDatasDraw);
+      Memory.myRooms.forEach(visualizer.myRoomDataDraw);
     } catch (e) {
       console.log(`Visualizer Draw Exception exception: ${e} stack ${e.stack}`);
     }
@@ -62,7 +62,7 @@ brain.main.visualizeRooms = function() {
 brain.main.updateSkippedRoomsLog = function() {
   Memory.skippedRoomsLog = Memory.skippedRoomsLog || {};
   if (_.size(Memory.skippedRooms) > 0) {
-    console.log(`${Game.time} cpu.getUsed: ${_.round(Game.cpu.getUsed())} ticklimit: ${Game.cpu.tickLimit} Bucket: ${Game.cpu.bucket} skippedRooms ${Memory.skippedRooms}`);
+    console.log(`${Game.time} cpu.getUsed: ${_.round(Game.cpu.getUsed())} tickLimit: ${Game.cpu.tickLimit} Bucket: ${Game.cpu.bucket} skippedRooms ${Memory.skippedRooms}`);
     Memory.skippedRoomsLog[Game.time] = Memory.skippedRooms;
   }
   if (Game.time % 100 === 0) {
@@ -84,8 +84,8 @@ brain.main.execute = function() {
   try {
     brain.prepareMemory();
     brain.buyPower();
-    brain.handleNextroom();
-    brain.handleSquadmanager();
+    brain.handleNextroomer();
+    brain.handleSquadManager();
     brain.handleIncomingTransactions();
     handleQuests();
     checkPlayers();
@@ -101,13 +101,13 @@ brain.main.execute = function() {
     used: Game.cpu.getUsed(),
   });
 
-  if (global.config.ticksummary.gcl) {
-    console.log(`${Game.time} GCL ${Game.gcl.level}: ${global.utils.lpadround(Game.gcl.progress/Game.gcl.progressTotal*100, 3, 5)} %  ${Math.round(Game.gcl.progress)}/${Math.round(Game.gcl.progressTotal)}`);
+  if (global.config.tickSummary.gcl) {
+    console.log(`${Game.time} GCL ${Game.gcl.level}: ${global.utils.leftPadRound(Game.gcl.progress/Game.gcl.progressTotal*100, 3, 5)} %  ${Math.round(Game.gcl.progress)}/${Math.round(Game.gcl.progressTotal)}`);
   }
-  if (global.config.ticksummary.bucket) {
+  if (global.config.tickSummary.bucket) {
     console.log(`${Game.time} Bucket: ${Game.cpu.bucket}`);
   }
-  if (global.config.ticksummary.seperator) {
+  if (global.config.tickSummary.separator) {
     console.log(Game.time, '-----------');
   }
 };

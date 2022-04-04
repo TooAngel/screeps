@@ -109,7 +109,7 @@ Room.prototype.initMemoryWalls = function() {
   }
 };
 
-const callbackcloseExitsByPath = function(room) {
+const callbackCloseExitsByPath = function(room) {
   return (roomName, costMatrix) => {
     if (!costMatrix) {
       costMatrix = new PathFinder.CostMatrix();
@@ -203,7 +203,7 @@ Room.prototype.closeExitsByPath = function() {
   const search = PathFinder.search(
     exit,
     targets, {
-      roomCallback: callbackcloseExitsByPath(this),
+      roomCallback: callbackCloseExitsByPath(this),
       maxRooms: 1,
     },
   );

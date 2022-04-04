@@ -3,7 +3,7 @@
 /*
  * universal makes sure that extensions are filled
  *
- * Before storage or certains store threshold:
+ * Before storage or certain store threshold:
  *  - get dropped energy or from source
  *  - fill extensions
  *  - build constructionSites
@@ -31,8 +31,8 @@ roles.universal.settings = {
   maxLayoutAmount: 6,
 };
 roles.universal.updateSettings = function(room) {
-  if (!room.isStruggeling() && room.energyAvailable >= 350) {
-    // Layoutcost minimum: prefix 250 + layout 100 -> 350
+  if (!room.isStruggling() && room.energyAvailable >= 350) {
+    // LayoutCost minimum: prefix 250 + layout 100 -> 350
     return {
       prefixString: 'WMC',
       layoutString: 'MC',
@@ -50,7 +50,7 @@ roles.universal.buildRoad = true;
 roles.universal.boostActions = ['capacity'];
 
 const universalBeforeStorage = function(creep) {
-  if (creep.room.isStruggeling()) {
+  if (creep.room.isStruggling()) {
     creep.universalBeforeStorage();
     creep.memory.routing.reached = false;
     return true;
@@ -126,7 +126,7 @@ roles.universal.preMove = function(creep, directions) {
     creep.memory.move_forward_direction = true;
   }
 
-  // changed controll flow: first transferToStructures then universalBeforeStorage
+  // changed control flow: first transferToStructures then universalBeforeStorage
   let reverse = creep.carry.energy === 0;
 
   creep.setNextSpawn();

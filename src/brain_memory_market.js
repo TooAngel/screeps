@@ -60,7 +60,7 @@ brain.buyPower = function() {
   return false;
 };
 
-brain.handleIncomingTransactionsbyUser = function(transaction) {
+brain.handleIncomingTransactionsByUser = function(transaction) {
   const sender = transaction.sender.username;
   if (sender === Memory.username) {
     return false;
@@ -84,7 +84,7 @@ brain.handleIncomingTransactions = function() {
 
   for (const transaction of current) {
     if (transaction.sender) {
-      brain.handleIncomingTransactionsbyUser(transaction);
+      brain.handleIncomingTransactionsByUser(transaction);
     }
     checkQuestForAcceptance(transaction);
     checkAppliedQuestForAcceptance(transaction);
