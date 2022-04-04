@@ -2,7 +2,7 @@
 
 const {debugLog} = require('./logging');
 
-brain.isFriend = function(name) {
+brain.isFriend = function (name) {
   if (!Memory.players) {
     Memory.players = {};
   }
@@ -25,7 +25,7 @@ brain.isFriend = function(name) {
   return false;
 };
 
-brain.handleSquadmanager = function() {
+brain.handleSquadmanager = function () {
   if (Object.keys(Memory.squads).length > 0) {
     debugLog('brain', 'brain.handleSquadmanager squads: ${Object.keys(Memory.squads).length}');
   }
@@ -63,10 +63,10 @@ brain.handleSquadmanager = function() {
  * @param {String} squadName
  * @param {Number} [queueLimit] don't push if queueLimit is reached
  */
-brain.addToQueue = function(spawns, roomNameFrom, roomNameTarget, squadName, queueLimit) {
+brain.addToQueue = function (spawns, roomNameFrom, roomNameTarget, squadName, queueLimit) {
   queueLimit = queueLimit || false;
-  const outer = function(spawn) {
-    return function _addToQueue() {
+  const outer = function (spawn) {
+    return function _addToQueue () {
       if (queueLimit === false) {
         Memory.rooms[roomNameFrom].queue.push({
           role: spawn.role,
@@ -97,7 +97,7 @@ brain.addToQueue = function(spawns, roomNameFrom, roomNameTarget, squadName, que
  * @param {String} roomNameFrom
  * @param {String} roomNameAttack
  */
-brain.startSquad = function(roomNameFrom, roomNameAttack) {
+brain.startSquad = function (roomNameFrom, roomNameAttack) {
   const name = 'siegesquad-' + Math.random();
   const route = Game.map.findRoute(roomNameFrom, roomNameAttack);
   let target = roomNameFrom;
@@ -134,7 +134,7 @@ brain.startSquad = function(roomNameFrom, roomNameAttack) {
  * @param {String} roomNameAttack
  * @param {Array} [spawns]
  */
-brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
+brain.startMeleeSquad = function (roomNameFrom, roomNameAttack, spawns) {
   const name = 'meleesquad-' + Math.random();
   const route = Game.map.findRoute(roomNameFrom, roomNameAttack);
   let target = roomNameFrom;

@@ -6,7 +6,7 @@
  * Provides structure memory.
  */
 Object.defineProperty(Structure.prototype, 'memory', {
-  get: function() {
+  get: function () {
     if (Memory.structures === undefined) {
       Memory.structures = {};
     }
@@ -15,7 +15,7 @@ Object.defineProperty(Structure.prototype, 'memory', {
     }
     return Memory.structures[this.id];
   },
-  set: function(v) {
+  set: function (v) {
     _.set(Memory, 'structures.' + this.id, v);
   },
   configurable: true,

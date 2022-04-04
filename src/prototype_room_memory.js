@@ -16,7 +16,7 @@
 /**
  * Deletes room memory
  */
-Room.prototype.clearMemory = function() {
+Room.prototype.clearMemory = function () {
   this.memory = {
     invalidated: Game.time,
   };
@@ -27,7 +27,7 @@ Room.prototype.clearMemory = function() {
  *
  * @return {CostMatrix|undefined}
  */
-Room.prototype.getMemoryCostMatrix = function() {
+Room.prototype.getMemoryCostMatrix = function () {
   return this.data.costMatrix;
 };
 
@@ -36,12 +36,12 @@ Room.prototype.getMemoryCostMatrix = function() {
  *
  * @param {Object} costMatrix - the costMatrix to save
  */
-Room.prototype.setMemoryCostMatrix = function(costMatrix) {
+Room.prototype.setMemoryCostMatrix = function (costMatrix) {
   this.data.costMatrix = costMatrix;
   this.memory.costMatrix = costMatrix.serialize();
 };
 
-Room.prototype.populatePathToDataFromMemory = function(pathName) {
+Room.prototype.populatePathToDataFromMemory = function (pathName) {
   const path = Room.stringToPath(this.memory.routing[pathName].path);
   console.log('-------------');
   console.log(this.data.routing);
@@ -60,7 +60,7 @@ Room.prototype.populatePathToDataFromMemory = function(pathName) {
  *
  * @return {object}
  */
-Room.prototype.getMemoryPaths = function() {
+Room.prototype.getMemoryPaths = function () {
   // if (!this.data.routing) {
   //   const pathNames = Object.keys(this.memory.routing).sort();
   //   for (const pathName of pathNames) {
@@ -77,8 +77,8 @@ Room.prototype.getMemoryPaths = function() {
  * @param {String} name - the name of the path
  * @return {array|boolean} path
  */
-Room.prototype.getMemoryPath = function(name) {
-  const isValid = function(path) {
+Room.prototype.getMemoryPath = function (name) {
+  const isValid = function (path) {
     return path.fixed || path.created > Game.time - config.path.refresh;
   };
 
@@ -101,7 +101,7 @@ Room.prototype.getMemoryPath = function(name) {
 /**
  * Cleans memory from all paths
  */
-Room.prototype.deleteMemoryPaths = function() {
+Room.prototype.deleteMemoryPaths = function () {
   delete this.memory.routing;
 };
 
@@ -110,7 +110,7 @@ Room.prototype.deleteMemoryPaths = function() {
  *
  * @param {String} name - the name of the path
  */
-Room.prototype.deleteMemoryPath = function(name) {
+Room.prototype.deleteMemoryPath = function (name) {
   delete this.memory.routing[name];
 };
 
@@ -122,7 +122,7 @@ Room.prototype.deleteMemoryPath = function(name) {
  * @param {Array} path - the path itself
  * @param {boolean} perturb - Flag to define if the path should be perturbed
  */
-Room.prototype.setMemoryPath = function(name, path, perturb = false) {
+Room.prototype.setMemoryPath = function (name, path, perturb = false) {
   if (perturb) {
     path = Room.perturbPath(path);
   }
@@ -140,7 +140,7 @@ Room.prototype.setMemoryPath = function(name, path, perturb = false) {
  * @param {Array} path - the path to perturb
  * @return {Array} changed - the perturbed path
  */
-Room.perturbPath = function(path) {
+Room.perturbPath = function (path) {
   if (!path) {
     return path;
   }

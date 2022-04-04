@@ -15,14 +15,14 @@ roles.atkeepermelee.settings = {
   maxLayoutAmount: 1,
 };
 
-roles.atkeepermelee.preMove = function(creep) {
+roles.atkeepermelee.preMove = function (creep) {
   creep.checkForRoutingReached();
   if (creep.memory.canHeal && creep.isDamaged() < 1) {
     creep.heal(creep);
   }
 };
 
-roles.atkeepermelee.action = function(creep) {
+roles.atkeepermelee.action = function (creep) {
   // TODO Untested
   creep.spawnReplacement();
   creep.setNextSpawn();
@@ -32,7 +32,7 @@ roles.atkeepermelee.action = function(creep) {
     creep.memory.damaged = false;
   }
 
-  const moveToCenter = function(creep) {
+  const moveToCenter = function (creep) {
     const center = new RoomPosition(25, 25, creep.memory.routing.targetRoom);
     return creep.moveTo(center, {ignoreCreeps: false, reusePath: 2});
   };
@@ -41,7 +41,7 @@ roles.atkeepermelee.action = function(creep) {
     creep.memory.damaged = true;
   }
 
-  const healMove = function(creep, target) {
+  const healMove = function (creep, target) {
     const range = creep.pos.getRangeTo(target.pos);
     if (range > 5) {
       creep.moveToMy(target.pos);
@@ -55,7 +55,7 @@ roles.atkeepermelee.action = function(creep) {
     }
   };
 
-  const attack = function(creep) {
+  const attack = function (creep) {
     creep.say('attack');
     // todo-msc cache target
     const lastTarget = Game.getObjectById(creep.room.memory.lastTarget);

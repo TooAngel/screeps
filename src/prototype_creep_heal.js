@@ -1,10 +1,10 @@
 'use strict';
 
-Creep.prototype.isDamaged = function() {
+Creep.prototype.isDamaged = function () {
   return this.hits / this.hitsMax;
 };
 
-Creep.prototype.selfHeal = function() {
+Creep.prototype.selfHeal = function () {
   if (!this.memory.canHeal) {
     this.memory.canHeal = this.getActiveBodyparts(HEAL) > 0;
   }
@@ -13,7 +13,7 @@ Creep.prototype.selfHeal = function() {
   }
 };
 
-Creep.prototype.healMyCreeps = function() {
+Creep.prototype.healMyCreeps = function () {
   const myCreeps = this.room.findMyHealableCreeps();
   if (myCreeps.length > 0) {
     this.say('heal', true);
@@ -28,7 +28,7 @@ Creep.prototype.healMyCreeps = function() {
   return false;
 };
 
-Creep.prototype.healAllyCreeps = function() {
+Creep.prototype.healAllyCreeps = function () {
   const allyCreeps = this.room.findHealableAlliedCreeps();
   if (allyCreeps.length > 0) {
     this.say('heal ally', true);
@@ -43,7 +43,7 @@ Creep.prototype.healAllyCreeps = function() {
   }
 };
 
-Creep.prototype.healCreep = function(range, myCreep) {
+Creep.prototype.healCreep = function (range, myCreep) {
   if (range <= 1) {
     this.heal(myCreep);
   } else {
@@ -52,7 +52,7 @@ Creep.prototype.healCreep = function(range, myCreep) {
   }
 };
 
-Creep.prototype.squadHeal = function() {
+Creep.prototype.squadHeal = function () {
   let range;
   const creepToHeal = this.pos.findClosestByRange(FIND_MY_CREEPS, {
     filter: (object) => object.hits < object.hitsMax / 1.5,
@@ -83,7 +83,7 @@ Creep.prototype.squadHeal = function() {
   return false;
 };
 
-Creep.prototype.healClosestCreep = function(andExit) {
+Creep.prototype.healClosestCreep = function (andExit) {
   const myCreep = this.pos.findClosestByRange(FIND_MY_CREEPS, {
     filter: (o) => o.isDamaged() < 1,
   });

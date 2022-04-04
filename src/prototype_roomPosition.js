@@ -1,13 +1,13 @@
 'use strict';
 
-RoomPosition.prototype.findClosestStructureWithMissingEnergyByRange = function(filter) {
+RoomPosition.prototype.findClosestStructureWithMissingEnergyByRange = function (filter) {
   const structure = this.findClosestByRange(FIND_MY_STRUCTURES, {
     filter: (object) => (object.store && object.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && (!filter || filter(object))),
   });
   return structure;
 };
 
-RoomPosition.prototype.clearPosition = function(target) {
+RoomPosition.prototype.clearPosition = function (target) {
   const structures = this.lookFor('structure');
   for (const structureId of Object.keys(structures)) {
     const structure = structures[structureId];
@@ -27,7 +27,7 @@ RoomPosition.prototype.clearPosition = function(target) {
   }
 };
 
-RoomPosition.prototype.getClosestSource = function(filter) {
+RoomPosition.prototype.getClosestSource = function (filter) {
   let source = this.findClosestByPath(FIND_SOURCES_ACTIVE, {
     filter,
   });
@@ -40,16 +40,16 @@ RoomPosition.prototype.getClosestSource = function(filter) {
   return source;
 };
 
-RoomPosition.prototype.findInRangeStructures = function(objects, range, structureTypes) {
+RoomPosition.prototype.findInRangeStructures = function (objects, range, structureTypes) {
   // TODO this method should be deprecated
   return this.findInRangePropertyFilter(objects, range, 'structureType', structureTypes);
 };
 
-RoomPosition.prototype.findHostileStructuresInRangedAttackRange = function() {
+RoomPosition.prototype.findHostileStructuresInRangedAttackRange = function () {
   return this.findInRange(FIND_HOSTILE_STRUCTURES, 3);
 };
 
-RoomPosition.prototype.findClosestStructure = function(structures, structureType) {
+RoomPosition.prototype.findClosestStructure = function (structures, structureType) {
   return this.findClosestByPathPropertyFilter(structures, 'structureType', [structureType]);
 };
 
@@ -59,7 +59,7 @@ RoomPosition.prototype.findClosestStructure = function(structures, structureType
  * @param {Number} direction (or 0)
  * @return {RoomPosition} adjacent position, or this position for direction==0
  */
-RoomPosition.prototype.getAdjacentPosition = function(direction) {
+RoomPosition.prototype.getAdjacentPosition = function (direction) {
   const adjacentPos = [
     [0, 0],
     [0, -1],
@@ -114,7 +114,7 @@ RoomPosition.prototype.getAllPositionsInRange = function* (range) {
   }
 };
 
-RoomPosition.prototype.hasNonObstacleAdjacentPosition = function() {
+RoomPosition.prototype.hasNonObstacleAdjacentPosition = function () {
   for (const pos of this.getAllPositionsInRange(1)) {
     if (!pos.checkForWall() && !pos.checkForObstacleStructure() && !pos.checkForCreep()) {
       return true;
@@ -123,19 +123,19 @@ RoomPosition.prototype.hasNonObstacleAdjacentPosition = function() {
   return false;
 };
 
-RoomPosition.prototype.checkForCreep = function() {
+RoomPosition.prototype.checkForCreep = function () {
   return this.lookFor(LOOK_CREEPS).length > 0;
 };
 
-RoomPosition.prototype.checkForWall = function() {
+RoomPosition.prototype.checkForWall = function () {
   return this.lookFor(LOOK_TERRAIN)[0] === 'wall';
 };
 
-RoomPosition.prototype.checkForObstacleStructure = function() {
+RoomPosition.prototype.checkForObstacleStructure = function () {
   return this.lookFor(LOOK_STRUCTURES).some((s) => OBSTACLE_OBJECT_TYPES.includes(s.structureType));
 };
 
-RoomPosition.prototype.inPath = function() {
+RoomPosition.prototype.inPath = function () {
   const room = this.getRoom();
   for (const pathName of Object.keys(room.getMemoryPaths())) {
     const path = room.getMemoryPath(pathName);
@@ -148,7 +148,7 @@ RoomPosition.prototype.inPath = function() {
   return false;
 };
 
-RoomPosition.prototype.inPositions = function() {
+RoomPosition.prototype.inPositions = function () {
   const room = this.getRoom();
   if (!room.data.positions) {
     return false;
@@ -184,7 +184,7 @@ RoomPosition.prototype.inPositions = function() {
   return false;
 };
 
-RoomPosition.prototype.isBorder = function(offset) {
+RoomPosition.prototype.isBorder = function (offset) {
   offset = offset || 0;
   if (this.x <= 1 + offset || this.x >= 48 - offset || this.y <= 1 + offset || this.y >= 48 - offset) {
     return true;
@@ -192,7 +192,7 @@ RoomPosition.prototype.isBorder = function(offset) {
   return false;
 };
 
-RoomPosition.prototype.isValid = function() {
+RoomPosition.prototype.isValid = function () {
   if (this.x < 0 || this.y < 0) {
     return false;
   }
@@ -202,7 +202,7 @@ RoomPosition.prototype.isValid = function() {
   return true;
 };
 
-RoomPosition.prototype.validPosition = function(opts = {}) {
+RoomPosition.prototype.validPosition = function (opts = {}) {
   if (!opts.ignoreBorder && this.isBorder()) {
     if (opts.debug) {
       this.log('is border');
@@ -230,11 +230,11 @@ RoomPosition.prototype.validPosition = function(opts = {}) {
   return this.isValid();
 };
 
-RoomPosition.prototype.getFirstNearPosition = function(...args) {
+RoomPosition.prototype.getFirstNearPosition = function (...args) {
   return this.findNearPosition(...args).next().value;
 };
 
-RoomPosition.prototype.getLastNearPosition = function(...args) {
+RoomPosition.prototype.getLastNearPosition = function (...args) {
   // TODO not sure how this works
   const arr = this.findNearPosition(...args);
   arr.next();
@@ -242,11 +242,11 @@ RoomPosition.prototype.getLastNearPosition = function(...args) {
   return arr.next().value;
 };
 
-RoomPosition.prototype.getBestNearPosition = function(...args) {
+RoomPosition.prototype.getBestNearPosition = function (...args) {
   return _.max(Array.from(this.findNearPosition(...args)), (pos) => Array.from(pos.findNearPosition(...args)).length);
 };
 
-RoomPosition.prototype.getWorseNearPosition = function(...args) {
+RoomPosition.prototype.getWorseNearPosition = function (...args) {
   return _.max(Array.from(this.findNearPosition(...args)), (pos) => -1 * Array.from(pos.findNearPosition(...args)).length);
 };
 
@@ -267,7 +267,7 @@ RoomPosition.prototype.findNearPosition = function* (...args) {
   }
 };
 
-RoomPosition.prototype.getRoom = function() {
+RoomPosition.prototype.getRoom = function () {
   const room = Game.rooms[this.roomName];
   if (!room) {
     throw new Error(`Could not access room ${this.roomName}`);
@@ -275,7 +275,7 @@ RoomPosition.prototype.getRoom = function() {
   return room;
 };
 
-RoomPosition.wrapFindMethod = (methodName, extraParamsCount) => function(findTarget, ...propertyFilterParams) {
+RoomPosition.wrapFindMethod = (methodName, extraParamsCount) => function (findTarget, ...propertyFilterParams) {
   /* eslint-disable no-invalid-this */
   const extraParams = propertyFilterParams.splice(0, extraParamsCount);
   if (_.isNumber(findTarget)) {
@@ -331,7 +331,7 @@ RoomPosition.prototype.findClosestByPathPropertyFilter = RoomPosition.wrapFindMe
  * @param {string} json.roomName Name of the room
  * @return {RoomPosition} RoomPosition object
  */
-RoomPosition.fromJSON = function(json) {
+RoomPosition.fromJSON = function (json) {
   return new RoomPosition(json.x, json.y, json.roomName);
 };
 
@@ -341,7 +341,7 @@ RoomPosition.fromJSON = function(json) {
  * @param {Number} direction
  * @return {Number} fixed direction
  */
-RoomPosition.fixDirection = function(direction) {
+RoomPosition.fixDirection = function (direction) {
   return (((direction - 1) % 8) + 8) % 8 + 1;
 };
 
@@ -352,7 +352,7 @@ RoomPosition.fixDirection = function(direction) {
  * @param {Number} change
  * @return {Number}
  */
-RoomPosition.changeDirection = function(direction, change) {
+RoomPosition.changeDirection = function (direction, change) {
   return RoomPosition.fixDirection(direction + change);
 };
 
@@ -362,6 +362,6 @@ RoomPosition.changeDirection = function(direction, change) {
  * @param {Number} direction
  * @return {Number}
  */
-RoomPosition.oppositeDirection = function(direction) {
+RoomPosition.oppositeDirection = function (direction) {
   return RoomPosition.fixDirection(direction + 4);
 };

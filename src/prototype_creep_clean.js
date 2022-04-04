@@ -1,6 +1,6 @@
 'use strict';
 
-Creep.prototype.handleStructurer = function() {
+Creep.prototype.handleStructurer = function () {
   if (!this.memory.routing.targetId) {
     return this.cleanSetTargetId();
   }
@@ -43,7 +43,7 @@ Creep.prototype.handleStructurer = function() {
   }
 };
 
-Creep.prototype.cleanController = function() {
+Creep.prototype.cleanController = function () {
   const search = PathFinder.search(
     this.pos, {
       pos: this.room.controller.pos,
@@ -73,7 +73,7 @@ Creep.prototype.cleanController = function() {
   return false;
 };
 
-Creep.prototype.cleanExits = function() {
+Creep.prototype.cleanExits = function () {
   const exitDirs = [FIND_EXIT_TOP,
     FIND_EXIT_RIGHT,
     FIND_EXIT_BOTTOM,
@@ -107,7 +107,7 @@ Creep.prototype.cleanExits = function() {
   return false;
 };
 
-Creep.prototype.cleanSetTargetId = function() {
+Creep.prototype.cleanSetTargetId = function () {
   if (!this.room.isMy()) {
     //    this.log('no targetId');
     if (this.cleanController()) {

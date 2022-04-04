@@ -14,7 +14,7 @@ roles.powerdefender.settings = {
   fillTough: true,
 };
 
-roles.powerdefender.action = function(creep) {
+roles.powerdefender.action = function (creep) {
   if (creep.hits < 200) {
     return false;
   }

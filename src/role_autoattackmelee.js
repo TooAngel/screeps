@@ -14,15 +14,15 @@ roles.autoattackmelee.settings = {
   fillTough: true,
 };
 
-roles.autoattackmelee.died = function(name) {
+roles.autoattackmelee.died = function (name) {
   brain.main.cleanUpDyingCreep(name);
 };
 
-roles.autoattackmelee.preMove = function() {
+roles.autoattackmelee.preMove = function () {
   //  creep.log('!!!!!!!!!!!!!!!! Autoattacking');
 };
 
-roles.autoattackmelee.action = function(creep) {
+roles.autoattackmelee.action = function (creep) {
   if (config.autoattack.notify && !creep.memory.notified) {
     creep.log('Attacking');
     Game.notify(Game.time + ' ' + creep.room.name + ' Attacking');

@@ -1,6 +1,6 @@
 'use strict';
 
-Creep.prototype.squadMove = function(squad, maxRange, moveRandom, role) {
+Creep.prototype.squadMove = function (squad, maxRange, moveRandom, role) {
   if (this.room.name === squad.moveTarget) {
     const nextExits = this.room.find(this.memory.routing.route[this.memory.routing.routePos].exit);
     if (nextExits.length < 1) {

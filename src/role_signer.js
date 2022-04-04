@@ -13,7 +13,7 @@ roles.signer.settings = {
   maxLayoutAmount: 1,
 };
 
-roles.signer.action = function(creep) {
+roles.signer.action = function (creep) {
   const returnCode = creep.signController(creep.room.controller, creep.memory.signText || config.info.signText);
   if (returnCode === OK) {
     // if (creep.memory.nextTarget) {

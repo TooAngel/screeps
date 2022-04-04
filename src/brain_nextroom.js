@@ -15,7 +15,7 @@ const {findRoomsWithinReach} = require('./helper_findMyRooms');
  * @param {string} roomName - The room to check
  * @return {boolean} - If the room is claimable
  **/
-function isClaimableRoom(roomName) {
+function isClaimableRoom (roomName) {
   const data = global.data.rooms[roomName];
   if (Memory.myRooms.indexOf(roomName) >= 0) {
     return false;
@@ -44,7 +44,7 @@ function isClaimableRoom(roomName) {
  * @param {string} roomName
  * @return {number}
  */
-function getMinLinearDistancetoMyRooms(roomName) {
+function getMinLinearDistancetoMyRooms (roomName) {
   let minDistance = config.nextRoom.maxDistance;
   for (const myRoom of Memory.myRooms) {
     const distance = Game.map.getRoomLinearDistance(roomName, myRoom);
@@ -60,7 +60,7 @@ function getMinLinearDistancetoMyRooms(roomName) {
  * @param {array} rooms
  * @return {array}
  */
-function getNextRoomValuatedRoomMap(rooms) {
+function getNextRoomValuatedRoomMap (rooms) {
   const mineralValues = JSON.parse(JSON.stringify(config.nextRoom.mineralValues));
   for (const roomName of Memory.myRooms) {
     mineralValues[global.data.rooms[roomName].mineral] /= 2;
@@ -75,7 +75,7 @@ function getNextRoomValuatedRoomMap(rooms) {
   return evaluatedRooms;
 }
 
-brain.handleNextroom = function() {
+brain.handleNextroom = function () {
   if (!Memory.myRooms) {
     return;
   }

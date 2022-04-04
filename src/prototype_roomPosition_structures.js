@@ -1,6 +1,6 @@
 'use strict';
 
-RoomPosition.prototype.setSpawn = function(path, pathI) {
+RoomPosition.prototype.setSpawn = function (path, pathI) {
   const posNext = path[+pathI + 1];
   const pathPos = new RoomPosition(path[pathI].x, path[pathI].y, path[pathI].roomName);
   // TODO Check distance to other spawns
@@ -41,7 +41,7 @@ RoomPosition.prototype.setSpawn = function(path, pathI) {
   return false;
 };
 
-RoomPosition.prototype.setExtension = function() {
+RoomPosition.prototype.setExtension = function () {
   const room = Game.rooms[this.roomName];
   if ((room.data.positions.structure.extension || []).length >= CONTROLLER_STRUCTURES.extension[8]) {
     return false;
@@ -49,7 +49,7 @@ RoomPosition.prototype.setExtension = function() {
   return true;
 };
 
-RoomPosition.prototype.inRamparts = function() {
+RoomPosition.prototype.inRamparts = function () {
   for (const rampart of Memory.rooms[this.roomName].walls.ramparts) {
     if (this.isEqualTo(rampart.x, rampart.y)) {
       return true;

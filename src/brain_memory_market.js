@@ -5,7 +5,7 @@ const {debugLog} = require('./logging');
 const {addToReputation} = require('./diplomacy');
 const {checkQuestForAcceptance, checkAppliedQuestForAcceptance} = require('./quests');
 
-brain.setMarketOrders = function() {
+brain.setMarketOrders = function () {
   Memory.orders = {};
   Memory.orders[ORDER_BUY] = {};
   Memory.orders[ORDER_SELL] = {};
@@ -35,7 +35,7 @@ brain.getMarketOrderAverage = (type, resource) => Memory.orders[type][resource] 
 
 brain.getMarketOrder = (type, resource, property) => Memory.orders[type][resource] && Memory.orders[type][resource][property] ? Memory.orders[type][resource][property] : null;
 
-brain.buyPower = function() {
+brain.buyPower = function () {
   if (!config.market.buyPower) {
     return false;
   }
@@ -47,7 +47,7 @@ brain.buyPower = function() {
     return false;
   }
   // deal one order
-  const deal = function(item) {
+  const deal = function (item) {
     if (item.price < 1) {
       return Game.market.deal(item.id, 1000, roomName);
     }
@@ -60,7 +60,7 @@ brain.buyPower = function() {
   return false;
 };
 
-brain.handleIncomingTransactionsbyUser = function(transaction) {
+brain.handleIncomingTransactionsbyUser = function (transaction) {
   const sender = transaction.sender.username;
   if (sender === Memory.username) {
     return false;
@@ -78,7 +78,7 @@ brain.handleIncomingTransactionsTimeFilter = (object) => {
   return object.time >= Game.time - 1;
 };
 
-brain.handleIncomingTransactions = function() {
+brain.handleIncomingTransactions = function () {
   const transactions = Game.market.incomingTransactions;
   const current = _.filter(transactions, brain.handleIncomingTransactionsTimeFilter);
 

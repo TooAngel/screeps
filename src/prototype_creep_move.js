@@ -9,7 +9,7 @@
  * @param {boolean} withinRoom - Stays within the room
  * @return {object} - Response from PathFinder.search
  **/
-Creep.prototype.searchPath = function(target, range=1, withinRoom=false) {
+Creep.prototype.searchPath = function (target, range=1, withinRoom=false) {
   let costMatrixCallback;
   if (this.room.memory.misplacedSpawn) {
     costMatrixCallback = this.room.getBasicCostMatrixCallback(withinRoom);
@@ -37,7 +37,7 @@ Creep.prototype.searchPath = function(target, range=1, withinRoom=false) {
   return search;
 };
 
-Creep.prototype.moveMy = function(target) {
+Creep.prototype.moveMy = function (target) {
   if (this.pos.isEqualTo(target)) {
     return true;
   }
@@ -59,7 +59,7 @@ Creep.prototype.moveMy = function(target) {
  * @param {boolean} withinRoom - Stays within the room
  * @return {boolean} - Success of the execution
  **/
-Creep.prototype.moveToMy = function(target, range=1, withinRoom=false) {
+Creep.prototype.moveToMy = function (target, range=1, withinRoom=false) {
   this.creepLog(`moveToMy(${target}, ${range}) pos: ${this.pos}`);
   if (this.fatigue > 0) {
     return true;
@@ -78,7 +78,7 @@ Creep.prototype.moveToMy = function(target, range=1, withinRoom=false) {
   return moveMyResult;
 };
 
-Creep.prototype.moveRandom = function(onPath) {
+Creep.prototype.moveRandom = function (onPath) {
   const startDirection = _.random(1, 8);
   let direction = 0;
   for (let i = 0; i < 8; i++) {
@@ -104,7 +104,7 @@ Creep.prototype.moveRandom = function(onPath) {
   this.move(direction);
 };
 
-Creep.prototype.moveRandomWithin = function(goal, dist = 3, goal2 = false) {
+Creep.prototype.moveRandomWithin = function (goal, dist = 3, goal2 = false) {
   const startDirection = _.random(1, 8);
   let direction = 0;
   for (let i = 0; i < 8; i++) {
@@ -133,7 +133,7 @@ Creep.prototype.moveRandomWithin = function(goal, dist = 3, goal2 = false) {
   this.move(direction);
 };
 
-const getCreepsAtPosition = function(position, creep) {
+const getCreepsAtPosition = function (position, creep) {
   const pos = new RoomPosition(position.x, position.y, creep.room.name);
   const creeps = pos.lookFor('creep');
   return creeps;
@@ -147,7 +147,7 @@ const getCreepsAtPosition = function(position, creep) {
  * @param {int} direction
  * @return {bool}
  */
-function moveUniversalAsSourcerReserver(role, creep, direction) {
+function moveUniversalAsSourcerReserver (role, creep, direction) {
   if ((role === 'sourcer' || role === 'reserver') && creep.memory.role !== 'universal' && !creep.memory.routing.reverse) {
     creep.move(direction);
     return true;
@@ -162,7 +162,7 @@ function moveUniversalAsSourcerReserver(role, creep, direction) {
  * @param {int} direction
  * @return {bool}
  */
-function moveUniversalOrCarryAsDefendmelee(role, creep, direction) {
+function moveUniversalOrCarryAsDefendmelee (role, creep, direction) {
   const targetRole = creep.memory.role;
   if (role === 'defendmelee' ||
     targetRole === 'universal' ||
@@ -172,7 +172,7 @@ function moveUniversalOrCarryAsDefendmelee(role, creep, direction) {
   }
 }
 
-Creep.prototype.moveCreepCheckRoleAndTarget = function(creep, direction) {
+Creep.prototype.moveCreepCheckRoleAndTarget = function (creep, direction) {
   const role = this.memory.role;
 
   if (creep && !creep.memory.routing) {
@@ -198,7 +198,7 @@ Creep.prototype.moveCreepCheckRoleAndTarget = function(creep, direction) {
   }
 };
 
-Creep.prototype.moveCreep = function(position, direction) {
+Creep.prototype.moveCreep = function (position, direction) {
   if (position.isBorder(-1)) {
     return false;
   }
@@ -212,7 +212,7 @@ Creep.prototype.moveCreep = function(position, direction) {
   }
 };
 
-Creep.prototype.preMoveExtractorSourcer = function(directions) {
+Creep.prototype.preMoveExtractorSourcer = function (directions) {
   this.pickupEnergy();
 
   // Sourcer keeper handling
@@ -258,7 +258,7 @@ Creep.prototype.preMoveExtractorSourcer = function(directions) {
   }
 };
 
-Creep.prototype.checkForSourceKeeper = function() {
+Creep.prototype.checkForSourceKeeper = function () {
   if (this.room.controller) {
     return false;
   }

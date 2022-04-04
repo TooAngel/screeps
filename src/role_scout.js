@@ -16,7 +16,7 @@ roles.scout.settings = {
  *
  * @param {object} creep
  */
-function move(creep) {
+function move (creep) {
   const targetPosObject = new RoomPosition(25, 25, creep.data.nextRoom);
   const search = PathFinder.search(
     creep.pos, {
@@ -36,7 +36,7 @@ function move(creep) {
  * @param {object} creep
  * @return {string}
  */
-function getNextRoom(creep) {
+function getNextRoom (creep) {
   const exits = Game.map.describeExits(creep.room.name);
   const rooms = Object.keys(exits).map((direction) => exits[direction]);
   rooms.sort(() => Math.random() - 0.5);
@@ -57,7 +57,7 @@ function getNextRoom(creep) {
  *
  * @param {object} creep
  */
-function explore(creep) {
+function explore (creep) {
   if (!creep.data.nextRoom) {
     creep.data.nextRoom = getNextRoom(creep);
   }
@@ -68,7 +68,7 @@ function explore(creep) {
   move(creep);
 }
 
-roles.scout.action = function(creep) {
+roles.scout.action = function (creep) {
   creep.notifyWhenAttacked(false);
   explore(creep);
   return true;

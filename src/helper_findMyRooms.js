@@ -4,7 +4,7 @@
  * @param {object} room - The room to search for
  * @return {list} - A list of room names
  **/
-function findRoomsWithinReach(room) {
+function findRoomsWithinReach (room) {
   const rooms = [];
   for (const myRoom of Memory.myRooms) {
     try {
@@ -28,7 +28,7 @@ module.exports.findRoomsWithinReach = findRoomsWithinReach;
  * @param {string} roomName - The roomName to calculate the distance to
  * @return {list} - MyRoom names sorted by distance
  **/
-function findMyRoomsSortByDistance(roomName) {
+function findMyRoomsSortByDistance (roomName) {
   const sortByDistance = (object) => {
     return Game.map.getRoomLinearDistance(roomName, object);
   };
@@ -45,7 +45,7 @@ module.exports.findMyRoomsSortByDistance = findMyRoomsSortByDistance;
  * @param {number} minRCL - The min RCL a room needs to have
  * @return {string} - A room name in range or `false` otherwise
  **/
-function getMyRoomWithinRange(roomName, range, minRCL) {
+function getMyRoomWithinRange (roomName, range, minRCL) {
   // TODO Instead of just finding one room, it should be the closest (or highest RCL)
   for (const myRoomName of Memory.myRooms) {
     const room = Game.rooms[myRoomName];

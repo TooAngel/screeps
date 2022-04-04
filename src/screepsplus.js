@@ -14,7 +14,7 @@
  *
  * @return {void}
  **/
-function runAgent() {
+function runAgent () {
   Memory.screepsplusToken = config.stats.screepsPlusToken;
   const output = `<SCRIPT>
   if (!document.pushStats) {

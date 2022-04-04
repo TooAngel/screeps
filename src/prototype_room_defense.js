@@ -1,6 +1,6 @@
 'use strict';
 
-Room.prototype.findAttackCreeps = function(object) {
+Room.prototype.findAttackCreeps = function (object) {
   if (object.owner.username === 'Source Keeper') {
     return false;
   }
@@ -29,7 +29,7 @@ Room.prototype.findAttackCreeps = function(object) {
   return false;
 };
 
-Room.prototype.handleNukeAttack = function() {
+Room.prototype.handleNukeAttack = function () {
   if (!this.executeEveryTicks(config.room.handleNukeAttackInterval)) {
     return false;
   }
@@ -46,7 +46,7 @@ Room.prototype.handleNukeAttack = function() {
     this.controller.activateSafeMode();
   }
 
-  const isRampart = function(object) {
+  const isRampart = function (object) {
     return object.structureType === STRUCTURE_RAMPART;
   };
 
@@ -70,10 +70,10 @@ Room.prototype.handleNukeAttack = function() {
   return true;
 };
 
-Room.prototype.handleTowerWithEnemys = function(hostileCreeps, towers) {
+Room.prototype.handleTowerWithEnemys = function (hostileCreeps, towers) {
   let tower;
   const hostileOffset = {};
-  const sortHostiles = function(object) {
+  const sortHostiles = function (object) {
     return tower.pos.getRangeTo(object) + (hostileOffset[object.id] || 0);
   };
 
@@ -96,7 +96,7 @@ Room.prototype.handleTowerWithEnemys = function(hostileCreeps, towers) {
  * @param {object} room
  * @param {array} towers
  */
-function letTowersRepairStructures(room, towers) {
+function letTowersRepairStructures (room, towers) {
   const repairableStructures = (object) => object.hits < object.hitsMax / 2;
 
   for (const tower of towers) {
@@ -124,7 +124,7 @@ function letTowersRepairStructures(room, towers) {
   }
 }
 
-Room.prototype.handleTower = function() {
+Room.prototype.handleTower = function () {
   const towers = this.findTowers();
   if (towers.length === 0) {
     return false;

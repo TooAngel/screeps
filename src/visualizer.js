@@ -1,7 +1,7 @@
 'use strict';
 global.visualizer = {
 
-  drawPosition(rv, position, text, color) {
+  drawPosition (rv, position, text, color) {
     rv.text(text, position.x, position.y + 0.2, {
       color: color,
       font: 0.7,
@@ -9,7 +9,7 @@ global.visualizer = {
     });
   },
 
-  drawPath(rv, path, color) {
+  drawPath (rv, path, color) {
     if (path.length) {
       rv.poly(path.map((p) => [p.x, p.y]), {
         stroke: color,
@@ -22,7 +22,7 @@ global.visualizer = {
   /**
    * draw fixed paths in room
    */
-  showRoomPaths() {
+  showRoomPaths () {
     for (const room of _.values(Game.rooms)) {
       const rv = room.visual;
       const paths = room.getMemoryPaths();
@@ -35,7 +35,7 @@ global.visualizer = {
   /**
    * draw creep paths from using moveTo
    */
-  showCreepPaths() {
+  showCreepPaths () {
     for (const creep of _.values(Game.creeps)) {
       const rv = creep.room.visual;
       if (creep.memory._move) {
@@ -48,7 +48,7 @@ global.visualizer = {
   /**
    * draw structures
    */
-  showStructures() {
+  showStructures () {
     for (const room of _.values(Game.rooms)) {
       if (!room.isMy()) {
         continue;
@@ -69,7 +69,7 @@ global.visualizer = {
     }
   },
 
-  showBlockers() {
+  showBlockers () {
     for (const room of _.values(Game.rooms)) {
       if (!room.isMy()) {
         continue;
@@ -101,7 +101,7 @@ global.visualizer = {
   /**
    * draw creep positions
    */
-  showCreeps() {
+  showCreeps () {
     for (const room of _.values(Game.rooms)) {
       if (!room.isMy()) {
         continue;
@@ -129,7 +129,7 @@ global.visualizer = {
     }
   },
 
-  showCostMatrix(roomName, costMatrixCallback) {
+  showCostMatrix (roomName, costMatrixCallback) {
     const rv = new RoomVisual(roomName);
     const cm = costMatrixCallback(roomName);
     if (cm) {
@@ -158,7 +158,7 @@ global.visualizer = {
     }
   },
 
-  showCostMatrixes() {
+  showCostMatrixes () {
     for (const room of _.values(Game.rooms)) {
       if (!room.isMy()) {
         continue;
@@ -169,7 +169,7 @@ global.visualizer = {
     }
   },
 
-  showSearch(search) {
+  showSearch (search) {
     if (search) {
       const rv = {};
       const getRV = (pos) => {
@@ -196,7 +196,7 @@ global.visualizer = {
     }
   },
 
-  render() {
+  render () {
     if (config.visualizer.showCostMatrixes) {
       this.showCostMatrixes();
     }
@@ -218,7 +218,7 @@ global.visualizer = {
   },
 };
 
-const getLines = function(room) {
+const getLines = function (room) {
   if (!room.controller) {
     return [];
   }
@@ -237,7 +237,7 @@ const getLines = function(room) {
   return lines;
 };
 
-global.visualizer.myRoomDatasDraw = function(roomName) {
+global.visualizer.myRoomDatasDraw = function (roomName) {
   const room = Game.rooms[roomName];
   const lines = getLines(room);
 

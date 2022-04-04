@@ -13,7 +13,7 @@ roles.powerhealer.settings = {
   maxLayoutAmount: 21,
 };
 
-roles.powerhealer.action = function(creep) {
+roles.powerhealer.action = function (creep) {
   creep.selfHeal();
   const myCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
     filter: (object) => object.hits < object.hitsMax,
@@ -32,7 +32,7 @@ roles.powerhealer.action = function(creep) {
   return true;
 };
 
-roles.powerhealer.heal = function(creep) {
+roles.powerhealer.heal = function (creep) {
   let range;
   let creepToHeal = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
     filter: (object) => object.hits < object.hitsMax / 1.5,

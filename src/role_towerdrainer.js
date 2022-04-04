@@ -22,7 +22,7 @@ roles.towerdrainer.settings = {
   maxLayoutAmount: 1,
 };
 
-roles.towerdrainer.getRestPosition = function(creep) {
+roles.towerdrainer.getRestPosition = function (creep) {
   const restRoom = creep.memory.routing.targetRoom;
   const attackRoom = creep.memory.attackRoom;
   if (!creep.memory.restPosition) {
@@ -48,7 +48,7 @@ roles.towerdrainer.getRestPosition = function(creep) {
   return creep.memory.restPosition;
 };
 
-roles.towerdrainer.action = function(creep) {
+roles.towerdrainer.action = function (creep) {
   const attackRoom = creep.memory.attackRoom;
   const restPos = roles.towerdrainer.getRestPosition(creep);
   if (!restPos) {

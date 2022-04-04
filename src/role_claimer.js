@@ -14,7 +14,7 @@ roles.claimer.settings = {
   maxLayoutAmount: 1,
 };
 
-roles.claimer.action = function(creep) {
+roles.claimer.action = function (creep) {
   creep.creepLog('New claimer, in room, claiming');
   // TODO just added the targetId to the creep, I hope it works
   // const returnCodeMove = creep.moveTo(creep.room.controller.pos);

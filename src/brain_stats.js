@@ -1,6 +1,6 @@
 'use strict';
 
-brain.stats.init = function() {
+brain.stats.init = function () {
   const userName = Memory.username;
   if (!config.stats.enabled || !userName) {
     return false;
@@ -23,7 +23,7 @@ brain.stats.init = function() {
   }
 };
 
-brain.stats.modifyRoleAmount = function(role, diff) {
+brain.stats.modifyRoleAmount = function (role, diff) {
   const userName = Memory.username;
   if (!config.stats.enabled || !userName) {
     return false;
@@ -45,7 +45,7 @@ brain.stats.modifyRoleAmount = function(role, diff) {
  * @param {Any} newContent The value to push into stats.
  * @return {boolean}
  */
-brain.stats.add = function(path, newContent) {
+brain.stats.add = function (path, newContent) {
   if (!config.stats.enabled || Game.time % 3) {
     return false;
   }
@@ -71,7 +71,7 @@ brain.stats.add = function(path, newContent) {
  *
  * @return {boolean}
  */
-brain.stats.addRoot = function() {
+brain.stats.addRoot = function () {
   if (!config.stats.enabled || Game.time % 3) {
     return false;
   }
@@ -100,7 +100,7 @@ brain.stats.addRoot = function() {
  * @param {Number} previousCpu
  * @return {boolean}
  */
-brain.stats.addRoom = function(roomName, previousCpu) {
+brain.stats.addRoom = function (roomName, previousCpu) {
   if (!config.stats.enabled || Game.time % 3) {
     return false;
   }
@@ -143,7 +143,7 @@ brain.stats.addRoom = function(roomName, previousCpu) {
   return true;
 };
 
-brain.stats.updateCpuStats = function() {
+brain.stats.updateCpuStats = function () {
   if (config.cpuStats.enabled) {
     Memory.cpuStats.last = {
       load: _.round(Game.cpu.getUsed()),

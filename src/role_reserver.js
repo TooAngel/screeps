@@ -16,7 +16,7 @@ roles.reserver.settings = {
   layoutString: 'MK',
   maxLayoutAmount: 1,
 };
-roles.reserver.updateSettings = function(room, creep) {
+roles.reserver.updateSettings = function (room, creep) {
   room.debugLog('reserver', `role_reserver.updateSettings; targetRoom: ${creep.routing.targetRoom}`);
   const targetRoom = Game.rooms[creep.routing.targetRoom];
   if (targetRoom) {
@@ -45,7 +45,7 @@ roles.reserver.updateSettings = function(room, creep) {
  * @param {object} creep
  * @return {bool}
  */
-function callCleaner(creep) {
+function callCleaner (creep) {
   if (creep.inBase()) {
     return false;
   }
@@ -68,7 +68,7 @@ function callCleaner(creep) {
  *
  * @param {object} creep
  */
-function callStructurer(creep) {
+function callStructurer (creep) {
   if (creep.room.isMy()) {
     creep.log(`Calling structurer with my room`);
     return;
@@ -85,7 +85,7 @@ function callStructurer(creep) {
  *
  * @param {object} creep
  */
-function interactWithControllerSuccess(creep) {
+function interactWithControllerSuccess (creep) {
   if (creep.room.controller.reservation) {
     creep.room.data.reservation = {
       base: creep.memory.base,
@@ -102,7 +102,7 @@ function interactWithControllerSuccess(creep) {
  * @param {object} creep
  * @return {bool}
  */
-function interactWithController(creep) {
+function interactWithController (creep) {
   let returnCode;
   if (creep.room.controller.owner && creep.room.controller.owner.username !== Memory.username) {
     creep.say('attack');
@@ -133,7 +133,7 @@ function interactWithController(creep) {
  *
  * @param {object} creep
  */
-function callDefender(creep) {
+function callDefender (creep) {
   const hostiles = creep.room.findEnemys();
   const invaderCores = creep.room.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_INVADER_CORE}});
   if (hostiles.length > 0 || invaderCores.length > 0) {
@@ -151,7 +151,7 @@ function callDefender(creep) {
 }
 
 
-roles.reserver.action = function(creep) {
+roles.reserver.action = function (creep) {
   creep.mySignController();
   creep.setNextSpawn();
   if (creep.room.data.state !== 'Controlled') {

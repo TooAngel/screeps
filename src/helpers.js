@@ -4,7 +4,7 @@
  * @param {object} room
  * @return {void}
  */
-function printRoomCostMatrix(room) {
+function printRoomCostMatrix (room) {
   let line = '    ';
   for (let x = 0; x < 50; x++) {
     line += x.toString().padStart(3, ' ');
@@ -27,7 +27,7 @@ module.exports.printRoomCostMatrix = printRoomCostMatrix;
  * @param {object} costMatrix
  * @return {void}
  */
-function printCostMatrix(costMatrix) {
+function printCostMatrix (costMatrix) {
   let line = '    ';
   for (let x = 0; x < 50; x++) {
     line += x.toString().padStart(3, ' ');

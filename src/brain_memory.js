@@ -2,7 +2,7 @@
 
 const {debugLog} = require('./logging');
 
-brain.setConstructionSites = function() {
+brain.setConstructionSites = function () {
   if (!Memory.constructionSites) {
     Memory.constructionSites = {};
   }
@@ -28,12 +28,12 @@ brain.setConstructionSites = function() {
   }
 };
 
-brain.addToStats = function(name) {
+brain.addToStats = function (name) {
   const role = Memory.creeps[name].role;
   brain.stats.modifyRoleAmount(role, -1);
 };
 
-brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
+brain.handleUnexpectedDeadCreeps = function (name, creepMemory) {
   let data = {};
   if (creepMemory.room) {
     data = global.data.rooms[creepMemory.room];
@@ -75,7 +75,7 @@ brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
   }
 };
 
-brain.cleanCreeps = function() {
+brain.cleanCreeps = function () {
   // Cleanup memory
   if (!Memory.creeps) {
     return;
@@ -111,7 +111,7 @@ brain.cleanCreeps = function() {
   }
 };
 
-brain.cleanSquads = function() {
+brain.cleanSquads = function () {
   if (Game.time % 1500 === 0) {
     for (const squadId of Object.keys(Memory.squads)) {
       const squad = Memory.squads[squadId];
@@ -123,7 +123,7 @@ brain.cleanSquads = function() {
   }
 };
 
-brain.cleanRooms = function() {
+brain.cleanRooms = function () {
   if (Game.time % 300 === 0) {
     for (const name of Object.keys(Memory.rooms)) {
       // TODO lastSeen moved to global.data - so we should check this, also Memory.rooms should only exist for myRooms
@@ -144,8 +144,8 @@ brain.cleanRooms = function() {
   }
 };
 
-brain.getStorageStringForRoom = function(strings, room) {
-  const addToString = function(variable, name, value) {
+brain.getStorageStringForRoom = function (strings, room) {
+  const addToString = function (variable, name, value) {
     strings[variable] += name + ':' + value + ' ';
   };
 
@@ -161,7 +161,7 @@ brain.getStorageStringForRoom = function(strings, room) {
   }
 };
 
-brain.printSummary = function() {
+brain.printSummary = function () {
   const interval = 100;
   if (Game.time % interval !== 0) {
     return;
@@ -202,7 +202,7 @@ Upgrade less: ${strings.upgradeLess}
 =========================`);
 };
 
-brain.prepareMemory = function() {
+brain.prepareMemory = function () {
   Memory.username = Memory.username || _.chain(Game.rooms).map('controller').flatten().filter('my').map('owner.username').first().value();
   Memory.myRooms = Memory.myRooms || [];
   Memory.squads = Memory.squads || {};
@@ -217,7 +217,7 @@ brain.prepareMemory = function() {
   }
 };
 
-brain.cleanAllMemory = function() {
+brain.cleanAllMemory = function () {
   const keys = _.map(_.keys(Memory), (value, key) => {
     if (key !== 'players') {
       delete Memory[key];

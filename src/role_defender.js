@@ -19,7 +19,7 @@ roles.defender.settings = {
   // fillTough: true,
 };
 
-roles.defender.preMove = function(creep) {
+roles.defender.preMove = function (creep) {
   creep.selfHeal();
   const target = creep.findClosestEnemy();
   if (target !== null) {
@@ -36,7 +36,7 @@ roles.defender.preMove = function(creep) {
   }
 };
 
-roles.defender.action = function(creep) {
+roles.defender.action = function (creep) {
   if (creep.inBase() && creep.memory.reverse) {
     return Creep.recycleCreep(creep);
   }

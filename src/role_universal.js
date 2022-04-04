@@ -30,7 +30,7 @@ roles.universal.settings = {
   },
   maxLayoutAmount: 6,
 };
-roles.universal.updateSettings = function(room) {
+roles.universal.updateSettings = function (room) {
   if (!room.isStruggeling() && room.energyAvailable >= 350) {
     // Layoutcost minimum: prefix 250 + layout 100 -> 350
     return {
@@ -49,7 +49,7 @@ roles.universal.updateSettings = function(room) {
 roles.universal.buildRoad = true;
 roles.universal.boostActions = ['capacity'];
 
-const universalBeforeStorage = function(creep) {
+const universalBeforeStorage = function (creep) {
   if (creep.room.isStruggeling()) {
     creep.universalBeforeStorage();
     creep.memory.routing.reached = false;
@@ -63,7 +63,7 @@ const universalBeforeStorage = function(creep) {
  *
  * @param {object} creep
  */
-function pickupResourcesInRange(creep) {
+function pickupResourcesInRange (creep) {
   const resources = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1);
   if (resources.length > 0) {
     creep.pickup(resources[0]);
@@ -75,7 +75,7 @@ function pickupResourcesInRange(creep) {
  *
  * @param {object} creep
  */
-function handlePathEnd(creep) {
+function handlePathEnd (creep) {
   if (creep.room.memory.position.pathEndLevel) {
     if (creep.memory.routing.pathPos >= creep.room.memory.position.pathEndLevel[creep.room.controller.level]) {
       creep.memory.move_forward_direction = false;
@@ -92,7 +92,7 @@ function handlePathEnd(creep) {
  * @param {bool} reverse
  * @return {bool}
  */
-function handlePathStart(creep, reverse) {
+function handlePathStart (creep, reverse) {
   if (creep.memory.routing.pathPos === 0) {
     for (const resource in creep.carry) {
       if (resource === RESOURCE_ENERGY) {
@@ -114,7 +114,7 @@ function handlePathStart(creep, reverse) {
   creep.memory.routing.reverse = reverse || !creep.memory.move_forward_direction;
 }
 
-roles.universal.preMove = function(creep, directions) {
+roles.universal.preMove = function (creep, directions) {
   creep.creepLog(`preMove`);
   if (universalBeforeStorage(creep)) {
     return true;
@@ -156,7 +156,7 @@ roles.universal.preMove = function(creep, directions) {
   handlePathEnd(creep);
 };
 
-roles.universal.action = function(creep) {
+roles.universal.action = function (creep) {
   creep.creepLog(`action`);
   if (!creep.memory.routing.targetId) {
     creep.memory.routing.targetId = 'universal';

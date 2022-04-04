@@ -1,6 +1,6 @@
 'use strict';
 
-Creep.execute = function(creep, methods) {
+Creep.execute = function (creep, methods) {
   for (const method of methods) {
     if (method(creep)) {
       return true;
@@ -8,7 +8,7 @@ Creep.execute = function(creep, methods) {
   }
 };
 
-Creep.upgradeControllerTask = function(creep) {
+Creep.upgradeControllerTask = function (creep) {
   creep.creepLog('upgradeControllerTask');
   if (creep.carry.energy === 0) {
     return false;
@@ -38,16 +38,16 @@ Creep.upgradeControllerTask = function(creep) {
   return true;
 };
 
-Creep.constructTask = function(creep) {
+Creep.constructTask = function (creep) {
   creep.creepLog('construct');
   return creep.construct();
 };
 
-Creep.transferEnergy = function(creep) {
+Creep.transferEnergy = function (creep) {
   return creep.transferEnergy();
 };
 
-Creep.buildRoads = function(creep) {
+Creep.buildRoads = function (creep) {
   const room = Game.rooms[creep.room.name];
 
   // TODO extract to roomposition
@@ -57,7 +57,7 @@ Creep.buildRoads = function(creep) {
    * @param {object} pos - The position
    * @return {boolean} - road is on position
    */
-  function checkForRoad(pos) {
+  function checkForRoad (pos) {
     const structures = pos.lookFor('structure');
     for (const structuresIndex in structures) {
       if (structures[structuresIndex].structureType === STRUCTURE_ROAD) {
@@ -98,7 +98,7 @@ Creep.buildRoads = function(creep) {
   return false;
 };
 
-Creep.recycleCreep = function(creep) {
+Creep.recycleCreep = function (creep) {
   if (creep.memory.role === 'builder') {
     if (creep.room.buildStructures()) {
       creep.memory.recycle = false;
@@ -125,15 +125,15 @@ Creep.recycleCreep = function(creep) {
   return true;
 };
 
-Creep.getEnergy = function(creep) {
+Creep.getEnergy = function (creep) {
   return creep.getEnergy();
 };
 
-Creep.repairStructure = function(creep) {
+Creep.repairStructure = function (creep) {
   return creep.repairStructure();
 };
 
-Creep.prototype.getEnergyFromHostileStructures = function() {
+Creep.prototype.getEnergyFromHostileStructures = function () {
   let hostileStructures = this.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_OBSERVER], {
     inverse: true,
     filter: Room.structureHasEnergy,
@@ -160,7 +160,7 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
   return true;
 };
 
-Creep.prototype.getEnergyFromStorage = function() {
+Creep.prototype.getEnergyFromStorage = function () {
   if (!this.room.storage) {
     return false;
   }
@@ -182,7 +182,7 @@ Creep.prototype.getEnergyFromStorage = function() {
   return true;
 };
 
-Creep.prototype.actuallyRepairStructure = function(toRepair) {
+Creep.prototype.actuallyRepairStructure = function (toRepair) {
   this.creepLog('actuallyRepairStructure');
   const range = this.pos.getRangeTo(toRepair);
   if (range <= 3) {
@@ -212,7 +212,7 @@ Creep.prototype.actuallyRepairStructure = function(toRepair) {
   return true;
 };
 
-Creep.prototype.repairStructureWithIncomingNuke = function() {
+Creep.prototype.repairStructureWithIncomingNuke = function () {
   const nukes = this.room.findNukes();
   if (nukes.length === 0) {
     return false;
@@ -245,7 +245,7 @@ Creep.prototype.repairStructureWithIncomingNuke = function() {
   }
 };
 
-Creep.prototype.repairStructureGetTarget = function() {
+Creep.prototype.repairStructureGetTarget = function () {
   const toRepair = Game.getObjectById(this.memory.routing.targetId);
   if (!toRepair || toRepair === null) {
     this.say('No target');
@@ -264,7 +264,7 @@ Creep.prototype.repairStructureGetTarget = function() {
  * @param {number} step
  * @return {bool}
  */
-function isStructureWithinRepairStepRange(structure, step) {
+function isStructureWithinRepairStepRange (structure, step) {
   if (structure.hits >= structure.hitsMax) {
     return false;
   }
@@ -274,7 +274,7 @@ function isStructureWithinRepairStepRange(structure, step) {
   return true;
 }
 
-Creep.prototype.repairKnownTarget = function() {
+Creep.prototype.repairKnownTarget = function () {
   if (!this.memory.routing.targetId) {
     this.creepLog('repairKnownTarget no targetId');
     return false;
@@ -310,7 +310,7 @@ Creep.prototype.repairKnownTarget = function() {
   return this.actuallyRepairStructure(toRepair);
 };
 
-Creep.prototype.repairStructure = function() {
+Creep.prototype.repairStructure = function () {
   this.creepLog('repairStructure');
   if (this.repairKnownTarget()) {
     if (this.pos.roomName !== this.memory.base) {
@@ -394,7 +394,7 @@ Creep.prototype.repairStructure = function() {
  * @param {Resource} target Resource object to pick up
  * @return {number} total received resources amount
  */
-Creep.prototype.pickupOrWithdrawFromSourcer = function(target) {
+Creep.prototype.pickupOrWithdrawFromSourcer = function (target) {
   const creepFreeSpace = this.carryCapacity - _.sum(this.carry);
   let pickedUp = 0;
   // this.log('pickupOrWithdrawFromSourcer free '+creepFreeSpace+' '+target+' '+target.amount)

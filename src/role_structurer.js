@@ -24,7 +24,7 @@ roles.structurer.settings = {
  * @param {object} structure - The structure to check and dismantle
  * @return {boolean} - Dismantling
  **/
-function dismantleStructure(creep, structure) {
+function dismantleStructure (creep, structure) {
   if (structure.structureType === STRUCTURE_ROAD) {
     return false;
   }
@@ -45,7 +45,7 @@ function dismantleStructure(creep, structure) {
  * @param {object} directions - The directions object
  * @return {void}
  **/
-function findAndDismantleStructure(creep, directions) {
+function findAndDismantleStructure (creep, directions) {
   if (!directions || !directions.forwardDirection) {
     return;
   }
@@ -66,7 +66,7 @@ function findAndDismantleStructure(creep, directions) {
  * @param {object} directions - The directions object
  * @return {void}
  **/
-function preMoveTargetRoom(creep, directions) {
+function preMoveTargetRoom (creep, directions) {
   if (creep.room.name !== creep.memory.routing.targetRoom) {
     return;
   }
@@ -80,7 +80,7 @@ function preMoveTargetRoom(creep, directions) {
   findAndDismantleStructure(creep, directions);
 }
 
-roles.structurer.preMove = function(creep, directions) {
+roles.structurer.preMove = function (creep, directions) {
   creep.creepLog(`preMove: targetId: ${creep.memory.routing.targetId}`);
   preMoveTargetRoom(creep, directions);
 
@@ -97,7 +97,7 @@ roles.structurer.preMove = function(creep, directions) {
   }
 };
 
-roles.structurer.action = function(creep) {
+roles.structurer.action = function (creep) {
   creep.creepLog('action');
   if (!creep.room.controller || !creep.room.controller.my) {
     const structure = creep.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD], {

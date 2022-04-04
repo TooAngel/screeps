@@ -18,7 +18,7 @@ roles.extractor.settings = {
 roles.extractor.boostActions = ['harvest'];
 roles.extractor.buildRoad = true;
 
-roles.extractor.preMove = function(creep, directions) {
+roles.extractor.preMove = function (creep, directions) {
   creep.preMoveExtractorSourcer(directions);
 };
 
@@ -28,7 +28,7 @@ roles.extractor.preMove = function(creep, directions) {
  * @param {object} creep - The creep
  * @return {object} - The tower
  **/
-function getMineral(creep) {
+function getMineral (creep) {
   if (!creep.data.mineral) {
     const minerals = creep.room.findMinerals();
     creep.data.mineral = minerals[0].id;
@@ -36,7 +36,7 @@ function getMineral(creep) {
   return Game.getObjectById(creep.data.mineral);
 }
 
-roles.extractor.action = function(creep) {
+roles.extractor.action = function (creep) {
   if (!creep.room.terminal) {
     creep.suicide();
     return true;

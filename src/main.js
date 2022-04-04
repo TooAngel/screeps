@@ -27,7 +27,7 @@ console.log(`${Game.time} Script reload - Load: ${global.load} tickLimit: ${Game
 brain.stats.init();
 brain.main.profilerInit();
 
-module.exports.loop = function() {
+module.exports.loop = function () {
   if (config.main.enabled) {
     if (config.profiler.enabled) {
       global.profiler.wrap(() => {

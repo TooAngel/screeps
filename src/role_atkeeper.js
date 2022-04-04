@@ -15,17 +15,17 @@ roles.atkeeper.settings = {
   fillTough: false,
 };
 
-roles.atkeeper.preMove = function(creep) {
+roles.atkeeper.preMove = function (creep) {
   creep.checkForRoutingReached();
 };
 
-roles.atkeeper.action = function(creep) {
+roles.atkeeper.action = function (creep) {
   // TODO Untested
   creep.spawnReplacement();
   creep.setNextSpawn();
   const creepsRolesToHeal = ['atkeeper', 'atkeepermelee', 'sourcer', 'carry', 'extractor'];
   const center = new RoomPosition(25, 25, creep.memory.routing.targetRoom);
-  const moveToCenter = function(creep, near) {
+  const moveToCenter = function (creep, near) {
     near = near || 10;
     if (Game.time % 3 > 0) {
       return creep.moveToMy(center, near);
@@ -34,7 +34,7 @@ roles.atkeeper.action = function(creep) {
     }
   };
   const damaged = (o) => o.isDamaged() < 1;
-  const healAndMove = function(creep) {
+  const healAndMove = function (creep) {
     let creepsDamaged = creep.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', creepsRolesToHeal, {
       filter: damaged,
     });
@@ -58,7 +58,7 @@ roles.atkeeper.action = function(creep) {
     }
     return false;
   };
-  const fightRangedInvaders = function(creep) {
+  const fightRangedInvaders = function (creep) {
     if (creep.getActiveBodyparts(RANGED_ATTACK) === 0) {
       return false;
     }

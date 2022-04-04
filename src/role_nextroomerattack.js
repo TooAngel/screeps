@@ -14,11 +14,11 @@ roles.nextroomerattack.settings = {
   fillTough: true,
 };
 
-roles.nextroomerattack.died = function(name) {
+roles.nextroomerattack.died = function (name) {
   brain.main.cleanUpDyingCreep(name);
 };
 
-roles.nextroomerattack.action = function(creep) {
+roles.nextroomerattack.action = function (creep) {
   if (!creep.memory.notified) {
     creep.log('Attacking');
     Game.notify(Game.time + ' ' + creep.room.name + ' Attacking');

@@ -1,10 +1,10 @@
 'use strict';
 
-Creep.pickableResources = function(creep) {
+Creep.pickableResources = function (creep) {
   return (object) => creep.pos.isNearTo(object);
 };
 
-Creep.prototype.universalBeforeStorage = function() {
+Creep.prototype.universalBeforeStorage = function () {
   this.creepLog(`universalBeforeStorage`);
   const methods = [];
 
@@ -34,7 +34,7 @@ Creep.prototype.universalBeforeStorage = function() {
   return true;
 };
 
-Creep.prototype.checkCarryEnergyForBringingBackToStorage = function(otherCreep) {
+Creep.prototype.checkCarryEnergyForBringingBackToStorage = function (otherCreep) {
   let offset = 0;
   if (otherCreep) {
     offset = otherCreep.store.getUsedCapacity();
@@ -53,11 +53,11 @@ Creep.prototype.checkCarryEnergyForBringingBackToStorage = function(otherCreep) 
 };
 
 // return true if helper can't transfer to creep
-Creep.prototype.checkHelperNoTransfer = function(creep) {
+Creep.prototype.checkHelperNoTransfer = function (creep) {
   return creep.memory.base !== this.memory.base;
 };
 
-Creep.prototype.findCreepWhichCanTransfer = function(creeps) {
+Creep.prototype.findCreepWhichCanTransfer = function (creeps) {
   for (let i = 0; i < creeps.length; i++) {
     const otherCreep = creeps[i];
     if (!Game.creeps[otherCreep.name] || otherCreep.store.getUsedCapacity() < 50 || otherCreep.memory.recycle) {
@@ -78,7 +78,7 @@ Creep.prototype.findCreepWhichCanTransfer = function(creeps) {
   return false;
 };
 
-Creep.prototype.checkForTransfer = function(direction) {
+Creep.prototype.checkForTransfer = function (direction) {
   if (!direction) {
     this.creepLog(`checkForTransfer no direction}`);
     return false;
@@ -95,7 +95,7 @@ Creep.prototype.checkForTransfer = function(direction) {
   return this.findCreepWhichCanTransfer(creeps);
 };
 
-Creep.prototype.pickupWhileMoving = function() {
+Creep.prototype.pickupWhileMoving = function () {
   if (this.inBase() && this.memory.routing.pathPos < 2) {
     return false;
   }
@@ -130,7 +130,7 @@ Creep.prototype.pickupWhileMoving = function() {
   return false;
 };
 
-Creep.prototype.withdrawEnergyFromTarget = function(target) {
+Creep.prototype.withdrawEnergyFromTarget = function (target) {
   let returnValue = false;
   const returnCode = this.withdraw(target, RESOURCE_ENERGY);
   if (returnCode === OK) {
@@ -139,7 +139,7 @@ Creep.prototype.withdrawEnergyFromTarget = function(target) {
   return returnValue;
 };
 
-Creep.prototype.withdrawResourcesFromTarget = function(target) {
+Creep.prototype.withdrawResourcesFromTarget = function (target) {
   let returnValue = false;
   const resources = Object.keys(target.store);
   for (const resource of resources) {
@@ -150,7 +150,7 @@ Creep.prototype.withdrawResourcesFromTarget = function(target) {
   return returnValue;
 };
 
-Creep.prototype.withdrawResourcesFromTargets = function(targets, onlyEnergy) {
+Creep.prototype.withdrawResourcesFromTargets = function (targets, onlyEnergy) {
   let returnValue = false;
   for (const target of targets) {
     if (!returnValue) {
@@ -160,7 +160,7 @@ Creep.prototype.withdrawResourcesFromTargets = function(targets, onlyEnergy) {
   return returnValue;
 };
 
-Creep.prototype.withdrawTombstone = function(onlyEnergy) {
+Creep.prototype.withdrawTombstone = function (onlyEnergy) {
   onlyEnergy = onlyEnergy || false;
   let returnValue = false;
   // FIND_TOMBSTONES and get them empty first
@@ -175,7 +175,7 @@ Creep.prototype.withdrawTombstone = function(onlyEnergy) {
   return returnValue;
 };
 
-Creep.prototype.withdrawContainers = function() {
+Creep.prototype.withdrawContainers = function () {
   let returnValue = false;
   const containers = this.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_CONTAINER]);
   if (containers.length > 0) {
@@ -187,7 +187,7 @@ Creep.prototype.withdrawContainers = function() {
   return returnValue;
 };
 
-Creep.prototype.giveSourcersEnergy = function() {
+Creep.prototype.giveSourcersEnergy = function () {
   let returnValue = false;
   const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer']);
   if (sourcers.length > 0) {
@@ -201,7 +201,7 @@ Creep.prototype.giveSourcersEnergy = function() {
   return returnValue;
 };
 
-Creep.prototype.pickupEnergy = function() {
+Creep.prototype.pickupEnergy = function () {
   const resources = this.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
     filter: {resourceType: RESOURCE_ENERGY},
   });
@@ -225,7 +225,7 @@ Creep.prototype.pickupEnergy = function() {
   return this.giveSourcersEnergy();
 };
 
-const checkCreepForTransfer = function(otherCreep, thisCreep) {
+const checkCreepForTransfer = function (otherCreep, thisCreep) {
   if (!Memory.creeps[otherCreep.name]) {
     return false;
   }
@@ -250,7 +250,7 @@ const checkCreepForTransfer = function(otherCreep, thisCreep) {
   return true;
 };
 
-Creep.prototype.transferToCreep = function(direction) {
+Creep.prototype.transferToCreep = function (direction) {
   const adjacentPos = this.pos.getAdjacentPosition(direction);
   if (!adjacentPos.isValid()) {
     return false;
@@ -272,7 +272,7 @@ Creep.prototype.transferToCreep = function(direction) {
   return false;
 };
 
-const canStoreEnergy = function(object) {
+const canStoreEnergy = function (object) {
   const structureTypes = [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART, STRUCTURE_OBSERVER];
   if (structureTypes.indexOf(object.structureType) >= 0) {
     return false;
@@ -280,7 +280,7 @@ const canStoreEnergy = function(object) {
   return true;
 };
 
-const energyAcceptingLink = function(object, room) {
+const energyAcceptingLink = function (object, room) {
   if (object.structureType === STRUCTURE_LINK) {
     for (let i = 0; i < 3; i++) {
       const linkPos = room.data.positions.structure.link[i];
@@ -292,14 +292,14 @@ const energyAcceptingLink = function(object, room) {
   return true;
 };
 
-const terminalAvailable = function(object) {
+const terminalAvailable = function (object) {
   if (object.structureType === STRUCTURE_TERMINAL && (object.store.energy || 0) > config.terminal.maxEnergyAmount) {
     return false;
   }
   return true;
 };
 
-const universalTarget = function(creep, object) {
+const universalTarget = function (creep, object) {
   if (creep.memory.role === 'universal') {
     if (object.structureType === STRUCTURE_STORAGE || object.structureType === STRUCTURE_LINK) {
       return false;
@@ -308,7 +308,7 @@ const universalTarget = function(creep, object) {
   return true;
 };
 
-const filterTransferrables = function(creep, object) {
+const filterTransferrables = function (creep, object) {
   if (!canStoreEnergy(object)) {
     return false;
   }
@@ -334,7 +334,7 @@ const filterTransferrables = function(creep, object) {
   return true;
 };
 
-Creep.prototype.transferAllResources = function(structure) {
+Creep.prototype.transferAllResources = function (structure) {
   let transferred = false;
   for (const resource in this.store) {
     if (!resource) {
@@ -352,7 +352,7 @@ Creep.prototype.transferAllResources = function(structure) {
   return transferred;
 };
 
-Creep.prototype.transferToStructures = function() {
+Creep.prototype.transferToStructures = function () {
   if (_.sum(this.store) === 0) {
     return false;
   }
@@ -386,7 +386,7 @@ Creep.prototype.transferToStructures = function() {
   return false;
 };
 
-Creep.prototype.getEnergyFromSourcer = function() {
+Creep.prototype.getEnergyFromSourcer = function () {
   const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer'], {
     filter: (creep) => creep.store.energy > 0,
   });
@@ -400,7 +400,7 @@ Creep.prototype.getEnergyFromSourcer = function() {
   return false;
 };
 
-Creep.prototype.moveToSource = function(source, swarm = false) {
+Creep.prototype.moveToSource = function (source, swarm = false) {
   this.memory.routing.reverse = false;
   if (swarm && this.pos.inRangeTo(source, 3)) {
     this.moveToMy(source.pos);
@@ -419,7 +419,7 @@ Creep.prototype.moveToSource = function(source, swarm = false) {
   return true;
 };
 
-Creep.prototype.harvestSource = function(source) {
+Creep.prototype.harvestSource = function (source) {
   this.harvest(source);
   if (this.store.energy === this.store.getCapacity() && this.store.getCapacity() > 0) {
     const creepsWithoutEnergy = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'carry.energy', [0]);
@@ -434,7 +434,7 @@ Creep.prototype.harvestSource = function(source) {
   return true;
 };
 
-Creep.prototype.getSourceToHarvest = function(swarmSourcesFilter) {
+Creep.prototype.getSourceToHarvest = function (swarmSourcesFilter) {
   let source;
   if (this.memory.source) {
     source = Game.getObjectById(this.memory.source);
@@ -447,7 +447,7 @@ Creep.prototype.getSourceToHarvest = function(swarmSourcesFilter) {
   return source;
 };
 
-Creep.prototype.getEnergyFromSource = function() {
+Creep.prototype.getEnergyFromSource = function () {
   let swarm = false;
   let swarmSourcesFilter;
   if (config.swarmSourceHarvestingMaxParts < this.body.filter((b) => b.type === WORK).length) {
@@ -480,7 +480,7 @@ Creep.prototype.getEnergyFromSource = function() {
   }
 };
 
-Creep.prototype.setHasEnergy = function() {
+Creep.prototype.setHasEnergy = function () {
   if (this.memory.hasEnergy === undefined) {
     this.memory.hasEnergy = (this.store.energy === this.store.getCapacity());
   } else if (this.memory.hasEnergy && this.store.energy === 0) {
@@ -491,7 +491,7 @@ Creep.prototype.setHasEnergy = function() {
   }
 };
 
-Creep.prototype.getDroppedEnergy = function() {
+Creep.prototype.getDroppedEnergy = function () {
   const target = this.pos.findClosestByRangePropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], {
     filter: (object) => object.amount > 0,
   });
@@ -511,7 +511,7 @@ Creep.prototype.getDroppedEnergy = function() {
   return false;
 };
 
-Creep.prototype.getEnergy = function() {
+Creep.prototype.getEnergy = function () {
   /* State machine:
    * No energy, goes to collect energy until full.
    * Full energy, uses energy until empty.
@@ -539,7 +539,7 @@ Creep.prototype.getEnergy = function() {
   return this.getEnergyFromSource();
 };
 
-Creep.prototype.buildConstructionSite = function(target) {
+Creep.prototype.buildConstructionSite = function (target) {
   const returnCode = this.build(target);
   if (returnCode === OK) {
     this.moveRandomWithin(target.pos);
@@ -556,7 +556,7 @@ Creep.prototype.buildConstructionSite = function(target) {
   return false;
 };
 
-Creep.prototype.moveToAndBuildConstructionSite = function(target) {
+Creep.prototype.moveToAndBuildConstructionSite = function (target) {
   this.creepLog('moveToAndBuildConstructionSite');
   const range = this.pos.getRangeTo(target);
   if (range <= 3) {
@@ -569,7 +569,7 @@ Creep.prototype.moveToAndBuildConstructionSite = function(target) {
   return true;
 };
 
-Creep.prototype.construct = function() {
+Creep.prototype.construct = function () {
   let target;
   if (this.memory.routing.targetId) {
     target = Game.getObjectById(this.memory.routing.targetId);
@@ -594,7 +594,7 @@ Creep.prototype.construct = function() {
   return this.moveToAndBuildConstructionSite(target);
 };
 
-Creep.prototype.getTransferTargetStructure = function() {
+Creep.prototype.getTransferTargetStructure = function () {
   let structure = this.pos.findClosestStructureWithMissingEnergyByRange(
     (object) => object.structureType !== STRUCTURE_STORAGE && object.structureType !== STRUCTURE_LINK,
   );
@@ -618,7 +618,7 @@ Creep.prototype.getTransferTargetStructure = function() {
   }
 };
 
-Creep.prototype.getTransferTarget = function() {
+Creep.prototype.getTransferTarget = function () {
   if (!this.memory.targetEnergyMy) {
     this.getTransferTargetStructure();
     if (!this.memory.targetEnergyMy) {
@@ -634,7 +634,7 @@ Creep.prototype.getTransferTarget = function() {
   return target;
 };
 
-Creep.prototype.transferEnergy = function() {
+Creep.prototype.transferEnergy = function () {
   const target = this.getTransferTarget();
   if (!target) {
     return false;

@@ -1,4 +1,4 @@
-function debugLog(type, ...messages) {
+function debugLog (type, ...messages) {
   if (config.debug[type]) {
     console.log(`${Game.time} ${messages.join(' ')}`);
   }
@@ -6,22 +6,22 @@ function debugLog(type, ...messages) {
 
 module.exports.debugLog = debugLog;
 
-Room.prototype.log = function(...messages) {
+Room.prototype.log = function (...messages) {
   console.log(`${Game.time} ${this.name.rpad(' ', 27)} ${messages.join(' ')}`);
 };
 
-Room.prototype.debugLog = function(type, ...messages) {
+Room.prototype.debugLog = function (type, ...messages) {
   if (config.debug[type]) {
     this.log(messages);
   }
 };
 
-RoomObject.prototype.log = function(...messages) {
+RoomObject.prototype.log = function (...messages) {
   const name = this.name || this.structureType;
   console.log(`${Game.time} ${this.room.name.rpad(' ', 6)} ${name.rpad(' ', 20)} ${this.pos} ${messages.join(' ')}`);
 };
 
-RoomPosition.prototype.log = function(...messages) {
+RoomPosition.prototype.log = function (...messages) {
   const coords = ('[' + this.x + ',' + this.y + ']').rpad(' ', 20);
   console.log(`${Game.time} ${this.roomName.rpad(' ', 6)} ${coords} ${messages.join(' ')}`);
 };
@@ -33,7 +33,7 @@ RoomPosition.prototype.log = function(...messages) {
  *
  * @param messages The message to log
  */
-Creep.prototype.creepLog = function(...messages) {
+Creep.prototype.creepLog = function (...messages) {
   if (config.debug.creepLog.roles !== '*' && config.debug.creepLog.roles.indexOf(this.memory.role) < 0) {
     return;
   }

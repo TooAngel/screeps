@@ -15,7 +15,7 @@ roles.powertransporter.settings = {
   fillTough: true,
 };
 
-roles.powertransporter.moveHome = function(creep) {
+roles.powertransporter.moveHome = function (creep) {
   if (creep.carry.power > 0) {
     let storagePos;
     if (!creep.memory.storagePos) {
@@ -37,7 +37,7 @@ roles.powertransporter.moveHome = function(creep) {
   return false;
 };
 
-roles.powertransporter.moveToBankOrResource = function(creep) {
+roles.powertransporter.moveToBankOrResource = function (creep) {
   const powerBank = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_POWER_BANK]);
   if (powerBank.length > 0) {
     const range = creep.pos.getRangeTo(powerBank[0]);
@@ -58,7 +58,7 @@ roles.powertransporter.moveToBankOrResource = function(creep) {
   return resource;
 };
 
-roles.powertransporter.action = function(creep) {
+roles.powertransporter.action = function (creep) {
   if (creep.carry.energy) {
     creep.drop(RESOURCE_ENERGY);
   }

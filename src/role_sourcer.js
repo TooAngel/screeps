@@ -42,7 +42,7 @@ roles.sourcer.killPrevious = true;
 // TODO should be true, but flee must be fixed before 2016-10-13
 roles.sourcer.flee = false;
 
-roles.sourcer.updateSettings = function(room, creep) {
+roles.sourcer.updateSettings = function (room, creep) {
   if (!room.storage) {
     return false;
   }
@@ -67,7 +67,7 @@ roles.sourcer.updateSettings = function(room, creep) {
   return false;
 };
 
-roles.sourcer.preMove = function(creep, directions) {
+roles.sourcer.preMove = function (creep, directions) {
   return creep.preMoveExtractorSourcer(directions);
 };
 
@@ -77,7 +77,7 @@ roles.sourcer.preMove = function(creep, directions) {
  * @param {object} creep - The creep
  * @return {object} - The tower
  **/
-function getSource(creep) {
+function getSource (creep) {
   if (!creep.data.source) {
     const source = Game.getObjectById(creep.memory.routing.targetId);
     creep.data.source = source.id;
@@ -91,7 +91,7 @@ function getSource(creep) {
  * @param {object} creep
  * @return {bool}
  */
-function harvest(creep) {
+function harvest (creep) {
   const source = getSource(creep);
   const returnCode = creep.harvest(source);
   if (returnCode === OK) {
@@ -127,7 +127,7 @@ function harvest(creep) {
  *
  * @param {object} creep
  */
-function transferToLink(creep) {
+function transferToLink (creep) {
   const link = creep.getCloseByLink();
   if (link) {
     creep.transfer(link, RESOURCE_ENERGY);
@@ -140,7 +140,7 @@ function transferToLink(creep) {
  * @param {object} creep - The creep
  * @return {object} - The container
  **/
-function getContainer(creep) {
+function getContainer (creep) {
   if (!creep.data.container) {
     const structures = creep.pos.findInRange(FIND_STRUCTURES, 0, {filter: {structureType: STRUCTURE_CONTAINER}});
     if (structures.length === 0) {
@@ -157,7 +157,7 @@ function getContainer(creep) {
  * @param {object} creep - The creep
  * @return {object} - The container
  **/
-function getContainerConstructionSite(creep) {
+function getContainerConstructionSite (creep) {
   if (!creep.data.containerConstructionSite) {
     const constructionSites = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 0, {filter: {structureType: STRUCTURE_CONTAINER}});
     if (constructionSites.length === 0) {
@@ -174,7 +174,7 @@ function getContainerConstructionSite(creep) {
  * @param {object} creep
  * @return {bool}
  */
-function maintainContainer(creep) {
+function maintainContainer (creep) {
   if (creep.inBase()) {
     return false;
   }
@@ -203,7 +203,7 @@ function maintainContainer(creep) {
   }
 }
 
-roles.sourcer.action = function(creep) {
+roles.sourcer.action = function (creep) {
   creep.setNextSpawn();
   if (creep.memory.routing.type !== 'commodity' || creep.memory.routing.reached || Game.getSource(creep).lastCooldown < 50) {
     creep.spawnReplacement();

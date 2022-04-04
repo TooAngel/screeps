@@ -15,7 +15,7 @@ roles.builder.settings = {
   maxLayoutAmount: 20,
 };
 
-roles.builder.action = function(creep) {
+roles.builder.action = function (creep) {
   const methods = [Creep.getEnergy];
 
   methods.push(Creep.constructTask);

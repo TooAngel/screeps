@@ -1,4 +1,4 @@
-Room.prototype.sellByOwnOrders = function(resource, sellAmount) {
+Room.prototype.sellByOwnOrders = function (resource, sellAmount) {
   const avgBuyPrice = brain.getMarketOrderAverage(ORDER_BUY, resource);
   const avgSellPrice = brain.getMarketOrderAverage(ORDER_SELL, resource);
   const mySellPrice = Math.max((avgBuyPrice || 1) * config.market.sellOrderPriceMultiplicator, config.market.minSellPrice);
@@ -32,7 +32,7 @@ Room.prototype.sellByOwnOrders = function(resource, sellAmount) {
   return sellAmount;
 };
 
-Room.prototype.sellByOthersOrders = function(sellAmount, resource, force) {
+Room.prototype.sellByOthersOrders = function (sellAmount, resource, force) {
   const sortByEnergyCostAndPrice = (order) => Game.market.calcTransactionCost(sellAmount, this.name, order.roomName) +
   -order.price * sellAmount / config.market.energyCreditEquivalent;
   if (Memory.orders[ORDER_BUY][resource]) {
@@ -58,7 +58,7 @@ Room.prototype.sellByOthersOrders = function(sellAmount, resource, force) {
   }
 };
 
-Room.prototype.sellOwnMineral = function() {
+Room.prototype.sellOwnMineral = function () {
   const resource = this.getMineralType();
   let force = false;
   if (!this.terminal.store[resource]) {
@@ -86,7 +86,7 @@ Room.prototype.sellOwnMineral = function() {
   return true;
 };
 
-Room.prototype.buyByOthersOrders = function(resource) {
+Room.prototype.buyByOthersOrders = function (resource) {
   const avgBuyPrice = brain.getMarketOrderAverage(ORDER_BUY, resource);
   const myBuyPrice = Math.min((avgBuyPrice || 1) * config.market.buyOrderPriceMultiplicator, config.market.maxBuyPrice);
   const buyAmount = config.market.maxAmountToBuy - (this.terminal.store[resource] || 0);
@@ -113,7 +113,7 @@ Room.prototype.buyByOthersOrders = function(resource) {
   }
 };
 
-Room.prototype.buyLowResources = function() {
+Room.prototype.buyLowResources = function () {
   for (const resource in Memory.orders[ORDER_SELL]) {
     if (!this.terminal[resource] || this.terminal[resource] < config.market.maxAmountToBuy) {
       // this.buyByOwnOrders(resource);
@@ -122,7 +122,7 @@ Room.prototype.buyLowResources = function() {
   }
 };
 
-Room.prototype.buyLowCostResources = function() {
+Room.prototype.buyLowCostResources = function () {
   if ((Game.market.credits < config.market.minCredits) || (this.terminal.cooldown > 0)) {
     return false;
   }
@@ -145,7 +145,7 @@ Room.prototype.buyLowCostResources = function() {
 /**
  * sends 100 power to every room with a terminal
  */
-Room.prototype.sendPowerOwnRooms = function() {
+Room.prototype.sendPowerOwnRooms = function () {
   if (this.terminal && this.terminal.cooldown === 0 && this.terminal.store[RESOURCE_POWER] > 100) {
     let sendOnce = false;
     const powerTransfer = _.map(_.shuffle(Memory.myRooms), (myRoom) => {
@@ -178,18 +178,18 @@ Room.prototype.sendPowerOwnRooms = function() {
   }
 };
 
-Room.prototype.canSendEnergyToMyRooms = function() {
+Room.prototype.canSendEnergyToMyRooms = function () {
   return (_.size(Memory.needEnergyRooms) > 0) && (_.size(Memory.canHelpRooms) > 0) && _.includes(Memory.canHelpRooms, this.name) && (this.terminal.store[RESOURCE_ENERGY] > config.terminal.minEnergyAmount);
 };
 
-Room.prototype.sendEnergyAmountToMyRoom = function() {
+Room.prototype.sendEnergyAmountToMyRoom = function () {
   const min = 100;
   const max = this.terminal.store[RESOURCE_ENERGY];
   const amount = (this.terminal.store[RESOURCE_ENERGY] - config.terminal.minEnergyAmount) * 100;
   return (min < amount && amount < max) ? amount : false;
 };
 
-Room.prototype.sendEnergyToMyRooms = function() {
+Room.prototype.sendEnergyToMyRooms = function () {
   if (this.canSendEnergyToMyRooms()) {
     const myRoom = _.shuffle(Memory.needEnergyRooms)[0];
     const room = Game.rooms[myRoom];
@@ -213,7 +213,7 @@ Room.prototype.sendEnergyToMyRooms = function() {
   return false;
 };
 
-Room.prototype.handleMarket = function() {
+Room.prototype.handleMarket = function () {
   if (!this.terminal || this.terminal.cooldown) {
     return false;
   }

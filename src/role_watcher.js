@@ -13,7 +13,7 @@ roles.watcher.settings = {
   maxLayoutAmount: 1,
 };
 
-roles.watcher.preMove = function(creep, directions) {
+roles.watcher.preMove = function (creep, directions) {
   if (creep.hits < creep.hitsMax) {
     creep.memory.routing.reverse = true;
     if (directions) {
@@ -33,7 +33,7 @@ roles.watcher.preMove = function(creep, directions) {
   }
 };
 
-roles.watcher.action = function(creep) {
+roles.watcher.action = function (creep) {
   creep.setNextSpawn();
   creep.spawnReplacement(1);
   const pos = new RoomPosition(25, 25, creep.memory.routing.targetRoom);

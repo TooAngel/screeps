@@ -1,6 +1,6 @@
 'use strict';
 
-Room.prototype.findKeepersAt = function(roles, posId) {
+Room.prototype.findKeepersAt = function (roles, posId) {
   const s = Game.getObjectById(posId);
   const type = s.energy > 0 ? 'energy' : ((s.mineralAmount > 0) ? 'mineral' : 'offline');
   const amount = (s.energy > 1000) ? s.energy : ((s.mineralAmount > 2000) ? s.mineralAmount : false);
@@ -20,7 +20,7 @@ Room.prototype.findKeepersAt = function(roles, posId) {
   };
 };
 
-Room.prototype.findKeepers = function(roles) {
+Room.prototype.findKeepers = function (roles) {
   if (this.data.positions && this.data.positions.creep) {
     const positions = this.data.positions.creep;
     const room = this;
@@ -39,13 +39,13 @@ Room.prototype.findKeepers = function(roles) {
   return false;
 };
 
-Room.prototype.updateKeepers = function() {
+Room.prototype.updateKeepers = function () {
   const roles = ['atkeepermelee', 'atkeeper', 'sourcer'];
   this.data.keepersRoles = roles;
   this.data.keepers = this.findKeepers(roles);
 };
 
-Room.prototype.spawnKeepers = function() {
+Room.prototype.spawnKeepers = function () {
   const room = this;
   const keeperPositions = this.data.keepers;
   const baseRoom = Game.rooms[this.data.base];
@@ -101,7 +101,7 @@ Room.prototype.spawnKeepers = function() {
   });
 };
 
-Room.prototype.checkForWatcher = function() {
+Room.prototype.checkForWatcher = function () {
   const baseRoom = Game.rooms[this.data.base];
   const watcher = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['watcher']);
   if (baseRoom && _.size(watcher) < 1) {
@@ -110,12 +110,12 @@ Room.prototype.checkForWatcher = function() {
   return false;
 };
 
-Room.prototype.updateClosestSpawn = function() {
+Room.prototype.updateClosestSpawn = function () {
   this.data.base = this.closestSpawn(this.name);
   return this.data.base;
 };
 
-Room.prototype.spawnKeepersEveryTicks = function(ticks) {
+Room.prototype.spawnKeepersEveryTicks = function (ticks) {
   let returnValue = false;
   const baseRoom = Game.rooms[this.data.base];
   if (baseRoom && baseRoom.controller) {
@@ -140,7 +140,7 @@ Room.prototype.spawnKeepersEveryTicks = function(ticks) {
   return returnValue;
 };
 
-Room.prototype.keeperTeamReady = function() {
+Room.prototype.keeperTeamReady = function () {
   const atkeepermelee = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeepermelee']);
   const atkeeper = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeeper']);
   this.memory.atkeeper = atkeeper.length;
@@ -148,7 +148,7 @@ Room.prototype.keeperTeamReady = function() {
   return (atkeepermelee.length > 0 && atkeeper.length > 0);
 };
 
-Room.prototype.getNextSourceKeeperLair = function() {
+Room.prototype.getNextSourceKeeperLair = function () {
   const sourceKeeper = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_KEEPER_LAIR]);
   const sourceKeeperNext = _.sortBy(sourceKeeper, (object) => object.ticksToSpawn);
   return sourceKeeperNext[0];

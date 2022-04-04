@@ -2,7 +2,7 @@
 
 const {findMyRoomsSortByDistance} = require('./helper_findMyRooms');
 
-Room.prototype.getResourceAmountWithNextTiers = function(resource) {
+Room.prototype.getResourceAmountWithNextTiers = function (resource) {
   const resultOH = REACTIONS[RESOURCE_HYDROXIDE][resource];
   const resultXOH = REACTIONS[RESOURCE_CATALYST][resultOH];
   const resultX = REACTIONS[RESOURCE_CATALYST][resource];
@@ -13,7 +13,7 @@ Room.prototype.getResourceAmountWithNextTiers = function(resource) {
   return amount;
 };
 
-Room.prototype.getNextReaction = function() {
+Room.prototype.getNextReaction = function () {
   for (const mineralFirst in this.terminal.store) {
     if (!REACTIONS[mineralFirst] || this.terminal.store[mineralFirst] < LAB_REACTION_AMOUNT) {
       continue;
@@ -41,7 +41,7 @@ Room.prototype.getNextReaction = function() {
   return false;
 };
 
-Room.prototype.reactionsWithoutReaction = function() {
+Room.prototype.reactionsWithoutReaction = function () {
   const result = this.getNextReaction();
   if (!result) {
     return;
@@ -53,7 +53,7 @@ Room.prototype.reactionsWithoutReaction = function() {
 
   let lab;
   const labs = [];
-  const getNearLabs = function(object) {
+  const getNearLabs = function (object) {
     if (object.id === lab.id) {
       return false;
     }
@@ -108,7 +108,7 @@ Room.prototype.reactionsWithoutReaction = function() {
   //    this.log('Setting reaction: ' + JSON.stringify(this.memory.reaction));
 };
 
-Room.prototype.reactions = function() {
+Room.prototype.reactions = function () {
   if (!this.memory.reaction) {
     return this.reactionsWithoutReaction();
   }
@@ -120,7 +120,7 @@ Room.prototype.reactions = function() {
   }
 };
 
-Room.prototype.getMineralType = function() {
+Room.prototype.getMineralType = function () {
   if (this.memory.mineralType === undefined) {
     const minerals = this.findMinerals();
     this.memory.mineralType = minerals.length > 0 ? minerals[0].mineralType : null;
@@ -150,7 +150,7 @@ const baseMinerals = [
  * @param {string} mineral
  * @return {bool}
  */
-function isOtherRoomReady(room, roomOtherName, mineral) {
+function isOtherRoomReady (room, roomOtherName, mineral) {
   if (roomOtherName === room.name) {
     return false;
   }
@@ -164,7 +164,7 @@ function isOtherRoomReady(room, roomOtherName, mineral) {
   return true;
 }
 
-Room.prototype.orderMinerals = function() {
+Room.prototype.orderMinerals = function () {
   if (this.executeEveryTicks(20)) {
     const room = this;
 
@@ -192,7 +192,7 @@ Room.prototype.orderMinerals = function() {
   }
 };
 
-Room.prototype.handleTerminal = function() {
+Room.prototype.handleTerminal = function () {
   if (!this.terminal) {
     return false;
   }

@@ -6,7 +6,7 @@
  * @param {object} room
  * @param {object} costMatrix
  */
-function updateCostMatrixFromPositions(room, costMatrix) {
+function updateCostMatrixFromPositions (room, costMatrix) {
   for (const positionType of Object.keys(room.data.positions)) {
     if (positionType === 'pathEndLevel' || positionType === 'version') {
       continue;
@@ -37,7 +37,7 @@ function updateCostMatrixFromPositions(room, costMatrix) {
   }
 }
 
-Room.prototype.updateCostMatrix = function() {
+Room.prototype.updateCostMatrix = function () {
   const costMatrix = this.getCostMatrix();
 
   updateCostMatrixFromPositions(this, costMatrix);
@@ -65,13 +65,13 @@ Room.prototype.updateCostMatrix = function() {
   this.setMemoryCostMatrix(costMatrix);
 };
 
-Room.prototype.setCostMatrixStructures = function(costMatrix, structures, value) {
+Room.prototype.setCostMatrixStructures = function (costMatrix, structures, value) {
   for (const structure of structures) {
     costMatrix.set(structure.pos.x, structure.pos.y, value);
   }
 };
 
-Room.prototype.getBasicCostMatrixCallback = function(withinRoom = false) {
+Room.prototype.getBasicCostMatrixCallback = function (withinRoom = false) {
   const callbackInner = (roomName) => {
     const room = Game.rooms[roomName];
     if (!room) {
@@ -86,7 +86,7 @@ Room.prototype.getBasicCostMatrixCallback = function(withinRoom = false) {
 
     if (withinRoom) {
       const costMatrix = room.data.costMatrix.clone();
-      const closeExits = function(x, y) {
+      const closeExits = function (x, y) {
         costMatrix.set(x, y, 0xff);
       };
       for (let i = 0; i < 50; i++) {
@@ -102,7 +102,7 @@ Room.prototype.getBasicCostMatrixCallback = function(withinRoom = false) {
   return callbackInner;
 };
 
-Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom, allowExits) {
+Room.prototype.getCostMatrixCallback = function (end, excludeStructures, oneRoom, allowExits) {
   // console.log(`getCostMatrixCallback(${end}, ${excludeStructures}, ${oneRoom}, ${allowExits})`);
   const callbackInner = (roomName, debug) => {
     // TODO How often is this called? Do we need it? Can we just use the room costMatrix?
@@ -139,7 +139,7 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
     }
 
     if (allowExits) {
-      const openExits = function(x, y) {
+      const openExits = function (x, y) {
         costMatrix.set(x, y, new RoomPosition(x, y, room.name).lookFor(LOOK_TERRAIN)[0] === 'wall' ? 0xff : 0);
       };
       for (let i = 0; i < 50; i++) {
@@ -149,7 +149,7 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
         openExits(49, i);
       }
     } else {
-      const closeExits = function(x, y) {
+      const closeExits = function (x, y) {
         costMatrix.set(x, y, 0xff);
       };
       for (let i = 0; i < 50; i++) {
@@ -164,18 +164,18 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
   return callbackInner;
 };
 
-Room.prototype.setCostMatrixPath = function(costMatrix, path) {
+Room.prototype.setCostMatrixPath = function (costMatrix, path) {
   for (let i = 0; i < path.length - 1; i++) {
     const pos = path[i];
     costMatrix.set(pos.x, pos.y, config.layout.pathAvoid);
   }
 };
 
-Room.prototype.increaseCostMatrixValue = function(costMatrix, pos, value) {
+Room.prototype.increaseCostMatrixValue = function (costMatrix, pos, value) {
   costMatrix.set(pos.x, pos.y, Math.max(costMatrix.get(pos.x, pos.y), value));
 };
 
-Room.prototype.setCostMatrixAvoidSources = function(costMatrix) {
+Room.prototype.setCostMatrixAvoidSources = function (costMatrix) {
   const sources = this.findSources();
   for (const source of sources) {
     for (const pos of source.pos.getAllPositionsInRange(3)) {
@@ -187,7 +187,7 @@ Room.prototype.setCostMatrixAvoidSources = function(costMatrix) {
   return sources;
 };
 
-Room.prototype.getCostMatrix = function() {
+Room.prototype.getCostMatrix = function () {
   const costMatrix = new PathFinder.CostMatrix();
   // Keep distance to walls
   for (let x = 0; x < 50; x++) {

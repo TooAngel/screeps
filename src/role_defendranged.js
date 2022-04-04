@@ -43,10 +43,10 @@ roles.defendranged.settings = {
 //  creep.say('fightRanged');
 //  return creep.fightRanged(target);
 // };
-const action = function(creep) {
+const action = function (creep) {
   creep.memory.countdown = creep.memory.countdown || 100;
 
-  const recycleCreep = function(creep) {
+  const recycleCreep = function (creep) {
     creep.say('recycle');
     if (creep.room.isMy()) {
       if (creep.memory.countdown > 0) {

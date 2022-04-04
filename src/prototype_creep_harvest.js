@@ -1,6 +1,6 @@
 'use strict';
 
-Creep.prototype.spawnCarry = function() {
+Creep.prototype.spawnCarry = function () {
   if (this.memory.wait > 0) {
     this.memory.wait -= 1;
     return false;
@@ -53,6 +53,6 @@ Creep.prototype.spawnCarry = function() {
  *
  * @return {number}
  */
-Creep.prototype.getCarrySpawnInterval = function() {
+Creep.prototype.getCarrySpawnInterval = function () {
   return this.memory.timeToTravel + 80;
 };

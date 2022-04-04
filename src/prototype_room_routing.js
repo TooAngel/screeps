@@ -1,6 +1,6 @@
 'use strict';
 
-Room.isRoomUnderAttack = function(roomName) {
+Room.isRoomUnderAttack = function (roomName) {
   if (!Memory.rooms[roomName]) {
     return false;
   }
@@ -24,7 +24,7 @@ Room.isRoomUnderAttack = function(roomName) {
   return true;
 };
 
-Room.prototype.getCreepPositionForId = function(to) {
+Room.prototype.getCreepPositionForId = function (to) {
   if (this.data.positions.creep[to]) {
     const pos = this.data.positions.creep[to][0];
     if (pos) {
@@ -53,7 +53,7 @@ Room.prototype.getCreepPositionForId = function(to) {
 };
 
 // find a route using highway rooms
-Room.prototype.findRoute = function(from, to, useHighWay) {
+Room.prototype.findRoute = function (from, to, useHighWay) {
   useHighWay = useHighWay || false;
   return Game.map.findRoute(from, to, {
     // TODO don't use global.utils - these should be manual commands
@@ -61,7 +61,7 @@ Room.prototype.findRoute = function(from, to, useHighWay) {
   });
 };
 
-Room.prototype.buildPath = function(route, routePos, from, to) {
+Room.prototype.buildPath = function (route, routePos, from, to) {
   if (!to) {
     throw new Error();
   }
@@ -106,7 +106,7 @@ Room.prototype.buildPath = function(route, routePos, from, to) {
 };
 
 // Providing the targetId is a bit odd
-Room.prototype.getPath = function(route, routePos, startId, targetId) {
+Room.prototype.getPath = function (route, routePos, startId, targetId) {
   let from = startId;
   if (routePos > 0) {
     from = route[routePos - 1].room;
@@ -131,7 +131,7 @@ Room.prototype.getPath = function(route, routePos, startId, targetId) {
   return path;
 };
 
-Room.prototype.getMyExitTo = function(room) {
+Room.prototype.getMyExitTo = function (room) {
   // Handle rooms with newbie zone walls
   const exitDirection = this.findExitTo(room);
   const nextExits = this.find(exitDirection);
@@ -139,16 +139,16 @@ Room.prototype.getMyExitTo = function(room) {
   return new RoomPosition(nextExit.x, nextExit.y, this.name);
 };
 
-Room.prototype.getMatrixCallback = function(end) {
+Room.prototype.getMatrixCallback = function (end) {
   // TODO cache?!
-  const callback = function(roomName) {
+  const callback = function (roomName) {
     // console.log('getMatrixCallback', this);
     const room = Game.rooms[roomName];
     const costMatrix = new PathFinder.CostMatrix();
     // Previous Source Keeper where also excluded?
 
     const sources = room.find(FIND_SOURCES, {
-      filter: function(object) {
+      filter: function (object) {
         return !end || object.pos.x !== end.x || object.pos.y !== end.y;
       },
     });

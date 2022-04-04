@@ -13,13 +13,13 @@ roles.quester.settings = {
   maxLayoutAmount: 1,
 };
 
-roles.quester.questLost = function(creep, quest, reason, value) {
+roles.quester.questLost = function (creep, quest, reason, value) {
   creep.log(`Quest lost cs: ${value} ${JSON.stringify(quest)}`);
   delete Memory.quests[creep.memory.level];
   creep.suicide();
 };
 
-roles.quester.questWon = function(creep, quest) {
+roles.quester.questWon = function (creep, quest) {
   const name = quest.player.name;
   initPlayer(name);
   debugLog('diplomacy', `Quest won ${JSON.stringify(quest)}`);
@@ -36,7 +36,7 @@ roles.quester.questWon = function(creep, quest) {
   creep.suicide();
 };
 
-roles.quester.handleBuildcs = function(creep, quest) {
+roles.quester.handleBuildcs = function (creep, quest) {
   // Give time before end to build the last CS
   if (quest.end - Game.time > 300) {
     const cs = creep.room.findConstructionSites();
@@ -61,7 +61,7 @@ roles.quester.handleBuildcs = function(creep, quest) {
   }
 };
 
-roles.quester.action = function(creep) {
+roles.quester.action = function (creep) {
   creep.setNextSpawn();
   creep.spawnReplacement();
   const quest = Memory.quests[creep.memory.level];

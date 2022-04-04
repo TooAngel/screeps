@@ -17,13 +17,13 @@ roles.nextroomer.settings = {
   amount: [6, 3, 3],
 };
 
-roles.nextroomer.checkForRampart = function(coords) {
+roles.nextroomer.checkForRampart = function (coords) {
   const pos = new RoomPosition(coords.x, coords.y, coords.roomName);
   const structures = pos.lookFor('structure');
   return _.find(structures, (s) => s.structureType === STRUCTURE_RAMPART);
 };
 
-roles.nextroomer.buildRamparts = function(creep) {
+roles.nextroomer.buildRamparts = function (creep) {
   // TODO Guess roles.nextroomer should be higher
   const rampartMinHits = 10000;
 
@@ -68,7 +68,7 @@ roles.nextroomer.buildRamparts = function(creep) {
   return false;
 };
 
-roles.nextroomer.defendTower = function(creep) {
+roles.nextroomer.defendTower = function (creep) {
   const room = Game.rooms[creep.room.name];
   const constructionSites = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 1);
   if (constructionSites.length > 0) {
@@ -121,7 +121,7 @@ roles.nextroomer.defendTower = function(creep) {
   creep.log('Build tower: ' + returnCode);
 };
 
-roles.nextroomer.stayAtSource = function(creep, source) {
+roles.nextroomer.stayAtSource = function (creep, source) {
   if (creep.carry.energy < creep.carryCapacity - 30) {
     const returnCode = creep.harvest(source);
     if (returnCode === OK) {
@@ -139,7 +139,7 @@ roles.nextroomer.stayAtSource = function(creep, source) {
   return roles.nextroomer.defendTower(creep, source);
 };
 
-roles.nextroomer.underSiege = function(creep) {
+roles.nextroomer.underSiege = function (creep) {
   if (creep.memory.targetId) {
     const sourcerPosMem = creep.room.data.positions.creep[creep.memory.targetId][0];
     const source = Game.getObjectById(creep.memory.targetId);
@@ -168,7 +168,7 @@ roles.nextroomer.underSiege = function(creep) {
   return false;
 };
 
-const getMethods = function(creep) {
+const getMethods = function (creep) {
   const methods = [Creep.getEnergy];
   if (creep.room.controller.ticksToDowngrade < 1500 || creep.room.controller.progress > creep.room.controller.progressTotal) {
     methods.push(Creep.upgradeControllerTask);
@@ -191,7 +191,7 @@ const getMethods = function(creep) {
   return methods;
 };
 
-const handleTower = function(creep) {
+const handleTower = function (creep) {
   if (creep.carry.energy > 0) {
     const towers = creep.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_TOWER], {
       filter: (object) => object.energy < 10,
@@ -204,7 +204,7 @@ const handleTower = function(creep) {
   }
 };
 
-roles.nextroomer.settle = function(creep) {
+roles.nextroomer.settle = function (creep) {
   creep.creepLog('settle');
   const room = Game.rooms[creep.room.name];
   const hostileCreeps = room.find(FIND_HOSTILE_CREEPS, {
@@ -243,7 +243,7 @@ roles.nextroomer.settle = function(creep) {
   return Creep.execute(creep, methods);
 };
 
-roles.nextroomer.preMove = function(creep, directions) {
+roles.nextroomer.preMove = function (creep, directions) {
   if (!directions) {
     return false;
   }
@@ -266,7 +266,7 @@ roles.nextroomer.preMove = function(creep, directions) {
   }
 };
 
-roles.nextroomer.action = function(creep) {
+roles.nextroomer.action = function (creep) {
   // TODO when does this happen?
   if (creep.room.name !== creep.memory.routing.targetRoom) {
     delete creep.memory.routing.reached;

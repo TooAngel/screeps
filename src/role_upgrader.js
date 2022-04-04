@@ -33,7 +33,7 @@ roles.upgrader.settings = {
  * @param {object} room
  * @return {bool}
  */
-roles.upgrader.updateSettings = function(room) {
+roles.upgrader.updateSettings = function (room) {
   if (!room.storage) {
     return false;
   }
@@ -54,7 +54,7 @@ roles.upgrader.updateSettings = function(room) {
 roles.upgrader.killPrevious = true;
 roles.upgrader.boostActions = ['upgradeController'];
 
-roles.upgrader.action = function(creep) {
+roles.upgrader.action = function (creep) {
   creep.mySignController();
   creep.spawnReplacement(1);
   if (!creep.room.controller.isAboutToDowngrade()) {

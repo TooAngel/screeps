@@ -4,7 +4,7 @@
  * The data property represent the current data of the room stored on the heap
  */
 Object.defineProperty(Room.prototype, 'data', {
-  get() {
+  get () {
     if (!global.data.rooms[this.name]) {
       const data = {
         routing: {},
@@ -36,7 +36,7 @@ Object.defineProperty(Room.prototype, 'data', {
   },
 });
 
-Room.prototype.executeEveryTicks = function(ticks) {
+Room.prototype.executeEveryTicks = function (ticks) {
   const timer = (ticks > 3000) ? Game.time - Memory.time + 1 : 0;
   let exectue = false;
   if (this.controller) {
@@ -56,7 +56,7 @@ Room.prototype.executeEveryTicks = function(ticks) {
  * @param {object} room - The room to init
  * @return {void}
  **/
-function updateBasicData(room) {
+function updateBasicData (room) {
   if (room.data.sources === undefined) {
     room.data.sources = room.findSources().length;
   }
@@ -73,11 +73,11 @@ function updateBasicData(room) {
   room.data.hostileCreepCount = room.find(FIND_HOSTILE_CREEPS).length;
 }
 
-Room.prototype.isMy = function() {
+Room.prototype.isMy = function () {
   return !!(this.controller && this.controller.my);
 };
 
-Room.prototype.handle = function() {
+Room.prototype.handle = function () {
   updateBasicData(this);
   if (this.isMy()) {
     this.myHandleRoom();
@@ -87,7 +87,7 @@ Room.prototype.handle = function() {
   return false;
 };
 
-Room.prototype.execute = function() {
+Room.prototype.execute = function () {
   try {
     const returnCode = this.handle();
     for (const creep of this.findMyCreeps()) {

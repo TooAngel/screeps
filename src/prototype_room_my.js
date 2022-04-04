@@ -3,7 +3,7 @@
 const {findMyRoomsSortByDistance} = require('./helper_findMyRooms');
 const {addToReputation} = require('./diplomacy');
 
-Room.prototype.unclaimRoom = function() {
+Room.prototype.unclaimRoom = function () {
   // remove creeps if base === this.name
   const room = this;
   let returnValue;
@@ -17,7 +17,7 @@ Room.prototype.unclaimRoom = function() {
   }
 };
 
-Room.prototype.myHandleRoom = function() {
+Room.prototype.myHandleRoom = function () {
   this.data.state = 'Controlled';
   if (!Memory.username) {
     Memory.username = this.controller.owner.username;
@@ -42,7 +42,7 @@ Room.prototype.myHandleRoom = function() {
   return this.executeRoom();
 };
 
-Room.prototype.getLinkStorage = function() {
+Room.prototype.getLinkStorage = function () {
   if (!this.data.constants) {
     this.data.constants = {};
   }
@@ -75,14 +75,14 @@ Room.prototype.getLinkStorage = function() {
  * @param {number} returnCode - The returnCode of the transferEnergy operation
  * @return {boolean} - If the returnCode is unexpected
  */
-function isUnexpectedLinkTransferReturnCode(returnCode) {
+function isUnexpectedLinkTransferReturnCode (returnCode) {
   return returnCode !== OK &&
       returnCode !== ERR_NOT_ENOUGH_RESOURCES &&
       returnCode !== ERR_TIRED &&
       returnCode !== ERR_RCL_NOT_ENOUGH;
 }
 
-Room.prototype.handleLinksTransferEnergy = function(links, linkIndex, linkStorage) {
+Room.prototype.handleLinksTransferEnergy = function (links, linkIndex, linkStorage) {
   if (this.isUnderAttack() && this.controller.level > 6) {
     // If under attack, only fetch from links next to the sourcer
     // and transfer to the other links
@@ -103,7 +103,7 @@ Room.prototype.handleLinksTransferEnergy = function(links, linkIndex, linkStorag
   }
 };
 
-Room.prototype.handleLinks = function() {
+Room.prototype.handleLinks = function () {
   const linkStorage = this.getLinkStorage();
   // Only send energy if linkStorage is set and free capacity is higher or equals than 400 Energy
   if (!linkStorage || linkStorage.store.getFreeCapacity(RESOURCE_ENERGY) < 400) {
@@ -123,7 +123,7 @@ Room.prototype.handleLinks = function() {
   }
 };
 
-Room.prototype.handlePowerSpawn = function() {
+Room.prototype.handlePowerSpawn = function () {
   // added executeEveryTicks 3 for movement of universal
   if (this.executeEveryTicks(3)) {
     const powerSpawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_POWER_SPAWN]);
@@ -140,13 +140,13 @@ Room.prototype.handlePowerSpawn = function() {
 };
 
 // added memory.constants.powerSpawn = powerSpawn.id for role storagefiller
-Room.prototype.savePowerSpawnId = function(powerSpawn) {
+Room.prototype.savePowerSpawnId = function (powerSpawn) {
   if (!this.memory.constants.powerSpawn || this.memory.constants.powerSpawn !== powerSpawn.id) {
     this.memory.constants.powerSpawn = powerSpawn.id;
   }
 };
 
-Room.prototype.getRoomNameToObserve = function() {
+Room.prototype.getRoomNameToObserve = function () {
   // TODO scan full range, first implementation
   const nameSplit = this.splitRoomName();
   const observerRange = Math.max(Math.min(config.room.observerRange, OBSERVER_RANGE), 1);
@@ -174,7 +174,7 @@ Room.prototype.getRoomNameToObserve = function() {
   return xDir + xPos + yDir + yPos;
 };
 
-Room.prototype.handleObserver = function() {
+Room.prototype.handleObserver = function () {
   // This could be made a helper function for all handleSTRUCTURE metods
   // and used at the caller
   // something like: `execute('STRUCTURE_OBSERVER', handleObserver)`
@@ -195,7 +195,7 @@ Room.prototype.handleObserver = function() {
   return true;
 };
 
-Room.prototype.handleScout = function() {
+Room.prototype.handleScout = function () {
   if (!this.executeEveryTicks(config.room.scoutInterval)) {
     return false;
   }
@@ -210,7 +210,7 @@ Room.prototype.handleScout = function() {
   return true;
 };
 
-Room.prototype.getUniversalAmount = function() {
+Room.prototype.getUniversalAmount = function () {
   if (!this.storage) {
     return 2;
   }
@@ -223,14 +223,14 @@ Room.prototype.getUniversalAmount = function() {
   return 1;
 };
 
-Room.prototype.handleAttackTimerWithoutHostiles = function() {
+Room.prototype.handleAttackTimerWithoutHostiles = function () {
   this.memory.attackTimer = Math.max(this.memory.attackTimer - 5, 0);
   if (this.memory.attackTimer <= 0) {
     this.memory.underSiege = false;
   }
 };
 
-Room.prototype.handleAttackTimer = function(hostiles) {
+Room.prototype.handleAttackTimer = function (hostiles) {
   this.memory.attackTimer = this.memory.attackTimer || 0;
   if (hostiles.length === 0) {
     return this.handleAttackTimerWithoutHostiles();
@@ -243,7 +243,7 @@ Room.prototype.handleAttackTimer = function(hostiles) {
   this.memory.attackTimer++;
 };
 
-Room.prototype.checkForSafeMode = function() {
+Room.prototype.checkForSafeMode = function () {
   if (this.memory.attackTimer > 100) {
     // TODO better metric for SafeMode
     const enemies = this.findOtherPlayerCreeps();
@@ -253,7 +253,7 @@ Room.prototype.checkForSafeMode = function() {
   }
 };
 
-Room.prototype.spawnDefender = function() {
+Room.prototype.spawnDefender = function () {
   if (this.memory.attackTimer > 15) {
     if (this.executeEveryTicks(250)) {
       const role = this.memory.attackTimer > 300 ? 'defendmelee' : 'defendranged';
@@ -262,7 +262,7 @@ Room.prototype.spawnDefender = function() {
   }
 };
 
-Room.prototype.handleDefence = function(hostiles) {
+Room.prototype.handleDefence = function (hostiles) {
   if (hostiles.length === 0) {
     return;
   }
@@ -281,13 +281,13 @@ Room.prototype.handleDefence = function(hostiles) {
   }
 };
 
-Room.prototype.handleAttack = function(hostiles) {
+Room.prototype.handleAttack = function (hostiles) {
   this.handleAttackTimer(hostiles);
   this.checkForSafeMode();
   this.handleDefence(hostiles);
 };
 
-Room.prototype.handleReviveRoomQueueCarry = function(myRoomName) {
+Room.prototype.handleReviveRoomQueueCarry = function (myRoomName) {
   const room = Game.rooms[myRoomName];
   if (!room.isHealthy()) {
     return;
@@ -299,7 +299,7 @@ Room.prototype.handleReviveRoomQueueCarry = function(myRoomName) {
   room.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, room.storage.id, room.name, undefined, this.name);
 };
 
-Room.prototype.handleReviveRoomSendCarry = function() {
+Room.prototype.handleReviveRoomSendCarry = function () {
   if (!this.executeEveryTicks(config.carryHelpers.ticksUntilHelpCheck)) {
     return false;
   }
@@ -319,7 +319,7 @@ Room.prototype.handleReviveRoomSendCarry = function() {
   return true;
 };
 
-Room.prototype.handleReviveRoom = function(hostiles) {
+Room.prototype.handleReviveRoom = function (hostiles) {
   // Energy support
   this.handleReviveRoomSendCarry();
 
@@ -338,7 +338,7 @@ Room.prototype.handleReviveRoom = function(hostiles) {
   this.memory.active = true;
 };
 
-Room.prototype.handleReputation = function() {
+Room.prototype.handleReputation = function () {
   const hostileCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
   if (hostileCreeps.length > 0) {
     for (const hostileCreep of hostileCreeps) {
@@ -347,7 +347,7 @@ Room.prototype.handleReputation = function() {
   }
 };
 
-Room.prototype.getBuilderAmount = function(constructionSites) {
+Room.prototype.getBuilderAmount = function (constructionSites) {
   let amount = 1;
   if (this.controller.level >= 4 && this.memory.misplacedSpawn) {
     amount = 3;
@@ -360,7 +360,7 @@ Room.prototype.getBuilderAmount = function(constructionSites) {
   return amount;
 };
 
-Room.prototype.checkForBuilder = function() {
+Room.prototype.checkForBuilder = function () {
   const constructionSites = this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART], {inverse: true});
   if (constructionSites.length === 0) {
     if (this.memory.misplacedSpawn && this.storage && this.storage.store.energy > 20000 && this.energyAvailable >= this.energyCapacityAvailable - 300) {
@@ -373,7 +373,7 @@ Room.prototype.checkForBuilder = function() {
   this.checkRoleToSpawn('builder', amount);
 };
 
-Room.prototype.isRoomReadyForExtractor = function() {
+Room.prototype.isRoomReadyForExtractor = function () {
   if (CONTROLLER_STRUCTURES[STRUCTURE_EXTRACTOR][this.controller.level] === 0) {
     return false;
   }
@@ -387,7 +387,7 @@ Room.prototype.isRoomReadyForExtractor = function() {
   return true;
 };
 
-Room.prototype.checkForExtractor = function() {
+Room.prototype.checkForExtractor = function () {
   if (!this.isRoomReadyForExtractor()) {
     return false;
   }
@@ -402,7 +402,7 @@ Room.prototype.checkForExtractor = function() {
   }
 };
 
-Room.prototype.isRoomReadyForMineralHandling = function() {
+Room.prototype.isRoomReadyForMineralHandling = function () {
   if (!config.mineral.enabled) {
     return false;
   }
@@ -415,7 +415,7 @@ Room.prototype.isRoomReadyForMineralHandling = function() {
   return true;
 };
 
-Room.prototype.checkForMineral = function() {
+Room.prototype.checkForMineral = function () {
   if (!this.isRoomReadyForMineralHandling()) {
     return false;
   }
@@ -431,14 +431,14 @@ Room.prototype.checkForMineral = function() {
   // }
 };
 
-Room.prototype.handleEconomyStructures = function() {
+Room.prototype.handleEconomyStructures = function () {
   this.handleLinks();
   this.handleObserver();
   this.handlePowerSpawn();
   this.handleTerminal();
 };
 
-Room.prototype.isRampingUp = function() {
+Room.prototype.isRampingUp = function () {
   if (this.memory.misplacedSpawn) {
     return true;
   }
@@ -454,11 +454,11 @@ Room.prototype.isRampingUp = function() {
   return false;
 };
 
-Room.prototype.isUnderAttack = function() {
+Room.prototype.isUnderAttack = function () {
   return this.memory.attackTimer > config.myRoom.underAttackMinAttackTimer;
 };
 
-Room.prototype.isStruggeling = function() {
+Room.prototype.isStruggeling = function () {
   if (this.isRampingUp()) {
     return true;
   }
@@ -471,7 +471,7 @@ Room.prototype.isStruggeling = function() {
   return false;
 };
 
-Room.prototype.isHealthy = function() {
+Room.prototype.isHealthy = function () {
   if (this.isStruggeling()) {
     return false;
   }
@@ -482,14 +482,14 @@ Room.prototype.isHealthy = function() {
   return true;
 };
 
-Room.prototype.executeRoomHandleHostiles = function() {
+Room.prototype.executeRoomHandleHostiles = function () {
   const hostiles = this.findHostileAttackingCreeps();
   this.handleAttack(hostiles);
   this.handleReviveRoom(hostiles);
   this.handleReputation();
 };
 
-Room.prototype.executeRoomCheckBasicCreeps = function() {
+Room.prototype.executeRoomCheckBasicCreeps = function () {
   const amount = this.getUniversalAmount();
   this.checkRoleToSpawn('universal', amount);
   this.checkAndSpawnSourcer();
@@ -502,7 +502,7 @@ Room.prototype.executeRoomCheckBasicCreeps = function() {
   }
 };
 
-Room.prototype.executeRoom = function() {
+Room.prototype.executeRoom = function () {
   const cpuUsed = Game.cpu.getUsed();
   this.memory.constants = this.memory.constants || {};
   this.buildBase();
@@ -527,7 +527,7 @@ Room.prototype.executeRoom = function() {
   return true;
 };
 
-const checkForRoute = function(room, roomOther) {
+const checkForRoute = function (room, roomOther) {
   const route = room.findRoute(roomOther.name, room.name);
   // TODO Instead of skipping we could try to free up the way: nextroomerattack or squad
   if (route.length === 0) {
@@ -537,7 +537,7 @@ const checkForRoute = function(room, roomOther) {
   return false;
 };
 
-Room.prototype.reviveMyNowHelperValid = function(helperRoom) {
+Room.prototype.reviveMyNowHelperValid = function (helperRoom) {
   let valid = false;
 
   if (helperRoom.isStruggeling()) {
@@ -557,7 +557,7 @@ Room.prototype.reviveMyNowHelperValid = function(helperRoom) {
   return valid;
 };
 
-Room.prototype.reviveMyNow = function() {
+Room.prototype.reviveMyNow = function () {
   const myRooms = findMyRoomsSortByDistance(this.name);
   for (const helperRoomName of myRooms) {
     if (this.name === helperRoomName) {
@@ -578,7 +578,7 @@ Room.prototype.reviveMyNow = function() {
   }
 };
 
-Room.prototype.setRoomInactive = function() {
+Room.prototype.setRoomInactive = function () {
   this.log('Setting room to underSiege');
   // this.memory.underSiege = true;
   let tokens;
@@ -608,7 +608,7 @@ Room.prototype.setRoomInactive = function() {
   this.memory.active = false;
 };
 
-Room.prototype.reviveRoom = function() {
+Room.prototype.reviveRoom = function () {
   if (!this.executeEveryTicks(config.revive.nextroomerInterval)) {
     return false;
   }

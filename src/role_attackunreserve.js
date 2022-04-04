@@ -14,7 +14,7 @@ roles.attackunreserve.settings = {
   layoutString: 'AM',
 };
 
-roles.attackunreserve.preMove = function(creep) {
+roles.attackunreserve.preMove = function (creep) {
   if (creep.hits < 0.5 * creep.hitsMax) {
     creep.memory.routing.reverse = true;
     creep.memory.routing.reached = false;
@@ -45,7 +45,7 @@ roles.attackunreserve.preMove = function(creep) {
  * @param {string} bodyPart - The body part name
  * @return {function} - The filter function for that body part
  **/
-function getFilterForBodyPart(bodyPart) {
+function getFilterForBodyPart (bodyPart) {
   return (item) => {
     for (const part of item.body) {
       if (part.type === bodyPart) {
@@ -63,7 +63,7 @@ function getFilterForBodyPart(bodyPart) {
  * @param {object} target - The target
  * @return {bool} - Returns true :-)
  **/
-function attack(creep, target) {
+function attack (creep, target) {
   // TODO needs to be changed to some of our moveTo methods, preventing from
   // exiting the room
   if (target.pos.x > 0 && target.pos.x < 49 && target.pos.y > 0 && target.pos.y < 49) {
@@ -74,7 +74,7 @@ function attack(creep, target) {
   return true;
 }
 
-roles.attackunreserve.action = function(creep) {
+roles.attackunreserve.action = function (creep) {
   creep.notifyWhenAttacked(false);
   creep.selfHeal();
 

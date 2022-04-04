@@ -1,7 +1,7 @@
 'use strict';
 
 // TODO this does not need to be on the Room object
-Room.prototype.setPosition = function(type, pos, value = config.layout.structureAvoid, positionType = 'structure', firstStructure = false) {
+Room.prototype.setPosition = function (type, pos, value = config.layout.structureAvoid, positionType = 'structure', firstStructure = false) {
   this.debugLog('baseBuilding', `Increasing ${pos} ${type} ${positionType} with ${value}`);
 
   // New implementation
@@ -20,14 +20,14 @@ Room.prototype.setPosition = function(type, pos, value = config.layout.structure
   this.increaseCostMatrixValue(this.data.costMatrix, pos, value);
 };
 
-Room.prototype.initSetController = function() {
+Room.prototype.initSetController = function () {
   if (this.controller) {
     const upgraderPos = this.controller.pos.getBestNearPosition({ignorePositions: true, ignorePath: true});
     this.setPosition(this.controller.id, upgraderPos, config.layout.creepAvoid, 'creep', false);
   }
 };
 
-Room.prototype.initSetSources = function() {
+Room.prototype.initSetSources = function () {
   const sources = this.findSources();
   for (const source of sources) {
     const sourcer = source.pos.getFirstNearPosition({ignorePath: true});
@@ -40,7 +40,7 @@ Room.prototype.initSetSources = function() {
   }
 };
 
-Room.prototype.initSetMinerals = function() {
+Room.prototype.initSetMinerals = function () {
   const minerals = this.findMinerals();
   for (const mineral of minerals) {
     // const extractor = mineral.pos.getFirstNearPosition();
@@ -50,7 +50,7 @@ Room.prototype.initSetMinerals = function() {
   }
 };
 
-Room.prototype.initSetStorageAndPathStart = function() {
+Room.prototype.initSetStorageAndPathStart = function () {
   const upgraderPos = this.data.positions.creep[this.controller.id][0];
   const storagePos = upgraderPos.getBestNearPosition({ignorePath: true});
   this.setPosition(STRUCTURE_STORAGE, storagePos);
@@ -70,7 +70,7 @@ Room.prototype.initSetStorageAndPathStart = function() {
   };
 };
 
-Room.prototype.setFillerArea = function(storagePos, route) {
+Room.prototype.setFillerArea = function (storagePos, route) {
   const fillerPos = storagePos.getBestNearPosition();
   this.setPosition('filler', fillerPos, config.layout.creepAvoid, 'creep');
   this.debugLog('baseBuilding', `Filler position ${fillerPos} costMatrix value before path ${this.data.costMatrix.get(fillerPos.x, fillerPos.y)}`);
@@ -97,7 +97,7 @@ Room.prototype.setFillerArea = function(storagePos, route) {
   }
 };
 
-Room.prototype.addTerminal = function() {
+Room.prototype.addTerminal = function () {
   const minerals = this.findMinerals();
   const extractorPosOrg = this.data.positions.creep[minerals[0].id][0];
   const extractorPos = new RoomPosition(extractorPosOrg.x, extractorPosOrg.y, extractorPosOrg.roomName);
@@ -118,7 +118,7 @@ Room.prototype.addTerminal = function() {
   return;
 };
 
-Room.prototype.updatePosition = function() {
+Room.prototype.updatePosition = function () {
   // this.debugLog('routing', 'updatePosition called');
   // this.debugLog('routing', `room.data: ${JSON.stringify(this.data)}`);
   // TODO don't like to delete it here: after deploy some are set (by getPath/buildPath) before the costMatrix is built
@@ -137,7 +137,7 @@ Room.prototype.updatePosition = function() {
   }
 };
 
-Room.prototype.setLabs = function(allPaths) {
+Room.prototype.setLabs = function (allPaths) {
   let lab1Pos;
   let lab2Pos;
   let pathI;
@@ -184,7 +184,7 @@ Room.prototype.setLabs = function(allPaths) {
   }
 };
 
-Room.prototype.checkPositions = function() {
+Room.prototype.checkPositions = function () {
   for (const type of [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER, STRUCTURE_LINK, STRUCTURE_OBSERVER, STRUCTURE_NUKER, STRUCTURE_FACTORY]) {
     if ((this.data.positions.structure[type] || []).length < CONTROLLER_STRUCTURES[type][8]) {
       let output = 'Structures not found:\n';
@@ -198,7 +198,7 @@ Room.prototype.checkPositions = function() {
   return false;
 };
 
-Room.prototype.setExtensionPos = function(structurePos, pathI) {
+Room.prototype.setExtensionPos = function (structurePos, pathI) {
   this.setPosition('extension', structurePos, config.layout.structureAvoid);
   if (!this.data.positions.pathEndLevel) {
     this.data.positions.pathEndLevel = [0];
@@ -208,12 +208,12 @@ Room.prototype.setExtensionPos = function(structurePos, pathI) {
   }
 };
 
-Room.prototype.areEnergyStructuresPlaced = function() {
+Room.prototype.areEnergyStructuresPlaced = function () {
   return this.data.positions.structure.spawn.length < CONTROLLER_STRUCTURES.spawn[8] &&
     this.data.positions.structure.extension.length < CONTROLLER_STRUCTURES.extension[8];
 };
 
-Room.prototype.setPositionAux = function(structurePos) {
+Room.prototype.setPositionAux = function (structurePos) {
   for (const type of [STRUCTURE_TOWER, STRUCTURE_NUKER, STRUCTURE_OBSERVER, STRUCTURE_LINK, STRUCTURE_FACTORY]) {
     if ((this.data.positions.structure[type] || []).length < CONTROLLER_STRUCTURES[type][8]) {
       this.setPosition(type, structurePos, config.layout.structureAvoid);
@@ -223,7 +223,7 @@ Room.prototype.setPositionAux = function(structurePos) {
   return false;
 };
 
-Room.prototype.setStructuresIteratePos = function(structurePos, pathI, path) {
+Room.prototype.setStructuresIteratePos = function (structurePos, pathI, path) {
   if (structurePos.setSpawn(path, pathI)) {
     this.setPosition('spawn', structurePos, config.layout.structureAvoid);
     return true;
@@ -249,7 +249,7 @@ Room.prototype.setStructuresIteratePos = function(structurePos, pathI, path) {
   return false;
 };
 
-Room.prototype.setStructures = function(path) {
+Room.prototype.setStructures = function (path) {
   for (let pathI = 0; pathI < path.length; pathI++) {
     const pathPos = new RoomPosition(path[pathI].x, path[pathI].y, this.name);
     const structurePosIterator = pathPos.findNearPosition();
@@ -264,7 +264,7 @@ Room.prototype.setStructures = function(path) {
   return -1;
 };
 
-Room.prototype.costMatrixSetSourcePath = function() {
+Room.prototype.costMatrixSetSourcePath = function () {
   const sources = this.findSources();
   for (const source of sources) {
     const route = [{
@@ -278,7 +278,7 @@ Room.prototype.costMatrixSetSourcePath = function() {
   }
 };
 
-Room.prototype.costMatrixSetMineralPath = function() {
+Room.prototype.costMatrixSetMineralPath = function () {
   const minerals = this.findMinerals();
   for (const mineral of minerals) {
     const route = [{
@@ -289,7 +289,7 @@ Room.prototype.costMatrixSetMineralPath = function() {
   }
 };
 
-Room.prototype.costMatrixPathFromStartToExit = function(exits) {
+Room.prototype.costMatrixPathFromStartToExit = function (exits) {
   return () => {
     for (const endDir in exits) {
       if (!endDir) {
@@ -307,7 +307,7 @@ Room.prototype.costMatrixPathFromStartToExit = function(exits) {
   };
 };
 
-Room.prototype.costMatrixPathCrossings = function(exits) {
+Room.prototype.costMatrixPathCrossings = function (exits) {
   return () => {
     for (const startDir in exits) {
       if (!startDir) {
@@ -336,7 +336,7 @@ Room.prototype.costMatrixPathCrossings = function(exits) {
   };
 };
 
-const checkForSurroundingWalls = function(pos, valueAdd) {
+const checkForSurroundingWalls = function (pos, valueAdd) {
   for (let x = -1; x < 2; x++) {
     for (let y = -1; y < 2; y++) {
       if (pos.x + x >= 0 && pos.y + y >= 0 && pos.x + x < 50 && pos.y + y < 50) {
@@ -357,7 +357,7 @@ const checkForSurroundingWalls = function(pos, valueAdd) {
  * @param {object} pos - The position to check against memory
  * @return {boolean} - If pos is a spawn position
  **/
-Room.prototype.checkForSpawnPosition = function(pos) {
+Room.prototype.checkForSpawnPosition = function (pos) {
   for (const spawnPos of this.data.positions.structure.spawn) {
     if (spawnPos.x === pos.x && spawnPos.y === pos.y) {
       return true;
@@ -374,7 +374,7 @@ Room.prototype.checkForSpawnPosition = function(pos) {
  *
  * @return {undefined}
  **/
-Room.prototype.checkForMisplacedSpawn = function() {
+Room.prototype.checkForMisplacedSpawn = function () {
   const spawns = this.findMySpawns();
   for (const spawn of spawns) {
     if (!this.checkForSpawnPosition(spawn.pos)) {
@@ -392,7 +392,7 @@ Room.prototype.checkForMisplacedSpawn = function() {
  * @param {object} pathObject
  * @return {number}
  */
-function getPathLength(pathObject) {
+function getPathLength (pathObject) {
   let lastPos;
   let value = 0;
   for (const pos of pathObject.path) {
@@ -415,7 +415,7 @@ function getPathLength(pathObject) {
 }
 
 
-Room.prototype.setupStructures = function() {
+Room.prototype.setupStructures = function () {
   const pathsController = _.filter(this.getMemoryPaths(), (object, key) => {
     return key.startsWith('pathStart-');
   });
@@ -431,7 +431,7 @@ Room.prototype.setupStructures = function() {
   this.data.positions.version = config.layout.version;
 };
 
-Room.prototype.stepExecute = function(func, name) {
+Room.prototype.stepExecute = function (func, name) {
   if (!this.memory.setup.steps[name]) {
     func.bind(this)();
   }
@@ -442,7 +442,7 @@ Room.prototype.stepExecute = function(func, name) {
   return true;
 };
 
-Room.prototype.cleanupMemory = function() {
+Room.prototype.cleanupMemory = function () {
   delete this.memory.walls;
   delete this.memory.constants;
   delete this.memory.routing;
@@ -454,7 +454,7 @@ Room.prototype.cleanupMemory = function() {
   this.data.created = Game.time;
 };
 
-Room.prototype.setupFinalize = function() {
+Room.prototype.setupFinalize = function () {
   this.log('Setup complete - storing data');
   this.memory.setup.completed = true;
   this.memory.position = this.data.positions;
@@ -473,7 +473,7 @@ Room.prototype.setupFinalize = function() {
   this.log('Setup completed - storing data');
 };
 
-Room.prototype.setup = function() {
+Room.prototype.setup = function () {
   this.debugLog('baseBuilding', `Setup`);
   if (this.memory.setup) {
     if (this.memory.setup.completed) {

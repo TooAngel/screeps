@@ -21,7 +21,7 @@ roles.storagefiller.settings = {
  * @param {object} creep
  * @return {bool}
  */
-function transferFromLink(creep) {
+function transferFromLink (creep) {
   const tower = getTower(creep);
   const link = creep.getCloseByLink();
   if (!link) {
@@ -46,7 +46,7 @@ function transferFromLink(creep) {
  * @param {object} creep - The creep
  * @return {object} - The tower
  **/
-function getTower(creep) {
+function getTower (creep) {
   if (!creep.data.tower) {
     const structures = creep.pos.findInRange(FIND_MY_STRUCTURES, 1, {filter: {structureType: STRUCTURE_TOWER}});
     if (structures.length === 0) {
@@ -63,7 +63,7 @@ function getTower(creep) {
  * @param {object} creep - The creep
  * @return {object} - The powerSpawn
  **/
-function getPowerSpawn(creep) {
+function getPowerSpawn (creep) {
   if (!creep.data.powerSpawn) {
     const structures = creep.pos.findInRange(FIND_MY_STRUCTURES, 1, {filter: {structureType: STRUCTURE_POWER_SPAWN}});
     if (structures.length === 0) {
@@ -74,7 +74,7 @@ function getPowerSpawn(creep) {
   return Game.getObjectById(creep.data.powerSpawn);
 }
 
-roles.storagefiller.action = function(creep) {
+roles.storagefiller.action = function (creep) {
   creep.setNextSpawn();
   creep.spawnReplacement(1);
 

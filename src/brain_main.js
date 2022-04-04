@@ -5,11 +5,11 @@ const {handleQuests} = require('./quests');
 
 global.cpuUsed = 0;
 
-brain.main.roomExecution = function() {
+brain.main.roomExecution = function () {
   Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
 };
 
-brain.main.cleanUpDyingCreep = function(name) {
+brain.main.cleanUpDyingCreep = function (name) {
   console.log('--->', name, 'Died naturally?');
   delete Memory.creeps[name];
 };
@@ -28,7 +28,7 @@ brain.main.roomFilter = (r) => {
   return Memory.myRooms.indexOf(r.name) !== -1;
 };
 
-brain.main.profilerInit = function() {
+brain.main.profilerInit = function () {
   if (config.profiler.enabled) {
     try {
       global.profiler = require('screeps-profiler'); // eslint-disable-line global-require
@@ -44,7 +44,7 @@ brain.main.profilerInit = function() {
   }
 };
 
-brain.main.visualizeRooms = function() {
+brain.main.visualizeRooms = function () {
   if (config.visualizer.enabled) {
     try {
       Memory.myRooms.forEach(visualizer.myRoomDatasDraw);
@@ -59,7 +59,7 @@ brain.main.visualizeRooms = function() {
   }
 };
 
-brain.main.updateSkippedRoomsLog = function() {
+brain.main.updateSkippedRoomsLog = function () {
   Memory.skippedRoomsLog = Memory.skippedRoomsLog || {};
   if (_.size(Memory.skippedRooms) > 0) {
     console.log(`${Game.time} cpu.getUsed: ${_.round(Game.cpu.getUsed())} ticklimit: ${Game.cpu.tickLimit} Bucket: ${Game.cpu.bucket} skippedRooms ${Memory.skippedRooms}`);
@@ -75,7 +75,7 @@ brain.main.updateSkippedRoomsLog = function() {
   }
 };
 
-brain.main.execute = function() {
+brain.main.execute = function () {
   if (Game.time > 1000 && Game.cpu.bucket < 1.5 * Game.cpu.tickLimit && Game.cpu.bucket < Game.cpu.limit * 10) {
     console.log(`${Game.time} Skipping tick CPU Bucket too low. bucket: ${Game.cpu.bucket} tickLimit: ${Game.cpu.tickLimit} limit: ${Game.cpu.limit}`);
     return;

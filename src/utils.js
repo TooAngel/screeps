@@ -16,11 +16,11 @@ global.utils = {
    * @param {Array} object
    * @return {Number}
    */
-  returnLength: function returnLength(object) {
+  returnLength: function returnLength (object) {
     return (object && object.length) ? object.length : _.size(object);
   },
 
-  checkPlayers: function() {
+  checkPlayers: function () {
     for (const name of Object.keys(Memory.players)) {
       const player = Memory.players[name];
       if (player.name === undefined) {
@@ -43,7 +43,7 @@ global.utils = {
     }
   },
 
-  roomCheck: function() {
+  roomCheck: function () {
     for (const roomName in Memory.rooms) {
       if (Memory.rooms[roomName].state === 'Occupied') {
         console.log(`${roomName} ${global.data.rooms[roomName].player}`);
@@ -51,7 +51,7 @@ global.utils = {
     }
   },
 
-  terminals: function() {
+  terminals: function () {
     console.log('Terminals:');
     for (const roomName of Memory.myRooms) {
       const room = Game.rooms[roomName];
@@ -61,8 +61,8 @@ global.utils = {
     }
   },
 
-  csstats: function() {
-    const aggregate = function(result, value) {
+  csstats: function () {
+    const aggregate = function (result, value) {
       result[value.pos.roomName] = (result[value.pos.roomName] || (result[value.pos.roomName] = 0)) + 1;
       return result;
     };
@@ -70,25 +70,25 @@ global.utils = {
     console.log(JSON.stringify(resultReduce));
   },
 
-  memory: function() {
+  memory: function () {
     for (const keys of Object.keys(Memory)) {
       console.log(keys, JSON.stringify(Memory[keys]).length);
     }
   },
 
-  memoryRooms: function() {
+  memoryRooms: function () {
     for (const keys of Object.keys(Memory.rooms)) {
       console.log(keys, JSON.stringify(Memory.rooms[keys]).length);
     }
   },
 
-  memoryRoom: function(roomName) {
+  memoryRoom: function (roomName) {
     for (const keys of Object.keys(Memory.rooms[roomName])) {
       console.log(keys, JSON.stringify(Memory.rooms[roomName][keys]).length);
     }
   },
 
-  showReserveredRooms: function() {
+  showReserveredRooms: function () {
     for (const roomName of Object.keys(Memory.rooms)) {
       const room = Memory.rooms[roomName];
       if (room.state === 'Reserved') {
@@ -97,11 +97,11 @@ global.utils = {
     }
   },
 
-  queueCheck: function(roomName) {
+  queueCheck: function (roomName) {
     // todo move to global.utils
     // todo save functions by prop so creation should only be once
-    const prop = function(prop) {
-      return function(object) {
+    const prop = function (prop) {
+      return function (object) {
         return object[prop];
       };
     };
@@ -111,7 +111,7 @@ global.utils = {
     return found;
   },
 
-  stringToParts: function(stringParts) {
+  stringToParts: function (stringParts) {
     if (!stringParts || typeof(stringParts) !== 'string') {
       return;
     }
@@ -132,12 +132,12 @@ global.utils = {
     return arrayParts;
   },
 
-  splitRoomName: function(name) {
+  splitRoomName: function (name) {
     const patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
     return patt.exec(name);
   },
 
-  routeCallbackRoomHandle: function(roomName) {
+  routeCallbackRoomHandle: function (roomName) {
     let returnValue;
     if (Memory.rooms[roomName].state === 'Occupied') {
       // console.log(Game.time, `Creep.prototype.getRoute: Do not route through occupied rooms ${roomName}`);
@@ -156,8 +156,8 @@ global.utils = {
     return returnValue;
   },
 
-  routeCallback: function(to, useHighWay) {
-    return function(roomName) {
+  routeCallback: function (to, useHighWay) {
+    return function (roomName) {
       let returnValue = Infinity;
       if (roomName === to) {
         returnValue = 1;
@@ -181,12 +181,12 @@ global.utils = {
   },
 
   // unclaim functions
-  killCreeps: function(room) {
+  killCreeps: function (room) {
     const creepsToKill = _.filter(Game.creeps, (c) => c.memory.base === room.name);
     room.log('creepsToKill', _.size(creepsToKill), _.map(creepsToKill, (c) => c.suicide()));
   },
 
-  removeNextStructure: function(room) {
+  removeNextStructure: function (room) {
     let returnValue;
     const myStructuresToDestroy = _.sortBy(room.findMyStructures(), (s) => s.hitsMax);
     const controller = myStructuresToDestroy.shift();
@@ -204,7 +204,7 @@ global.utils = {
   },
 
   // return: String with fixed width for rounded number
-  lpadround: function(nr, lpad, digest) {
+  lpadround: function (nr, lpad, digest) {
     return nr.toFixed(digest).padStart(lpad + digest + 1);
   },
 };

@@ -14,7 +14,7 @@ roles.squadheal.settings = {
   fillTough: true,
 };
 
-roles.squadheal.preMove = function(creep, directions) {
+roles.squadheal.preMove = function (creep, directions) {
   creep.creepLog('preMove');
   if (creep.hits < creep.hitsMax) {
     creep.creepLog('preMove heal');
@@ -60,7 +60,7 @@ roles.squadheal.preMove = function(creep, directions) {
 };
 
 // TODO need to check if it works
-roles.squadheal.action = function(creep) {
+roles.squadheal.action = function (creep) {
   creep.selfHeal();
   if (creep.room.name !== creep.memory.routing.targetRoom) {
     // creep.log('Not in room');

@@ -1,6 +1,6 @@
 'use strict';
 
-Room.prototype.buildBlockers = function() {
+Room.prototype.buildBlockers = function () {
   this.debugLog('baseBuilding', 'buildBlockers: ' + this.memory.controllerLevel.buildBlockersInterval);
 
   const spawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
@@ -14,7 +14,7 @@ Room.prototype.buildBlockers = function() {
   return this.checkRamparts();
 };
 
-Room.prototype.checkRamparts = function() {
+Room.prototype.checkRamparts = function () {
   const room = Game.rooms[this.name];
   if (!room.memory.walls) {
     return false;
@@ -25,10 +25,10 @@ Room.prototype.checkRamparts = function() {
   }
 };
 
-Room.prototype.checkExitsAreReachable = function() {
+Room.prototype.checkExitsAreReachable = function () {
   // Make sure every exit is reachable
 
-  const inLayer = function(room, pos) {
+  const inLayer = function (room, pos) {
     for (let i = 0; i < room.memory.walls.layer_i; i++) {
       for (const j of Object.keys(room.memory.walls.layer[i])) {
         const position = room.memory.walls.layer[i][j];
@@ -43,7 +43,7 @@ Room.prototype.checkExitsAreReachable = function() {
 
   const exits = this.find(FIND_EXIT);
   const room = this;
-  const callbackNew = function() {
+  const callbackNew = function () {
     const costMatrix = room.getMemoryCostMatrix();
     return costMatrix;
   };
@@ -79,7 +79,7 @@ Room.prototype.checkExitsAreReachable = function() {
   }
 };
 
-const inLayer = function(room, pos) {
+const inLayer = function (room, pos) {
   for (let i = 0; i < room.memory.walls.layer_i; i++) {
     for (const j of Object.keys(room.memory.walls.layer[i])) {
       const position = room.memory.walls.layer[i][j];
@@ -91,7 +91,7 @@ const inLayer = function(room, pos) {
   return false;
 };
 
-Room.prototype.initMemoryWalls = function() {
+Room.prototype.initMemoryWalls = function () {
   if (!this.memory.walls || !this.memory.walls.layer) {
     this.debugLog('baseBuilding', 'closeExitsByPath: Reset walls');
     this.memory.walls = {
@@ -109,7 +109,7 @@ Room.prototype.initMemoryWalls = function() {
   }
 };
 
-const callbackcloseExitsByPath = function(room) {
+const callbackcloseExitsByPath = function (room) {
   return (roomName, costMatrix) => {
     if (!costMatrix) {
       costMatrix = new PathFinder.CostMatrix();
@@ -127,7 +127,7 @@ const callbackcloseExitsByPath = function(room) {
   };
 };
 
-const getTargets = function(room) {
+const getTargets = function (room) {
   const targets = [{
     pos: room.controller.pos,
     range: 1,
@@ -148,7 +148,7 @@ const getTargets = function(room) {
  * @param {object} pos
  * @return {bool}
  */
-function isWallPlaceable(pos) {
+function isWallPlaceable (pos) {
   const exit = pos.findClosestByRange(FIND_EXIT);
   const range = pos.getRangeTo(exit);
   return range > 1;
@@ -161,7 +161,7 @@ function isWallPlaceable(pos) {
  * @param {object} posLastObject
  * @return {bool}
  */
-function getWayFound(targets, posLastObject) {
+function getWayFound (targets, posLastObject) {
   for (const target of targets) {
     if (posLastObject.getRangeTo(target) === 1) {
       return true;
@@ -176,7 +176,7 @@ function getWayFound(targets, posLastObject) {
  * @param {object} room
  * @return {bool}
  */
-function layerFinished(room) {
+function layerFinished (room) {
   room.memory.walls.exit_i = 0;
   room.memory.walls.layer_i++;
   if (room.memory.walls.layer_i >= config.layout.wallThickness) {
@@ -186,7 +186,7 @@ function layerFinished(room) {
   return true;
 }
 
-Room.prototype.closeExitsByPath = function() {
+Room.prototype.closeExitsByPath = function () {
   if (this.memory.walls && this.memory.walls.finished) {
     return false;
   }

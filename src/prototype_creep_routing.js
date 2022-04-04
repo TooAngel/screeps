@@ -6,7 +6,7 @@
  *
  * @return {Array} - result of `room.findRoute` base room added
  */
-Creep.prototype.getRoute = function() {
+Creep.prototype.getRoute = function () {
   if (this.memory.routing.route) {
     return this.memory.routing.route;
   }
@@ -35,7 +35,7 @@ Creep.prototype.getRoute = function() {
  * @param {Array} route - List of rooms to check against
  * @return {number} - returns the index of the current position in the given route
  */
-Creep.prototype.getRoutePos = function(route) {
+Creep.prototype.getRoutePos = function (route) {
   this.memory.routing.routePos = this.memory.routing.routePos || 0;
   if (!route[this.memory.routing.routePos] || this.room.name !== route[this.memory.routing.routePos].room) {
     this.memory.routing.routePos = _.findIndex(route, (i) => i.room === this.room.name);
@@ -49,7 +49,7 @@ Creep.prototype.getRoutePos = function(route) {
  * @param {list} path - Path to find the current position in
  * @return {number} - returns the index of the current position in the given route
  */
-Creep.prototype.getPathPos = function(path) {
+Creep.prototype.getPathPos = function (path) {
   this.memory.routing.pathPos = this.memory.routing.pathPos || 0;
   const pos = path[this.memory.routing.pathPos];
   if (!pos || !this.pos.isEqualTo(pos.x, pos.y)) {
@@ -70,7 +70,7 @@ Creep.prototype.getPathPos = function(path) {
  * @param {number} pathPos - The current patPosition
  * @return {object} - forwardDirection, backwardDirection, direction, pathOffset
  **/
-Creep.prototype.getDirections = function(path) {
+Creep.prototype.getDirections = function (path) {
   const pathPos = this.memory.routing.pathPos;
   if (pathPos < 0) {
     return {};
@@ -116,7 +116,7 @@ Creep.prototype.getDirections = function(path) {
  *
  * @return {list} - The path
  **/
-Creep.prototype.prepareRoutingMemory = function() {
+Creep.prototype.prepareRoutingMemory = function () {
   const route = this.getRoute();
   const routePos = this.getRoutePos(route);
   const path = this.room.getPath(route, routePos, 'pathStart', this.memory.routing.targetId);
@@ -134,7 +134,7 @@ Creep.prototype.prepareRoutingMemory = function() {
  * @param {function} action - Action function to execute when target is reached
  * @return {boolean} - If the execution is successful
  */
-Creep.prototype.followPath = function(action) {
+Creep.prototype.followPath = function (action) {
   if (this.followPathWithoutTargetId()) {
     return action(this);
   }
@@ -174,7 +174,7 @@ Creep.prototype.followPath = function(action) {
   return moveByPathMyResult;
 };
 
-Creep.prototype.followPathWithoutTargetId = function() {
+Creep.prototype.followPathWithoutTargetId = function () {
   if (this.room.name !== this.memory.routing.targetRoom) {
     return false;
   }
@@ -192,7 +192,7 @@ Creep.prototype.followPathWithoutTargetId = function() {
   return true;
 };
 
-Creep.prototype.followPathWithTargetId = function(path) {
+Creep.prototype.followPathWithTargetId = function (path) {
   if (this.memory.routing.routePos === this.memory.routing.route.length - 1 &&
     this.memory.routing.pathPos === path.length - 1 && !this.memory.routing.reverse) {
     this.memory.routing.reached = true;
@@ -204,7 +204,7 @@ Creep.prototype.followPathWithTargetId = function(path) {
 };
 
 
-Creep.prototype.getMoveBackToPathPosition = function(path) {
+Creep.prototype.getMoveBackToPathPosition = function (path) {
   if (this.memory.routing.reverse) {
     const pos = new RoomPosition(path[0].x, path[0].y, path[0].roomName);
     if (pos.isBorder(-1)) {
@@ -223,7 +223,7 @@ Creep.prototype.getMoveBackToPathPosition = function(path) {
  * @param {list} path - The path we want to get back to
  * @return {boolean} - Result of `creep.moveToMy`
  **/
-Creep.prototype.moveBackToPath = function(path) {
+Creep.prototype.moveBackToPath = function (path) {
   const pos = this.getMoveBackToPathPosition(path);
   const moveToMyResult = this.moveToMy(pos, 0);
   if (!moveToMyResult) {
@@ -241,7 +241,7 @@ Creep.prototype.moveBackToPath = function(path) {
  * @param {object} directions - The object to check
  * @return {boolean} - If the object is valid
  **/
-function validateDirections(directions) {
+function validateDirections (directions) {
   return directions && directions.direction && (directions.forwardDirection || directions.backwardDirection);
 }
 
@@ -252,7 +252,7 @@ function validateDirections(directions) {
  * @param {array} path
  * @return {void}
  */
-function moveByPathMyNoPathPosition(room, path) {
+function moveByPathMyNoPathPosition (room, path) {
   const moveBackToPathResult = room.moveBackToPath(path);
   if (!moveBackToPathResult) {
     room.log('prototype_creep_routing.moveByPathMy - moveBackToPath');
@@ -268,7 +268,7 @@ function moveByPathMyNoPathPosition(room, path) {
  * @param {object} [directions] - Precalculated directions on the path
  * @return {boolean} true if a way was found to move the creep
  **/
-Creep.prototype.moveByPathMy = function(path, pathPos, directions) {
+Creep.prototype.moveByPathMy = function (path, pathPos, directions) {
   this.buildRoad();
 
   if (this.fatigue > 0) {
@@ -311,7 +311,7 @@ Creep.prototype.moveByPathMy = function(path, pathPos, directions) {
  * checkForRoutingReached checks if current room and targetRoom matches
  * and set memory.routing.reached to true
  **/
-Creep.prototype.checkForRoutingReached = function() {
+Creep.prototype.checkForRoutingReached = function () {
   if (this.room.name === this.memory.routing.targetRoom) {
     this.memory.routing.reached = true;
   }

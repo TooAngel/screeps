@@ -19,7 +19,7 @@ roles.repairer.settings = {
 
 roles.repairer.boostActions = ['repair'];
 
-roles.repairer.preMove = function(creep) {
+roles.repairer.preMove = function (creep) {
   creep.memory.routing.reached = true;
   if (creep.memory.routing && creep.memory.routing.targetId) {
     if (Game.getObjectById(creep.memory.routing.targetId) === null) {
@@ -31,7 +31,7 @@ roles.repairer.preMove = function(creep) {
   }
 };
 
-roles.repairer.action = function(creep) {
+roles.repairer.action = function (creep) {
   if (creep.pos.roomName !== creep.memory.base) {
     creep.log(`Not in my base room why? ${creep.memory.routing.targetId} carry: ${JSON.stringify(creep.carry)} positions: ${JSON.stringify(creep.memory.lastPositions)}`);
   }

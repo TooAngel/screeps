@@ -6,14 +6,14 @@ Room.structureHasEnergy = (structure) => structure.store && structure.store.ener
 
 Room.structureIsEmpty = (structure) => (!structure.store || _.sum(structure.store) === 0) && !structure.energy && !structure.mineralAmount && !structure.ghodium && !structure.power;
 
-Room.prototype.nearestRoomName = function(roomsNames, limit) {
+Room.prototype.nearestRoomName = function (roomsNames, limit) {
   const roomName = this.name;
-  const filterByLinearDistance = function(object) {
+  const filterByLinearDistance = function (object) {
     const dist = Game.map.getRoomLinearDistance(roomName, object);
     return dist <= limit;
   };
   roomsNames = _.filter(roomsNames, filterByLinearDistance);
-  const sortByLinearDistance = function(object) {
+  const sortByLinearDistance = function (object) {
     const dist = Game.map.getRoomLinearDistance(roomName, object);
     return dist;
   };
@@ -32,7 +32,7 @@ Room.prototype.nearestRoomName = function(roomsNames, limit) {
  * @param  {Number} [opts.timeSpan=0] Return cached data even if it is outdated by `timeSpan` ticks.
  * @return {Array}                  the objects returned in an array.
  */
-Room.prototype.findPropertyFilter = function(findTarget, property, properties, opts = {}) {
+Room.prototype.findPropertyFilter = function (findTarget, property, properties, opts = {}) {
   const {filter, timeSpan = 0, inverse = false} = opts;
   const cache = this._findPropertyFilterCacheOne(findTarget, property, properties, timeSpan, inverse);
   if (cache.resolveTime !== Game.time) {
@@ -47,7 +47,7 @@ Room.prototype.findPropertyFilter = function(findTarget, property, properties, o
 
 const localFindCache = {};
 
-Room.prototype._findPropertyFilterCacheTwo = function(findTarget, property, timeSpan) {
+Room.prototype._findPropertyFilterCacheTwo = function (findTarget, property, timeSpan) {
   const key = `${this.name} ${findTarget} ${property}`;
   if (!localFindCache[key] || localFindCache[key].time < Game.time + timeSpan) {
     localFindCache[key] = {
@@ -58,7 +58,7 @@ Room.prototype._findPropertyFilterCacheTwo = function(findTarget, property, time
   return localFindCache[key];
 };
 
-Room.prototype._findPropertyFilterCacheOne = function(findTarget, property, properties, timeSpan, inverse) {
+Room.prototype._findPropertyFilterCacheOne = function (findTarget, property, properties, timeSpan, inverse) {
   const key = `${this.name} ${findTarget} ${property} ${properties} ${inverse}`;
   if (!localFindCache[key] || localFindCache[key].time < Game.time + timeSpan) {
     const cacheTwoItem = this._findPropertyFilterCacheTwo(findTarget, property, timeSpan);
@@ -76,12 +76,12 @@ Room.prototype._findPropertyFilterCacheOne = function(findTarget, property, prop
   return localFindCache[key];
 };
 
-Room.prototype._findPropertyFilterResolveOutdatedCacheOne = function(cache) {
+Room.prototype._findPropertyFilterResolveOutdatedCacheOne = function (cache) {
   cache.result = cache.result.map((o) => Game.getObjectById(o.id)).filter((o) => o);
   cache.resolveTime = Game.time;
 };
 
-Room.prototype.closestSpawn = function(target) {
+Room.prototype.closestSpawn = function (target) {
   const pathLength = {};
   const roomsMy = findMyRoomsSortByDistance(target);
 
@@ -112,7 +112,7 @@ Room.prototype.closestSpawn = function(target) {
   return (_.first(shortest) || {}).room;
 };
 
-Room.prototype.getEnergyCapacityAvailable = function() {
+Room.prototype.getEnergyCapacityAvailable = function () {
   let offset = 0;
   if (this.memory.misplacedSpawn && this.controller.level === 4) {
     offset = 300;
@@ -120,13 +120,13 @@ Room.prototype.getEnergyCapacityAvailable = function() {
   return this.energyCapacityAvailable - offset;
 };
 
-Room.prototype.splitRoomName = function() {
+Room.prototype.splitRoomName = function () {
   const patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
   const result = patt.exec(this.name);
   return result;
 };
 
-Room.pathToString = function(path) {
+Room.pathToString = function (path) {
   if (!config.performance.serializePath) {
     return path;
   }
@@ -147,7 +147,7 @@ Room.pathToString = function(path) {
   return result;
 };
 
-Room.stringToPath = function(string) {
+Room.stringToPath = function (string) {
   if (!config.performance.serializePath) {
     return string;
   }
@@ -177,6 +177,6 @@ Room.stringToPath = function(string) {
  * @param {String} structure
  * @return {Array} - Object.keys of store
  */
-Room.prototype.getResourcesFrom = function(structure) {
+Room.prototype.getResourcesFrom = function (structure) {
   return Object.keys(this[structure].store);
 };

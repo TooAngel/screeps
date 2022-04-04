@@ -14,7 +14,7 @@ roles.squadsiege.settings = {
   fillTough: true,
 };
 
-roles.squadsiege.dismantleSurroundingStructures = function(creep, directions) {
+roles.squadsiege.dismantleSurroundingStructures = function (creep, directions) {
   if (!directions || !directions.forwardDirection) {
     return false;
   }
@@ -34,7 +34,7 @@ roles.squadsiege.dismantleSurroundingStructures = function(creep, directions) {
   }
 };
 
-roles.squadsiege.preMove = function(creep, directions) {
+roles.squadsiege.preMove = function (creep, directions) {
   // creep.log('preMove');
   if (!directions) {
     return false;
@@ -65,7 +65,7 @@ roles.squadsiege.preMove = function(creep, directions) {
 };
 
 // TODO need to check if it works
-roles.squadsiege.action = function(creep) {
+roles.squadsiege.action = function (creep) {
   creep.say('action');
   if (creep.room.name !== creep.memory.routing.targetRoom) {
     if (creep.hits < creep.hitsMax) {

@@ -7,7 +7,7 @@
  * @param {string} mineralType - The mineral type to check.
  * @return {boolean} if the lab has enough of the mineral
  */
-Creep.prototype.checkLabEnoughMineral = function(lab, mineralType) {
+Creep.prototype.checkLabEnoughMineral = function (lab, mineralType) {
   if (lab.mineralAmount < LAB_REACTION_AMOUNT && !this.room.terminal.store[mineralType] && !this.carry[mineralType]) {
     if (config.debug.mineral) {
       this.log('Not enough', mineralType, 'stop reaction');
@@ -18,7 +18,7 @@ Creep.prototype.checkLabEnoughMineral = function(lab, mineralType) {
   return true;
 };
 
-Creep.prototype.getBoostParts = function() {
+Creep.prototype.getBoostParts = function () {
   const parts = {};
   for (const part of this.body) {
     if (part.boost) {
@@ -29,7 +29,7 @@ Creep.prototype.getBoostParts = function() {
   return parts;
 };
 
-Creep.prototype.boost = function() {
+Creep.prototype.boost = function () {
   if (!this.room.terminal || !this.room.terminal.my) {
     this.memory.boosted = true;
     return false;

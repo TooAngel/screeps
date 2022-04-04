@@ -9,7 +9,7 @@ const {getMyRoomWithinRange} = require('./helper_findMyRooms');
  *
  * @return {void}
  */
-function checkPlayers() {
+function checkPlayers () {
   if (Game.time % config.diplomacy.checkPlayersInterval !== 0) {
     return;
   }
@@ -48,7 +48,7 @@ function checkPlayers() {
 
 module.exports.checkPlayers = checkPlayers;
 
-const findRoomPairs = function(player) {
+const findRoomPairs = function (player) {
   for (const roomName of Object.keys(player.rooms).sort((a, b) => 0.5 - Math.random())) {
     debugLog('diplomacy', `findRoomPairs: room ${roomName} data: ${JSON.stringify(global.data.rooms[roomName])}`);
     const minRCL = ((global.data.rooms[roomName] || {}).controller || {}).level || 8;
@@ -70,7 +70,7 @@ const findRoomPairs = function(player) {
  * @param {object} player
  * @return {void}
  */
-function handleRetaliation(player) {
+function handleRetaliation (player) {
   if (!player.lastAttacked) {
     player.lastAttacked = Game.time + config.autoattack.timeBetweenAttacks;
   }
@@ -146,7 +146,7 @@ function handleRetaliation(player) {
  * @param {number} value
  * @return {void}
  */
-function addToReputation(name, value) {
+function addToReputation (name, value) {
   if (name === 'Invader') {
     return;
   }
@@ -179,7 +179,7 @@ module.exports.addToReputation = addToReputation;
  * @param {string} name
  * @return {object}
  */
-function initPlayer(name) {
+function initPlayer (name) {
   if (!Memory.players[name]) {
     Memory.players[name] = {
       name: name,
@@ -193,7 +193,7 @@ function initPlayer(name) {
 }
 module.exports.initPlayer = initPlayer;
 
-function addRoomToPlayer(player, room) {
+function addRoomToPlayer (player, room) {
   if (!player.rooms) {
     player.rooms = {};
   }

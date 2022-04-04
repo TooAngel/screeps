@@ -4,7 +4,7 @@ const {getMyRoomWithinRange, findMyRoomsSortByDistance} = require('./helper_find
 const {addToReputation, initPlayer, addRoomToPlayer} = require('./diplomacy');
 const {haveActiveQuest} = require('./quests');
 
-Room.prototype.checkBlocked = function() {
+Room.prototype.checkBlocked = function () {
   const exits = Game.map.describeExits(this.name);
   const callerRoom = this;
   const roomCallback = (roomName) => {
@@ -39,7 +39,7 @@ Room.prototype.checkBlocked = function() {
   return false;
 };
 
-Room.prototype.isHighwayRoom = function() {
+Room.prototype.isHighwayRoom = function () {
   if (this.controller) {
     return false;
   }
@@ -50,7 +50,7 @@ Room.prototype.isHighwayRoom = function() {
   return false;
 };
 
-Room.prototype.isCenterRoom = function() {
+Room.prototype.isCenterRoom = function () {
   if (this.controller) {
     return false;
   }
@@ -61,7 +61,7 @@ Room.prototype.isCenterRoom = function() {
   return false;
 };
 
-Room.prototype.checkForQuest = function() {
+Room.prototype.checkForQuest = function () {
   if (Game.time - this.data.lastSeen < config.quests.checkInterval) {
     return;
   }
@@ -128,7 +128,7 @@ Room.prototype.checkForQuest = function() {
   }
 };
 
-Room.prototype.handleHostileReservedRoom = function() {
+Room.prototype.handleHostileReservedRoom = function () {
   this.data.state = 'HostileReserved';
   if (!this.data.lastBreakReservationAttempt) {
     this.data.lastBreakReservationAttempt = Game.time - config.autoattack.noReservedRoomInterval;
@@ -149,7 +149,7 @@ Room.prototype.handleHostileReservedRoom = function() {
   nearMyRoom.checkRoleToSpawn('attackunreserve', 1, undefined, this.name);
 };
 
-Room.prototype.checkIfRoomIsBlocked = function() {
+Room.prototype.checkIfRoomIsBlocked = function () {
   if (!this.data.blockedCheck || Game.time - this.data.blockedCheck > 100000) {
     this.data.blockedCheck = Game.time;
     const blocked = this.checkBlocked();
@@ -159,7 +159,7 @@ Room.prototype.checkIfRoomIsBlocked = function() {
   }
 };
 
-Room.prototype.handleNoControllerRooms = function() {
+Room.prototype.handleNoControllerRooms = function () {
   if (this.isHighwayRoom()) {
     return this.externalHandleHighwayRoom();
   }
@@ -177,7 +177,7 @@ Room.prototype.handleNoControllerRooms = function() {
   return false;
 };
 
-Room.prototype.externalHandleRoom = function() {
+Room.prototype.externalHandleRoom = function () {
   if (!this.controller) {
     return this.handleNoControllerRooms();
   }
@@ -205,7 +205,7 @@ Room.prototype.externalHandleRoom = function() {
  * @param {object} room
  * @param {object} powerBank
  */
-function spawnPowerTransporters(room, powerBank) {
+function spawnPowerTransporters (room, powerBank) {
   if (Memory.powerBanks[room.name].transporter_called) {
     return;
   }
@@ -224,12 +224,12 @@ function spawnPowerTransporters(room, powerBank) {
   }
 }
 
-Room.prototype.externalHandleHighwayRoom = function() {
+Room.prototype.externalHandleHighwayRoom = function () {
   this.harvestPower();
   this.harvestCommodities();
 };
 
-Room.prototype.harvestCommodities = function() {
+Room.prototype.harvestCommodities = function () {
   if (config.commodities.disabled) {
     return false;
   }
@@ -288,7 +288,7 @@ Room.prototype.harvestCommodities = function() {
   });
 };
 
-Room.prototype.harvestPower = function() {
+Room.prototype.harvestPower = function () {
   if (config.power.disabled) {
     return false;
   }
@@ -366,7 +366,7 @@ Room.prototype.harvestPower = function() {
   });
 };
 
-Room.prototype.handleOccupiedRoom = function() {
+Room.prototype.handleOccupiedRoom = function () {
   this.data.state = 'Occupied';
   this.data.player = this.controller.owner.username;
   this.data.controller = {
@@ -379,7 +379,7 @@ Room.prototype.handleOccupiedRoom = function() {
   this.data.spawns = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
 };
 
-Room.prototype.checkBlockedPath = function() {
+Room.prototype.checkBlockedPath = function () {
   for (const pathName of Object.keys(this.getMemoryPaths())) {
     const path = this.getMemoryPath(pathName) || {};
     for (const pos of path) {
@@ -406,7 +406,7 @@ Room.prototype.checkBlockedPath = function() {
   }
 };
 
-Room.prototype.checkAndSpawnReserver = function() {
+Room.prototype.checkAndSpawnReserver = function () {
   if (this.data.reservation === undefined) {
     // TODO Check the closest room and set reservation
     this.log('No reservation');
@@ -438,7 +438,7 @@ Room.prototype.checkAndSpawnReserver = function() {
   }
 };
 
-const checkSourcerMatch = function(sourcers, sourceId) {
+const checkSourcerMatch = function (sourcers, sourceId) {
   for (const sourcer of sourcers) {
     if (sourcer.memory.routing.targetId === sourceId) {
       return true;
@@ -447,7 +447,7 @@ const checkSourcerMatch = function(sourcers, sourceId) {
   return false;
 };
 
-Room.prototype.checkSourcer = function() {
+Room.prototype.checkSourcer = function () {
   const sources = this.findSources();
   const sourcers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer']);
 
@@ -460,7 +460,7 @@ Room.prototype.checkSourcer = function() {
   }
 };
 
-Room.prototype.isRoomRecentlyChecked = function() {
+Room.prototype.isRoomRecentlyChecked = function () {
   if (this.data.lastChecked !== undefined &&
     Game.time - this.data.lastChecked < 500) {
     return true;
@@ -469,7 +469,7 @@ Room.prototype.isRoomRecentlyChecked = function() {
   return false;
 };
 
-Room.prototype.handleReservedRoom = function() {
+Room.prototype.handleReservedRoom = function () {
   this.data.state = 'Reserved';
   if (this.isRoomRecentlyChecked()) {
     return false;
@@ -497,7 +497,7 @@ Room.prototype.handleReservedRoom = function() {
  * @param {list} route - A list of route entries
  * @return {bool} - If the route is valid
  **/
-function isRouteValidForReservedRoom(room, route) {
+function isRouteValidForReservedRoom (room, route) {
   // Only allow pathing through owned rooms or already reserved rooms.
   for (const routeEntry of route) {
     const routeRoomName = routeEntry.room;
@@ -523,13 +523,13 @@ function isRouteValidForReservedRoom(room, route) {
  * @param {string} roomName - The room name to check the reservation base
  * @return {bool} - If it is reservered by the given roomName
  **/
-function filterReservedBy(roomName) {
+function filterReservedBy (roomName) {
   return (roomData) => {
     return roomData.state === 'Reserved' && (roomData.reservation || {}).base === roomName;
   };
 }
 
-Room.prototype.handleUnreservedRoom = function() {
+Room.prototype.handleUnreservedRoom = function () {
   this.data.state = 'Unreserved';
   if (this.isRoomRecentlyChecked()) {
     return false;
@@ -593,7 +593,7 @@ Room.prototype.handleUnreservedRoom = function() {
   return true;
 };
 
-Room.prototype.handleSourceKeeperRoom = function() {
+Room.prototype.handleSourceKeeperRoom = function () {
   this.data.sourceKeeperRoom = true;
   this.data.state = 'SourceKeeper';
   if (config.keepers.enabled) {

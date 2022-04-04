@@ -2,7 +2,7 @@
 
 const {debugLog} = require('./logging');
 
-function handleQuests() {
+function handleQuests () {
   Memory.quests = Memory.quests || {};
   for (const id of Object.keys(Memory.quests)) {
     const quest = Memory.quests[id];
@@ -22,7 +22,7 @@ function handleQuests() {
 
 module.exports.handleQuests = handleQuests;
 
-function getQuestBuildcs(data) {
+function getQuestBuildcs (data) {
   const quest = {};
   quest.room = data.room;
   quest.quest = 'buildcs';
@@ -31,7 +31,7 @@ function getQuestBuildcs(data) {
   return quest;
 }
 
-function getQuest(transaction, data) {
+function getQuest (transaction, data) {
   const info = {};
   info.id = data.id;
   info.player = {
@@ -50,7 +50,7 @@ function getQuest(transaction, data) {
 }
 
 
-function haveActiveQuest() {
+function haveActiveQuest () {
   debugLog('quests', `haveActiveQuest global.data.activeQuest: ${JSON.stringify(global.data.activeQuest)}`);
   if (!global.data.activeQuest) {
     return false;
@@ -70,7 +70,7 @@ function haveActiveQuest() {
 
 module.exports.haveActiveQuest = haveActiveQuest;
 
-function getQuestFromTransactionDescription(description) {
+function getQuestFromTransactionDescription (description) {
   let data;
   try {
     data = JSON.parse(description);
@@ -96,7 +96,7 @@ function getQuestFromTransactionDescription(description) {
   return data;
 }
 
-function checkQuestForAcceptance(transaction) {
+function checkQuestForAcceptance (transaction) {
   Memory.quests = Memory.quests || {};
   const data = getQuestFromTransactionDescription(transaction.description);
   if (!data) {
@@ -127,7 +127,7 @@ function checkQuestForAcceptance(transaction) {
 
 module.exports.checkQuestForAcceptance = checkQuestForAcceptance;
 
-function checkAppliedQuestForAcceptance(transaction) {
+function checkAppliedQuestForAcceptance (transaction) {
   try {
     const response = JSON.parse(transaction.description);
     if (!response.type) {

@@ -27,7 +27,7 @@ roles.carry.settings = {
   maxLayoutAmount: 1,
 };
 
-roles.carry.updateSettings = function(room, creep) {
+roles.carry.updateSettings = function (room, creep) {
   if (creep.helper) {
     return {
       prefixString: config.buildRoad.buildToOtherMyRoom ? 'W' : '',
@@ -44,7 +44,7 @@ roles.carry.updateSettings = function(room, creep) {
   }
 };
 
-roles.carry.checkHelperEmptyStorage = function(creep) {
+roles.carry.checkHelperEmptyStorage = function (creep) {
   // Fix blocked helpers due to empty structure in the room where we get the energy from
   if (creep.room.name === creep.memory.routing.targetRoom) {
     const targetStructure = Game.getObjectById(creep.memory.routing.targetId);
@@ -68,7 +68,7 @@ roles.carry.checkHelperEmptyStorage = function(creep) {
  *
  * @param {object} creep
  */
-function checkForUniversalSpawn(creep) {
+function checkForUniversalSpawn (creep) {
   const storage = creep.room.storage;
   if (!(storage && storage.my && storage.isActive())) {
     let resourceAtPosition = 0;
@@ -82,7 +82,7 @@ function checkForUniversalSpawn(creep) {
   }
 }
 
-roles.carry.dismantleStructure = function(creep, directions) {
+roles.carry.dismantleStructure = function (creep, directions) {
   const posForward = creep.pos.getAdjacentPosition(directions.direction);
   const structures = posForward.lookFor(LOOK_STRUCTURES);
   for (const structure of structures) {
@@ -111,7 +111,7 @@ roles.carry.dismantleStructure = function(creep, directions) {
   }
 };
 
-const validateDirections = function(creep, directions) {
+const validateDirections = function (creep, directions) {
   // TODO When does this happen? (Not on path?) - Handle better
   if (!directions || Object.keys(directions).length === 0) {
     if (creep.memory.routing.pathPos < 0) {
@@ -130,7 +130,7 @@ const validateDirections = function(creep, directions) {
  * @param {object} creep
  * @param {object} directions
  */
-function transferToCreeps(creep, directions) {
+function transferToCreeps (creep, directions) {
   creep.creepLog('Trying to transfer to creep');
   const transferred = creep.transferToCreep(directions.backwardDirection);
   creep.memory.routing.reverse = !transferred;
@@ -142,7 +142,7 @@ function transferToCreeps(creep, directions) {
  * @param {object} creep
  * @return {bool}
  */
-function getMoveToStorage(creep) {
+function getMoveToStorage (creep) {
   let moveToStorage = creep.checkCarryEnergyForBringingBackToStorage();
   const fleeFromSourceKeeper = creep.checkForSourceKeeper();
   moveToStorage = moveToStorage || fleeFromSourceKeeper;
@@ -156,7 +156,7 @@ function getMoveToStorage(creep) {
  * @param {object} directions
  * @return {bool}
  */
-function preMoveNotMoveToStorage(creep, directions) {
+function preMoveNotMoveToStorage (creep, directions) {
   creep.creepLog(`preMove not moveToStorage`);
   let moveToStorage = false;
   if (creep.memory.routing.pathPos > 1) {
@@ -169,7 +169,7 @@ function preMoveNotMoveToStorage(creep, directions) {
   return moveToStorage;
 }
 
-roles.carry.preMove = function(creep, directions) {
+roles.carry.preMove = function (creep, directions) {
   if (!validateDirections(creep, directions)) {
     return false;
   }
@@ -225,7 +225,7 @@ roles.carry.preMove = function(creep, directions) {
   return false;
 };
 
-roles.carry.action = function(creep) {
+roles.carry.action = function (creep) {
   // TODO log when this happens, carry is getting energy from the source
   creep.creepLog('ACTION');
   const source = Game.getObjectById(creep.memory.routing.targetId);

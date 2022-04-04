@@ -13,7 +13,7 @@ roles.powerattacker.settings = {
   fillTough: true,
 };
 
-roles.powerattacker.action = function(creep) {
+roles.powerattacker.action = function (creep) {
   const hostileCreep = creep.findClosestEnemy();
   if (hostileCreep !== null) {
     creep.moveTo(hostileCreep);

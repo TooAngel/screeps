@@ -1,6 +1,6 @@
 'use strict';
 
-Room.prototype.creepMem = function(role, targetId, targetRoom, level, base) {
+Room.prototype.creepMem = function (role, targetId, targetRoom, level, base) {
   return {
     role: role,
     routing: {
@@ -18,7 +18,7 @@ Room.prototype.creepMem = function(role, targetId, targetRoom, level, base) {
  * @param  {Object} object the creep queue object
  * @return {Number}        the priority for creep
  */
-Room.prototype.getPriority = function(object) {
+Room.prototype.getPriority = function (object) {
   const priority = config.priorityQueue;
   const target = object.routing && object.routing.targetRoom;
   if (target === this.name) {
@@ -30,7 +30,7 @@ Room.prototype.getPriority = function(object) {
   }
 };
 
-Room.prototype.spawnCheckForCreate = function() {
+Room.prototype.spawnCheckForCreate = function () {
   if (this.memory.queue.length === 0) {
     return false;
   }
@@ -59,7 +59,7 @@ Room.prototype.spawnCheckForCreate = function() {
   * @param {object} creep - The memory of a creep
   * @return {boolean} - If the creep is valid
   **/
-function isCreepValid(creep) {
+function isCreepValid (creep) {
   if (!creep) {
     return false;
   }
@@ -80,7 +80,7 @@ function isCreepValid(creep) {
  * @param {string} routingValue - The routing value
  * @return {boolean} - The value are equal or not set
  **/
-function compareSingleRoutingValue(first, second, routingValue) {
+function compareSingleRoutingValue (first, second, routingValue) {
   if (first.routing[routingValue] && second.routing[routingValue] && first.routing[routingValue] !== second.routing[routingValue]) {
     return false;
   }
@@ -94,7 +94,7 @@ function compareSingleRoutingValue(first, second, routingValue) {
  * @param {object} second - The second creep
  * @return {boolean} - If routing is equal
  **/
-function isEqualRouting(first, second) {
+function isEqualRouting (first, second) {
   if (!compareSingleRoutingValue(first, second, 'targetRoom')) {
     return false;
   }
@@ -112,7 +112,7 @@ function isEqualRouting(first, second) {
  * @param  {object} second the second creep
  * @return {boolean} both creeps have the same role, targetId and targetRoom
  */
-Room.prototype.isSameCreep = function(first, second) {
+Room.prototype.isSameCreep = function (first, second) {
   if (!isCreepValid(first)) {
     return false;
   }
@@ -128,7 +128,7 @@ Room.prototype.isSameCreep = function(first, second) {
   return true;
 };
 
-Room.prototype.inQueue = function(creepMemory) {
+Room.prototype.inQueue = function (creepMemory) {
   this.memory.queue = this.memory.queue || [];
   for (const item of this.memory.queue) {
     if (this.isSameCreep(creepMemory, item)) {
@@ -138,7 +138,7 @@ Room.prototype.inQueue = function(creepMemory) {
   return false;
 };
 
-Room.prototype.getSpawningCreeps = function() {
+Room.prototype.getSpawningCreeps = function () {
   const creepsSpawning = [];
   for (const spawn of this.findMySpawns()) {
     if (spawn.spawning) {
@@ -148,7 +148,7 @@ Room.prototype.getSpawningCreeps = function() {
   return creepsSpawning;
 };
 
-Room.prototype.inRoom = function(creepMemory, amount = 1) {
+Room.prototype.inRoom = function (creepMemory, amount = 1) {
   if (amount === 0) {
     return false;
   }
@@ -184,7 +184,7 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
  * @param  {object} [additionalMemory]  add this object to creep memory
  * @return {boolean}                    if the spawn is not allow, it will return false.
  */
-Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, level, base, additionalMemory = {}) {
+Room.prototype.checkRoleToSpawn = function (role, amount, targetId, targetRoom, level, base, additionalMemory = {}) {
   const creepMemory = this.creepMem(role, targetId, targetRoom, level, base);
   Object.assign(creepMemory, additionalMemory);
   if (this.inQueue(creepMemory) || this.inRoom(creepMemory, amount)) {
@@ -206,7 +206,7 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
  *                            .len = the amount of parts.
  */
 
-Room.prototype.getPartsStringDatas = function(parts, energyAvailable) {
+Room.prototype.getPartsStringDatas = function (parts, energyAvailable) {
   if (!_.isString(parts)) {
     return {
       null: true,
@@ -240,7 +240,7 @@ Room.prototype.getPartsStringDatas = function(parts, energyAvailable) {
  * @param {number} value - The value to match the scale
  * @return {object} - The value to return
  **/
-function findFittingValueFromScale(setting, value) {
+function findFittingValueFromScale (setting, value) {
   let foundKey = 0;
   if (!setting) {
     return;
@@ -260,7 +260,7 @@ function findFittingValueFromScale(setting, value) {
  * @param {object} setting - The setting to check
  * @return {boolean} - If it is valid
  **/
-function isSettingAnObject(setting) {
+function isSettingAnObject (setting) {
   // Not sure when this happens
   if (!setting || setting === null) {
     return false;
@@ -281,7 +281,7 @@ function isSettingAnObject(setting) {
  * @param {Object} creep queue's creep spawn basic datas
  * @return {object}
  */
-Room.prototype.getSettings = function(creep) {
+Room.prototype.getSettings = function (creep) {
   const role = creep.role;
   const updateSettings = roles[role].updateSettings && roles[role].updateSettings(this, creep);
   const settings = _.merge({}, roles[role].settings, updateSettings);
@@ -316,7 +316,7 @@ Room.prototype.getSettings = function(creep) {
  * @param  {Array} amount the amount of each char needed.
  * @return {String}        the new parts string
  */
-Room.prototype.applyAmount = function(input, amount) {
+Room.prototype.applyAmount = function (input, amount) {
   if (!input) {
     return '';
   }
@@ -337,7 +337,7 @@ Room.prototype.applyAmount = function(input, amount) {
  * @param  {array} layout the base layout.
  * @return {array}        sorted array.
  */
-Room.prototype.sortParts = function(parts, layout) {
+Room.prototype.sortParts = function (parts, layout) {
   return _.sortBy(parts, (p) => {
     if (p === TOUGH) {
       return 0;
@@ -351,7 +351,7 @@ Room.prototype.sortParts = function(parts, layout) {
   });
 };
 
-Room.prototype.getPartConfigMaxBodyLength = function(prefixString, sufixString) {
+Room.prototype.getPartConfigMaxBodyLength = function (prefixString, sufixString) {
   let maxBodyLength = MAX_CREEP_SIZE;
   if (prefixString) {
     maxBodyLength -= prefixString.length;
@@ -371,7 +371,7 @@ Room.prototype.getPartConfigMaxBodyLength = function(prefixString, sufixString) 
  * @param {int} maxLayoutAmount
  * @return {int}
  */
-function getMaxRepeat(energyAvailable, layout, maxBodyLength, maxLayoutAmount) {
+function getMaxRepeat (energyAvailable, layout, maxBodyLength, maxLayoutAmount) {
   let maxRepeat = Math.floor(Math.min(energyAvailable / layout.cost, maxBodyLength / layout.len));
   if (layout.len === 0) {
     maxRepeat = 0;
@@ -389,7 +389,7 @@ function getMaxRepeat(energyAvailable, layout, maxBodyLength, maxLayoutAmount) {
  * @return {object} The part Config or false
  */
 /* eslint-disable complexity */
-Room.prototype.getPartConfig = function(creep) {
+Room.prototype.getPartConfig = function (creep) {
   // TODO this needs to be rethought and rebuild (more simple)
   let energyAvailable = this.energyAvailable;
   const settings = this.getSettings(creep);
@@ -438,7 +438,7 @@ Room.prototype.getPartConfig = function(creep) {
 };
 /* eslint-enable complexity */
 
-Room.prototype.getCreepConfig = function(creep) {
+Room.prototype.getCreepConfig = function (creep) {
   const role = creep.role;
   const unit = roles[role];
   if (!unit) {
@@ -484,7 +484,7 @@ Room.prototype.getCreepConfig = function(creep) {
  * @param {Collection} creep Object with queue's creep datas.
  * @return {boolean}
  */
-Room.prototype.spawnCreateCreep = function(creep) {
+Room.prototype.spawnCreateCreep = function (creep) {
   const spawns = this.findSpawnableSpawns();
   if (spawns.length === 0) {
     return;
@@ -512,7 +512,7 @@ Room.prototype.spawnCreateCreep = function(creep) {
   return false;
 };
 
-Room.prototype.checkAndSpawnSourcer = function() {
+Room.prototype.checkAndSpawnSourcer = function () {
   const sources = this.findSources();
 
   let source;

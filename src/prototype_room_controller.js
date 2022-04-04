@@ -1,6 +1,6 @@
 'use strict';
 
-const resetCounters = function(room) {
+const resetCounters = function (room) {
   if (!room.memory.controllerLevel) {
     // After deleting room memory this was an issue
     room.memory.controllerLevel = {};
@@ -11,7 +11,7 @@ const resetCounters = function(room) {
   room.memory.controllerLevel.buildBlockersInterval = 1;
 };
 
-Room.prototype.buildBaseUnseenControllerLevel = function() {
+Room.prototype.buildBaseUnseenControllerLevel = function () {
   this.memory.controllerLevel = this.memory.controllerLevel || {};
   if (!this.memory.controllerLevel['setup_level_' + this.controller.level]) {
     if (Game.cpu.tickLimit > Game.cpu.bucket) {
@@ -25,7 +25,7 @@ Room.prototype.buildBaseUnseenControllerLevel = function() {
   }
 };
 
-const executeTask = function(room, name) {
+const executeTask = function (room, name) {
   if (room[name]()) {
     room.memory.controllerLevel[name + 'Interval'] = 1;
   } else {
@@ -33,7 +33,7 @@ const executeTask = function(room, name) {
   }
 };
 
-Room.prototype.buildBaseCheckPath = function() {
+Room.prototype.buildBaseCheckPath = function () {
   if (this.controller.level > 2 && this.executeEveryTicks(this.memory.controllerLevel.checkPathInterval)) {
     if (this.checkPath(this)) {
       resetCounters(this);
@@ -52,7 +52,7 @@ Room.prototype.buildBaseCheckPath = function() {
  *
  * @param {object} room
  */
-function checkWrongStructures(room) {
+function checkWrongStructures (room) {
   if (!room.memory.controllerLevel.checkWrongStructureInterval) {
     room.memory.controllerLevel.checkWrongStructureInterval = 1;
   }
@@ -65,7 +65,7 @@ function checkWrongStructures(room) {
   }
 }
 
-Room.prototype.buildBase = function() {
+Room.prototype.buildBase = function () {
   // version: this.memory.position.version is maybe not the best idea
   if (this.data.positions.version !== config.layout.version) {
     this.debugLog('baseBuilding', 'New layout version, rebuilding');
@@ -108,7 +108,7 @@ Room.prototype.buildBase = function() {
   }
 };
 
-Room.prototype.clearRoom = function() {
+Room.prototype.clearRoom = function () {
   const structures = this.findStructures();
   _.each(structures, (s) => s.destroy());
 
