@@ -70,7 +70,7 @@ Room.prototype.handleNukeAttack = function() {
   return true;
 };
 
-Room.prototype.handleTowerWithEnemys = function(hostileCreeps, towers) {
+Room.prototype.handleTowerWithEnemies = function(hostileCreeps, towers) {
   let tower;
   const hostileOffset = {};
   const sortHostiles = function(object) {
@@ -129,13 +129,13 @@ Room.prototype.handleTower = function() {
   if (towers.length === 0) {
     return false;
   }
-  const hostileCreeps = this.findEnemys();
+  const hostileCreeps = this.findEnemies();
   if (hostileCreeps.length > 0) {
-    return this.handleTowerWithEnemys(hostileCreeps, towers);
+    return this.handleTowerWithEnemies(hostileCreeps, towers);
   }
 
   if (config.tower.healMyCreeps) {
-    const myCreeps = this.findMyHealableCreeps();
+    const myCreeps = this.findMyCreepsToHeal();
     if (myCreeps.length > 0) {
       for (const tower of towers) {
         tower.heal(myCreeps[0]);

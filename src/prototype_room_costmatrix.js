@@ -78,9 +78,9 @@ Room.prototype.getBasicCostMatrixCallback = function(withinRoom = false) {
       return new PathFinder.CostMatrix;
     }
     if (!room.data.costMatrix) {
-      room.debugLog('routing', `getBasicCostMatrixCallback - no costmatrix`);
+      room.debugLog('routing', `getBasicCostMatrixCallback - no CostMatrix`);
       room.updatePosition();
-      // I think updatePosition sets the correct costmatrix
+      // I think updatePosition sets the correct CostMatrix
       // room.updateCostMatrix();
     }
 
@@ -114,13 +114,13 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
       return new PathFinder.CostMatrix;
     }
     if (!room.data.costMatrix) {
-      room.debugLog('routing', `getCostMatrixCallback - no costmatrix`);
+      room.debugLog('routing', `getCostMatrixCallback - no CostMatrix`);
       room.updatePosition();
-      // I think updatePosition sets the correct costmatrix
+      // I think updatePosition sets the correct CostMatrix
       // room.updateCostMatrix();
     }
     const costMatrix = room.data.costMatrix.clone();
-    // TODO the ramparts could be within existing walls (at least when converging to the newmovesim
+    // TODO the ramparts could be within existing walls (at least when converging to the new move sim
     if (end) {
       costMatrix.set(end.x, end.y, 0);
     }

@@ -73,7 +73,7 @@ function callStructurer(creep) {
     creep.log(`Calling structurer with my room`);
     return;
   }
-  const resourceStructures = creep.room.findDestructableStructures();
+  const resourceStructures = creep.room.findDestructibleStructures();
   if (resourceStructures.length > 0) {
     creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resourceStructures[0].structureType);
     Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, creep.room.name);
@@ -134,7 +134,7 @@ function interactWithController(creep) {
  * @param {object} creep
  */
 function callDefender(creep) {
-  const hostiles = creep.room.findEnemys();
+  const hostiles = creep.room.findEnemies();
   const invaderCores = creep.room.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_INVADER_CORE}});
   if (hostiles.length > 0 || invaderCores.length > 0) {
     // this.log('Reserver under attack');

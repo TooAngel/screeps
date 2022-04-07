@@ -121,9 +121,8 @@ Room.prototype.getEnergyCapacityAvailable = function() {
 };
 
 Room.prototype.splitRoomName = function() {
-  const patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
-  const result = patt.exec(this.name);
-  return result;
+  const pattern = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
+  return pattern.exec(this.name);
 };
 
 Room.pathToString = function(path) {
@@ -132,7 +131,7 @@ Room.pathToString = function(path) {
   }
 
   let result = path[0].roomName + ':';
-  result += path[0].x.toString().lpad('0', 2) + path[0].y.toString().lpad('0', 2);
+  result += path[0].x.toString().leftPad('0', 2) + path[0].y.toString().leftPad('0', 2);
   let last;
   for (const pos of path) {
     if (!last) {

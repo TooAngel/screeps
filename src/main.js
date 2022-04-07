@@ -53,7 +53,7 @@ module.exports.loop = function() {
   }
 
   if (config.resourceStats) {
-    const statsDivider = config.resourceStatsDevider;
+    const statsDivider = config.resourceStatsDivider;
     const cpuLimit = Game.cpu.limit;
     const currentCPUUsed = Game.cpu.getUsed();
     const currentIdleCPU = cpuLimit - currentCPUUsed;

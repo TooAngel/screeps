@@ -61,7 +61,7 @@ global.utils = {
     }
   },
 
-  csstats: function() {
+  constructionSiteStats: function() {
     const aggregate = function(result, value) {
       result[value.pos.roomName] = (result[value.pos.roomName] || (result[value.pos.roomName] = 0)) + 1;
       return result;
@@ -88,7 +88,7 @@ global.utils = {
     }
   },
 
-  showReserveredRooms: function() {
+  showReservedRooms: function() {
     for (const roomName of Object.keys(Memory.rooms)) {
       const room = Memory.rooms[roomName];
       if (room.state === 'Reserved') {
@@ -133,8 +133,8 @@ global.utils = {
   },
 
   splitRoomName: function(name) {
-    const patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
-    return patt.exec(name);
+    const pattern = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
+    return pattern.exec(name);
   },
 
   routeCallbackRoomHandle: function(roomName) {
@@ -204,7 +204,7 @@ global.utils = {
   },
 
   // return: String with fixed width for rounded number
-  lpadround: function(nr, lpad, digest) {
+  leftPadRound: function(nr, lpad, digest) {
     return nr.toFixed(digest).padStart(lpad + digest + 1);
   },
 };

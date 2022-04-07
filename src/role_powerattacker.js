@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * powerattacker kills the powerbank
+ * powerattacker kills the PowerBank
  *
  * Moves to the power bank and attack, stop attacking if its hits is below 'threshold'
  */

@@ -72,9 +72,9 @@ const findRoomPairs = function(player) {
  */
 function handleRetaliation(player) {
   if (!player.lastAttacked) {
-    player.lastAttacked = Game.time + config.autoattack.timeBetweenAttacks;
+    player.lastAttacked = Game.time + config.autoAttack.timeBetweenAttacks;
   }
-  if (Game.time < player.lastAttacked + config.autoattack.timeBetweenAttacks) {
+  if (Game.time < player.lastAttacked + config.autoAttack.timeBetweenAttacks) {
     debugLog('diplomacy', `Too early to attack`);
     return false;
   }
@@ -126,7 +126,7 @@ function handleRetaliation(player) {
   possibleActions.sort((a, b) => 0.5 - Math.random());
   debugLog('diplomacy', `Running attach roomPair: ${JSON.stringify(roomPair)} action: ${JSON.stringify(possibleActions[0])}`);
   player.lastAttacked = Game.time;
-  if (config.autoattack.notify) {
+  if (config.autoAttack.notify) {
     Game.notify(Game.time + ' ' + this.name + ' Queuing retaliation');
   }
   player.counter++;
