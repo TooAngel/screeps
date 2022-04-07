@@ -6,6 +6,10 @@ const {setPassword, sleep, initServer, startServer, spawnBots, helpers, logConso
 
 const {cliPort, verbose, tickDuration, playerRoom, players, rooms, milestones} = require('./testConfig');
 
+// todo for local-testing
+// if your machine is slow try increment this
+const waitForConnection = 10;
+
 const controllerRooms = {};
 const status = {};
 let lastTick = 0;
@@ -119,7 +123,7 @@ class Tester {
     });
 
     socket.on('connect', () => {
-      console.log('connected');
+      console.log(new Date().toString(), `${lastTick} connected`);
     });
     socket.on('error', (error) => {
       defer.reject(error);
@@ -132,7 +136,8 @@ class Tester {
     const start = Date.now();
     await initServer();
     await startServer();
-    await sleep(5);
+    console.log(new Date().toString(), 'waiting for connection')
+    await sleep(waitForConnection);
     let exitCode = 0;
     try {
       await this.execute();

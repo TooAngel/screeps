@@ -20,10 +20,15 @@ services:
     environment:
       - STEAM_API_KEY
       - STEAM_ID
+    env_file:
+      - .env
     depends_on:
       - redis
       - mongo
-    network_mode: "host"
+    #network_mode: "host"
+    ports:
+      - 21025:21025
+      - 21026:21026
   logs:
     image: node:12
     working_dir: /mnt
@@ -37,4 +42,4 @@ services:
       - server
     network_mode: "host"
     profiles:
-      - donotstart
+      - donotstart1

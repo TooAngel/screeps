@@ -13,6 +13,7 @@ let hostname = '127.0.0.1';
 function setHostname(newHostname) {
   hostname = newHostname;
 }
+
 module.exports.setHostname = setHostname;
 
 /**
@@ -43,14 +44,16 @@ async function followLog(rooms, logConsole, statusUpdater, restrictToRoom) {
 
     await api.auth();
 
-    api.socket.connect();
+    await api.socket.connect();
     api.socket.on('connected', ()=> {});
     api.socket.on('auth', (event)=> {});
-    api.socket.subscribe('console', logConsole(room));
-    api.socket.subscribe('room:' + room, statusUpdater);
+    await api.socket.subscribe('console', logConsole(room));
+    await api.socket.subscribe('room:' + room, statusUpdater);
   }
-  return new Promise(() => {});
+  return new Promise(() => {
+  });
 }
+
 module.exports.followLog = followLog;
 
 /**
@@ -63,7 +66,7 @@ module.exports.followLog = followLog;
  * @param {string} playerRoom
  * @return {boolean}
  */
-const setPassword = function(line, socket, rooms, roomsSeen, playerRoom) {
+const setPassword = function (line, socket, rooms, roomsSeen, playerRoom) {
   for (const room of rooms) {
     if (line.startsWith(`'User ${room} with bot AI "screeps-bot-tooangel" spawned in ${room}'`)) {
       roomsSeen[room] = true;
@@ -92,6 +95,7 @@ module.exports.setPassword = setPassword;
 function sleep(seconds) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }
+
 module.exports.sleep = sleep;
 
 async function initServer() {
@@ -107,6 +111,11 @@ async function initServer() {
   const configFilename = path.resolve(dir, '.screepsrc');
   let config = fs.readFileSync(configFilename, {encoding: 'utf8'});
   config = config.replace(/{{STEAM_KEY}}/, process.env.STEAM_API_KEY);
+  config += '\n\n' +
+    '[mongo]\n' +
+    'host = mongo\n\n' +
+    '[redis]\n' +
+    'host = redis\n'
   fs.writeFileSync(configFilename, config);
   fs.chmodSync(path.resolve(dir, 'node_modules/.hooks/install'), '755');
   fs.chmodSync(path.resolve(dir, 'node_modules/.hooks/uninstall'), '755');
@@ -127,6 +136,7 @@ async function initServer() {
     console.log(e);
   }
 }
+
 module.exports.initServer = initServer;
 
 /**
@@ -139,15 +149,16 @@ async function startServer() {
   process.chdir(dir);
   return lib.start({}, process.stdout);
 }
+
 module.exports.startServer = startServer;
 
 /**
  * logs event
  *
  * @param {string} room
- * @return {void}
+ * @return {function}
  */
-const logConsole = function(room) {
+const logConsole = function (room) {
   return (event) => {
     if (event.channel !== 'console') {
       console.log(room, `logConsole channel not console: ${JSON.stringify(event)}`);
@@ -187,7 +198,7 @@ module.exports.logConsole = logConsole;
  * @param {number} tickDuration
  * @return {boolean}
  */
-const spawnBots = async function(line, socket, rooms, players, tickDuration) {
+const spawnBots = async function (line, socket, rooms, players, tickDuration) {
   if (line.startsWith(`Screeps server v`)) {
     console.log(`> system.resetAllData()`);
     socket.write(`system.resetAllData()\r\n`);
@@ -239,26 +250,26 @@ const filter = {
 };
 
 const helpers = {
-  initControllerID: function(event, status, controllerRooms) {
+  initControllerID: function (event, status, controllerRooms) {
     if (status[event.id].controller === null) {
       status[event.id].controller = _.filter(event.data.objects, filter.controller)[0];
       status[event.id].controller = status[event.id].controller._id;
       controllerRooms[status[event.id].controller] = event.id;
     }
   },
-  updateCreeps: function(event, status) {
+  updateCreeps: function (event, status) {
     const creeps = _.filter(event.data.objects, filter.creeps);
     if (_.size(creeps) > 0) {
       status[event.id].creeps += _.size(creeps);
     }
   },
-  updateStructures: function(event, status) {
+  updateStructures: function (event, status) {
     const structures = _.filter(event.data.objects, filter.structures);
     if (_.size(structures) > 0) {
       status[event.id].structures += _.size(structures);
     }
   },
-  updateController: function(event, status, controllerRooms) {
+  updateController: function (event, status, controllerRooms) {
     const controllers = _.pick(event.data.objects, Object.keys(controllerRooms));
     for (const controllerId of Object.keys(controllers)) {
       const controller = controllers[controllerId];
