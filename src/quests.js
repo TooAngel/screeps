@@ -22,7 +22,7 @@ function handleQuests() {
 
 module.exports.handleQuests = handleQuests;
 
-function getQuestBuildcs(data) {
+function getQuestBuildConstructionSite(data) {
   const quest = {};
   quest.room = data.room;
   quest.quest = 'buildcs';
@@ -40,7 +40,7 @@ function getQuest(transaction, data) {
   };
   info.origin = transaction.to;
 
-  const quest = getQuestBuildcs(data);
+  const quest = getQuestBuildConstructionSite(data);
 
   info.room = quest.room;
   info.quest = quest.quest;

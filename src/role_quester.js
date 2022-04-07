@@ -36,7 +36,7 @@ roles.quester.questWon = function(creep, quest) {
   creep.suicide();
 };
 
-roles.quester.handleBuildcs = function(creep, quest) {
+roles.quester.handleBuildConstructionSite = function(creep, quest) {
   // Give time before end to build the last CS
   if (quest.end - Game.time > 300) {
     const cs = creep.room.findConstructionSites();
@@ -71,7 +71,7 @@ roles.quester.action = function(creep) {
     return;
   }
   if (quest.quest === 'buildcs') {
-    roles.quester.handleBuildcs(creep, quest);
+    roles.quester.handleBuildConstructionSite(creep, quest);
     creep.moveRandom();
     return true;
   }

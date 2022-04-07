@@ -27,7 +27,7 @@ Room.prototype.myHandleRoom = function() {
     this.memory.queue = [];
   }
 
-  const hostiles = this.findEnemys();
+  const hostiles = this.findEnemies();
   if (hostiles.length === 0) {
     delete this.memory.hostile;
   } else {
@@ -175,7 +175,7 @@ Room.prototype.getRoomNameToObserve = function() {
 };
 
 Room.prototype.handleObserver = function() {
-  // This could be made a helper function for all handleSTRUCTURE metods
+  // This could be made a helper function for all handleSTRUCTURE methods
   // and used at the caller
   // something like: `execute('STRUCTURE_OBSERVER', handleObserver)`
   if (CONTROLLER_STRUCTURES.observer[this.controller.level] === 0) {
@@ -269,8 +269,7 @@ Room.prototype.handleDefence = function(hostiles) {
 
   this.spawnDefender();
 
-  // TODO when another player attacks and there are invaeds `hostiles[0]` would
-  // be the wrong check
+  // TODO when another player attacks and there are invades `hostiles[0]` would be the wrong check
   if (hostiles[0].owner.username !== 'Invader') {
     if (this.executeEveryTicks(10)) {
       this.debugLog('invader', 'Under attack from ' + hostiles[0].owner.username);
@@ -304,7 +303,7 @@ Room.prototype.handleReviveRoomSendCarry = function() {
     return false;
   }
 
-  if (!this.isStruggeling()) {
+  if (!this.isStruggling()) {
     return false;
   }
 
@@ -458,7 +457,7 @@ Room.prototype.isUnderAttack = function() {
   return this.memory.attackTimer > config.myRoom.underAttackMinAttackTimer;
 };
 
-Room.prototype.isStruggeling = function() {
+Room.prototype.isStruggling = function() {
   if (this.isRampingUp()) {
     return true;
   }
@@ -472,7 +471,7 @@ Room.prototype.isStruggeling = function() {
 };
 
 Room.prototype.isHealthy = function() {
-  if (this.isStruggeling()) {
+  if (this.isStruggling()) {
     return false;
   }
   // TODO extract as config variable
@@ -529,7 +528,7 @@ Room.prototype.executeRoom = function() {
 
 const checkForRoute = function(room, roomOther) {
   const route = room.findRoute(roomOther.name, room.name);
-  // TODO Instead of skipping we could try to free up the way: nextroomerattack or squad
+  // TODO Instead of skipping we could try to free up the way: attack with nextroomer or squad
   if (route.length === 0) {
     roomOther.log('No route to other room: ' + roomOther.name);
     return true;
@@ -540,10 +539,10 @@ const checkForRoute = function(room, roomOther) {
 Room.prototype.reviveMyNowHelperValid = function(helperRoom) {
   let valid = false;
 
-  if (helperRoom.isStruggeling()) {
-    this.debugLog('revive', `No nextroomer is struggeling ${helperRoom.name}`);
+  if (helperRoom.isStruggling()) {
+    this.debugLog('revive', `No nextroomer is Struggling ${helperRoom.name}`);
   } else if (this.controller.ticksToDowngrade > 1500 && !helperRoom.isHealthy()) {
-    // When close before downgrading, just send nextroomers
+    // When close before downgrading, just send nextroomer
     // TODO replace 1500 with CREEP_LIFE_TIME
     this.debugLog('revive', `No nextroomer not healthy ${helperRoom.name} ${helperRoom.storage.store.energy}`);
   } else if (Game.map.getRoomLinearDistance(this.name, helperRoom.name) > config.nextRoom.maxDistance) {
@@ -568,7 +567,7 @@ Room.prototype.reviveMyNow = function() {
       continue;
     }
 
-    const hostileCreep = this.findEnemys();
+    const hostileCreep = this.findEnemies();
     if (hostileCreep.length > 0) {
       this.debugLog('revive', `Send defender from ${helperRoomName}`);
       helperRoom.checkRoleToSpawn('defender', 1, undefined, this.name);

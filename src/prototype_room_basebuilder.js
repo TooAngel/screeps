@@ -69,7 +69,7 @@ Room.prototype.destroyStructureRoad = function(structure) {
 
 Room.prototype.buildRampartsAroundSpawns = function() {
   // Build ramparts around the spawn if wallThickness > 1
-  // TODO this is not jused for a long time and the spawn positions should
+  // TODO this is not used for a long time and the spawn positions should
   // be taken from `memory.positions.spawn`
   if (config.layout.wallThickness > 1) {
     const costMatrixBase = this.getMemoryCostMatrix();
@@ -99,7 +99,7 @@ Room.prototype.buildRampartsAroundSpawns = function() {
  *
  * @param {object} room
  * @param {object} structure
- * @return {bool}
+ * @return {boolean}
  */
 function destroyStructureSpawn(room, structure) {
   if (room.memory.misplacedSpawn) {
@@ -224,7 +224,7 @@ Room.prototype.clearPosition = function(pos, structure) {
     }
     if (posStructure.structureType === structure) {
       returnValue = {
-        destoyed: false,
+        destroyed: false,
       };
       continue;
     }
@@ -237,39 +237,39 @@ Room.prototype.clearPosition = function(pos, structure) {
  * setupStructureFinishPriorityStructures
  *
  * @param {object} structure
- * @param {array} constructionsites
- * @return {bool}
+ * @param {array} constructionSites
+ * @return {boolean}
  */
-function setupStructureFinishPriorityStructures(structure, constructionsites) {
+function setupStructureFinishPriorityStructures(structure, constructionSites) {
   // Only build one spawn at a time, especially for reviving
   if (structure === STRUCTURE_SPAWN) {
-    if (constructionsites.length > 0) {
+    if (constructionSites.length > 0) {
       return true;
     }
   }
 
   // Complete storage before building something else
   if (structure === STRUCTURE_STORAGE) {
-    if (constructionsites.length > 0) {
+    if (constructionSites.length > 0) {
       return true;
     }
   }
 }
 
 Room.prototype.setupStructure = function(structure) {
-  const constructionsites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [structure]);
-  if (setupStructureFinishPriorityStructures(structure, constructionsites)) {
+  const constructionSites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [structure]);
+  if (setupStructureFinishPriorityStructures(structure, constructionSites)) {
     return true;
   }
 
   const structures = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [structure]);
   const diff = CONTROLLER_STRUCTURES[structure][this.controller.level] -
-    (structures.length + constructionsites.length);
+    (structures.length + constructionSites.length);
   if (diff <= 0) {
     return false;
   }
   for (const pos of (this.data.positions.structure[structure] || [])) {
-    // TODO special case e.g. when powerSpawn can't be set on costmatrix.setup - need to be fixed there
+    // TODO special case e.g. when powerSpawn can't be set on CostMatrix.setup - need to be fixed there
     if (!pos) {
       continue;
     }
@@ -277,7 +277,7 @@ Room.prototype.setupStructure = function(structure) {
 
     const clear = this.clearPosition(posObject, structure);
     if (clear) {
-      if (clear.destoyed) {
+      if (clear.destroyed) {
         return true;
       } else {
         continue;
@@ -289,7 +289,7 @@ Room.prototype.setupStructure = function(structure) {
       return true;
     }
     if (returnCode === ERR_FULL) {
-      this.debugLog('baseBuilding', 'setup createConstrustionSite too many constructionSites');
+      this.debugLog('baseBuilding', 'setup createConstructionSite too many constructionSites');
       return true;
     }
     if (returnCode === ERR_INVALID_TARGET) {
@@ -297,10 +297,10 @@ Room.prototype.setupStructure = function(structure) {
     }
     if (returnCode === ERR_RCL_NOT_ENOUGH) {
       this.debugLog('baseBuilding', structure + ' ' + this.controller.level + ' ' + CONTROLLER_STRUCTURES[structure][this.controller.level]);
-      this.debugLog('baseBuilding', 'setup createConstrustionSite ERR_RCL_NOT_ENOUGH structure: ' + structure + ' ' + CONTROLLER_STRUCTURES[structure][this.controller.level] + ' ' + structures.length + ' ' + constructionsites.length);
+      this.debugLog('baseBuilding', 'setup createConstructionSite ERR_RCL_NOT_ENOUGH structure: ' + structure + ' ' + CONTROLLER_STRUCTURES[structure][this.controller.level] + ' ' + structures.length + ' ' + constructionSites.length);
     }
 
-    this.debugLog('baseBuilding', 'setup createConstrustionSite returnCode: ' + returnCode + ' structure: ' + structure);
+    this.debugLog('baseBuilding', 'setup createConstructionSite returnCode: ' + returnCode + ' structure: ' + structure);
   }
   return false;
 };
@@ -334,7 +334,7 @@ Room.prototype.buildStructures = function() {
 
   const constructionSites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_ROAD], {inverse: true});
   if (constructionSites.length > 0) {
-    //    this.log('basebuilder.setup: Too many construction sites');
+    //    this.log('baseBuilder.setup: Too many construction sites');
     return true;
   }
 

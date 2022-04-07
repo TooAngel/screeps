@@ -7,7 +7,7 @@
  */
 
 // TODO get energy from links
-// TODO move with the costmatrix
+// TODO move with the CostMatrix
 
 roles.repairer = {};
 

@@ -127,7 +127,7 @@ const getAmount = function(creep, target, resource) {
 const handleWithdrawResponse = function(creep, target, resource, amount, returnCode) {
   if (target instanceof StructureStorage) {
     if (config.debug.mineral) {
-      creep.log('creep.withdray: ' + returnCode + ' ' + target + ' ' + resource + ' ' + amount);
+      creep.log('creep.Withdraw: ' + returnCode + ' ' + target + ' ' + resource + ' ' + amount);
     }
   }
   if (returnCode === OK || returnCode === ERR_FULL || returnCode === ERR_NOT_ENOUGH_RESOURCES) {
@@ -334,7 +334,7 @@ const handleReactions = function(creep, room) {
  * updateStateWithFullLab
  *
  * When fullLab equals 1
- * update creep state based on carring resources
+ * update creep state based on carrying resources
  * @param {object} creep
  */
 function updateStateWithFullLab(creep) {
