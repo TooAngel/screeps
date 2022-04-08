@@ -47,7 +47,7 @@ Room.prototype.spawnCheckForCreate = function() {
     return false;
   }
   creep.ttl = creep.ttl || config.creep.queueTtl;
-  if (this.findSpawnableSpawns().length === 0) {
+  if (this.findSpawnsNotSpawning().length === 0) {
     creep.ttl--;
   }
   return false;
@@ -182,7 +182,7 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
  * @param  {number} [level]             the level of creeps. required by some functions.
  * @param  {string} [base]              the room which will spawn creep
  * @param  {object} [additionalMemory]  add this object to creep memory
- * @return {boolean}                    if the spawn is not allow, it will return false.
+ * @return {number|boolean}             if the spawn is not allow, it will return false.
  */
 Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, level, base, additionalMemory = {}) {
   const creepMemory = this.creepMem(role, targetId, targetRoom, level, base);
@@ -194,19 +194,19 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
 };
 
 /**
- * Room.prototype.getPartsStringDatas used for parse parts as string and return
+ * Room.prototype.getPartsStringData used for parse parts as string and return
  * parts as array, cost, if spawn is allow and length.
  *
  * @param {String} parts String of body parts. e.g. 'MMWC'
  * @param {Number} energyAvailable energy allow for spawn.
- * @return {Object}       The parts datas :
- *                            .fail = true if not enouth energy
+ * @return {Object}       The parts data :
+ *                            .fail = true if not enough energy
  *                            .cost = cost of parts
  *                            .parts = parts as array
  *                            .len = the amount of parts.
  */
 
-Room.prototype.getPartsStringDatas = function(parts, energyAvailable) {
+Room.prototype.getPartsStringData = function(parts, energyAvailable) {
   if (!_.isString(parts)) {
     return {
       null: true,
@@ -278,7 +278,7 @@ function isSettingAnObject(setting) {
  * Room.prototype.getSettings use for return creep spawn settings
  * adapted to room configuration
  *
- * @param {Object} creep queue's creep spawn basic datas
+ * @param {Object} creep queue's creep spawn basic data
  * @return {object}
  */
 Room.prototype.getSettings = function(creep) {
@@ -310,7 +310,7 @@ Room.prototype.getSettings = function(creep) {
 };
 
 /**
- * Transform a string using an array char ammount. e.g. ('WMC', [1,2,3]) ==> 'WMMCCC'
+ * Transform a string using an array char amount. e.g. ('WMC', [1,2,3]) ==> 'WMMCCC'
  *
  * @param  {String} input  the input parts as string.
  * @param  {Array} amount the amount of each char needed.
@@ -351,13 +351,13 @@ Room.prototype.sortParts = function(parts, layout) {
   });
 };
 
-Room.prototype.getPartConfigMaxBodyLength = function(prefixString, sufixString) {
+Room.prototype.getPartConfigMaxBodyLength = function(prefixString, suffixString) {
   let maxBodyLength = MAX_CREEP_SIZE;
   if (prefixString) {
     maxBodyLength -= prefixString.length;
   }
-  if (sufixString) {
-    maxBodyLength -= sufixString.length;
+  if (suffixString) {
+    maxBodyLength -= suffixString.length;
   }
   return maxBodyLength;
 };
@@ -385,7 +385,7 @@ function getMaxRepeat(energyAvailable, layout, maxBodyLength, maxLayoutAmount) {
 /**
  * Room.prototype.getPartsConfig use for generate adapted body
  *
- * @param {Collection} creep queue's creep spawn basic datas
+ * @param {Collection} creep queue's creep spawn basic data
  * @return {object} The part Config or false
  */
 /* eslint-disable complexity */
@@ -397,12 +397,12 @@ Room.prototype.getPartConfig = function(creep) {
     prefixString,
     amount,
     maxLayoutAmount,
-    sufixString,
+    suffixString,
     fillTough} = settings;
   let layoutString = settings.layoutString;
-  const maxBodyLength = this.getPartConfigMaxBodyLength(prefixString, sufixString);
+  const maxBodyLength = this.getPartConfigMaxBodyLength(prefixString, suffixString);
 
-  const prefix = this.getPartsStringDatas(prefixString, energyAvailable);
+  const prefix = this.getPartsStringData(prefixString, energyAvailable);
   if (prefix.fail) {
     return false;
   }
@@ -410,7 +410,7 @@ Room.prototype.getPartConfig = function(creep) {
   energyAvailable -= prefix.cost || 0;
 
   layoutString = this.applyAmount(layoutString, amount);
-  const layout = this.getPartsStringDatas(layoutString, energyAvailable);
+  const layout = this.getPartsStringData(layoutString, energyAvailable);
   if (layout.fail || layout.null) {
     return false;
   }
@@ -420,14 +420,14 @@ Room.prototype.getPartConfig = function(creep) {
   }
   energyAvailable -= layout.cost * maxRepeat;
 
-  const sufix = this.getPartsStringDatas(sufixString, energyAvailable);
-  if (!sufix.fail && !sufix.null) {
-    parts = parts.concat(sufix.parts || []);
-    energyAvailable -= sufix.cost || 0;
+  const suffix = this.getPartsStringData(suffixString, energyAvailable);
+  if (!suffix.fail && !suffix.null) {
+    parts = parts.concat(suffix.parts || []);
+    energyAvailable -= suffix.cost || 0;
   }
 
   if (fillTough && parts.length < MAX_CREEP_SIZE) {
-    const tough = this.getPartsStringDatas('T', energyAvailable);
+    const tough = this.getPartsStringData('T', energyAvailable);
     if (!tough.fail && !tough.null) {
       const maxTough = Math.floor(Math.min(energyAvailable / tough.cost, MAX_CREEP_SIZE - parts.length, parts.filter((p) => p === MOVE).length));
       parts = _.flatten(_.fill(new Array(maxTough), tough.parts)).concat(parts);
@@ -481,11 +481,11 @@ Room.prototype.getCreepConfig = function(creep) {
 /**
  * Room.prototype.spawnCreateCreep use for launch spawn of first creep in queue.
  *
- * @param {Collection} creep Object with queue's creep datas.
+ * @param {Collection} creep Object with queue's creep data.
  * @return {boolean}
  */
 Room.prototype.spawnCreateCreep = function(creep) {
-  const spawns = this.findSpawnableSpawns();
+  const spawns = this.findSpawnsNotSpawning();
   if (spawns.length === 0) {
     return;
   }

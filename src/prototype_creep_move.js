@@ -52,7 +52,7 @@ Creep.prototype.moveMy = function(target) {
 };
 
 /**
- * moveToMy replaces the moveTo method and tries to include the costmatrixes
+ * moveToMy replaces the moveTo method and tries to include the cost matrices
  *
  * @param {object} target - The target to move to
  * @param {number} range - How close to get to the target
@@ -155,14 +155,14 @@ function moveUniversalAsSourcerReserver(role, creep, direction) {
 }
 
 /**
- * moveUniversalOrCarryAsDefendmelee
+ * moveUniversalOrCarryAsDefendMelee
  *
  * @param {string} role
  * @param {object} creep
  * @param {int} direction
- * @return {bool}
+ * @return {boolean}
  */
-function moveUniversalOrCarryAsDefendmelee(role, creep, direction) {
+function moveUniversalOrCarryAsDefendMelee(role, creep, direction) {
   const targetRole = creep.memory.role;
   if (role === 'defendmelee' ||
     targetRole === 'universal' ||
@@ -182,7 +182,7 @@ Creep.prototype.moveCreepCheckRoleAndTarget = function(creep, direction) {
   if (moveUniversalAsSourcerReserver(role, creep, direction)) {
     return true;
   }
-  if (moveUniversalOrCarryAsDefendmelee(role, creep, direction)) {
+  if (moveUniversalOrCarryAsDefendMelee(role, creep, direction)) {
     return true;
   }
   if (role === 'upgrader' &&

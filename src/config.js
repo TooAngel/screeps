@@ -25,7 +25,7 @@ global.config = {
     showStructures: false,
     showCreeps: false,
     showBlockers: false,
-    showCostMatrixes: false,
+    showCostMatrices: false,
     showCostMatrixValues: false,
   },
 
@@ -95,7 +95,7 @@ global.config = {
     repairStructures: false,
   },
 
-  autoattack: {
+  autoAttack: {
     notify: true,
     timeBetweenAttacks: 2000,
     noReservedRoomMinMyRCL: 5,
@@ -130,14 +130,14 @@ global.config = {
       [RESOURCE_GHODIUM]: 15,
     },
     resourceStats: false,
-    resourceStatsDevider: 10000,
+    resourceStatsDivider: 10000,
   },
 
   carryHelpers: {
     ticksUntilHelpCheck: 400,
     maxHelpersAmount: 5,
-    helpTreshold: 1500,
-    needTreshold: 750,
+    helpThreshold: 1500, // todo not used?
+    needThreshold: 750, // todo not used?
     maxDistance: 7,
     factor: 0.2,
   },
@@ -155,10 +155,10 @@ global.config = {
     minBucketAfter: 2500,
   },
 
-  ticksummary: {
+  tickSummary: {
     bucket: false,
     gcl: false,
-    seperator: false,
+    separator: false,
   },
 
   buildRoad: {
@@ -172,13 +172,13 @@ global.config = {
   },
 
   hostile: {
-    remeberInRoom: 1500,
+    rememberInRoom: 1500,
   },
 
   path: {
     refresh: 2000000,
     allowRoutingThroughFriendRooms: false,
-    pathfindIncomplete: true,
+    pathFindIncomplete: true, // todo not used ?
   },
 
   external: {
@@ -277,18 +277,18 @@ global.config = {
   },
 
   market: {
-    // sets mineral in terminal could be called minAmountMinerlasNotToSell
+    // sets mineral in terminal could be called minAmountMineralsNotToSell
     minAmountToSell: 50000,
     minSellPrice: 0.6,
     energyCreditEquivalent: 1,
     sellByOwnOrders: true,
     sellOrderMaxAmount: 100,
     sellOrderReserve: 2000,
-    sellOrderPriceMultiplicator: 5,
+    sellOrderPriceMultiplicand: 5,
     maxAmountToBuy: 1000,
     maxBuyPrice: 0.5,
     // buyByOwnOrders: true,
-    buyOrderPriceMultiplicator: 0.5,
+    buyOrderPriceMultiplicand: 0.5,
 
     // buy power if we have more credits than config.market.minCredits
     buyPower: false,
@@ -296,7 +296,7 @@ global.config = {
     minCredits: 300000000,
     // disable to use power only in gathered room
     sendPowerOwnRoom: true,
-    // equalizes the energy beween your rooms via termial
+    // equalizes the energy between your rooms via terminal
     sendEnergyToMyRooms: true,
   },
 

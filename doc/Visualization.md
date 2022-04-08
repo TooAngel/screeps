@@ -13,7 +13,7 @@ Different options are available
  - `showStructures` Position of structures
  - `showCreeps` Position of fixed creeps
  - `showBlockers` Position of walls and ramparts
- - `showCostMatrixes` Stored cost matrixes
+ - `showCostMatrices` Stored cost matrixes
 
 The default values shown in `config.js`.
 

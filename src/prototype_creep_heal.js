@@ -14,7 +14,7 @@ Creep.prototype.selfHeal = function() {
 };
 
 Creep.prototype.healMyCreeps = function() {
-  const myCreeps = this.room.findMyHealableCreeps();
+  const myCreeps = this.room.findMyCreepsToHeal();
   if (myCreeps.length > 0) {
     this.say('heal', true);
     this.moveTo(myCreeps[0]);
@@ -29,7 +29,7 @@ Creep.prototype.healMyCreeps = function() {
 };
 
 Creep.prototype.healAllyCreeps = function() {
-  const allyCreeps = this.room.findHealableAlliedCreeps();
+  const allyCreeps = this.room.findAlliedCreepsToHeal();
   if (allyCreeps.length > 0) {
     this.say('heal ally', true);
     this.moveTo(allyCreeps[0]);

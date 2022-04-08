@@ -59,7 +59,7 @@ Room.prototype.spawnKeepers = function() {
     if ((baseRoom.memory.queue.length < queueMaxLength)) {
       return _.map(keeper.roles, (role) => {
         // const returnValue = false;
-        // todo-msc fix minerl harvesting
+        // todo-msc fix mineral harvesting
         if (keeper.type === 'mineral') {
           return {
             role: 'extractor',

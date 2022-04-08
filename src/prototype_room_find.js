@@ -36,7 +36,7 @@ Room.prototype.findMinerals = function() {
   return this.find(FIND_MINERALS);
 };
 
-Room.prototype.findSpawnableSpawns = function() {
+Room.prototype.findSpawnsNotSpawning = function() {
   return this.find(FIND_MY_SPAWNS, {
     filter: (spawn) => !spawn.spawning,
   });
@@ -46,14 +46,14 @@ Room.prototype.findNukes = function() {
   return this.find(FIND_NUKES);
 };
 
-Room.prototype.findEnemys = function() {
+Room.prototype.findEnemies = function() {
   return this.find(FIND_HOSTILE_CREEPS, {
     // TODO `brain.isFriend` extract to a module and import via require
     filter: (object) => !brain.isFriend(object.owner.username),
   });
 };
 
-Room.prototype.findHealableAlliedCreeps = function() {
+Room.prototype.findAlliedCreepsToHeal = function() {
   return this.find(FIND_HOSTILE_CREEPS, {
     filter: (object) => {
       if (object.hits === object.hitsMax) {
@@ -67,7 +67,7 @@ Room.prototype.findHealableAlliedCreeps = function() {
   });
 };
 
-Room.prototype.findMyHealableCreeps = function() {
+Room.prototype.findMyCreepsToHeal = function() {
   return this.find(FIND_MY_CREEPS, {
     filter: (object) => object.hits < object.hitsMax,
   });
@@ -120,7 +120,7 @@ Room.prototype.findPowerBanks = function() {
   });
 };
 
-Room.prototype.findDestructableStructures = function() {
+Room.prototype.findDestructibleStructures = function() {
   return this.find(FIND_STRUCTURES, {
     filter: (structure) => {
       return [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER, STRUCTURE_INVADER_CORE].indexOf(structure.structureType) < 0;

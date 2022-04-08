@@ -39,7 +39,7 @@ function dismantleStructure(creep, structure) {
 
 
 /**
- * findAndDismantleStructure - Finds and dismantles strucutes
+ * findAndDismantleStructure - Finds and dismantles structures
  *
  * @param {object} creep - The creep object
  * @param {object} directions - The directions object

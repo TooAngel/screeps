@@ -1,7 +1,7 @@
 Room.prototype.sellByOwnOrders = function(resource, sellAmount) {
   const avgBuyPrice = brain.getMarketOrderAverage(ORDER_BUY, resource);
   const avgSellPrice = brain.getMarketOrderAverage(ORDER_SELL, resource);
-  const mySellPrice = Math.max((avgBuyPrice || 1) * config.market.sellOrderPriceMultiplicator, config.market.minSellPrice);
+  const mySellPrice = Math.max((avgBuyPrice || 1) * config.market.sellOrderPriceMultiplicand, config.market.minSellPrice);
   if (!avgSellPrice || mySellPrice <= avgSellPrice) {
     const sellOrders = _.filter(Game.market.orders, (order) => order.type === ORDER_SELL && order.roomName === this.name && order.resourceType === resource);
     if (sellOrders.length > 0) {
@@ -88,7 +88,7 @@ Room.prototype.sellOwnMineral = function() {
 
 Room.prototype.buyByOthersOrders = function(resource) {
   const avgBuyPrice = brain.getMarketOrderAverage(ORDER_BUY, resource);
-  const myBuyPrice = Math.min((avgBuyPrice || 1) * config.market.buyOrderPriceMultiplicator, config.market.maxBuyPrice);
+  const myBuyPrice = Math.min((avgBuyPrice || 1) * config.market.buyOrderPriceMultiplicand, config.market.maxBuyPrice);
   const buyAmount = config.market.maxAmountToBuy - (this.terminal.store[resource] || 0);
 
   const sortByEnergyCost = (order) => Game.market.calcTransactionCost(buyAmount, this.name, order.roomName);
