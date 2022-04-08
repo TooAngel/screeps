@@ -97,7 +97,7 @@ class Tester {
     const defer = q.defer();
     const socket = net.connect(cliPort, '127.0.0.1');
 
-    socket.on('data', async (raw) => {
+    socket.on('data', async(raw) => {
       const data = raw.toString('utf8');
       const line = data.replace(/^< /, '').replace(/\n< /, '');
       if (await spawnBots(line, socket, rooms, players, tickDuration)) {
@@ -132,7 +132,7 @@ class Tester {
     const start = Date.now();
     await initServer();
     await startServer();
-    console.log(new Date().toString(), 'waiting for connection')
+    console.log(new Date().toString(), 'waiting for connection');
     await sleep(waitForConnection);
     let exitCode = 0;
     try {
