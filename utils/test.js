@@ -4,11 +4,7 @@ const _ = require('lodash');
 
 const {setPassword, sleep, initServer, startServer, spawnBots, helpers, logConsole, followLog} = require('./testHelpers');
 
-const {cliPort, verbose, tickDuration, playerRoom, players, rooms, milestones} = require('./testConfig');
-
-// todo for local-testing
-// if your machine is slow try increment this
-const waitForConnection = 10;
+const {cliPort, verbose, tickDuration, waitForConnection, playerRoom, players, rooms, milestones} = require('./testConfig');
 
 const controllerRooms = {};
 const status = {};
@@ -56,7 +52,7 @@ class Tester {
    * @param {object} defer
    * @return {undefined}
    */
-  async checkForSucces(line, defer) {
+  async checkForSuccess(line, defer) {
     if (botsSpawned && line.startsWith(`'OK'`)) {
       let appendix = '';
       if (this.maxRuntime > 0) {
@@ -119,7 +115,7 @@ class Tester {
         return;
       }
 
-      await this.checkForSucces(line, defer);
+      await this.checkForSuccess(line, defer);
     });
 
     socket.on('connect', () => {
