@@ -158,7 +158,7 @@ global.visualizer = {
     }
   },
 
-  showCostMatrixes() {
+  showCostMatrices() {
     for (const room of _.values(Game.rooms)) {
       if (!room.isMy()) {
         continue;
@@ -197,8 +197,8 @@ global.visualizer = {
   },
 
   render() {
-    if (config.visualizer.showCostMatrixes) {
-      this.showCostMatrixes();
+    if (config.visualizer.showCostMatrices) {
+      this.showCostMatrices();
     }
     if (config.visualizer.showRoomPaths) {
       this.showRoomPaths();
@@ -229,20 +229,20 @@ const getLines = function(room) {
   const rclP = Math.floor(100 * (room.controller.progressTotal ? room.controller.progress / room.controller.progressTotal : 1));
 
   const lines = [
-    {label: `Energy Average :`, value: energy, coeff: energy / room.energyCapacityAvailable},
-    {label: `Stored Energy :`, value: storedE, coeff: Math.min(storedE, 500000) / 500000},
-    {label: `Queue length :`, value: queueL, coeff: (20 - Math.min(queueL, 20)) / 20},
-    {label: `RCL ${room.controller.level} progress :`, value: rclP, coeff: rclP / 100},
+    {label: `Energy Average :`, value: energy, coefficient: energy / room.energyCapacityAvailable},
+    {label: `Stored Energy :`, value: storedE, coefficient: Math.min(storedE, 500000) / 500000},
+    {label: `Queue length :`, value: queueL, coefficient: (20 - Math.min(queueL, 20)) / 20},
+    {label: `RCL ${room.controller.level} progress :`, value: rclP, coefficient: rclP / 100},
   ];
   return lines;
 };
 
-global.visualizer.myRoomDatasDraw = function(roomName) {
+global.visualizer.myRoomDataDraw = function(roomName) {
   const room = Game.rooms[roomName];
   const lines = getLines(room);
 
   const fontSize = 0.65;
-  const color = (coeff) => `rgb(${Math.floor(-(coeff - 1) * 255)},${Math.floor(coeff * 255)},0)`;
+  const color = (coefficient) => `rgb(${Math.floor(-(coefficient - 1) * 255)},${Math.floor(coefficient * 255)},0)`;
 
   let y = 0;
   let line;
@@ -254,7 +254,7 @@ global.visualizer.myRoomDatasDraw = function(roomName) {
     });
     if (line.value !== undefined) {
       room.visual.text(`${line.value}`, 6, 1.5 * fontSize + 2 * y * fontSize, {
-        color: color(line.coeff),
+        color: color(line.coefficient),
         font: fontSize * 2,
         align: 'left',
       });

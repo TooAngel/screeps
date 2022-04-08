@@ -38,13 +38,13 @@ Object.defineProperty(Room.prototype, 'data', {
 
 Room.prototype.executeEveryTicks = function(ticks) {
   const timer = (ticks > 3000) ? Game.time - Memory.time + 1 : 0;
-  let exectue = false;
+  let execute = false;
   if (this.controller) {
-    exectue = (timer > 1) ? (Game.time + this.controller.pos.x + this.controller.pos.y) % ticks < timer : (Game.time + this.controller.pos.x + this.controller.pos.y) % ticks === 0;
+    execute = (timer > 1) ? (Game.time + this.controller.pos.x + this.controller.pos.y) % ticks < timer : (Game.time + this.controller.pos.x + this.controller.pos.y) % ticks === 0;
   } else {
-    exectue = (timer > 1) ? (Game.time % ticks) < timer : (Game.time % ticks) === 0;
+    execute = (timer > 1) ? (Game.time % ticks) < timer : (Game.time % ticks) === 0;
   }
-  return exectue;
+  return execute;
 };
 
 /**

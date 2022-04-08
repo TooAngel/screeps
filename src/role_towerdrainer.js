@@ -1,14 +1,14 @@
 'use strict';
 
 /**
- * Towerdrainer is used to drain energy from hostile towers
+ * TowerDrainer is used to drain energy from hostile towers
  *
  * Moves to the border between routing targetRoom and attackRoom,
  * step for one tick into attackRoom, then step out and heals
  *
- * You need 13 towerdrainers to drain at maximum speed
+ * You need 13 towerDrainer to drain at maximum speed
  *
- * Towerdrainers doesn't called now from anywhere. Call them manually:
+ * Towerdrainer doesn't called now from anywhere. Call them manually:
  * @example
  * Game.rooms.E17N1.memory.queue.push({role: 'towerdrainer', routing: {targetRoom: 'E16N0'}, attackRoom: 'E16N1'})
  */

@@ -81,7 +81,7 @@ roles.squadheal.action = function(creep) {
       const exit = creep.pos.findClosestByRange(FIND_EXIT);
       creep.moveTo(exit);
     } else {
-      // creep.log('mrandom');
+      creep.creepLog('move random');
       creep.moveRandom();
       creep.squadHeal();
     }

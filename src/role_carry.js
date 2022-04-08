@@ -230,7 +230,7 @@ roles.carry.action = function(creep) {
   creep.creepLog('ACTION');
   const source = Game.getObjectById(creep.memory.routing.targetId);
   if (source === null) {
-    creep.say('sfener');
+    creep.creepLog('sfener');
     creep.memory.routing.reached = false;
     creep.memory.routing.reverse = true;
 
@@ -270,7 +270,7 @@ roles.carry.action = function(creep) {
   creep.memory.routing.reached = false;
   creep.memory.routing.reverse = true;
 
-  // End of path, can't harvest, suicide (otherwise the sourcer get's stuck)
+  // End of path, can't harvest, suicide (otherwise the sourcer gets stuck)
   if (!reverse && creep.body.filter((part) => part.type === WORK).length === 0) {
     // creep.log('Suiciding because end of path, no energy, do not want to get in the way of the sourcer (better recycle?)');
     creep.memory.killed = true;

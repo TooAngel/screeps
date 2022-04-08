@@ -50,7 +50,7 @@ Creep.transferEnergy = function(creep) {
 Creep.buildRoads = function(creep) {
   const room = Game.rooms[creep.room.name];
 
-  // TODO extract to roomposition
+  // TODO extract to RoomPosition
   /**
    * checkForRoad Check if road is on position
    *
@@ -165,7 +165,7 @@ Creep.prototype.getEnergyFromStorage = function() {
     return false;
   }
 
-  if (!this.room.memory.misplacedSpawn && this.room.isStruggeling()) {
+  if (!this.room.memory.misplacedSpawn && this.room.isStruggling()) {
     return false;
   }
 
@@ -259,10 +259,10 @@ Creep.prototype.repairStructureGetTarget = function() {
  * isStructureWithinRepairStepRange
  *
  * Repair creeps store a range to with blockers should be repaired.
- * Structures are combared to this range
+ * Structures are compared to this range
  * @param {object} structure
  * @param {number} step
- * @return {bool}
+ * @return {boolean}
  */
 function isStructureWithinRepairStepRange(structure, step) {
   if (structure.hits >= structure.hitsMax) {
