@@ -20,6 +20,8 @@ services:
     environment:
       - STEAM_API_KEY
       - STEAM_ID
+      - MONGO_HOST=mongo
+      - REDIS_HOST=redis
     env_file:
       - .env
     depends_on:

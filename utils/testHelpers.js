@@ -111,11 +111,15 @@ async function initServer() {
   const configFilename = path.resolve(dir, '.screepsrc');
   let config = fs.readFileSync(configFilename, {encoding: 'utf8'});
   config = config.replace(/{{STEAM_KEY}}/, process.env.STEAM_API_KEY);
-  config += '\n\n' +
-    '[mongo]\n' +
-    'host = mongo\n\n' +
-    '[redis]\n' +
-    'host = redis\n';
+  config += '\n\n';
+  if (process.env.MONGO_HOST) {
+    config += '[mongo]\n';
+    config += `host = ${process.env.MONGO_HOST}\n\n`;
+  }
+  if (process.env.REDIS_HOST) {
+    config += '[redis]\n';
+    config += `host = ${process.env.REDIS_HOST}\n\n`;
+  }
   fs.writeFileSync(configFilename, config);
   fs.chmodSync(path.resolve(dir, 'node_modules/.hooks/install'), '755');
   fs.chmodSync(path.resolve(dir, 'node_modules/.hooks/uninstall'), '755');
