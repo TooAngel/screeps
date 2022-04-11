@@ -146,7 +146,7 @@ const getTargets = function(room) {
  * isWallPlaceable
  *
  * @param {object} pos
- * @return {bool}
+ * @return {boolean}
  */
 function isWallPlaceable(pos) {
   const exit = pos.findClosestByRange(FIND_EXIT);
@@ -159,7 +159,7 @@ function isWallPlaceable(pos) {
  *
  * @param {array} targets
  * @param {object} posLastObject
- * @return {bool}
+ * @return {boolean}
  */
 function getWayFound(targets, posLastObject) {
   for (const target of targets) {
@@ -174,7 +174,7 @@ function getWayFound(targets, posLastObject) {
  * layerFinished
  *
  * @param {object} room
- * @return {bool}
+ * @return {boolean}
  */
 function layerFinished(room) {
   room.memory.walls.exit_i = 0;

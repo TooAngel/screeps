@@ -30,6 +30,11 @@ roles.universal.settings = {
   },
   maxLayoutAmount: 6,
 };
+
+/**
+ * @param room
+ * @returns {{maxLayoutAmount: number}|{amount: number[], maxLayoutAmount: number, layoutString: string, prefixString: string}}
+ */
 roles.universal.updateSettings = function(room) {
   if (!room.isStruggling() && room.energyAvailable >= 350) {
     // LayoutCost minimum: prefix 250 + layout 100 -> 350
@@ -89,8 +94,8 @@ function handlePathEnd(creep) {
  * handlePathStart
  *
  * @param {object} creep
- * @param {bool} reverse
- * @return {bool}
+ * @param {boolean} reverse
+ * @return {boolean}
  */
 function handlePathStart(creep, reverse) {
   if (creep.memory.routing.pathPos === 0) {

@@ -42,6 +42,11 @@ roles.sourcer.killPrevious = true;
 // TODO should be true, but flee must be fixed before 2016-10-13
 roles.sourcer.flee = false;
 
+/**
+ * @param room
+ * @param creep
+ * @returns {boolean|{amount: number[], maxLayoutAmount: number, layoutString: string}|{amount: number[], maxLayoutAmount: number, layoutString: string, suffixString: string, prefixString: string}}
+ */
 roles.sourcer.updateSettings = function(room, creep) {
   if (!room.storage) {
     return false;
@@ -89,7 +94,7 @@ function getSource(creep) {
  * harvest
  *
  * @param {object} creep
- * @return {bool}
+ * @return {boolean}
  */
 function harvest(creep) {
   const source = getSource(creep);
@@ -172,7 +177,7 @@ function getContainerConstructionSite(creep) {
  * maintainContainer
  *
  * @param {object} creep
- * @return {bool}
+ * @return {boolean|void}
  */
 function maintainContainer(creep) {
   if (creep.inBase()) {

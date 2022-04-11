@@ -154,7 +154,7 @@ function getMoveToStorage(creep) {
  *
  * @param {object} creep
  * @param {object} directions
- * @return {bool}
+ * @return {boolean}
  */
 function preMoveNotMoveToStorage(creep, directions) {
   creep.creepLog(`preMove not moveToStorage`);
@@ -164,8 +164,7 @@ function preMoveNotMoveToStorage(creep, directions) {
     moveToStorage = creep.pickupEnergy();
     moveToStorage = moveToStorage || creep.pickupWhileMoving();
   }
-  const energyFromCreep = creep.checkForTransfer(directions.forwardDirection);
-  moveToStorage = moveToStorage || energyFromCreep;
+  moveToStorage = moveToStorage || creep.checkForTransfer(directions.forwardDirection);
   return moveToStorage;
 }
 

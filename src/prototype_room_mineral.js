@@ -148,14 +148,14 @@ const baseMinerals = [
  * @param {object} room
  * @param {string} roomOtherName
  * @param {string} mineral
- * @return {bool}
+ * @return {boolean}
  */
 function isOtherRoomReady(room, roomOtherName, mineral) {
   if (roomOtherName === room.name) {
     return false;
   }
   const roomOther = Game.rooms[roomOtherName];
-  if (!roomOther || roomOther === null) {
+  if (!roomOther) {
     return false;
   }
   if (!roomOther.terminal || !roomOther.terminal.store[mineral] || roomOther.terminal.store[mineral] < 2000) {

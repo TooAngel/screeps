@@ -68,7 +68,7 @@ const findRoomPairs = function(player) {
  * handleRetaliation
  *
  * @param {object} player
- * @return {void}
+ * @return {boolean|void}
  */
 function handleRetaliation(player) {
   if (!player.lastAttacked) {
