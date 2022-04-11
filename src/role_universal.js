@@ -32,8 +32,8 @@ roles.universal.settings = {
 };
 
 /**
- * @param room
- * @returns {{maxLayoutAmount: number}|{amount: number[], maxLayoutAmount: number, layoutString: string, prefixString: string}}
+ * @param {object} room - the room to spawn in
+ * @return {{maxLayoutAmount: number}|{amount: number[], maxLayoutAmount: number, layoutString: string, prefixString: string}}
  */
 roles.universal.updateSettings = function(room) {
   if (!room.isStruggling() && room.energyAvailable >= 350) {

@@ -43,9 +43,11 @@ roles.sourcer.killPrevious = true;
 roles.sourcer.flee = false;
 
 /**
- * @param room
- * @param creep
- * @returns {boolean|{amount: number[], maxLayoutAmount: number, layoutString: string}|{amount: number[], maxLayoutAmount: number, layoutString: string, suffixString: string, prefixString: string}}
+ * updates sourcer settings
+ *
+ * @param {object} room - this room to spawn in
+ * @param {object} creep - the creep role
+ * @return {boolean|{amount: number[], maxLayoutAmount: number, layoutString: string}|{amount: number[], maxLayoutAmount: number, layoutString: string, suffixString: string, prefixString: string}}
  */
 roles.sourcer.updateSettings = function(room, creep) {
   if (!room.storage) {
