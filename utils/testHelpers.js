@@ -13,6 +13,7 @@ let hostname = '127.0.0.1';
 function setHostname(newHostname) {
   hostname = newHostname;
 }
+
 module.exports.setHostname = setHostname;
 
 /**
@@ -43,14 +44,16 @@ async function followLog(rooms, logConsole, statusUpdater, restrictToRoom) {
 
     await api.auth();
 
-    api.socket.connect();
+    await api.socket.connect();
     api.socket.on('connected', ()=> {});
     api.socket.on('auth', (event)=> {});
-    api.socket.subscribe('console', logConsole(room));
-    api.socket.subscribe('room:' + room, statusUpdater);
+    await api.socket.subscribe('console', logConsole(room));
+    await api.socket.subscribe('room:' + room, statusUpdater);
   }
-  return new Promise(() => {});
+  return new Promise(() => {
+  });
 }
+
 module.exports.followLog = followLog;
 
 /**
@@ -92,6 +95,7 @@ module.exports.setPassword = setPassword;
 function sleep(seconds) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }
+
 module.exports.sleep = sleep;
 
 async function initServer() {
@@ -107,6 +111,15 @@ async function initServer() {
   const configFilename = path.resolve(dir, '.screepsrc');
   let config = fs.readFileSync(configFilename, {encoding: 'utf8'});
   config = config.replace(/{{STEAM_KEY}}/, process.env.STEAM_API_KEY);
+  config += '\n\n';
+  if (process.env.MONGO_HOST) {
+    config += '[mongo]\n';
+    config += `host = ${process.env.MONGO_HOST}\n\n`;
+  }
+  if (process.env.REDIS_HOST) {
+    config += '[redis]\n';
+    config += `host = ${process.env.REDIS_HOST}\n\n`;
+  }
   fs.writeFileSync(configFilename, config);
   fs.chmodSync(path.resolve(dir, 'node_modules/.hooks/install'), '755');
   fs.chmodSync(path.resolve(dir, 'node_modules/.hooks/uninstall'), '755');
@@ -127,6 +140,7 @@ async function initServer() {
     console.log(e);
   }
 }
+
 module.exports.initServer = initServer;
 
 /**
@@ -139,13 +153,14 @@ async function startServer() {
   process.chdir(dir);
   return lib.start({}, process.stdout);
 }
+
 module.exports.startServer = startServer;
 
 /**
  * logs event
  *
  * @param {string} room
- * @return {void}
+ * @return {function}
  */
 const logConsole = function(room) {
   return (event) => {
