@@ -1,3 +1,9 @@
+/**
+ * debugLog
+ *
+ * @param {string} type
+ * @param  {...string} messages
+ */
 function debugLog(type, ...messages) {
   if (config.debug[type]) {
     console.log(`${Game.time} ${messages.join(' ')}`);

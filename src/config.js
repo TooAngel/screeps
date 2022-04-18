@@ -182,7 +182,6 @@ global.config = {
   },
 
   external: {
-    distance: 2,
     defendDistance: 1,
     checkForReservingInterval: 1499,
   },
@@ -222,15 +221,15 @@ global.config = {
 
   room: {
     reservedRCL: {
-      0: 1,
-      1: 1,
-      2: 1,
-      3: 1,
-      4: 1,
-      5: 1,
-      6: 2,
-      7: 2,
-      8: 2,
+      0: 4,
+      1: 4,
+      2: 4,
+      3: 4,
+      4: 4,
+      5: 4,
+      6: 4,
+      7: 8,
+      8: 8,
     },
     isHealthyStorageThreshold: 50000,
     handleNukeAttackInterval: 132,

@@ -2,6 +2,9 @@
 
 const {debugLog} = require('./logging');
 
+/**
+ * handleQuests
+ */
 function handleQuests() {
   Memory.quests = Memory.quests || {};
   for (const id of Object.keys(Memory.quests)) {
@@ -22,6 +25,12 @@ function handleQuests() {
 
 module.exports.handleQuests = handleQuests;
 
+/**
+ * getQuestBuildConstructionSite
+ *
+ * @param {object} data
+ * @return {object}
+ */
 function getQuestBuildConstructionSite(data) {
   const quest = {};
   quest.room = data.room;
@@ -31,6 +40,13 @@ function getQuestBuildConstructionSite(data) {
   return quest;
 }
 
+/**
+ * getQuest
+ *
+ * @param {object} transaction
+ * @param {object} data
+ * @return {object}
+ */
 function getQuest(transaction, data) {
   const info = {};
   info.id = data.id;
@@ -49,14 +65,17 @@ function getQuest(transaction, data) {
   return info;
 }
 
-
+/**
+ * haveActiveQuest
+ *
+ * @return {bool}
+ */
 function haveActiveQuest() {
-  debugLog('quests', `haveActiveQuest global.data.activeQuest: ${JSON.stringify(global.data.activeQuest)}`);
   if (!global.data.activeQuest) {
     return false;
   }
   if (global.data.activeQuest.state === 'applied' &&
-      global.data.activeQuest.tick + 10 < Game.time) {
+    global.data.activeQuest.tick + 10 < Game.time) {
     debugLog('quests', 'Applied but too old');
     delete global.data.activeQuest;
     return false;
@@ -70,6 +89,12 @@ function haveActiveQuest() {
 
 module.exports.haveActiveQuest = haveActiveQuest;
 
+/**
+ * getQuestFromTransactionDescription
+ *
+ * @param {object} description
+ * @return {bool}
+ */
 function getQuestFromTransactionDescription(description) {
   let data;
   try {
@@ -83,19 +108,29 @@ function getQuestFromTransactionDescription(description) {
     return false;
   }
   console.log(JSON.stringify(data));
-  for (const key of ['type', 'room', 'id']) {
+  for (const key of ['type', 'action', 'id']) {
     if (!data[key]) {
       debugLog('quests', `Incoming transaction no Quest: No ${key}`);
       return false;
     }
   }
-  if (data.type !== 'Quest') {
+  if (data.type !== 'quest') {
+    debugLog('quests', 'Quest transaction: Type not quest');
+    return false;
+  }
+  if (data.action !== 'apply') {
     debugLog('quests', 'Quest transaction: Type not quest');
     return false;
   }
   return data;
 }
 
+/**
+ * checkQuestForAcceptance
+ *
+ * @param {object} transaction
+ * @return {bool}
+ */
 function checkQuestForAcceptance(transaction) {
   Memory.quests = Memory.quests || {};
   const data = getQuestFromTransactionDescription(transaction.description);
@@ -112,7 +147,7 @@ function checkQuestForAcceptance(transaction) {
   Memory.quests[data.id] = quest;
 
   const response = {
-    type: 'Accept',
+    type: 'quest',
     id: quest.id,
     room: quest.room,
     quest: quest.quest,
@@ -127,13 +162,24 @@ function checkQuestForAcceptance(transaction) {
 
 module.exports.checkQuestForAcceptance = checkQuestForAcceptance;
 
+/**
+ * checkAppliedQuestForAcceptance
+ *
+ * @param {object} transaction
+ * @return {bool}
+ */
 function checkAppliedQuestForAcceptance(transaction) {
   try {
     const response = JSON.parse(transaction.description);
     if (!response.type) {
       debugLog('quests', `No type: ${JSON.stringify(response)}`);
     }
-    if (response.type !== 'Accept') {
+    if (response.type !== 'quest') {
+      debugLog('quests', `Wrong type: ${JSON.stringify(response)}`);
+      return false;
+    }
+    if (response.action) {
+      debugLog('quests', `Action exist type: ${JSON.stringify(response)}`);
       return false;
     }
     debugLog('quests', `Quest accept transaction: ${JSON.stringify(response)}`);
@@ -145,7 +191,9 @@ function checkAppliedQuestForAcceptance(transaction) {
     global.data.activeQuest.accept = response;
     debugLog('quests', `activeQuest: ${JSON.stringify(global.data.activeQuest)}`);
   } catch (e) {
+    console.log('checkAppliedQuestForAcceptance');
     console.log(e);
+    console.log(e.stack);
     return false;
   }
 }

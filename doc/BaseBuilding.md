@@ -1,6 +1,6 @@
-## Room
+# Room
 
-### Setup
+## Setup
 
 Positions:
  - `upgrader` creep next to the `controller`
@@ -15,3 +15,10 @@ extension, lab, observer, terminal, tower) next to it. Next to `filler` a link,
 tower and power_spawn is located. `Link`s are placed next to the sources and at
 the paths to the exits. Layers of walls are placed at the exits, positions
 within the precalculated paths are replaced by ramparts.
+
+## Pathing
+
+Paths are precalculated and cached and reused by most of the creeps.
+
+Swamps are ignored because roads will be built automatically over time.
+The creeps only move on the precalculated paths (to reduce complexity). Instead, blockers are recognized and `structurer` are sent to destroy the structure, `carry` creeps try it as well.

@@ -49,7 +49,7 @@ function checkPlayers() {
 module.exports.checkPlayers = checkPlayers;
 
 const findRoomPairs = function(player) {
-  for (const roomName of Object.keys(player.rooms).sort((a, b) => 0.5 - Math.random())) {
+  for (const roomName of Object.keys(player.rooms).sort(() => 0.5 - Math.random())) {
     debugLog('diplomacy', `findRoomPairs: room ${roomName} data: ${JSON.stringify(global.data.rooms[roomName])}`);
     const minRCL = ((global.data.rooms[roomName] || {}).controller || {}).level || 8;
     const range = 7;
@@ -123,7 +123,7 @@ function handleRetaliation(player) {
     debugLog('diplomacy', `handleRetaliation: Can not find a fitting room pair`);
     return;
   }
-  possibleActions.sort((a, b) => 0.5 - Math.random());
+  possibleActions.sort(() => 0.5 - Math.random());
   debugLog('diplomacy', `Running attach roomPair: ${JSON.stringify(roomPair)} action: ${JSON.stringify(possibleActions[0])}`);
   player.lastAttacked = Game.time;
   if (config.autoAttack.notify) {
@@ -166,7 +166,9 @@ function addToReputation(name, value) {
     try {
       handleRetaliation(player);
     } catch (e) {
+      console.log('addToReputation');
       console.log(e);
+      console.log(e.stack);
     }
   }
 }
@@ -193,6 +195,12 @@ function initPlayer(name) {
 }
 module.exports.initPlayer = initPlayer;
 
+/**
+ * addRoomToPlayer
+ *
+ * @param {object} player
+ * @param {object} room
+ */
 function addRoomToPlayer(player, room) {
   if (!player.rooms) {
     player.rooms = {};

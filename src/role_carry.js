@@ -44,7 +44,13 @@ roles.carry.updateSettings = function(room, creep) {
   }
 };
 
-roles.carry.checkHelperEmptyStorage = function(creep) {
+/**
+ * checkHelperEmptyStorage
+ *
+ * @param {object} creep
+ * @return {void}
+ */
+function checkHelperEmptyStorage(creep) {
   // Fix blocked helpers due to empty structure in the room where we get the energy from
   if (creep.room.name === creep.memory.routing.targetRoom) {
     const targetStructure = Game.getObjectById(creep.memory.routing.targetId);
@@ -61,7 +67,7 @@ roles.carry.checkHelperEmptyStorage = function(creep) {
       }
     }
   }
-};
+}
 
 /**
  * checkForUniversalSpawn
@@ -124,6 +130,70 @@ const validateDirections = function(creep, directions) {
   return true;
 };
 
+
+const checkCreepForTransfer = function(otherCreep, thisCreep) {
+  if (!otherCreep.my) {
+    return false;
+  }
+  // Don't transfer to carries if they didn't reached the end once
+  if (otherCreep.memory.role === 'carry' && !otherCreep.data.fullyDeployed) {
+    return false;
+  }
+
+  // Only transfer to creeps with the same base
+  if (otherCreep.memory.base !== thisCreep.memory.base) {
+    return false;
+  }
+
+  // don't transfer to extractor, fixes full terminal with 80% energy?
+  if (otherCreep.memory.role === 'extractor') {
+    return false;
+  }
+  // don't transfer to mineral, fixes full terminal with 80% energy?
+  if (otherCreep.memory.role === 'mineral') {
+    return false;
+  }
+  if (!thisCreep.store[RESOURCE_ENERGY] && otherCreep.memory.role === 'sourcer') {
+    return false;
+  }
+  // Do we want this?
+  if (otherCreep.memory.role === 'powertransporter') {
+    return false;
+  }
+  if (otherCreep.store.getFreeCapacity() === 0) {
+    return false;
+  }
+  return true;
+};
+
+/**
+ * transferToCreep
+ *
+ * @param {object} creep
+ * @param {object} direction
+ * @return {bool}
+ */
+function transferToCreep(creep, direction) {
+  const adjacentPos = creep.pos.getAdjacentPosition(direction);
+  if (!adjacentPos.isValid()) {
+    return false;
+  }
+
+  const creeps = adjacentPos.lookFor('creep');
+  for (const otherCreep of creeps) {
+    if (!checkCreepForTransfer(otherCreep, creep)) {
+      continue;
+    }
+    for (const resource of Object.keys(creep.store)) {
+      const returnCode = creep.transfer(otherCreep, resource);
+      if (returnCode === OK) {
+        return creep.store.getUsedCapacity() * 0.5 <= otherCreep.store.getCapacity() - otherCreep.store.getUsedCapacity();
+      }
+    }
+  }
+  return false;
+}
+
 /**
  * transferToCreeps
  *
@@ -132,7 +202,7 @@ const validateDirections = function(creep, directions) {
  */
 function transferToCreeps(creep, directions) {
   creep.creepLog('Trying to transfer to creep');
-  const transferred = creep.transferToCreep(directions.backwardDirection);
+  const transferred = transferToCreep(creep, directions.backwardDirection);
   creep.memory.routing.reverse = !transferred;
 }
 
@@ -150,6 +220,60 @@ function getMoveToStorage(creep) {
 }
 
 /**
+ * findCreepWhichCanTransfer
+ *
+ * @param {object} creep
+ * @param {object} adjacentPos
+ * @return {bool}
+ */
+function findCreepWhichCanTransfer(creep, adjacentPos) {
+  const creeps = adjacentPos.lookFor(LOOK_CREEPS);
+  for (const otherCreep of creeps) {
+    if (!Game.creeps[otherCreep.name] || otherCreep.store.getUsedCapacity() < 50 || otherCreep.memory.recycle) {
+      continue;
+    }
+
+    if (otherCreep.memory.role === 'carry') {
+      if (creep.memory.base !== otherCreep.memory.base) {
+        continue;
+      }
+      if (otherCreep.memory.routing.pathPos < 0) {
+        continue;
+      }
+      return creep.checkCarryEnergyForBringingBackToStorage(otherCreep);
+    }
+    continue;
+  }
+  return false;
+}
+
+/**
+ * checkForTransfer
+ *
+ * @param {object} creep
+ * @param {object} direction
+ * @return {bool}
+ */
+function checkForTransfer(creep, direction) {
+  if (!creep.data.fullyDeployed) {
+    return false;
+  }
+  if (!direction) {
+    creep.creepLog(`checkForTransfer no direction}`);
+    return false;
+  }
+
+  const adjacentPos = creep.pos.getAdjacentPosition(direction);
+
+  if (adjacentPos.isBorder(-2)) {
+    creep.creepLog(`checkForTransfer isBorder}`);
+    return false;
+  }
+
+  return findCreepWhichCanTransfer(creep, adjacentPos);
+}
+
+/**
  * preMoveNotMoveToStorage
  *
  * @param {object} creep
@@ -164,7 +288,7 @@ function preMoveNotMoveToStorage(creep, directions) {
     moveToStorage = creep.pickupEnergy();
     moveToStorage = moveToStorage || creep.pickupWhileMoving();
   }
-  const energyFromCreep = creep.checkForTransfer(directions.forwardDirection);
+  const energyFromCreep = checkForTransfer(creep, directions.forwardDirection);
   moveToStorage = moveToStorage || energyFromCreep;
   return moveToStorage;
 }
@@ -174,7 +298,7 @@ roles.carry.preMove = function(creep, directions) {
     return false;
   }
 
-  roles.carry.checkHelperEmptyStorage(creep);
+  checkHelperEmptyStorage(creep);
 
   let moveToStorage = getMoveToStorage(creep);
   if (moveToStorage) {
@@ -214,6 +338,8 @@ roles.carry.preMove = function(creep, directions) {
   creep.memory.routing.reverse = moveToStorage;
   if (moveToStorage) {
     directions.direction = directions.backwardDirection;
+    // TODO this makes sure that we first move to the end before other creeps transfer to this
+    creep.data.fullyDeployed = true;
   } else {
     directions.direction = directions.forwardDirection;
   }

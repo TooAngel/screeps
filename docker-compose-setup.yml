@@ -8,6 +8,8 @@ services:
     command: redis-server --loglevel warning
   mongo:
     image: mongo
+    volumes:
+      - ./tmp-test-server-database/:/data/db
     ports:
       - 27017:27017
     command: mongod --quiet --logpath /dev/null 
@@ -20,10 +22,17 @@ services:
     environment:
       - STEAM_API_KEY
       - STEAM_ID
+      - MONGO_HOST=mongo
+      - REDIS_HOST=redis
+    env_file:
+      - .env
     depends_on:
       - redis
       - mongo
-    network_mode: "host"
+    #network_mode: "host"
+    ports:
+      - 21025:21025
+      - 21026:21026
   logs:
     image: node:12
     working_dir: /mnt

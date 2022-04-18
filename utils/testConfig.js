@@ -4,7 +4,11 @@ module.exports.verbose = false;
 
 module.exports.tickDuration = 10;
 
-module.exports.playerRoom = 'W7N4';
+// todo for local-testing
+// if your machine is slow try increment this
+module.exports.waitForConnection = 10;
+
+module.exports.playerRoom = 'W1N7';
 const players = {
   'W1N7': {x: 43, y: 35},
   'W8N8': {x: 21, y: 28},

@@ -17,7 +17,7 @@ roles.reserver.settings = {
   maxLayoutAmount: 1,
 };
 roles.reserver.updateSettings = function(room, creep) {
-  room.debugLog('reserver', `role_reserver.updateSettings; targetRoom: ${creep.routing.targetRoom}`);
+  // room.debugLog('reserver', `role_reserver.updateSettings; targetRoom: ${creep.routing.targetRoom}`);
   const targetRoom = Game.rooms[creep.routing.targetRoom];
   if (targetRoom) {
     const reservation = targetRoom.controller.reservation;
@@ -33,7 +33,7 @@ roles.reserver.updateSettings = function(room, creep) {
       };
     }
   }
-  room.debugLog('reserver', `role_reserver.updateSettings - Can not access targetRoom ${targetRoom}`);
+  // room.debugLog('reserver', `role_reserver.updateSettings - Can not access targetRoom ${targetRoom}`);
   return {
     maxLayoutAmount: 1,
   };
