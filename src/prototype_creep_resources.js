@@ -52,49 +52,6 @@ Creep.prototype.checkCarryEnergyForBringingBackToStorage = function(otherCreep) 
   return offset + this.store.getUsedCapacity() > carryPercentage * this.store.getCapacity();
 };
 
-// return true if helper can't transfer to creep
-Creep.prototype.checkHelperNoTransfer = function(creep) {
-  return creep.memory.base !== this.memory.base;
-};
-
-Creep.prototype.findCreepWhichCanTransfer = function(creeps) {
-  for (let i = 0; i < creeps.length; i++) {
-    const otherCreep = creeps[i];
-    if (!Game.creeps[otherCreep.name] || otherCreep.store.getUsedCapacity() < 50 || otherCreep.memory.recycle) {
-      continue;
-    }
-
-    if (otherCreep.memory.role === 'carry') {
-      if (otherCreep.checkHelperNoTransfer(this)) {
-        continue;
-      }
-      if (otherCreep.memory.routing.pathPos < 0) {
-        continue;
-      }
-      return this.checkCarryEnergyForBringingBackToStorage(otherCreep);
-    }
-    continue;
-  }
-  return false;
-};
-
-Creep.prototype.checkForTransfer = function(direction) {
-  if (!direction) {
-    this.creepLog(`checkForTransfer no direction}`);
-    return false;
-  }
-
-  const adjacentPos = this.pos.getAdjacentPosition(direction);
-
-  if (adjacentPos.isBorder(-2)) {
-    this.creepLog(`checkForTransfer isBorder}`);
-    return false;
-  }
-
-  const creeps = adjacentPos.lookFor(LOOK_CREEPS);
-  return this.findCreepWhichCanTransfer(creeps);
-};
-
 Creep.prototype.pickupWhileMoving = function() {
   if (this.inBase() && this.memory.routing.pathPos < 2) {
     return false;
@@ -223,53 +180,6 @@ Creep.prototype.pickupEnergy = function() {
   }
 
   return this.giveSourcersEnergy();
-};
-
-const checkCreepForTransfer = function(otherCreep, thisCreep) {
-  if (!Memory.creeps[otherCreep.name]) {
-    return false;
-  }
-  // don't transfer to extractor, fixes full terminal with 80% energy?
-  if (Memory.creeps[otherCreep.name].role === 'extractor') {
-    return false;
-  }
-  // don't transfer to mineral, fixes full terminal with 80% energy?
-  if (Memory.creeps[otherCreep.name].role === 'mineral') {
-    return false;
-  }
-  if (!thisCreep.store[RESOURCE_ENERGY] && Memory.creeps[otherCreep.name].role === 'sourcer') {
-    return false;
-  }
-  // Do we want this?
-  if (Memory.creeps[otherCreep.name].role === 'powertransporter') {
-    return false;
-  }
-  if (otherCreep.store.getFreeCapacity() === 0) {
-    return false;
-  }
-  return true;
-};
-
-Creep.prototype.transferToCreep = function(direction) {
-  const adjacentPos = this.pos.getAdjacentPosition(direction);
-  if (!adjacentPos.isValid()) {
-    return false;
-  }
-
-  const creeps = adjacentPos.lookFor('creep');
-  for (let i = 0; i < creeps.length; i++) {
-    const otherCreep = creeps[i];
-    if (!checkCreepForTransfer(otherCreep, this) || this.checkHelperNoTransfer(otherCreep)) {
-      continue;
-    }
-    for (const resource of Object.keys(this.store)) {
-      const returnCode = this.transfer(otherCreep, resource);
-      if (returnCode === OK) {
-        return this.store.getUsedCapacity() * 0.5 <= otherCreep.store.getCapacity() - otherCreep.store.getUsedCapacity();
-      }
-    }
-  }
-  return false;
 };
 
 const canStoreEnergy = function(object) {
