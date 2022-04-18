@@ -1,0 +1,32 @@
+kind: pipeline
+name: drone testing pipeline
+type: docker
+
+platform:
+  os: linux
+  arch: amd64
+
+clone:
+  git: ## fix maybe not needed
+    image: plugins/git
+    pull: true
+    depath: 50
+    tags: true
+
+steps:
+  - name: test
+    image: node:12
+    pull: always
+    commands:
+      - git --version
+      - npm install
+      - npm run test-no-server
+    volumes:
+      - name: cache
+        path: /tmp/cache
+      - name: artifacts
+        path: /node_modules
+
+trigger:
+  event:
+    - push

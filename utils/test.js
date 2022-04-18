@@ -4,7 +4,7 @@ const _ = require('lodash');
 
 const {setPassword, sleep, initServer, startServer, spawnBots, helpers, logConsole, followLog} = require('./testHelpers');
 
-const {cliPort, verbose, tickDuration, playerRoom, players, rooms, milestones} = require('./testConfig');
+const {cliPort, verbose, tickDuration, waitForConnection, playerRoom, players, rooms, milestones} = require('./testConfig');
 
 const controllerRooms = {};
 const status = {};
@@ -52,7 +52,7 @@ class Tester {
    * @param {object} defer
    * @return {undefined}
    */
-  async checkForSucces(line, defer) {
+  async checkForSuccess(line, defer) {
     if (botsSpawned && line.startsWith(`'OK'`)) {
       let appendix = '';
       if (this.maxRuntime > 0) {
@@ -97,7 +97,7 @@ class Tester {
     const defer = q.defer();
     const socket = net.connect(cliPort, '127.0.0.1');
 
-    socket.on('data', async (raw) => {
+    socket.on('data', async(raw) => {
       const data = raw.toString('utf8');
       const line = data.replace(/^< /, '').replace(/\n< /, '');
       if (await spawnBots(line, socket, rooms, players, tickDuration)) {
@@ -115,11 +115,11 @@ class Tester {
         return;
       }
 
-      await this.checkForSucces(line, defer);
+      await this.checkForSuccess(line, defer);
     });
 
     socket.on('connect', () => {
-      console.log('connected');
+      console.log(new Date().toString(), `${lastTick} connected`);
     });
     socket.on('error', (error) => {
       defer.reject(error);
@@ -132,7 +132,8 @@ class Tester {
     const start = Date.now();
     await initServer();
     await startServer();
-    await sleep(5);
+    console.log(new Date().toString(), 'waiting for connection');
+    await sleep(waitForConnection);
     let exitCode = 0;
     try {
       await this.execute();

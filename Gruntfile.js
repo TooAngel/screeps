@@ -257,6 +257,7 @@ module.exports = function(grunt) {
   grunt.registerTask('release', ['eslint:fix', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
   grunt.registerTask('local', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
   grunt.registerTask('test', ['eslint:check', 'mochaTest', 'exec:test_on_private_server']);
+  grunt.registerTask('test_no_server', ['eslint:check', 'mochaTest']);
   grunt.registerTask('dev', ['eslint:fix']);
   grunt.registerTask('screeps_local', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:local']);
   grunt.registerTask('deploy', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:main']);

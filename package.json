@@ -40,6 +40,7 @@
   },
   "scripts": {
     "test": "grunt test",
+    "test-no-server": "grunt test_no_server",
     "deploy": "grunt deploy",
     "lint": "eslint -c .eslintrc-basic.js src/",
     "run-test": "git checkout test-server/db.json && node utils/test_on_server.js",
