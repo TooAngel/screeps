@@ -345,6 +345,11 @@ global.config = {
   },
 
   maliciousNpcUsernames: ['Invader', 'Source Keeper'],
+  structureSpawn: {
+    leastStructureSpawnToDestroyStructureSpawn: 3,
+    otherRoomCreepComeHelpBuildStructureHelperCount: 5
+  },
+
 };
 
 try {
