@@ -46,8 +46,8 @@ global.config = {
 
   info: {
     signController: true,
-    signText: 'Fully automated open source NPC: http://tooangel.github.io/screeps/',
-    resignInterval: 500,
+    signText: 'XenoAmesss here. Nice to meat you!',
+    resignInterval: 5000,
   },
 
   // Due to newly introduces via global variable caching this can be removed
