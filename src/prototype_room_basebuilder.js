@@ -102,7 +102,12 @@ Room.prototype.buildRampartsAroundSpawns = function() {
  * @return {boolean}
  */
 function destroyStructureSpawn(room, structure) {
+  const spawnsCount = room.findMySpawns().length;
   if (room.memory.misplacedSpawn) {
+    if (spawnsCount < config.myRoom.leastSpawnsToRebuildStructureSpawn) {
+      room.memory.misplacedSpawn = false;
+      return false;
+    }
     if (room.storage && room.storage.store.energy > 20000) {
       const builders = room.findMyCreepsOfRole('builder');
       if (builders.length > 3) {
@@ -119,8 +124,8 @@ function destroyStructureSpawn(room, structure) {
     }
     return false;
   }
-  room.log(`Spawn [${structure.pos.x}, ${structure.pos.y}] is misplaced, not in positions (prototype_room_basebuilder.destroyStructure)`); // eslint-disable-line max-len
-  room.memory.misplacedSpawn = true;
+  room.log(`Spawn [${structure.pos.x}, ${structure.pos.y}] is misplaced, not in positions (prototype_room_basebuilder.destroyStructure), spawnsCount be ${spawnsCount}`); // eslint-disable-line max-len
+  room.memory.misplacedSpawn = spawnsCount > config.myRoom.leastSpawnsToRebuildStructureSpawn;
 
   room.buildRampartsAroundSpawns();
   return false;
