@@ -169,7 +169,7 @@ Creep.prototype.getEnergyFromStorage = function() {
     return false;
   }
 
-  if (this.room.isStruggeling()) {
+  if (this.room.isStruggling()) {
     return false;
   }
 
