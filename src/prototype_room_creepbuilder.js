@@ -75,7 +75,10 @@ Room.prototype.creepMem = function(role, targetId, targetRoom, level, base) {
  */
 Room.prototype.getPriority = function(object) {
   const priority = config.priorityQueue;
-  const target = object.routing && object.routing.targetRoom;
+  let target = object.routing && object.routing.targetRoom;
+  if (target && target.name) {
+    target = target.name;
+  }
   const age = Game.time - (object.role.time || Game.time);
   const ageTerm = age / CREEP_LIFE_TIME * 20;
   if (target === this.name) {
