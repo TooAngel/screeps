@@ -20,7 +20,10 @@ Room.prototype.creepMem = function(role, targetId, targetRoom, level, base) {
  */
 Room.prototype.getPriority = function(object) {
   const priority = config.priorityQueue;
-  const target = object.routing && object.routing.targetRoom;
+  let target = object.routing && object.routing.targetRoom;
+  if (target && target.name) {
+    target = target.name;
+  }
   if (target === this.name) {
     return priority.sameRoom[object.role] || 4;
   } else if (target) {
