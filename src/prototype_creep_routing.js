@@ -143,7 +143,7 @@ Creep.prototype.followPath = function(action) {
     path = this.prepareRoutingMemory();
   } catch (e) {
     this.log(`Suiciding, cannot prepare routing ${e} ${e.stack}`);
-    this.suicide();
+    Creep.recycleCreep(this);
     return true;
   }
   if (!path) {

@@ -142,8 +142,7 @@ Creep.prototype.cleanSetTargetId = function() {
     }
   }
   this.memory.targetReached = true;
-  this.memory.killed = true;
   this.log('Nothing found, suicide');
-  this.suicide();
+  Creep.recycleCreep(this);
   //  return Creep.recycleCreep(this);
 };

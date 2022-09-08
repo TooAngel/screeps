@@ -22,7 +22,7 @@ roles.claimer.action = function(creep) {
   const returnCode = creep.claimController(creep.room.controller);
   if (returnCode === OK) {
     creep.creepLog('New claimer, in room, claimed');
-    creep.suicide();
+    Creep.recycleCreep(creep);
   }
   return true;
 };

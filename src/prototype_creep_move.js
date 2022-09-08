@@ -193,7 +193,7 @@ Creep.prototype.moveCreepCheckRoleAndTarget = function(creep, direction) {
   if (role === 'upgrader' &&
     (targetRole === 'universal' || targetRole === 'sourcer' || targetRole === 'upgrader')) {
     this.log('config_creep_move suicide ' + targetRole);
-    creep.suicide();
+    Creep.recycleCreep(creep);
     return true;
   }
 };

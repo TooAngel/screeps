@@ -103,15 +103,14 @@ function harvest(creep) {
 
   if (returnCode === ERR_NOT_OWNER) {
     creep.log('Suiciding, someone else reserved the controller');
-    creep.memory.killed = true;
-    creep.suicide();
+    Creep.recycleCreep(creep);
     return false;
   }
 
   if (returnCode === ERR_NO_BODYPART) {
     creep.room.checkRoleToSpawn('defender', 2, undefined, creep.room.name);
     creep.respawnMe();
-    creep.suicide();
+    Creep.recycleCreep(creep);
     return false;
   }
 
