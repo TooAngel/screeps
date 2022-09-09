@@ -51,14 +51,12 @@ Creep.prototype.mySignController = function() {
     if (config.quests.enabled && this.memory.role === 'reserver' && Game.rooms[this.memory.base].terminal) {
       if (Math.random() < config.quests.signControllerPercentage) {
         const quest = {
+          type: 'quest',
           id: Math.floor(Math.random() * 100000),
           origin: this.memory.base,
-          end: Math.floor(Game.time / 100) * 100 + config.quests.endTime,
-          type: 'Quest',
           info: 'http://tooangel.github.io/screeps',
         };
         text = JSON.stringify(quest);
-        // Memory.quests[quest.id] = quest;
         this.room.debugLog('quests', `Attach quest: ${text}`);
       }
     }

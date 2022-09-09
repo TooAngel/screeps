@@ -1,6 +1,6 @@
 {
   "name": "screeps-bot-tooangel",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "",
   "main": "src/main.js",
   "screeps_bot": true,
@@ -8,7 +8,7 @@
     "chai": "4.3.6",
     "eslint-config-google": "0.14.0",
     "eslint-plugin-screeps": "2.1.0",
-    "grunt": "1.4.1",
+    "grunt": "1.5.3",
     "grunt-contrib-clean": "2.0.0",
     "grunt-contrib-copy": "1.0.0",
     "grunt-contrib-uglify": "5.0.1",

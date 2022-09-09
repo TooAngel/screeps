@@ -71,6 +71,7 @@ rules:
   max-len: [2, 240]
   max-statements-per-line: 2
   require-jsdoc: 0
+  space-before-function-paren: ["error", "never"]
 
   # ECMAScript 6
   prefer-arrow-callback: 2

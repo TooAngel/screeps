@@ -38,7 +38,7 @@ The sign has the format:
     "type": "quest",
     "id": "QUEST_ID",
     "origin": "ROOM_NAME",
-    "info": "http://tooangel.github.io/screeps",
+    "info": "http://tooangel.github.io/screeps"
 }
 ```
 
@@ -48,6 +48,7 @@ To apply for a Quest send a message via terminal transfer to the `origin` room, 
 {
     "type": "quest",
     "id": "QUEST_ID",
+    "action": "apply"
 }
 ```
 
@@ -58,7 +59,6 @@ The actual quest will be send to the room the transfer was initiated from.
 Quests can be received from the TooAngel NPC and also send to the TooAngel NPC.
 When quests are solved the reputation increases.
 When quests are send to the TooAngel NPC the reputation is decreased.
-In case quests are requested from the TooAngel NPC, while the reputation is too low, these are not executed and a portion is still reduced as a arrogance (TODO maybe find a better word) fee.
 
 ### Quest format
 
@@ -69,7 +69,7 @@ Quests are send via terminal transfer:
   "type": "quest",
   "id": "QUEST_ID",
   "room": "ROOM_NAME, in which the quest needs to be solved",
-  "type": "TYPE OF QUEST",
+  "quest": "TYPE OF QUEST",
   "end": "Game.time when the quest needs to be finished"
 }
 ```
@@ -85,6 +85,6 @@ Internally the reputation is increased.
 {
   "type": "quest",
   "id": "QUEST_ID",
-  "result": "won",
+  "result": "won"
 };
 ```

@@ -538,6 +538,12 @@ const execute = function(creep) {
 
 // ---------------------- NEW -------------------------
 
+/**
+ * setStateFillTowers
+ *
+ * @param {object} creep
+ * @return {bool}
+ */
 function setStateFillTowers(creep) {
   const towers = creep.room.findTowers();
   const fillableTower = towers.find((tower) => tower.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
@@ -553,6 +559,12 @@ function setStateFillTowers(creep) {
   return true;
 }
 
+/**
+ * setStateFillTerminalEnergy
+ *
+ * @param {object} creep
+ * @return {bool}
+ */
 function setStateFillTerminalEnergy(creep) {
   if (creep.room.terminal.store.energy > config.terminal.minEnergyAmount) {
     return false;
@@ -566,6 +578,12 @@ function setStateFillTerminalEnergy(creep) {
   return true;
 }
 
+/**
+ * setStateGetEnergyFromTerminal
+ *
+ * @param {object} creep
+ * @return {bool}
+ */
 function setStateGetEnergyFromTerminal(creep) {
   if (creep.room.terminal.store.energy < config.terminal.maxEnergyAmount) {
     return false;
@@ -580,6 +598,12 @@ function setStateGetEnergyFromTerminal(creep) {
 }
 
 
+/**
+ * setStateEmptyCreepStore
+ *
+ * @param {object} creep
+ * @return {bool}
+ */
 function setStateEmptyCreepStore(creep) {
   if (creep.store.getUsedCapacity() === 0) {
     return false;
@@ -590,6 +614,12 @@ function setStateEmptyCreepStore(creep) {
   return true;
 }
 
+/**
+ * setStateFillLabsWithEnergy
+ *
+ * @param {object} creep
+ * @return {bool}
+ */
 function setStateFillLabsWithEnergy(creep) {
   const labs = creep.room.findLabs();
   const fillableLab = labs.find((lab) => lab.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
@@ -605,6 +635,12 @@ function setStateFillLabsWithEnergy(creep) {
   return true;
 }
 
+/**
+ * setStateTransferResourcesToTerminal
+ *
+ * @param {object} creep
+ * @return {bool}
+ */
 function setStateTransferResourcesToTerminal(creep) {
   if (!Object.keys(creep.room.storage.store).find((resource) => resource !== RESOURCE_ENERGY)) {
     return false;
@@ -618,6 +654,12 @@ function setStateTransferResourcesToTerminal(creep) {
   return true;
 }
 
+/**
+ * setState
+ *
+ * @param {object} creep
+ * @return {bool}
+ */
 function setState(creep) {
   if (setStateEmptyCreepStore(creep)) {
     return true;
@@ -640,6 +682,12 @@ function setState(creep) {
   return false;
 }
 
+/**
+ * handleState
+ *
+ * @param {object} creep
+ * @return {bool}
+ */
 function handleState(creep) {
   if (!creep.data.state) {
     if (!setState(creep)) {

@@ -22,8 +22,6 @@ roles.builder.action = function(creep) {
   if (creep.room.memory.misplacedSpawn) {
     methods.push(Creep.transferEnergy);
     methods.push(Creep.repairStructure);
-  } else {
-    methods.push(Creep.recycleCreep);
   }
   methods.push(Creep.upgradeControllerTask);
 

@@ -89,7 +89,7 @@ module.exports = function(grunt) {
         src: 'src/*.js',
       },
       fix: {
-        src: 'src/*.js',
+        src: ['src/*.js', 'test/*.js', 'utils/*.js'],
         options: {
           fix: true,
         },
