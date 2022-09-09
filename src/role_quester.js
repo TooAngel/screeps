@@ -66,7 +66,7 @@ roles.quester.action = function(creep) {
   creep.spawnReplacement();
   const quest = Memory.quests[creep.memory.level];
   if (!quest) {
-    creep.log(`Quest ${creep.memory.level} not found, suiciding`);
+    creep.log(`Quest ${creep.memory.level} not found, recycling`);
     Creep.recycleCreep(creep);
     return;
   }

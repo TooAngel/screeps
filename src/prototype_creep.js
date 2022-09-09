@@ -101,6 +101,7 @@ Creep.prototype.checkForHandle = function() {
 
   const role = this.memory.role;
   if (!role) {
+    this.memory.role = 'scout';
     this.log('Creep role not defined for: ' + this.id + ' ' + this.name.split('-')[0].replace(/[0-9]/g, ''));
     Creep.recycleCreep(this);
     return false;
@@ -115,7 +116,7 @@ Creep.prototype.handle = function() {
   }
   try {
     if (!this.unit()) {
-      this.log('Unknown role suiciding');
+      this.log('Unknown role recycling creep');
       Creep.recycleCreep(this);
       return;
     }

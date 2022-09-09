@@ -62,7 +62,7 @@ function checkHelperEmptyStorage(creep) {
     if (targetStructure.structureType === STRUCTURE_STORAGE) {
       creep.say('storage');
       if (targetStructure.store.energy === 0) {
-        creep.log('Suiciding the storage I should get the energy from is empty');
+        creep.log('Recycling, the storage I should get the energy from is empty');
         Creep.recycleCreep(creep);
       }
     }
@@ -398,7 +398,7 @@ roles.carry.action = function(creep) {
 
   // End of path, can't harvest, suicide (otherwise the sourcer gets stuck)
   if (!reverse && creep.body.filter((part) => part.type === WORK).length === 0) {
-    // creep.log('Suiciding because end of path, no energy, do not want to get in the way of the sourcer (better recycle?)');
+    // creep.log('Recycling because end of path, no energy, do not want to get in the way of the sourcer (better recycle?)');
     Creep.recycleCreep(creep);
   }
 

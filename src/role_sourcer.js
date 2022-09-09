@@ -102,7 +102,7 @@ function harvest(creep) {
   }
 
   if (returnCode === ERR_NOT_OWNER) {
-    creep.log('Suiciding, someone else reserved the controller');
+    creep.log('Recycling, someone else reserved the controller');
     Creep.recycleCreep(creep);
     return false;
   }
