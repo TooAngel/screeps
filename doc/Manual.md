@@ -47,3 +47,9 @@ Soon there will be Squad attacks the Commands for those are: (somotaw/master)
 ## Send a Squad of 3 Healers and 1 MeleeAttacker (Attack everything)
 
     brain.startMeleeSquad('RoomFrom','RoomTo')
+
+And, here pins some real other used commands
+
+## Send a Squad of 3 nextroomers from room E49S28 to room E47S27
+
+    Game.rooms['E49S28'].checkRoleToSpawn('nextroomer', 3, Game.rooms['E47S27'].controller.id, 'E47S27');
