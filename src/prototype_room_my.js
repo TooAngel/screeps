@@ -210,6 +210,11 @@ Room.prototype.handleScout = function() {
   return true;
 };
 
+/**
+ * determine how many universal to spawn
+ *
+ * @return {number}
+ */
 Room.prototype.getUniversalAmount = function() {
   if (!this.storage) {
     return 2;
@@ -219,6 +224,12 @@ Room.prototype.getUniversalAmount = function() {
   }
   if (this.controller.level < 5 && this.storage.isLow()) {
     return 3;
+  }
+  if (!this.data.mySpawns || this.executeEveryTicks(3000)) {
+    this.data.mySpawns = this.findMySpawns();
+  }
+  if (this.controller.level >= 7 && !this.storage.isLow() && this.data.mySpawns.length > 1) {
+    return 2;
   }
   return 1;
 };
