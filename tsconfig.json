@@ -1,0 +1,9 @@
+{
+  "sourceMap": true,
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "Node16",
+    "sourceMap": false,
+    "outDir": "src/"
+  }
+}
