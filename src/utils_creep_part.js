@@ -1,6 +1,4 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', {value: true});
-exports.sortCreepParts = exports.CreepPartData = undefined;
 
 /**
  * Creep part data
