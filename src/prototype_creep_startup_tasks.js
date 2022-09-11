@@ -98,30 +98,107 @@ Creep.buildRoads = function(creep) {
   return false;
 };
 
+/**
+ * search the closest spawn
+ *
+ * @param {Creep} creep
+ * @return {null|Spawn}
+ */
+Creep.searchClosestSpawn = function(creep) {
+  const spawn = creep.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+  if (spawn) {
+    return spawn;
+  }
+  const roomMap = new Map();
+  for (const currentSpawnId of Object.keys(Game.spawns)) {
+    const currentSpawn = Game.spawns[currentSpawnId];
+    roomMap.set(
+      currentSpawn.room.name,
+      currentSpawn,
+    );
+  }
+  if (roomMap.size === 0) {
+    return null;
+  }
+  let minDistance = Number.MAX_SAFE_INTEGER;
+  let closestRoomName = null;
+  for (const currentRoomName of roomMap.keys()) {
+    const currentDistance = Game.map.getRoomLinearDistance(creep.room.name, currentRoomName);
+    if (currentDistance < minDistance) {
+      minDistance = currentDistance;
+      closestRoomName = currentRoomName;
+    }
+  }
+  if (!closestRoomName) {
+    return null;
+  }
+  return roomMap.get(closestRoomName);
+};
+
 Creep.recycleCreep = function(creep) {
   if (creep.memory.role === 'builder') {
     if (creep.room.buildStructures()) {
       creep.memory.recycle = false;
     }
   }
-
-  let spawn = creep.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
-  if (!spawn) {
-    spawn = Game.rooms[creep.memory.base].findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN])[0];
+  creep.say('recycle');
+  let spawn = null;
+  let recycleData = creep.memory.recycleData;
+  if (!recycleData) {
+    recycleData = {};
+    creep.memory.recycleData = recycleData;
   }
-  if (spawn) {
-    if (creep.room === spawn.room) {
-      creep.moveToMy(spawn.pos);
-    } else {
-      // TODO make use of the proper routing logic
-      creep.moveTo(spawn);
-    }
-    creep.say('recycle');
+  if (recycleData.targetId) {
+    spawn = Game.getObjectById(recycleData.targetId);
     const response = spawn.recycleCreep(creep);
     if (response === OK) {
       creep.memory.recycle = true;
     }
+    return true;
   }
+  let path = recycleData.path;
+  if (path) {
+    const moveResult = creep.moveByPath(path);
+    if (moveResult === OK) {
+      recycleData.incompleteCount = 0;
+      creep.memory.recycleData = recycleData;
+      return true;
+    }
+  }
+  let incompleteCount = recycleData.incompleteCount;
+  if (!incompleteCount) {
+    incompleteCount = 1;
+  } else {
+    ++incompleteCount;
+  }
+  if (incompleteCount <= 25) {
+    return true;
+  }
+  recycleData.incompleteCount = incompleteCount = 0;
+  spawn = Creep.searchClosestSpawn(creep);
+  if (!spawn) {
+    creep.suicide();
+    return true;
+  }
+  const targetPosObject = spawn.pos;
+  const search = PathFinder.search(
+    creep.pos,
+    {
+      pos: targetPosObject,
+      range: 1,
+    },
+  );
+  if (creep.ticksToLive < search.cost) {
+    creep.suicide();
+    return true;
+  }
+  recycleData.targetId = spawn.id;
+  recycleData.path = path = search.path;
+  const moveResult = creep.moveByPath(path);
+  if (moveResult === OK) {
+    recycleData.incompleteCount = 0;
+  }
+  creep.memory.recycleData = recycleData;
   return true;
 };
 

@@ -399,7 +399,9 @@ roles.carry.action = function(creep) {
   // End of path, can't harvest, suicide (otherwise the sourcer gets stuck)
   if (!reverse && creep.body.filter((part) => part.type === WORK).length === 0) {
     // creep.log('Recycling because end of path, no energy, do not want to get in the way of the sourcer (better recycle?)');
-    Creep.recycleCreep(creep);
+    // no, recycle here will only make it more stuck, fail.
+    creep.memory.killed = true;
+    creep.suicide();
   }
 
   return true;
