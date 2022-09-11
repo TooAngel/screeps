@@ -7,11 +7,7 @@ global.brain = {
 global.roles = {};
 global.profiler = {};
 
-try {
-  global.friends = require('friends'); // eslint-disable-line global-require
-} catch (e) {
-  global.friends = [];
-}
+global.friends = ["Antagonist"]
 
 global.config = {
   profiler: {
