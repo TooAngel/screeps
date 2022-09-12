@@ -91,7 +91,7 @@ describe('Room', () => {
     const creep = new Creep('attackunreserve');
     const config = room.getCreepConfig(creep);
     assert.equal(config.opts.memory.role, 'attackunreserve');
-    assert.deepEqual(config.body, ['move', 'move', 'move', 'attack', 'move', 'attack', 'move', 'heal', 'heal', 'attack', 'move', 'ranged_attack']);
+    assert.deepEqual(config.body, ['move', 'move', 'move', 'attack', 'move', 'attack', 'move', 'attack', 'move', 'heal', 'heal', 'ranged_attack']);
   });
 
   it('RoomPosition.isBorder', () => {

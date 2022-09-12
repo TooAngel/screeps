@@ -80,6 +80,7 @@ function calculateBuriedParts(layout, partTypeCountMap, uniquePartTypeSet, haveR
   for (const part of uniquePartTypeSet) {
     switch (part) {
     case MOVE:
+    case HEAL:
     case RANGED_ATTACK:
     case TOUGH:
       continue;
@@ -95,6 +96,11 @@ function calculateBuriedParts(layout, partTypeCountMap, uniquePartTypeSet, haveR
   if (movePartsTotal > 0) {
     buriedParts.push(MOVE);
     partTypeCountMap.set(MOVE, movePartsTotal - 1);
+  }
+  const healPartsTotal = partTypeCountMap.get(HEAL);
+  if (healPartsTotal > 0) {
+    buriedParts.push(...Array(healPartsTotal).fill(HEAL));
+    partTypeCountMap.set(HEAL, 0);
   }
   const rangedAttackPartsTotal = partTypeCountMap.get(RANGED_ATTACK);
   if (rangedAttackPartsTotal > 0) {
