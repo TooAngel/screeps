@@ -7,7 +7,7 @@ global.brain = {
 global.roles = {};
 global.profiler = {};
 
-global.friends = ["Antagonist"]
+global.friends = ["Antagonist", "ceneezer"]
 
 global.config = {
   profiler: {
