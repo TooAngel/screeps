@@ -166,13 +166,17 @@ Creep.recycleCreep = function(creep) {
     }
   }
   let incompleteCount = recycleData.incompleteCount;
-  if (!incompleteCount) {
-    incompleteCount = 1;
-  } else {
-    ++incompleteCount;
-  }
-  if (incompleteCount <= 25) {
-    return true;
+  if (recycleData.targetId && recycleData.path) {
+    if (!incompleteCount) {
+      incompleteCount = 1;
+    } else {
+      ++incompleteCount;
+    }
+    recycleData.incompleteCount = incompleteCount;
+    if (incompleteCount <= 25) {
+      creep.memory.recycleData = recycleData;
+      return true;
+    }
   }
   recycleData.incompleteCount = incompleteCount = 0;
   spawn = Creep.searchClosestSpawn(creep);
