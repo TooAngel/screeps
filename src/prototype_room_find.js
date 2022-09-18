@@ -1,7 +1,7 @@
 // TODO I think we should get rid of findPropertyFilter and have specific finds
 // like this
 Room.prototype.findOtherPlayerCreeps = function() {
-  return this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
+  return this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', global.maliciousNpcUsernames, {inverse: true});
 };
 
 Room.prototype.findObservers = function() {

@@ -281,7 +281,7 @@ Room.prototype.handleDefence = function(hostiles) {
   this.spawnDefender();
 
   // TODO when another player attacks and there are invades `hostiles[0]` would be the wrong check
-  if (hostiles[0].owner.username !== 'Invader') {
+  if (global.maliciousNpcUsernames.includes(hostiles[0].owner.username)) {
     if (this.executeEveryTicks(10)) {
       this.debugLog('invader', 'Under attack from ' + hostiles[0].owner.username);
     }
@@ -349,7 +349,7 @@ Room.prototype.handleReviveRoom = function(hostiles) {
 };
 
 Room.prototype.handleReputation = function() {
-  const hostileCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
+  const hostileCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', global.maliciousNpcUsernames, {inverse: true});
   if (hostileCreeps.length > 0) {
     for (const hostileCreep of hostileCreeps) {
       addToReputation(hostileCreep.owner.username, -1);
@@ -619,7 +619,7 @@ Room.prototype.setRoomInactive = function() {
     tokens.sort((a, b) => b.price-a.price);
     reputationChange = Math.min(-1 * reputationChange, -1 * Math.abs(tokens[0].price));
   }
-  const hostileCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});
+  const hostileCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', global.maliciousNpcUsernames, {inverse: true});
   if (hostileCreeps.length > 0) {
     for (const hostileCreep of hostileCreeps) {
       this.log(`Add to reputation by CPU_UNLOCK (${reputationChange}) for ${hostileCreep.owner.username}`);
