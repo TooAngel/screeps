@@ -51,22 +51,41 @@ roles.upgrader.updateSettings = function(room) {
   };
 };
 
-roles.upgrader.killPrevious = true;
+roles.upgrader.killPrevious = false;
 roles.upgrader.boostActions = ['upgradeController'];
 
-roles.upgrader.action = function(creep) {
+roles.upgrader.actionUpgrade = function(creep) {
   creep.mySignController();
   creep.spawnReplacement(1);
   if (!creep.room.controller.isAboutToDowngrade()) {
     if (creep.room.isUnderAttack()) {
-      return true;
+      return false;
     }
     if (creep.room.storage && creep.room.storage.isLow()) {
-      return true;
+      return false;
     }
   }
 
-  creep.upgradeController(creep.room.controller);
-  creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
-  return true;
+  const updateResult = creep.upgradeController(creep.room.controller);
+  const withdrawResult = creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
+  if (OK !== withdrawResult) {
+    creep.getEnergyFromStorage();
+    return false;
+  }
+  return updateResult === OK && withdrawResult === OK;
+};
+
+roles.upgrader.action = function(creep) {
+  const upgradeResult = roles.upgrader.actionUpgrade(creep);
+  if (upgradeResult) {
+    const roads = creep.pos.findInRangeStructures(FIND_STRUCTURES, 0, [STRUCTURE_ROAD])
+    if (roads && roads.length) {
+      creep.moveRandom();
+    }
+  }
+  return upgradeResult;
+};
+
+roles.upgrader.preMove = function(creep) {
+  roles.upgrader.action(creep);
 };
