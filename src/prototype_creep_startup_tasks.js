@@ -161,6 +161,7 @@ Creep.recycleCreep = function(creep) {
     const moveResult = creep.moveByPath(path);
     if (moveResult === OK) {
       recycleData.incompleteCount = 0;
+      recycleData.path = path.subarray(1);
       creep.memory.recycleData = recycleData;
       return true;
     }
