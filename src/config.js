@@ -216,7 +216,7 @@ global.config = {
 
   myRoom: {
     underAttackMinAttackTimer: 50,
-    leastSpawnsToRebuildStructureSpawn: 1,
+    leastSpawnsToRebuildStructureSpawn: 2,
   },
 
   room: {
