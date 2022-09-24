@@ -157,11 +157,15 @@ Creep.recycleCreep = function(creep) {
     return true;
   }
   let path = recycleData.path;
-  if (path) {
+  if (path && path.length) {
+    for (let i = 0; i < path.length; ++i) {
+      let roomPositionMemory = path[i];
+      path[i] = new RoomPosition(roomPositionMemory.x, roomPositionMemory.y, roomPositionMemory.roomName);
+    }
     const moveResult = creep.moveByPath(path);
     if (moveResult === OK) {
       recycleData.incompleteCount = 0;
-      recycleData.path = path.subarray(1);
+      recycleData.path = path = path.shift();
       creep.memory.recycleData = recycleData;
       return true;
     }
