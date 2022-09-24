@@ -51,11 +51,15 @@ function addToStats(name) {
  * @return {void}
  */
 function handleUnexpectedDeadCreeps(name, creepMemory) {
-  let data = {};
+  let data;
   if (creepMemory.room) {
     data = global.data.rooms[creepMemory.room];
   } else {
     console.log(`${Game.time} ${name} handleUnexpectedDeadCreeps no creepMemory.room creepMemory: ${JSON.stringify(creepMemory)} data: ${JSON.stringify(global.data.creeps[name])}`);
+  }
+
+  if (!data) {
+    data = {};
   }
 
   debugLog(`${Game.time} ${creepMemory.room} ${name} memory hostile: ${data.hostileCreepCount}`);
