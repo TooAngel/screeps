@@ -109,6 +109,8 @@ Room.prototype.spawnCheckForCreate = function() {
   creep.ttl = creep.ttl || config.creep.queueTtl;
   if (this.findSpawnsNotSpawning().length === 0) {
     creep.ttl--;
+  } else if (this.energyAvailable === this.energyCapacityAvailable) {
+    creep.ttl = 0;
   }
   return false;
 };
