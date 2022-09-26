@@ -82,21 +82,21 @@ function getNextRoomValuatedRoomMap(rooms) {
  */
 function haveEnoughSystemResources() {
   if (config.nextRoom.resourceStats) {
-    debugLog('nextroomer', `stats: ${JSON.stringify(global.stats)}`);
+    debugLog('nextroomer', `stats: ${JSON.stringify(global.data.stats)}`);
     const myRoomsLength = Memory.myRooms.length;
-    const cpuPerRoom = global.stats.cpuUsed / myRoomsLength;
-    if (cpuPerRoom > global.stats.cpuIdle) {
-      debugLog('nextroomer', `not enough cpu: ${cpuPerRoom} > ${global.stats.cpuIdle}`);
+    const cpuPerRoom = global.data.stats.cpuUsed / myRoomsLength;
+    if (cpuPerRoom > global.data.stats.cpuIdle) {
+      debugLog('nextroomer', `not enough cpu: ${cpuPerRoom} > ${global.data.stats.cpuIdle}`);
       return false;
     }
-    const heapPerRoom = global.stats.heapUsed / myRoomsLength;
-    if (heapPerRoom > global.stats.heapFree) {
-      debugLog('nextroomer', `not enough heap: ${heapPerRoom} > ${global.stats.heapFree}`);
+    const heapPerRoom = global.data.stats.heapUsed / myRoomsLength;
+    if (heapPerRoom > global.data.stats.heapFree) {
+      debugLog('nextroomer', `not enough heap: ${heapPerRoom} > ${global.data.stats.heapFree}`);
       return false;
     }
-    const memoryPerRoom = global.stats.memoryUsed / myRoomsLength;
-    if (memoryPerRoom > global.stats.memoryFree) {
-      debugLog('nextroomer', `not enough heap: ${memoryPerRoom} > ${global.stats.memoryFree}`);
+    const memoryPerRoom = global.data.stats.memoryUsed / myRoomsLength;
+    if (memoryPerRoom > global.data.stats.memoryFree) {
+      debugLog('nextroomer', `not enough heap: ${memoryPerRoom} > ${global.data.stats.memoryFree}`);
       return false;
     }
   } else {
