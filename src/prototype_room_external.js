@@ -495,7 +495,7 @@ Room.prototype.handleReservedRoom = function() {
  *
  * @param {object} room - The room to check to
  * @param {list} route - A list of route entries
- * @return {bool} - If the route is valid
+ * @return {boolean} - If the route is valid
  **/
 function isRouteValidForReservedRoom(room, route) {
   // Only allow pathing through owned rooms or already reserved rooms.
@@ -522,7 +522,7 @@ function isRouteValidForReservedRoom(room, route) {
  * filterReservedBy - Filter for reserved rooms for a specific room
  *
  * @param {string} roomName - The room name to check the reservation base
- * @return {bool} - If it is reserved by the given roomName
+ * @return {function} - If it is reserved by the given roomName
  **/
 function filterReservedBy(roomName) {
   return (roomData) => {

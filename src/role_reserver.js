@@ -43,7 +43,7 @@ roles.reserver.updateSettings = function(room, creep) {
  * callCleaner
  *
  * @param {object} creep
- * @return {bool}
+ * @return {boolean}
  */
 function callCleaner(creep) {
   if (creep.inBase()) {
@@ -100,7 +100,7 @@ function interactWithControllerSuccess(creep) {
  * interactWithController
  *
  * @param {object} creep
- * @return {bool}
+ * @return {boolean}
  */
 function interactWithController(creep) {
   let returnCode;

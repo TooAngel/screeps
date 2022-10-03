@@ -61,7 +61,7 @@ function getFilterForBodyPart(bodyPart) {
  *
  * @param {object} creep - The attacker
  * @param {object} target - The target
- * @return {bool} - Returns true :-)
+ * @return {boolean} - Returns true :-)
  **/
 function attack(creep, target) {
   // TODO needs to be changed to some of our moveTo methods, preventing from

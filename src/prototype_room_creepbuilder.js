@@ -482,7 +482,7 @@ Room.prototype.getCreepConfig = function(creep) {
  * Room.prototype.spawnCreateCreep use for launch spawn of first creep in queue.
  *
  * @param {Collection} creep Object with queue's creep data.
- * @return {boolean}
+ * @return {boolean|void}
  */
 Room.prototype.spawnCreateCreep = function(creep) {
   const spawns = this.findSpawnsNotSpawning();
