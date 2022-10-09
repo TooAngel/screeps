@@ -100,7 +100,7 @@ function haveEnoughSystemResources() {
       return false;
     }
   } else {
-    if (Memory.myRooms.length >= 0) { // config.nextRoom.maxRooms) {
+    if (Memory.myRooms.length >= Memory.dynamicConfig.nextRoom.maxRooms) {
       return false;
     }
 
