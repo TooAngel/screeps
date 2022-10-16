@@ -202,11 +202,32 @@ Upgrade less: ${strings.upgradeLess}
 =========================`);
 };
 
+brain.executeEveryTicks = function(ticks) {
+  const timer = (ticks > 3000) ? Game.time - Memory.time + 1 : 0;
+  return (timer > 1) ? (Game.time % ticks) < timer : (Game.time % ticks) === 0;
+};
+
+brain.setDynamicConfigInternal = function() {
+  Memory.dynamicConfig = Memory.dynamicConfig || {};
+  Memory.dynamicConfig.nextRoom = Memory.dynamicConfig.nextRoom || {};
+  Memory.dynamicConfig.nextRoom.maxRooms = Math.min(config.nextRoom.maxRooms, Game.gcl.level);
+};
+
+brain.setDynamicConfigInternal();
+
+brain.setDynamicConfig = function() {
+  if (!this.executeEveryTicks(1000)) {
+    return false;
+  }
+  this.setDynamicConfigInternal();
+};
+
 brain.prepareMemory = function() {
   Memory.username = Memory.username || _.chain(Game.rooms).map('controller').flatten().filter('my').map('owner.username').first().value();
   Memory.myRooms = Memory.myRooms || [];
   Memory.squads = Memory.squads || {};
   Memory.skippedRooms = [];
+  brain.setDynamicConfig();
   brain.setMarketOrders();
   brain.setConstructionSites();
   brain.cleanCreeps();

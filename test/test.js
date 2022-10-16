@@ -32,6 +32,9 @@ global.Game = new function() {
   this.cpu = {
     getUsed: () => {},
   };
+  this.gcl = {
+    level: 10
+  }
 };
 global.Memory = new function() {};
 
