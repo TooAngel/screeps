@@ -134,6 +134,21 @@ Creep.prototype.withdrawTombstone = function(onlyEnergy) {
   return returnValue;
 };
 
+Creep.prototype.withdrawRuin = function(onlyEnergy) {
+  onlyEnergy = onlyEnergy || false;
+  let returnValue = false;
+  // FIND_RUINS and get them empty first
+  const ruins = this.pos.findInRange(FIND_RUINS, 1);
+  if (ruins.length > 0) {
+    if (onlyEnergy) {
+      returnValue = this.withdrawResourcesFromTargets(ruins, true);
+    } else {
+      returnValue = this.withdrawResourcesFromTargets(ruins);
+    }
+  }
+  return returnValue;
+};
+
 Creep.prototype.withdrawContainers = function() {
   let returnValue = false;
   const containers = this.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_CONTAINER]);
@@ -178,6 +193,10 @@ Creep.prototype.pickupEnergy = function() {
   }
 
   if (this.withdrawTombstone()) {
+    return true;
+  }
+
+  if (this.withdrawRuin()) {
     return true;
   }
 
