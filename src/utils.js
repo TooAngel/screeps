@@ -111,23 +111,50 @@ global.utils = {
     return found;
   },
 
+  /**
+   * from string format of creep parts String (tooAngel config format) to creep parts array (screeps format)
+   *
+   * @param {string} stringParts creep parts String
+   * @return {undefined|string[]} creep parts array
+   */
   stringToParts: function(stringParts) {
-    if (!stringParts || typeof(stringParts) !== 'string') {
-      return;
+    if (!stringParts || typeof (stringParts) !== 'string') {
+      return undefined;
     }
-    const partsConversion = {
-      M: MOVE,
-      C: CARRY,
-      A: ATTACK,
-      W: WORK,
-      R: RANGED_ATTACK,
-      T: TOUGH,
-      H: HEAL,
-      K: CLAIM,
-    };
     const arrayParts = [];
-    for (let i = 0; i < stringParts.length; i++) {
-      arrayParts.push(partsConversion[stringParts.charAt(i)]);
+    for (const partChar of stringParts) {
+      let part;
+      switch (partChar) {
+      case 'M':
+        part = MOVE;
+        break;
+      case 'C':
+        part = CARRY;
+        break;
+      case 'A':
+        part = ATTACK;
+        break;
+      case 'W':
+        part = WORK;
+        break;
+      case 'R':
+        part = RANGED_ATTACK;
+        break;
+      case 'T':
+        part = TOUGH;
+        break;
+      case 'H':
+        part = HEAL;
+        break;
+      case 'K':
+        part = CLAIM;
+        break;
+      default:
+        // should never enter
+        part = MOVE;
+        console.error('stringToParts illegal partChar : ' + part);
+      }
+      arrayParts.push(part);
     }
     return arrayParts;
   },

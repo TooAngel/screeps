@@ -1,5 +1,10 @@
 'use strict';
 
+const {
+  CreepPartData,
+  sortCreepParts,
+} = require('./utils_creep_part');
+
 Room.prototype.creepMem = function(role, targetId, targetRoom, level, base) {
   return {
     role: role,
@@ -54,11 +59,11 @@ Room.prototype.spawnCheckForCreate = function() {
 };
 
 /**
-  * isCreepValid - Checks for the basic structurer
-  *
-  * @param {object} creep - The memory of a creep
-  * @return {boolean} - If the creep is valid
-  **/
+ * isCreepValid - Checks for the basic structurer
+ *
+ * @param {object} creep - The memory of a creep
+ * @return {boolean} - If the creep is valid
+ */
 function isCreepValid(creep) {
   if (!creep) {
     return false;
@@ -93,7 +98,7 @@ function compareSingleRoutingValue(first, second, routingValue) {
  * @param {object} first - The first creep
  * @param {object} second - The second creep
  * @return {boolean} - If routing is equal
- **/
+ */
 function isEqualRouting(first, second) {
   if (!compareSingleRoutingValue(first, second, 'targetRoom')) {
     return false;
@@ -197,39 +202,29 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
  * Room.prototype.getPartsStringData used for parse parts as string and return
  * parts as array, cost, if spawn is allow and length.
  *
- * @param {String} parts String of body parts. e.g. 'MMWC'
+ * @param {String} stringParts String of body parts. e.g. 'MMWC'
  * @param {Number} energyAvailable energy allow for spawn.
- * @return {Object}       The parts data :
- *                            .fail = true if not enough energy
- *                            .cost = cost of parts
- *                            .parts = parts as array
- *                            .len = the amount of parts.
+ * @return {CreepPartData} The parts data
  */
 
-Room.prototype.getPartsStringData = function(parts, energyAvailable) {
-  if (!_.isString(parts)) {
-    return {
-      null: true,
-    };
+Room.prototype.getPartsStringData = function(stringParts, energyAvailable) {
+  const ret = new CreepPartData();
+  if (!stringParts || typeof (stringParts) !== 'string') {
+    ret.null = true;
+    return ret;
   }
-  if (parts === '') {
-    return {
-      cost: 0,
-      parts: [],
-      len: 0,
-    };
+  if (stringParts === '') {
+    return ret;
   }
-  const ret = {};
   Memory.layoutsCost = {};
-  ret.cost = 0;
-  ret.parts = global.utils.stringToParts(parts);
+  ret.parts = global.utils.stringToParts(stringParts);
   ret.len = ret.parts.length;
   _.each(ret.parts,
     (p) => {
       ret.cost += BODYPART_COST[p];
-      ret.fail = ret.cost > energyAvailable;
     },
   );
+  ret.fail = ret.cost > energyAvailable;
   return ret;
 };
 
@@ -333,22 +328,12 @@ Room.prototype.applyAmount = function(input, amount) {
 /**
  * Sort body parts with the same order used in layout. Parts not in layout are last ones.
  *
- * @param  {array} parts  the parts array to sort.
- * @param  {array} layout the base layout.
- * @return {array}        sorted array.
+ * @param  {string[]} parts  the parts array to sort.
+ * @param  {CreepPartData} layout the base layout.
+ * @return {string[]}        sorted array.
  */
 Room.prototype.sortParts = function(parts, layout) {
-  return _.sortBy(parts, (p) => {
-    if (p === TOUGH) {
-      return 0;
-    }
-    const order = _.indexOf(layout.parts, p) + 1;
-    if (order) {
-      return order;
-    } else {
-      return layout.len;
-    }
-  });
+  return sortCreepParts(parts, layout);
 };
 
 Room.prototype.getPartConfigMaxBodyLength = function(prefixString, suffixString) {
@@ -386,7 +371,7 @@ function getMaxRepeat(energyAvailable, layout, maxBodyLength, maxLayoutAmount) {
  * Room.prototype.getPartsConfig use for generate adapted body
  *
  * @param {Collection} creep queue's creep spawn basic data
- * @return {object} The part Config or false
+ * @return {string[]} The part Config or false
  */
 /* eslint-disable complexity */
 Room.prototype.getPartConfig = function(creep) {
@@ -398,7 +383,8 @@ Room.prototype.getPartConfig = function(creep) {
     amount,
     maxLayoutAmount,
     suffixString,
-    fillTough} = settings;
+    fillTough,
+  } = settings;
   let layoutString = settings.layoutString;
   const maxBodyLength = this.getPartConfigMaxBodyLength(prefixString, suffixString);
 
