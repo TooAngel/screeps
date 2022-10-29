@@ -50,7 +50,7 @@ module.exports.checkPlayers = checkPlayers;
 
 const findRoomPairs = function(player) {
   for (const roomName of Object.keys(player.rooms).sort(() => 0.5 - Math.random())) {
-    debugLog('diplomacy', `findRoomPairs: room ${roomName} data: ${JSON.stringify(global.data.rooms[roomName])}`);
+    debugLog('diplomacy', `findRoomPairs: room ${roomName}`);
     const minRCL = ((global.data.rooms[roomName] || {}).controller || {}).level || 8;
     const range = 7;
     const myRoomName = getMyRoomWithinRange(roomName, range, minRCL);
