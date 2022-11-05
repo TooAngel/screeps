@@ -399,6 +399,9 @@ Room.prototype.checkBlockedPath = function() {
         if (structure.structureType === STRUCTURE_INVADER_CORE) {
           continue;
         }
+        if (structure.structureType === STRUCTURE_TOWER && structure.my) {
+          continue;
+        }
         this.log(`Path ${pathName} blocked on ${pos} due to ${structure.structureType}`);
         return true;
       }
