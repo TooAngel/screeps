@@ -31,7 +31,7 @@ roles.upgrader.settings = {
  * 3000 energy will be put in the controller
  *
  * @param {object} room
- * @return {bool}
+ * @return {boolean|{maxLayoutAmount: number}}
  */
 roles.upgrader.updateSettings = function(room) {
   if (!room.storage) {

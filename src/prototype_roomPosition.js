@@ -57,7 +57,7 @@ RoomPosition.prototype.findClosestStructure = function(structures, structureType
  * Get the position adjacent to this position in a specific direction
  *
  * @param {Number} direction (or 0)
- * @return {RoomPosition} adjacent position, or this position for direction==0
+ * @return {boolean|void|RoomPosition} adjacent position, or this position for direction==0
  */
 RoomPosition.prototype.getAdjacentPosition = function(direction) {
   const adjacentPos = [

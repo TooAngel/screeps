@@ -57,7 +57,7 @@ Creep.prototype.moveMy = function(target) {
  * @param {object} target - The target to move to
  * @param {number} range - How close to get to the target
  * @param {boolean} withinRoom - Stays within the room
- * @return {boolean} - Success of the execution
+ * @return {boolean|OK|ERR_TIRED} - Success of the execution
  **/
 Creep.prototype.moveToMy = function(target, range=1, withinRoom=false) {
   this.creepLog(`moveToMy(${target}, ${range}) pos: ${this.pos}`);
@@ -145,7 +145,7 @@ const getCreepsAtPosition = function(position, creep) {
  * @param {string} role
  * @param {object} creep
  * @param {int} direction
- * @return {bool}
+ * @return {boolean}
  */
 function moveUniversalAsSourcerReserver(role, creep, direction) {
   if ((role === 'sourcer' || role === 'reserver') && creep.memory.role !== 'universal' && !creep.memory.routing.reverse) {

@@ -2,7 +2,7 @@
  * findRoomsWithinReach - finds rooms within reach for nextRooms
  *
  * @param {object} room - The room to search for
- * @return {list} - A list of room names
+ * @return {string[]} - A list of room names
  **/
 function findRoomsWithinReach(room) {
   const rooms = [];
@@ -26,7 +26,7 @@ module.exports.findRoomsWithinReach = findRoomsWithinReach;
  * findMyRoomsSortByDistance - Returns myRooms sorted by distance
  *
  * @param {string} roomName - The roomName to calculate the distance to
- * @return {list} - MyRoom names sorted by distance
+ * @return {string[]} - MyRoom names sorted by distance
  **/
 function findMyRoomsSortByDistance(roomName) {
   const sortByDistance = (object) => {
@@ -43,7 +43,7 @@ module.exports.findMyRoomsSortByDistance = findMyRoomsSortByDistance;
  * @param {string} roomName - The room the distance to check
  * @param {number} range - The max range
  * @param {number} minRCL - The min RCL a room needs to have
- * @return {string} - A room name in range or `false` otherwise
+ * @return {string|boolean} - A room name in range or `false` otherwise
  **/
 function getMyRoomWithinRange(roomName, range, minRCL) {
   // TODO Instead of just finding one room, it should be the closest (or highest RCL)

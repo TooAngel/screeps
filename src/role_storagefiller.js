@@ -19,7 +19,7 @@ roles.storagefiller.settings = {
 /**
  * transferFromLink
  * @param {object} creep
- * @return {bool}
+ * @return {boolean}
  */
 function transferFromLink(creep) {
   const tower = getTower(creep);

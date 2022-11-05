@@ -155,7 +155,7 @@ const handleWithdrawResponse = function(creep, target, resource, amount, returnC
  * @param {object} creep - The creep to interact with.
  * @param {object} target - The target to get the resource from.
  * @param {string} resource - The resource to get.
- * @return {boolean} If it was an success
+ * @return {boolean|void} If it was an success
  */
 function get(creep, target, resource) {
   if (getFullCapacity(creep, target, resource)) {
@@ -207,7 +207,7 @@ function get(creep, target, resource) {
  * @param {object} creep - The creep to interact with.
  * @param {object} target - The target to transfer the resource to.
  * @param {string} resource - The resource to transfer.
- * @return {boolean} If it was an success
+ * @return {boolean|void} If it was an success
  */
 function transfer(creep, target, resource) {
   if (target instanceof StructureTerminal) {
@@ -247,7 +247,7 @@ function transfer(creep, target, resource) {
  * checkForSuicide
  *
  * @param {object} creep
- * @return {bool}
+ * @return {boolean}
  */
 function checkForSuicide(creep) {
   if (!creep.room.terminal) {

@@ -29,7 +29,7 @@ Creep.prototype.spawnCarry = function() {
     resourceAtPosition += _.sum(container.store);
   }
 
-  if (resourceAtPosition > parts.carryParts.carry * CARRY_CAPACITY || (this.memory.routing.type === 'commodity' && this.store.getFreeCapacity === 0)) {
+  if (resourceAtPosition > parts.carryParts.carry * CARRY_CAPACITY || (this.memory.routing.type === 'commodity' && this.store.getFreeCapacity() === 0)) {
     if (!Game.rooms[this.memory.base].inQueue(creepMemory)) {
       Game.rooms[this.memory.base].checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
     }

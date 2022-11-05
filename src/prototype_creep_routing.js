@@ -250,7 +250,7 @@ function validateDirections(directions) {
  *
  * @param {object} room
  * @param {array} path
- * @return {void}
+ * @return {boolean}
  */
 function moveByPathMyNoPathPosition(room, path) {
   const moveBackToPathResult = room.moveBackToPath(path);
@@ -264,7 +264,7 @@ function moveByPathMyNoPathPosition(room, path) {
  * moveByPathMy follows the given path or gets back to the path
  *
  * @param {list} path - The path to follow
- * @param {number} [pathPos] - The current position on the path
+ * @param {number|null} [pathPos] - The current position on the path
  * @param {object} [directions] - Precalculated directions on the path
  * @return {boolean} true if a way was found to move the creep
  **/
