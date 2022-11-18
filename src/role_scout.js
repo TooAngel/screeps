@@ -17,17 +17,44 @@ roles.scout.settings = {
  * @param {object} creep
  */
 function move(creep) {
+  let path = creep.memory.path;
+  if (path) {
+    const moveResult = creep.moveByPath(path);
+    if (moveResult === OK) {
+      creep.memory.incompleteCount = 0;
+      return;
+    }
+    if (moveResult !== ERR_NOT_FOUND && moveResult !== ERR_INVALID_ARGS) {
+      return;
+    }
+  }
+  let incompleteCount = creep.memory.incompleteCount;
+  if (!incompleteCount) {
+    incompleteCount = 1;
+  } else {
+    ++incompleteCount;
+  }
+  if (incompleteCount > 25) {
+    incompleteCount = 0;
+    creep.data.nextRoom = getNextRoom(creep);
+  }
+  creep.memory.incompleteCount = incompleteCount;
   const targetPosObject = new RoomPosition(25, 25, creep.data.nextRoom);
   const search = PathFinder.search(
-    creep.pos, {
+    creep.pos,
+    {
       pos: targetPosObject,
       range: 20,
-    }, {
+    },
+    {
       roomCallback: creep.room.getCostMatrixCallback(targetPosObject, false, true, true),
     },
   );
-
-  creep.move(creep.pos.getDirectionTo(search.path[0]));
+  creep.memory.path = path = search.path;
+  const moveResult = creep.moveByPath(path);
+  if (moveResult === OK) {
+    creep.memory.incompleteCount = 0;
+  }
 }
 
 /**
