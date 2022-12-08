@@ -13,10 +13,12 @@ Creep.prototype.universalBeforeStorage = function() {
   if (this.room.controller && (this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / 10 || this.room.controller.level === 1)) {
     methods.push(Creep.upgradeControllerTask);
   }
-  const universals = this.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['universal']).map((creep) => creep.name);
-  universals.sort();
-  if (universals.indexOf(this.name) < 2) {
-    methods.push(Creep.transferEnergy);
+  if (!this.room.isConstructingSpawnEmergency()) {
+    const universals = this.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['universal']).map((creep) => creep.name);
+    universals.sort();
+    if (universals.indexOf(this.name) < 2) {
+      methods.push(Creep.transferEnergy);
+    }
   }
 
   const structures = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_CONTROLLER], {inverse: true});
@@ -455,13 +457,21 @@ Creep.prototype.getEnergy = function() {
     this.creepLog(`getEnergy.getDroppedEnergy`);
     return true;
   }
-  if (this.getEnergyFromStorage()) {
-    this.creepLog(`getEnergy.getEnergyFromStorage`);
-    return true;
-  }
-  if (this.getEnergyFromHostileStructures()) {
-    this.creepLog(`getEnergy.getEnergyFromHostileStructures`);
-    return true;
+
+  if (['builder', 'universal', 'nextroomer'].includes(this.memory.role) && this.room.isConstructingSpawnEmergency()) {
+    if (this.getEnergyFromAnyOfMyStructures()) {
+      this.creepLog(`getEnergy.getEnergyFromAnyStructures`);
+      return true;
+    }
+  } else {
+    if (this.getEnergyFromStorage()) {
+      this.creepLog(`getEnergy.getEnergyFromStorage`);
+      return true;
+    }
+    if (this.getEnergyFromHostileStructures()) {
+      this.creepLog(`getEnergy.getEnergyFromHostileStructures`);
+      return true;
+    }
   }
 
   this.creepLog(`getEnergy.getEnergyFromSource`);

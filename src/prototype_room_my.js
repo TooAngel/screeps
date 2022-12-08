@@ -492,6 +492,17 @@ Room.prototype.isHealthy = function() {
   return true;
 };
 
+Room.prototype.isConstructingSpawnEmergency = function() {
+  if (!this.controller || !this.controller.my || !config.useConstructingSpawnEmergencyOperations.enabled) {
+    return false;
+  }
+  if ([true, false].includes(this.data.isConstructingSpawn)) {
+    return this.data.isConstructingSpawn;
+  }
+  this.data.isConstructingSpawn = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN], {}).length === 0;
+  return this.data.isConstructingSpawn;
+};
+
 Room.prototype.executeRoomHandleHostiles = function() {
   const hostiles = this.findHostileAttackingCreeps();
   this.handleAttack(hostiles);
