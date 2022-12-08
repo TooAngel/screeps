@@ -339,6 +339,10 @@ global.config = {
     enabled: false,
   },
 
+  useConstructingSpawnEmergencyOperations: {
+    enabled: true,
+  },
+
 };
 
 try {
