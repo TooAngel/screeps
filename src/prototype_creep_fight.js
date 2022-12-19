@@ -206,15 +206,30 @@ Creep.prototype.siege = function() {
     Game.notify(Game.time + ' ' + this.room.name + ' Attacking');
     this.memory.notified = true;
   }
-  const tower = this.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, STRUCTURE_TOWER);
-  let target = tower;
-  if (tower === null) {
-    const spawn = this.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, STRUCTURE_SPAWN);
-    target = spawn;
+  let target;
+  target = this.pos.findClosestStructure(FIND_HOSTILE_STRUCTURES, STRUCTURE_TOWER);
+  if (target === null) {
+    target = this.pos.findClosestStructure(FIND_HOSTILE_STRUCTURES, STRUCTURE_SPAWN);
   }
   if (target === null) {
-    const cs = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
-    this.moveTo(cs);
+    const cs = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
+      filter: (constructionSite) => {
+        switch (constructionSite) {
+        case STRUCTURE_ROAD:
+        case STRUCTURE_CONTROLLER:
+        case STRUCTURE_KEEPER_LAIR:
+        case STRUCTURE_WALL:
+          return false;
+        default:
+          return true;
+        }
+      },
+    });
+    if (cs) {
+      this.moveTo(cs);
+    } else {
+      this.healMyCreeps();
+    }
     return false;
   }
   const path = this.pos.findPathTo(target, {
@@ -240,7 +255,6 @@ Creep.prototype.siege = function() {
       break;
     }
   }
-
   this.dismantle(target);
   return true;
 };
