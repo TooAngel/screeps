@@ -1,5 +1,15 @@
 # Code base
 
+## Developing on test server
+
+To setup a test server with multiple bots. This will prepare the server and start everyting in a docker compose environment and can be stopped with CTRL-A
+
+- `npm run setupTestServer`
+
+It can be resumed via
+
+`docker compose up`
+
 ## Tweaking
 
 Add a `src/friends.js` with player names to ignore them from all attack

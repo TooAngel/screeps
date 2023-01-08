@@ -1,6 +1,6 @@
 {
   "name": "screeps-bot-tooangel",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "",
   "main": "src/main.js",
   "screeps_bot": true,
@@ -44,6 +44,6 @@
     "deploy": "grunt deploy",
     "lint": "eslint -c .eslintrc-basic.js src/",
     "run-test": "git checkout test-server/db.json && node utils/test_on_server.js",
-    "setupTestServer": "docker-compose -f docker-compose-setup.yml up"
+    "setupTestServer": "docker compose -f docker-compose-setup.yml up"
   }
 }
