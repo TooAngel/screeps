@@ -111,6 +111,7 @@ async function initServer() {
   const configFilename = path.resolve(dir, '.screepsrc');
   let config = fs.readFileSync(configFilename, {encoding: 'utf8'});
   config = config.replace(/{{STEAM_KEY}}/, process.env.STEAM_API_KEY);
+  config = config.replace(/cli_host = localhost/, 'cli_host = 0.0.0.0');
   config += '\n\n';
   if (process.env.MONGO_HOST) {
     config += '[mongo]\n';
