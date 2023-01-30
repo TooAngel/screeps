@@ -1,6 +1,9 @@
 const {logConsole, followLog, setHostname} = require('./testHelpers');
 const {playerRoom, rooms} = require('./testConfig');
 
+/**
+ * main
+ */
 async function main() {
   await new Promise((resolve) => setTimeout(resolve, 5000));
   if (process.argv.length > 2) {

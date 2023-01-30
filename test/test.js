@@ -33,8 +33,8 @@ global.Game = new function() {
     getUsed: () => {},
   };
   this.gcl = {
-    level: 10
-  }
+    level: 10,
+  };
 };
 global.Memory = new function() {};
 

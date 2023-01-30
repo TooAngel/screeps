@@ -5,6 +5,12 @@ const fs = require('fs');
 
 const token = process.env.grafana_tooangel_token;
 
+/**
+ * getDashboard
+ *
+ * @param {string} name
+ * @return {object}
+ */
 async function getDashboard(name) {
   const url = 'https://screepspl.us/grafana/api/dashboards/' + name;
   const dashboard = await rp.get({
@@ -17,6 +23,10 @@ async function getDashboard(name) {
   return dashboard;
 }
 
+/**
+ * getDashboardList
+ * @return {list}
+ */
 async function getDashboardList() {
   const url = 'https://screepspl.us/grafana/api/search';
   const list = await rp.get({
@@ -29,6 +39,9 @@ async function getDashboardList() {
   return list;
 }
 
+/**
+ * getDashboards
+ */
 async function getDashboards() {
   const list = await getDashboardList();
 
@@ -51,6 +64,11 @@ async function getDashboards() {
   }
 }
 
+/**
+ * updateDashboard
+ *
+ * @param {string} path
+ */
 async function updateDashboard(path) {
   const obj = JSON.parse(fs.readFileSync('grafana/main/' + path + '.json', 'utf8'));
 
@@ -79,6 +97,9 @@ async function updateDashboard(path) {
 //   }
 // }
 
+/**
+ * main
+ */
 function main() {
   getDashboards();
 

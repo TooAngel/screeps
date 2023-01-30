@@ -6,6 +6,9 @@
  * @class
  */
 class CreepPartData {
+  /**
+   * constructor
+   */
   constructor() {
     this.fail = false;
     this.cost = 0;
@@ -43,17 +46,17 @@ const sortCreepParts = function(parts, layout) {
   }
   const haveRangeAttack = partTypeCountMap.get(RANGED_ATTACK) > 0;
   // 1. pre-calculate buried parts
-  const buriedParts = calculateBuriedParts(layout, partTypeCountMap, uniquePartTypeSet, haveRangeAttack);
+  const buriedParts = calculateBuriedParts(partTypeCountMap, uniquePartTypeSet);
   // 2. calculate all tough at the beginning.
-  const frontToughParts = calculateFrontToughParts(layout, partTypeCountMap, uniquePartTypeSet, haveRangeAttack);
+  const frontToughParts = calculateFrontToughParts(partTypeCountMap);
   // 3. calculate move part 1
-  const moveParts1 = calculateMoveParts1(layout, partTypeCountMap, uniquePartTypeSet, haveRangeAttack);
+  const moveParts1 = calculateMoveParts1(partTypeCountMap);
   // 4. calculate move part 2
-  const moveParts2 = calculateMoveParts2(layout, partTypeCountMap, uniquePartTypeSet, haveRangeAttack);
+  const moveParts2 = calculateMoveParts2(partTypeCountMap, haveRangeAttack);
   // 5. calculate center layout loop
-  const centerLayoutParts = calculateCenterLayoutParts(layout, partTypeCountMap, uniquePartTypeSet, haveRangeAttack);
+  const centerLayoutParts = calculateCenterLayoutParts(layout, partTypeCountMap, haveRangeAttack);
   // 6. calculate additional parts (which only exist in parts but not in layout)
-  const additionalParts = calculateAdditionalParts(layout, partTypeCountMap, uniquePartTypeSet, haveRangeAttack);
+  const additionalParts = calculateAdditionalParts(partTypeCountMap);
   // 7. calculate additional parts (which only exist in parts but not in layout)
   const resultParts = [];
   resultParts.push(...frontToughParts);
@@ -69,13 +72,11 @@ exports.sortCreepParts = sortCreepParts;
 /**
  * calculateBuriedParts
  *
- * @param {CreepPartData} layout
  * @param {Map<string, number>}  partTypeCountMap
  * @param {Set<string>}  uniquePartTypeSet
- * @param {boolean} haveRangeAttack
  * @return {string[]} calculateBuriedParts
  */
-function calculateBuriedParts(layout, partTypeCountMap, uniquePartTypeSet, haveRangeAttack) {
+function calculateBuriedParts(partTypeCountMap, uniquePartTypeSet) {
   const buriedParts = [];
   for (const part of uniquePartTypeSet) {
     switch (part) {
@@ -113,13 +114,10 @@ function calculateBuriedParts(layout, partTypeCountMap, uniquePartTypeSet, haveR
 /**
  * calculateFrontToughParts
  *
- * @param {CreepPartData} layout
  * @param {Map<string, number>}  partTypeCountMap
- * @param {Set<string>}  uniquePartTypeSet
- * @param {boolean} haveRangeAttack
  * @return {string[]} calculateFrontToughParts
  */
-function calculateFrontToughParts(layout, partTypeCountMap, uniquePartTypeSet, haveRangeAttack) {
+function calculateFrontToughParts(partTypeCountMap) {
   const frontToughParts = Array(partTypeCountMap.get(TOUGH)).fill(TOUGH);
   partTypeCountMap.set(TOUGH, 0);
   return frontToughParts;
@@ -128,13 +126,10 @@ function calculateFrontToughParts(layout, partTypeCountMap, uniquePartTypeSet, h
 /**
  * calculateMoveParts1
  *
- * @param {CreepPartData} layout
  * @param {Map<string, number>}  partTypeCountMap
- * @param {Set<string>}  uniquePartTypeSet
- * @param {boolean} haveRangeAttack
  * @return {string[]} calculateMoveParts1
  */
-function calculateMoveParts1(layout, partTypeCountMap, uniquePartTypeSet, haveRangeAttack) {
+function calculateMoveParts1(partTypeCountMap) {
   const movePartsTotal = partTypeCountMap.get(MOVE);
   const moveParts1MoveCount = movePartsTotal % 2 === 0 ? movePartsTotal / 2 : (movePartsTotal + 1) / 2;
   const moveParts1 = Array(moveParts1MoveCount).fill(MOVE);
@@ -145,13 +140,11 @@ function calculateMoveParts1(layout, partTypeCountMap, uniquePartTypeSet, haveRa
 /**
  * calculateMoveParts2
  *
- * @param {CreepPartData} layout
  * @param {Map<string, number>}  partTypeCountMap
- * @param {Set<string>}  uniquePartTypeSet
  * @param {boolean} haveRangeAttack
  * @return {string[]} calculateMoveParts2
  */
-function calculateMoveParts2(layout, partTypeCountMap, uniquePartTypeSet, haveRangeAttack) {
+function calculateMoveParts2(partTypeCountMap, haveRangeAttack) {
   let moveParts2;
   if (haveRangeAttack) {
     moveParts2 = [];
@@ -168,11 +161,10 @@ function calculateMoveParts2(layout, partTypeCountMap, uniquePartTypeSet, haveRa
  *
  * @param {CreepPartData} layout
  * @param {Map<string, number>}  partTypeCountMap
- * @param {Set<string>}  uniquePartTypeSet
  * @param {boolean} haveRangeAttack
  * @return {string[]} calculateCenterLayoutParts
  */
-function calculateCenterLayoutParts(layout, partTypeCountMap, uniquePartTypeSet, haveRangeAttack) {
+function calculateCenterLayoutParts(layout, partTypeCountMap, haveRangeAttack) {
   const centerLayoutParts = [];
   let stillLooping = true;
   while (stillLooping) {
@@ -195,13 +187,10 @@ function calculateCenterLayoutParts(layout, partTypeCountMap, uniquePartTypeSet,
 /**
  * calculateAdditionalParts
  *
- * @param {CreepPartData} layout
  * @param {Map<string, number>}  partTypeCountMap
- * @param {Set<string>}  uniquePartTypeSet
- * @param {boolean} haveRangeAttack
  * @return {string[]} calculateAdditionalParts
  */
-function calculateAdditionalParts(layout, partTypeCountMap, uniquePartTypeSet, haveRangeAttack) {
+function calculateAdditionalParts(partTypeCountMap) {
   const additionalParts = [];
   for (const entry of partTypeCountMap.entries()) {
     if (entry[1] > 0) {
