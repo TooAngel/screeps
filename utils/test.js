@@ -10,7 +10,7 @@ const controllerRooms = {};
 const status = {};
 let lastTick = 0;
 
-process.once('SIGINT', (code) => {
+process.once('SIGINT', () => {
   console.log('SIGINT received...');
   console.log(`${lastTick} End of simulation`);
   console.log('Status:');
@@ -33,7 +33,13 @@ for (const room of rooms) {
 
 let botsSpawned = false;
 
+/**
+ * Tester
+ */
 class Tester {
+  /**
+   * constructor
+   */
   constructor() {
     this.roomsSeen = {};
     this.maxRuntime = 0;
@@ -128,6 +134,9 @@ class Tester {
     return defer.promise;
   }
 
+  /**
+   * run
+   */
   async run() {
     const start = Date.now();
     await initServer();
@@ -167,11 +176,29 @@ const printCurrentStatus = function(gameTime) {
 };
 
 /**
+ * statusUpdaterSuccess
+ *
+ * @param {object} event
+ * @param {object} milestone
+ */
+function statusUpdaterSuccess(event, milestone) {
+  milestone.success = event.data.gameTime < milestone.tick;
+  milestone.tickReached = event.data.gameTime;
+  if (milestone.success) {
+    console.log('===============================');
+    console.log(`${event.data.gameTime} Milestone: Success ${JSON.stringify(milestone)}`);
+  } else {
+    console.log('===============================');
+    console.log(`${event.data.gameTime} Milestone: Reached too late ${JSON.stringify(milestone)}`);
+  }
+}
+
+/**
  * updates the stauts object
  *
  * @param {object} event
  */
-const statusUpdater = (event) => {
+function statusUpdater(event) {
   if (event.data.gameTime !== lastTick) {
     lastTick = event.data.gameTime;
     if (event.data.gameTime % 300 === 0) {
@@ -191,15 +218,7 @@ const statusUpdater = (event) => {
           }
         }
         if (success) {
-          milestone.success = event.data.gameTime < milestone.tick;
-          milestone.tickReached = event.data.gameTime;
-          if (milestone.success) {
-            console.log('===============================');
-            console.log(`${event.data.gameTime} Milestone: Success ${JSON.stringify(milestone)}`);
-          } else {
-            console.log('===============================');
-            console.log(`${event.data.gameTime} Milestone: Reached too late ${JSON.stringify(milestone)}`);
-          }
+          statusUpdaterSuccess(event, milestone);
         }
       }
 
@@ -222,7 +241,7 @@ const statusUpdater = (event) => {
     helpers.updateStructures(event, status);
     helpers.updateController(event, status, controllerRooms);
   }
-};
+}
 
 /**
  * main method

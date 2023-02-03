@@ -29,7 +29,6 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-screeps');
   grunt.loadNpmTasks('grunt-mocha-test');
-  grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-sync');
@@ -83,17 +82,6 @@ module.exports = function(grunt) {
     },
     mochaTest: {
       src: ['test/**/*.js'],
-    },
-    eslint: {
-      check: {
-        src: 'src/*.js',
-      },
-      fix: {
-        src: ['src/*.js', 'test/*.js', 'utils/*.js'],
-        options: {
-          fix: true,
-        },
-      },
     },
     clean: ['dist/'],
     uglify: {
@@ -253,13 +241,12 @@ module.exports = function(grunt) {
   });
 
   grunt.log.writeln(new Date().toString());
-  grunt.registerTask('default', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:main']);
-  grunt.registerTask('release', ['eslint:fix', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
-  grunt.registerTask('local', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
-  grunt.registerTask('test', ['eslint:check', 'mochaTest', 'exec:test_on_private_server']);
+  grunt.registerTask('default', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:main']);
+  grunt.registerTask('release', ['clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
+  grunt.registerTask('local', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
+  grunt.registerTask('test', ['mochaTest', 'exec:test_on_private_server']);
   grunt.registerTask('test_no_server', ['eslint:check', 'mochaTest']);
-  grunt.registerTask('dev', ['eslint:fix']);
-  grunt.registerTask('screeps_local', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:local']);
+  grunt.registerTask('screeps_local', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:local']);
   grunt.registerTask('deploy', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:main']);
   grunt.registerTask('season', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:season']);
   grunt.registerTask('requireFile', 'Creates an empty file', () => {

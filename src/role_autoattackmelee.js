@@ -18,7 +18,7 @@ roles.autoattackmelee.died = function(name) {
   brain.main.cleanUpDyingCreep(name);
 };
 
-roles.autoattackmelee.preMove = function(creep, directions) {
+roles.autoattackmelee.preMove = function(creep) {
   creep.creepLog('!!!!!!!!!!!!!!!! Auto Attacking');
 };
 

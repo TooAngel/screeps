@@ -10,6 +10,11 @@ const dir = 'tmp-test-server';
 const port = 21025;
 let hostname = '127.0.0.1';
 
+/**
+ * setHostname
+ *
+ * @param {string} newHostname
+ */
 function setHostname(newHostname) {
   hostname = newHostname;
 }
@@ -46,7 +51,7 @@ async function followLog(rooms, logConsole, statusUpdater, restrictToRoom) {
 
     await api.socket.connect();
     api.socket.on('connected', ()=> {});
-    api.socket.on('auth', (event)=> {});
+    api.socket.on('auth', ()=> {});
     await api.socket.subscribe('console', logConsole(room));
     await api.socket.subscribe('room:' + room, statusUpdater);
   }
@@ -98,13 +103,16 @@ function sleep(seconds) {
 
 module.exports.sleep = sleep;
 
+/**
+ * initServer
+ */
 async function initServer() {
   if (fs.existsSync(dir)) {
     rimraf.sync(dir);
   }
   fs.mkdirSync(dir, '0744');
   await new Promise(((resolve) => {
-    ncp(path.resolve(__dirname, '../node_modules/@screeps/launcher/init_dist'), dir, (e) => {
+    ncp(path.resolve(__dirname, '../node_modules/@screeps/launcher/init_dist'), dir, () => {
       resolve();
     });
   }));
