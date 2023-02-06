@@ -1,7 +1,7 @@
 {
   "name": "screeps-bot-tooangel",
   "version": "1.4.4",
-  "description": "",
+  "description": "TooAngel NPC / bot / source code for screeps",
   "main": "src/main.js",
   "screeps_bot": true,
   "devDependencies": {
@@ -9,7 +9,7 @@
     "eslint": "8.33.0",
     "eslint-config-google": "0.14.0",
     "eslint-plugin-screeps": "2.1.0",
-    "grunt": "1.5.3",
+    "grunt": "1.6.1",
     "grunt-contrib-clean": "2.0.1",
     "grunt-contrib-copy": "1.0.0",
     "grunt-contrib-uglify": "5.2.2",
@@ -86,7 +86,7 @@
       ],
       "max-statements": [
         "error",
-        62
+        45
       ],
       "accessor-pairs": "error",
       "no-alert": "error",

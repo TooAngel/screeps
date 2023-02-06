@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/TooAngel/screeps.svg?style=svg)](https://circleci.com/gh/TooAngel/screeps)
 [![npm version](https://badge.fury.io/js/screeps-bot-tooangel.svg)](https://badge.fury.io/js/screeps-bot-tooangel)
-<!-- [![discord](https://www.worlddriven.org/static/images/Discord-Logo-Black.png)](https://discord.gg/RrGFHKb) -->
+[![discord](https://www.worlddriven.org/static/images/Discord-Logo-Black.png)](https://discord.gg/RrGFHKb)
 
 https://screeps.com/
 
