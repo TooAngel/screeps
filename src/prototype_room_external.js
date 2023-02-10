@@ -530,6 +530,20 @@ function filterReservedBy(roomName) {
   };
 }
 
+Room.prototype.handleUnreservedRoomWithReservation = function() {
+  this.debugLog('reserver', 'handleUnreservedRoom reserved room');
+  const reservation = this.data.reservation;
+  if (this.name === reservation.base) {
+    this.log('Want to spawn reserver for the base room, why?');
+    delete this.data.reservation;
+    return false;
+  }
+  this.data.state = 'Reserved';
+  this.checkAndSpawnReserver();
+  this.checkSourcer();
+  return true;
+};
+
 Room.prototype.handleUnreservedRoom = function() {
   if (this.isRoomRecentlyChecked()) {
     return false;
@@ -538,17 +552,7 @@ Room.prototype.handleUnreservedRoom = function() {
   this.debugLog('reserver', 'handleUnreservedRoom');
 
   if (this.data.reservation) {
-    this.debugLog('reserver', 'handleUnreservedRoom reserved room');
-    const reservation = this.data.reservation;
-    if (this.name === reservation.base) {
-      this.log('Want to spawn reserver for the base room, why?');
-      delete this.data.reservation;
-      return false;
-    }
-    this.data.state = 'Reserved';
-    this.checkAndSpawnReserver();
-    this.checkSourcer();
-    return true;
+    return this.handleUnreservedRoomWithReservation();
   }
 
   for (const roomName of findMyRoomsSortByDistance(this.name)) {

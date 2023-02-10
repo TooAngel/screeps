@@ -3,11 +3,10 @@
 All kind of contribution is welcome, issues, contact via channels, pull requests.
 
 This repository uses
-[democratic collaboration](https://github.com/TooAngel/democratic-collaboration)
+[world driven](https://www.worlddriven.org/)
 for automatic merging.
 
 Pull requests needs to be send to the master, all checks needs to be good green.
-Prefixing the tile with `[WIP] ` prevents the automatic merge.
 The automatic merge is time based depending on github review workflow outcome.
 
  - `Request changes` reduces the outcome.
