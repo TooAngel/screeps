@@ -61,14 +61,20 @@ Room.prototype.isCenterRoom = function() {
   return false;
 };
 
-Room.prototype.checkForQuest = function() {
-  if (Game.time - this.data.lastSeen < config.quests.checkInterval) {
+/**
+ * isQuestValid
+ *
+ * @param {object} room
+ * @return {boolean}
+ */
+function isQuestValid(room) {
+  if (Game.time - room.data.lastSeen < config.quests.checkInterval) {
     return;
   }
   if (haveActiveQuest()) {
     return;
   }
-  const sign = this.controller.sign;
+  const sign = room.controller.sign;
   if (!sign) {
     return;
   }
@@ -76,7 +82,15 @@ Room.prototype.checkForQuest = function() {
   if (sign.username === Memory.username) {
     return;
   }
+  return true;
+}
 
+Room.prototype.checkForQuest = function() {
+  if (!isQuestValid(this)) {
+    return;
+  }
+
+  const sign = this.controller.sign;
   let data;
   try {
     data = JSON.parse(sign.text);

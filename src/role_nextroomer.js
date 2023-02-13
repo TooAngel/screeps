@@ -204,22 +204,40 @@ const handleTower = function(creep) {
   }
 };
 
-roles.nextroomer.settle = function(creep) {
-  creep.creepLog('settle');
-  const room = Game.rooms[creep.room.name];
+
+/**
+ * handleHostile
+ *
+ * @param {object} creep
+ * @param {object} room
+ * @return {boolean}
+ */
+function handleHostile(creep, room) {
   const hostileCreeps = room.find(FIND_HOSTILE_CREEPS, {
     filter: (creep) => (!room.controller.safeMode || creep.ticksToLive > room.controller.safeMode) && !brain.isFriend(creep.owner.username),
   });
-  if (hostileCreeps.length) {
-    room.memory.underSiege = true;
-    if (creep.room.controller.level === 1 ||
-        creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 ||
-        (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] && creep.pos.getRangeTo(creep.room.controller.pos) <= 3)
-    ) {
-      const methods = [Creep.getEnergy, Creep.upgradeControllerTask];
-      return Creep.execute(creep, methods);
-    }
+  if (!hostileCreeps.length) {
+    return;
   }
+  room.memory.underSiege = true;
+  if (creep.room.controller.level === 1 ||
+    creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 ||
+    (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] && creep.pos.getRangeTo(creep.room.controller.pos) <= 3)
+  ) {
+    const methods = [Creep.getEnergy, Creep.upgradeControllerTask];
+    return Creep.execute(creep, methods);
+  }
+}
+
+roles.nextroomer.settle = function(creep) {
+  creep.creepLog('settle');
+  const room = Game.rooms[creep.room.name];
+
+  const handledHostiles = handleHostile(creep, room);
+  if (handledHostiles) {
+    return handledHostiles;
+  }
+
   room.memory.wayBlocked = false;
   if (room.memory.underSiege && room.controller && room.controller.level >= 3) {
     creep.log('underSiege: ' + room.memory.attackTimer);
