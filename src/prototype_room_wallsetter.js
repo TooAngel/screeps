@@ -155,22 +155,6 @@ function isWallPlaceable(pos) {
 }
 
 /**
- * getWayFound
- *
- * @param {array} targets
- * @param {object} posLastObject
- * @return {boolean}
- */
-function getWayFound(targets, posLastObject) {
-  for (const target of targets) {
-    if (posLastObject.getRangeTo(target) === 1) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
  * layerFinished
  *
  * @param {object} room
@@ -186,6 +170,31 @@ function layerFinished(room) {
   return true;
 }
 
+/**
+ * getPath
+ *
+ * @param {object} room
+ * @param {array} exits
+ * @return {array | undefined}
+ */
+function getPath(room, exits ) {
+  const exit = exits[room.memory.walls.exit_i];
+  const targets = getTargets(room);
+  const {path, incomplete} = PathFinder.search(
+    exit,
+    targets, {
+      roomCallback: callbackCloseExitsByPath(room),
+      maxRooms: 1,
+    },
+  );
+
+  if (incomplete) {
+    room.memory.walls.exit_i++;
+    return;
+  }
+  return path;
+}
+
 Room.prototype.closeExitsByPath = function() {
   if (this.memory.walls && this.memory.walls.finished) {
     return false;
@@ -198,32 +207,10 @@ Room.prototype.closeExitsByPath = function() {
     return layerFinished(this);
   }
 
-  const exit = exits[this.memory.walls.exit_i];
-  const targets = getTargets(this);
-  const search = PathFinder.search(
-    exit,
-    targets, {
-      roomCallback: callbackCloseExitsByPath(this),
-      maxRooms: 1,
-    },
-  );
-
-  if (search.incomplete) {
-    this.memory.walls.exit_i++;
+  const path = getPath(this, exits);
+  if (!path) {
     return true;
   }
-
-  const path = search.path;
-  const posLast = path[path.length - 1];
-  const posLastObject = new RoomPosition(posLast.x, posLast.y, this.name);
-
-  // TODO check if incomplete just solves the issue
-  const wayFound = getWayFound(targets, posLastObject);
-  if (!wayFound) {
-    this.memory.walls.exit_i++;
-    return true;
-  }
-
   for (const pathPosPlain of path) {
     const pathPos = new RoomPosition(pathPosPlain.x, pathPosPlain.y, this.name);
     if (isWallPlaceable(pathPos)) {

@@ -194,6 +194,33 @@ function statusUpdaterSuccess(event, milestone) {
 }
 
 /**
+ * checkMilestone
+ *
+ * @param {object} event
+ * @param {object} milestone
+ * @return {list}
+ */
+function checkMilestone(event, milestone) {
+  const failedRooms = [];
+  if (typeof milestone.success === 'undefined' || milestone.success === null) {
+    let success = Object.keys(status).length === Object.keys(players).length;
+    for (const room of Object.keys(status)) {
+      for (const key of Object.keys(milestone.check)) {
+        if (status[room][key] < milestone.check[key]) {
+          success = false;
+          failedRooms.push(room);
+          break;
+        }
+      }
+    }
+    if (success) {
+      statusUpdaterSuccess(event, milestone);
+    }
+  }
+  return failedRooms;
+}
+
+/**
  * updates the stauts object
  *
  * @param {object} event
@@ -205,22 +232,7 @@ function statusUpdater(event) {
       printCurrentStatus(event.data.gameTime);
     }
     for (const milestone of milestones) {
-      const failedRooms = [];
-      if (typeof milestone.success === 'undefined' || milestone.success === null) {
-        let success = Object.keys(status).length === Object.keys(players).length;
-        for (const room of Object.keys(status)) {
-          for (const key of Object.keys(milestone.check)) {
-            if (status[room][key] < milestone.check[key]) {
-              success = false;
-              failedRooms.push(room);
-              break;
-            }
-          }
-        }
-        if (success) {
-          statusUpdaterSuccess(event, milestone);
-        }
-      }
+      const failedRooms = checkMilestone(event, milestone);
 
       if (milestone.success) {
         continue;

@@ -139,30 +139,39 @@ Room.prototype.getMyExitTo = function(room) {
   return new RoomPosition(nextExit.x, nextExit.y, this.name);
 };
 
-Room.prototype.getMatrixCallback = function(end) {
-  // TODO cache?!
-  const callback = function(roomName) {
-    // console.log('getMatrixCallback', this);
-    const room = Game.rooms[roomName];
-    const costMatrix = new PathFinder.CostMatrix();
-    // Previous Source Keeper where also excluded?
 
-    const sources = room.find(FIND_SOURCES, {
-      filter: function(object) {
-        return !end || object.pos.x !== end.x || object.pos.y !== end.y;
-      },
-    });
-
-    for (const source of sources) {
-      for (let x = -1; x < 2; x++) {
-        for (let y = -1; y < 2; y++) {
-          if (end && source.pos.x + x === end.x && source.pos.y + y !== end.y) {
-            continue;
-          }
-          costMatrix.set(source.pos.x + x, source.pos.y + y, 0xff);
+/**
+ * setSources
+ *
+ * @param {object} costMatrix
+ * @param {object} room
+ * @param {object} end
+ */
+function setSources(costMatrix, room, end) {
+  const sources = room.find(FIND_SOURCES, {
+    filter: (object) => {
+      return !end || object.pos.x !== end.x || object.pos.y !== end.y;
+    },
+  });
+  for (const source of sources) {
+    for (let x = -1; x < 2; x++) {
+      for (let y = -1; y < 2; y++) {
+        if (end && source.pos.x + x === end.x && source.pos.y + y !== end.y) {
+          continue;
         }
+        costMatrix.set(source.pos.x + x, source.pos.y + y, 0xff);
       }
     }
+  }
+}
+
+Room.prototype.getMatrixCallback = function(end) {
+  // TODO cache?!
+  const callback = (roomName) => {
+    const room = Game.rooms[roomName];
+    const costMatrix = new PathFinder.CostMatrix();
+
+    setSources(costMatrix, room, end);
 
     if (room.controller) {
       for (let x = -1; x < 2; x++) {

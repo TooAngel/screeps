@@ -6,7 +6,7 @@
   "screeps_bot": true,
   "devDependencies": {
     "chai": "4.3.7",
-    "eslint": "8.33.0",
+    "eslint": "8.34.0",
     "eslint-config-google": "0.14.0",
     "eslint-plugin-screeps": "2.1.0",
     "grunt": "1.6.1",
@@ -86,7 +86,7 @@
       ],
       "max-statements": [
         "error",
-        45
+        40
       ],
       "accessor-pairs": "error",
       "no-alert": "error",

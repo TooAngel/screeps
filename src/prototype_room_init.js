@@ -486,12 +486,10 @@ Room.prototype.setup = function() {
   }
   this.memory.setup = this.memory.setup || {steps: {}};
 
-  if (!this.stepExecute(this.cleanupMemory, 'cleanupMemory')) {
-    return false;
-  }
-
-  if (!this.stepExecute(this.updatePosition, 'updatePosition')) {
-    return false;
+  for (const step of ['cleanupMemory', 'updatePosition']) {
+    if (!this.stepExecute(this[step], step)) {
+      return false;
+    }
   }
 
   if (!this.controller) {
@@ -510,17 +508,12 @@ Room.prototype.setup = function() {
     return false;
   }
 
-  if (!this.stepExecute(this.addTerminal, 'addTerminal')) {
-    return false;
+  for (const step of ['addTerminal', 'setupStructures', 'checkForMisplacedSpawn']) {
+    if (!this.stepExecute(this[step], step)) {
+      return false;
+    }
   }
 
-  if (!this.stepExecute(this.setupStructures, 'setupStructures')) {
-    return false;
-  }
-
-  if (!this.stepExecute(this.checkForMisplacedSpawn, 'checkForMisplacedSpawn')) {
-    return false;
-  }
   this.setupFinalize();
   return true;
 };
