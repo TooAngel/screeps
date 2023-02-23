@@ -2,7 +2,12 @@
 
 const {debugLog} = require('./logging');
 
-brain.setConstructionSites = function() {
+/**
+ * setConstructionSites
+ *
+ * Stores current construction sites and checks if they are too old and removes them.
+ */
+function setConstructionSites() {
   if (!Memory.constructionSites) {
     Memory.constructionSites = {};
   }
@@ -26,14 +31,26 @@ brain.setConstructionSites = function() {
     Memory.constructionSites = constructionSites;
     debugLog('constructionSites', `Known constructionSites: ${Object.keys(constructionSites).length}`);
   }
-};
+}
 
-brain.addToStats = function(name) {
+/**
+ * addToStats
+ *
+ * @param {string} name
+ */
+function addToStats(name) {
   const role = Memory.creeps[name].role;
   brain.stats.modifyRoleAmount(role, -1);
-};
+}
 
-brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
+/**
+ * handleUnexpectedDeadCreeps
+ *
+ * @param {string} name
+ * @param {object} creepMemory
+ * @return {void}
+ */
+function handleUnexpectedDeadCreeps(name, creepMemory) {
   let data = {};
   if (creepMemory.room) {
     data = global.data.rooms[creepMemory.room];
@@ -73,9 +90,14 @@ brain.handleUnexpectedDeadCreeps = function(name, creepMemory) {
     delete Memory.creeps[name];
     delete global.data.creeps[name];
   }
-};
+}
 
-brain.cleanCreeps = function() {
+/**
+ * cleanCreeps
+ *
+ * @return {void}
+ */
+function cleanCreeps() {
   // Cleanup memory
   if (!Memory.creeps) {
     return;
@@ -85,7 +107,7 @@ brain.cleanCreeps = function() {
       continue;
     }
 
-    brain.addToStats(name);
+    addToStats(name);
     if ((name.startsWith('reserver') && Memory.creeps[name].born < (Game.time - CREEP_CLAIM_LIFE_TIME)) ||
         (name.startsWith('claimer') && Memory.creeps[name].born < (Game.time - CREEP_CLAIM_LIFE_TIME)) ||
         Memory.creeps[name].born < (Game.time - CREEP_LIFE_TIME)) {
@@ -107,11 +129,16 @@ brain.cleanCreeps = function() {
       continue;
     }
 
-    brain.handleUnexpectedDeadCreeps(name, creepMemory);
+    handleUnexpectedDeadCreeps(name, creepMemory);
   }
-};
+}
 
-brain.cleanSquads = function() {
+/**
+ * cleanSquads
+ *
+ * Removes old squads from memory
+ */
+function cleanSquads() {
   if (Game.time % 1500 === 0) {
     for (const squadId of Object.keys(Memory.squads)) {
       const squad = Memory.squads[squadId];
@@ -121,9 +148,14 @@ brain.cleanSquads = function() {
       }
     }
   }
-};
+}
 
-brain.cleanRooms = function() {
+/**
+ * cleanRooms
+ *
+ * Deletes old rooms from Memory
+ */
+function cleanRooms() {
   if (Game.time % 300 === 0) {
     for (const name of Object.keys(Memory.rooms)) {
       // TODO lastSeen moved to global.data - so we should check this, also Memory.rooms should only exist for myRooms
@@ -142,9 +174,15 @@ brain.cleanRooms = function() {
       }
     }
   }
-};
+}
 
-brain.getStorageStringForRoom = function(strings, room) {
+/**
+ * getStorageStringForRoom
+ *
+ * @param {object} strings
+ * @param {object} room
+ */
+function getStorageStringForRoom(strings, room) {
   const addToString = function(variable, name, value) {
     strings[variable] += name + ':' + value + ' ';
   };
@@ -159,9 +197,14 @@ brain.getStorageStringForRoom = function(strings, room) {
   if (room.storage.store[RESOURCE_POWER] && room.storage.store[RESOURCE_POWER] > 0) {
     addToString('storagePower', room.name, room.storage.store[RESOURCE_POWER]);
   }
-};
+}
 
-brain.printSummary = function() {
+/**
+ * printSummary
+ *
+ * @return {void}
+ */
+function printSummary() {
   const interval = 100;
   if (Game.time % interval !== 0) {
     return;
@@ -183,7 +226,7 @@ brain.printSummary = function() {
       strings.storageNoString += name + ' ';
       continue;
     }
-    brain.getStorageStringForRoom(strings, room);
+    getStorageStringForRoom(strings, room);
   }
   Memory.summary = strings;
 
@@ -200,54 +243,19 @@ Power storage: ${strings.storagePower}
 -------------------------
 Upgrade less: ${strings.upgradeLess}
 =========================`);
-};
+}
 
-brain.executeEveryTicks = function(ticks) {
-  const timer = (ticks > 3000) ? Game.time - Memory.time + 1 : 0;
-  return (timer > 1) ? (Game.time % ticks) < timer : (Game.time % ticks) === 0;
-};
-
-brain.setDynamicConfigInternal = function() {
-  Memory.dynamicConfig = Memory.dynamicConfig || {};
-  Memory.dynamicConfig.nextRoom = Memory.dynamicConfig.nextRoom || {};
-  Memory.dynamicConfig.nextRoom.maxRooms = Math.min(config.nextRoom.maxRooms, Game.gcl.level);
-};
-
-brain.setDynamicConfigInternal();
-
-brain.setDynamicConfig = function() {
-  if (!this.executeEveryTicks(1000)) {
-    return false;
-  }
-  this.setDynamicConfigInternal();
-};
-
-brain.prepareMemory = function() {
+module.exports.prepareMemory = function() {
   Memory.username = Memory.username || _.chain(Game.rooms).map('controller').flatten().filter('my').map('owner.username').first().value();
   Memory.myRooms = Memory.myRooms || [];
   Memory.squads = Memory.squads || {};
   Memory.skippedRooms = [];
-  brain.setDynamicConfig();
   brain.setMarketOrders();
-  brain.setConstructionSites();
-  brain.cleanCreeps();
-  brain.cleanSquads();
-  brain.cleanRooms();
+  setConstructionSites();
+  cleanCreeps();
+  cleanSquads();
+  cleanRooms();
   if (config.stats.summary) {
-    brain.printSummary();
+    printSummary();
   }
-};
-
-brain.cleanAllMemory = function() {
-  const keys = _.map(_.keys(Memory), (value, key) => {
-    if (key !== 'players') {
-      delete Memory[key];
-    }
-    return key;
-  });
-
-  const rooms = _.map(Game.rooms, (room) => {
-    return room.clearMemory();
-  });
-  console.log(Game.time, 'wiped memory for rooms ', rooms, ' and ', keys);
 };

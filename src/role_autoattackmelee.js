@@ -1,5 +1,7 @@
 'use strict';
 
+const {cleanUpDyingCreep} = require('./brain_main');
+
 /*
  * autoattackmelee is the first wave of auto attacks
  *
@@ -15,7 +17,7 @@ roles.autoattackmelee.settings = {
 };
 
 roles.autoattackmelee.died = function(name) {
-  brain.main.cleanUpDyingCreep(name);
+  cleanUpDyingCreep(name);
 };
 
 roles.autoattackmelee.preMove = function(creep) {

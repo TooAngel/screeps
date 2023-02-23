@@ -100,7 +100,11 @@ function haveEnoughSystemResources() {
       return false;
     }
   } else {
-    if (Memory.myRooms.length >= Memory.dynamicConfig.nextRoom.maxRooms) {
+    if (Memory.myRooms.length >= Game.gcl.level) {
+      return false;
+    }
+
+    if (Memory.myRooms.length >= config.nextRoom.maxRooms) {
       return false;
     }
 

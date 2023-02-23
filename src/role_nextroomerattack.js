@@ -1,5 +1,7 @@
 'use strict';
 
+const {cleanUpDyingCreep} = require('./brain_main');
+
 /*
  * nextroomerattack is called if the route to the room to revive is blocked
  *
@@ -15,7 +17,7 @@ roles.nextroomerattack.settings = {
 };
 
 roles.nextroomerattack.died = function(name) {
-  brain.main.cleanUpDyingCreep(name);
+  cleanUpDyingCreep(name);
 };
 
 roles.nextroomerattack.action = function(creep) {

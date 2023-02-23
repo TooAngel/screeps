@@ -9,6 +9,8 @@ require('./prototype_room_costmatrix');
 require('./visualizer');
 require('./screepsplus');
 
+const {initProfiler, execute} = require('./brain_main');
+
 global.tickLimit = global.cpuLimit();
 global.load = Math.round(Game.cpu.getUsed());
 
@@ -25,16 +27,16 @@ global.data.stats = global.data.stats || {
 console.log(`${Game.time} Script reload - Load: ${global.load} tickLimit: ${Game.cpu.tickLimit} limit: ${Game.cpu.limit} Bucket: ${Game.cpu.bucket}`);
 
 brain.stats.init();
-brain.main.profilerInit();
+initProfiler();
 
 module.exports.loop = function() {
   if (config.main.enabled) {
     if (config.profiler.enabled) {
       global.profiler.wrap(() => {
-        brain.main.execute();
+        execute();
       });
     } else {
-      brain.main.execute();
+      execute();
     }
   }
   if (global.config.pixel.enabled) {
