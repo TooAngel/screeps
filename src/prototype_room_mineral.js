@@ -222,12 +222,27 @@ Room.prototype.handleTerminal = function() {
   return true;
 };
 
+Room.prototype.cleanupNotEnoughResources = function() {
+  if (!this.memory.reaction) {
+    return false;
+  }
+  const lab1 = Game.getObjectById(this.memory.reaction.labs[1]);
+  const lab2 = Game.getObjectById(this.memory.reaction.labs[2]);
+  const mineralCreep = this.findMyCreepsOfRole('mineral').length ? this.findMyCreepsOfRole('mineral')[0] : false;
+  if (mineralCreep && this.memory.reaction && this.memory.reaction.result) {
+    if (!mineralCreep.checkLabEnoughMineral(lab1, this.memory.reaction.result.first) || !mineralCreep.checkLabEnoughMineral(lab2, this.memory.reaction.result.second)) {
+      roles.mineral.cleanUpLabs(mineralCreep);
+    }
+  }
+  return true;
+};
+
 Room.prototype.handleReaction = function() {
   if (!this.memory.reaction) {
     return false;
   }
 
-  let labsToReact = this.findStructuresOfStructureType(STRUCTURE_LAB).filter((lab) => {
+  const labsToReact = this.findStructuresOfStructureType(STRUCTURE_LAB).filter((lab) => {
     if (lab.store[this.memory.reaction.result.first] > 0 || lab.store[this.memory.reaction.result.second] > 0) {
       return false;
     }
@@ -237,15 +252,6 @@ Room.prototype.handleReaction = function() {
   if (labsToReact.length === 0) {
     return false;
   }
-
-  const mineralCreep = this.findMyCreepsOfRole('mineral').length ? this.findMyCreepsOfRole('mineral')[0] : false;
-  const cleanupNotEnoughResources = () => {
-    if (mineralCreep && this.memory.reaction && this.memory.reaction.result) {
-      if (!mineralCreep.checkLabEnoughMineral(lab1, this.memory.reaction.result.first) || !mineralCreep.checkLabEnoughMineral(lab2, this.memory.reaction.result.second)) {
-        roles.mineral.cleanUpLabs(mineralCreep);
-      }
-    }
-  };
 
   const lab0 = Game.getObjectById(this.memory.reaction.labs[0]);
   const lab1 = Game.getObjectById(this.memory.reaction.labs[1]);
@@ -265,7 +271,7 @@ Room.prototype.handleReaction = function() {
         }
         const returnCode = lab0.runReaction(lab1, lab2);
         if (returnCode === ERR_NOT_ENOUGH_RESOURCES) {
-          cleanupNotEnoughResources();
+          this.cleanupNotEnoughResources();
           return 'ERR_NOT_ENOUGH_RESOURCES';
         }
         if (returnCode === ERR_NOT_IN_RANGE) {
@@ -280,19 +286,22 @@ Room.prototype.handleReaction = function() {
     }).reduce((a, t) => a || t, false);
 
     if (this.memory.reaction && this.memory.reaction.result) {
-      labsToReact = labsToReact.filter((s) => s.cooldown === 0 && s.store[this.memory.reaction.result.result]);
+      const resultLab = labsToReact.filter((s) => s.cooldown === 0 && s.store[this.memory.reaction.result.result]);
       if (config.debug.mineral && typeof labsToReactResponse !== 'undefined' && labsToReactResponse !== false && labsToReact.length > 1) {
-        this.log(this.memory.reaction.result.result, labsToReactResponse, labsToReact);
+        this.debugLog(this.memory.reaction.result.result, labsToReactResponse, resultLab);
       }
     }
+    this.checkMineralToSpawn();
+  }
+};
 
-    if (Game.time % 150 && this.isRoomReadyForMineralHandling()) {
-      let amount = 1;
-      // room has a lot energy in terminal; move energy to storage
-      if (this.getEnergy() * 0.7 <= this.terminal.store.getUsedCapacity(RESOURCE_ENERGY)) {
-        amount = 2;
-      }
-      this.checkRoleToSpawn('mineral', amount);
+Room.prototype.checkMineralToSpawn = function() {
+  if (Game.time % 150 && this.isRoomReadyForMineralHandling()) {
+    let amount = 1;
+    // room has a lot energy in terminal; move energy to storage
+    if (this.getEnergy() * 0.7 <= this.terminal.store.getUsedCapacity(RESOURCE_ENERGY)) {
+      amount = 2;
     }
+    this.checkRoleToSpawn('mineral', amount);
   }
 };
