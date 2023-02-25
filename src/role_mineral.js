@@ -146,6 +146,9 @@ const handleWithdrawResponse = function(creep, target, resource, amount, returnC
   }
   creep.log('get: ' + returnCode + ' target: ' + target + ' resource: ' + resource + ' amount: ' + amount);
   creep.log(target.mineralAmount + ' ' + (creep.carryCapacity - _.sum(creep.carry)));
+  delete creep.data.mode;
+  delete creep.data.state;
+  return false;
 };
 
 
@@ -155,11 +158,11 @@ const handleWithdrawResponse = function(creep, target, resource, amount, returnC
  * @param {object} creep - The creep to interact with.
  * @param {object} target - The target to get the resource from.
  * @param {string} resource - The resource to get.
- * @return {boolean|void} If it was an success
+ * @return {boolean} If it was an success
  */
 function get(creep, target, resource) {
   if (getFullCapacity(creep, target, resource)) {
-    return;
+    return false;
   }
 
   if (creep.carry[resource]) {
@@ -167,7 +170,7 @@ function get(creep, target, resource) {
       creep.log('next state already carrying' + target);
     }
     nextState(creep);
-    return;
+    return false;
   }
 
   if (target instanceof StructureTerminal && !target.store[resource]) {
@@ -175,7 +178,7 @@ function get(creep, target, resource) {
       creep.log('next state terminal no resource' + target);
     }
     nextState(creep);
-    return;
+    return false;
   }
 
   if (target instanceof StructureLab && target.mineralAmount === 0) {
@@ -183,7 +186,7 @@ function get(creep, target, resource) {
       creep.log('next state lab no mineral' + target);
     }
     nextState(creep);
-    return;
+    return false;
   }
 
   const amount = getAmount(creep, target, resource);
@@ -193,7 +196,7 @@ function get(creep, target, resource) {
       creep.log('next state no amount' + target);
     }
     nextState(creep);
-    return;
+    return false;
   }
 
   const returnCode = creep.withdraw(target, resource, amount);
@@ -207,7 +210,7 @@ function get(creep, target, resource) {
  * @param {object} creep - The creep to interact with.
  * @param {object} target - The target to transfer the resource to.
  * @param {string} resource - The resource to transfer.
- * @return {boolean|void} If it was an success
+ * @return {boolean} If it was an success
  */
 function transfer(creep, target, resource) {
   if (target instanceof StructureTerminal) {
@@ -224,39 +227,44 @@ function transfer(creep, target, resource) {
 
   if (!creep.carry[resource]) {
     nextState(creep);
-    return;
+    return false;
   }
 
   const returnCode = creep.transfer(target, resource);
   if (returnCode === OK) {
     nextState(creep);
-    return;
+    return false;
   }
   if (returnCode === ERR_FULL) {
     nextState(creep);
-    return;
+    return false;
   }
   if (returnCode === ERR_NOT_IN_RANGE) {
-    return;
+    return false;
   }
   creep.log('Transfer to: ' + target + 'failed with: ' + returnCode);
+  if (returnCode === ERR_INVALID_TARGET) {
+    delete creep.data.mode;
+    delete creep.data.state;
+  }
+  return false;
 }
 
 
 /**
- * checkForSuicide
+ * checkForRecycle
  *
  * @param {object} creep
  * @return {boolean}
  */
-function checkForSuicide(creep) {
+function checkForRecycle(creep) {
   if (!creep.room.terminal) {
-    creep.suicide();
+    creep.memory.recycle = true;
     return true;
   }
   if (creep.ticksToLive < 50 && _.sum(creep.carry) === 0) {
     // early suicide to not waste minerals
-    creep.suicide();
+    creep.memory.recycle = true;
     return true;
   }
   return false;
@@ -268,7 +276,7 @@ function checkForSuicide(creep) {
  * @param {object} creep - The creep to handle.
  * @return {boolean} If a lab was found.
  */
-function cleanUpLabs(creep) {
+roles.mineral.cleanUpLabs = function(creep) {
   creep.say('cleanup');
   creep.memory.cleanup = creep.memory.cleanup || 0;
   // if 2 / 3 of the creep live time is cleanup stop spawning them for 10000 ticks
@@ -300,33 +308,6 @@ function cleanUpLabs(creep) {
     }
     creep.moveToMy(lab.pos);
     creep.withdraw(lab, lab.mineralType);
-  }
-}
-
-
-const handleReactions = function(creep, room) {
-  const lab0 = Game.getObjectById(room.memory.reaction.labs[0]);
-  const lab1 = Game.getObjectById(room.memory.reaction.labs[1]);
-  const lab2 = Game.getObjectById(room.memory.reaction.labs[2]);
-
-  if (lab0 === null || lab1 === null || lab2 === null) {
-    delete room.memory.reaction;
-  } else {
-    if (lab0.cooldown === 0) {
-      const returnCode = lab0.runReaction(lab1, lab2);
-      if (returnCode === ERR_NOT_ENOUGH_RESOURCES) {
-        if (!creep.checkLabEnoughMineral(lab1, room.memory.reaction.result.first) || !creep.checkLabEnoughMineral(lab2, room.memory.reaction.result.second)) {
-          cleanUpLabs(creep);
-        }
-      }
-    }
-  }
-  if (lab0.mineralAmount > lab0.mineralCapacity - 100 && room.memory.reaction) {
-    room.memory.fullLab = 1;
-  }
-
-  if (lab0.mineralAmount < 100) {
-    room.memory.fullLab = 0;
   }
 };
 
@@ -485,15 +466,11 @@ function checkNuke(creep) {
 }
 
 const execute = function(creep) {
-  if (checkForSuicide(creep)) {
-    return true;
+  if (checkForRecycle(creep)) {
+    return false;
   }
 
   const room = Game.rooms[creep.room.name];
-
-  if (room.memory.reaction) {
-    handleReactions(creep, room);
-  }
 
   updateStateWithFullLab(creep);
 
@@ -510,7 +487,9 @@ const execute = function(creep) {
   creep.memory.state = creep.memory.state || 0;
 
   if (!room.memory.reaction) {
-    cleanUpLabs(creep);
+    creep.say('cleanUpLabs');
+    roles.mineral.cleanUpLabs(creep);
+    creep.room.reactionsWithoutReaction();
     return true;
   }
 
@@ -522,7 +501,7 @@ const execute = function(creep) {
   } else if (state.destination === STRUCTURE_STORAGE) {
     target = creep.room.storage;
   }
-
+  creep.creepLog('target', target, target.structureType);
   creep.moveToMy(target.pos);
 
   let resource = RESOURCE_ENERGY;
@@ -542,7 +521,7 @@ const execute = function(creep) {
  * setStateFillTowers
  *
  * @param {object} creep
- * @return {bool}
+ * @return {boolean}
  */
 function setStateFillTowers(creep) {
   const towers = creep.room.findTowers();
@@ -551,6 +530,7 @@ function setStateFillTowers(creep) {
     return false;
   }
   creep.data.state = {
+    name: 'FillTowers',
     getResource: () => RESOURCE_ENERGY,
     source: creep.room.storage.id,
     target: fillableTower.id,
@@ -563,13 +543,14 @@ function setStateFillTowers(creep) {
  * setStateFillTerminalEnergy
  *
  * @param {object} creep
- * @return {bool}
+ * @return {boolean}
  */
 function setStateFillTerminalEnergy(creep) {
-  if (creep.room.terminal.store.energy > config.terminal.minEnergyAmount) {
+  if (creep.room.terminal && creep.room.terminal.store.energy > config.terminal.minEnergyAmount) {
     return false;
   }
   creep.data.state = {
+    name: 'FillTerminalNrg',
     getResource: () => RESOURCE_ENERGY,
     source: creep.room.storage.id,
     target: creep.room.terminal.id,
@@ -582,13 +563,14 @@ function setStateFillTerminalEnergy(creep) {
  * setStateGetEnergyFromTerminal
  *
  * @param {object} creep
- * @return {bool}
+ * @return {boolean}
  */
 function setStateGetEnergyFromTerminal(creep) {
   if (creep.room.terminal.store.energy < config.terminal.maxEnergyAmount) {
     return false;
   }
   creep.data.state = {
+    name: 'NrgFromTerminal',
     getResource: () => RESOURCE_ENERGY,
     source: creep.room.terminal.id,
     target: creep.room.storage.id,
@@ -602,14 +584,19 @@ function setStateGetEnergyFromTerminal(creep) {
  * setStateEmptyCreepStore
  *
  * @param {object} creep
- * @return {bool}
+ * @return {boolean}
  */
 function setStateEmptyCreepStore(creep) {
   if (creep.store.getUsedCapacity() === 0) {
     return false;
   }
+  const targetId = _.sum(creep.room.terminal.store) > _.sum(creep.room.storage.store) ? creep.room.storage.id : creep.room.terminal.id;
   creep.data.state = {
-    action: 'empty',
+    name: 'EmptyCreepStore',
+    getResource: () => RESOURCE_ENERGY,
+    source: creep.id,
+    target: targetId,
+    action: 'transfer',
   };
   return true;
 }
@@ -618,7 +605,7 @@ function setStateEmptyCreepStore(creep) {
  * setStateFillLabsWithEnergy
  *
  * @param {object} creep
- * @return {bool}
+ * @return {boolean}
  */
 function setStateFillLabsWithEnergy(creep) {
   const labs = creep.room.findLabs();
@@ -627,6 +614,7 @@ function setStateFillLabsWithEnergy(creep) {
     return false;
   }
   creep.data.state = {
+    name: 'FillLabsWithNrg',
     getResource: () => RESOURCE_ENERGY,
     source: creep.room.storage.id,
     target: fillableLab.id,
@@ -639,13 +627,14 @@ function setStateFillLabsWithEnergy(creep) {
  * setStateTransferResourcesToTerminal
  *
  * @param {object} creep
- * @return {bool}
+ * @return {boolean}
  */
 function setStateTransferResourcesToTerminal(creep) {
   if (!Object.keys(creep.room.storage.store).find((resource) => resource !== RESOURCE_ENERGY)) {
     return false;
   }
   creep.data.state = {
+    name: 'TransResourcesToTerminal',
     getResource: (storage) => Object.keys(storage.store).find((resource) => resource !== RESOURCE_ENERGY),
     source: creep.room.storage.id,
     target: creep.room.terminal.id,
@@ -655,10 +644,47 @@ function setStateTransferResourcesToTerminal(creep) {
 }
 
 /**
- * setState
+ * setStateClearLabs
  *
  * @param {object} creep
- * @return {bool}
+ * @param {boolean} all clear all labs
+ * @return {boolean}
+ */
+function setStateClearLabs(creep, all = true) {
+  const labs = creep.room.findLabs();
+  let fillableLab;
+  if (all) {
+    fillableLab = labs.find((s) => _.sum(s.store) > 0 && Object.keys(s.store).find((resource) => resource !== RESOURCE_ENERGY));
+  } else {
+    let input1 = RESOURCE_ENERGY;
+    let input2 = RESOURCE_ENERGY;
+    if (creep.room.memory.reaction && creep.room.memory.reaction.result) {
+      input1 = creep.room.memory.reaction.result.first || RESOURCE_ENERGY;
+      input2 = creep.room.memory.reaction.result.second || RESOURCE_ENERGY;
+    }
+    const filterNonNeededResourcesInLab = (lab) => Object.keys(lab.store).find((resource) => resource !== RESOURCE_ENERGY && resource !== input1 && resource !== input2);
+    fillableLab = labs.find(filterNonNeededResourcesInLab);
+  }
+  if (!fillableLab) {
+    return false;
+  }
+
+  creep.data.state = {
+    name: 'ClearLabs',
+    getResource: (lab) => Object.keys(lab.store).find((resource) => resource !== RESOURCE_ENERGY),
+    source: fillableLab.id,
+    target: creep.room.terminal.id,
+    action: 'transfer',
+  };
+  return true;
+}
+
+/**
+ * setState
+ * todo: add actions form old exec
+ *
+ * @param {object} creep
+ * @return {boolean}
  */
 function setState(creep) {
   if (setStateEmptyCreepStore(creep)) {
@@ -679,6 +705,9 @@ function setState(creep) {
   if (setStateTransferResourcesToTerminal(creep)) {
     return true;
   }
+  if (setStateClearLabs(creep)) {
+    return true;
+  }
   return false;
 }
 
@@ -686,7 +715,7 @@ function setState(creep) {
  * handleState
  *
  * @param {object} creep
- * @return {bool}
+ * @return {boolean}
  */
 function handleState(creep) {
   if (!creep.data.state) {
@@ -695,13 +724,8 @@ function handleState(creep) {
     }
     creep.log(`Set state: ${JSON.stringify(creep.data.state)}`);
   }
-  if (creep.data.state.action === 'empty') {
-    creep.moveToMy(creep.room.storage.pos);
-    creep.transfer(creep.room.storage, Object.keys(creep.store)[0]);
-    if (creep.store.getUsedCapacity() === 0) {
-      delete creep.data.state;
-    }
-  } else if (creep.data.state.action === 'transfer') {
+
+  if (creep.data.state.action === 'transfer') {
     if (creep.store.getUsedCapacity() > 0) {
       const target = Game.getObjectById(creep.data.state.target);
       creep.moveToMy(target.pos);
@@ -713,21 +737,52 @@ function handleState(creep) {
       const source = Game.getObjectById(creep.data.state.source);
       creep.moveToMy(source.pos);
       const resource = creep.data.state.getResource(source);
-      creep.withdraw(source, resource);
+      if (resource) {
+        creep.withdraw(source, resource);
+      } else if (typeof resource === 'undefined') {
+        delete creep.data.state;
+      }
     }
   }
-  creep.say('new state');
+  if (creep.data.state && creep.data.state.name) {
+    creep.say(creep.data.state.name);
+  }
   return true;
 }
 
+roles.mineral.preMove = function(creep) {
+  creep.pickupWhileMoving();
+};
+
 roles.mineral.action = function(creep) {
-  creep.say('mineral');
-  if (handleState(creep)) {
+  if (!creep.room.isRoomReadyForMineralHandling()) {
+    creep.memory.recycle = true;
+    creep.room.data.mineralLastRecyled = Game.time;
+  }
+
+  if (creep.ticksToLive < 50) {
+    creep.memory.recycle = true;
+    creep.room.data.mineralLastRecyled = Game.time;
+  }
+
+  if (typeof creep.data.mode === 'undefined') {
+    creep.data.mode = true;
+  }
+
+  if (creep.data.mode) {
+    if (handleState(creep)) {
+      return true;
+    } else {
+      creep.data.mode = false;
+      return true;
+    }
+  } else {
+    creep.say('old exec');
+    const execRes = execute(creep);
+    if (!execRes) {
+      creep.data.mode = true;
+      return false;
+    }
     return true;
   }
-  creep.memory.recycle = true;
-  creep.room.data.mineralLastRecyled = Game.time;
-  creep.say('old');
-
-  return execute(creep);
 };

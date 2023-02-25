@@ -357,8 +357,28 @@ Room.prototype.handleReputation = function() {
   }
 };
 
+/**
+ * todo move this to prototype_room_resources.js ?
+ *
+ * @return {number}
+ */
+Room.prototype.getEnergy = function() {
+  let amount = 0;
+  if (this.terminal) {
+    amount += this.terminal.store[RESOURCE_ENERGY];
+  }
+  if (this.storage) {
+    amount += this.storage.store[RESOURCE_ENERGY];
+  }
+  return amount;
+};
+
 Room.prototype.getBuilderAmount = function(constructionSites) {
   let amount = 1;
+  const energyInRoom = this.getEnergy();
+  if (energyInRoom > (config.terminal.minEnergyAmount / 2)) {
+    amount = 2;
+  }
   if (this.controller.level >= 4 && this.memory.misplacedSpawn) {
     amount = 3;
   }
@@ -430,15 +450,13 @@ Room.prototype.checkForMineral = function() {
     return false;
   }
 
-  // const labs = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB]);
-  // if ((!this.memory.cleanup || this.memory.cleanup <= 10) && (_.size(labs) > 2)) {
+  if (this.memory.reaction) {
+    this.handleReaction();
+  }
+
   if (this.isHealthy() && ((this.data.mineralLastRecyled || Game.time) + 1500 > Game.time)) {
     this.checkRoleToSpawn('mineral');
   }
-  // }
-  // if ((Game.time + this.controller.pos.x + this.controller.pos.y) % 10000 < 10) {
-  //   this.memory.cleanup = 0;
-  // }
 };
 
 Room.prototype.handleEconomyStructures = function() {
@@ -485,8 +503,7 @@ Room.prototype.isHealthy = function() {
   if (this.isStruggling()) {
     return false;
   }
-  // TODO extract as config variable
-  if (this.storage.store.energy < config.room.isHealthyStorageThreshold) {
+  if (this.getEnergy() < config.room.isHealthyStorageThreshold) {
     return false;
   }
   return true;

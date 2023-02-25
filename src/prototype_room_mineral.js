@@ -221,3 +221,78 @@ Room.prototype.handleTerminal = function() {
   delete this.memory.mineralOrder[roomOtherName];
   return true;
 };
+
+Room.prototype.handleReaction = function() {
+  if (!this.memory.reaction) {
+    return false;
+  }
+
+  let labsToReact = this.findStructuresOfStructureType(STRUCTURE_LAB).filter((lab) => {
+    if (lab.store[this.memory.reaction.result.first] > 0 || lab.store[this.memory.reaction.result.second] > 0) {
+      return false;
+    }
+    return true;
+  });
+
+  if (labsToReact.length === 0) {
+    return false;
+  }
+
+  const mineralCreep = this.findMyCreepsOfRole('mineral').length ? this.findMyCreepsOfRole('mineral')[0] : false;
+  const cleanupNotEnoughResources = () => {
+    if (mineralCreep && this.memory.reaction && this.memory.reaction.result) {
+      if (!mineralCreep.checkLabEnoughMineral(lab1, this.memory.reaction.result.first) || !mineralCreep.checkLabEnoughMineral(lab2, this.memory.reaction.result.second)) {
+        roles.mineral.cleanUpLabs(mineralCreep);
+      }
+    }
+  };
+
+  const lab0 = Game.getObjectById(this.memory.reaction.labs[0]);
+  const lab1 = Game.getObjectById(this.memory.reaction.labs[1]);
+  const lab2 = Game.getObjectById(this.memory.reaction.labs[2]);
+  if (lab0 === null || lab1 === null || lab2 === null) {
+    delete this.memory.reaction;
+  } else {
+    const labsToReactResponse = labsToReact.map((lab0) => {
+      const inRange = lab0.pos.getRangeTo(lab1) < 3 && lab0.pos.getRangeTo(lab2) < 3;
+      if (lab0.cooldown === 0 && inRange) {
+        if (lab0.mineralAmount > lab0.mineralCapacity - 100 && this.memory.reaction) {
+          this.memory.fullLab = 1;
+          return 'ERR_FULL_LAB';
+        }
+        if (lab0.mineralAmount < 100) {
+          this.memory.fullLab = 0;
+        }
+        const returnCode = lab0.runReaction(lab1, lab2);
+        if (returnCode === ERR_NOT_ENOUGH_RESOURCES) {
+          cleanupNotEnoughResources();
+          return 'ERR_NOT_ENOUGH_RESOURCES';
+        }
+        if (returnCode === ERR_NOT_IN_RANGE) {
+          return 'ERR_NOT_IN_RANGE';
+        }
+        if (returnCode === OK) {
+          return 'OK';
+        }
+      } else {
+        return false;
+      }
+    }).reduce((a, t) => a || t, false);
+
+    if (this.memory.reaction && this.memory.reaction.result) {
+      labsToReact = labsToReact.filter((s) => s.cooldown === 0 && s.store[this.memory.reaction.result.result]);
+      if (config.debug.mineral && typeof labsToReactResponse !== 'undefined' && labsToReactResponse !== false && labsToReact.length > 1) {
+        this.log(this.memory.reaction.result.result, labsToReactResponse, labsToReact);
+      }
+    }
+
+    if (Game.time % 150 && this.isRoomReadyForMineralHandling()) {
+      let amount = 1;
+      // room has a lot energy in terminal; move energy to storage
+      if (this.getEnergy() * 0.7 <= this.terminal.store.getUsedCapacity(RESOURCE_ENERGY)) {
+        amount = 2;
+      }
+      this.checkRoleToSpawn('mineral', amount);
+    }
+  }
+};
