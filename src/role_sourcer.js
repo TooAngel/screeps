@@ -183,14 +183,7 @@ function getContainerConstructionSite(creep) {
  */
 function maintainContainer(creep) {
   if (creep.inBase()) {
-    const links = creep.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
-    if (links.length) {
-      const containerConstructionSite = getContainerConstructionSite(creep);
-      if (containerConstructionSite) {
-        containerConstructionSite.remove();
-      }
-      return false;
-    }
+    return creep.room.controller.level < 6;
   }
 
   const container = getContainer(creep);
