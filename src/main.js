@@ -23,7 +23,6 @@ global.data.stats = global.data.stats || {
   memoryFree: 0,
   heapFree: 0,
 };
-global.maliciousNpcUsernames = ['Invader', 'Source Keeper'];
 
 console.log(`${Game.time} Script reload - Load: ${global.load} tickLimit: ${Game.cpu.tickLimit} limit: ${Game.cpu.limit} Bucket: ${Game.cpu.bucket}`);
 

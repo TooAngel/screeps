@@ -7,7 +7,7 @@ brain.isFriend = function(name) {
     Memory.players = {};
   }
 
-  if (global.maliciousNpcUsernames.includes(name)) {
+  if (global.config.maliciousNpcUsernames.includes(name)) {
     return false;
   }
   if (friends.indexOf(name) > -1) {
