@@ -455,7 +455,7 @@ Room.prototype.getCreepConfig = function(creep) {
     // On misplaced spawn the top field could be blocked
     // On spawning the first universal the `misplacedSpawn` is not necessarily
     // set, so checking for `Game.time`
-    opts.directions = [TOP];
+    opts.directions = [TOP, TOP_LEFT, TOP_RIGHT, LEFT, RIGHT, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT];
   }
   return {
     body: body,
