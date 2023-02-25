@@ -86,7 +86,7 @@
       ],
       "max-statements": [
         "error",
-        40
+        37
       ],
       "accessor-pairs": "error",
       "no-alert": "error",

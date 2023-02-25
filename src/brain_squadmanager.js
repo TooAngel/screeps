@@ -2,7 +2,7 @@
 
 const {debugLog} = require('./logging');
 
-brain.isFriend = function(name) {
+module.exports.isFriend = function(name) {
   if (!Memory.players) {
     Memory.players = {};
   }
@@ -25,7 +25,7 @@ brain.isFriend = function(name) {
   return false;
 };
 
-brain.handleSquadManager = function() {
+module.exports.handleSquadManager = function() {
   if (Object.keys(Memory.squads).length > 0) {
     debugLog('brain', 'brain.handleSquadManager squads: ${Object.keys(Memory.squads).length}');
   }
@@ -63,7 +63,7 @@ brain.handleSquadManager = function() {
  * @param {String} squadName
  * @param {Number} [queueLimit] don't push if queueLimit is reached
  */
-brain.addToQueue = function(spawns, roomNameFrom, roomNameTarget, squadName, queueLimit) {
+function addToQueue(spawns, roomNameFrom, roomNameTarget, squadName, queueLimit) {
   queueLimit = queueLimit || false;
   const outer = function(spawn) {
     return function _addToQueue() {
@@ -90,7 +90,7 @@ brain.addToQueue = function(spawns, roomNameFrom, roomNameTarget, squadName, que
   for (const spawn of spawns) {
     _.times(spawn.creeps, outer(spawn));
   }
-};
+}
 /**
  * brain.startSquad used to attack player.rooms
  *
@@ -113,7 +113,7 @@ brain.startSquad = function(roomNameFrom, roomNameAttack) {
     creeps: 3,
     role: 'squadheal',
   }];
-  this.addToQueue(siegeSpawns, roomNameFrom, roomNameAttack, name);
+  addToQueue(siegeSpawns, roomNameFrom, roomNameAttack, name);
 
   Memory.squads[name] = {
     born: Game.time,
@@ -158,7 +158,7 @@ brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
   }];
 
   spawns = spawns || meleeSpawn;
-  this.addToQueue(spawns, roomNameFrom, roomNameAttack, name);
+  addToQueue(spawns, roomNameFrom, roomNameAttack, name);
 
   Memory.squads[name] = {
     born: Game.time,

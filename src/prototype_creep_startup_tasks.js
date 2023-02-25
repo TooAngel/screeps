@@ -338,34 +338,19 @@ Creep.prototype.repairKnownTarget = function() {
 };
 
 Creep.prototype.repairStructure = function() {
-  this.creepLog('repairStructure');
   if (this.repairKnownTarget()) {
     if (this.pos.roomName !== this.memory.base) {
       this.log(`Not in my base room why? repairKnownTarget`);
     }
     return true;
   }
-  this.creepLog('repairStructure - no target');
 
   if (this.repairStructureWithIncomingNuke()) {
     return true;
   }
-  this.creepLog('repairStructure - no nuke');
 
   // Repair low ramparts
-  const lowRamparts = this.pos.findInRange(FIND_STRUCTURES, 4, {
-    filter: (structure) => {
-      if (structure.structureType !== STRUCTURE_RAMPART) {
-        return false;
-      }
-      if (structure.hits > 10000) {
-        return false;
-      }
-      return true;
-    },
-  });
-
-  this.creepLog(`repairStructure - ramparts: ${lowRamparts.length}`);
+  const lowRamparts = this.pos.findCloseByLowHitRamparts();
   if (lowRamparts.length > 0) {
     this.memory.routing.targetId = lowRamparts[0].id;
     this.repairKnownTarget();
@@ -373,8 +358,7 @@ Creep.prototype.repairStructure = function() {
   }
 
   // Build construction sites
-  const target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL]);
-  this.creepLog(`repairStructure - constructionSites: ${target}`);
+  const target = this.pos.findClosestByRangeBlockerConstructionSite();
   if (target) {
     this.memory.step = 0;
     this.memory.routing.targetId = target.id;
@@ -383,10 +367,7 @@ Creep.prototype.repairStructure = function() {
   }
 
   // Repair roads
-  const road = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_ROAD], {
-    filter: (object) => object.hits < 0.5 * object.hitsMax,
-  });
-  this.creepLog(`repairStructure - road: ${road}`);
+  const road = this.pos.findClosestByRangeRepairableRoad();
   if (road) {
     this.memory.routing.targetId = road.id;
     this.repairKnownTarget();

@@ -3,6 +3,7 @@
 const {checkPlayers} = require('./diplomacy');
 const {handleQuests} = require('./quests');
 const {prepareMemory} = require('./brain_memory');
+const {handleSquadManager} = require('./brain_squadmanager');
 
 global.cpuUsed = 0;
 
@@ -87,7 +88,7 @@ module.exports.execute = function() {
     prepareMemory();
     brain.buyPower();
     brain.handleNextroomer();
-    brain.handleSquadManager();
+    handleSquadManager();
     brain.handleIncomingTransactions();
     handleQuests();
     checkPlayers();
