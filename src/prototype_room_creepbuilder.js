@@ -195,9 +195,20 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
   if (this.inQueue(creepMemory) || this.inRoom(creepMemory, amount)) {
     return false;
   }
-  if (targetRoom !== base && typeof Game.map.getRoomStatus(targetRoom) !== 'undefined' && typeof Game.map.getRoomStatus(base) !== 'undefined') {
-    if (Game.map.getRoomStatus(targetRoom).status !== Game.map.getRoomStatus(base).status) {
-      return false;
+
+  base = base || this.name;
+  if (targetRoom !== base) {
+    try {
+      const baseStatus = Game.map.getRoomStatus(base);
+      const targetStatus = Game.map.getRoomStatus(targetRoom);
+      if (typeof targetStatus !== 'undefined' && baseStatus !== 'undefined') {
+        if (targetStatus.status !== baseStatus.status) {
+          console.log('prototype_room_creepbuild.checkRoleToSpawn: base and targetRoom have different status');
+          return false;
+        }
+      }
+    } catch (e) {
+      console.log(`prototype_room_creepbuild.checkRoleToSpawn exception: ${e}`);
     }
   }
   return this.memory.queue.push(creepMemory);
@@ -460,7 +471,9 @@ Room.prototype.getCreepConfig = function(creep) {
     // On misplaced spawn the top field could be blocked
     // On spawning the first universal the `misplacedSpawn` is not necessarily
     // set, so checking for `Game.time`
-    opts.directions = [TOP, TOP_LEFT, TOP_RIGHT, LEFT, RIGHT, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT];
+    // The room layout expects to spawn in top direction, if this should be extended
+    // the room layout needs to be improved first.
+    opts.directions = [TOP];
   }
   return {
     body: body,
