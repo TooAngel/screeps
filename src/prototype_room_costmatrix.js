@@ -22,7 +22,7 @@ function updateCostMatrixFromPositions(room, costMatrix) {
       if (positionType === 'version') {
         continue;
       }
-      for (let i = 0; i<room.data.positions[positionType][type].length; i++) {
+      for (let i = 0; i < room.data.positions[positionType][type].length; i++) {
         const pos = room.data.positions[positionType][type][i];
         if (!pos) {
           room.log(`No pos for positionType: ${positionType} type: ${type} i: ${i}`);

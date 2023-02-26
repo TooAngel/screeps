@@ -4,6 +4,9 @@ Room.prototype.findAttackCreeps = function(object) {
   if (object.owner.username === 'Source Keeper') {
     return false;
   }
+  if (friends.indexOf(object.owner.username) > -1) {
+    return false;
+  }
 
   for (const item of Object.keys(object.body)) {
     const part = object.body[item];

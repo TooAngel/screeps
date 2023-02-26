@@ -227,13 +227,24 @@ const getLines = function(room) {
   const storedE = room.storage ? room.storage.store[RESOURCE_ENERGY] : 0;
   const queueL = room.memory.queue ? room.memory.queue.length : 0;
   const rclP = Math.floor(100 * (room.controller.progressTotal ? room.controller.progress / room.controller.progressTotal : 1));
-
-  const lines = [
-    {label: `Energy Average :`, value: energy, coefficient: energy / room.energyCapacityAvailable},
-    {label: `Stored Energy :`, value: storedE, coefficient: Math.min(storedE, 500000) / 500000},
-    {label: `Queue length :`, value: queueL, coefficient: (20 - Math.min(queueL, 20)) / 20},
-    {label: `RCL ${room.controller.level} progress :`, value: rclP, coefficient: rclP / 100},
-  ];
+  const role = room.memory.queue ? room.memory.queue[0] ? room.memory.queue[0].role : '' : '';
+  let lines;
+  if (role !== '') {
+    lines = [
+      {label: `Energy Average :`, value: energy, coefficient: energy / room.energyCapacityAvailable},
+      {label: `Stored Energy :`, value: storedE, coefficient: Math.min(storedE, 500000) / 500000},
+      {label: `Queue length :`, value: queueL, coefficient: (20 - Math.min(queueL, 20)) / 20},
+      {label: `1st Role/Queue :`, value: role, coefficient: role},
+      {label: `RCL ${room.controller.level} progress :`, value: rclP, coefficient: rclP / 100},
+    ];
+  } else {
+    lines = [
+      {label: `Energy Average :`, value: energy, coefficient: energy / room.energyCapacityAvailable},
+      {label: `Stored Energy :`, value: storedE, coefficient: Math.min(storedE, 500000) / 500000},
+      {label: `Queue length :`, value: queueL, coefficient: (20 - Math.min(queueL, 20)) / 20},
+      {label: `RCL ${room.controller.level} progress :`, value: rclP, coefficient: rclP / 100},
+    ];
+  }
   return lines;
 };
 

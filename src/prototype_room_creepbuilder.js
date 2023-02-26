@@ -51,7 +51,7 @@ Room.prototype.spawnCheckForCreate = function() {
     this.memory.queue.shift();
     return false;
   }
-  creep.ttl = creep.ttl || config.creep.queueTtl;
+  creep.ttl = creep.ttl || Math.ceil(config.creep.queueTtl * _.size(CONTROLLER_DOWNGRADE) / this.controller.level);
   if (this.findSpawnsNotSpawning().length === 0) {
     creep.ttl--;
   }
