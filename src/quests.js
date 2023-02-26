@@ -133,7 +133,7 @@ function checkQuestForAcceptance(transaction) {
   transaction.description = transaction.description || JSON.stringify({
     type: 'quest',
     action: 'apply',
-    id: _.first(Memory.quests)
+    id: _.first(Memory.quests),
   });
   const data = getQuestFromTransactionDescription(transaction.description);
   if (!data) {
@@ -172,7 +172,7 @@ module.exports.checkQuestForAcceptance = checkQuestForAcceptance;
  * @return {boolean}
  */
 function checkAppliedQuestForAcceptance(transaction) {
-  let response
+  let response;
   try {
     try {
       response = JSON.parse(transaction.description);
