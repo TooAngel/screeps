@@ -195,6 +195,11 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
   if (this.inQueue(creepMemory) || this.inRoom(creepMemory, amount)) {
     return false;
   }
+  if (targetRoom !== base && typeof Game.map.getRoomStatus(targetRoom) !== 'undefined' && typeof Game.map.getRoomStatus(base) !== 'undefined') {
+    if (Game.map.getRoomStatus(targetRoom).status !== Game.map.getRoomStatus(base).status) {
+      return false;
+    }
+  }
   return this.memory.queue.push(creepMemory);
 };
 
