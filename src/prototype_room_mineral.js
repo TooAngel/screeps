@@ -228,7 +228,8 @@ Room.prototype.cleanupNotEnoughResources = function() {
   }
   const lab1 = Game.getObjectById(this.memory.reaction.labs[1]);
   const lab2 = Game.getObjectById(this.memory.reaction.labs[2]);
-  const mineralCreep = this.findMyCreepsOfRole('mineral').length ? this.findMyCreepsOfRole('mineral')[0] : false;
+  const findCreep = this.findMyCreepsOfRole('mineral');
+  const mineralCreep = findCreep.length ? findCreep[0] : false;
   if (mineralCreep && this.memory.reaction && this.memory.reaction.result) {
     if (!mineralCreep.checkLabEnoughMineral(lab1, this.memory.reaction.result.first) || !mineralCreep.checkLabEnoughMineral(lab2, this.memory.reaction.result.second)) {
       roles.mineral.cleanUpLabs(mineralCreep);
@@ -258,6 +259,7 @@ Room.prototype.handleReaction = function() {
   const lab2 = Game.getObjectById(this.memory.reaction.labs[2]);
   if (lab0 === null || lab1 === null || lab2 === null) {
     delete this.memory.reaction;
+    return false;
   } else {
     const labsToReactResponse = labsToReact.map((lab0) => {
       const inRange = lab0.pos.getRangeTo(lab1) < 3 && lab0.pos.getRangeTo(lab2) < 3;
@@ -285,7 +287,7 @@ Room.prototype.handleReaction = function() {
       }
     }).reduce((a, t) => a || t, false);
 
-    if (this.memory.reaction && this.memory.reaction.result) {
+    if (this.memory.reaction.result) {
       const resultLab = labsToReact.filter((s) => s.cooldown === 0 && s.store[this.memory.reaction.result.result]);
       if (config.debug.mineral && typeof labsToReactResponse !== 'undefined' && labsToReactResponse !== false && labsToReact.length > 1) {
         this.debugLog(this.memory.reaction.result.result, labsToReactResponse, resultLab);
