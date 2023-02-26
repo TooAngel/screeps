@@ -3,6 +3,7 @@
 const {checkPlayers} = require('./diplomacy');
 const {handleQuests} = require('./quests');
 const {prepareMemory} = require('./brain_memory');
+const {handlePixel} = require('./brain_pixel');
 
 global.cpuUsed = 0;
 
@@ -86,6 +87,9 @@ module.exports.execute = function() {
   try {
     prepareMemory();
     brain.buyPower();
+    if (config.pixel.enabled && Game.cpu.generatePixel) {
+      handlePixel();
+    }
     brain.handleNextroomer();
     brain.handleSquadManager();
     brain.handleIncomingTransactions();
@@ -104,7 +108,7 @@ module.exports.execute = function() {
   });
 
   if (global.config.tickSummary.gcl) {
-    console.log(`${Game.time} GCL ${Game.gcl.level}: ${global.utils.leftPadRound(Game.gcl.progress/Game.gcl.progressTotal*100, 3, 5)} %  ${Math.round(Game.gcl.progress)}/${Math.round(Game.gcl.progressTotal)}`);
+    console.log(`${Game.time} GCL ${Game.gcl.level}: ${global.utils.leftPadRound(Game.gcl.progress / Game.gcl.progressTotal * 100, 3, 5)} %  ${Math.round(Game.gcl.progress)}/${Math.round(Game.gcl.progressTotal)}`);
   }
   if (global.config.tickSummary.bucket) {
     console.log(`${Game.time} Bucket: ${Game.cpu.bucket}`);

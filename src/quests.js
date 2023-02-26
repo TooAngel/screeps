@@ -1,5 +1,3 @@
-
-
 const {debugLog} = require('./logging');
 
 /**
@@ -68,7 +66,7 @@ function getQuest(transaction, data) {
 /**
  * haveActiveQuest
  *
- * @return {bool}
+ * @return {boolean}
  */
 function haveActiveQuest() {
   if (!global.data.activeQuest) {
@@ -93,7 +91,7 @@ module.exports.haveActiveQuest = haveActiveQuest;
  * getQuestFromTransactionDescription
  *
  * @param {object} description
- * @return {bool}
+ * @return {boolean}
  */
 function getQuestFromTransactionDescription(description) {
   let data;
@@ -107,7 +105,6 @@ function getQuestFromTransactionDescription(description) {
     debugLog('quests', 'Quest transaction: No type');
     return false;
   }
-  console.log(JSON.stringify(data));
   for (const key of ['type', 'action', 'id']) {
     if (!data[key]) {
       debugLog('quests', `Incoming transaction no Quest: No ${key}`);
@@ -129,17 +126,22 @@ function getQuestFromTransactionDescription(description) {
  * checkQuestForAcceptance
  *
  * @param {object} transaction
- * @return {bool}
+ * @return {boolean}
  */
 function checkQuestForAcceptance(transaction) {
   Memory.quests = Memory.quests || {};
+  transaction.description = transaction.description || JSON.stringify({
+    type: 'quest',
+    action: 'apply',
+    id: _.first(Memory.quests)
+  });
   const data = getQuestFromTransactionDescription(transaction.description);
   if (!data) {
     return false;
   }
   if (Memory.quests[data.id]) {
     console.log(`Quest already ongoing ${JSON.stringify(data)}`);
-    return;
+    return false;
   }
   const quest = getQuest(transaction, data);
   console.log(`Found quest acceptance on transaction ${JSON.stringify(quest)}`);
@@ -158,6 +160,7 @@ function checkQuestForAcceptance(transaction) {
   const terminalResponse = room.terminal.send(RESOURCE_ENERGY, 100, transaction.from, JSON.stringify(response));
   console.log(`terminalResponse ${JSON.stringify(terminalResponse)}`);
   // TODO find reserver in room and remove quest hint
+  return true;
 }
 
 module.exports.checkQuestForAcceptance = checkQuestForAcceptance;
@@ -166,30 +169,40 @@ module.exports.checkQuestForAcceptance = checkQuestForAcceptance;
  * checkAppliedQuestForAcceptance
  *
  * @param {object} transaction
- * @return {bool}
+ * @return {boolean}
  */
 function checkAppliedQuestForAcceptance(transaction) {
+  let response
   try {
-    const response = JSON.parse(transaction.description);
-    if (!response.type) {
-      debugLog('quests', `No type: ${JSON.stringify(response)}`);
-    }
-    if (response.type !== 'quest') {
-      debugLog('quests', `Wrong type: ${JSON.stringify(response)}`);
+    try {
+      response = JSON.parse(transaction.description);
+    } catch (e) {
+      debugLog('quests', e.toString(), JSON.stringify(transaction));
       return false;
     }
-    if (response.action) {
-      debugLog('quests', `Action exist type: ${JSON.stringify(response)}`);
-      return false;
+    if (response) {
+      if (!response.type) {
+        debugLog('quests', `No type: ${JSON.stringify(response)}`);
+        return false;
+      }
+      if (response.type !== 'quest') {
+        debugLog('quests', `Wrong type: ${JSON.stringify(response)}`);
+        return false;
+      }
+      if (response.action) {
+        debugLog('quests', `Action exist type: ${JSON.stringify(response)}`);
+        return false;
+      }
+      debugLog('quests', `Quest accept transaction: ${JSON.stringify(response)}`);
+      if (!haveActiveQuest()) {
+        debugLog('quests', 'No active quest');
+        return false;
+      }
+      global.data.activeQuest.state = 'active';
+      global.data.activeQuest.accept = response;
+      debugLog('quests', `activeQuest: ${JSON.stringify(global.data.activeQuest)}`);
+      return true;
     }
-    debugLog('quests', `Quest accept transaction: ${JSON.stringify(response)}`);
-    if (!haveActiveQuest()) {
-      debugLog('quests', 'No active quest');
-      return false;
-    }
-    global.data.activeQuest.state = 'active';
-    global.data.activeQuest.accept = response;
-    debugLog('quests', `activeQuest: ${JSON.stringify(global.data.activeQuest)}`);
   } catch (e) {
     console.log('checkAppliedQuestForAcceptance');
     console.log(e);
@@ -197,4 +210,5 @@ function checkAppliedQuestForAcceptance(transaction) {
     return false;
   }
 }
+
 module.exports.checkAppliedQuestForAcceptance = checkAppliedQuestForAcceptance;

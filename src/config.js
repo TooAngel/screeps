@@ -152,6 +152,9 @@ global.config = {
 
   pixel: {
     enabled: false,
+    sell: true,
+    allowedSalesHistoryDeviation: 0.05,
+    minPixelAmount: 500,
     minBucketAfter: 2500,
   },
 
@@ -289,11 +292,15 @@ global.config = {
     maxBuyPrice: 0.5,
     // buyByOwnOrders: true,
     buyOrderPriceMultiplicand: 0.5,
-
+    // buy energy, let make use of our credits
+    buyEnergy: {
+      enabled: true,
+      allowedSalesHistoryDeviation: 0.05,
+    },
     // buy power if we have more credits than config.market.minCredits
     buyPower: false,
-    // 300M credits
-    minCredits: 300000000,
+    // 300K credits
+    minCredits: 300000,
     // disable to use power only in gathered room
     sendPowerOwnRoom: true,
     // equalizes the energy between your rooms via terminal

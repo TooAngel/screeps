@@ -39,13 +39,7 @@ module.exports.loop = function() {
       execute();
     }
   }
-  if (global.config.pixel.enabled) {
-    if (typeof PIXEL !== 'undefined') {
-      if (Game.cpu.bucket >= PIXEL_CPU_COST + global.config.pixel.minBucketAfter) {
-        Game.cpu.generatePixel();
-      }
-    }
-  }
+
   brain.stats.updateCpuStats();
 
   if (config.resourceStats) {

@@ -34,7 +34,7 @@ Room.prototype.sellByOwnOrders = function(resource, sellAmount) {
 
 Room.prototype.sellByOthersOrders = function(sellAmount, resource, force) {
   const sortByEnergyCostAndPrice = (order) => Game.market.calcTransactionCost(sellAmount, this.name, order.roomName) +
-  -order.price * sellAmount / config.market.energyCreditEquivalent;
+    -order.price * sellAmount / config.market.energyCreditEquivalent;
   if (Memory.orders[ORDER_BUY][resource]) {
     const orders = _.sortBy(Memory.orders[ORDER_BUY][resource].orders, sortByEnergyCostAndPrice);
     for (const order of orders) {
@@ -194,7 +194,7 @@ Room.prototype.sendEnergyToMyRooms = function() {
     const myRoom = _.shuffle(Memory.needEnergyRooms)[0];
     const room = Game.rooms[myRoom];
     if (!room) {
-      Memory.needEnergyRooms.splice( Memory.needEnergyRooms.indexOf(myRoom), 1 );
+      Memory.needEnergyRooms.splice(Memory.needEnergyRooms.indexOf(myRoom), 1);
       return;
     }
     const amount = this.sendEnergyAmountToMyRoom();
@@ -213,6 +213,57 @@ Room.prototype.sendEnergyToMyRooms = function() {
   return false;
 };
 
+/**
+ * make use of the credits we earn from selling PIXEL
+ *
+ * @returns {ERR_NOT_FOUND|boolean}
+ */
+Room.prototype.buyEnergy = function() {
+  if (!this.isRoomReadyForMineralHandling()) {
+    this.debugLog('market', 'not ReadyForMineralHandling')
+    return false;
+  }
+  if (!config.market.buyEnergy || Game.market.credits < config.market.minCredits || (this.terminal.cooldown > 0)) {
+    this.debugLog('market', 'config cooldown or no credits')
+    return false;
+  }
+  // todo maybe use this.getEnergy()
+  const energyInRoom = (this.terminal.store.getUsedCapacity(RESOURCE_ENERGY) + this.storage.store.getUsedCapacity(RESOURCE_ENERGY))
+  if (energyInRoom > (config.terminal.maxEnergyAmount + config.terminal.minEnergyAmount)) {
+    this.debugLog('market', 'room has energy')
+    return false;
+  }
+  try {
+    this.data.allowedSalesHistoryDeviation = this.data.allowedSalesHistoryDeviation || config.market.buyEnergy.allowedSalesHistoryDeviation;
+    const filterOrders = {type: ORDER_SELL, resourceType: RESOURCE_ENERGY};
+    const sellOrder = _.sortBy(Game.market.getAllOrders(filterOrders), (o) => o.price)[0];
+    if (sellOrder) {
+      const history = Game.market.getHistory(RESOURCE_ENERGY);
+      const lastDay = history[history.length - 1];
+      if (lastDay) {
+        const maxPrice = parseFloat('' + (lastDay.avgPrice + (this.data.allowedSalesHistoryDeviation * lastDay.stddevPrice))).toPrecision(4);
+        this.debugLog('market', `maxPrice ${maxPrice}\t${lastDay.avgPrice} + (${allowedSalesHistoryDeviation} * ${lastDay.stddevPrice})`)
+        if (sellOrder.price <= maxPrice) {
+          const amount = Math.min(config.terminal.minEnergyAmount, sellOrder.amount, this.terminal.store.getFreeCapacity())
+          const returnCode = Game.market.deal(sellOrder.id, amount, this.name);
+          this.debugLog('market', 'market.deal:', sellOrder.id, amount, this.name);
+          if (returnCode === OK) {
+            return true;
+          } else if (![ERR_TIRED, ERR_NOT_ENOUGH_RESOURCES].indexOf(returnCode)) {
+            this.debugLog('market', `market.deal: ${returnCode}`);
+            return false;
+          }
+        }
+      }
+    }
+    // no orders found, next time check for low price
+    this.data.allowedSalesHistoryDeviation = ((this.data.allowedSalesHistoryDeviation || 0) + config.market.buyEnergy.allowedSalesHistoryDeviation)
+  } catch (e) {
+    this.debugLog('market', this.data.allowedSalesHistoryDeviation, e.message);
+  }
+  return ERR_NOT_FOUND;
+}
+
 Room.prototype.handleMarket = function() {
   if (!this.terminal || this.terminal.cooldown) {
     return false;
@@ -220,6 +271,8 @@ Room.prototype.handleMarket = function() {
   this.sellOwnMineral();
   this.buyLowResources();
   this.buyLowCostResources();
+  this.buyEnergy();
+
   if (config.market.sendPowerOwnRoom) {
     this.sendPowerOwnRooms();
   }
