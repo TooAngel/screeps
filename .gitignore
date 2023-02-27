@@ -37,3 +37,4 @@ target/
 ## no ts
 tsconfig.json
 src_ts/
+.screeps.yaml

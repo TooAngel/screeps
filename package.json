@@ -44,7 +44,9 @@
     "deploy": "grunt deploy",
     "lint": "eslint .",
     "run-test": "git checkout test-server/db.json && node utils/test_on_server.js",
-    "setupTestServer": "docker compose -f docker-compose-setup.yml up"
+    "setupTestServer": "docker compose -f docker-compose-setup.yml up",
+    "followLogs": "node utils/followLogs localhost true",
+    "deployLocal": "screeps-api upload src/*"
   },
   "eslintConfig": {
     "extends": [

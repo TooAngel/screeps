@@ -290,10 +290,11 @@ Creep.prototype.moveByPathMy = function(path, pathPos, directions) {
   directions = directions || this.getDirections(path);
   if (!validateDirections(directions)) {
     if (pathPos === path.length - 1 && !directions.reverse) {
-      this.creepLog(`${Game.time} moveByPathMy: Directions invalid, but last pos pathPos: ${pathPos} path.length: ${path.length} path[pathPos]: ${path[pathPos]} directions: ${global.ex(directions, 1)}`);
+      this.creepLog(`${Game.time} moveByPathMy: Directions invalid, but last pos pathPos: ${pathPos} path.length: ${path.length} path[pathPos]: ${path[pathPos]} directions: ${JSON.stringify(directions, null, 2)}`);
       return true;
     }
-    this.log(`${Game.time} moveByPathMy: Directions invalid pathPos: ${pathPos} path.length: ${path.length} path[pathPos]: ${path[pathPos]} directions: ${global.ex(directions, 1)} path: ${JSON.stringify(path)} stack: ${new Error().stack}`);
+    // eslint-disable-next-line max-len
+    this.log(`${Game.time} moveByPathMy: Directions invalid pathPos: ${pathPos} path.length: ${path.length} path[pathPos]: ${path[pathPos]} directions: ${JSON.stringify(directions, null, 2)} path: ${JSON.stringify(path)} stack: ${new Error().stack}`);
     return false;
   }
 

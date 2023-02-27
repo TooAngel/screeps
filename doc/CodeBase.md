@@ -2,7 +2,7 @@
 
 ## Developing on test server
 
-To setup a test server with multiple bots. This will prepare the server and start everyting in a docker compose environment and can be stopped with CTRL-A
+To setup a test server with multiple bots. This will prepare the server and start everyting in a docker compose environment and can be stopped with CTRL-C
 
 - `npm run setupTestServer`
 
@@ -10,18 +10,37 @@ It can be resumed via
 
 `docker compose up`
 
+To deploy create a `.screeps.yaml`:
+```
+servers:
+  main:
+    host: 127.0.0.1
+    port: 21025
+    secure: false
+    username: 'W8N8'
+    password: 'tooangel'
+```
+
+and run `npm run deployLocal`.
+
+
 ## Tweaking
 
-Add a `src/friends.js` with player names to ignore them from all attack
-considerations.
+### Config
+Add a `src/config_local.js` to overwrite configuration values. Copy
+`config_local.js.example` to `src/config_local.js` as an example. `src/config.js`
+has the default values.
+
+### Friends
+Add a `src/friends.js` with player names to ignore them from all attack considerations.
 
 E.g.:
 `module.exports = ['TooAngel'];`
 
 
-Add a `src/config_local.js` to overwrite configuration values. Copy
-`config_local.js.example` to `src/config_local.js` as an example. `src/config.js`
-has the default values.
+## Interacting
+
+the `src/utils.js` provides methods to interact with the NPC.
 
 ## Debugging
 
@@ -29,6 +48,10 @@ Within the `config_local.js` certain `config.debug` flags can be enabled.
 To add debug messages `Room.debugLog(TYPE, MESSAGE)` and
 `Creep.creepLog(MESSAGE)` are suggested. Especially the `creepLog` allows
 granular output of the creep behavior based on the room and the creep role.
+
+## Testing
+
+`node utils/test.js` will start a private server and add some bots as test cases.
 
 ## Upload
 
@@ -70,22 +93,8 @@ module.exports = [{
 
     grunt local
 
-
-## Develop
-
-    grunt dev
-
 ## Release
 
 Releasing to npm is done automatically by increasing the version and merging to `master`.
 
-    npm version 10.0.1
-    git push --follow-tags
-
 Every deploy to `master` is automatically deployed to the live tooangel account.
-
-## Testing
-
-`node utils/test.js` will start a private server and add some bots as test
-cases. Within in the `tmp-test-server` directory the server can be easily
-started via `screeps start`.

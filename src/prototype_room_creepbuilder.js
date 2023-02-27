@@ -5,6 +5,55 @@ const {
   sortCreepParts,
 } = require('./utils_creep_part');
 
+/**
+   * from string format of creep parts String (tooAngel config format) to creep parts array (screeps format)
+   *
+   * @param {string} stringParts creep parts String
+   * @return {undefined|string[]} creep parts array
+   */
+function stringToParts(stringParts) {
+  if (!stringParts || typeof (stringParts) !== 'string') {
+    return undefined;
+  }
+  const arrayParts = [];
+  for (const partChar of stringParts) {
+    let part;
+    switch (partChar) {
+    case 'M':
+      part = MOVE;
+      break;
+    case 'C':
+      part = CARRY;
+      break;
+    case 'A':
+      part = ATTACK;
+      break;
+    case 'W':
+      part = WORK;
+      break;
+    case 'R':
+      part = RANGED_ATTACK;
+      break;
+    case 'T':
+      part = TOUGH;
+      break;
+    case 'H':
+      part = HEAL;
+      break;
+    case 'K':
+      part = CLAIM;
+      break;
+    default:
+      // should never enter
+      part = MOVE;
+      console.error('stringToParts illegal partChar : ' + part);
+    }
+    arrayParts.push(part);
+  }
+  return arrayParts;
+}
+
+
 Room.prototype.creepMem = function(role, targetId, targetRoom, level, base) {
   return {
     role: role,
@@ -222,7 +271,7 @@ Room.prototype.getPartsStringData = function(stringParts, energyAvailable) {
     return ret;
   }
   Memory.layoutsCost = {};
-  ret.parts = global.utils.stringToParts(stringParts);
+  ret.parts = stringToParts(stringParts);
   ret.len = ret.parts.length;
   _.each(ret.parts,
     (p) => {
