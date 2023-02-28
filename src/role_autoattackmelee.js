@@ -36,7 +36,7 @@ roles.autoattackmelee.action = function(creep) {
     return true;
   }
 
-  if (creep.room.controller.safeMode) {
+  if (creep.room.controller && creep.room.controller.safeMode) {
     const constructionSites = creep.room.findConstructionSites();
     creep.moveTo(constructionSites[0]);
     return true;
@@ -47,7 +47,7 @@ roles.autoattackmelee.action = function(creep) {
   if (spawn === null) {
     const hostileCreep = creep.findClosestEnemy();
     if (hostileCreep === null) {
-      const structures = creep.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER], {inverse: true});
+      const structures = creep.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_CONTROLLER, STRUCTURE_KEEPER_LAIR, STRUCTURE_WALL], {inverse: true});
 
       if (structures === null) {
         const constructionSites = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
