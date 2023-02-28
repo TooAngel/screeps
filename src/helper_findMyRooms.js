@@ -20,6 +20,7 @@ function findRoomsWithinReach(room) {
   }
   return rooms;
 }
+
 module.exports.findRoomsWithinReach = findRoomsWithinReach;
 
 /**
@@ -35,6 +36,7 @@ function findMyRoomsSortByDistance(roomName) {
 
   return _.sortBy(Memory.myRooms, sortByDistance);
 }
+
 module.exports.findMyRoomsSortByDistance = findMyRoomsSortByDistance;
 
 /**
@@ -67,4 +69,5 @@ function getMyRoomWithinRange(roomName, range, minRCL) {
   }
   return false;
 }
+
 module.exports.getMyRoomWithinRange = getMyRoomWithinRange;

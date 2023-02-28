@@ -279,7 +279,6 @@ Creep.prototype.buildRoad = function() {
     constructionSites.length <= config.buildRoad.maxConstructionSitesRoom &&
     Object.keys(Game.constructionSites).length < config.buildRoad.maxConstructionSitesTotal &&
     this.memory.routing.pathPos >= 0
-  // && this.pos.inPath()
   ) {
     const returnCode = this.pos.createConstructionSite(STRUCTURE_ROAD);
     if (returnCode === OK) {
@@ -403,6 +402,11 @@ Creep.prototype.killPrevious = function(path) {
   return true;
 };
 
+/**
+ * respawn creep no mater what, copy of memory
+ *
+ * @return {number} in queue
+ */
 Creep.prototype.respawnMe = function() {
   const routing = {
     targetRoom: this.memory.routing.targetRoom,
@@ -416,7 +420,7 @@ Creep.prototype.respawnMe = function() {
     level: this.memory.level,
     routing: routing,
   };
-  Game.rooms[this.memory.base].memory.queue.push(spawn);
+  return Game.rooms[this.memory.base].memory.queue.push(spawn);
 };
 
 Creep.prototype.spawnReplacement = function(maxOfRole) {

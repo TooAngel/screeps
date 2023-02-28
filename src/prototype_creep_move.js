@@ -9,7 +9,7 @@
  * @param {boolean} withinRoom - Stays within the room
  * @return {object} - Response from PathFinder.search
  **/
-Creep.prototype.searchPath = function(target, range=1, withinRoom=false) {
+Creep.prototype.searchPath = function(target, range = 1, withinRoom = false) {
   let costMatrixCallback;
   if (this.room.memory.misplacedSpawn) {
     costMatrixCallback = this.room.getBasicCostMatrixCallback(withinRoom);
@@ -59,7 +59,7 @@ Creep.prototype.moveMy = function(target) {
  * @param {boolean} withinRoom - Stays within the room
  * @return {boolean|OK|ERR_TIRED} - Success of the execution
  **/
-Creep.prototype.moveToMy = function(target, range=1, withinRoom=false) {
+Creep.prototype.moveToMy = function(target, range = 1, withinRoom = false) {
   this.creepLog(`moveToMy(${target}, ${range}) pos: ${this.pos}`);
   if (this.fatigue > 0) {
     return true;
@@ -68,8 +68,13 @@ Creep.prototype.moveToMy = function(target, range=1, withinRoom=false) {
   const search = this.searchPath(target, range, withinRoom);
   // Fallback to moveTo when the path is incomplete and the creep is only switching positions
   if (search.path.length < 2 && search.incomplete) {
-    this.log(`moveToMy search.path too short ${JSON.stringify(search)} target: ${target}`);
-    return this.moveTo(target, {range: range});
+    if (this.memory.role === 'repairer') {
+      // repairer found energy behind a wall, can not pickup
+      return false;
+    } else {
+      this.log(`moveToMy search.path too short ${JSON.stringify(search)} target: ${target}`);
+      return this.moveTo(target, {range: range});
+    }
   }
   target = search.path[0] || target.pos || target;
 

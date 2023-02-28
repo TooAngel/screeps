@@ -58,11 +58,11 @@ function handleUnexpectedDeadCreeps(name, creepMemory) {
     console.log(`${Game.time} ${name} handleUnexpectedDeadCreeps no creepMemory.room creepMemory: ${JSON.stringify(creepMemory)} data: ${JSON.stringify(global.data.creeps[name])}`);
   }
 
-  debugLog(`${Game.time} ${creepMemory.room} ${name} memory hostile: ${data.hostileCreepCount}`);
   if (data.hostileCreepCount > 0) {
+    debugLog(`${Game.time} ${creepMemory.room} ${name} memory hostile: ${data.hostileCreepCount}`);
     debugLog('brain', `${creepMemory.room} ${name} Not in Game.creeps with hostiles lived ${Game.time - creepMemory.born} hostiles: ${data.hostileCreepCount} - I guess killed by hostile`); // eslint-disable-line max-len
   } else {
-    console.log(`${Game.time} ${creepMemory.room} ${name} Not in Game.creeps without hostiles lived ${Game.time - creepMemory.born} hostiles: ${data.hostileCreepCount}`); // eslint-disable-line max-len
+    console.log(`${Game.time} ${creepMemory.room} ${name} Not in Game.creeps without hostiles lived ${Game.time - creepMemory.born}`); // eslint-disable-line max-len
   }
 
   if (Game.time - creepMemory.born < 20) {
@@ -169,7 +169,9 @@ function cleanRooms() {
         delete Memory.rooms[name];
       }
       if (Memory.myRooms.indexOf(name) < 0) {
-        console.log(Game.time, `Deleting ${name} from memory, no myRoom ${JSON.stringify(Memory.rooms[name])}`);
+        if (Object.keys(Memory.rooms[name]).length > 0) {
+          console.log(Game.time, `Deleting ${name} from memory, no myRoom ${JSON.stringify(Memory.rooms[name])}`);
+        }
         delete Memory.rooms[name];
       }
     }

@@ -77,9 +77,9 @@ Room.prototype.getLinkStorage = function() {
  */
 function isUnexpectedLinkTransferReturnCode(returnCode) {
   return returnCode !== OK &&
-      returnCode !== ERR_NOT_ENOUGH_RESOURCES &&
-      returnCode !== ERR_TIRED &&
-      returnCode !== ERR_RCL_NOT_ENOUGH;
+    returnCode !== ERR_NOT_ENOUGH_RESOURCES &&
+    returnCode !== ERR_TIRED &&
+    returnCode !== ERR_RCL_NOT_ENOUGH;
 }
 
 Room.prototype.handleLinksTransferEnergy = function(links, linkIndex, linkStorage) {
@@ -305,8 +305,10 @@ Room.prototype.handleReviveRoomQueueCarry = function(myRoomName) {
   if (Game.map.getRoomLinearDistance(this.name, room.name) > 10) {
     return;
   }
-  this.log(`---!!! ${room.name} send energy to ${this.name} !!!---`);
-  room.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, room.storage.id, room.name, undefined, this.name);
+  if (this.controller.level > 1) {
+    this.log(`---!!! ${room.name} send energy to ${this.name} !!!---`);
+    room.checkRoleToSpawn('carry', config.carryHelpers.maxHelpersAmount, room.storage.id, room.name, undefined, this.name);
+  }
 };
 
 Room.prototype.handleReviveRoomSendCarry = function() {
@@ -496,10 +498,10 @@ Room.prototype.isConstructingSpawnEmergency = function() {
   if (!this.controller || !this.controller.my || !config.useConstructingSpawnEmergencyOperations.enabled) {
     return false;
   }
+  this.data.isConstructingSpawn = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN], {}).length === 0;
   if ([true, false].includes(this.data.isConstructingSpawn)) {
     return this.data.isConstructingSpawn;
   }
-  this.data.isConstructingSpawn = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN], {}).length === 0;
   return this.data.isConstructingSpawn;
 };
 
@@ -549,7 +551,7 @@ Room.prototype.executeRoom = function() {
 };
 
 const checkForRoute = function(room, roomOther) {
-  const route = room.findRoute(roomOther.name, room.name);
+  const route = room.findRoute(roomOther.name, room.name, true);
   // TODO Instead of skipping we could try to free up the way: attack with nextroomer or squad
   if (route.length === 0) {
     roomOther.log('No route to other room: ' + roomOther.name);
@@ -580,6 +582,7 @@ Room.prototype.reviveMyNowHelperValid = function(helperRoom) {
 
 Room.prototype.reviveMyNow = function() {
   const myRooms = findMyRoomsSortByDistance(this.name);
+  const retVal = [];
   for (const helperRoomName of myRooms) {
     if (this.name === helperRoomName) {
       continue;
@@ -590,13 +593,22 @@ Room.prototype.reviveMyNow = function() {
     }
 
     const hostileCreep = this.findEnemies();
+    let queueLength;
     if (hostileCreep.length > 0) {
-      this.debugLog('revive', `Send defender from ${helperRoomName}`);
-      helperRoom.checkRoleToSpawn('defender', 1, undefined, this.name);
+      queueLength = helperRoom.checkRoleToSpawn('defender', 1, undefined, this.name);
+      if (queueLength) {
+        this.debugLog('revive', `Send defender from ${helperRoomName}`);
+      }
+      retVal.push([helperRoom.name, queueLength]);
+    } else {
+      queueLength = helperRoom.checkRoleToSpawn('nextroomer', 1, undefined, this.name);
+      if (queueLength) {
+        this.debugLog('revive', `Send nextroomer from ${helperRoomName}`);
+      }
+      retVal.push([helperRoom.name, queueLength]);
     }
-    helperRoom.checkRoleToSpawn('nextroomer', 1, undefined, this.name);
-    this.debugLog('revive', `Send nextroomer from ${helperRoomName}`);
   }
+  return retVal;
 };
 
 Room.prototype.setRoomInactive = function() {
@@ -616,7 +628,7 @@ Room.prototype.setRoomInactive = function() {
     }];
   }
   if (tokens.length > 0) {
-    tokens.sort((a, b) => b.price-a.price);
+    tokens.sort((a, b) => b.price - a.price);
     reputationChange = Math.min(-1 * reputationChange, -1 * Math.abs(tokens[0].price));
   }
   const hostileCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader'], {inverse: true});

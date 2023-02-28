@@ -271,7 +271,7 @@ Room.prototype.harvestCommodities = function() {
     return;
   }
   this.debugLog('commodities', `Commodities found ${JSON.stringify(deposits)}`);
-  const baseRoomName = getMyRoomWithinRange(this.name, 6, 6);
+  const baseRoomName = getMyRoomWithinRange(this.name, config.commodities.range, config.commodities.minRCL);
   if (!baseRoomName) {
     this.debugLog('commodities', 'No room for commodity farming found');
     return;

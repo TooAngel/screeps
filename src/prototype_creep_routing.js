@@ -12,8 +12,16 @@ Creep.prototype.getRoute = function() {
   }
 
   let route = [];
+  let useHighWay = false;
+  switch (this.memory.role) {
+  case 'carry':
+  case 'claimer':
+  case 'nextroomer':
+    useHighWay = true;
+  }
+
   if (this.memory.base !== this.memory.routing.targetRoom) {
-    route = this.room.findRoute(this.memory.base, this.memory.routing.targetRoom);
+    route = this.room.findRoute(this.memory.base, this.memory.routing.targetRoom, useHighWay);
     if (route < 0) {
       route = this.room.findRoute(this.memory.base, this.memory.routing.targetRoom, true);
     }

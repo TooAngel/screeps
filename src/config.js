@@ -148,6 +148,8 @@ global.config = {
 
   commodities: {
     disabled: false,
+    minRCL: 7,
+    range: 6,
   },
 
   pixel: {
