@@ -2,6 +2,7 @@
 
 const {findMyRoomsSortByDistance} = require('./helper_findMyRooms');
 const {addToReputation} = require('./diplomacy');
+const {isFriend} = require('./brain_squadmanager');
 
 Room.prototype.unclaimRoom = function() {
   // remove creeps if base === this.name
@@ -285,7 +286,7 @@ Room.prototype.handleDefence = function(hostiles) {
     if (this.executeEveryTicks(10)) {
       this.debugLog('invader', 'Under attack from ' + hostiles[0].owner.username);
     }
-    if (!brain.isFriend(hostiles[0].owner.username)) {
+    if (!isFriend(hostiles[0].owner.username)) {
       Game.notify(this.name + ' Under attack from ' + hostiles[0].owner.username + ' at ' + Game.time);
     }
   }

@@ -1,5 +1,7 @@
 'use strict';
 
+const {isFriend} = require('./brain_squadmanager');
+
 Creep.prototype.rangeAttackOutsideOfMyRooms = function(targets) {
   if (targets.length > 0) {
     if (!this.room.isMy()) {
@@ -15,7 +17,7 @@ Creep.prototype.findClosestSourceKeeper = function() {
 Creep.prototype.findClosestEnemy = function() {
   return this.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
     filter: function(object) {
-      return !brain.isFriend(object.owner.username);
+      return !isFriend(object.owner.username);
     },
   });
 };

@@ -1,3 +1,5 @@
+const {isFriend} = require('./brain_squadmanager');
+
 // TODO I think we should get rid of findPropertyFilter and have specific finds
 // like this
 Room.prototype.findOtherPlayerCreeps = function() {
@@ -49,7 +51,7 @@ Room.prototype.findNukes = function() {
 Room.prototype.findEnemies = function() {
   return this.find(FIND_HOSTILE_CREEPS, {
     // TODO `brain.isFriend` extract to a module and import via require
-    filter: (object) => !brain.isFriend(object.owner.username),
+    filter: (object) => !isFriend(object.owner.username),
   });
 };
 
@@ -59,7 +61,7 @@ Room.prototype.findAlliedCreepsToHeal = function() {
       if (object.hits === object.hitsMax) {
         return false;
       }
-      if (brain.isFriend(object.owner.username)) {
+      if (isFriend(object.owner.username)) {
         return true;
       }
       return false;

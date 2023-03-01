@@ -1,5 +1,8 @@
 'use strict';
 
+
+const {isFriend} = require('./brain_squadmanager');
+
 /*
  * nextroomer is used to build up rooms
  *
@@ -214,7 +217,7 @@ const handleTower = function(creep) {
  */
 function handleHostile(creep, room) {
   const hostileCreeps = room.find(FIND_HOSTILE_CREEPS, {
-    filter: (creep) => (!room.controller.safeMode || creep.ticksToLive > room.controller.safeMode) && !brain.isFriend(creep.owner.username),
+    filter: (creep) => (!room.controller.safeMode || creep.ticksToLive > room.controller.safeMode) && !isFriend(creep.owner.username),
   });
   if (!hostileCreeps.length) {
     return;
