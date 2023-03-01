@@ -147,7 +147,7 @@ function handleRetaliation(player) {
  * @return {void}
  */
 function addToReputation(name, value) {
-  if (name === 'Invader') {
+  if (global.config.maliciousNpcUsernames.includes(name)) {
     return;
   }
   value = value || 0;

@@ -343,6 +343,7 @@ global.config = {
     enabled: true,
   },
 
+  maliciousNpcUsernames: ['Invader', 'Source Keeper'],
 };
 
 try {
