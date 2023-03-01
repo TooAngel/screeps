@@ -176,17 +176,8 @@ Creep.prototype.giveSourcersEnergy = function() {
 };
 
 Creep.prototype.pickupEnergy = function() {
-  const resources = this.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
-    filter: {resourceType: RESOURCE_ENERGY},
-  });
-  if (resources.length > 0) {
-    const resource = resources[0];
-    const returnCode = this.pickup(resource);
-    if (returnCode === OK) {
-      if (resource.amount >= this.store.getFreeCapacity()) {
-        return true;
-      }
-    }
+  if (this.pickupEnergyFromGround()) {
+    return true;
   }
   if (this.withdrawContainers()) {
     return true;
@@ -201,6 +192,22 @@ Creep.prototype.pickupEnergy = function() {
   }
 
   return this.giveSourcersEnergy();
+};
+
+Creep.prototype.pickupEnergyFromGround = function() {
+  const resources = this.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
+    filter: {resourceType: RESOURCE_ENERGY},
+  });
+  if (resources.length > 0) {
+    const resource = resources[0];
+    const returnCode = this.pickup(resource);
+    if (returnCode === OK) {
+      if (resource.amount >= this.store.getFreeCapacity()) {
+        return true;
+      }
+    }
+    return false;
+  }
 };
 
 const canStoreEnergy = function(object) {

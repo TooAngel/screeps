@@ -141,6 +141,9 @@ Room.prototype.destroyStructure = function(structure) {
   if (structure.structureType === STRUCTURE_RAMPART) {
     return false;
   }
+  if (structure.structureType === STRUCTURE_CONTAINER) {
+    return false;
+  }
   if (posIsIn(structure.pos, this.data.positions.structure[structure.structureType])) {
     return false;
   }

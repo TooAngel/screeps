@@ -183,7 +183,7 @@ function getContainerConstructionSite(creep) {
  */
 function maintainContainer(creep) {
   if (creep.inBase()) {
-    return false;
+    return creep.room.controller.level < 6;
   }
 
   const container = getContainer(creep);
@@ -209,6 +209,10 @@ function maintainContainer(creep) {
     return false;
   }
 }
+
+roles.sourcer.preMove = function(creep) {
+  creep.pickupEnergyFromGround();
+};
 
 roles.sourcer.action = function(creep) {
   creep.setNextSpawn();
