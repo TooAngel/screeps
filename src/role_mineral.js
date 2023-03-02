@@ -290,9 +290,7 @@ function cleanUpLabs(creep) {
       break;
     }
   } else {
-    const lab = creep.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], {
-      filter: (lab) => lab.mineralAmount > 0,
-    });
+    const lab = creep.pos.findClosestByRangeLabWithMinerals();
     if (lab === null) {
       // Nothing to do?
       creep.moveRandom();

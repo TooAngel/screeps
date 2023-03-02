@@ -68,12 +68,12 @@ Creep.prototype.squadHeal = function() {
     return true;
   }
 
-  const attacker = this.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['squadsiege']);
-
   if (this.pos.isBorder(-1)) {
     this.moveTo(25, 25);
     return true;
   }
+
+  const attacker = this.pos.findClosestByRangeSquadSiegeCreep();
   if (attacker === null) {
     const cs = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
     this.moveTo(cs);
