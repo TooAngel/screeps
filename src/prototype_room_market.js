@@ -173,7 +173,7 @@ Room.prototype.sendPowerOwnRooms = function() {
       return false;
     });
     if (config.debug.power) {
-      this.log('powerTransfer', global.ex(powerTransfer, true));
+      this.log('powerTransfer', JSON.stringify(powerTransfer, null, 2));
     }
   }
 };

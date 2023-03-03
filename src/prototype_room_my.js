@@ -4,18 +4,50 @@ const {findMyRoomsSortByDistance} = require('./helper_findMyRooms');
 const {addToReputation} = require('./diplomacy');
 const {isFriend} = require('./brain_squadmanager');
 
+/**
+ * killCreeps
+ *
+ * @param {object} room
+ */
+function killCreeps(room) {
+  const creepsToKill = _.filter(Game.creeps, (c) => c.memory.base === room.name);
+  room.log('creepsToKill', _.size(creepsToKill), _.map(creepsToKill, (c) => c.suicide()));
+}
+
+/**
+ * removeNextStructure
+ *
+ * @param {object} room
+ * @return {number}
+ */
+function removeNextStructure(room) {
+  let returnValue;
+  const myStructuresToDestroy = _.sortBy(room.findMyStructures(), (s) => s.hitsMax);
+  const controller = myStructuresToDestroy.shift();
+  if (_.size(myStructuresToDestroy) > 0) {
+    returnValue = myStructuresToDestroy[0].destroy();
+  } else {
+    returnValue = controller.unclaim();
+    delete Memory.rooms[room.name];
+  }
+  room.log('removeNextStructure returns', returnValue,
+    'next structure', myStructuresToDestroy[0],
+    'total structures', _.size(myStructuresToDestroy),
+    'controller', JSON.stringify(controller));
+  return returnValue;
+}
+
 Room.prototype.unclaimRoom = function() {
   // remove creeps if base === this.name
   const room = this;
-  let returnValue;
-  global.utils.killCreeps(room);
-  const sites = global.utils.removeConstructionSites(room);
-  if (sites < 2) {
-    returnValue = global.utils.removeNextStructure(room);
-    if (returnValue !== OK) {
-      room.log('destroy / unclaim did not work');
-    }
+  killCreeps(room);
+  // const sites = global.utils.removeConstructionSites(room); - This does not exist, but could make sense
+  // if (sites < 2) {
+  const returnValue = removeNextStructure(room);
+  if (returnValue !== OK) {
+    room.log('destroy / unclaim did not work');
   }
+  // }
 };
 
 Room.prototype.myHandleRoom = function() {
@@ -78,9 +110,9 @@ Room.prototype.getLinkStorage = function() {
  */
 function isUnexpectedLinkTransferReturnCode(returnCode) {
   return returnCode !== OK &&
-      returnCode !== ERR_NOT_ENOUGH_RESOURCES &&
-      returnCode !== ERR_TIRED &&
-      returnCode !== ERR_RCL_NOT_ENOUGH;
+    returnCode !== ERR_NOT_ENOUGH_RESOURCES &&
+    returnCode !== ERR_TIRED &&
+    returnCode !== ERR_RCL_NOT_ENOUGH;
 }
 
 Room.prototype.handleLinksTransferEnergy = function(links, linkIndex, linkStorage) {
@@ -617,7 +649,7 @@ Room.prototype.setRoomInactive = function() {
     }];
   }
   if (tokens.length > 0) {
-    tokens.sort((a, b) => b.price-a.price);
+    tokens.sort((a, b) => b.price - a.price);
     reputationChange = Math.min(-1 * reputationChange, -1 * Math.abs(tokens[0].price));
   }
   const hostileCreeps = this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', global.config.maliciousNpcUsernames, {inverse: true});

@@ -2,6 +2,16 @@
 
 const {findMyRoomsSortByDistance} = require('./helper_findMyRooms');
 
+/**
+ * return object.length if exist else return _.size
+ *
+ * @param {Array} object
+ * @return {Number}
+ */
+function returnLength(object) {
+  return (object && object.length) ? object.length : _.size(object);
+}
+
 Room.structureHasEnergy = (structure) => structure.store && structure.store.energy || structure.energy;
 
 Room.structureIsEmpty = (structure) => (!structure.store || _.sum(structure.store) === 0) && !structure.energy && !structure.mineralAmount && !structure.ghodium && !structure.power;
@@ -87,7 +97,7 @@ Room.prototype.closestSpawn = function(target) {
 
   for (const room of roomsMy) {
     const route = Game.map.findRoute(room, target);
-    const routeLength = global.utils.returnLength(route);
+    const routeLength = returnLength(route);
 
     if (route && routeLength) {
       // TODO @TooAngel please review: save found route from target to myRoom Spawn by shortest route!
@@ -108,7 +118,7 @@ Room.prototype.closestSpawn = function(target) {
     }
   }
 
-  const shortest = _.sortBy(pathLength, global.utils.returnLength);
+  const shortest = _.sortBy(pathLength, returnLength);
   return (_.first(shortest) || {}).room;
 };
 
@@ -120,9 +130,20 @@ Room.prototype.getEnergyCapacityAvailable = function() {
   return this.energyCapacityAvailable - offset;
 };
 
-Room.prototype.splitRoomName = function() {
+/**
+ * splitRoomName
+ *
+ * @param {string} name
+ * @return {object}
+ */
+function splitRoomName(name) {
   const pattern = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
-  return pattern.exec(this.name);
+  return pattern.exec(name);
+}
+module.exports.splitRoomName = splitRoomName;
+
+Room.prototype.splitRoomName = function() {
+  return splitRoomName(this.name);
 };
 
 Room.pathToString = function(path) {

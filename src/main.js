@@ -10,8 +10,9 @@ require('./visualizer');
 require('./screepsplus');
 
 const {initProfiler, execute} = require('./brain_main');
+const {cpuLimit} = require('./brain_stats');
 
-global.tickLimit = global.cpuLimit();
+global.tickLimit = cpuLimit();
 global.load = Math.round(Game.cpu.getUsed());
 
 // Init heap data

@@ -8,6 +8,19 @@ const {handleSquadManager} = require('./brain_squadmanager');
 global.cpuUsed = 0;
 
 /**
+ * leftPadRound
+ *
+ * String with fixed width for rounded number
+ * @param {number} nr
+ * @param {number} lpad
+ * @param {number} digest
+ * @return {string}
+ */
+function leftPadRound(nr, lpad, digest) {
+  return nr.toFixed(digest).padStart(lpad + digest + 1);
+}
+
+/**
  * executeRooms
  *
  * Executes all rooms and stores controlled rooms in `Memory.myRooms'
@@ -105,7 +118,7 @@ module.exports.execute = function() {
   });
 
   if (global.config.tickSummary.gcl) {
-    console.log(`${Game.time} GCL ${Game.gcl.level}: ${global.utils.leftPadRound(Game.gcl.progress/Game.gcl.progressTotal*100, 3, 5)} %  ${Math.round(Game.gcl.progress)}/${Math.round(Game.gcl.progressTotal)}`);
+    console.log(`${Game.time} GCL ${Game.gcl.level}: ${leftPadRound(Game.gcl.progress / Game.gcl.progressTotal * 100, 3, 5)} %  ${Math.round(Game.gcl.progress)}/${Math.round(Game.gcl.progressTotal)}`);
   }
   if (global.config.tickSummary.bucket) {
     console.log(`${Game.time} Bucket: ${Game.cpu.bucket}`);

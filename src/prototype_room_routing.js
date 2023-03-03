@@ -1,5 +1,64 @@
 'use strict';
 
+const {splitRoomName} = require('./prototype_room_utils');
+
+/**
+ * routeCallbackRoomHandle
+ *
+ * @param {string} roomName
+ * @return {number}
+ */
+function routeCallbackRoomHandle(roomName) {
+  let returnValue;
+  if (Memory.rooms[roomName].state === 'Occupied') {
+    // console.log(Game.time, `Creep.prototype.getRoute: Do not route through occupied rooms ${roomName}`);
+    if (config.path.allowRoutingThroughFriendRooms && friends.indexOf(Memory.rooms[roomName].player) > -1) {
+      console.log('routing through friendly room' + roomName);
+      returnValue = 1;
+    } else {
+      // console.log(Game.time, 'Not routing through enemy room' + roomName);
+      returnValue = Infinity;
+    }
+  }
+  if (Memory.rooms[roomName].state === 'Blocked') {
+    // console.log(Game.time, `Creep.prototype.getRoute: Do not route through blocked rooms ${roomName}`);
+    returnValue = Infinity;
+  }
+  return returnValue;
+}
+
+/**
+ * routeCallback
+ *
+ * @param {string} to
+ * @param {boolean} useHighWay
+ * @return {number}
+ */
+function routeCallback(to, useHighWay) {
+  return function(roomName) {
+    let returnValue = Infinity;
+    if (roomName === to) {
+      returnValue = 1;
+    } else {
+      if (Memory.rooms[roomName]) {
+        returnValue = routeCallbackRoomHandle(roomName);
+      }
+      if (useHighWay) {
+        const nameSplit = splitRoomName(roomName);
+        if (nameSplit[2] % 10 === 0 || nameSplit[4] % 10 === 0) {
+          returnValue = 0.5;
+        } else {
+          returnValue = 2;
+        }
+      } else {
+        returnValue = 1;
+      }
+    }
+    return returnValue;
+  };
+}
+
+
 Room.isRoomUnderAttack = function(roomName) {
   if (!Memory.rooms[roomName]) {
     return false;
@@ -56,8 +115,7 @@ Room.prototype.getCreepPositionForId = function(to) {
 Room.prototype.findRoute = function(from, to, useHighWay) {
   useHighWay = useHighWay || false;
   return Game.map.findRoute(from, to, {
-    // TODO don't use global.utils - these should be manual commands
-    routeCallback: global.utils.routeCallback(to, useHighWay),
+    routeCallback: routeCallback(to, useHighWay),
   });
 };
 
