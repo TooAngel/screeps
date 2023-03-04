@@ -1,5 +1,6 @@
 const {debugLog} = require('./logging');
 const {getMyRoomWithinRange} = require('./helper_findMyRooms');
+const {startSquad, startMeleeSquad} = require('./brain_squadmanager');
 
 /**
  * checkPlayers
@@ -48,10 +49,10 @@ function checkPlayers() {
 
 module.exports.checkPlayers = checkPlayers;
 
-const findRoomPairs = function(player) {
+const findRoomPair = function(player) {
   for (const roomName of Object.keys(player.rooms).sort(() => 0.5 - Math.random())) {
-    debugLog('diplomacy', `findRoomPairs: room ${roomName}`);
-    const minRCL = ((global.data.rooms[roomName] || {}).controller || {}).level || 8;
+    debugLog('diplomacy', `findRoomPairs for room ${roomName}`);
+    const minRCL = ((global.data.rooms[roomName] || {}).controller || {}).level || config.autoAttack.minAttackRCL;
     const range = 7;
     const myRoomName = getMyRoomWithinRange(roomName, range, minRCL);
     if (myRoomName) {
@@ -65,19 +66,14 @@ const findRoomPairs = function(player) {
 };
 
 /**
- * handleRetaliation
+ * getAttackAction
+ *
+ * Gets a fitting action for the player
  *
  * @param {object} player
- * @return {boolean|void}
+ * @return {object}
  */
-function handleRetaliation(player) {
-  if (!player.lastAttacked) {
-    player.lastAttacked = Game.time + config.autoAttack.timeBetweenAttacks;
-  }
-  if (Game.time < player.lastAttacked + config.autoAttack.timeBetweenAttacks) {
-    debugLog('diplomacy', `Too early to attack`);
-    return false;
-  }
+function getAttackAction(player) {
   const actions = [
     {
       name: 'simpleAttack',
@@ -93,7 +89,7 @@ function handleRetaliation(player) {
       value: -4 * 1500,
       level: 1,
       execute: (roomPair) => {
-        brain.startSquad(roomPair.myRoomName, roomPair.theirRoomName);
+        startSquad(roomPair.myRoomName, roomPair.theirRoomName);
       },
     },
     {
@@ -101,7 +97,7 @@ function handleRetaliation(player) {
       value: -6 * 1500,
       level: 2,
       execute: (roomPair) => {
-        brain.startMeleeSquad(roomPair.myRoomName, roomPair.theirRoomName);
+        startMeleeSquad(roomPair.myRoomName, roomPair.theirRoomName);
       },
     },
   ];
@@ -114,17 +110,38 @@ function handleRetaliation(player) {
     }
     return true;
   });
+
   if (possibleActions.length === 0) {
-    return false;
-  }
-  debugLog('diplomacy', `handleRetaliation player: ${JSON.stringify(player)} possibleActions: ${JSON.stringify(possibleActions)}`);
-  const roomPair = findRoomPairs(player);
-  if (!roomPair) {
-    debugLog('diplomacy', `handleRetaliation: Can not find a fitting room pair`);
+    debugLog('diplomacy', `No possible actions found`);
+    player.lastAttacked = Game.time;
     return;
   }
+  debugLog('diplomacy', `handleRetaliation player: ${JSON.stringify(player)} possibleActions: ${JSON.stringify(possibleActions)}`);
   possibleActions.sort(() => 0.5 - Math.random());
-  debugLog('diplomacy', `Running attach roomPair: ${JSON.stringify(roomPair)} action: ${JSON.stringify(possibleActions[0])}`);
+  return possibleActions[0];
+}
+
+/**
+ * startAttack
+ *
+ * @param {object} player - The player to attack
+ * @return {void}
+ */
+function startAttack(player) {
+  const action = getAttackAction(player);
+  if (!action) {
+    player.lastAttacked = Game.time;
+    return;
+  }
+
+  const roomPair = findRoomPair(player);
+  if (!roomPair) {
+    debugLog('diplomacy', `handleRetaliation: Can not find a fitting room pair`);
+    player.lastAttacked = Game.time;
+    return;
+  }
+
+  debugLog('diplomacy', `Running attach roomPair: ${JSON.stringify(roomPair)} action: ${JSON.stringify(action)}`);
   player.lastAttacked = Game.time;
   if (config.autoAttack.notify) {
     Game.notify(Game.time + ' ' + this.name + ' Queuing retaliation');
@@ -134,7 +151,25 @@ function handleRetaliation(player) {
     player.level += 1;
     player.counter = 0;
   }
-  possibleActions[0].execute(roomPair);
+  action.execute(roomPair);
+}
+module.exports.startAttack = startAttack;
+
+/**
+ * handleRetaliation
+ *
+ * @param {object} player
+ * @return {boolean|void}
+ */
+function handleRetaliation(player) {
+  if (!player.lastAttacked) {
+    player.lastAttacked = Game.time + config.autoAttack.timeBetweenAttacks;
+  }
+  if (Game.time < player.lastAttacked + config.autoAttack.timeBetweenAttacks) {
+    // debugLog('diplomacy', `Too early to attack`);
+    return false;
+  }
+  return startAttack(player);
 }
 
 /**
@@ -154,7 +189,7 @@ function addToReputation(name, value) {
   Memory.players = Memory.players || {};
 
   const player = initPlayer(name);
-  debugLog('diplomacy', `addToReputation name: ${name} value: ${value} player: ${JSON.stringify(player)}`);
+  // debugLog('diplomacy', `addToReputation name: ${name} value: ${value} player: ${JSON.stringify(player)}`);
 
   if (!player.reputation) {
     player.reputation = 0;

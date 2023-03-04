@@ -1,3 +1,5 @@
+const {startAttack} = require('./diplomacy');
+
 /**
  * This module is used to allow player easy access to different actions on the NPC
  * like asking for reports, triggering attacks, ...
@@ -5,10 +7,27 @@
 
 global.utils = {
   /**
+   * Attack player
+   *
+   * @param {string} playerName
+   */
+  attack: (playerName) => {
+    const player = Memory.players[playerName];
+    if (!player) {
+      console.log('player not found');
+      return;
+    }
+    startAttack(player);
+  },
+  /**
    * Print out known players
    */
   printPlayers: function() {
-    console.log(JSON.stringify(Memory.players, null, 2));
+    for (const playerKey of Object.keys(Memory.players)) {
+      const player = Memory.players[playerKey];
+      console.log(`${player.name} rooms: ${Object.keys(player.rooms).length} level: ${player.level} counter: ${player.counter} reputation: ${player.reputation}`);
+    }
+    // console.log(JSON.stringify(Memory.players, null, 2));
   },
 
   /**

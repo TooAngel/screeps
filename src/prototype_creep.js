@@ -1,5 +1,7 @@
 'use strict';
 
+const {addToReputation} = require('./diplomacy');
+
 /**
  * The data property represent the current data of the creep stored on the heap
  */
@@ -109,12 +111,28 @@ Creep.prototype.checkForHandle = function() {
   return true;
 };
 
+Creep.prototype.handleAttacked = function() {
+  if (!this.data.lastHits) {
+    this.data.lastHits = this.hits;
+    return;
+  }
+  if (this.data.lastHits > this.hits) {
+    const hostileCreeps = this.room.findHostileAttackingCreeps();
+    for (const hostileCreep of hostileCreeps) {
+      addToReputation(hostileCreep.owner.username, this.hits - this.data.lastHits);
+    }
+  }
+  this.data.lastHits = this.hits;
+};
+
 Creep.prototype.handle = function() {
   this.memory.room = this.pos.roomName;
   if (!this.checkForHandle()) {
     return;
   }
   try {
+    this.handleAttacked();
+
     if (!this.unit()) {
       this.log('Unknown role suiciding');
       this.suicide();

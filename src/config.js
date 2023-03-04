@@ -88,6 +88,7 @@ global.config = {
     routing: false,
     brain: false,
     commodities: true,
+    memory: true,
   },
 
   tower: {
@@ -97,6 +98,7 @@ global.config = {
 
   autoAttack: {
     notify: true,
+    minAttackRCL: 6,
     timeBetweenAttacks: 2000,
     noReservedRoomMinMyRCL: 5,
     noReservedRoomInRange: 1,
@@ -232,7 +234,7 @@ global.config = {
       7: 8,
       8: 8,
     },
-    isHealthyStorageThreshold: 50000,
+    isHealthyStorageThreshold: 100000,
     handleNukeAttackInterval: 132,
     reviveEnergyCapacity: 1000,
     reviveEnergyAvailable: 1000,

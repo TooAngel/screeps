@@ -518,7 +518,6 @@ Room.prototype.isHealthy = function() {
   if (this.isStruggling()) {
     return false;
   }
-  // TODO extract as config variable
   if (this.storage.store.energy < config.room.isHealthyStorageThreshold) {
     return false;
   }

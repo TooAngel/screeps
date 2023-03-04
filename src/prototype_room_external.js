@@ -254,7 +254,6 @@ Room.prototype.harvestCommodities = function() {
     if (Memory.commodities[this.name].lastCheck + 1500 > Game.time) {
       return;
     }
-    // this.log(`I know this commodity already: ${JSON.stringify(Memory.commodities[this.name])}`);
     const sourcers = this.findMyCreepsOfRole('sourcers');
     if (sourcers.length > 0) {
       return;

@@ -107,6 +107,7 @@
       "no-return-assign": "error",
       "no-script-url": "error",
       "no-self-compare": "error",
+      "no-trailing-spaces": "error",
       "no-unused-expressions": "error",
       "no-useless-call": "error",
       "no-useless-concat": "error",
