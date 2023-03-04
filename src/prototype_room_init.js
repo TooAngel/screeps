@@ -254,6 +254,9 @@ Room.prototype.setStructures = function(path) {
     const pathPos = new RoomPosition(path[pathI].x, path[pathI].y, this.name);
     const structurePosIterator = pathPos.findNearPosition();
     for (const structurePos of structurePosIterator) {
+      if (this.controller && this.controller.my && this.controller.pos.isNearTo(structurePos)) {
+        continue;
+      }
       if (this.setStructuresIteratePos(structurePos, pathI, path)) {
         continue;
       }
