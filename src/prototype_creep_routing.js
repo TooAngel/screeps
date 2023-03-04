@@ -142,8 +142,8 @@ Creep.prototype.followPath = function(action) {
   try {
     path = this.prepareRoutingMemory();
   } catch (e) {
-    this.log(`Suiciding, cannot prepare routing ${e} ${e.stack}`);
-    this.suicide();
+    this.log(`Recycling, cannot prepare routing ${e} ${e.stack}`);
+    Creep.recycleCreep(this);
     return true;
   }
   if (!path) {

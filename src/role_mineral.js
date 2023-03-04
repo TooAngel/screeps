@@ -251,12 +251,12 @@ function transfer(creep, target, resource) {
  */
 function checkForSuicide(creep) {
   if (!creep.room.terminal) {
-    creep.suicide();
+    Creep.recycleCreep(creep);
     return true;
   }
   if (creep.ticksToLive < 50 && _.sum(creep.carry) === 0) {
     // early suicide to not waste minerals
-    creep.suicide();
+    Creep.recycleCreep(creep);
     return true;
   }
   return false;

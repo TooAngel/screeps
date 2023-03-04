@@ -38,7 +38,7 @@ function getMineral(creep) {
 
 roles.extractor.action = function(creep) {
   if (!creep.room.terminal) {
-    creep.suicide();
+    Creep.recycleCreep(creep);
     return true;
   }
   const mineral = getMineral(creep);

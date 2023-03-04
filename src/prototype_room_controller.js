@@ -116,5 +116,5 @@ Room.prototype.clearRoom = function() {
   _.each(constructionSites, (cs) => cs.remove());
 
   const creeps = this.findMyCreeps();
-  _.each(creeps, (cs) => cs.suicide());
+  _.each(creeps, (cs) => Creep.recycleCreep(cs));
 };

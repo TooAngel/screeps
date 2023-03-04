@@ -55,15 +55,15 @@ function checkHelperEmptyStorage(creep) {
   if (creep.room.name === creep.memory.routing.targetRoom) {
     const targetStructure = Game.getObjectById(creep.memory.routing.targetId);
     if (targetStructure === null) {
-      creep.suicide();
+      Creep.recycleCreep(creep);
       return;
     }
 
     if (targetStructure.structureType === STRUCTURE_STORAGE) {
       creep.say('storage');
       if (targetStructure.store.energy === 0) {
-        creep.log('Suiciding the storage I should get the energy from is empty');
-        creep.suicide();
+        creep.log('Recycling, the storage I should get the energy from is empty');
+        Creep.recycleCreep(creep);
       }
     }
   }
@@ -398,7 +398,8 @@ roles.carry.action = function(creep) {
 
   // End of path, can't harvest, suicide (otherwise the sourcer gets stuck)
   if (!reverse && creep.body.filter((part) => part.type === WORK).length === 0) {
-    // creep.log('Suiciding because end of path, no energy, do not want to get in the way of the sourcer (better recycle?)');
+    // creep.log('Recycling because end of path, no energy, do not want to get in the way of the sourcer (better recycle?)');
+    // no, recycle here will only make it more stuck, fail.
     creep.memory.killed = true;
     creep.suicide();
   }

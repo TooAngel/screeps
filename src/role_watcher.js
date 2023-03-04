@@ -45,7 +45,7 @@ roles.watcher.action = function(creep) {
     });
     if (creepOfRole.length > 1) {
       creepOfRole = _.sortBy(creepOfRole, (c) => c.ticksToLive);
-      creepOfRole[0].suicide();
+      creepOfRole[0].recycleCreep();
     }
   } else {
     creep.moveToMy(pos, near);
