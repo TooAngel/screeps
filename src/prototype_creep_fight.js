@@ -191,46 +191,88 @@ Creep.prototype.fightRanged = function(target) {
   return returnCode;
 };
 
+/**
+ * withdraw
+ *
+ * @param {object} creep
+ * @return {boolean}
+ */
+function withdraw(creep) {
+  if (creep.hits < 0.7 * creep.hitsMax) {
+    const exitNext = creep.pos.findClosestByRange(FIND_EXIT);
+    creep.moveTo(exitNext);
+    return true;
+  }
+  return false;
+}
+
+/**
+ * handleNotification
+ *
+ * @param {object} creep
+ */
+function handleNotification(creep) {
+  creep.log('Attacking');
+  Game.notify(Game.time + ' ' + creep.room.name + ' Attacking');
+  creep.memory.notified = true;
+}
+
+/**
+ * getStructureTarget
+ *
+ * @param {object} creep
+ * @return {object}
+ */
+function getStructureTarget(creep) {
+  let target = creep.pos.findClosestStructure(FIND_HOSTILE_STRUCTURES, STRUCTURE_TOWER);
+  if (!target) {
+    target = creep.pos.findClosestStructure(FIND_HOSTILE_STRUCTURES, STRUCTURE_SPAWN);
+  }
+  return target;
+}
+
+/**
+ * destroyConstructionSites
+ *
+ * @param {object} creep
+ */
+function destroyConstructionSites(creep) {
+  const cs = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
+    filter: (constructionSite) => {
+      switch (constructionSite) {
+      case STRUCTURE_ROAD:
+      case STRUCTURE_CONTROLLER:
+      case STRUCTURE_KEEPER_LAIR:
+      case STRUCTURE_WALL:
+        return false;
+      default:
+        return true;
+      }
+    },
+  });
+  if (cs) {
+    creep.moveTo(cs);
+  } else {
+    creep.healMyCreeps();
+  }
+}
+
 Creep.prototype.siege = function() {
   this.memory.hitsLost = this.memory.hitsLast - this.hits;
+  // This is the same as `lastHits`, except of the execution time, maybe both can be combined
   this.memory.hitsLast = this.hits;
 
-  // if (this.hits - this.memory.hitsLost < this.hits / 2) {
-  if (this.hits < 0.7 * this.hitsMax) {
-    const exitNext = this.pos.findClosestByRange(FIND_EXIT);
-    this.moveTo(exitNext);
+  if (withdraw(this)) {
     return true;
   }
 
   if (!this.memory.notified) {
-    this.log('Attacking');
-    Game.notify(Game.time + ' ' + this.room.name + ' Attacking');
-    this.memory.notified = true;
+    handleNotification(this);
   }
-  let target;
-  target = this.pos.findClosestStructure(FIND_HOSTILE_STRUCTURES, STRUCTURE_TOWER);
-  if (target === null) {
-    target = this.pos.findClosestStructure(FIND_HOSTILE_STRUCTURES, STRUCTURE_SPAWN);
-  }
-  if (target === null) {
-    const cs = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
-      filter: (constructionSite) => {
-        switch (constructionSite) {
-        case STRUCTURE_ROAD:
-        case STRUCTURE_CONTROLLER:
-        case STRUCTURE_KEEPER_LAIR:
-        case STRUCTURE_WALL:
-          return false;
-        default:
-          return true;
-        }
-      },
-    });
-    if (cs) {
-      this.moveTo(cs);
-    } else {
-      this.healMyCreeps();
-    }
+
+  let target = getStructureTarget(this);
+  if (!target) {
+    destroyConstructionSites(this);
     return false;
   }
   const path = this.pos.findPathTo(target, {

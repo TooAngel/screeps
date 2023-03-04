@@ -195,6 +195,32 @@ function getPath(room, exits ) {
   return path;
 }
 
+/**
+ * closePosition
+ *
+ * @param {object} room
+ * @param {object} pathPos
+ * @return {number}
+ */
+function closePosition(room, pathPos) {
+  let structure = STRUCTURE_WALL;
+  const costMatrixBase = room.getMemoryCostMatrix();
+  if (pathPos.inPath()) {
+    structure = STRUCTURE_RAMPART;
+    costMatrixBase.set(pathPos.x, pathPos.y, 0);
+    room.memory.walls.ramparts.push(pathPos);
+  } else if (pathPos.inPositions()) {
+    structure = STRUCTURE_RAMPART;
+    room.debugLog('baseBuilding', 'closeExitsByPath: pathPos in Positions: ' + pathPos);
+    room.memory.walls.ramparts.push(pathPos);
+  } else {
+    costMatrixBase.set(pathPos.x, pathPos.y, 0xff);
+  }
+  room.setMemoryCostMatrix(costMatrixBase);
+  room.memory.walls.layer[room.memory.walls.layer_i].push(pathPos);
+  return pathPos.createConstructionSite(structure);
+}
+
 Room.prototype.closeExitsByPath = function() {
   if (this.memory.walls && this.memory.walls.finished) {
     return false;
@@ -218,22 +244,7 @@ Room.prototype.closeExitsByPath = function() {
         continue;
       }
 
-      let structure = STRUCTURE_WALL;
-      const costMatrixBase = this.getMemoryCostMatrix();
-      if (pathPos.inPath()) {
-        structure = STRUCTURE_RAMPART;
-        costMatrixBase.set(pathPos.x, pathPos.y, 0);
-        this.memory.walls.ramparts.push(pathPos);
-      } else if (pathPos.inPositions()) {
-        structure = STRUCTURE_RAMPART;
-        this.debugLog('baseBuilding', 'closeExitsByPath: pathPos in Positions: ' + pathPos);
-        this.memory.walls.ramparts.push(pathPos);
-      } else {
-        costMatrixBase.set(pathPos.x, pathPos.y, 0xff);
-      }
-      this.setMemoryCostMatrix(costMatrixBase);
-      this.memory.walls.layer[this.memory.walls.layer_i].push(pathPos);
-      const returnCode = pathPos.createConstructionSite(structure);
+      const returnCode = closePosition(this, pathPos);
       if (returnCode === ERR_FULL) {
         return false;
       }

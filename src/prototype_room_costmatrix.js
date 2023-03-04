@@ -58,7 +58,7 @@ Room.prototype.updateCostMatrix = function() {
   }
 
   if (this.memory.misplacedSpawn) {
-    const structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+    const structures = this.findAllSpawn();
     this.setCostMatrixStructures(costMatrix, structures, config.layout.structureAvoid);
   }
 
@@ -70,6 +70,29 @@ Room.prototype.setCostMatrixStructures = function(costMatrix, structures, value)
     costMatrix.set(structure.pos.x, structure.pos.y, value);
   }
 };
+
+/**
+ * closeExits
+ *
+ * @param {object} costMatrix
+ * @param {number} x
+ * @param {number} y
+ */
+function closeExits(costMatrix, x, y) {
+  costMatrix.set(x, y, 0xff);
+}
+
+/**
+ * openExits
+ *
+ * @param {object} costMatrix
+ * @param {number} x
+ * @param {number} y
+ * @param {object} room
+ */
+function openExits(costMatrix, x, y, room) {
+  costMatrix.set(x, y, new RoomPosition(x, y, room.name).lookFor(LOOK_TERRAIN)[0] === 'wall' ? 0xff : 0);
+}
 
 Room.prototype.getBasicCostMatrixCallback = function(withinRoom = false) {
   const callbackInner = (roomName) => {
@@ -86,14 +109,11 @@ Room.prototype.getBasicCostMatrixCallback = function(withinRoom = false) {
 
     if (withinRoom) {
       const costMatrix = room.data.costMatrix.clone();
-      const closeExits = function(x, y) {
-        costMatrix.set(x, y, 0xff);
-      };
       for (let i = 0; i < 50; i++) {
-        closeExits(i, 0);
-        closeExits(i, 49);
-        closeExits(0, i);
-        closeExits(49, i);
+        closeExits(costMatrix, i, 0);
+        closeExits(costMatrix, i, 49);
+        closeExits(costMatrix, 0, i);
+        closeExits(costMatrix, 49, i);
       }
       return costMatrix;
     }
@@ -103,7 +123,6 @@ Room.prototype.getBasicCostMatrixCallback = function(withinRoom = false) {
 };
 
 Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom, allowExits) {
-  // console.log(`getCostMatrixCallback(${end}, ${excludeStructures}, ${oneRoom}, ${allowExits})`);
   const callbackInner = (roomName, debug) => {
     // TODO How often is this called? Do we need it? Can we just use the room costMatrix?
     if (oneRoom && roomName !== this.name) {
@@ -116,8 +135,6 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
     if (!room.data.costMatrix) {
       room.debugLog('routing', `getCostMatrixCallback - no CostMatrix`);
       room.updatePosition();
-      // I think updatePosition sets the correct CostMatrix
-      // room.updateCostMatrix();
     }
     const costMatrix = room.data.costMatrix.clone();
     // TODO the ramparts could be within existing walls (at least when converging to the new move sim
@@ -127,36 +144,30 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
 
     if (excludeStructures) {
       // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
-      const structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], {inverse: true});
+      const structures = room.findAllBuilding();
       if (debug) {
         console.log(`Exclude structures: ${JSON.stringify(structures)}`);
       }
       this.setCostMatrixStructures(costMatrix, structures, config.layout.structureAvoid);
 
       // TODO repairer got stuck at walls, why?
-      const constructionSites = room.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], {inverse: true});
+      const constructionSites = room.findBuildingConstructionSites();
       this.setCostMatrixStructures(costMatrix, constructionSites, config.layout.structureAvoid);
     }
 
     if (allowExits) {
-      const openExits = function(x, y) {
-        costMatrix.set(x, y, new RoomPosition(x, y, room.name).lookFor(LOOK_TERRAIN)[0] === 'wall' ? 0xff : 0);
-      };
       for (let i = 0; i < 50; i++) {
-        openExits(i, 0);
-        openExits(i, 49);
-        openExits(0, i);
-        openExits(49, i);
+        openExits(costMatrix, i, 0, room);
+        openExits(costMatrix, i, 49, room);
+        openExits(costMatrix, 0, i, room);
+        openExits(costMatrix, 49, i, room);
       }
     } else {
-      const closeExits = function(x, y) {
-        costMatrix.set(x, y, 0xff);
-      };
       for (let i = 0; i < 50; i++) {
-        closeExits(i, 0);
-        closeExits(i, 49);
-        closeExits(0, i);
-        closeExits(49, i);
+        closeExits(costMatrix, i, 0);
+        closeExits(costMatrix, i, 49);
+        closeExits(costMatrix, 0, i);
+        closeExits(costMatrix, 49, i);
       }
     }
     return costMatrix;

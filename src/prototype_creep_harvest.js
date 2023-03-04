@@ -30,13 +30,15 @@ Creep.prototype.spawnCarry = function() {
   }
 
   if (resourceAtPosition > parts.carryParts.carry * CARRY_CAPACITY || (this.memory.routing.type === 'commodity' && this.store.getFreeCapacity() === 0)) {
-    if (!Game.rooms[this.memory.base].inQueue(creepMemory)) {
-      Game.rooms[this.memory.base].checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
+    const baseRoom = Game.rooms[this.memory.base];
+    if (baseRoom.hasSpawnCapacity()) {
+      if (!baseRoom.inQueue(creepMemory)) {
+        baseRoom.checkRoleToSpawn('carry', 0, this.memory.routing.targetId, this.memory.routing.targetRoom, carrySettings);
+      }
     }
-  } else {
-    const nearCarries = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 2, 'memory.role', ['carry'], {
-      filter: (creep) => creep.memory.routing.targetId === this.memory.routing.targetId,
-    });
+  }
+  if (resourceAtPosition < 50) {
+    const nearCarries = this.pos.findInRangeCarryWithSameTargetPower(2, this.memory.routing.targetId);
     if (nearCarries.length > 2) {
       nearCarries[0].memory.recycle = true;
     }
@@ -54,5 +56,5 @@ Creep.prototype.spawnCarry = function() {
  * @return {number}
  */
 Creep.prototype.getCarrySpawnInterval = function() {
-  return this.memory.timeToTravel + 80;
+  return this.memory.timeToTravel + config.room.spawnCarryIntervalOffset;
 };

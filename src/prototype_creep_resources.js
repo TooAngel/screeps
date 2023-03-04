@@ -6,6 +6,10 @@ Creep.pickableResources = function(creep) {
 
 Creep.prototype.universalBeforeStorage = function() {
   this.creepLog(`universalBeforeStorage`);
+  if (this.store.getFreeCapacity() === 0 && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
+    const resourceToDrop = Object.keys(this.store)[0];
+    this.drop(resourceToDrop, this.store[resourceToDrop]);
+  }
   const methods = [];
 
   methods.push(Creep.getEnergy);
@@ -14,14 +18,14 @@ Creep.prototype.universalBeforeStorage = function() {
     methods.push(Creep.upgradeControllerTask);
   }
   if (!this.room.isConstructingSpawnEmergency()) {
-    const universals = this.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['universal']).map((creep) => creep.name);
+    const universals = this.room.findCreep('universal').map((creep) => creep.name);
     universals.sort();
     if (universals.indexOf(this.name) < 2) {
       methods.push(Creep.transferEnergy);
     }
   }
 
-  const structures = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_CONTROLLER], {inverse: true});
+  const structures = this.room.findBuildingConstructionSites();
   if (structures.length > 0) {
     methods.push(Creep.constructTask);
   }
@@ -74,7 +78,8 @@ Creep.prototype.pickupWhileMoving = function() {
   }
 
   if (this.room.name === this.memory.routing.targetRoom) {
-    const containers = this.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_CONTAINER, STRUCTURE_STORAGE]);
+    const containers = this.pos.findInRangeStructuresWithUsableEnergy(1);
+
     for (const container of containers) {
       // To avoid carry withdrawing energy from base storage
       if (container.structureType === STRUCTURE_STORAGE && container.id !== this.memory.routing.targetId) {
@@ -163,7 +168,8 @@ Creep.prototype.withdrawContainers = function() {
 
 Creep.prototype.giveSourcersEnergy = function() {
   let returnValue = false;
-  const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer']);
+  const sourcers = this.pos.findInRangeSourcer(1);
+
   if (sourcers.length > 0) {
     for (const resource of Object.keys(sourcers[0].store)) {
       const returnCode = sourcers[0].transfer(this, resource);
@@ -325,9 +331,7 @@ Creep.prototype.transferToStructures = function() {
 };
 
 Creep.prototype.getEnergyFromSourcer = function() {
-  const sourcers = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'memory.role', ['sourcer'], {
-    filter: (creep) => creep.store.energy > 0,
-  });
+  const sourcers = this.pos.findInRangeSourcer(0);
   if (sourcers.length > 0) {
     const returnCode = sourcers[0].transfer(this, RESOURCE_ENERGY);
     this.say('rr:' + returnCode);
@@ -360,7 +364,7 @@ Creep.prototype.moveToSource = function(source, swarm = false) {
 Creep.prototype.harvestSource = function(source) {
   this.harvest(source);
   if (this.store.energy === this.store.getCapacity() && this.store.getCapacity() > 0) {
-    const creepsWithoutEnergy = this.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 1, 'carry.energy', [0]);
+    const creepsWithoutEnergy = this.pos.findInRangeCreepWithoutEnergy(1);
     if (creepsWithoutEnergy.length > 0) {
       this.transfer(creepsWithoutEnergy[0], RESOURCE_ENERGY);
     }
@@ -448,6 +452,9 @@ Creep.prototype.getDroppedEnergy = function() {
 };
 
 Creep.prototype.getEnergy = function() {
+  if (this.store.getFreeCapacity() === 0) {
+    return false;
+  }
   /* State machine:
    * No energy, goes to collect energy until full.
    * Full energy, uses energy until empty.

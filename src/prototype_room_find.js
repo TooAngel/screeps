@@ -1,9 +1,23 @@
 const {isFriend} = require('./brain_squadmanager');
 
-// TODO I think we should get rid of findPropertyFilter and have specific finds
-// like this
+
+Room.prototype.findStructuresWithUsableEnergy = function() {
+  return this.find(FIND_MY_STRUCTURES, {filter: (object) => {
+    if (!object.store) {
+      return false;
+    }
+    if (!object.store.energy) {
+      return false;
+    }
+    if (object.structureType === STRUCTURE_SPAWN) {
+      return false;
+    }
+    return true;
+  }});
+};
+
 Room.prototype.findOtherPlayerCreeps = function() {
-  return this.findPropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', global.config.maliciousNpcUsernames, {inverse: true});
+  return this.find(FIND_HOSTILE_CREEPS, {filter: (object) => !global.config.maliciousNpcUsernames.includes(object.owner.username)});
 };
 
 Room.prototype.findObservers = function() {
@@ -28,6 +42,14 @@ Room.prototype.findMyStructures = function() {
 
 Room.prototype.findConstructionSites = function() {
   return this.find(FIND_CONSTRUCTION_SITES);
+};
+
+Room.prototype.findConstructionSitesStructures = function() {
+  return this.find(FIND_CONSTRUCTION_SITES, {filter: (object) => ![STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART].includes(object.structureType)});
+};
+
+Room.prototype.findConstructionSitesEssentialStructures = function() {
+  return this.find(FIND_CONSTRUCTION_SITES, {filter: (object) => [STRUCTURE_SPAWN, STRUCTURE_TOWER, STRUCTURE_LINK, STRUCTURE_EXTENSION].includes(object.structureType)});
 };
 
 Room.prototype.findSources = function() {

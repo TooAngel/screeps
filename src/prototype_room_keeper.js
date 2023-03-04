@@ -10,7 +10,7 @@ Room.prototype.findKeepersAt = function(roles, posId) {
     posId: posId,
     amount: amount,
     roles: _.map(roles, (role) => {
-      const keeper = room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', [role]);
+      const keeper = room.find(FIND_MY_CREEPS, {filter: (object) => object.memory.role === role});
       const cSize = _.filter(keeper, (c) => c.memory.routing.targetId === posId);
       return {
         role: role,
@@ -103,7 +103,7 @@ Room.prototype.spawnKeepers = function() {
 
 Room.prototype.checkForWatcher = function() {
   const baseRoom = Game.rooms[this.data.base];
-  const watcher = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['watcher']);
+  const watcher = this.findWatcher();
   if (baseRoom && _.size(watcher) < 1) {
     return baseRoom.checkRoleToSpawn('watcher', 1, undefined, this.name);
   }
@@ -141,15 +141,15 @@ Room.prototype.spawnKeepersEveryTicks = function(ticks) {
 };
 
 Room.prototype.keeperTeamReady = function() {
-  const atkeepermelee = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeepermelee']);
-  const atkeeper = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeeper']);
+  const atkeepermelee = this.findAtkeepermelee();
+  const atkeeper = this.findAtkeeper();
   this.memory.atkeeper = atkeeper.length;
   this.memory.atkeepermelee = atkeepermelee.length;
   return (atkeepermelee.length > 0 && atkeeper.length > 0);
 };
 
 Room.prototype.getNextSourceKeeperLair = function() {
-  const sourceKeeper = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_KEEPER_LAIR]);
+  const sourceKeeper = this.findKeeperLair();
   const sourceKeeperNext = _.sortBy(sourceKeeper, (object) => object.ticksToSpawn);
   return sourceKeeperNext[0];
 };

@@ -13,6 +13,24 @@ roles.powerattacker.settings = {
   fillTough: true,
 };
 
+/**
+ * callPowerDefender
+ *
+ * @param {object} creep
+ */
+function callPowerDefender(creep) {
+  if (Memory.powerBanks[creep.room.name] && !Memory.powerBanks[creep.room.name].defender) {
+    creep.log('Call powerdefender');
+    Game.rooms[creep.memory.base].memory.queue.push({
+      role: 'powerdefender',
+      routing: {
+        targetRoom: creep.room.name,
+      },
+    });
+    Memory.powerBanks[creep.room.name].defender = true;
+  }
+}
+
 roles.powerattacker.action = function(creep) {
   const hostileCreep = creep.findClosestEnemy();
   if (hostileCreep !== null) {
@@ -25,16 +43,8 @@ roles.powerattacker.action = function(creep) {
     return false;
   }
   if (hostileCreep !== null) {
-    if (Memory.powerBanks[creep.room.name] && !Memory.powerBanks[creep.room.name].defender) {
-      creep.log('Call powerdefender');
-      Game.rooms[creep.memory.base].memory.queue.push({
-        role: 'powerdefender',
-        routing: {
-          targetRoom: creep.room.name,
-        },
-      });
-      Memory.powerBanks[creep.room.name].defender = true;
-    }
+    // I think this code is not reached
+    callPowerDefender(creep);
     const range = creep.pos.getRangeTo(hostileCreep);
     if (range < 10) {
       creep.moveTo(hostileCreep);

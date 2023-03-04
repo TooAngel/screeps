@@ -1,5 +1,7 @@
 'use strict';
 
+const {addToReputation} = require('./diplomacy');
+
 /**
  * The data property represent the current data of the creep stored on the heap
  */
@@ -109,12 +111,28 @@ Creep.prototype.checkForHandle = function() {
   return true;
 };
 
+Creep.prototype.handleAttacked = function() {
+  if (!this.data.lastHits) {
+    this.data.lastHits = this.hits;
+    return;
+  }
+  if (this.data.lastHits > this.hits) {
+    const hostileCreeps = this.room.findHostileAttackingCreeps();
+    for (const hostileCreep of hostileCreeps) {
+      addToReputation(hostileCreep.owner.username, this.hits - this.data.lastHits);
+    }
+  }
+  this.data.lastHits = this.hits;
+};
+
 Creep.prototype.handle = function() {
   this.memory.room = this.pos.roomName;
   if (!this.checkForHandle()) {
     return;
   }
   try {
+    this.handleAttacked();
+
     if (!this.unit()) {
       this.log('Unknown role suiciding');
       this.suicide();
@@ -263,18 +281,13 @@ Creep.prototype.buildRoad = function() {
     return true;
   }
 
-  const creep = this;
-
-  let constructionSites = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD], {
-    filter: (cs) => creep.pos.getRangeTo(cs.pos) < 4,
-  });
-
+  let constructionSites = this.pos.findInRangeConstructionSiteRoad(3);
   if (constructionSites.length > 0) {
     this.build(constructionSites[0]);
     return true;
   }
 
-  constructionSites = this.room.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD]);
+  constructionSites = this.room.findConstructionSiteRoad();
   if (
     constructionSites.length <= config.buildRoad.maxConstructionSitesRoom &&
     Object.keys(Game.constructionSites).length < config.buildRoad.maxConstructionSitesTotal &&
@@ -423,7 +436,7 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
   if (this.memory.nextSpawn) {
     if (this.ticksToLive === this.memory.nextSpawn) {
       if (maxOfRole) {
-        const creepOfRole = this.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', [this.memory.role]);
+        const creepOfRole = this.room.findCreep(this.memory.role);
         if (creepOfRole.length > maxOfRole) {
           return false;
         }

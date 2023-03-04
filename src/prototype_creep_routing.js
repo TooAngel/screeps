@@ -276,7 +276,12 @@ Creep.prototype.moveByPathMy = function(path, pathPos, directions) {
   }
 
   if (this.isStuck()) {
-    this.moveRandom();
+    if (this.room.memory.misplacedSpawn) {
+      // When the misplaced spawn is on the path, creeps get stuck so moveRandom
+      this.moveRandom();
+    } else {
+      this.moveRandomWithin(this.pos);
+    }
     this.say('stuck');
     return true;
   }

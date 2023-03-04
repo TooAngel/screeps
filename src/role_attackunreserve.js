@@ -10,7 +10,7 @@ roles.attackunreserve = {};
 roles.attackunreserve.boostActions = ['rangedAttack', 'heal'];
 
 roles.attackunreserve.settings = {
-  prefixString: 'MMMRHH',
+  prefixString: 'MMMMRRHH',
   layoutString: 'AM',
 };
 

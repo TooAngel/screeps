@@ -91,7 +91,7 @@ function interactWithControllerSuccess(creep) {
       base: creep.memory.base,
       tick: Game.time,
       ticksToLive: creep.ticksToLive,
-      reservation: creep.room.controller.reservation.ticksToEnd,
+      ticksToEnd: creep.room.controller.reservation.ticksToEnd,
     };
   }
 }

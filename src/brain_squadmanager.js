@@ -92,12 +92,12 @@ function addToQueue(spawns, roomNameFrom, roomNameTarget, squadName, queueLimit)
   }
 }
 /**
- * brain.startSquad used to attack player.rooms
+ * startSquad used to attack player.rooms
  *
  * @param {String} roomNameFrom
  * @param {String} roomNameAttack
  */
-brain.startSquad = function(roomNameFrom, roomNameAttack) {
+function startSquad(roomNameFrom, roomNameAttack) {
   const name = 'siegesquad-' + Math.random();
   const route = Game.map.findRoute(roomNameFrom, roomNameAttack);
   let target = roomNameFrom;
@@ -125,16 +125,17 @@ brain.startSquad = function(roomNameFrom, roomNameAttack) {
     action: 'move',
     moveTarget: target,
   };
-};
+}
+module.exports.startSquad = startSquad;
 
 /**
- * brain.startMeleeSquad use to clean rooms from invaders and players
+ * startMeleeSquad use to clean rooms from invaders and players
  *
  * @param {String} roomNameFrom
  * @param {String} roomNameAttack
  * @param {Array} [spawns]
  */
-brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
+function startMeleeSquad(roomNameFrom, roomNameAttack, spawns) {
   const name = 'meleesquad-' + Math.random();
   const route = Game.map.findRoute(roomNameFrom, roomNameAttack);
   let target = roomNameFrom;
@@ -170,4 +171,5 @@ brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
     action: 'move',
     moveTarget: target,
   };
-};
+}
+module.exports.startMeleeSquad = startMeleeSquad;

@@ -57,10 +57,7 @@ Creep.prototype.cleanController = function() {
   }
   for (const pos of search.path) {
     const posObject = new RoomPosition(pos.x, pos.y, this.room.name);
-    const structures = posObject.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], {
-      inverse: true,
-      filter: (object) => object.ticksToDecay !== null,
-    });
+    const structures = posObject.findInRangeStructureToDestroy(1);
 
     if (structures.length > 0) {
       this.memory.routing.targetId = structures[0].id;

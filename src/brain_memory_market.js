@@ -3,7 +3,8 @@
 
 const {debugLog} = require('./logging');
 const {addToReputation} = require('./diplomacy');
-const {checkQuestForAcceptance, checkAppliedQuestForAcceptance} = require('./quests');
+const {checkQuestForAcceptance} = require('./quests_host');
+const {checkAppliedQuestForAcceptance} = require('./quests_player');
 
 brain.setMarketOrders = function() {
   Memory.orders = {};

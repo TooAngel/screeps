@@ -2,7 +2,7 @@
 
 const {getMyRoomWithinRange, findMyRoomsSortByDistance} = require('./helper_findMyRooms');
 const {addToReputation, initPlayer, addRoomToPlayer} = require('./diplomacy');
-const {haveActiveQuest} = require('./quests');
+const {haveActiveQuest} = require('./quests_player');
 
 Room.prototype.checkBlocked = function() {
   const exits = Game.map.describeExits(this.name);
@@ -85,31 +85,43 @@ function isQuestValid(room) {
   return true;
 }
 
-Room.prototype.checkForQuest = function() {
-  if (!isQuestValid(this)) {
-    return;
-  }
-
-  const sign = this.controller.sign;
+/**
+ * getQuestData
+ * @param {object} room
+ * @return {object}
+ */
+function getQuestData(room) {
+  const sign = room.controller.sign;
   let data;
   try {
     data = JSON.parse(sign.text);
   } catch (e) {
     if (sign.text.startsWith('{')) {
-      this.log(`checkForQuest JSON.parse text: "${sign.text}" exception: ${e}`);
+      room.log(`checkForQuest JSON.parse text: "${sign.text}" exception: ${e}`);
     }
     return;
   }
   if (!data.type) {
-    this.log(`checkForQuest no type: ${JSON.stringify(data)}`);
+    room.log(`checkForQuest no type: ${JSON.stringify(data)}`);
     return;
   }
   if (data.type !== 'quest') {
-    this.log(`checkForQuest type not quest: ${JSON.stringify(data)}`);
+    room.log(`checkForQuest type not quest: ${JSON.stringify(data)}`);
     return;
   }
   if (Game.time > data.end) {
-    this.log(`checkForQuest already ended: ${JSON.stringify(data)}`);
+    room.log(`checkForQuest already ended: ${JSON.stringify(data)}`);
+    return;
+  }
+  return data;
+}
+
+Room.prototype.checkForQuest = function() {
+  if (!isQuestValid(this)) {
+    return;
+  }
+  const data = getQuestData(this);
+  if (!data) {
     return;
   }
 
@@ -145,16 +157,18 @@ Room.prototype.checkForQuest = function() {
 Room.prototype.handleHostileReservedRoom = function() {
   this.data.state = 'HostileReserved';
   if (!this.data.lastBreakReservationAttempt) {
-    this.data.lastBreakReservationAttempt = Game.time - config.autoAttack.noReservedRoomInterval;
+    this.data.lastBreakReservationAttempt = Game.time;
+    return false;
   }
 
   if (Game.time - this.data.lastBreakReservationAttempt < config.autoAttack.noReservedRoomInterval) {
-    return;
+    return false;
   }
-
+  this.debugLog('attack', `room.handleHostileReservedRoom`);
   const nearMyRoomName = getMyRoomWithinRange(this.name, config.autoAttack.noReservedRoomInRange, config.autoAttack.noReservedRoomMinMyRCL);
   if (!nearMyRoomName) {
-    return;
+    this.data.lastBreakReservationAttempt = Game.time;
+    return false;
   }
 
   this.debugLog('attack', `room.handleHostileReservedRoom sending attack creeps from ${nearMyRoomName}`);
@@ -254,7 +268,6 @@ Room.prototype.harvestCommodities = function() {
     if (Memory.commodities[this.name].lastCheck + 1500 > Game.time) {
       return;
     }
-    // this.log(`I know this commodity already: ${JSON.stringify(Memory.commodities[this.name])}`);
     const sourcers = this.findMyCreepsOfRole('sourcers');
     if (sourcers.length > 0) {
       return;
@@ -271,7 +284,7 @@ Room.prototype.harvestCommodities = function() {
     return;
   }
   this.debugLog('commodities', `Commodities found ${JSON.stringify(deposits)}`);
-  const baseRoomName = getMyRoomWithinRange(this.name, 6, 6);
+  const baseRoomName = getMyRoomWithinRange(this.name, 6, 6, 0.9);
   if (!baseRoomName) {
     this.debugLog('commodities', 'No room for commodity farming found');
     return;
@@ -302,18 +315,69 @@ Room.prototype.harvestCommodities = function() {
   });
 };
 
+/**
+ * wasPowerBankRecentlyChecked
+ *
+ * @param {object} memoryPowerBank
+ * @return {boolean}
+ */
+function wasPowerBankRecentlyChecked(memoryPowerBank) {
+  if (memoryPowerBank) {
+    if (memoryPowerBank.lastChecked + 1500 > Game.time) {
+      return true;
+    }
+  }
+}
+
+/**
+ * spawnPowerCreeps
+ *
+ * @param {object} room
+ * @param {string} baseRoomName
+ */
+function spawnPowerCreeps(room, baseRoomName) {
+  room.log('--------------> Start power harvesting in: ' + room.name + ' from ' + baseRoomName + ' <----------------');
+  Game.notify('Start power harvesting in: ' + room.name + ' from ' + baseRoomName);
+  Memory.rooms[baseRoomName].queue.push({
+    role: 'powerattacker',
+    routing: {
+      targetRoom: room.name,
+    },
+  });
+  Memory.rooms[baseRoomName].queue.push({
+    role: 'powerhealer',
+    routing: {
+      targetRoom: room.name,
+    },
+  });
+  Memory.rooms[baseRoomName].queue.push({
+    role: 'powerhealer',
+    routing: {
+      targetRoom: room.name,
+    },
+  });
+  Memory.rooms[baseRoomName].queue.push({
+    role: 'powerattacker',
+    routing: {
+      targetRoom: room.name,
+    },
+  });
+  Memory.rooms[baseRoomName].queue.push({
+    role: 'powerhealer',
+    routing: {
+      targetRoom: room.name,
+    },
+  });
+}
+
 Room.prototype.harvestPower = function() {
   if (config.power.disabled) {
     return false;
   }
 
-  Memory.powerBanks = Memory.powerBanks || {};
-
   let memoryPowerBank = Memory.powerBanks[this.name];
-  if (memoryPowerBank) {
-    if (memoryPowerBank.lastChecked + 1500 > Game.time) {
-      return false;
-    }
+  if (wasPowerBankRecentlyChecked(memoryPowerBank)) {
+    return false;
   }
 
   const structures = this.findPowerBanks();
@@ -338,7 +402,7 @@ Room.prototype.harvestPower = function() {
     return true;
   }
 
-  const baseRoomName = getMyRoomWithinRange(this.name, 6, 6);
+  const baseRoomName = getMyRoomWithinRange(this.name, 6, 6, 0.8);
   if (!baseRoomName) {
     this.debugLog('power', 'No room found for power farming');
     return;
@@ -346,38 +410,7 @@ Room.prototype.harvestPower = function() {
 
   memoryPowerBank.target = baseRoomName;
 
-  this.log('--------------> Start power harvesting in: ' + this.name + ' from ' + baseRoomName + ' <----------------');
-  Game.notify('Start power harvesting in: ' + this.name + ' from ' + baseRoomName);
-  Memory.rooms[baseRoomName].queue.push({
-    role: 'powerattacker',
-    routing: {
-      targetRoom: this.name,
-    },
-  });
-  Memory.rooms[baseRoomName].queue.push({
-    role: 'powerhealer',
-    routing: {
-      targetRoom: this.name,
-    },
-  });
-  Memory.rooms[baseRoomName].queue.push({
-    role: 'powerhealer',
-    routing: {
-      targetRoom: this.name,
-    },
-  });
-  Memory.rooms[baseRoomName].queue.push({
-    role: 'powerattacker',
-    routing: {
-      targetRoom: this.name,
-    },
-  });
-  Memory.rooms[baseRoomName].queue.push({
-    role: 'powerhealer',
-    routing: {
-      targetRoom: this.name,
-    },
-  });
+  spawnPowerCreeps();
 };
 
 Room.prototype.handleOccupiedRoom = function() {
@@ -390,7 +423,7 @@ Room.prototype.handleOccupiedRoom = function() {
   addRoomToPlayer(player, this);
 
   this.data.safeMode = this.controller.safeMode;
-  this.data.spawns = this.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+  this.data.spawns = this.findHostileSpawn();
 };
 
 Room.prototype.checkBlockedPath = function() {
@@ -424,9 +457,10 @@ Room.prototype.checkBlockedPath = function() {
 };
 
 Room.prototype.checkAndSpawnReserver = function() {
-  if (this.data.reservation === undefined) {
+  if (!this.data.reservation) {
     // TODO Check the closest room and set reservation
     this.log('No reservation');
+    console.log(new Error().stack);
     return false;
   }
 
@@ -444,13 +478,13 @@ Room.prototype.checkAndSpawnReserver = function() {
     }
   }
 
-  this.debugLog('reserver', 'Spawning creeps');
+  this.debugLog('reserver', `Spawning creeps from ${baseRoom.name}`);
   // TODO this should be handled in the reserver role
   if (baseRoom.getEnergyCapacityAvailable() >= 2 * (BODYPART_COST.claim + BODYPART_COST.move)) {
-    this.debugLog('reserver', 'Spawning reserver');
+    this.debugLog('reserver', `Spawning reserver from ${baseRoom.name}`);
     baseRoom.checkRoleToSpawn('reserver', 1, this.controller.id, this.name, 2);
   } else if (baseRoom.getEnergyCapacityAvailable() >= BODYPART_COST.claim + BODYPART_COST.move) {
-    this.debugLog('reserver', 'Spawning reserver');
+    this.debugLog('reserver', `Spawning reserver from ${baseRoom.name}`);
     baseRoom.checkRoleToSpawn('reserver', 1, this.controller.id, this.name, 1);
   }
 };
@@ -466,7 +500,7 @@ const checkSourcerMatch = function(sourcers, sourceId) {
 
 Room.prototype.checkSourcer = function() {
   const sources = this.findSources();
-  const sourcers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer']);
+  const sourcers = this.findSourcer();
 
   for (const source of sources) {
     if (!checkSourcerMatch(sourcers, source.id)) {
@@ -478,8 +512,11 @@ Room.prototype.checkSourcer = function() {
 };
 
 Room.prototype.isRoomRecentlyChecked = function() {
-  if (this.data.lastChecked !== undefined &&
-    Game.time - this.data.lastChecked < 500) {
+  if (!this.data.lastChecked) {
+    this.data.lastChecked = Game.time;
+    return true;
+  }
+  if (Game.time - this.data.lastChecked < 500) {
     return true;
   }
   this.data.lastChecked = Game.time;
@@ -497,9 +534,11 @@ Room.prototype.handleReservedRoom = function() {
     addToReputation(hostileCreep.owner.username, -1);
   }
 
-  const reserver = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['reserver']);
+  const reserver = this.findReserver();
   if (reserver.length === 0) {
-    this.checkAndSpawnReserver();
+    if (this.data.reservation) {
+      this.checkAndSpawnReserver();
+    }
   }
 
   this.checkSourcer();
@@ -542,7 +581,8 @@ function isRouteValidForReservedRoom(room, route) {
  * @return {function} - If it is reserved by the given roomName
  **/
 function filterReservedBy(roomName) {
-  return (roomData) => {
+  return (reservedRoomName) => {
+    const roomData = global.data.rooms[reservedRoomName];
     return roomData.state === 'Reserved' && (roomData.reservation || {}).base === roomName;
   };
 }
@@ -555,6 +595,24 @@ Room.prototype.handleUnreservedRoomWithReservation = function() {
     delete this.data.reservation;
     return false;
   }
+
+  // Give up reservation on spawnIdle
+  const room = Game.rooms[reservation.base];
+  if (room.memory.spawnIdle < config.room.reserveSpawnIdleThreshold) {
+    this.debugLog('reserver', `Discarding reservation in ${this.name} - base spawnIdle threshold not met ${room.memory.spawnIdle} (${room.name}) < ${config.room.reserveSpawnIdleThreshold}`);
+    delete this.data.reservation;
+    return false;
+  }
+
+  // Give up reservation on unHealthyBase
+  if (!room.isHealthy()) {
+    this.debugLog('reserver', `Discarding reservation in ${this.name} - base (${room.name}) is unhealthy`);
+    delete this.data.reservation;
+    return false;
+  }
+
+  this.debugLog('reserver', `handleUnreservedRoom reserved room - send creeps from ${room.name} spawnIdle ${room.memory.spawnIdle} < ${config.room.reserveSpawnIdleThreshold}`);
+
   this.data.state = 'Reserved';
   this.checkAndSpawnReserver();
   this.checkSourcer();
@@ -581,8 +639,102 @@ function getReserveRoomDistanceThreshold(toReserve, myRoom) {
    */
   const spawns = myRoom.find(FIND_MY_SPAWNS).length;
   const threshold = toReserve.data.sources / distance * spawns;
-  toReserve.debugLog('reserver', `unreserved check linear Distance: ${threshold} <= ${toReserve.data.sources} ${distance} ${spawns} ${toReserve.name} ${myRoom.name}`);
+  // toReserve.debugLog('reserver', `unreserved check linear Distance: ${threshold} <= ${toReserve.data.sources} ${distance} ${spawns} ${toReserve.name} ${myRoom.name}`);
   return threshold;
+}
+
+/**
+ * getReserveRouteDistanceThreshold
+ *
+ * @param {object} toReserve
+ * @param {object} myRoom
+ * @return {number}
+ */
+function getReserveRouteDistanceThreshold(toReserve, myRoom) {
+  const spawns = myRoom.find(FIND_MY_SPAWNS).length;
+  const route = Game.map.findRoute(toReserve.name, myRoom.name);
+
+  if (!isRouteValidForReservedRoom(toReserve, route)) {
+    toReserve.debugLog('reserver', `route not valid ${toReserve.name} ${myRoom.name}`);
+    return 0;
+  }
+
+  const routeDistance = route.length;
+  const routeThreshold = toReserve.data.sources / routeDistance * spawns;
+  // toReserve.debugLog('reserver', `unreserved check route Distance: ${routeThreshold} <= ${toReserve.data.sources} ${routeDistance} ${spawns} ${toReserve.name} ${myRoom.name}`);
+  return routeThreshold;
+}
+
+/**
+ * isReservedRoomValid
+ *
+ * @param {string} reservedRoomName
+ * @return {boolean}
+ */
+function isReservedRoomValid(reservedRoomName) {
+  const reservedRoom = Game.rooms[reservedRoomName];
+  if (!reservedRoom) {
+    return false;
+  }
+  if (!reservedRoom.controller.reservation) {
+    reservedRoom.debugLog('reserver', `reservedRoom ${reservedRoom.name} has no active reservation, not reserving a new room`);
+    return false;
+  }
+  if (reservedRoom.controller.reservation.ticksToEnd < 2000) {
+    reservedRoom.debugLog('reserver', `reservedRoom ${reservedRoom.name} reservation not long enough ${reservedRoom.controller.reservation.ticksToEnd} < 2000`);
+    return false;
+  }
+  if (reservedRoom.controller.reservation.username !== Memory.username) {
+    reservedRoom.debugLog('reserver', `reservedRoom ${reservedRoom.name} is reserved by ${reservedRoom.controller.reservation.username}, not reserving a new room`);
+    return false;
+  }
+  return true;
+}
+
+/**
+ * spawnCreepsForReservation
+ *
+ * @param {object} reservationCandidate
+ * @return {boolean}
+ */
+function spawnCreepsForReservation(reservationCandidate) {
+  for (const roomName of findMyRoomsSortByDistance(reservationCandidate.name)) {
+    const room = Game.rooms[roomName];
+    if (!room) {
+      continue;
+    }
+
+    if (room.memory.spawnIdle < config.room.reserveSpawnIdleThreshold) {
+      continue;
+    }
+
+    if (getReserveRoomDistanceThreshold(reservationCandidate, room) < 1) {
+      continue;
+    }
+
+    if (getReserveRouteDistanceThreshold(reservationCandidate, room) < 1) {
+      continue;
+    }
+
+    const reservedRoomNames = _.filter(Object.keys(global.data.rooms), filterReservedBy(roomName));
+    // RCL: target reserved rooms
+
+    for (const reservedRoomName of reservedRoomNames) {
+      if (!isReservedRoomValid(reservedRoomName)) {
+        return false;
+      }
+    }
+
+    reservationCandidate.data.reservation = {
+      base: room.name,
+    };
+    reservationCandidate.data.state = 'Reserved';
+    reservationCandidate.checkAndSpawnReserver();
+    reservationCandidate.checkSourcer();
+    reservationCandidate.debugLog('reserver', `Reserving unreserved Room from ${room.name} spawnIdle: ${room.memory.spawnIdle}`);
+    return true;
+  }
+  return false;
 }
 
 Room.prototype.handleUnreservedRoom = function() {
@@ -590,60 +742,12 @@ Room.prototype.handleUnreservedRoom = function() {
     return false;
   }
   this.data.state = 'Unreserved';
-  this.debugLog('reserver', 'handleUnreservedRoom');
 
   if (this.data.reservation) {
     return this.handleUnreservedRoomWithReservation();
   }
 
-  for (const roomName of findMyRoomsSortByDistance(this.name)) {
-    const room = Game.rooms[roomName];
-    if (!room) {
-      continue;
-    }
-
-    if (room.memory.spawnIdle < config.room.reserveSpawnIdleThreshold) {
-      this.debugLog('reserver', `unreserved below spawnIdle threshold: ${room.memory.spawnIdle} < ${config.room.reserveSpawnIdleThreshold}`);
-      continue;
-    }
-
-    if (getReserveRoomDistanceThreshold(this, room) < 1) {
-      continue;
-    }
-
-    const spawns = room.find(FIND_MY_SPAWNS).length;
-    const route = Game.map.findRoute(this.name, room.name);
-    const routeDistance = route.length;
-    const routeThreshold = this.data.sources / routeDistance * spawns;
-    this.debugLog('reserver', `unreserved check route Distance: ${routeThreshold} <= ${this.data.sources} ${routeDistance} ${spawns} ${this.name} ${room.name}`);
-    if (routeThreshold < 1) {
-      continue;
-    }
-
-    if (!isRouteValidForReservedRoom(this, route)) {
-      this.debugLog('reserver', 'route not valid');
-      continue;
-    }
-
-    const reservedRooms = _.filter(global.data.rooms, filterReservedBy(roomName));
-    // RCL: target reserved rooms
-
-    // TODO Store `spawnIdle` and base on that
-    const numRooms = config.room.reservedRCL;
-    this.debugLog('reserver', `number checked: ${reservedRooms.length} ${numRooms[room.controller.level]}`);
-    if (reservedRooms.length >= numRooms[room.controller.level]) {
-      continue;
-    }
-
-    this.data.reservation = {
-      base: room.name,
-    };
-    this.data.state = 'Reserved';
-    this.checkAndSpawnReserver();
-    this.checkSourcer();
-    this.debugLog('reserver', 'unreserved Room reserved');
-    return true;
-  }
+  spawnCreepsForReservation(this);
 
   return true;
 };

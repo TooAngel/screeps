@@ -8,6 +8,7 @@
  */
 
 roles.builder = {};
+roles.builder.boostActions = ['build', 'capacity'];
 
 roles.builder.settings = {
   layoutString: 'MCW',

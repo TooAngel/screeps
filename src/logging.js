@@ -6,7 +6,7 @@
  */
 function debugLog(type, ...messages) {
   if (config.debug[type]) {
-    console.log(`${Game.time} ${type.rightPad(' ', 27)}: ${messages.join(' ')}`);
+    console.log(`${Game.time} ${type.rightPad(' ', 27)} ${messages.join(' ')}`);
   }
 }
 
@@ -18,7 +18,7 @@ Room.prototype.log = function(...messages) {
 
 Room.prototype.debugLog = function(type, ...messages) {
   if (config.debug[type]) {
-    this.log(messages);
+    this.log(type, messages);
   }
 };
 
