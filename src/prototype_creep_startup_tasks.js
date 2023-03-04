@@ -295,7 +295,9 @@ function isStructureWithinRepairStepRange(structure, step) {
   if (structure.hits >= structure.hitsMax) {
     return false;
   }
-  if (structure.hits > step + 10000) {
+  // step should ONLY work to defending structures, means wall and rampart.
+  // should NOT stop repairer from repairing roads (roads on swamp have hitsMax = 25K, which sometimes larger than your current wall)
+  if ([STRUCTURE_WALL, STRUCTURE_RAMPART].includes(structure.structureType) && structure.hits > step + 10000) {
     return false;
   }
   return true;
