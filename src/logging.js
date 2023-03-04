@@ -6,7 +6,7 @@
  */
 function debugLog(type, ...messages) {
   if (config.debug[type]) {
-    console.log(`${Game.time} ${messages.join(' ')}`);
+    console.log(`${Game.time} ${type.rightPad(' ', 27)}: ${messages.join(' ')}`);
   }
 }
 

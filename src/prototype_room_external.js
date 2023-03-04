@@ -157,7 +157,7 @@ Room.prototype.handleHostileReservedRoom = function() {
     return;
   }
 
-  this.debugLog('attack', `room.handleHostileReservedRoom sending creeps from ${nearMyRoomName}`);
+  this.debugLog('attack', `room.handleHostileReservedRoom sending attack creeps from ${nearMyRoomName}`);
   this.data.lastBreakReservationAttempt = Game.time;
   const nearMyRoom = Game.rooms[nearMyRoomName];
   nearMyRoom.checkRoleToSpawn('attackunreserve', 1, undefined, this.name);
@@ -561,6 +561,30 @@ Room.prototype.handleUnreservedRoomWithReservation = function() {
   return true;
 };
 
+/**
+ * getReserveRoomDistanceThreshold
+ *
+ * @param {object} toReserve
+ * @param {object} myRoom
+ * @return {number}
+ */
+function getReserveRoomDistanceThreshold(toReserve, myRoom) {
+  const distance = Game.map.getRoomLinearDistance(toReserve.name, myRoom.name);
+  /**
+   * Base reservability on number of spawns, distance and number of sources
+   *
+   * sources: 1, distance: 1, spawns: 1 = 1 fine
+   * sources: 1, distance: 2, spawns: 1 = 0.5 not fine
+   * sources: 2, distance: 2, spawns: 1 = 1 fine
+   * sources: 1, distance: 2, spawns: 2 = 1 fine
+   *
+   */
+  const spawns = myRoom.find(FIND_MY_SPAWNS).length;
+  const threshold = toReserve.data.sources / distance * spawns;
+  toReserve.debugLog('reserver', `unreserved check linear Distance: ${threshold} <= ${toReserve.data.sources} ${distance} ${spawns} ${toReserve.name} ${myRoom.name}`);
+  return threshold;
+}
+
 Room.prototype.handleUnreservedRoom = function() {
   if (this.isRoomRecentlyChecked()) {
     return false;
@@ -577,22 +601,17 @@ Room.prototype.handleUnreservedRoom = function() {
     if (!room) {
       continue;
     }
-    const distance = Game.map.getRoomLinearDistance(this.name, room.name);
-    /**
-     * Base reservability on number of spawns, distance and number of sources
-     *
-     * sources: 1, distance: 1, spawns: 1 = 1 fine
-     * sources: 1, distance: 2, spawns: 1 = 0.5 not fine
-     * sources: 2, distance: 2, spawns: 1 = 1 fine
-     * sources: 1, distance: 2, spawns: 2 = 1 fine
-     *
-     */
-    const spawns = room.find(FIND_MY_SPAWNS).length;
-    const threshold = this.data.sources / distance * spawns;
-    this.debugLog('reserver', `unreserved check linear Distance: ${threshold} <= ${this.data.sources} ${distance} ${spawns} ${this.name} ${room.name}`);
-    if (threshold < 1) {
+
+    if (room.memory.spawnIdle < config.room.reserveSpawnIdleThreshold) {
+      this.debugLog('reserver', `unreserved below spawnIdle threshold: ${room.memory.spawnIdle} < ${config.room.reserveSpawnIdleThreshold}`);
       continue;
     }
+
+    if (getReserveRoomDistanceThreshold(this, room) < 1) {
+      continue;
+    }
+
+    const spawns = room.find(FIND_MY_SPAWNS).length;
     const route = Game.map.findRoute(this.name, room.name);
     const routeDistance = route.length;
     const routeThreshold = this.data.sources / routeDistance * spawns;
