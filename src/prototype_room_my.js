@@ -60,6 +60,12 @@ Room.prototype.myHandleRoom = function() {
     this.memory.queue = [];
   }
 
+  this.memory.spawnIdle = this.memory.spawnIdle || 0;
+  const spawnIdle = this.findMySpawns().reduce((previous, current) => {
+    return previous || !current.spawning;
+  }, false);
+  this.memory.spawnIdle = 0.99 * this.memory.spawnIdle + 0.01 * (spawnIdle ? 1 : 0);
+
   const hostiles = this.findEnemies();
   if (hostiles.length === 0) {
     delete this.memory.hostile;

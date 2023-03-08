@@ -232,6 +232,7 @@ global.config = {
       7: 8,
       8: 8,
     },
+    reserveSpawnIdleThreshold: 0.05,
     isHealthyStorageThreshold: 50000,
     handleNukeAttackInterval: 132,
     reviveEnergyCapacity: 1000,
