@@ -86,18 +86,15 @@ Creep.prototype.cleanExits = function() {
     }
     const exit = exits[Math.floor(exits.length / 2)];
     const path = this.pos.findPathTo(exit);
-    const posLast = path[path.length - 1];
     if (path.length === 0) {
       continue;
     }
+    const posLast = path[path.length - 1];
     if (!exit.isEqualTo(posLast.x, posLast.y)) {
       const pos = new RoomPosition(posLast.x, posLast.y, this.room.name);
-      const structure = pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], {
-        inverse: true,
-        filter: (object) => object.ticksToDecay !== null,
-      });
+      const structure = pos.findClosestByRangeStructureToDestroy();
 
-      if (structure !== null) {
+      if (structure) {
         this.memory.routing.targetId = structure.id;
         this.log('new memory: ' + structure.id);
         return true;
@@ -118,10 +115,7 @@ Creep.prototype.cleanSetTargetId = function() {
       //      this.log('clean exits');
       return true;
     }
-    let structure = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER], {
-      inverse: true,
-      filter: (object) => object.ticksToDecay !== null,
-    });
+    let structure = this.pos.findClosestByRangeStructureToDestroy();
     if (structure !== null) {
       const structures = structure.pos.lookFor('structure');
 

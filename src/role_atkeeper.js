@@ -62,7 +62,7 @@ roles.atkeeper.action = function(creep) {
     if (creep.getActiveBodyparts(RANGED_ATTACK) === 0) {
       return false;
     }
-    const hostile = creep.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', global.config.maliciousNpcUsernames);
+    const hostile = creep.pos.findClosestByRangeSystemCreeps();
     if (hostile) {
       return creep.fightRanged(hostile);
     }

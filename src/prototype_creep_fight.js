@@ -10,8 +10,9 @@ Creep.prototype.rangeAttackOutsideOfMyRooms = function(targets) {
   }
 };
 
+// TODO this method can be removed and the find directly used
 Creep.prototype.findClosestSourceKeeper = function() {
-  return this.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Source Keeper']);
+  return this.pos.findClosestByRangeSourceKeeper();
 };
 
 Creep.prototype.findClosestEnemy = function() {
@@ -106,9 +107,7 @@ Creep.prototype.handleDefender = function() {
 };
 
 Creep.prototype.findClosestRampart = function() {
-  return this.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], {
-    filter: (rampart) => this.pos.getRangeTo(rampart) > 0 && !rampart.pos.checkForObstacleStructure(),
-  });
+  return this.pos.findClosestByRangeRampart();
 };
 
 Creep.prototype.waitRampart = function() {

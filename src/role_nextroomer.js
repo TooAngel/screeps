@@ -129,7 +129,7 @@ roles.nextroomer.stayAtSource = function(creep, source) {
     const returnCode = creep.harvest(source);
     if (returnCode === OK) {
       if (creep.carry.energy >= 0) {
-        const creepWithoutEnergy = creep.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'carry.energy', [0]);
+        const creepWithoutEnergy = creep.pos.findClosestByRangeCreepWithoutEnergy();
         const range = creep.pos.getRangeTo(creepWithoutEnergy);
 
         if (range === 1) {

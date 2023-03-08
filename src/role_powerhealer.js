@@ -61,13 +61,13 @@ roles.powerhealer.heal = function(creep) {
         creep.moveTo(creepToHeal);
         return true;
       }
-      attacker = creep.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['powerattacker']);
+      attacker = creep.pos.findClosestByRangeCreepPowerAttacker();
       creep.moveTo(attacker);
       return false;
     }
     const hostileCreeps = creep.room.findEnemies();
     if (hostileCreeps.length > 0) {
-      attacker = creep.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['powerattacker']);
+      attacker = creep.pos.findClosestByRangeCreepPowerAttacker();
       creep.moveTo(attacker);
       return false;
     }

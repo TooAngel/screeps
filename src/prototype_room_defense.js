@@ -97,8 +97,6 @@ Room.prototype.handleTowerWithEnemies = function(hostileCreeps, towers) {
  * @param {array} towers
  */
 function letTowersRepairStructures(room, towers) {
-  const repairableStructures = (object) => object.hits < object.hitsMax / 2;
-
   for (const tower of towers) {
     if (tower.energy === 0) {
       continue;
@@ -109,18 +107,13 @@ function letTowersRepairStructures(room, towers) {
       }
     }
 
-    const lowRampart = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], {
-      filter: (rampart) => rampart.hits < 10000,
-    });
+    const lowRampart = tower.pos.findClosestByRangeLowHitRamparts();
 
     let repair = lowRampart;
     if (lowRampart === null) {
-      repair = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_WALL, STRUCTURE_RAMPART], {
-        inverse: true,
-        filter: repairableStructures,
-      });
-      tower.repair(repair);
+      repair = tower.pos.findClosestByRangeLowHitStructures();
     }
+    tower.repair(repair);
   }
 }
 

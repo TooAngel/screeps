@@ -105,7 +105,7 @@ Creep.recycleCreep = function(creep) {
     }
   }
 
-  let spawn = creep.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+  let spawn = creep.pos.findClosestByRangeSpawn();
   if (!spawn) {
     spawn = Game.rooms[creep.memory.base].findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN])[0];
   }

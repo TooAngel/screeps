@@ -26,7 +26,7 @@ roles.nextroomerattack.action = function(creep) {
     Game.notify(Game.time + ' ' + creep.room.name + ' Attacking');
     creep.memory.notified = true;
   }
-  const spawn = creep.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+  const spawn = creep.pos.findClosestByRangeHostileSpawn();
 
   if (spawn === null) {
     const hostileCreep = creep.findClosestEnemy();

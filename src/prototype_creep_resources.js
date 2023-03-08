@@ -430,9 +430,7 @@ Creep.prototype.setHasEnergy = function() {
 };
 
 Creep.prototype.getDroppedEnergy = function() {
-  const target = this.pos.findClosestByRangePropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_ENERGY], {
-    filter: (object) => object.amount > 0,
-  });
+  const target = this.pos.findClosestByRangeEnergy();
   if (target === null) {
     return false;
   }
@@ -525,9 +523,9 @@ Creep.prototype.construct = function() {
     this.creepLog('No target');
     delete this.memory.routing.targetId;
     if (this.memory.role === 'nextroomer') {
-      target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART], {inverse: true});
+      target = this.pos.findClosestByRangeStandardConstructionSites();
     } else if (this.memory.role === 'universal') {
-      target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_RAMPART, STRUCTURE_WALL], {inverse: true});
+      target = this.pos.findClosestByRangeBuildingConstructionSites();
     } else {
       target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
     }
