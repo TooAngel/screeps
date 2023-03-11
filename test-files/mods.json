@@ -5,6 +5,12 @@
     "../node_modules/screepsmod-mongo/index.js"
   ],
   "bots": {
-    "screeps-bot-tooangel": "../src"
+    "screeps-bot-tooangel": "../src",
+    "screeps-bot-hivemind": "../node_modules/screeps-bot-hivemind/src",
+    "screeps-bot-choreographer": "../node_modules/screeps-bot-choreographer/dist",
+    "screeps-bot-international": "../node_modules/@the-international-screeps-bot/the-international-open-source/dist",
+    "screeps-bot-kasamibot": "../node_modules/screeps-bot-kasamibot/dist",
+    "screeps-bot-overmind": "../node_modules/screeps-bot-overmind/src",
+    "screeps-bot-tom": "../node_modules/tom-screeps-bot/src/"
   }
 }

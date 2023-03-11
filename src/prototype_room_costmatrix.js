@@ -122,6 +122,46 @@ Room.prototype.getBasicCostMatrixCallback = function(withinRoom = false) {
   return callbackInner;
 };
 
+/**
+ * setIndestructableWalls
+ *
+ * @param {object} room
+ * @param {object} costMatrix
+ */
+function setIndestructableWalls(room, costMatrix) {
+  // Exclude indestructable walls
+  const walls = room.find(FIND_STRUCTURES, {filter: (object) => object.structureType === STRUCTURE_WALL && !object.histMax});
+  for (const wall of walls) {
+    // console.log(`Exclude indestructable walls: ${JSON.stringify(wall)}`);
+    costMatrix.set(wall.pos.x, wall.pos.y, 0xff);
+  }
+}
+
+/**
+ * handleExits
+ *
+ * @param {object} room
+ * @param {object} costMatrix
+ * @param {boolean} allowExits
+ */
+function handleExits(room, costMatrix, allowExits) {
+  if (allowExits) {
+    for (let i = 0; i < 50; i++) {
+      openExits(costMatrix, i, 0, room);
+      openExits(costMatrix, i, 49, room);
+      openExits(costMatrix, 0, i, room);
+      openExits(costMatrix, 49, i, room);
+    }
+  } else {
+    for (let i = 0; i < 50; i++) {
+      closeExits(costMatrix, i, 0);
+      closeExits(costMatrix, i, 49);
+      closeExits(costMatrix, 0, i);
+      closeExits(costMatrix, 49, i);
+    }
+  }
+}
+
 Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom, allowExits) {
   const callbackInner = (roomName, debug) => {
     // TODO How often is this called? Do we need it? Can we just use the room costMatrix?
@@ -130,6 +170,7 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
     }
     const room = Game.rooms[roomName];
     if (!room) {
+      console.log(`no room ${roomName}`);
       return new PathFinder.CostMatrix;
     }
     if (!room.data.costMatrix) {
@@ -155,21 +196,9 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
       this.setCostMatrixStructures(costMatrix, constructionSites, config.layout.structureAvoid);
     }
 
-    if (allowExits) {
-      for (let i = 0; i < 50; i++) {
-        openExits(costMatrix, i, 0, room);
-        openExits(costMatrix, i, 49, room);
-        openExits(costMatrix, 0, i, room);
-        openExits(costMatrix, 49, i, room);
-      }
-    } else {
-      for (let i = 0; i < 50; i++) {
-        closeExits(costMatrix, i, 0);
-        closeExits(costMatrix, i, 49);
-        closeExits(costMatrix, 0, i);
-        closeExits(costMatrix, 49, i);
-      }
-    }
+    setIndestructableWalls(room, costMatrix);
+    handleExits(room, costMatrix, allowExits);
+
     return costMatrix;
   };
   return callbackInner;

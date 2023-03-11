@@ -43,6 +43,7 @@ class Tester {
   constructor() {
     this.roomsSeen = {};
     this.maxRuntime = 0;
+    this.onlyLocal = false;
     if (process.argv.length > 2) {
       try {
         this.maxRuntime = parseInt(process.argv[2], 10) * 60;
@@ -50,8 +51,36 @@ class Tester {
         console.log(`Cannot parse runtime argument ${process.argv} ${e}`);
       }
     }
+    if (process.argv.length > 3) {
+      this.onlyLocal = true;
+    }
   }
 
+  /**
+   * handleMaxRuntime
+   *
+   * @param {object} defer
+   * @return {void}
+   */
+  async handleMaxRuntime(defer) {
+    await sleep(this.maxRuntime);
+    console.log(`${lastTick} End of simulation`);
+    console.log('Status:');
+    console.log(JSON.stringify(status, null, 2));
+    console.log('Milestones:');
+    console.log(JSON.stringify(milestones, null, 2));
+    const failes = milestones.filter((milestone) => milestone.required && milestone.tick < lastTick && !milestone.success);
+    if (failes.length > 0) {
+      for (const fail of failes) {
+        console.log(`${lastTick} Milestone failed ${JSON.stringify(fail)}`);
+      }
+      console.log(`${lastTick} Status check: failed`);
+      defer.reject('Not all milestones are hit.');
+      return;
+    }
+    console.log(`${lastTick} Status check: passed`);
+    defer.resolve();
+  }
   /**
    *
    * @param {string} line
@@ -66,23 +95,7 @@ class Tester {
       }
       console.log(`> Start the simulation${appendix}`);
       if (this.maxRuntime > 0) {
-        await sleep(this.maxRuntime);
-        console.log(`${lastTick} End of simulation`);
-        console.log('Status:');
-        console.log(JSON.stringify(status, null, 2));
-        console.log('Milestones:');
-        console.log(JSON.stringify(milestones, null, 2));
-        const failes = milestones.filter((milestone) => milestone.required && milestone.tick < lastTick && !milestone.success);
-        if (failes.length > 0) {
-          for (const fail of failes) {
-            console.log(`${lastTick} Milestone failed ${JSON.stringify(fail)}`);
-          }
-          console.log(`${lastTick} Status check: failed`);
-          defer.reject('Not all milestones are hit.');
-          return;
-        }
-        console.log(`${lastTick} Status check: passed`);
-        defer.resolve();
+        this.handleMaxRuntime(defer);
       }
     }
   }
@@ -106,11 +119,11 @@ class Tester {
     socket.on('data', async(raw) => {
       const data = raw.toString('utf8');
       const line = data.replace(/^< /, '').replace(/\n< /, '');
-      if (await spawnBots(line, socket, rooms, players, tickDuration)) {
+      if (await spawnBots(line, socket, rooms, players, tickDuration, this.onlyLocal)) {
         botsSpawned = true;
         return;
       }
-      if (setPassword(line, socket, rooms, this.roomsSeen, playerRoom)) {
+      if (setPassword(line, socket, rooms, this.roomsSeen, playerRoom, players, this.onlyLocal)) {
         if (rooms.length === Object.keys(this.roomsSeen).length) {
           console.log('> Listen to the log');
           followLog(rooms, logConsole, statusUpdater);
@@ -194,6 +207,25 @@ function statusUpdaterSuccess(event, milestone) {
 }
 
 /**
+ * getFailedRooms
+ *
+ * @param {object} milestone
+ * @return {list}
+ */
+function getFailedRooms(milestone) {
+  const failedRooms = [];
+  for (const room of Object.keys(status)) {
+    for (const key of Object.keys(milestone.check)) {
+      if (status[room][key] < milestone.check[key]) {
+        failedRooms.push(room);
+        break;
+      }
+    }
+  }
+  return failedRooms;
+}
+
+/**
  * checkMilestone
  *
  * @param {object} event
@@ -201,23 +233,30 @@ function statusUpdaterSuccess(event, milestone) {
  * @return {list}
  */
 function checkMilestone(event, milestone) {
-  const failedRooms = [];
+  let failedRooms = [];
   if (typeof milestone.success === 'undefined' || milestone.success === null) {
-    let success = Object.keys(status).length === Object.keys(players).length;
-    for (const room of Object.keys(status)) {
-      for (const key of Object.keys(milestone.check)) {
-        if (status[room][key] < milestone.check[key]) {
-          success = false;
-          failedRooms.push(room);
-          break;
-        }
-      }
-    }
+    failedRooms = getFailedRooms(milestone);
+    const success = Object.keys(status).length === Object.keys(players).length && failedRooms.length === 0;
+
     if (success) {
       statusUpdaterSuccess(event, milestone);
     }
   }
   return failedRooms;
+}
+
+/**
+ * updateStatus
+ *
+ * @param {object} event
+ */
+function updateStatus(event) {
+  helpers.initControllerID(event, status, controllerRooms);
+  if (_.size(event.data.objects) > 0) {
+    helpers.updateCreeps(event, status);
+    helpers.updateStructures(event, status);
+    helpers.updateController(event, status, controllerRooms);
+  }
 }
 
 /**
@@ -246,13 +285,7 @@ function statusUpdater(event) {
       }
     }
   }
-
-  helpers.initControllerID(event, status, controllerRooms);
-  if (_.size(event.data.objects) > 0) {
-    helpers.updateCreeps(event, status);
-    helpers.updateStructures(event, status);
-    helpers.updateController(event, status, controllerRooms);
-  }
+  updateStatus(event);
 }
 
 /**

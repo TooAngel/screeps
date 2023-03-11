@@ -185,6 +185,33 @@ function placeSpawn(room, shard) {
 }
 
 /**
+ * findRoomAndSpawn
+ *
+ * @param {list} shardsReduced
+ * @return {void}
+ */
+async function findRoomAndSpawn(shardsReduced) {
+  for (const shard of shardsReduced) {
+    const rooms = await getWorldStartRooms(shard.name);
+    for (const roomCenter of rooms.room) {
+      const matcher = /(\D+)(\d+)(\D+)(\d+)/;
+      const result = roomCenter.match(matcher);
+      for (let x = -3; x < 3; x++) {
+        for (let y = -3; y < 3; y++) {
+          const xValue = x + parseInt(result[2], 10);
+          const yValue = y + parseInt(result[4], 10);
+          const room = `${result[1]}${xValue}${result[3]}${yValue}`;
+          const response = await placeSpawn(room, shard.name);
+          if (!response.error) {
+            return;
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
  * main
  *
  * @return {void}
@@ -210,24 +237,7 @@ async function main() {
     };
   });
   shardsReduced.sort((a, b) => b.value - a.value);
-  for (const shard of shardsReduced) {
-    const rooms = await getWorldStartRooms(shard.name);
-    for (const roomCenter of rooms.room) {
-      const matcher = /(\D+)(\d+)(\D+)(\d+)/;
-      const result = roomCenter.match(matcher);
-      for (let x = -3; x < 3; x++) {
-        for (let y = -3; y < 3; y++) {
-          const xValue = x + parseInt(result[2], 10);
-          const yValue = y + parseInt(result[4], 10);
-          const room = `${result[1]}${xValue}${result[3]}${yValue}`;
-          const response = await placeSpawn(room, shard.name);
-          if (!response.error) {
-            return;
-          }
-        }
-      }
-    }
-  }
+  findRoomAndSpawn(shardsReduced);
 }
 
 main();
