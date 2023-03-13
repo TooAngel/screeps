@@ -12,7 +12,7 @@ RoomPosition.prototype.clearPosition = function(target) {
   for (const structureId of Object.keys(structures)) {
     const structure = structures[structureId];
     if (structure.structureType === STRUCTURE_SPAWN) {
-      const spawns = this.getRoom().findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+      const spawns = this.getRoom().findSpawn();
       if (spawns.length <= 1) {
         target.remove();
         return true;
@@ -42,7 +42,7 @@ RoomPosition.prototype.getClosestSource = function(filter) {
 
 RoomPosition.prototype.findInRangeStructures = function(objects, range, structureTypes) {
   // TODO this method should be deprecated
-  return this.findInRangePropertyFilter(objects, range, 'structureType', structureTypes);
+  return this.findInRange(objects, range, {filter: (object) => structureTypes.includes(object.structureType)});
 };
 
 RoomPosition.prototype.findHostileStructuresInRangedAttackRange = function() {
@@ -50,7 +50,7 @@ RoomPosition.prototype.findHostileStructuresInRangedAttackRange = function() {
 };
 
 RoomPosition.prototype.findClosestStructure = function(structures, structureType) {
-  return this.findClosestByPathPropertyFilter(structures, 'structureType', [structureType]);
+  return this.findClosestByPath(structures, {filter: (object) => object.structureType === structureType});
 };
 
 /**
@@ -274,41 +274,6 @@ RoomPosition.prototype.getRoom = function() {
   }
   return room;
 };
-
-RoomPosition.wrapFindMethod = (methodName, extraParamsCount) => function(findTarget, ...propertyFilterParams) {
-  /* eslint-disable no-invalid-this */
-  const extraParams = propertyFilterParams.splice(0, extraParamsCount);
-  if (_.isNumber(findTarget)) {
-    const objects = this.getRoom().findPropertyFilter(findTarget, ...propertyFilterParams);
-    return this[methodName](objects, ...extraParams);
-  }
-  /* eslint-enable no-invalid-this */
-};
-
-/**
- *
- * @param {Number}  findTarget One of the FIND constant. e.g. [FIND_MY_STRUCTURES] or array of RoomObject to apply filters
- * @param range
- * @param {String}  property The property to filter on. e.g. 'structureType' or 'memory.role'
- * @param {Array}  properties The properties to filter. e.g. [STRUCTURE_ROAD, STRUCTURE_RAMPART]
- * @param {Boolean} [without=false] Exclude or include the properties to find.
- * @param {object} [opts={}] Additional options.
- * @param {function} [opts.filter] Additional filter that wil be applied after cache.
- * @return {Array} the objects returned in an array.
- */
-RoomPosition.prototype.findInRangePropertyFilter = RoomPosition.wrapFindMethod('findInRange', 1);
-
-/**
- *
- * @param {Number|RoomObject[]}  findTarget One of the FIND constant. e.g. [FIND_MY_STRUCTURES] or array of RoomObject to apply filters
- * @param {String}  property The property to filter on. e.g. 'structureType' or 'memory.role'
- * @param {Array}  properties The properties to filter. e.g. [STRUCTURE_ROAD, STRUCTURE_RAMPART]
- * @param {Boolean} [without=false] Exclude or include the properties to find.
- * @param {object} [opts={}] Additional options.
- * @param {function} [opts.filter] Additional filter that wil be applied after cache.
- * @return {Array} the objects returned in an array.
- */
-RoomPosition.prototype.findClosestByPathPropertyFilter = RoomPosition.wrapFindMethod('findClosestByPath', 0);
 
 /**
  * Restore RoomPosition object after JSON serialisation.

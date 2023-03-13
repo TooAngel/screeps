@@ -88,6 +88,8 @@ global.config = {
     routing: false,
     brain: false,
     commodities: true,
+    memory: true,
+    boosts: false,
   },
 
   tower: {
@@ -97,6 +99,7 @@ global.config = {
 
   autoAttack: {
     notify: true,
+    minAttackRCL: 6,
     timeBetweenAttacks: 2000,
     noReservedRoomMinMyRCL: 5,
     noReservedRoomInRange: 1,
@@ -121,16 +124,16 @@ global.config = {
     notify: false,
     mineralValues: {
       [RESOURCE_HYDROGEN]: 15,
-      [RESOURCE_OXYGEN]: 15,
-      [RESOURCE_UTRIUM]: 10,
-      [RESOURCE_LEMERGIUM]: 10,
-      [RESOURCE_KEANIUM]: 10,
-      [RESOURCE_ZYNTHIUM]: 10,
+      [RESOURCE_OXYGEN]: 10,
+      [RESOURCE_UTRIUM]: 15,
+      [RESOURCE_KEANIUM]: 15,
+      [RESOURCE_LEMERGIUM]: 15,
+      [RESOURCE_ZYNTHIUM]: 15,
       [RESOURCE_CATALYST]: 10,
-      [RESOURCE_GHODIUM]: 15,
     },
-    resourceStats: false,
+    resourceStats: true,
     resourceStatsDivider: 10000,
+    distanceFactor: 2,
   },
 
   carryHelpers: {
@@ -221,19 +224,11 @@ global.config = {
   },
 
   room: {
-    reservedRCL: {
-      0: 4,
-      1: 4,
-      2: 4,
-      3: 4,
-      4: 4,
-      5: 4,
-      6: 4,
-      7: 8,
-      8: 8,
-    },
-    reserveSpawnIdleThreshold: 0.05,
-    isHealthyStorageThreshold: 50000,
+    reserveSpawnIdleThreshold: 0.2,
+    spawnIdle: 0.1,
+    nextroomerSpawnIdleThreshold: 0.05,
+    spawnIdleFactor: 0.001,
+    isHealthyStorageThreshold: 100000,
     handleNukeAttackInterval: 132,
     reviveEnergyCapacity: 1000,
     reviveEnergyAvailable: 1000,
@@ -244,6 +239,7 @@ global.config = {
     lastSeenThreshold: 100000,
     notify: false,
     observerRange: 5, // Reduced to save memory OBSERVER_RANGE, // between 1 and 10:OBSERVER_RANGE
+    spawnCarryIntervalOffset: 160,
   },
 
   layout: {
@@ -269,6 +265,10 @@ global.config = {
   terminal: {
     minEnergyAmount: 40000,
     maxEnergyAmount: 50000,
+  },
+
+  boosts: {
+    enabled: true,
   },
 
   mineral: {
@@ -314,13 +314,13 @@ global.config = {
       universal: 11,
       defender: 12,
       defendranged: 13,
-      nextroomer: 15,
-      sourcer: 16,
-      carry: 17,
+      nextroomer: 14,
+      sourcer: 15,
+      carry: 16,
+      reserver: 17,
       watcher: 18,
       atkeeper: 19,
       atkeepermelee: 19,
-      reserver: 20,
     },
   },
 

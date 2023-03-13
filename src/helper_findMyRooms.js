@@ -43,9 +43,10 @@ module.exports.findMyRoomsSortByDistance = findMyRoomsSortByDistance;
  * @param {string} roomName - The room the distance to check
  * @param {number} range - The max range
  * @param {number} minRCL - The min RCL a room needs to have
+ * @param {number} minStorageEnergyPercentage - The min RCL a room needs to have
  * @return {string|boolean} - A room name in range or `false` otherwise
  **/
-function getMyRoomWithinRange(roomName, range, minRCL) {
+function getMyRoomWithinRange(roomName, range=0, minRCL=0, minStorageEnergyPercentage=0) {
   // TODO Instead of just finding one room, it should be the closest (or highest RCL)
   for (const myRoomName of Memory.myRooms) {
     const room = Game.rooms[myRoomName];
@@ -56,7 +57,13 @@ function getMyRoomWithinRange(roomName, range, minRCL) {
     if (minRCL && room.controller.level < minRCL) {
       continue;
     }
+    if (!room.hasSpawnCapacity()) {
+      continue;
+    }
     if (!room.isHealthy()) {
+      continue;
+    }
+    if (room.storage.store.getUsedCapacity(RESOURCE_ENERGY) < minStorageEnergyPercentage * room.storage.store.getCapacity(RESOURCE_ENERGY)) {
       continue;
     }
     const distance = Game.map.getRoomLinearDistance(roomName, myRoomName);

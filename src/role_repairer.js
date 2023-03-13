@@ -17,7 +17,7 @@ roles.repairer.settings = {
   maxLayoutAmount: 5,
 };
 
-roles.repairer.boostActions = ['repair'];
+roles.repairer.boostActions = ['repair', 'capacity'];
 
 roles.repairer.preMove = function(creep) {
   creep.memory.routing.reached = true;

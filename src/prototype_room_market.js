@@ -48,7 +48,7 @@ Room.prototype.sellByOthersOrders = function(sellAmount, resource, force) {
         }
         const returnCode = Game.market.deal(order.id, amount, this.name);
         if (returnCode !== ERR_TIRED) {
-          this.log('selling', order.id, resource, this.name, amount, order.price, returnCode === OK);
+          this.debugLog('market', `selling ${order.id} ${resource} ${this.name} ${amount} ${order.price}  ${returnCode === OK}`);
         }
         if (returnCode === OK) {
           break;

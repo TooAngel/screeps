@@ -51,7 +51,8 @@ Room.prototype.handleNukeAttack = function() {
   };
 
   for (const nuke of nukes) {
-    const structures = nuke.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 4, 'structureType', [STRUCTURE_ROAD, STRUCTURE_RAMPART, STRUCTURE_WALL], {inverse: true});
+    const structures = nuke.pos.findInRangeBuildings(4);
+
     this.log('Nuke attack !!!!!');
     for (const structure of structures) {
       const lookConstructionSites = structure.pos.lookFor(LOOK_CONSTRUCTION_SITES);

@@ -1,12 +1,12 @@
 {
   "name": "screeps-bot-tooangel",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "TooAngel NPC / bot / source code for screeps",
   "main": "src/main.js",
   "screeps_bot": true,
   "devDependencies": {
     "chai": "4.3.7",
-    "eslint": "8.34.0",
+    "eslint": "8.35.0",
     "eslint-config-google": "0.14.0",
     "eslint-plugin-screeps": "2.1.0",
     "grunt": "1.6.1",
@@ -46,7 +46,8 @@
     "run-test": "git checkout test-server/db.json && node utils/test_on_server.js",
     "setupTestServer": "docker compose -f docker-compose-setup.yml up",
     "followLogs": "node utils/followLogs localhost true",
-    "deployLocal": "screeps-api upload src/*"
+    "deployLocal": "screeps-api upload src/*",
+    "respawner": "node utils/respawner"
   },
   "eslintConfig": {
     "extends": [
@@ -84,11 +85,11 @@
     "rules": {
       "complexity": [
         "error",
-        13
+        14
       ],
       "max-statements": [
         "error",
-        37
+        34
       ],
       "accessor-pairs": "error",
       "no-alert": "error",
@@ -107,6 +108,7 @@
       "no-return-assign": "error",
       "no-script-url": "error",
       "no-self-compare": "error",
+      "no-trailing-spaces": "error",
       "no-unused-expressions": "error",
       "no-useless-call": "error",
       "no-useless-concat": "error",

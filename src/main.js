@@ -11,6 +11,7 @@ require('./screepsplus');
 
 const {initProfiler, execute} = require('./brain_main');
 const {cpuLimit} = require('./brain_stats');
+const {generatePixel} = require('./pixel');
 
 global.tickLimit = cpuLimit();
 global.load = Math.round(Game.cpu.getUsed());
@@ -40,17 +41,12 @@ module.exports.loop = function() {
       execute();
     }
   }
-  if (global.config.pixel.enabled) {
-    if (typeof PIXEL !== 'undefined') {
-      if (Game.cpu.bucket >= PIXEL_CPU_COST + global.config.pixel.minBucketAfter) {
-        Game.cpu.generatePixel();
-      }
-    }
-  }
+
+  generatePixel();
   brain.stats.updateCpuStats();
 
-  if (config.resourceStats) {
-    const statsDivider = config.resourceStatsDivider;
+  if (config.nextRoom.resourceStats) {
+    const statsDivider = config.nextRoom.resourceStatsDivider;
     const cpuLimit = Game.cpu.limit;
     const currentCPUUsed = Game.cpu.getUsed();
     const currentIdleCPU = cpuLimit - currentCPUUsed;

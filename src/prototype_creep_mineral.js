@@ -30,55 +30,35 @@ Creep.prototype.getBoostParts = function() {
 };
 
 Creep.prototype.boost = function() {
-  if (!this.room.terminal || !this.room.terminal.my) {
+  if (!this.room.memory.boosts) {
     this.memory.boosted = true;
     return false;
   }
-
-  const unit = roles[this.memory.role];
-  if (!unit.boostActions) {
+  const boost = this.room.memory.boosts[this.name];
+  if (!boost) {
+    this.memory.boosted = true;
     return false;
   }
-
-  // TODO boosting disabled, too many room.finds
-  // const parts = this.getBoostParts();
-
-  // let boost;
-  // const findLabs = (lab) => lab.mineralType === boost && lab.mineralAmount > 30 && lab.energy > 20;
-  // for (const part of Object.keys(parts)) {
-  //   for (boost of Object.keys(BOOSTS[part])) {
-  //     for (const action of Object.keys(BOOSTS[part][boost])) {
-  //       this.log('boost: ' + part + ' ' + boost + ' ' + action);
-  //       if (unit.boostActions.indexOf(action) > -1) {
-  //         const labs = this.room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_LAB], {
-  //           filter: findLabs,
-  //         });
-  //         if (this.room.terminal.store[boost] || labs.length > 0) {
-  //           const room = Game.rooms[this.room.name];
-  //           room.memory.boosting = room.memory.boosting || {};
-  //           room.memory.boosting[boost] = room.memory.boosting[boost] || {};
-  //           room.memory.boosting[boost][this.id] = true;
-
-  //           if (labs.length > 0) {
-  //             let returnCode = this.moveToMy(labs[0].pos, 1);
-  //             returnCode = labs[0].boostCreep(this);
-  //             if (returnCode === OK) {
-  //               const room = Game.rooms[this.room.name];
-  //               delete room.memory.boosting[boost][this.id];
-  //             }
-  //             if (returnCode === ERR_NOT_IN_RANGE) {
-  //               return true;
-  //             }
-  //             this.log('Boost returnCode: ' + returnCode + ' lab: ' + labs[0].pos);
-  //             return true;
-  //           }
-
-  //           return false;
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
-
-  // return false;
+  if (!boost.lab) {
+    this.memory.boosted = true;
+    delete this.room.memory.boosts[this.name];
+    return false;
+  }
+  this.log(`${JSON.stringify(boost)}`);
+  const lab = Game.getObjectById(boost.lab);
+  this.moveToMy(lab.pos);
+  const response = lab.boostCreep(this);
+  this.log(response);
+  if (response === ERR_NOT_ENOUGH_RESOURCES) {
+    this.memory.boosted = true;
+    delete this.room.memory.boosts[this.name];
+    return false;
+  }
+  if (response === OK) {
+    this.log('BOOSTED');
+    this.memory.boosted = true;
+    delete this.room.memory.boosts[this.name];
+    return false;
+  }
+  return true;
 };

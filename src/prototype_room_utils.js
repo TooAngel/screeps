@@ -12,8 +12,6 @@ function returnLength(object) {
   return (object && object.length) ? object.length : _.size(object);
 }
 
-Room.structureHasEnergy = (structure) => structure.store && structure.store.energy || structure.energy;
-
 Room.structureIsEmpty = (structure) => (!structure.store || _.sum(structure.store) === 0) && !structure.energy && !structure.mineralAmount && !structure.ghodium && !structure.power;
 
 Room.prototype.nearestRoomName = function(roomsNames, limit) {

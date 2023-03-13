@@ -13,7 +13,7 @@ roles.carry = {};
 roles.carry.buildRoad = true;
 roles.carry.flee = true;
 
-roles.carry.boostActions = ['capacity'];
+// roles.carry.boostActions = ['capacity'];
 
 roles.carry.settings = {
   param: ['energyCapacityAvailable'],
@@ -338,7 +338,6 @@ roles.carry.preMove = function(creep, directions) {
   creep.memory.routing.reverse = moveToStorage;
   if (moveToStorage) {
     directions.direction = directions.backwardDirection;
-    // TODO this makes sure that we first move to the end before other creeps transfer to this
     creep.data.fullyDeployed = true;
   } else {
     directions.direction = directions.forwardDirection;
@@ -350,6 +349,22 @@ roles.carry.preMove = function(creep, directions) {
   roles.carry.dismantleStructure(creep, directions);
   return false;
 };
+
+/**
+ * handleSourceKeeperRoom
+ *
+ * @param {object} creep
+ */
+function handleSourceKeeperRoom(creep) {
+  const target = creep.findClosestSourceKeeper();
+  if (target !== null) {
+    const range = creep.pos.getRangeTo(target);
+    if (range < 5) {
+      delete creep.memory.routing.reached;
+      creep.memory.routing.reverse = true;
+    }
+  }
+}
 
 roles.carry.action = function(creep) {
   // TODO log when this happens, carry is getting energy from the source
@@ -383,14 +398,7 @@ roles.carry.action = function(creep) {
   }
 
   if (!creep.room.controller) {
-    const target = creep.findClosestSourceKeeper();
-    if (target !== null) {
-      const range = creep.pos.getRangeTo(target);
-      if (range < 5) {
-        delete creep.memory.routing.reached;
-        creep.memory.routing.reverse = true;
-      }
-    }
+    handleSourceKeeperRoom(creep);
   }
 
   creep.memory.routing.reached = false;

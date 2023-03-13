@@ -164,16 +164,16 @@ function cleanRooms() {
     for (const name of Object.keys(Memory.rooms)) {
       // TODO lastSeen moved to global.data - so we should check this, also Memory.rooms should only exist for myRooms
       if (!Memory.rooms[name].lastSeen && Object.keys(Memory.rooms[name]).length > 0) {
-        console.log(`${Game.time} Deleting ${name} from memory no 'lastSeen' value, keys: ${JSON.stringify(Object.keys(Memory.rooms[name]))}`);
+        debugLog('memory', `Deleting ${name} from memory no 'lastSeen' value, keys: ${JSON.stringify(Object.keys(Memory.rooms[name]))}`);
         delete Memory.rooms[name];
         continue;
       }
       if (Memory.rooms[name].lastSeen < Game.time - config.room.lastSeenThreshold && Memory.myRooms.indexOf(name) < 0) {
-        console.log(Game.time, `Deleting ${name} from memory older than ${config.room.lastSeenThreshold}`);
+        debugLog('memory', `Deleting ${name} from memory older than ${config.room.lastSeenThreshold}`);
         delete Memory.rooms[name];
       }
       if (Memory.myRooms.indexOf(name) < 0) {
-        console.log(Game.time, `Deleting ${name} from memory, no myRoom ${JSON.stringify(Memory.rooms[name])}`);
+        debugLog('memory', `Deleting ${name} from memory, no myRoom ${JSON.stringify(Memory.rooms[name])}`);
         delete Memory.rooms[name];
       }
     }
@@ -253,6 +253,7 @@ module.exports.prepareMemory = function() {
   Memory.username = Memory.username || _.chain(Game.rooms).map('controller').flatten().filter('my').map('owner.username').first().value();
   Memory.myRooms = Memory.myRooms || [];
   Memory.squads = Memory.squads || {};
+  Memory.powerBanks = Memory.powerBanks || {};
   Memory.skippedRooms = [];
   brain.setMarketOrders();
   setConstructionSites();

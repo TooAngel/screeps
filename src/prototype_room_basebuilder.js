@@ -82,7 +82,8 @@ Room.prototype.buildRampartsAroundSpawns = function() {
             const pos = new RoomPosition(spawn.pos.x + x, spawn.pos.y + y, spawn.pos.roomName);
             this.memory.walls.ramparts.push(pos);
             costMatrixBase.set(pos.x, pos.y, 0);
-            const walls = pos.findInRangePropertyFilter(FIND_STRUCTURES, 0, 'structureType', [STRUCTURE_WALL]);
+
+            const walls = pos.findInRangeWall(0);
             for (const wall of walls) {
               wall.destroy();
             }
@@ -210,7 +211,7 @@ Room.prototype.checkWrongStructure = function() {
   //  this.log('checkWrongStructure: controller.level < 6');
   //  return false;
   // }
-  const structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_CONTROLLER], {inverse: true});
+  const structures = this.findStructuresToDestroy();
   for (const structure of structures) {
     if (this.destroyStructure(structure)) {
       return true;
@@ -265,12 +266,12 @@ function setupStructureFinishPriorityStructures(structure, constructionSites) {
 }
 
 Room.prototype.setupStructure = function(structure) {
-  const constructionSites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [structure]);
+  const constructionSites = this.find(FIND_CONSTRUCTION_SITES, {filter: (object) => object.structureType === structure});
   if (setupStructureFinishPriorityStructures(structure, constructionSites)) {
     return true;
   }
 
-  const structures = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [structure]);
+  const structures = this.find(FIND_MY_STRUCTURES, {filter: (object) => object.structureType === structure});
   const diff = CONTROLLER_STRUCTURES[structure][this.controller.level] -
     (structures.length + constructionSites.length);
   if (diff <= 0) {
@@ -340,7 +341,7 @@ Room.prototype.buildStructures = function() {
     return false;
   }
 
-  const constructionSites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_ROAD], {inverse: true});
+  const constructionSites = this.findBuildingConstructionSites();
   if (constructionSites.length > 0) {
     //    this.log('baseBuilder.setup: Too many construction sites');
     return true;
@@ -353,7 +354,7 @@ Room.prototype.buildStructures = function() {
     }
   }
 
-  if (!this.storage || this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_LINK]).length > 0) {
+  if (!this.storage || this.findConstructionSiteLink().length > 0) {
     return false;
   }
 

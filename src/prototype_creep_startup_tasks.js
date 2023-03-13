@@ -16,7 +16,7 @@ Creep.upgradeControllerTask = function(creep) {
 
   const range = creep.pos.getRangeTo(creep.room.controller);
   if (range <= 3) {
-    const resources = creep.pos.findInRangePropertyFilter(FIND_DROPPED_RESOURCES, 10, 'resourceType', [RESOURCE_ENERGY]);
+    const resources = creep.pos.findInRangeDroppedEnergy(10);
     let resource = false;
     if (resources.length > 0) {
       resource = resources[0];
@@ -107,7 +107,7 @@ Creep.recycleCreep = function(creep) {
 
   let spawn = creep.pos.findClosestByRangeSpawn();
   if (!spawn) {
-    spawn = Game.rooms[creep.memory.base].findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN])[0];
+    spawn = Game.rooms[creep.memory.base].findSpawn()[0];
   }
   if (spawn) {
     if (creep.room === spawn.room) {
@@ -134,11 +134,11 @@ Creep.repairStructure = function(creep) {
 };
 
 Creep.prototype.getEnergyFromAnyOfMyStructures = function() {
-  let structures = this.room.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_OBSERVER], {
-    inverse: true,
-    filter: Room.structureHasEnergy,
-  });
-  if (this.carry.energy || !structures.length) {
+  if (this.carry.energy) {
+    return false;
+  }
+  let structures = this.room.findStructuresWithUsableEnergy();
+  if (structures.length === 0) {
     return false;
   }
   // Get energy from the structure with highest amount first
@@ -151,16 +151,13 @@ Creep.prototype.getEnergyFromAnyOfMyStructures = function() {
     this.moveToMy(structure.pos);
   } else {
     const resCode = this.withdraw(structure, RESOURCE_ENERGY);
-    this.log(Game.time, 'withdraw from structure ' + resCode);
+    this.log(Game.time, `withdraw from structure ${structure.structureType} ${resCode}`);
   }
   return true;
 };
 
 Creep.prototype.getEnergyFromHostileStructures = function() {
-  let hostileStructures = this.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_OBSERVER], {
-    inverse: true,
-    filter: Room.structureHasEnergy,
-  });
+  let hostileStructures = this.room.findHostileStructureWithEnergy();
   if (this.carry.energy || !hostileStructures.length) {
     return false;
   }
@@ -245,7 +242,7 @@ Creep.prototype.repairStructureWithIncomingNuke = function() {
     return false;
   }
   this.log('repairing because of nuke');
-  const spawns = this.room.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+  const spawns = this.room.findSpawn();
   if (spawns.length === 0) {
     return false;
   }
@@ -341,9 +338,6 @@ Creep.prototype.repairKnownTarget = function() {
 
 Creep.prototype.repairStructure = function() {
   if (this.repairKnownTarget()) {
-    if (this.pos.roomName !== this.memory.base) {
-      this.log(`Not in my base room why? repairKnownTarget`);
-    }
     return true;
   }
 

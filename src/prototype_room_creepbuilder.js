@@ -63,6 +63,7 @@ Room.prototype.creepMem = function(role, targetId, targetRoom, level, base) {
     },
     level: level,
     base: base,
+    time: Game.time,
   };
 };
 
@@ -75,10 +76,12 @@ Room.prototype.creepMem = function(role, targetId, targetRoom, level, base) {
 Room.prototype.getPriority = function(object) {
   const priority = config.priorityQueue;
   const target = object.routing && object.routing.targetRoom;
+  const age = Game.time - (object.role.time || Game.time);
+  const ageTerm = age / CREEP_LIFE_TIME * 20;
   if (target === this.name) {
-    return priority.sameRoom[object.role] || 4;
+    return (priority.sameRoom[object.role] || 4) + ageTerm;
   } else if (target) {
-    return priority.otherRoom[object.role] || 20 + Game.map.getRoomLinearDistance(this.name, target);
+    return (priority.otherRoom[object.role] || 20) + Game.map.getRoomLinearDistance(this.name, target) + ageTerm;
   } else {
     return 19;
   }
@@ -532,6 +535,48 @@ Room.prototype.getCreepConfig = function(creep) {
 };
 
 /**
+ * prepareBoosting
+ *
+ * @param {object} room
+ * @param {object} creep
+ * @param {object} config
+ * @return {boolean}
+ */
+function prepareBoosting(room, creep, config) {
+  if (!room.terminal || !room.terminal.my) {
+    return false;
+  }
+
+  const unit = roles[creep.role];
+  if (!unit.boostActions) {
+    return false;
+  }
+  const boostConfig = {
+    resources: [],
+    time: Game.time,
+  };
+
+  const possibleBoostsParts = [...new Set(config.body)];
+  for (const part of possibleBoostsParts) {
+    for (const mineral of Object.keys(BOOSTS[part])) {
+      for (const action of Object.keys(BOOSTS[part][mineral])) {
+        if (unit.boostActions.includes(action)) {
+          if (room.terminal.store[mineral] > 30) {
+            boostConfig.resources.push(mineral);
+          }
+        }
+      }
+    }
+  }
+  if (boostConfig.resources.length === 0) {
+    return false;
+  }
+  room.debugLog('boosts', `boostConfig: ${JSON.stringify(boostConfig)}`);
+  room.memory.boosts = room.memory.boosts || {};
+  room.memory.boosts[config.name] = boostConfig;
+}
+
+/**
  * Room.prototype.spawnCreateCreep use for launch spawn of first creep in queue.
  *
  * @param {Collection} creep Object with queue's creep data.
@@ -540,7 +585,7 @@ Room.prototype.getCreepConfig = function(creep) {
 Room.prototype.spawnCreateCreep = function(creep) {
   const spawns = this.findSpawnsNotSpawning();
   if (spawns.length === 0) {
-    return;
+    return false;
   }
 
   const config = this.getCreepConfig(creep);
@@ -559,6 +604,9 @@ Room.prototype.spawnCreateCreep = function(creep) {
       this.log(`spawnCreateCreep: ${returnCode} ${JSON.stringify(config)}`);
       continue;
     }
+
+    prepareBoosting(this, creep, config);
+
     brain.stats.modifyRoleAmount(creep.role, 1);
     return true;
   }
@@ -569,11 +617,8 @@ Room.prototype.checkAndSpawnSourcer = function() {
   const sources = this.findSources();
 
   let source;
-  const isSourcer = (object) => object.memory.routing.targetId === source.id && object.memory.routing.targetRoom === source.pos.roomName;
   for (source of sources) {
-    const sourcers = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['sourcer'], {
-      filter: isSourcer,
-    });
+    const sourcers = this.findSameSourcer(source);
     if (sourcers.length === 0) {
       //      this.log(source.id);
       this.checkRoleToSpawn('sourcer', 1, source.id, this.name);

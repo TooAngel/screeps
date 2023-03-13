@@ -1,7 +1,7 @@
 'use strict';
 
 const {checkPlayers} = require('./diplomacy');
-const {handleQuests} = require('./quests');
+const {handleQuests} = require('./quests_host');
 const {prepareMemory} = require('./brain_memory');
 const {handleSquadManager} = require('./brain_squadmanager');
 
@@ -30,7 +30,6 @@ function executeRooms() {
 }
 
 module.exports.cleanUpDyingCreep = function(name) {
-  console.log('--->', name, 'Died naturally?');
   delete Memory.creeps[name];
 };
 

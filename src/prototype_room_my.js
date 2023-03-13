@@ -64,7 +64,7 @@ Room.prototype.myHandleRoom = function() {
   const spawnIdle = this.findMySpawns().reduce((previous, current) => {
     return previous || !current.spawning;
   }, false);
-  this.memory.spawnIdle = 0.99 * this.memory.spawnIdle + 0.01 * (spawnIdle ? 1 : 0);
+  this.memory.spawnIdle = (1-config.room.spawnIdleFactor) * this.memory.spawnIdle + config.room.spawnIdleFactor * (spawnIdle ? 1 : 0);
 
   const hostiles = this.findEnemies();
   if (hostiles.length === 0) {
@@ -341,6 +341,9 @@ Room.prototype.handleReviveRoomQueueCarry = function(myRoomName) {
   if (!room.isHealthy()) {
     return;
   }
+  if (!room.hasSpawnCapacity()) {
+    return;
+  }
   if (Game.map.getRoomLinearDistance(this.name, room.name) > 10) {
     return;
   }
@@ -349,14 +352,7 @@ Room.prototype.handleReviveRoomQueueCarry = function(myRoomName) {
 };
 
 Room.prototype.handleReviveRoomSendCarry = function() {
-  if (!this.executeEveryTicks(config.carryHelpers.ticksUntilHelpCheck)) {
-    return false;
-  }
-
-  if (!this.isStruggling()) {
-    return false;
-  }
-
+  this.debugLog('revive', `handleReviveRoomSendCarry`);
   const myCreeps = this.findMyCreeps();
   if (myCreeps.length === 0) {
     return false;
@@ -369,6 +365,15 @@ Room.prototype.handleReviveRoomSendCarry = function() {
 };
 
 Room.prototype.handleReviveRoom = function(hostiles) {
+  if (!this.executeEveryTicks(config.carryHelpers.ticksUntilHelpCheck)) {
+    return false;
+  }
+
+  if (!this.isStruggling()) {
+    return false;
+  }
+
+  this.debugLog('revive', `handleReviveRoom`);
   // Energy support
   this.handleReviveRoomSendCarry();
 
@@ -410,7 +415,12 @@ Room.prototype.getBuilderAmount = function(constructionSites) {
 };
 
 Room.prototype.checkForBuilder = function() {
-  const constructionSites = this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART], {inverse: true});
+  let constructionSites;
+  if (this.isHealthy()) {
+    constructionSites = this.findConstructionSitesStructures();
+  } else {
+    constructionSites = this.findConstructionSitesEssentialStructures();
+  }
   if (constructionSites.length === 0) {
     if (this.memory.misplacedSpawn && this.storage && this.storage.store.energy > 20000 && this.energyAvailable >= this.energyCapacityAvailable - 300) {
       this.checkRoleToSpawn('builder', 4);
@@ -461,6 +471,9 @@ Room.prototype.isRoomReadyForMineralHandling = function() {
   if (!this.storage) {
     return false;
   }
+  if (!this.isHealthy()) {
+    return false;
+  }
   return true;
 };
 
@@ -469,15 +482,9 @@ Room.prototype.checkForMineral = function() {
     return false;
   }
 
-  // const labs = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_LAB]);
-  // if ((!this.memory.cleanup || this.memory.cleanup <= 10) && (_.size(labs) > 2)) {
-  if (this.isHealthy() && ((this.data.mineralLastRecyled || Game.time) + 1500 > Game.time)) {
+  if (this.memory.reaction || (this.memory.boosts && Object.keys(this.memory.boosts).length)) {
     this.checkRoleToSpawn('mineral');
   }
-  // }
-  // if ((Game.time + this.controller.pos.x + this.controller.pos.y) % 10000 < 10) {
-  //   this.memory.cleanup = 0;
-  // }
 };
 
 Room.prototype.handleEconomyStructures = function() {
@@ -520,11 +527,19 @@ Room.prototype.isStruggling = function() {
   return false;
 };
 
+Room.prototype.hasSpawnCapacity = function(threshold) {
+  if (this.memory.spawnIdle < (threshold || config.room.spawnIdle)) {
+    // this.log(`Spawn is not idle ${this.memory.spawnIdle} < ${config.room.spawnIdle} (${new Error().stack})`);
+    // this.log(`Spawn is not idle ${this.memory.spawnIdle} < ${config.room.spawnIdle}`);
+    return false;
+  }
+  return true;
+};
+
 Room.prototype.isHealthy = function() {
   if (this.isStruggling()) {
     return false;
   }
-  // TODO extract as config variable
   if (this.storage.store.energy < config.room.isHealthyStorageThreshold) {
     return false;
   }
@@ -598,23 +613,28 @@ const checkForRoute = function(room, roomOther) {
 };
 
 Room.prototype.reviveMyNowHelperValid = function(helperRoom) {
-  let valid = false;
-
   if (helperRoom.isStruggling()) {
     this.debugLog('revive', `No nextroomer is Struggling ${helperRoom.name}`);
-  } else if (this.controller.ticksToDowngrade > 1500 && !helperRoom.isHealthy()) {
-    // When close before downgrading, just send nextroomer
-    // TODO replace 1500 with CREEP_LIFE_TIME
+    return false;
+  }
+  if (!helperRoom.hasSpawnCapacity(config.room.nextroomerSpawnIdleThreshold)) {
+    this.debugLog('revive', `helper no spawnCapacity ${helperRoom.memory.spawnIdle}`);
+    return false;
+  }
+  if (this.controller.ticksToDowngrade > CREEP_LIFE_TIME && !helperRoom.isHealthy()) {
     this.debugLog('revive', `No nextroomer not healthy ${helperRoom.name} ${helperRoom.storage.store.energy}`);
-  } else if (Game.map.getRoomLinearDistance(this.name, helperRoom.name) > config.nextRoom.maxDistance) {
+    return false;
+  }
+  if (Game.map.getRoomLinearDistance(this.name, helperRoom.name) > config.nextRoom.maxDistance) {
     this.debugLog('revive', `Too far ${helperRoom.name}`);
-  } else if (checkForRoute(this, helperRoom)) {
+    return false;
+  }
+  if (checkForRoute(this, helperRoom)) {
     this.debugLog('revive', `No nextroomer checkForRoute no route to ${helperRoom.name}`);
-  } else {
-    valid = true;
+    return false;
   }
 
-  return valid;
+  return true;
 };
 
 Room.prototype.reviveMyNow = function() {
@@ -625,6 +645,7 @@ Room.prototype.reviveMyNow = function() {
     }
     const helperRoom = Game.rooms[helperRoomName];
     if (!this.reviveMyNowHelperValid(helperRoom)) {
+      this.debugLog('revive', `helper not valid ${helperRoomName}`);
       continue;
     }
 
@@ -672,7 +693,7 @@ Room.prototype.reviveRoom = function() {
   if (!this.executeEveryTicks(config.revive.nextroomerInterval)) {
     return false;
   }
-
+  this.debugLog('revive', `reviveRoom`);
   if (this.memory.active) {
     this.setRoomInactive();
   }

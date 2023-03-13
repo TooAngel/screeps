@@ -9,6 +9,7 @@ jobs:
       - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
       - run: npm publish || true
       - run: npm run deploy
+      - run: npm run respawner
     test:
       docker:
         - image: node:12

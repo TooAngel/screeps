@@ -128,6 +128,9 @@ Creep.prototype.moveRandomWithin = function(goal, dist = 3, goal2 = false) {
     if (pos.checkForObstacleStructure()) {
       continue;
     }
+    if (pos.inPositions()) {
+      continue;
+    }
     break;
   }
   this.move(direction);
