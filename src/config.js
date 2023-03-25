@@ -150,7 +150,7 @@ global.config = {
   },
 
   pixel: {
-    enabled: false,
+    enabled: true,
     minBucketAfter: 2500,
   },
 
