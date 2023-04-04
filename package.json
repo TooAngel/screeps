@@ -78,6 +78,7 @@
       "it": "writable"
     },
     "ignorePatterns": [
+      "dist/",
       "**/*{.,-}min.js",
       "tmp-test-server/",
       "tmp-test-server-database/"
@@ -85,11 +86,11 @@
     "rules": {
       "complexity": [
         "error",
-        14
+        13
       ],
       "max-statements": [
         "error",
-        34
+        30
       ],
       "accessor-pairs": "error",
       "no-alert": "error",

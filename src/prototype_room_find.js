@@ -147,7 +147,13 @@ Room.prototype.findPowerBanks = function() {
 Room.prototype.findDestructibleStructures = function() {
   return this.find(FIND_STRUCTURES, {
     filter: (structure) => {
-      return [STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER, STRUCTURE_INVADER_CORE].indexOf(structure.structureType) < 0;
+      if ([STRUCTURE_CONTROLLER, STRUCTURE_ROAD, STRUCTURE_CONTAINER, STRUCTURE_INVADER_CORE].includes(structure.structureType)) {
+        return false;
+      }
+      if (!structure.hitsMax) {
+        return false;
+      }
+      return;
     },
   });
 };

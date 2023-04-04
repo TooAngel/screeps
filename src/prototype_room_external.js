@@ -32,6 +32,10 @@ Room.prototype.checkBlocked = function() {
         roomCallback: roomCallback,
       });
       if (search.incomplete) {
+        const indestructableWall = this.lookForAt(LOOK_STRUCTURES, toNextExit[0]);
+        if (indestructableWall.length && indestructableWall.find((object) => object.structureType === STRUCTURE_WALL && !object.hitsMax)) {
+          return false;
+        }
         return true;
       }
     }
@@ -434,6 +438,9 @@ Room.prototype.checkBlockedPath = function() {
       const structures = roomPos.lookFor('structure');
 
       for (const structure of structures) {
+        if (!structure.hitsMax) {
+          continue;
+        }
         if (structure.structureType === STRUCTURE_ROAD) {
           continue;
         }

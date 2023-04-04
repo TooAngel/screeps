@@ -2,6 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/TooAngel/screeps.svg?style=svg)](https://circleci.com/gh/TooAngel/screeps)
 [![npm version](https://badge.fury.io/js/screeps-bot-tooangel.svg)](https://badge.fury.io/js/screeps-bot-tooangel)
+[![Maintainability](https://api.codeclimate.com/v1/badges/3c8ff1391c93ab7209af/maintainability)](https://codeclimate.com/github/TooAngel/screeps/maintainability)
 [![discord](./doc/discord-logo-blue.png)](https://discord.gg/RrGFHKb)
 
 
@@ -11,7 +12,7 @@ Nowadays there are a couple of other automated screeps bot around. The
 TooAngel bot layed the groundwork for bots on the private server and the full
 automation idea. It was the first full automated open source code base and
 invented the idea of an community driven merge processes as well as a full
-automated bot deploy process. This was copied by other screeps projects like Quorum.
+automated bot deploy process.
 
 Pull Requests are automatically merged ([World Driven](https://www.worlddriven.org)) and deployed to the
 [Screeps TooAngel account](https://www.screeps.com).
@@ -34,18 +35,24 @@ Every contribution is welcome.
 ## Features
 
  - [Automatic Base building](doc/BaseBuilding.md)
- - External room harvesting
- - Basic mineral handling
- - Power harvesting
- - New rooms claiming on GCL level up
- - Automatic attack
- - Rebuild of fallen rooms
+ - Remote harvesting
+ - [Mineral handling, harvesting, market, reactions and boosting](doc/Mineral.md)
+ - Power and Commodity harvesting
+ - Room extension
+ - [Diplomatic module, for retaliations](doc/Diplomacy.md)
+ - Reviving attacked rooms
+ - [Quests](doc/Quests.md)
+ 
  - [Layout visualization](doc/Visualization.md)
  - [Manual commands](doc/Manual.md)
- - [Graphs](doc/Graphs.md)
  - [Testing](doc/Testing.md)
- - [Quests](doc/Quests.md)
+
 
 ## Design
 
 [More details of the AI design](doc/Design.md)
+
+## Links
+
+- [Game Docs](https://docs.screeps.com/)
+- [API Docs](https://docs.screeps.com/api/)

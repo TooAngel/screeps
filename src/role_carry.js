@@ -293,6 +293,19 @@ function preMoveNotMoveToStorage(creep, directions) {
   return moveToStorage;
 }
 
+/**
+ * handlePathPos0
+ *
+ * @param {object} creep
+ * @return {boolean}
+ */
+function handlePathPos0(creep) {
+  creep.drop(RESOURCE_ENERGY);
+  checkForUniversalSpawn(creep);
+  creep.memory.routing.reverse = false;
+  return false;
+}
+
 roles.carry.preMove = function(creep, directions) {
   if (!validateDirections(creep, directions)) {
     return false;
@@ -302,7 +315,6 @@ roles.carry.preMove = function(creep, directions) {
 
   let moveToStorage = getMoveToStorage(creep);
   if (moveToStorage) {
-    creep.creepLog(`preMove moveToStorage`);
     if (creep.inBase()) {
       const transferred = creep.transferToStructures();
       if (transferred) {
@@ -318,10 +330,7 @@ roles.carry.preMove = function(creep, directions) {
       }
 
       if (creep.memory.routing.pathPos === 0) {
-        creep.drop(RESOURCE_ENERGY);
-        checkForUniversalSpawn(creep);
-        creep.memory.routing.reverse = false;
-        return false;
+        return handlePathPos0(creep);
       }
     }
 

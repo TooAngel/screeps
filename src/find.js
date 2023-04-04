@@ -145,6 +145,9 @@ RoomPosition.prototype.findClosestByRangeLowHitStructures = function() {
       if ([STRUCTURE_WALL, STRUCTURE_RAMPART].includes(object.structureType)) {
         return false;
       }
+      if (!object.hitsMax) {
+        return false;
+      }
       return object.hits < object.hitsMax / 2;
     },
   });
@@ -171,7 +174,7 @@ RoomPosition.prototype.findClosestByRangeStandardConstructionSites = function() 
 
 RoomPosition.prototype.findClosestByRangeBlockerConstructionSite = function() {
   return this.findClosestByRange(FIND_CONSTRUCTION_SITES, {
-    filter: (object) => [STRUCTURE_RAMPART, STRUCTURE_WALL].includes(object.structureType),
+    filter: (object) => [STRUCTURE_RAMPART, STRUCTURE_WALL].includes(object.structureType) && !!object.hitsMax,
   });
 };
 
