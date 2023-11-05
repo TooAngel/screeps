@@ -64,7 +64,7 @@ global.config = {
   },
 
   debug: {
-    attack: true,
+    attack: false,
     baseBuilding: false,
     diplomacy: false,
     getPartsConfLogs: false,
@@ -87,7 +87,7 @@ global.config = {
     constructionSites: false,
     routing: false,
     brain: false,
-    commodities: true,
+    commodities: false,
     memory: true,
     boosts: false,
   },
