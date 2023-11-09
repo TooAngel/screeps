@@ -273,6 +273,25 @@ Room.prototype.getUniversalAmount = function() {
   return 1;
 };
 
+Room.prototype.getUpgraderAmount = function() {
+  if (!this.controller || !this.controller.my) {
+    return 0;
+  }
+  if (!this.storage) {
+    return 1;
+  }
+  if (!this.storage.my) {
+    return 0;
+  }
+  if (this.controller.level === 8) {
+    return 1;
+  }
+  if (this.storage.isLow()) {
+    return 1;
+  }
+  return 1 + Math.min(1, Math.floor(this.storage.store.energy / config.storage.lowValue / 20));
+};
+
 Room.prototype.handleAttackTimerWithoutHostiles = function() {
   this.memory.attackTimer = Math.max(this.memory.attackTimer - 5, 0);
   if (this.memory.attackTimer <= 0) {
@@ -565,15 +584,16 @@ Room.prototype.executeRoomHandleHostiles = function() {
 };
 
 Room.prototype.executeRoomCheckBasicCreeps = function() {
-  const amount = this.getUniversalAmount();
-  this.checkRoleToSpawn('universal', amount);
+  const universalAmount = this.getUniversalAmount();
+  this.checkRoleToSpawn('universal', universalAmount);
   this.checkAndSpawnSourcer();
 
   if (this.controller.level >= 4 && this.storage && this.storage.my) {
     this.checkRoleToSpawn('storagefiller', 1, 'filler');
   }
-  if (this.storage && this.storage.my && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
-    this.checkRoleToSpawn('upgrader', 1, this.controller.id);
+  const upgraderAmount = this.getUpgraderAmount();
+  if (this.storage && this.storage.my && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn && upgraderAmount > 0) {
+    this.checkRoleToSpawn('upgrader', upgraderAmount, this.controller.id);
   }
 };
 
