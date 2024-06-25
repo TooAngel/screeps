@@ -118,7 +118,7 @@ function harvest(creep) {
   if (returnCode === ERR_NO_BODYPART) {
     creep.room.checkRoleToSpawn('defender', 2, undefined, creep.room.name);
     creep.respawnMe();
-    creep.suicide();
+    creep.memory.role = 'scout';
     return false;
   }
 

@@ -15,14 +15,21 @@ roles.claimer.settings = {
 };
 
 roles.claimer.action = function(creep) {
-  creep.creepLog('New claimer, in room, claiming');
-  // TODO just added the targetId to the creep, I hope it works
-  // const returnCodeMove = creep.moveTo(creep.room.controller.pos);
-  // console.log(`Move returnCode ${returnCodeMove}`);
-  const returnCode = creep.claimController(creep.room.controller);
-  if (returnCode === OK) {
-    creep.creepLog('New claimer, in room, claimed');
-    creep.suicide();
+  let claimerActionCompleted = creep.memory.claimerActionCompleted;
+  if (!claimerActionCompleted) {
+    creep.creepLog('New claimer, in room, claiming');
+    // TODO just added the targetId to the creep, I hope it works
+    // const returnCodeMove = creep.moveTo(creep.room.controller.pos);
+    // console.log(`Move returnCode ${returnCodeMove}`);
+    const returnCode = creep.claimController(creep.room.controller);
+    if (returnCode === OK) {
+      creep.creepLog('New claimer, in room, claimed');
+      creep.memory.claimerActionCompleted = claimerActionCompleted = true;
+    }
+  }
+  if (claimerActionCompleted) {
+    creep.memory.role = 'scout';
+    return roles.scout.action(creep);
   }
   return true;
 };

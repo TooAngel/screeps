@@ -16,7 +16,7 @@ roles.quester.settings = {
 roles.quester.questLost = function(creep, quest, reason, value) {
   creep.log(`Quest lost cs: ${value} ${JSON.stringify(quest)}`);
   delete Memory.quests[creep.memory.level];
-  creep.suicide();
+  creep.memory.role = 'scout';
 };
 
 roles.quester.questWon = function(creep, quest) {
@@ -33,7 +33,7 @@ roles.quester.questWon = function(creep, quest) {
   };
   creep.room.terminal.send(RESOURCE_ENERGY, 100, quest.player.room, JSON.stringify(response));
   delete Memory.quests[creep.memory.level];
-  creep.suicide();
+  creep.memory.role = 'scout';
 };
 
 roles.quester.handleBuildConstructionSite = function(creep, quest) {
@@ -67,7 +67,7 @@ roles.quester.action = function(creep) {
   const quest = Memory.quests[creep.memory.level];
   if (!quest) {
     creep.log(`Quest ${creep.memory.level} not found, suiciding`);
-    creep.suicide();
+    creep.memory.role = 'scout';
     return;
   }
   if (quest.quest === 'buildcs') {
