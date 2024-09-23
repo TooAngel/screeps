@@ -7,11 +7,7 @@ global.brain = {
 global.roles = {};
 global.profiler = {};
 
-try {
-  global.friends = require('friends'); // eslint-disable-line global-require
-} catch (e) {
-  global.friends = [];
-}
+global.friends = ["Antagonist", "ceneezer"]
 
 global.config = {
   profiler: {
@@ -46,8 +42,8 @@ global.config = {
 
   info: {
     signController: true,
-    signText: 'Fully automated open source NPC: http://tooangel.github.io/screeps/',
-    resignInterval: 500,
+    signText: 'XenoAmesss here. Nice to meat you!',
+    resignInterval: 5000,
   },
 
   // Due to newly introduces via global variable caching this can be removed
@@ -154,7 +150,7 @@ global.config = {
   },
 
   pixel: {
-    enabled: false,
+    enabled: true,
     minBucketAfter: 2500,
   },
 
@@ -220,7 +216,7 @@ global.config = {
 
   myRoom: {
     underAttackMinAttackTimer: 50,
-    leastSpawnsToRebuildStructureSpawn: 1,
+    leastSpawnsToRebuildStructureSpawn: 2,
   },
 
   room: {
@@ -345,6 +341,11 @@ global.config = {
   },
 
   maliciousNpcUsernames: ['Invader', 'Source Keeper'],
+  structureSpawn: {
+    leastStructureSpawnToDestroyStructureSpawn: 3,
+    otherRoomCreepComeHelpBuildStructureHelperCount: 5
+  },
+
 };
 
 try {
