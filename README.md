@@ -1,34 +1,29 @@
-# TooAngel Artificial intelligence for screeps
+# TooAngel NPC / bot / source code for screeps
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7cdc61c18abf4b3b89ad6a2f12ca7990)](https://www.codacy.com/app/TooAngel/screeps?utm_source=github.com&utm_medium=referral&utm_content=TooAngel/screeps&utm_campaign=badger)
 [![CircleCI](https://circleci.com/gh/TooAngel/screeps.svg?style=svg)](https://circleci.com/gh/TooAngel/screeps)
-[![Code Climate](https://codeclimate.com/github/TooAngel/screeps/badges/gpa.svg)](https://codeclimate.com/github/TooAngel/screeps)
 [![npm version](https://badge.fury.io/js/screeps-bot-tooangel.svg)](https://badge.fury.io/js/screeps-bot-tooangel)
-[![slack](https://img.shields.io/badge/slack-17/17-green.svg)](https://screeps.slack.com/messages/tooangels/)
-[![discord](https://www.worlddriven.org/static/images/Discord-Logo-Black.png)](https://discord.gg/RrGFHKb)
+[![Maintainability](https://api.codeclimate.com/v1/badges/3c8ff1391c93ab7209af/maintainability)](https://codeclimate.com/github/TooAngel/screeps/maintainability)
+[![discord](./doc/discord-logo-blue.png)](https://discord.gg/RrGFHKb)
 
-https://screeps.com/
 
-See rendered version:
-http://tooangel.github.io/screeps/
+This project is a code base for [screeps](https://screeps.com/) a strategy sandbox MMO game. The codebase is a fully automated player and covers all important features provided by the game.
 
-## Quests
+Nowadays there are a couple of other automated screeps bot around. The
+TooAngel bot layed the groundwork for bots on the private server and the full
+automation idea. It was the first full automated open source code base and
+invented the idea of an community driven merge processes as well as a full
+automated bot deploy process.
 
-Head over to [Quests](doc/Quests.md)
+Pull Requests are automatically merged ([World Driven](https://www.worlddriven.org)) and deployed to the
+[Screeps TooAngel account](https://www.screeps.com).
 
-## For in game room visitors:
+## Use cases
 
-Happy to see you visiting one of our rooms. [Visit FAQ to find answers](doc/FAQ.md)
+There are different occasions where you get into contact with the TooAngel NPC / bot / source code.
 
-## Info
-
-This is the AI I'm using for screeps. I managed to reach Top 10
-from November 2015 - March 2016. Main Goal is to automate everything, no
-manual interaction needed.
-
-The AI is deployable on a private screeps server, follow the information on
-[Steam](http://steamcommunity.com/sharedfiles/filedetails/?id=800902233) or
-`npm install screeps-bot-tooangel` and `bots.spawn('screeps-bot-tooangel', ROOMNAME)`
+- [As NPC on the public server](doc/NPC.md)
+- [Deployed as bot on a private server](doc/Bot.md)
+- [Using it as code base](doc/CodeBase.md)
 
 ## Note
 
@@ -40,97 +35,24 @@ Every contribution is welcome.
 ## Features
 
  - [Automatic Base building](doc/BaseBuilding.md)
- - External room harvesting
- - Basic mineral handling
- - Power harvesting
- - New rooms claiming on GCL level up
- - Automatic attack
- - Rebuild of fallen rooms
+ - Remote harvesting
+ - [Mineral handling, harvesting, market, reactions and boosting](doc/Mineral.md)
+ - Power and Commodity harvesting
+ - Room extension
+ - [Diplomatic module, for retaliations](doc/Diplomacy.md)
+ - Reviving attacked rooms
+ - [Quests](doc/Quests.md)
+ 
  - [Layout visualization](doc/Visualization.md)
  - [Manual commands](doc/Manual.md)
- - [Graphs](doc/Graphs.md)
  - [Testing](doc/Testing.md)
 
-## Tweaking
-
-Add a `src/friends.js` with player names to ignore them from all attack
-considerations.
-
-E.g.:
-`module.exports = ['TooAngel'];`
-
-
-Add a `src/config_local.js` to overwrite configuration values. Copy
-`config_local.js.example` to `src/config_local.js` as an example. `src/config.js`
-has the default values.
-
-## Debugging
-
-Within the `config_local.js` certain `config.debug` flags can be enabled.
-To add debug messages `Room.debugLog(TYPE, MESSAGE)` and
-`Creep.creepLog(MESSAGE)` are suggested. Especially the `creepLog` allows
-granular output of the creep behavior based on the room and the creep role.
-
-## Upload
-
-install dependencies
-
-    npm install
-
-add your account credentials
-
-### to screeps.com
-
-To deploy to the live server provide the credentials.
-
-#### via env
-
-    export email=EMAIL
-    export password=PASSWORD
-
-#### via git ignored file
-
-    echo "module.exports = { email: 'your-email@here.tld', password: 'your-secret' };" > account.screeps.com.js
- or edit and rename account.screeps.com.js.sample to account.screeps.com.js   
-
-And deploy to the server:
-
-    grunt
-
-### to private server
-Create a `.localSync.js` file with content:
-```
-module.exports = [{
-  cwd: 'src',
-  src: [
-    '*.js'
-  ],
-  dest: '$HOME/.config/Screeps/scripts/SERVER/default',
-}];
-```
-
-    grunt local
-
-
-## Develop
-
-    grunt dev
-
-## Release
-
-Releasing to npm is done automatically by increasing the version and merging to `master`.
-
-    npm version 10.0.1
-    git push --follow-tags
-
-Every deploy to `master` is automatically deployed to the live tooangel account.
-
-## Testing
-
-`node utils/test.js` will start a private server and add some bots as test
-cases. Within in the `tmp-test-server` directory the server can be easily
-started via `screeps start`.
 
 ## Design
 
 [More details of the AI design](doc/Design.md)
+
+## Links
+
+- [Game Docs](https://docs.screeps.com/)
+- [API Docs](https://docs.screeps.com/api/)

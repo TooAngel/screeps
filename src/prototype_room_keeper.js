@@ -10,7 +10,7 @@ Room.prototype.findKeepersAt = function(roles, posId) {
     posId: posId,
     amount: amount,
     roles: _.map(roles, (role) => {
-      const keeper = room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', [role]);
+      const keeper = room.find(FIND_MY_CREEPS, {filter: (object) => object.memory.role === role});
       const cSize = _.filter(keeper, (c) => c.memory.routing.targetId === posId);
       return {
         role: role,
@@ -21,8 +21,8 @@ Room.prototype.findKeepersAt = function(roles, posId) {
 };
 
 Room.prototype.findKeepers = function(roles) {
-  if (this.memory.position && this.memory.position.creep) {
-    const positions = this.memory.position.creep;
+  if (this.data.positions && this.data.positions.creep) {
+    const positions = this.data.positions.creep;
     const room = this;
     const updateKeepersPos = (pos, posId) => {
       return room.findKeepersAt(roles, posId);
@@ -30,36 +30,36 @@ Room.prototype.findKeepers = function(roles) {
     return _.map(positions, updateKeepersPos);
   } else {
     // todo-msc try setup?
-    if (this.memory.position) {
-      this.log('no memory.position.creep');
-    } else {
-      this.log('no memory.position');
-    }
+    // if (this.memory.position) {
+    //   this.log('no memory.position.creep');
+    // } else {
+    //   this.log('no memory.position');
+    // }
   }
   return false;
 };
 
 Room.prototype.updateKeepers = function() {
   const roles = ['atkeepermelee', 'atkeeper', 'sourcer'];
-  this.memory.keepersRoles = roles;
-  this.memory.keepers = this.findKeepers(roles);
+  this.data.keepersRoles = roles;
+  this.data.keepers = this.findKeepers(roles);
 };
 
 Room.prototype.spawnKeepers = function() {
   const room = this;
-  const keeperPositions = this.memory.keepers;
-  const baseRoom = Game.rooms[room.memory.base];
+  const keeperPositions = this.data.keepers;
+  const baseRoom = Game.rooms[this.data.base];
   const amount = 1;
   const queueMaxLength = 10;
-  if (baseRoom.memory.energyStats.available < 2000) {
+  // TODO Understand this logic again, I guess redo the complete logic
+  if (!baseRoom.memory.energyStats || baseRoom.memory.energyStats.available < 2000) {
     return false;
   }
   return _.map(keeperPositions, (keeper) => {
-    // todo-msc remove W4S6
-    if ((baseRoom.memory.queue.length < queueMaxLength) && ((room.name === 'W4S6') || (room.name === 'W4S4'))) {
+    if ((baseRoom.memory.queue.length < queueMaxLength)) {
       return _.map(keeper.roles, (role) => {
         // const returnValue = false;
-        // todo-msc fix minerl harvesting
+        // todo-msc fix mineral harvesting
         if (keeper.type === 'mineral') {
           return {
             role: 'extractor',
@@ -70,13 +70,13 @@ Room.prototype.spawnKeepers = function() {
         }
         const returnValue = (role.size < amount) ? baseRoom.checkRoleToSpawn(role.role, amount, keeper.posId, room.name, undefined, room.memory.base) : false;
         if (!returnValue && (role.size < amount)) {
-          const creepMemory = baseRoom.creepMem(role.role, keeper.posId, room.name, undefined, room.memory.base);
+          const creepMemory = baseRoom.creepMem(role.role, keeper.posId, room.name, undefined, this.data.base);
           const inQueue = baseRoom.inQueue(creepMemory);
           const inRoom = baseRoom.inRoom(creepMemory, amount);
           room.log('checkRoleToSpawn', returnValue,
             JSON.stringify({
               room: room.name,
-              base: room.memory.base,
+              base: this.data.base,
               posId: keeper.posId,
               size: role.size,
               role: role.role,
@@ -102,8 +102,8 @@ Room.prototype.spawnKeepers = function() {
 };
 
 Room.prototype.checkForWatcher = function() {
-  const baseRoom = Game.rooms[this.memory.base];
-  const watcher = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['watcher']);
+  const baseRoom = Game.rooms[this.data.base];
+  const watcher = this.findWatcher();
   if (baseRoom && _.size(watcher) < 1) {
     return baseRoom.checkRoleToSpawn('watcher', 1, undefined, this.name);
   }
@@ -111,15 +111,18 @@ Room.prototype.checkForWatcher = function() {
 };
 
 Room.prototype.updateClosestSpawn = function() {
-  this.memory.base = this.closestSpawn(this.name);
-  return this.memory.base;
+  this.data.base = this.closestSpawn(this.name);
+  return this.data.base;
 };
 
 Room.prototype.spawnKeepersEveryTicks = function(ticks) {
   let returnValue = false;
-  if (Game.rooms[this.memory.base] && Game.rooms[this.memory.base].controller) {
-    if (Game.rooms[this.memory.base].controller.level >= config.keepers.minControllerLevel) {
-      this.checkForWatcher();
+  const baseRoom = Game.rooms[this.data.base];
+  if (baseRoom && baseRoom.controller) {
+    if (baseRoom.controller.level >= config.keepers.minControllerLevel) {
+      // TODO I don't know what the watcher is good for, keeper rooms need to
+      // be redone anyway
+      // this.checkForWatcher();
       if (this.executeEveryTicks(ticks)) {
         this.updateKeepers();
         if (this.updateClosestSpawn()) {
@@ -132,21 +135,21 @@ Room.prototype.spawnKeepersEveryTicks = function(ticks) {
       }
     }
   } else {
-    this.log('Error no Access to ', this.memory.base, 'or its controller');
+    this.log('Error no Access to ', this.data.base, 'or its controller');
   }
   return returnValue;
 };
 
 Room.prototype.keeperTeamReady = function() {
-  const atkeepermelee = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeepermelee']);
-  const atkeeper = this.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', ['atkeeper']);
+  const atkeepermelee = this.findAtkeepermelee();
+  const atkeeper = this.findAtkeeper();
   this.memory.atkeeper = atkeeper.length;
   this.memory.atkeepermelee = atkeepermelee.length;
   return (atkeepermelee.length > 0 && atkeeper.length > 0);
 };
 
 Room.prototype.getNextSourceKeeperLair = function() {
-  const sourceKeeper = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_KEEPER_LAIR]);
+  const sourceKeeper = this.findKeeperLair();
   const sourceKeeperNext = _.sortBy(sourceKeeper, (object) => object.ticksToSpawn);
   return sourceKeeperNext[0];
 };

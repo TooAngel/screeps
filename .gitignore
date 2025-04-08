@@ -14,7 +14,7 @@ account.screeps.com.js
 
 .localSync.js
 
-##Autocomplete
+## Autocomplete
 ScreepsAutocomplete/
 steam_appid.txt
 
@@ -25,3 +25,16 @@ tests/db.json
 tmp-test-server/
 server/
 account_local.screeps.com.js
+current-world/
+tmp-test-server-database/
+
+## ide
+target/
+.settings/
+.idea/
+**/*.iml
+
+## no ts
+tsconfig.json
+src_ts/
+.screeps.yaml

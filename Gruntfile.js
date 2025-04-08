@@ -16,11 +16,12 @@ module.exports = function(grunt) {
     };
   }
 
-  let account_local;
+  let accountLocal;
   try {
-    account_local = require('./account_local.screeps.com')
+    // eslint-disable-next-line global-require
+    accountLocal = require('./account_local.screeps.com');
   } catch (e) {
-    account_local = {
+    accountLocal = {
       email: false,
       password: false,
     };
@@ -28,7 +29,6 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-screeps');
   grunt.loadNpmTasks('grunt-mocha-test');
-  grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-sync');
@@ -42,46 +42,46 @@ module.exports = function(grunt) {
           email: process.env.email || account.email,
           password: process.env.password || account.password,
           branch: 'default',
-          ptr: false,
         },
         files: [
           {
             src: ['dist/*.js'],
-          }
+          },
+        ],
+      },
+      season: {
+        options: {
+          email: process.env.email || account.email,
+          token: process.env.token || account.token,
+          branch: 'default',
+          server: 'season',
+        },
+        files: [
+          {
+            src: ['dist/*.js'],
+          },
         ],
       },
       local: {
         options: {
-          email: account_local.email,
-          password: account_local.password,
-          branch: account_local.branch,
-          ptr: false,
+          email: accountLocal.email,
+          password: accountLocal.password,
+          branch: accountLocal.branch,
           server: {
-            http: account_local.http,
-            port: account_local.port,
-            host: account_local.host,
-          }
+            http: accountLocal.http,
+            port: accountLocal.port,
+            host: accountLocal.host,
+          },
         },
         files: [
           {
             src: ['dist/*.js'],
-          }
+          },
         ],
-      }
+      },
     },
     mochaTest: {
       src: ['test/**/*.js'],
-    },
-    eslint: {
-      check: {
-        src: 'src/*.js',
-      },
-      fix: {
-        src: 'src/*.js',
-        options: {
-          fix: true,
-        },
-      },
     },
     clean: ['dist/'],
     uglify: {
@@ -236,18 +236,19 @@ module.exports = function(grunt) {
     },
 
     exec: {
-      test_on_private_server: 'node utils/test.js 200',
+      test_on_private_server: 'node utils/test.js 49 true',
     },
   });
 
   grunt.log.writeln(new Date().toString());
-  grunt.registerTask('default', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:main']);
-  grunt.registerTask('release', ['eslint:fix', 'clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
-  grunt.registerTask('local', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
-  grunt.registerTask('test', ['eslint:check', 'mochaTest', 'exec:test_on_private_server']);
-  grunt.registerTask('dev', ['eslint:fix']);
-  grunt.registerTask('screeps_local', ['eslint:fix', 'clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:local']);
-  grunt.registerTask('deploy', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps']);
+  grunt.registerTask('default', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:main']);
+  grunt.registerTask('release', ['clean', 'uglify', 'copy:main', 'requireFile', 'sync']);
+  grunt.registerTask('local', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'sync']);
+  grunt.registerTask('test', ['mochaTest', 'exec:test_on_private_server']);
+  grunt.registerTask('test_no_server', ['eslint:check', 'mochaTest']);
+  grunt.registerTask('screeps_local', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:local']);
+  grunt.registerTask('deploy', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:main']);
+  grunt.registerTask('season', ['clean', 'copy:uglify', 'copy:main', 'copy:profiler', 'screeps:season']);
   grunt.registerTask('requireFile', 'Creates an empty file', () => {
     grunt.file.write('dist/require.js', '');
   });

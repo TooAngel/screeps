@@ -1,11 +1,17 @@
 'use strict';
 
+
+const {debugLog} = require('./logging');
+const {addToReputation} = require('./diplomacy');
+const {checkQuestForAcceptance} = require('./quests_host');
+const {checkAppliedQuestForAcceptance} = require('./quests_player');
+
 brain.setMarketOrders = function() {
   Memory.orders = {};
   Memory.orders[ORDER_BUY] = {};
   Memory.orders[ORDER_SELL] = {};
   for (const order of Game.market.getAllOrders()) {
-    if (order.resourceType === SUBSCRIPTION_TOKEN || Memory.myRooms.includes(order.roomName)) {
+    if (Memory.myRooms.includes(order.roomName)) {
       continue;
     }
     let category = Memory.orders[order.type][order.resourceType];
@@ -34,8 +40,8 @@ brain.buyPower = function() {
   if (!config.market.buyPower) {
     return false;
   }
-  brain.debugLog('brain', 'buyPower');
-  const filterRoomPowerSpawn = (r) => Game.rooms[r] && Game.rooms[r].controller.level === 8 && Game.rooms[r].memory.constants && !!Game.rooms[r].memory.constants.powerSpawn;
+  debugLog('brain', 'buyPower');
+  const filterRoomPowerSpawn = (r) => Game.rooms[r] && Game.rooms[r].controller.level === 8 && Memory.rooms[r] && Memory.rooms[r].constants && !!Memory.rooms[r].constants.powerSpawn;
   const roomName = _.first(_.filter(_.shuffle(Memory.myRooms), filterRoomPowerSpawn)) || false;
   // low cash
   if (Game.market.credits < config.market.minCredits || !roomName) {
@@ -55,18 +61,16 @@ brain.buyPower = function() {
   return false;
 };
 
-brain.handleIncomingTransactionsbyUser = function(transaction) {
+brain.handleIncomingTransactionsByUser = function(transaction) {
   const sender = transaction.sender.username;
   if (sender === Memory.username) {
     return false;
   }
   const price = brain.getMarketOrder(ORDER_SELL, transaction.resourceType, 'min') || brain.getMarketOrder(ORDER_BUY, transaction.resourceType, 'max') || 1;
-  const value = -1 * transaction.amount * price;
+  const value = transaction.amount * price;
   const room = Game.rooms[transaction.to];
-  if (config.debug.market) {
-    room.log(`Incoming transaction from ${sender}[${transaction.from}] ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
-  }
-  brain.increaseIdiot(sender, value);
+  room.debugLog('market', `Incoming transaction from ${sender}[${transaction.from}] ${transaction.amount} ${transaction.resourceType} market price: ${price}`);
+  addToReputation(sender, value);
   return true;
 };
 
@@ -81,8 +85,9 @@ brain.handleIncomingTransactions = function() {
 
   for (const transaction of current) {
     if (transaction.sender) {
-      brain.handleIncomingTransactionsbyUser(transaction);
+      brain.handleIncomingTransactionsByUser(transaction);
     }
-    brain.checkQuestForAcceptance(transaction);
+    checkQuestForAcceptance(transaction);
+    checkAppliedQuestForAcceptance(transaction);
   }
 };

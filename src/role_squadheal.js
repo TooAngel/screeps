@@ -17,7 +17,7 @@ roles.squadheal.settings = {
 roles.squadheal.preMove = function(creep, directions) {
   creep.creepLog('preMove');
   if (creep.hits < creep.hitsMax) {
-    creep.log('preMove heal');
+    creep.creepLog('preMove heal');
     creep.selfHeal();
     creep.memory.routing.reverse = true;
     if (directions) {
@@ -33,6 +33,15 @@ roles.squadheal.preMove = function(creep, directions) {
   }
 
   if (creep.memory.squad) {
+    if (!Memory.squads) {
+      Memory.squads = {};
+    }
+    if (!Memory.squads[creep.memory.squad]) {
+      Memory.squads[creep.memory.squad] = {};
+    }
+    if (!Memory.squads[creep.memory.squad].heal) {
+      Memory.squads[creep.memory.squad].heal = {};
+    }
     const squad = Memory.squads[creep.memory.squad];
     if (!squad) {
       creep.log(`There is no squad: ${creep.memory.squad} squads: ${Object.keys(Memory.squads)}`);
@@ -63,7 +72,7 @@ roles.squadheal.action = function(creep) {
     }
     return true;
   } else {
-    creep.log('In room');
+    // creep.log('In room');
     // TODO calculate if we would to flip directly back to the previous room
     // get all towers and calculate their potential damage
     // the damage is applied after the first tick
@@ -72,7 +81,7 @@ roles.squadheal.action = function(creep) {
       const exit = creep.pos.findClosestByRange(FIND_EXIT);
       creep.moveTo(exit);
     } else {
-      creep.log('mrandom');
+      creep.creepLog('move random');
       creep.moveRandom();
       creep.squadHeal();
     }

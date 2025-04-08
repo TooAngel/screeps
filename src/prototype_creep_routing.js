@@ -178,9 +178,9 @@ Creep.prototype.followPathWithoutTargetId = function() {
   if (this.room.name !== this.memory.routing.targetRoom) {
     return false;
   }
-  // `harvester` is a special target id, so needs to be handled here
-  // TODO find a better solution for harvesters
-  const specialTargetIds = ['harvester', 'filler'];
+  // `universal` is a special target id, so needs to be handled here
+  // TODO find a better solution for universal
+  const specialTargetIds = ['universal', 'filler'];
   if (this.memory.routing.targetId && (specialTargetIds.indexOf(this.memory.routing.targetId) >= 0 || Game.getObjectById(this.memory.routing.targetId))) {
     return false;
   }
@@ -246,10 +246,42 @@ function validateDirections(directions) {
 }
 
 /**
+ * moveByPathMyNoPathPosition
+ *
+ * @param {object} room
+ * @param {array} path
+ * @return {boolean}
+ */
+function moveByPathMyNoPathPosition(room, path) {
+  const moveBackToPathResult = room.moveBackToPath(path);
+  if (!moveBackToPathResult) {
+    room.log('prototype_creep_routing.moveByPathMy - moveBackToPath');
+  }
+  return moveBackToPathResult;
+}
+
+/**
+ * handleStuck
+ *
+ * @param {object} creep
+ * @return {boolean}
+ */
+function handleStuck(creep) {
+  if (creep.room.memory.misplacedSpawn) {
+    // When the misplaced spawn is on the path, creeps get stuck so moveRandom
+    creep.moveRandom();
+  } else {
+    creep.moveRandomWithin(creep.pos);
+  }
+  creep.say('stuck');
+  return true;
+}
+
+/**
  * moveByPathMy follows the given path or gets back to the path
  *
  * @param {list} path - The path to follow
- * @param {number} [pathPos] - The current position on the path
+ * @param {number|null} [pathPos] - The current position on the path
  * @param {object} [directions] - Precalculated directions on the path
  * @return {boolean} true if a way was found to move the creep
  **/
@@ -261,28 +293,23 @@ Creep.prototype.moveByPathMy = function(path, pathPos, directions) {
   }
 
   if (this.isStuck()) {
-    this.moveRandom();
-    this.say('stuck');
-    return true;
+    return handleStuck(this);
   }
 
   pathPos = pathPos || this.memory.routing.pathPos;
   if (pathPos === null || pathPos < 0) {
-    const moveBackToPathResult = this.moveBackToPath(path);
-    if (!moveBackToPathResult) {
-      this.log('prototype_creep_routing.moveByPathMy - moveBackToPath');
-    }
-    return moveBackToPathResult;
+    return moveByPathMyNoPathPosition(this, path);
   }
 
 
   directions = directions || this.getDirections(path);
   if (!validateDirections(directions)) {
     if (pathPos === path.length - 1 && !directions.reverse) {
-      this.creepLog(`${Game.time} moveByPathMy: Directions invalid, but last pos pathPos: ${pathPos} path.length: ${path.length} path[pathPos]: ${path[pathPos]} directions: ${global.ex(directions, 1)}`);
+      this.creepLog(`${Game.time} moveByPathMy: Directions invalid, but last pos pathPos: ${pathPos} path.length: ${path.length} path[pathPos]: ${path[pathPos]} directions: ${JSON.stringify(directions, null, 2)}`);
       return true;
     }
-    this.log(`${Game.time} moveByPathMy: Directions invalid pathPos: ${pathPos} path.length: ${path.length} path[pathPos]: ${path[pathPos]} directions: ${global.ex(directions, 1)} path: ${JSON.stringify(path)} stack: ${new Error().stack}`);
+    // eslint-disable-next-line max-len
+    this.log(`${Game.time} moveByPathMy: Directions invalid pathPos: ${pathPos} path.length: ${path.length} path[pathPos]: ${path[pathPos]} directions: ${JSON.stringify(directions, null, 2)} path: ${JSON.stringify(path)} stack: ${new Error().stack}`);
     return false;
   }
 

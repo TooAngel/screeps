@@ -4,8 +4,12 @@ module.exports.verbose = false;
 
 module.exports.tickDuration = 10;
 
-module.exports.playerRoom = 'W8N1';
-players = {
+// todo for local-testing
+// if your machine is slow try increment this
+module.exports.waitForConnection = 10;
+
+module.exports.playerRoom = 'W8N8';
+const players = {
   'W1N7': {x: 43, y: 35},
   'W8N8': {x: 21, y: 28},
   'W8N1': {x: 33, y: 13},
@@ -18,33 +22,33 @@ module.exports.players = players;
 module.exports.rooms = Object.keys(players);
 
 module.exports.milestones = [
-  {tick: 30, check: {structures: 1}},
-  {tick: 500, check: {level: 2}, required: true},
-  {tick: 1700, check: {structures: 2}},
-  {tick: 2800, check: {structures: 3}},
-  {tick: 3300, check: {structures: 4}},
-  {tick: 4200, check: {structures: 5}},
-  {tick: 4900, check: {structures: 6}},
-  {tick: 13300, check: {level: 3}, required: true},
-  {tick: 14200, check: {structures: 7}},
-  {tick: 14300, check: {structures: 8}},
-  {tick: 14800, check: {structures: 9}},
-  {tick: 15300, check: {structures: 10}},
-  {tick: 15700, check: {structures: 11}},
-  {tick: 33000, check: {level: 4}},
-  {tick: 38000, check: {structures: 12}},
-  {tick: 39000, check: {structures: 13}},
-  {tick: 40000, check: {structures: 14}},
-  {tick: 41000, check: {structures: 15}},
-  {tick: 42000, check: {structures: 16}},
-  {tick: 43000, check: {structures: 17}},
-  {tick: 44000, check: {structures: 18}},
-  {tick: 45000, check: {structures: 19}},
-  {tick: 46000, check: {structures: 20}},
-  {tick: 47000, check: {structures: 21}},
-  {tick: 48000, check: {structures: 22}},
-  {tick: 49000, check: {structures: 23}},
-  {tick: 5000, check: {structures: 24}},
+  {tick: 500, check: {structures: 1}, required: true},
+  {tick: 1000, check: {level: 2}, required: true},
+  {tick: 2000, check: {structures: 2}, required: true},
+  {tick: 3300, check: {structures: 3}, required: true},
+  {tick: 3700, check: {structures: 4}, required: true},
+  {tick: 4300, check: {structures: 5}, required: true},
+  {tick: 4900, check: {structures: 6}, required: true},
+  {tick: 14100, check: {level: 3}, required: true},
+  {tick: 14200, check: {structures: 7}, required: true},
+  {tick: 14300, check: {structures: 8}, required: true},
+  {tick: 14800, check: {structures: 9}, required: true},
+  {tick: 15300, check: {structures: 10}, required: true},
+  {tick: 15700, check: {structures: 11}, required: true},
+  {tick: 30000, check: {level: 4}, required: false},
+  {tick: 30100, check: {structures: 12}, required: false},
+  {tick: 30400, check: {structures: 13}, required: false},
+  {tick: 30500, check: {structures: 14}, required: false},
+  {tick: 30800, check: {structures: 15}, required: false},
+  {tick: 31000, check: {structures: 16}, required: false},
+  {tick: 31400, check: {structures: 17}, required: false},
+  {tick: 31600, check: {structures: 18}, required: false},
+  {tick: 32000, check: {structures: 19}, required: false},
+  {tick: 32500, check: {structures: 20}, required: false},
+  {tick: 33000, check: {structures: 21}, required: false},
+  {tick: 37000, check: {structures: 22}, required: false},
+  {tick: 49000, check: {structures: 23}, required: false},
+  {tick: 50000, check: {structures: 24}},
   {tick: 51000, check: {structures: 25}},
   {tick: 52000, check: {structures: 26}},
   {tick: 53000, check: {structures: 27}},

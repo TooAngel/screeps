@@ -1,13 +1,24 @@
 'use strict';
 
+const {isFriend} = require('./brain_squadmanager');
+
+Creep.prototype.rangeAttackOutsideOfMyRooms = function(targets) {
+  if (targets.length > 0) {
+    if (!this.room.isMy()) {
+      this.rangedAttack(targets[0]);
+    }
+  }
+};
+
+// TODO this method can be removed and the find directly used
 Creep.prototype.findClosestSourceKeeper = function() {
-  return this.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Source Keeper']);
+  return this.pos.findClosestByRangeSourceKeeper();
 };
 
 Creep.prototype.findClosestEnemy = function() {
   return this.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
     filter: function(object) {
-      return !brain.isFriend(object.owner.username);
+      return !isFriend(object.owner.username);
     },
   });
 };
@@ -54,7 +65,7 @@ Creep.prototype.moveToHostileConstructionSites = function() {
   });
   if (constructionSite !== null) {
     this.say('kcs');
-    this.log('Kill constructionSite');
+    this.creepLog('Kill constructionSite');
     this.moveToMy(constructionSite.pos, 0);
     return true;
   }
@@ -96,9 +107,7 @@ Creep.prototype.handleDefender = function() {
 };
 
 Creep.prototype.findClosestRampart = function() {
-  return this.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], {
-    filter: (rampart) => this.pos.getRangeTo(rampart) > 0 && !rampart.pos.checkForObstacleStructure(),
-  });
+  return this.pos.findClosestByRangeRampart();
 };
 
 Creep.prototype.waitRampart = function() {
@@ -182,31 +191,88 @@ Creep.prototype.fightRanged = function(target) {
   return returnCode;
 };
 
+/**
+ * withdraw
+ *
+ * @param {object} creep
+ * @return {boolean}
+ */
+function withdraw(creep) {
+  if (creep.hits < 0.7 * creep.hitsMax) {
+    const exitNext = creep.pos.findClosestByRange(FIND_EXIT);
+    creep.moveTo(exitNext);
+    return true;
+  }
+  return false;
+}
+
+/**
+ * handleNotification
+ *
+ * @param {object} creep
+ */
+function handleNotification(creep) {
+  creep.log('Attacking');
+  Game.notify(Game.time + ' ' + creep.room.name + ' Attacking');
+  creep.memory.notified = true;
+}
+
+/**
+ * getStructureTarget
+ *
+ * @param {object} creep
+ * @return {object}
+ */
+function getStructureTarget(creep) {
+  let target = creep.pos.findClosestStructure(FIND_HOSTILE_STRUCTURES, STRUCTURE_TOWER);
+  if (!target) {
+    target = creep.pos.findClosestStructure(FIND_HOSTILE_STRUCTURES, STRUCTURE_SPAWN);
+  }
+  return target;
+}
+
+/**
+ * destroyConstructionSites
+ *
+ * @param {object} creep
+ */
+function destroyConstructionSites(creep) {
+  const cs = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
+    filter: (constructionSite) => {
+      switch (constructionSite) {
+      case STRUCTURE_ROAD:
+      case STRUCTURE_CONTROLLER:
+      case STRUCTURE_KEEPER_LAIR:
+      case STRUCTURE_WALL:
+        return false;
+      default:
+        return true;
+      }
+    },
+  });
+  if (cs) {
+    creep.moveTo(cs);
+  } else {
+    creep.healMyCreeps();
+  }
+}
+
 Creep.prototype.siege = function() {
   this.memory.hitsLost = this.memory.hitsLast - this.hits;
+  // This is the same as `lastHits`, except of the execution time, maybe both can be combined
   this.memory.hitsLast = this.hits;
 
-  // if (this.hits - this.memory.hitsLost < this.hits / 2) {
-  if (this.hits < 0.7 * this.hitsMax) {
-    const exitNext = this.pos.findClosestByRange(FIND_EXIT);
-    this.moveTo(exitNext);
+  if (withdraw(this)) {
     return true;
   }
 
   if (!this.memory.notified) {
-    this.log('Attacking');
-    Game.notify(Game.time + ' ' + this.room.name + ' Attacking');
-    this.memory.notified = true;
+    handleNotification(this);
   }
-  const tower = this.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, STRUCTURE_TOWER);
-  let target = tower;
-  if (tower === null) {
-    const spawn = this.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, STRUCTURE_SPAWN);
-    target = spawn;
-  }
-  if (target === null) {
-    const cs = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
-    this.moveTo(cs);
+
+  let target = getStructureTarget(this);
+  if (!target) {
+    destroyConstructionSites(this);
     return false;
   }
   const path = this.pos.findPathTo(target, {
@@ -232,7 +298,6 @@ Creep.prototype.siege = function() {
       break;
     }
   }
-
   this.dismantle(target);
   return true;
 };

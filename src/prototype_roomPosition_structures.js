@@ -5,7 +5,7 @@ RoomPosition.prototype.setSpawn = function(path, pathI) {
   const pathPos = new RoomPosition(path[pathI].x, path[pathI].y, path[pathI].roomName);
   // TODO Check distance to other spawns
   const room = Game.rooms[this.roomName];
-  if (room.memory.position.structure.spawn.length >= CONTROLLER_STRUCTURES.spawn[8]) {
+  if ((room.data.positions.structure.spawn || []).length >= CONTROLLER_STRUCTURES.spawn[8]) {
     return false;
   }
 
@@ -43,15 +43,14 @@ RoomPosition.prototype.setSpawn = function(path, pathI) {
 
 RoomPosition.prototype.setExtension = function() {
   const room = Game.rooms[this.roomName];
-  if (room.memory.position.structure.extension.length >= CONTROLLER_STRUCTURES.extension[8]) {
+  if ((room.data.positions.structure.extension || []).length >= CONTROLLER_STRUCTURES.extension[8]) {
     return false;
   }
   return true;
 };
 
 RoomPosition.prototype.inRamparts = function() {
-  const room = Game.rooms[this.roomName];
-  for (const rampart of room.memory.walls.ramparts) {
+  for (const rampart of Memory.rooms[this.roomName].walls.ramparts) {
     if (this.isEqualTo(rampart.x, rampart.y)) {
       return true;
     }

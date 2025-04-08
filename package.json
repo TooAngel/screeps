@@ -1,33 +1,32 @@
 {
   "name": "screeps-bot-tooangel",
-  "version": "1.3.3",
-  "description": "",
+  "version": "1.5.1",
+  "description": "TooAngel NPC / bot / source code for screeps",
   "main": "src/main.js",
   "screeps_bot": true,
-  "dependencies": {},
   "devDependencies": {
-    "chai": "4.2.0",
+    "chai": "4.3.7",
+    "eslint": "8.35.0",
     "eslint-config-google": "0.14.0",
-    "eslint-plugin-screeps": "2.0.0",
-    "grunt": "1.3.0",
-    "grunt-contrib-clean": "2.0.0",
+    "eslint-plugin-screeps": "2.1.0",
+    "grunt": "1.6.1",
+    "grunt-contrib-clean": "2.0.1",
     "grunt-contrib-copy": "1.0.0",
-    "grunt-contrib-uglify": "5.0.0",
-    "grunt-eslint": "23.0.0",
+    "grunt-contrib-uglify": "5.2.2",
     "grunt-exec": "3.0.0",
     "grunt-mocha-test": "0.13.3",
-    "grunt-screeps": "^1.4.0",
+    "grunt-screeps": "1.5.0",
     "grunt-sync": "0.8.2",
-    "mocha": "8.1.3",
+    "mocha": "10.2.0",
     "request": "2.88.2",
     "request-promise-native": "1.0.9",
     "rimraf": "3.0.2",
-    "screeps": "4.2.0",
-    "screeps-api": "1.12.1",
+    "screeps": "4.2.14",
+    "screeps-api": "1.16.0",
     "screeps-profiler": "2.0.1",
-    "screepsmod-admin-utils": "1.18.2",
-    "screepsmod-auth": "2.4.8",
-    "screepsmod-mongo": "2.9.6",
+    "screepsmod-admin-utils": "1.29.0",
+    "screepsmod-auth": "2.7.1",
+    "screepsmod-mongo": "2.10.4",
     "uglify-js-harmony": "2.7.7"
   },
   "repository": {
@@ -40,9 +39,131 @@
     "url": "https://github.com/TooAngel/screeps/issues"
   },
   "scripts": {
-    "test": "grunt test",
+    "test": "eslint . && grunt test",
+    "test-no-server": "grunt test_no_server",
     "deploy": "grunt deploy",
-    "lint": "eslint -c .eslintrc-basic.js src/",
-    "run-test": "git checkout test-server/db.json && node utils/test_on_server.js"
+    "lint": "eslint .",
+    "run-test": "git checkout test-server/db.json && node utils/test_on_server.js",
+    "setupTestServer": "docker compose -f docker-compose-setup.yml up",
+    "followLogs": "node utils/followLogs localhost true",
+    "deployLocal": "screeps-api upload src/*",
+    "respawner": "node utils/respawner"
+  },
+  "eslintConfig": {
+    "extends": [
+      "eslint:recommended",
+      "google"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2022
+    },
+    "env": {
+      "mocha": true,
+      "screeps/screeps": true,
+      "es6": true,
+      "node": true
+    },
+    "plugins": [
+      "screeps"
+    ],
+    "globals": {
+      "config": "writable",
+      "brain": "writable",
+      "roles": "writable",
+      "friends": "writable",
+      "cache": "writable",
+      "visualizer": "writable",
+      "PIXEL_CPU_COST": "writable",
+      "describe": "writable",
+      "it": "writable"
+    },
+    "ignorePatterns": [
+      "dist/",
+      "**/*{.,-}min.js",
+      "tmp-test-server/",
+      "tmp-test-server-database/"
+    ],
+    "rules": {
+      "complexity": [
+        "error",
+        13
+      ],
+      "max-statements": [
+        "error",
+        30
+      ],
+      "accessor-pairs": "error",
+      "no-alert": "error",
+      "no-div-regex": "error",
+      "no-eq-null": "error",
+      "no-eval": "error",
+      "no-implied-eval": "error",
+      "no-iterator": "error",
+      "no-lone-blocks": "error",
+      "no-loop-func": "error",
+      "no-native-reassign": "error",
+      "no-new-func": "error",
+      "no-new": "error",
+      "no-octal-escape": "error",
+      "no-proto": "error",
+      "no-return-assign": "error",
+      "no-script-url": "error",
+      "no-self-compare": "error",
+      "no-trailing-spaces": "error",
+      "no-unused-expressions": "error",
+      "no-useless-call": "error",
+      "no-useless-concat": "error",
+      "no-void": "error",
+      "radix": "error",
+      "wrap-iife": "error",
+      "no-catch-shadow": "error",
+      "no-label-var": "error",
+      "no-shadow-restricted-names": "error",
+      "no-undef-init": "error",
+      "callback-return": "error",
+      "global-require": "error",
+      "handle-callback-err": "error",
+      "no-path-concat": "error",
+      "no-process-exit": "error",
+      "max-len": [
+        "error",
+        240
+      ],
+      "max-statements-per-line": "error",
+      "prefer-arrow-callback": "error",
+      "no-undef": "warn",
+      "no-cond-assign": "error",
+      "no-console": "off",
+      "no-negated-in-lhs": "error",
+      "prefer-const": "error",
+      "eqeqeq": [
+        "error",
+        "always"
+      ],
+      "space-before-function-paren": [
+        "error",
+        "never"
+      ],
+      "no-unused-vars": [
+        "error",
+        {
+          "varsIgnorePattern": "should|expect|assert"
+        }
+      ],
+      "indent": [
+        "error",
+        2
+      ],
+      "require-jsdoc": [
+        "error",
+        {
+          "require": {
+            "FunctionDeclaration": true,
+            "MethodDefinition": true,
+            "ClassDeclaration": true
+          }
+        }
+      ]
+    }
   }
 }

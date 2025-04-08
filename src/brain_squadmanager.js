@@ -1,41 +1,13 @@
 'use strict';
 
-brain.initPlayer = function(name) {
-  if (!Memory.players[name]) {
-    Memory.players[name] = {
-      name: name,
-      rooms: {},
-      level: 0,
-      counter: 0,
-      idiot: 0,
-      reputation: 0,
-    };
-  }
-};
+const {debugLog} = require('./logging');
 
-brain.increaseIdiot = function(name, value) {
-  if (name === 'Invader') {
-    return false;
-  }
-
-  value = value || 1;
-  Memory.players = Memory.players || {};
-
-  brain.initPlayer(name);
-
-  if (!Memory.players[name].idiot) {
-    Memory.players[name].idiot = 0;
-  }
-
-  Memory.players[name].idiot += value;
-};
-
-brain.isFriend = function(name) {
+module.exports.isFriend = function(name) {
   if (!Memory.players) {
     Memory.players = {};
   }
 
-  if (name === 'Invader') {
+  if (global.config.maliciousNpcUsernames.includes(name)) {
     return false;
   }
   if (friends.indexOf(name) > -1) {
@@ -44,10 +16,7 @@ brain.isFriend = function(name) {
   if (!Memory.players[name]) {
     return true;
   }
-  if (!Memory.players[name].idiot) {
-    return true;
-  }
-  if (Memory.players[name].idiot <= 0) {
+  if (Memory.players[name].reputation > 0) {
     return true;
   }
   if (name === 'Source Keeper') {
@@ -56,9 +25,9 @@ brain.isFriend = function(name) {
   return false;
 };
 
-brain.handleSquadmanager = function() {
+module.exports.handleSquadManager = function() {
   if (Object.keys(Memory.squads).length > 0) {
-    brain.debugLog('brain', 'brain.handleSquadmanager squads: ${Object.keys(Memory.squads).length}');
+    debugLog('brain', 'brain.handleSquadManager squads: ${Object.keys(Memory.squads).length}');
   }
   for (const squadIndex of Object.keys(Memory.squads)) {
     const squad = Memory.squads[squadIndex];
@@ -94,20 +63,20 @@ brain.handleSquadmanager = function() {
  * @param {String} squadName
  * @param {Number} [queueLimit] don't push if queueLimit is reached
  */
-brain.addToQueue = function(spawns, roomNameFrom, roomNameTarget, squadName, queueLimit) {
+function addToQueue(spawns, roomNameFrom, roomNameTarget, squadName, queueLimit) {
   queueLimit = queueLimit || false;
   const outer = function(spawn) {
     return function _addToQueue() {
       if (queueLimit === false) {
-        Game.rooms[roomNameFrom].memory.queue.push({
+        Memory.rooms[roomNameFrom].queue.push({
           role: spawn.role,
           routing: {
             targetRoom: roomNameTarget,
           },
           squad: squadName,
         });
-      } else if (Game.rooms[roomNameFrom].memory.queue.length < queueLimit) {
-        Game.rooms[roomNameFrom].memory.queue.push({
+      } else if (Memory.rooms[roomNameFrom].queue.length < queueLimit) {
+        Memory.rooms[roomNameFrom].queue.push({
           role: spawn.role,
           routing: {
             targetRoom: roomNameTarget,
@@ -121,14 +90,14 @@ brain.addToQueue = function(spawns, roomNameFrom, roomNameTarget, squadName, que
   for (const spawn of spawns) {
     _.times(spawn.creeps, outer(spawn));
   }
-};
+}
 /**
- * brain.startSquad used to attack player.rooms
+ * startSquad used to attack player.rooms
  *
  * @param {String} roomNameFrom
  * @param {String} roomNameAttack
  */
-brain.startSquad = function(roomNameFrom, roomNameAttack) {
+function startSquad(roomNameFrom, roomNameAttack) {
   const name = 'siegesquad-' + Math.random();
   const route = Game.map.findRoute(roomNameFrom, roomNameAttack);
   let target = roomNameFrom;
@@ -144,7 +113,7 @@ brain.startSquad = function(roomNameFrom, roomNameAttack) {
     creeps: 3,
     role: 'squadheal',
   }];
-  this.addToQueue(siegeSpawns, roomNameFrom, roomNameAttack, name);
+  addToQueue(siegeSpawns, roomNameFrom, roomNameAttack, name);
 
   Memory.squads[name] = {
     born: Game.time,
@@ -156,16 +125,17 @@ brain.startSquad = function(roomNameFrom, roomNameAttack) {
     action: 'move',
     moveTarget: target,
   };
-};
+}
+module.exports.startSquad = startSquad;
 
 /**
- * brain.startMeleeSquad use to clean rooms from invaders and players
+ * startMeleeSquad use to clean rooms from invaders and players
  *
  * @param {String} roomNameFrom
  * @param {String} roomNameAttack
  * @param {Array} [spawns]
  */
-brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
+function startMeleeSquad(roomNameFrom, roomNameAttack, spawns) {
   const name = 'meleesquad-' + Math.random();
   const route = Game.map.findRoute(roomNameFrom, roomNameAttack);
   let target = roomNameFrom;
@@ -189,7 +159,7 @@ brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
   }];
 
   spawns = spawns || meleeSpawn;
-  this.addToQueue(spawns, roomNameFrom, roomNameAttack, name);
+  addToQueue(spawns, roomNameFrom, roomNameAttack, name);
 
   Memory.squads[name] = {
     born: Game.time,
@@ -201,4 +171,5 @@ brain.startMeleeSquad = function(roomNameFrom, roomNameAttack, spawns) {
     action: 'move',
     moveTarget: target,
   };
-};
+}
+module.exports.startMeleeSquad = startMeleeSquad;

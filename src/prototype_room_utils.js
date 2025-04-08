@@ -2,7 +2,15 @@
 
 const {findMyRoomsSortByDistance} = require('./helper_findMyRooms');
 
-Room.structureHasEnergy = (structure) => structure.store && structure.store.energy || structure.energy;
+/**
+ * return object.length if exist else return _.size
+ *
+ * @param {Array} object
+ * @return {Number}
+ */
+function returnLength(object) {
+  return (object && object.length) ? object.length : _.size(object);
+}
 
 Room.structureIsEmpty = (structure) => (!structure.store || _.sum(structure.store) === 0) && !structure.energy && !structure.mineralAmount && !structure.ghodium && !structure.power;
 
@@ -68,7 +76,7 @@ Room.prototype._findPropertyFilterCacheOne = function(findTarget, property, prop
       result: [],
     };
     for (const propertyValue of Object.keys(cacheTwoItem.result)) {
-      if (properties.includes(propertyValue) !== inverse) {
+      if (properties && properties.includes(propertyValue) !== inverse) {
         Array.prototype.push.apply(cacheOneItem.result, cacheTwoItem.result[propertyValue]);
       }
     }
@@ -87,7 +95,7 @@ Room.prototype.closestSpawn = function(target) {
 
   for (const room of roomsMy) {
     const route = Game.map.findRoute(room, target);
-    const routeLength = global.utils.returnLength(route);
+    const routeLength = returnLength(route);
 
     if (route && routeLength) {
       // TODO @TooAngel please review: save found route from target to myRoom Spawn by shortest route!
@@ -108,8 +116,8 @@ Room.prototype.closestSpawn = function(target) {
     }
   }
 
-  const shortest = _.sortBy(pathLength, global.utils.returnLength);
-  return _.first(shortest).room;
+  const shortest = _.sortBy(pathLength, returnLength);
+  return (_.first(shortest) || {}).room;
 };
 
 Room.prototype.getEnergyCapacityAvailable = function() {
@@ -120,10 +128,20 @@ Room.prototype.getEnergyCapacityAvailable = function() {
   return this.energyCapacityAvailable - offset;
 };
 
+/**
+ * splitRoomName
+ *
+ * @param {string} name
+ * @return {object}
+ */
+function splitRoomName(name) {
+  const pattern = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
+  return pattern.exec(name);
+}
+module.exports.splitRoomName = splitRoomName;
+
 Room.prototype.splitRoomName = function() {
-  const patt = /([A-Z]+)(\d+)([A-Z]+)(\d+)/;
-  const result = patt.exec(this.name);
-  return result;
+  return splitRoomName(this.name);
 };
 
 Room.pathToString = function(path) {
@@ -132,7 +150,7 @@ Room.pathToString = function(path) {
   }
 
   let result = path[0].roomName + ':';
-  result += path[0].x.toString().lpad('0', 2) + path[0].y.toString().lpad('0', 2);
+  result += path[0].x.toString().leftPad('0', 2) + path[0].y.toString().leftPad('0', 2);
   let last;
   for (const pos of path) {
     if (!last) {
@@ -169,23 +187,6 @@ Room.stringToPath = function(string) {
   }
   //   console.log(path);
   return path;
-};
-
-Room.test = function() {
-  const original = Memory.rooms.E37N35.routing['pathStart-harvester'].path;
-  const string = Room.pathToString(original);
-  const path = Room.stringToPath(string);
-  for (const i of Object.keys(Memory.rooms.E37N35.routing['pathStart-harvester'].path)) {
-    if (original[i].x !== path[i].x) {
-      console.log('x unequal', i, original[i].x, path[i].x);
-    }
-    if (original[i].y !== path[i].y) {
-      console.log('y unequal', i, original[i].y, path[i].y);
-    }
-    if (original[i].roomName !== path[i].roomName) {
-      console.log('roomName unequal', i, original[i].roomName, path[i].roomName);
-    }
-  }
 };
 
 /**

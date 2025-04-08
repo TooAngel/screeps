@@ -50,6 +50,9 @@ global.visualizer = {
    */
   showStructures() {
     for (const room of _.values(Game.rooms)) {
+      if (!room.isMy()) {
+        continue;
+      }
       const rv = room.visual;
       if (room.memory.position && room.memory.position.structure) {
         const structures = room.memory.position.structure;
@@ -68,6 +71,9 @@ global.visualizer = {
 
   showBlockers() {
     for (const room of _.values(Game.rooms)) {
+      if (!room.isMy()) {
+        continue;
+      }
       const rv = room.visual;
       if (room.memory.walls && room.memory.walls.layer) {
         for (const layer of Object.keys(room.memory.walls.layer)) {
@@ -97,6 +103,9 @@ global.visualizer = {
    */
   showCreeps() {
     for (const room of _.values(Game.rooms)) {
+      if (!room.isMy()) {
+        continue;
+      }
       const rv = room.visual;
       if (room.memory.position) {
         const creeps = room.memory.position.creep;
@@ -149,9 +158,14 @@ global.visualizer = {
     }
   },
 
-  showCostMatrixes() {
+  showCostMatrices() {
     for (const room of _.values(Game.rooms)) {
-      this.showCostMatrix(room.name, room.getCostMatrixCallback());
+      if (!room.isMy()) {
+        continue;
+      }
+      if (room.isMy()) {
+        this.showCostMatrix(room.name, room.getCostMatrixCallback());
+      }
     }
   },
 
@@ -183,8 +197,8 @@ global.visualizer = {
   },
 
   render() {
-    if (config.visualizer.showCostMatrixes) {
-      this.showCostMatrixes();
+    if (config.visualizer.showCostMatrices) {
+      this.showCostMatrices();
     }
     if (config.visualizer.showRoomPaths) {
       this.showRoomPaths();
@@ -215,47 +229,21 @@ const getLines = function(room) {
   const rclP = Math.floor(100 * (room.controller.progressTotal ? room.controller.progress / room.controller.progressTotal : 1));
 
   const lines = [
-    {label: `Energy Average :`, value: energy, coeff: energy / room.energyCapacityAvailable},
-    {label: `Stored Energy :`, value: storedE, coeff: Math.min(storedE, 500000) / 500000},
-    {label: `Queue length :`, value: queueL, coeff: (20 - Math.min(queueL, 20)) / 20},
-    {label: `RCL ${room.controller.level} progress :`, value: rclP, coeff: rclP / 100},
+    {label: `Energy Average :`, value: energy, coefficient: energy / room.energyCapacityAvailable},
+    {label: `Stored Energy :`, value: storedE, coefficient: Math.min(storedE, 500000) / 500000},
+    {label: `Queue length :`, value: queueL, coefficient: (20 - Math.min(queueL, 20)) / 20},
+    {label: `RCL ${room.controller.level} progress :`, value: rclP, coefficient: rclP / 100},
   ];
   return lines;
 };
 
-const showQueue = function(room, lines) {
-  if (!room.memory.queue) {
-    return;
-  }
-  if (room.memory.queue.length) {
-    const lowestInQueue = [
-      _.chain(room.memory.queue).sortBy((creep) => creep.ttl).value()[0],
-      room.memory.queue[0],
-    ];
-    const labels = ['ttl', 'priority'];
-    let lowest;
-    for (let id = 0; id < 2; id++) {
-      lowest = lowestInQueue[id];
-      lines.push({label: `Lowest ${labels[id]}: ${lowest.role} --> ${(lowest.routing && lowest.routing.targetRoom) || '?'} | TTL: ${lowest.ttl || '?'}`});
-    }
-    for (const item of room.memory.queue) {
-      lines.push({label: `- ${item.role} --> ${(item.routing && item.routing.targetRoom) || '?'} ${(item.routing && item.routing.targetId && item.routing.targetId.substring(0, 5)) || '?'} | TTL: ${item.ttl || '?'}`});
-    }
-  }
-};
-
-global.visualizer.myRoomDatasDraw = function(roomName) {
+global.visualizer.myRoomDataDraw = function(roomName) {
   const room = Game.rooms[roomName];
   const lines = getLines(room);
 
   const fontSize = 0.65;
-  const color = (coeff) => `rgb(${Math.floor(-(coeff - 1) * 255)},${Math.floor(coeff * 255)},0)`;
+  const color = (coefficient) => `rgb(${Math.floor(-(coefficient - 1) * 255)},${Math.floor(coefficient * 255)},0)`;
 
-  if (config.stats.summary && Memory.summary) {
-    const rclSpeed = Math.floor(room.memory.upgraderUpgrade / (Game.time % 100 || 1));
-    lines.push({label: `RCL speed:`, value: rclSpeed, coeff: rclSpeed / 50});
-  }
-  showQueue(room, lines);
   let y = 0;
   let line;
   for (line of lines) {
@@ -266,52 +254,11 @@ global.visualizer.myRoomDatasDraw = function(roomName) {
     });
     if (line.value !== undefined) {
       room.visual.text(`${line.value}`, 6, 1.5 * fontSize + 2 * y * fontSize, {
-        color: color(line.coeff),
+        color: color(line.coefficient),
         font: fontSize * 2,
         align: 'left',
       });
     }
     y++;
-  }
-
-  if (config.stats.summary && Memory.summary) {
-    const highterQueue = _.chain(Memory.myRooms)
-      .map((roomName) => ({
-        roomName: roomName,
-        length: (Memory.rooms[roomName] && Memory.rooms[roomName].queue) ?
-          -Memory.rooms[roomName].queue.length :
-          0,
-      }))
-      .sortBy('length')
-      .value()[0];
-    const output = `=========================
-      Game time: ${Game.time}
-      Progress: ${(Game.gcl.progress - Memory.progress) / 100}/${Memory.myRooms.length * 15}
-      ConstructionSites: ${Object.keys(Memory.constructionSites).length}
-      -------------------------
-      No storage: ${Memory.summary.storageNoString}
-      Low storage: ${Memory.summary.storageLowString}
-      Middle storage: ${Memory.summary.storageMiddleString}
-      High storage: ${Memory.summary.storageHighString}
-      -------------------------
-      Power storage: ${Memory.summary.storagePower}
-      -------------------------
-      Upgrade less: ${Memory.summary.upgradeLess}
-      -------------------------
-      Highter queue: ${highterQueue.roomName}:${-highterQueue.length}
-      =========================`;
-    const lines = output.split('\n');
-    let summaryCenterX = 25;
-    let summaryTopLineY = 25;
-    if (Memory.rooms[roomName].summaryCenter) {
-      summaryCenterX = Math.min(Math.max(Memory.rooms[roomName].summaryCenter.x, 5), 44);
-      const summaryHeight = lines.length * (fontSize - 0.05);
-      summaryTopLineY = Memory.rooms[roomName].summaryCenter.y - summaryHeight / 2 + (fontSize - 0.05);
-      summaryTopLineY = Math.min(Math.max(summaryTopLineY, 1), 49 - summaryHeight + (fontSize - 0.05));
-    }
-
-    for (let l = 0; l < lines.length; l++) {
-      room.visual.text(lines[l], summaryCenterX, summaryTopLineY + (l * (fontSize - 0.05)), {font: fontSize});
-    }
   }
 };

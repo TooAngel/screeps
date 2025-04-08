@@ -109,7 +109,6 @@ brain.stats.addRoom = function(roomName, previousCpu) {
   if (!room) {
     return false;
   }
-  room.memory.upgraderUpgrade = room.memory.upgraderUpgrade || 0;
   brain.stats.add(['room', roomName], {
     energy: {
       available: room.energyAvailable,
@@ -118,12 +117,11 @@ brain.stats.addRoom = function(roomName, previousCpu) {
     },
     controller: {
       progress: room.controller.progress,
-      preCalcSpeed: room.memory.upgraderUpgrade / (Game.time % 100),
       progressTotal: room.controller.progressTotal,
     },
     creeps: {
       into: room.find(FIND_CREEPS).length,
-      queue: room.memory.queue.length,
+      queue: Memory[room.name].queue.length,
     },
     cpu: Game.cpu.getUsed() - previousCpu,
   });
@@ -145,13 +143,26 @@ brain.stats.addRoom = function(roomName, previousCpu) {
   return true;
 };
 
+/**
+ * cpuLimit
+ * sigmoid on Game.cpu.limit + Game.cpu.bucket
+ *
+ * @return {number}
+ */
+function cpuLimit() {
+  // https://en.wikipedia.org/wiki/Sigmoid_function
+  const sigmoid = (x) => 1 + Math.tanh((2 * x) - 1);
+  return _.ceil(Game.cpu.limit * sigmoid(Game.cpu.bucket / 10000));
+}
+module.exports.cpuLimit = cpuLimit;
+
 brain.stats.updateCpuStats = function() {
   if (config.cpuStats.enabled) {
     Memory.cpuStats.last = {
       load: _.round(Game.cpu.getUsed()),
       time: Game.time,
       bucket: Game.cpu.bucket,
-      tickLimit: global.cpuLimit(),
+      tickLimit: cpuLimit(),
     };
     Memory.cpuStats.summary = {
       maxBucket: Math.max(Memory.cpuStats.summary.maxBucket, Memory.cpuStats.last.bucket),

@@ -23,7 +23,6 @@ roles.atkeeper.action = function(creep) {
   // TODO Untested
   creep.spawnReplacement();
   creep.setNextSpawn();
-  const creepsRolesToHeal = ['atkeeper', 'atkeepermelee', 'sourcer', 'carry', 'extractor'];
   const center = new RoomPosition(25, 25, creep.memory.routing.targetRoom);
   const moveToCenter = function(creep, near) {
     near = near || 10;
@@ -33,14 +32,10 @@ roles.atkeeper.action = function(creep) {
       return creep.moveRandomWithin(center, near);
     }
   };
-  const damaged = (o) => o.isDamaged() < 1;
   const healAndMove = function(creep) {
-    let creepsDamaged = creep.room.findPropertyFilter(FIND_MY_CREEPS, 'memory.role', creepsRolesToHeal, {
-      filter: damaged,
-    });
-    let creepsNearDamaged = creep.pos.findInRangePropertyFilter(FIND_MY_CREEPS, 3, 'memory.role', creepsRolesToHeal, {
-      filter: damaged,
-    });
+    let creepsDamaged = creep.room.findDamagedCreeps();
+    let creepsNearDamaged = creep.pos.findInRangeDamagedCreeps(3);
+
     creepsDamaged = _.sortBy(creepsDamaged, (c)=> c.isDamaged());
     creepsNearDamaged = _.sortBy(creepsNearDamaged, (c)=> c.isDamaged());
     if (creepsDamaged.length > 0 || creepsNearDamaged.length > 0) {
@@ -62,7 +57,7 @@ roles.atkeeper.action = function(creep) {
     if (creep.getActiveBodyparts(RANGED_ATTACK) === 0) {
       return false;
     }
-    const hostile = creep.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_CREEPS, 'owner.username', ['Invader']);
+    const hostile = creep.pos.findClosestByRangeSystemCreeps();
     if (hostile) {
       return creep.fightRanged(hostile);
     }

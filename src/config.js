@@ -5,10 +5,6 @@ global.brain = {
   main: {},
 };
 global.roles = {};
-global.cache = {
-  rooms: {},
-  segments: {},
-};
 global.profiler = {};
 
 try {
@@ -29,7 +25,7 @@ global.config = {
     showStructures: false,
     showCreeps: false,
     showBlockers: false,
-    showCostMatrixes: false,
+    showCostMatrices: false,
     showCostMatrixValues: false,
   },
 
@@ -40,9 +36,17 @@ global.config = {
     checkInterval: 100,
   },
 
+  controller: {
+    aboutToDowngradePercent: 10,
+  },
+
+  storage: {
+    lowValue: 2000,
+  },
+
   info: {
     signController: true,
-    signText: 'Fully automated open source bot: http://tooangel.github.io/screeps/',
+    signText: 'Fully automated open source NPC: http://tooangel.github.io/screeps/',
     resignInterval: 500,
   },
 
@@ -52,35 +56,30 @@ global.config = {
     costMatrixMemoryMaxGCL: 15,
   },
 
-  memory: {
-    segments: 20,
-    segmentsEnabled: false,
-  },
-
   // use username `tooangels` and password `tooSecretPassword` at https://screepspl.us/grafana
   stats: {
     screepsPlusEnabled: false,
     screepsPlusToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRvb2FuZ2VscyIsImlhdCI6MTQ4MzU2MTU3OSwiYXVkIjoic2NyZWVwc3BsLnVzIiwiaXNzIjoic2NyZWVwc3BsLnVzIn0.NhobT7Jg8bOAg-MYqrYsgeMgXEVXGVYG9s3G9Qpfm-o',
     enabled: false,
-    summary: false,
   },
 
   debug: {
-    getPartsConfLogs: false,
+    attack: false,
     baseBuilding: false,
+    diplomacy: false,
+    getPartsConfLogs: false,
     queue: false,
     spawn: false,
     mineral: false,
     creepLog: {
-      roles: [], // Roles for debug output, e.g. ['repairer'] or '*' for all
-      rooms: [], // Rooms for debug output, e.g. ['E21N8'] or '*' for all
+      roles: [],
+      rooms: [],
     },
     power: false,
     reserver: false,
     nextroomer: false,
     quests: false,
     revive: false,
-    quest: false,
     market: false,
     invader: false,
     cpu: false,
@@ -88,10 +87,9 @@ global.config = {
     constructionSites: false,
     routing: false,
     brain: false,
-    attack: true,
-    // Check bugs:
-    // - check wrong link order
-    checkbugs: false,
+    commodities: false,
+    memory: true,
+    boosts: false,
   },
 
   tower: {
@@ -99,12 +97,12 @@ global.config = {
     repairStructures: false,
   },
 
-  autoattack: {
-    disabled: false,
+  autoAttack: {
     notify: true,
+    minAttackRCL: 6,
     timeBetweenAttacks: 2000,
     noReservedRoomMinMyRCL: 5,
-    noReservedRoomInRange: 2,
+    noReservedRoomInRange: 1,
     noReservedRoomInterval: 1600,
   },
 
@@ -124,21 +122,35 @@ global.config = {
     minNewRoomDistance: 2,
     minEnergyForActive: 1000,
     notify: false,
+    mineralValues: {
+      [RESOURCE_HYDROGEN]: 15,
+      [RESOURCE_OXYGEN]: 10,
+      [RESOURCE_UTRIUM]: 15,
+      [RESOURCE_KEANIUM]: 15,
+      [RESOURCE_LEMERGIUM]: 15,
+      [RESOURCE_ZYNTHIUM]: 15,
+      [RESOURCE_CATALYST]: 10,
+    },
+    resourceStats: true,
+    resourceStatsDivider: 10000,
+    distanceFactor: 2,
   },
 
   carryHelpers: {
     ticksUntilHelpCheck: 400,
     maxHelpersAmount: 5,
-    helpTreshold: 1500,
-    needTreshold: 750,
+    helpThreshold: 1500, // todo not used?
+    needThreshold: 750, // todo not used?
     maxDistance: 7,
     factor: 0.2,
   },
 
   power: {
     disabled: false,
-    energyForCreeps: 800000,
-    energyForSpawn: 250000,
+  },
+
+  commodities: {
+    disabled: false,
   },
 
   pixel: {
@@ -146,11 +158,10 @@ global.config = {
     minBucketAfter: 2500,
   },
 
-  ticksummary: {
+  tickSummary: {
     bucket: false,
     gcl: false,
-    room: false,
-    seperator: false,
+    separator: false,
   },
 
   buildRoad: {
@@ -164,17 +175,16 @@ global.config = {
   },
 
   hostile: {
-    remeberInRoom: 1500,
+    rememberInRoom: 1500,
   },
 
   path: {
     refresh: 2000000,
     allowRoutingThroughFriendRooms: false,
-    pathfindIncomplete: true,
+    pathFindIncomplete: true, // todo not used ?
   },
 
   external: {
-    distance: 2,
     defendDistance: 1,
     checkForReservingInterval: 1499,
   },
@@ -194,7 +204,7 @@ global.config = {
     carryPercentageBase: 0.1,
     carryPercentageHighway: 0.2,
     carryPercentageExtern: 0.5,
-    callHarvesterPerResources: 100,
+    callUniversalPerResources: 100,
   },
 
   creep: {
@@ -204,25 +214,21 @@ global.config = {
     structurerInterval: 1500,
     structurerMinEnergy: 1300,
     reserverDefender: true,
-    energyFromStorageThreshold: 2000,
     sortParts: true,
     swarmSourceHarvestingMaxParts: 10,
   },
 
+  myRoom: {
+    underAttackMinAttackTimer: 50,
+    leastSpawnsToRebuildStructureSpawn: 1,
+  },
+
   room: {
-    reservedRCL: {
-      0: 1,
-      1: 1,
-      2: 1,
-      3: 1,
-      4: 1,
-      5: 1,
-      6: 1,
-      7: 1,
-      8: 1,
-    },
-    isHealthyStorageThreshold: 50000,
-    rebuildLayout: 7654,
+    reserveSpawnIdleThreshold: 0.2,
+    spawnIdle: 0.1,
+    nextroomerSpawnIdleThreshold: 0.05,
+    spawnIdleFactor: 0.001,
+    isHealthyStorageThreshold: 100000,
     handleNukeAttackInterval: 132,
     reviveEnergyCapacity: 1000,
     reviveEnergyAvailable: 1000,
@@ -230,32 +236,39 @@ global.config = {
     scout: true,
     upgraderMinStorage: 0,
     upgraderStorageFactor: 2,
-    lastSeenThreshold: 1000000,
+    lastSeenThreshold: 100000,
     notify: false,
-    observerRange: OBSERVER_RANGE, // between 1 and 10:OBSERVER_RANGE
+    observerRange: 5, // Reduced to save memory OBSERVER_RANGE, // between 1 and 10:OBSERVER_RANGE
+    spawnCarryIntervalOffset: 160,
   },
 
   layout: {
-    plainCost: 5,
-    swampCost: 8,
     borderAvoid: 40,
+    creepAvoid: 0xFF,
+    pathAvoid: 1,
+    plainAvoid: 10,
+    plainCost: 5,
     skLairAvoidRadius: 5,
     skLairAvoid: 50,
-    wallAvoid: 20,
-    plainAvoid: 10,
     sourceAvoid: 60,
-    pathAvoid: 1,
     structureAvoid: 0xFF,
-    creepAvoid: 0xFF,
+    swampCost: 8,
+    version: 22,
+    wallAvoid: 20,
     wallThickness: 1,
-    version: 21,
+  },
+
+  diplomacy: {
+    checkPlayersInterval: 100,
   },
 
   terminal: {
-    // terminals should not have to much enrgy, but not to less
     minEnergyAmount: 40000,
     maxEnergyAmount: 50000,
-    storageMinEnergyAmount: 20000,
+  },
+
+  boosts: {
+    enabled: true,
   },
 
   mineral: {
@@ -265,48 +278,49 @@ global.config = {
   },
 
   market: {
-    // sets mineral in terminal could be called minAmountMinerlasNotToSell
+    // sets mineral in terminal could be called minAmountMineralsNotToSell
     minAmountToSell: 50000,
     minSellPrice: 0.6,
     energyCreditEquivalent: 1,
     sellByOwnOrders: true,
     sellOrderMaxAmount: 100,
     sellOrderReserve: 2000,
-    sellOrderPriceMultiplicator: 5,
+    sellOrderPriceMultiplicand: 5,
     maxAmountToBuy: 1000,
     maxBuyPrice: 0.5,
     // buyByOwnOrders: true,
-    buyOrderPriceMultiplicator: 0.5,
+    buyOrderPriceMultiplicand: 0.5,
 
     // buy power if we have more credits than config.market.minCredits
     buyPower: false,
-    // 3M credits
-    minCredits: 3000000,
+    // 300M credits
+    minCredits: 300000000,
     // disable to use power only in gathered room
     sendPowerOwnRoom: true,
-    // equalizes the energy beween your rooms via termial
+    // equalizes the energy between your rooms via terminal
     sendEnergyToMyRooms: true,
   },
 
   priorityQueue: {
     sameRoom: {
-      harvester: 1,
+      universal: 1,
       sourcer: 2,
       storagefiller: 3,
       defendranged: 4,
       carry: 5,
     },
     otherRoom: {
-      harvester: 11,
+      claimer: 6,
+      universal: 11,
       defender: 12,
       defendranged: 13,
-      nextroomer: 15,
+      nextroomer: 14,
+      sourcer: 15,
       carry: 16,
-      watcher: 17,
-      atkeeper: 18,
-      atkeepermelee: 18,
-      sourcer: 19,
-      reserver: 20,
+      reserver: 17,
+      watcher: 18,
+      atkeeper: 19,
+      atkeepermelee: 19,
     },
   },
 
@@ -326,6 +340,11 @@ global.config = {
     enabled: false,
   },
 
+  useConstructingSpawnEmergencyOperations: {
+    enabled: true,
+  },
+
+  maliciousNpcUsernames: ['Invader', 'Source Keeper'],
 };
 
 try {

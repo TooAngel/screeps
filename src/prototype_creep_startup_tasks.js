@@ -16,7 +16,7 @@ Creep.upgradeControllerTask = function(creep) {
 
   const range = creep.pos.getRangeTo(creep.room.controller);
   if (range <= 3) {
-    const resources = creep.pos.findInRangePropertyFilter(FIND_DROPPED_RESOURCES, 10, 'resourceType', [RESOURCE_ENERGY]);
+    const resources = creep.pos.findInRangeDroppedEnergy(10);
     let resource = false;
     if (resources.length > 0) {
       resource = resources[0];
@@ -25,8 +25,6 @@ Creep.upgradeControllerTask = function(creep) {
     const returnCode = creep.upgradeController(creep.room.controller);
     if (returnCode !== OK) {
       creep.log('upgradeController: ' + returnCode);
-    } else {
-      creep.upgraderUpdateStats();
     }
     if (resource) {
       creep.moveRandomWithin(creep.room.controller.pos, 3, resource);
@@ -52,7 +50,7 @@ Creep.transferEnergy = function(creep) {
 Creep.buildRoads = function(creep) {
   const room = Game.rooms[creep.room.name];
 
-  // TODO extract to roomposition
+  // TODO extract to RoomPosition
   /**
    * checkForRoad Check if road is on position
    *
@@ -101,13 +99,15 @@ Creep.buildRoads = function(creep) {
 };
 
 Creep.recycleCreep = function(creep) {
-  if (creep.memory.role === 'planer') {
-    creep.room.buildStructures();
+  if (creep.memory.role === 'builder') {
+    if (creep.room.buildStructures()) {
+      creep.memory.recycle = false;
+    }
   }
 
-  let spawn = creep.pos.findClosestByRangePropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+  let spawn = creep.pos.findClosestByRangeSpawn();
   if (!spawn) {
-    spawn = Game.rooms[creep.memory.base].findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN])[0];
+    spawn = Game.rooms[creep.memory.base].findSpawn()[0];
   }
   if (spawn) {
     if (creep.room === spawn.room) {
@@ -117,7 +117,10 @@ Creep.recycleCreep = function(creep) {
       creep.moveTo(spawn);
     }
     creep.say('recycle');
-    spawn.recycleCreep(creep);
+    const response = spawn.recycleCreep(creep);
+    if (response === OK) {
+      creep.memory.recycle = true;
+    }
   }
   return true;
 };
@@ -130,11 +133,31 @@ Creep.repairStructure = function(creep) {
   return creep.repairStructure();
 };
 
+Creep.prototype.getEnergyFromAnyOfMyStructures = function() {
+  if (this.carry.energy) {
+    return false;
+  }
+  let structures = this.room.findStructuresWithUsableEnergy();
+  if (structures.length === 0) {
+    return false;
+  }
+  // Get energy from the structure with highest amount first
+  const getEnergy = (object) => object.energy || object.store.energy;
+  structures = _.sortBy(structures, [(object) => -getEnergy(object), (object) => object.pos.getRangeTo(this)]);
+
+  const structure = structures[0];
+  const range = this.pos.getRangeTo(structure);
+  if (range > 1) {
+    this.moveToMy(structure.pos);
+  } else {
+    const resCode = this.withdraw(structure, RESOURCE_ENERGY);
+    this.log(Game.time, `withdraw from structure ${structure.structureType} ${resCode}`);
+  }
+  return true;
+};
+
 Creep.prototype.getEnergyFromHostileStructures = function() {
-  let hostileStructures = this.room.findPropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_RAMPART, STRUCTURE_EXTRACTOR, STRUCTURE_OBSERVER], {
-    inverse: true,
-    filter: Room.structureHasEnergy,
-  });
+  let hostileStructures = this.room.findHostileStructureWithEnergy();
   if (this.carry.energy || !hostileStructures.length) {
     return false;
   }
@@ -158,11 +181,19 @@ Creep.prototype.getEnergyFromHostileStructures = function() {
 };
 
 Creep.prototype.getEnergyFromStorage = function() {
-  if (this.room.isStruggeling()) {
+  if (!this.room.storage) {
     return false;
   }
 
-  if (this.carry.energy) {
+  if (this.room.memory.misplacedSpawn) {
+    return false;
+  }
+
+  if (this.room.isStruggling()) {
+    return false;
+  }
+
+  if (this.store.energy) {
     return false;
   }
 
@@ -170,7 +201,7 @@ Creep.prototype.getEnergyFromStorage = function() {
   if (range === 1) {
     this.withdraw(this.room.storage, RESOURCE_ENERGY);
   } else {
-    this.moveToMy(this.room.storage.pos, 1);
+    this.moveToMy(this.room.storage.pos, 1, true);
   }
   return true;
 };
@@ -179,7 +210,7 @@ Creep.prototype.actuallyRepairStructure = function(toRepair) {
   this.creepLog('actuallyRepairStructure');
   const range = this.pos.getRangeTo(toRepair);
   if (range <= 3) {
-    this.creepLog(`actuallyRepairStructure - within range ${range}`);
+    this.creepLog(`actuallyRepairStructure - within range ${range} ${toRepair.pos}`);
     this.repair(toRepair);
     this.moveRandomWithin(toRepair);
 
@@ -193,7 +224,7 @@ Creep.prototype.actuallyRepairStructure = function(toRepair) {
     return true;
   }
 
-  const returnCode = this.moveToMy(toRepair.pos, 3);
+  const returnCode = this.moveToMy(toRepair.pos, 3, true);
   if (returnCode === true) {
     this.creepLog('actuallyRepairStructure - moveToMy');
     if (this.pos.roomName !== this.memory.base) {
@@ -210,8 +241,8 @@ Creep.prototype.repairStructureWithIncomingNuke = function() {
   if (nukes.length === 0) {
     return false;
   }
-  console.log('repairing because of nuke');
-  const spawns = this.room.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+  this.log('repairing because of nuke');
+  const spawns = this.room.findSpawn();
   if (spawns.length === 0) {
     return false;
   }
@@ -248,8 +279,30 @@ Creep.prototype.repairStructureGetTarget = function() {
   return toRepair;
 };
 
+/**
+ * isStructureWithinRepairStepRange
+ *
+ * Repair creeps store a range to with blockers should be repaired.
+ * Structures are compared to this range
+ * @param {object} structure
+ * @param {number} step
+ * @return {boolean}
+ */
+function isStructureWithinRepairStepRange(structure, step) {
+  if (structure.hits >= structure.hitsMax) {
+    return false;
+  }
+  // step should ONLY work to defending structures, means wall and rampart.
+  // should NOT stop repairer from repairing roads (roads on swamp have hitsMax = 25K, which sometimes larger than your current wall)
+  if ([STRUCTURE_WALL, STRUCTURE_RAMPART].includes(structure.structureType) && structure.hits > step + 10000) {
+    return false;
+  }
+  return true;
+}
+
 Creep.prototype.repairKnownTarget = function() {
   if (!this.memory.routing.targetId) {
+    this.creepLog('repairKnownTarget no targetId');
     return false;
   }
 
@@ -257,45 +310,43 @@ Creep.prototype.repairKnownTarget = function() {
   if (!toRepair) {
     return false;
   }
+  this.creepLog('repairKnownTarget toRepair');
 
   if (toRepair instanceof ConstructionSite) {
     if (this.pos.roomName !== this.memory.base) {
       this.log(`Not in my base room why? moveToAndBuildConstructionSite`);
     }
+    this.creepLog('repairKnownTarget moveToAndBuildConstructionSite');
     return this.moveToAndBuildConstructionSite(toRepair);
   }
 
-  if (toRepair.hits < toRepair.hitsMax && (toRepair.hits < 10000 || toRepair.hits < this.memory.step + 10000)) {
-    if (this.pos.roomName !== this.memory.base) {
-      this.log(`Not in my base room why? actuallyRepairStructure`);
-    }
-    return this.actuallyRepairStructure(toRepair);
+  if (!isStructureWithinRepairStepRange(toRepair, this.memory.step)) {
+    delete this.memory.routing.targetId;
+    return false;
   }
 
-  delete this.memory.routing.targetId;
-  return false;
+  if (this.pos.roomName !== this.memory.base) {
+    this.log(`Not in my base room why? actuallyRepairStructure`);
+  }
+  if (toRepair.hits === toRepair.hitsMax) {
+    delete this.memory.routing.targetId;
+    return false;
+  }
+  this.creepLog('repairKnownTarget actuallyRepairStructure');
+  return this.actuallyRepairStructure(toRepair);
 };
 
 Creep.prototype.repairStructure = function() {
-  this.creepLog('repairStructure');
   if (this.repairKnownTarget()) {
-    if (this.pos.roomName !== this.memory.base) {
-      this.log(`Not in my base room why? repairKnownTarget`);
-    }
     return true;
   }
-  this.creepLog('repairStructure - no target');
 
   if (this.repairStructureWithIncomingNuke()) {
     return true;
   }
-  this.creepLog('repairStructure - no nuke');
 
   // Repair low ramparts
-  const lowRamparts = this.pos.findInRangePropertyFilter(FIND_STRUCTURES, 4, 'structureType', [STRUCTURE_RAMPART], {
-    filter: (rampart) => rampart.hits < 10000,
-  });
-
+  const lowRamparts = this.pos.findCloseByLowHitRamparts();
   if (lowRamparts.length > 0) {
     this.memory.routing.targetId = lowRamparts[0].id;
     this.repairKnownTarget();
@@ -303,7 +354,7 @@ Creep.prototype.repairStructure = function() {
   }
 
   // Build construction sites
-  const target = this.pos.findClosestByRangePropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL]);
+  const target = this.pos.findClosestByRangeBlockerConstructionSite();
   if (target) {
     this.memory.step = 0;
     this.memory.routing.targetId = target.id;
@@ -312,9 +363,7 @@ Creep.prototype.repairStructure = function() {
   }
 
   // Repair roads
-  const road = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_ROAD], {
-    filter: (object) => object.hits < 0.5 * object.hitsMax,
-  });
+  const road = this.pos.findClosestByRangeRepairableRoad();
   if (road) {
     this.memory.routing.targetId = road.id;
     this.repairKnownTarget();
@@ -322,11 +371,15 @@ Creep.prototype.repairStructure = function() {
   }
 
   // Repair ramparts and walls
-  const step = this.memory.step;
-  const structure = this.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL], {
-    // Newbie zone walls have no hits
-    filter: (object) => object.hits && object.hits < Math.min(step, object.hitsMax),
+  const structure = this.pos.findClosestByRange(FIND_STRUCTURES, {
+    filter: (structure) => {
+      if ([STRUCTURE_RAMPART, STRUCTURE_WALL].indexOf(structure.structureType) < 0) {
+        return false;
+      }
+      return isStructureWithinRepairStepRange(structure, this.memory.step);
+    },
   });
+  this.creepLog(`repairStructure - structure: ${structure}`);
   if (structure) {
     this.memory.routing.targetId = structure.id;
     this.repairKnownTarget();

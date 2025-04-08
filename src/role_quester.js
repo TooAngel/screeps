@@ -1,5 +1,8 @@
 'use strict';
 
+const {initPlayer, addToReputation} = require('./diplomacy');
+const {debugLog} = require('./logging');
+
 /*
  * quester checks if quests are solved
  */
@@ -18,15 +21,14 @@ roles.quester.questLost = function(creep, quest, reason, value) {
 
 roles.quester.questWon = function(creep, quest) {
   const name = quest.player.name;
-  brain.initPlayer();
-  Memory.players[name].reputation = Memory.players[name].reputation || 0;
-  Memory.players[name].reputation += 100;
+  initPlayer(name);
+  debugLog('diplomacy', `Quest won ${JSON.stringify(quest)}`);
+  addToReputation(name, 100);
 
   creep.log(`Quest won: ${JSON.stringify(quest)}`);
   const response = {
-    type: 'Quest',
+    type: 'quest',
     id: quest.id,
-    reputation: Memory.players[name].reputation,
     result: 'won',
   };
   creep.room.terminal.send(RESOURCE_ENERGY, 100, quest.player.room, JSON.stringify(response));
@@ -34,7 +36,7 @@ roles.quester.questWon = function(creep, quest) {
   creep.suicide();
 };
 
-roles.quester.handleBuildcs = function(creep, quest) {
+roles.quester.handleBuildConstructionSite = function(creep, quest) {
   // Give time before end to build the last CS
   if (quest.end - Game.time > 300) {
     const cs = creep.room.findConstructionSites();
@@ -62,11 +64,15 @@ roles.quester.handleBuildcs = function(creep, quest) {
 roles.quester.action = function(creep) {
   creep.setNextSpawn();
   creep.spawnReplacement();
-
   const quest = Memory.quests[creep.memory.level];
-
+  if (!quest) {
+    creep.log(`Quest ${creep.memory.level} not found, suiciding`);
+    creep.suicide();
+    return;
+  }
   if (quest.quest === 'buildcs') {
-    roles.quester.handleBuildcs(creep, quest);
+    roles.quester.handleBuildConstructionSite(creep, quest);
+    creep.moveRandom();
     return true;
   }
 

@@ -109,7 +109,7 @@ Room.prototype.initMemoryWalls = function() {
   }
 };
 
-const callbackcloseExitsByPath = function(room) {
+const callbackCloseExitsByPath = function(room) {
   return (roomName, costMatrix) => {
     if (!costMatrix) {
       costMatrix = new PathFinder.CostMatrix();
@@ -142,6 +142,85 @@ const getTargets = function(room) {
   return targets;
 };
 
+/**
+ * isWallPlaceable
+ *
+ * @param {object} pos
+ * @return {boolean}
+ */
+function isWallPlaceable(pos) {
+  const exit = pos.findClosestByRange(FIND_EXIT);
+  const range = pos.getRangeTo(exit);
+  return range > 1;
+}
+
+/**
+ * layerFinished
+ *
+ * @param {object} room
+ * @return {boolean}
+ */
+function layerFinished(room) {
+  room.memory.walls.exit_i = 0;
+  room.memory.walls.layer_i++;
+  if (room.memory.walls.layer_i >= config.layout.wallThickness) {
+    room.memory.walls.finished = true;
+    return false;
+  }
+  return true;
+}
+
+/**
+ * getPath
+ *
+ * @param {object} room
+ * @param {array} exits
+ * @return {array | undefined}
+ */
+function getPath(room, exits ) {
+  const exit = exits[room.memory.walls.exit_i];
+  const targets = getTargets(room);
+  const {path, incomplete} = PathFinder.search(
+    exit,
+    targets, {
+      roomCallback: callbackCloseExitsByPath(room),
+      maxRooms: 1,
+    },
+  );
+
+  if (incomplete) {
+    room.memory.walls.exit_i++;
+    return;
+  }
+  return path;
+}
+
+/**
+ * closePosition
+ *
+ * @param {object} room
+ * @param {object} pathPos
+ * @return {number}
+ */
+function closePosition(room, pathPos) {
+  let structure = STRUCTURE_WALL;
+  const costMatrixBase = room.getMemoryCostMatrix();
+  if (pathPos.inPath()) {
+    structure = STRUCTURE_RAMPART;
+    costMatrixBase.set(pathPos.x, pathPos.y, 0);
+    room.memory.walls.ramparts.push(pathPos);
+  } else if (pathPos.inPositions()) {
+    structure = STRUCTURE_RAMPART;
+    room.debugLog('baseBuilding', 'closeExitsByPath: pathPos in Positions: ' + pathPos);
+    room.memory.walls.ramparts.push(pathPos);
+  } else {
+    costMatrixBase.set(pathPos.x, pathPos.y, 0xff);
+  }
+  room.setMemoryCostMatrix(costMatrixBase);
+  room.memory.walls.layer[room.memory.walls.layer_i].push(pathPos);
+  return pathPos.createConstructionSite(structure);
+}
+
 Room.prototype.closeExitsByPath = function() {
   if (this.memory.walls && this.memory.walls.finished) {
     return false;
@@ -151,85 +230,21 @@ Room.prototype.closeExitsByPath = function() {
 
   const exits = this.find(FIND_EXIT);
   if (this.memory.walls.exit_i >= exits.length) {
-    this.memory.walls.exit_i = 0;
-    this.memory.walls.layer_i++;
-    if (config.debug.baseBuilding) {
-      this.log('Increase layer');
-    }
-    if (this.memory.walls.layer_i >= config.layout.wallThickness) {
-      if (config.debug.baseBuilding) {
-        this.log('Wall setup finished');
-      }
-      this.memory.walls.finished = true;
+    return layerFinished(this);
+  }
 
-      return false;
-    }
+  const path = getPath(this, exits);
+  if (!path) {
     return true;
   }
-
-  const exit = exits[this.memory.walls.exit_i];
-  const targets = getTargets(this);
-  const search = PathFinder.search(
-    exit,
-    targets, {
-      roomCallback: callbackcloseExitsByPath(this),
-      maxRooms: 1,
-    },
-  );
-
-  if (search.incomplete) {
-    this.memory.walls.exit_i++;
-    return true;
-  }
-
-  const path = search.path;
-  const posLast = path[path.length - 1];
-  const posLastObject = new RoomPosition(posLast.x, posLast.y, this.name);
-
-  // TODO check if incomplete just solves the issue
-  let wayFound = false;
-  for (const targetId in targets) {
-    if (posLastObject.getRangeTo(targets[targetId]) === 1) {
-      wayFound = true;
-      //      this.log('Way found true: ' + !search.incomplete);
-      break;
-    }
-    //    this.log('Way found false: ' + search.incomplete);
-  }
-  if (!wayFound) {
-    this.memory.walls.exit_i++;
-    return true;
-  }
-
-  const wallPlaceable = function(pos) {
-    const exit = pos.findClosestByRange(FIND_EXIT);
-    const range = pos.getRangeTo(exit);
-    return range > 1;
-  };
-
   for (const pathPosPlain of path) {
     const pathPos = new RoomPosition(pathPosPlain.x, pathPosPlain.y, this.name);
-    if (wallPlaceable(pathPos)) {
+    if (isWallPlaceable(pathPos)) {
       if (inLayer(this, pathPos)) {
         continue;
       }
 
-      let structure = STRUCTURE_WALL;
-      const costMatrixBase = this.getMemoryCostMatrix();
-      if (pathPos.inPath()) {
-        structure = STRUCTURE_RAMPART;
-        costMatrixBase.set(pathPos.x, pathPos.y, 0);
-        this.memory.walls.ramparts.push(pathPos);
-      } else if (pathPos.inPositions()) {
-        structure = STRUCTURE_RAMPART;
-        this.debugLog('baseBuilding', 'closeExitsByPath: pathPos in Positions: ' + pathPos);
-        this.memory.walls.ramparts.push(pathPos);
-      } else {
-        costMatrixBase.set(pathPos.x, pathPos.y, 0xff);
-      }
-      this.setMemoryCostMatrix(costMatrixBase);
-      this.memory.walls.layer[this.memory.walls.layer_i].push(pathPos);
-      const returnCode = pathPos.createConstructionSite(structure);
+      const returnCode = closePosition(this, pathPos);
       if (returnCode === ERR_FULL) {
         return false;
       }

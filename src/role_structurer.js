@@ -39,7 +39,7 @@ function dismantleStructure(creep, structure) {
 
 
 /**
- * findAndDismantleStructure - Finds and dismantles strucutes
+ * findAndDismantleStructure - Finds and dismantles structures
  *
  * @param {object} creep - The creep object
  * @param {object} directions - The directions object
@@ -100,9 +100,7 @@ roles.structurer.preMove = function(creep, directions) {
 roles.structurer.action = function(creep) {
   creep.creepLog('action');
   if (!creep.room.controller || !creep.room.controller.my) {
-    const structure = creep.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_CONTROLLER, STRUCTURE_ROAD], {
-      filter: (object) => object.ticksToDecay !== null,
-    });
+    const structure = creep.pos.findClosestByRangeStructureToDestroy();
     creep.dismantle(structure);
   }
 

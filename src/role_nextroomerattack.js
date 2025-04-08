@@ -1,5 +1,7 @@
 'use strict';
 
+const {cleanUpDyingCreep} = require('./brain_main');
+
 /*
  * nextroomerattack is called if the route to the room to revive is blocked
  *
@@ -15,7 +17,7 @@ roles.nextroomerattack.settings = {
 };
 
 roles.nextroomerattack.died = function(name) {
-  brain.main.cleanUpDyingCreep(name);
+  cleanUpDyingCreep(name);
 };
 
 roles.nextroomerattack.action = function(creep) {
@@ -24,7 +26,7 @@ roles.nextroomerattack.action = function(creep) {
     Game.notify(Game.time + ' ' + creep.room.name + ' Attacking');
     creep.memory.notified = true;
   }
-  const spawn = creep.pos.findClosestByRangePropertyFilter(FIND_HOSTILE_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+  const spawn = creep.pos.findClosestByRangeHostileSpawn();
 
   if (spawn === null) {
     const hostileCreep = creep.findClosestEnemy();

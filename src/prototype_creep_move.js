@@ -6,12 +6,13 @@
  *
  * @param {object} target - The target to move to
  * @param {number} range - How close to get to the target
+ * @param {boolean} withinRoom - Stays within the room
  * @return {object} - Response from PathFinder.search
  **/
-Creep.prototype.searchPath = function(target, range=1) {
+Creep.prototype.searchPath = function(target, range=1, withinRoom=false) {
   let costMatrixCallback;
   if (this.room.memory.misplacedSpawn) {
-    costMatrixCallback = this.room.getBasicCostMatrixCallback();
+    costMatrixCallback = this.room.getBasicCostMatrixCallback(withinRoom);
   } else {
     costMatrixCallback = this.room.getCostMatrixCallback(target, true, this.pos.roomName === (target.pos || target).roomName, false);
   }
@@ -30,6 +31,9 @@ Creep.prototype.searchPath = function(target, range=1) {
   if (config.visualizer.enabled && config.visualizer.showPathSearches) {
     visualizer.showSearch(search);
   }
+  if (search.path.length < 2 && search.incomplete) {
+    this.log(`moveToMy search.path too short ${JSON.stringify(search)} target: ${target} range: ${range} withinRoom ${withinRoom}`);
+  }
   return search;
 };
 
@@ -41,29 +45,30 @@ Creep.prototype.moveMy = function(target) {
   const moveResponse = this.move(direction);
   if (moveResponse !== OK && moveResponse !== ERR_NO_BODYPART) {
     this.log(`pos: ${this.pos} target ${target}`);
-    throw new Error(`moveToMy(${target}) this.move(${this.pos.getDirectionTo(target)}); => ${moveResponse}`);
+    throw new Error(`moveMy(${target}) this.move(${this.pos.getDirectionTo(target)}); => ${moveResponse}`);
   }
   this.creepLog(`moveMy direction ${direction} moveResponse ${moveResponse}`);
   return moveResponse === OK;
 };
 
 /**
- * moveToMy replaces the moveTo method and tries to include the costmatrixes
+ * moveToMy replaces the moveTo method and tries to include the cost matrices
  *
  * @param {object} target - The target to move to
  * @param {number} range - How close to get to the target
- * @return {boolean} - Success of the execution
+ * @param {boolean} withinRoom - Stays within the room
+ * @return {boolean|OK|ERR_TIRED} - Success of the execution
  **/
-Creep.prototype.moveToMy = function(target, range=1) {
+Creep.prototype.moveToMy = function(target, range=1, withinRoom=false) {
   this.creepLog(`moveToMy(${target}, ${range}) pos: ${this.pos}`);
   if (this.fatigue > 0) {
     return true;
   }
 
-  const search = this.searchPath(target, range);
-
+  const search = this.searchPath(target, range, withinRoom);
   // Fallback to moveTo when the path is incomplete and the creep is only switching positions
   if (search.path.length < 2 && search.incomplete) {
+    this.log(`moveToMy search.path too short ${JSON.stringify(search)} target: ${target}`);
     return this.moveTo(target, {range: range});
   }
   target = search.path[0] || target.pos || target;
@@ -123,6 +128,9 @@ Creep.prototype.moveRandomWithin = function(goal, dist = 3, goal2 = false) {
     if (pos.checkForObstacleStructure()) {
       continue;
     }
+    if (pos.inPositions()) {
+      continue;
+    }
     break;
   }
   this.move(direction);
@@ -134,6 +142,39 @@ const getCreepsAtPosition = function(position, creep) {
   return creeps;
 };
 
+/**
+ * moveUniversalAsSourcerReserver
+ *
+ * @param {string} role
+ * @param {object} creep
+ * @param {int} direction
+ * @return {boolean}
+ */
+function moveUniversalAsSourcerReserver(role, creep, direction) {
+  if ((role === 'sourcer' || role === 'reserver') && creep.memory.role !== 'universal' && !creep.memory.routing.reverse) {
+    creep.move(direction);
+    return true;
+  }
+}
+
+/**
+ * moveUniversalOrCarryAsDefendMelee
+ *
+ * @param {string} role
+ * @param {object} creep
+ * @param {int} direction
+ * @return {boolean}
+ */
+function moveUniversalOrCarryAsDefendMelee(role, creep, direction) {
+  const targetRole = creep.memory.role;
+  if (role === 'defendmelee' ||
+    targetRole === 'universal' ||
+    targetRole === 'carry') {
+    creep.move(direction);
+    return true;
+  }
+}
+
 Creep.prototype.moveCreepCheckRoleAndTarget = function(creep, direction) {
   const role = this.memory.role;
 
@@ -141,14 +182,10 @@ Creep.prototype.moveCreepCheckRoleAndTarget = function(creep, direction) {
     creep.memory.routing = {};
   }
   const targetRole = creep.memory.role;
-  if ((role === 'sourcer' || role === 'reserver') && targetRole !== 'harvester' && !creep.memory.routing.reverse) {
-    creep.move(direction);
+  if (moveUniversalAsSourcerReserver(role, creep, direction)) {
     return true;
   }
-  if (role === 'defendmelee' ||
-    targetRole === 'harvester' ||
-    targetRole === 'carry') {
-    creep.move(direction);
+  if (moveUniversalOrCarryAsDefendMelee(role, creep, direction)) {
     return true;
   }
   if (role === 'upgrader' &&
@@ -157,7 +194,7 @@ Creep.prototype.moveCreepCheckRoleAndTarget = function(creep, direction) {
     return true;
   }
   if (role === 'upgrader' &&
-    (targetRole === 'harvester' || targetRole === 'sourcer' || targetRole === 'upgrader')) {
+    (targetRole === 'universal' || targetRole === 'sourcer' || targetRole === 'upgrader')) {
     this.log('config_creep_move suicide ' + targetRole);
     creep.suicide();
     return true;
@@ -181,6 +218,7 @@ Creep.prototype.moveCreep = function(position, direction) {
 Creep.prototype.preMoveExtractorSourcer = function(directions) {
   this.pickupEnergy();
 
+  // Sourcer keeper handling
   if (!this.room.controller) {
     const target = this.findClosestSourceKeeper();
     if (target !== null) {
@@ -201,6 +239,7 @@ Creep.prototype.preMoveExtractorSourcer = function(directions) {
   if (!directions) {
     return false;
   }
+
   // TODO when is the forwardDirection missing?
   if (directions.forwardDirection) {
     const posForward = this.pos.getAdjacentPosition(directions.forwardDirection);

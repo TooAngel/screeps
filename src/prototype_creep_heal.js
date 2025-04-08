@@ -14,7 +14,7 @@ Creep.prototype.selfHeal = function() {
 };
 
 Creep.prototype.healMyCreeps = function() {
-  const myCreeps = this.room.findMyHealableCreeps();
+  const myCreeps = this.room.findMyCreepsToHeal();
   if (myCreeps.length > 0) {
     this.say('heal', true);
     this.moveTo(myCreeps[0]);
@@ -29,7 +29,7 @@ Creep.prototype.healMyCreeps = function() {
 };
 
 Creep.prototype.healAllyCreeps = function() {
-  const allyCreeps = this.room.findHealableAlliedCreeps();
+  const allyCreeps = this.room.findAlliedCreepsToHeal();
   if (allyCreeps.length > 0) {
     this.say('heal ally', true);
     this.moveTo(allyCreeps[0]);
@@ -68,12 +68,12 @@ Creep.prototype.squadHeal = function() {
     return true;
   }
 
-  const attacker = this.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'memory.role', ['squadsiege']);
-
   if (this.pos.isBorder(-1)) {
     this.moveTo(25, 25);
     return true;
   }
+
+  const attacker = this.pos.findClosestByRangeSquadSiegeCreep();
   if (attacker === null) {
     const cs = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
     this.moveTo(cs);

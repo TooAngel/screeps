@@ -1,29 +1,46 @@
 'use strict';
 
-Room.prototype.updateCostMatrix = function() {
-  const costMatrix = this.getCostMatrix();
-  if (!this.memory.position) {
-    // After delete the room memory the script got stuck here
-    return;
-  }
-  for (const positionType of Object.keys(this.memory.position)) {
+/**
+ * updateCostMatrixFromPositions
+ *
+ * @param {object} room
+ * @param {object} costMatrix
+ */
+function updateCostMatrixFromPositions(room, costMatrix) {
+  for (const positionType of Object.keys(room.data.positions)) {
     if (positionType === 'pathEndLevel' || positionType === 'version') {
       continue;
     }
-    for (const type of Object.keys(this.memory.position[positionType])) {
-      for (let i =0; i<this.memory.position[positionType][type].length; i++) {
-        const pos = this.memory.position[positionType][type][i];
+    for (const type of Object.keys(room.data.positions[positionType])) {
+      // TODO Maybe store these somewhere else
+      if (positionType === 'pathEnd') {
+        continue;
+      }
+      if (positionType === 'pathEndLevel') {
+        continue;
+      }
+      if (positionType === 'version') {
+        continue;
+      }
+      for (let i = 0; i<room.data.positions[positionType][type].length; i++) {
+        const pos = room.data.positions[positionType][type][i];
         if (!pos) {
-          // TODO debug why
+          room.log(`No pos for positionType: ${positionType} type: ${type} i: ${i}`);
           continue;
         }
-        this.debugLog('baseBuilding', `updateCostMatrix ${positionType} ${type} ${pos} ${i}`);
-        if (positionType !== 'structure' || i < CONTROLLER_STRUCTURES[type][this.controller.level]) {
-          this.increaseCostMatrixValue(costMatrix, pos, config.layout[`${positionType}Avoid`]);
+        if (positionType !== 'structure' || i < CONTROLLER_STRUCTURES[type][room.controller.level]) {
+          room.debugLog('baseBuilding', `updateCostMatrix ${positionType} ${type} ${pos.x},${pos.y} ${i} ${config.layout[`${positionType}Avoid`]}`);
+          room.increaseCostMatrixValue(costMatrix, pos, config.layout[`${positionType}Avoid`]);
         }
       }
     }
   }
+}
+
+Room.prototype.updateCostMatrix = function() {
+  const costMatrix = this.getCostMatrix();
+
+  updateCostMatrixFromPositions(this, costMatrix);
 
   if (this.memory.walls) {
     for (const layer of Object.keys(this.memory.walls.layer)) {
@@ -35,10 +52,16 @@ Room.prototype.updateCostMatrix = function() {
     }
   }
 
-  for (const pathName of Object.keys(this.memory.routing)) {
+  for (const pathName of Object.keys(this.memory.routing || {})) {
     const path = this.getMemoryPath(pathName);
     this.setCostMatrixPath(costMatrix, path);
   }
+
+  if (this.memory.misplacedSpawn) {
+    const structures = this.findAllSpawn();
+    this.setCostMatrixStructures(costMatrix, structures, config.layout.structureAvoid);
+  }
+
   this.setMemoryCostMatrix(costMatrix);
 };
 
@@ -48,89 +71,134 @@ Room.prototype.setCostMatrixStructures = function(costMatrix, structures, value)
   }
 };
 
-Room.prototype.getBasicCostMatrixCallback = function() {
+/**
+ * closeExits
+ *
+ * @param {object} costMatrix
+ * @param {number} x
+ * @param {number} y
+ */
+function closeExits(costMatrix, x, y) {
+  costMatrix.set(x, y, 0xff);
+}
+
+/**
+ * openExits
+ *
+ * @param {object} costMatrix
+ * @param {number} x
+ * @param {number} y
+ * @param {object} room
+ */
+function openExits(costMatrix, x, y, room) {
+  costMatrix.set(x, y, new RoomPosition(x, y, room.name).lookFor(LOOK_TERRAIN)[0] === 'wall' ? 0xff : 0);
+}
+
+Room.prototype.getBasicCostMatrixCallback = function(withinRoom = false) {
   const callbackInner = (roomName) => {
     const room = Game.rooms[roomName];
     if (!room) {
       return new PathFinder.CostMatrix;
     }
-
-    const costMatrix = room.getMemoryCostMatrix();
-
-    if (this.memory.misplacedSpawn) {
-      const structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
-      this.setCostMatrixStructures(costMatrix, structures, config.layout.structureAvoid);
+    if (!room.data.costMatrix) {
+      room.debugLog('routing', `getBasicCostMatrixCallback - no CostMatrix`);
+      room.updatePosition();
+      // I think updatePosition sets the correct CostMatrix
+      // room.updateCostMatrix();
     }
 
-    return costMatrix;
+    if (withinRoom) {
+      const costMatrix = room.data.costMatrix.clone();
+      for (let i = 0; i < 50; i++) {
+        closeExits(costMatrix, i, 0);
+        closeExits(costMatrix, i, 49);
+        closeExits(costMatrix, 0, i);
+        closeExits(costMatrix, 49, i);
+      }
+      return costMatrix;
+    }
+    return room.data.costMatrix;
   };
   return callbackInner;
 };
 
-Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom, allowExits) {
-  let costMatrix = false;
-  try {
-    costMatrix = this.getMemoryCostMatrix();
-  } catch (err) {
-    this.log('getMemoryCostMatrix', err, err.stack);
+/**
+ * setIndestructableWalls
+ *
+ * @param {object} room
+ * @param {object} costMatrix
+ */
+function setIndestructableWalls(room, costMatrix) {
+  // Exclude indestructable walls
+  const walls = room.find(FIND_STRUCTURES, {filter: (object) => object.structureType === STRUCTURE_WALL && !object.histMax});
+  for (const wall of walls) {
+    // console.log(`Exclude indestructable walls: ${JSON.stringify(wall)}`);
+    costMatrix.set(wall.pos.x, wall.pos.y, 0xff);
   }
-  if (!costMatrix) {
-    this.setup();
-  }
+}
 
-  // console.log(`getCostMatrixCallback(${end}, ${excludeStructures}, ${oneRoom}, ${allowExits})`);
+/**
+ * handleExits
+ *
+ * @param {object} room
+ * @param {object} costMatrix
+ * @param {boolean} allowExits
+ */
+function handleExits(room, costMatrix, allowExits) {
+  if (allowExits) {
+    for (let i = 0; i < 50; i++) {
+      openExits(costMatrix, i, 0, room);
+      openExits(costMatrix, i, 49, room);
+      openExits(costMatrix, 0, i, room);
+      openExits(costMatrix, 49, i, room);
+    }
+  } else {
+    for (let i = 0; i < 50; i++) {
+      closeExits(costMatrix, i, 0);
+      closeExits(costMatrix, i, 49);
+      closeExits(costMatrix, 0, i);
+      closeExits(costMatrix, 49, i);
+    }
+  }
+}
+
+Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom, allowExits) {
   const callbackInner = (roomName, debug) => {
+    // TODO How often is this called? Do we need it? Can we just use the room costMatrix?
     if (oneRoom && roomName !== this.name) {
       return false;
     }
     const room = Game.rooms[roomName];
     if (!room) {
-      return;
+      console.log(`no room ${roomName}`);
+      return new PathFinder.CostMatrix;
     }
-    let costMatrix = room.getMemoryCostMatrix();
-    if (!costMatrix) {
-      return;
+    if (!room.data.costMatrix) {
+      room.debugLog('routing', `getCostMatrixCallback - no CostMatrix`);
+      room.updatePosition();
     }
-    costMatrix = costMatrix.clone();
-    // TODO the ramparts could be within existing walls (at least when converging to the newmovesim
+    const costMatrix = room.data.costMatrix.clone();
+    // TODO the ramparts could be within existing walls (at least when converging to the new move sim
     if (end) {
       costMatrix.set(end.x, end.y, 0);
     }
 
     if (excludeStructures) {
       // TODO excluding structures, for the case where the spawn is in the wrong spot (I guess this can be handled better)
-      const structures = room.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], {inverse: true});
+      const structures = room.findAllBuilding();
       if (debug) {
         console.log(`Exclude structures: ${JSON.stringify(structures)}`);
       }
       this.setCostMatrixStructures(costMatrix, structures, config.layout.structureAvoid);
 
       // TODO repairer got stuck at walls, why?
-      const constructionSites = room.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_ROAD, STRUCTURE_CONTAINER], {inverse: true});
+      const constructionSites = room.findBuildingConstructionSites();
       this.setCostMatrixStructures(costMatrix, constructionSites, config.layout.structureAvoid);
     }
 
-    if (allowExits) {
-      const openExits = function(x, y) {
-        costMatrix.set(x, y, new RoomPosition(x, y, room.name).lookFor(LOOK_TERRAIN)[0] === 'wall' ? 0xff : 0);
-      };
-      for (let i = 0; i < 50; i++) {
-        openExits(i, 0);
-        openExits(i, 49);
-        openExits(0, i);
-        openExits(49, i);
-      }
-    } else {
-      const closeExits = function(x, y) {
-        costMatrix.set(x, y, 0xff);
-      };
-      for (let i = 0; i < 50; i++) {
-        closeExits(i, 0);
-        closeExits(i, 49);
-        closeExits(0, i);
-        closeExits(49, i);
-      }
-    }
+    setIndestructableWalls(room, costMatrix);
+    handleExits(room, costMatrix, allowExits);
+
     return costMatrix;
   };
   return callbackInner;
@@ -178,7 +246,7 @@ Room.prototype.getCostMatrix = function() {
 
   this.setCostMatrixAvoidSources(costMatrix);
 
-  const lairs = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_KEEPER_LAIR]);
+  const lairs = this.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_KEEPER_LAIR}});
   if (lairs.length > 0) {
     const minerals = this.findMinerals();
     const sources = this.findSources();
@@ -190,12 +258,12 @@ Room.prototype.getCostMatrix = function() {
   }
 
   for (let i = 0; i < 50; i++) {
-    const value = config.layout.borderAvoid;
     costMatrix.set(i, 0, Math.max(costMatrix.get(i, 0), 0xFF));
     costMatrix.set(i, 49, Math.max(costMatrix.get(i, 49), 0xFF));
     costMatrix.set(0, i, Math.max(costMatrix.get(0, i), 0xFF));
     costMatrix.set(49, i, Math.max(costMatrix.get(49, i), 0xFF));
 
+    const value = config.layout.borderAvoid;
     for (let j = 1; j < 5; j++) {
       costMatrix.set(i, 0 + j, Math.max(costMatrix.get(i, 0 + j), value));
       costMatrix.set(i, 49 - j, Math.max(costMatrix.get(i, 49 - j), value));

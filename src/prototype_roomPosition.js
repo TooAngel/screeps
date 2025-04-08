@@ -7,33 +7,22 @@ RoomPosition.prototype.findClosestStructureWithMissingEnergyByRange = function(f
   return structure;
 };
 
-RoomPosition.prototype.checkTowerFillerPos = function() {
-  if (this.isBorder(3)) {
-    return false;
-  }
-
-  if (this.inPositions()) {
-    return false;
-  }
-
-  if (this.inPath()) {
-    return false;
-  }
-  return true;
-};
-
 RoomPosition.prototype.clearPosition = function(target) {
   const structures = this.lookFor('structure');
   for (const structureId of Object.keys(structures)) {
     const structure = structures[structureId];
     if (structure.structureType === STRUCTURE_SPAWN) {
-      const spawns = this.getRoom().findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
+      const spawns = this.getRoom().findSpawn();
       if (spawns.length <= 1) {
         target.remove();
         return true;
       }
     }
-    console.log('Destroying: ' + structure.structureType);
+    if (structure.structureType === target.structureType) {
+      console.log(`Trying to clear Position for constructionSite, while target already correct structure: ${structure.structureType} ${structure.pos}`);
+      continue;
+    }
+    console.log(`Destroying: ${structure.structureType} ${structure.pos}`);
     structure.destroy();
   }
 };
@@ -52,18 +41,23 @@ RoomPosition.prototype.getClosestSource = function(filter) {
 };
 
 RoomPosition.prototype.findInRangeStructures = function(objects, range, structureTypes) {
-  return this.findInRangePropertyFilter(objects, range, 'structureType', structureTypes);
+  // TODO this method should be deprecated
+  return this.findInRange(objects, range, {filter: (object) => structureTypes.includes(object.structureType)});
+};
+
+RoomPosition.prototype.findHostileStructuresInRangedAttackRange = function() {
+  return this.findInRange(FIND_HOSTILE_STRUCTURES, 3);
 };
 
 RoomPosition.prototype.findClosestStructure = function(structures, structureType) {
-  return this.findClosestByPathPropertyFilter(structures, 'structureType', [structureType]);
+  return this.findClosestByPath(structures, {filter: (object) => object.structureType === structureType});
 };
 
 /**
  * Get the position adjacent to this position in a specific direction
  *
  * @param {Number} direction (or 0)
- * @return {RoomPosition} adjacent position, or this position for direction==0
+ * @return {boolean|void|RoomPosition} adjacent position, or this position for direction==0
  */
 RoomPosition.prototype.getAdjacentPosition = function(direction) {
   const adjacentPos = [
@@ -84,10 +78,18 @@ RoomPosition.prototype.getAdjacentPosition = function(direction) {
   const x = this.x + adjacentPos[direction][0];
   const y = this.y + adjacentPos[direction][1];
 
+  if (x < 0 || y < 0) {
+    return false;
+  }
+  if (x > 49 || y > 49) {
+    return false;
+  }
+
   try {
     return new RoomPosition(x, y, this.roomName);
   } catch (e) {
-    // this.log(`RoomPosition.getAdjacentPosition Exception: ${e} for direction ${direction} x: ${x} y: ${y} roomName: ${this.roomName} stack: ${e.stack}`);
+    // TODO do we need to catch it?
+    this.log(`RoomPosition.getAdjacentPosition Exception: ${e} for direction ${direction} x: ${x} y: ${y} roomName: ${this.roomName} stack: ${e.stack}`);
     // throw e;
     return;
   }
@@ -95,11 +97,9 @@ RoomPosition.prototype.getAdjacentPosition = function(direction) {
 
 RoomPosition.prototype.getAllAdjacentPositions = function* () {
   for (let direction = 1; direction <= 8; direction++) {
-    try {
-      yield this.getAdjacentPosition(direction);
-    } catch (e) {
-      // This happens when the RoomPosition is invalid
-      continue;
+    const position = this.getAdjacentPosition(direction);
+    if (position) {
+      yield position;
     }
   }
 };
@@ -137,23 +137,30 @@ RoomPosition.prototype.checkForObstacleStructure = function() {
 
 RoomPosition.prototype.inPath = function() {
   const room = this.getRoom();
-  return room.getMemoryPathsSet()[`${this.x} ${this.y}`];
+  for (const pathName of Object.keys(room.getMemoryPaths())) {
+    const path = room.getMemoryPath(pathName);
+    for (const pos of path) {
+      if (this.x === pos.x && this.y === pos.y) {
+        return true;
+      }
+    }
+  }
+  return false;
 };
 
 RoomPosition.prototype.inPositions = function() {
   const room = this.getRoom();
-
-  if (!room.memory.position) {
+  if (!room.data.positions) {
     return false;
   }
 
-  for (const creepId of Object.keys(room.memory.position.creep)) {
-    if (!room.memory.position.creep[creepId]) {
+  for (const creepId of Object.keys(room.data.positions.creep)) {
+    if (!room.data.positions.creep[creepId]) {
       // TODO when does this happen?
       continue;
     }
     try {
-      for (const pos of room.memory.position.creep[creepId]) {
+      for (const pos of room.data.positions.creep[creepId]) {
         if (!pos) {
           continue;
         }
@@ -162,12 +169,12 @@ RoomPosition.prototype.inPositions = function() {
         }
       }
     } catch (e) {
-      this.log(`inPositions ${creepId} ${room.memory.position.creep[creepId]} ${e}`);
+      this.log(`inPositions ${creepId} ${room.data.positions.creep[creepId]} ${e}`);
     }
   }
 
-  for (const structureId of Object.keys(room.memory.position.structure)) {
-    for (const pos of room.memory.position.structure[structureId]) {
+  for (const structureId of Object.keys((room.data.positions.structure || {}))) {
+    for (const pos of room.data.positions.structure[structureId]) {
       if (this.isEqualTo(pos.x, pos.y)) {
         return true;
       }
@@ -220,7 +227,7 @@ RoomPosition.prototype.validPosition = function(opts = {}) {
     }
     return false;
   }
-  return true;
+  return this.isValid();
 };
 
 RoomPosition.prototype.getFirstNearPosition = function(...args) {
@@ -245,8 +252,13 @@ RoomPosition.prototype.getWorseNearPosition = function(...args) {
 
 RoomPosition.prototype.findNearPosition = function* (...args) {
   for (const posNew of this.getAllAdjacentPositions()) {
+    if (args.debug) {
+      console.log(posNew);
+    }
     if (!posNew.validPosition(...args)) {
-      // console.log(posNew + ' - invalid');
+      if (args.debug) {
+        console.log(posNew + ' - invalid');
+      }
       continue;
     }
     // Single position or array
@@ -262,53 +274,6 @@ RoomPosition.prototype.getRoom = function() {
   }
   return room;
 };
-
-RoomPosition.wrapFindMethod = (methodName, extraParamsCount) => function(findTarget, ...propertyFilterParams) {
-  /* eslint-disable no-invalid-this */
-  const extraParams = propertyFilterParams.splice(0, extraParamsCount);
-  if (_.isNumber(findTarget)) {
-    const objects = this.getRoom().findPropertyFilter(findTarget, ...propertyFilterParams);
-    return this[methodName](objects, ...extraParams);
-  }
-  /* eslint-enable no-invalid-this */
-};
-
-/**
- *
- * @param {Number}  findTarget One of the FIND constant. e.g. [FIND_MY_STRUCTURES] or array of RoomObject to apply filters
- * @param range
- * @param {String}  property The property to filter on. e.g. 'structureType' or 'memory.role'
- * @param {Array}  properties The properties to filter. e.g. [STRUCTURE_ROAD, STRUCTURE_RAMPART]
- * @param {Boolean} [without=false] Exclude or include the properties to find.
- * @param {object} [opts={}] Additional options.
- * @param {function} [opts.filter] Additional filter that wil be applied after cache.
- * @return {Array} the objects returned in an array.
- */
-RoomPosition.prototype.findInRangePropertyFilter = RoomPosition.wrapFindMethod('findInRange', 1);
-
-/**
- *
- * @param {Number}  findTarget One of the FIND constant. e.g. [FIND_MY_STRUCTURES] or array of RoomObject to apply filters
- * @param {String}  property The property to filter on. e.g. 'structureType' or 'memory.role'
- * @param {Array}  properties The properties to filter. e.g. [STRUCTURE_ROAD, STRUCTURE_RAMPART]
- * @param {Boolean} [without=false] Exclude or include the properties to find.
- * @param {object} [opts={}] Additional options.
- * @param {function} [opts.filter] Additional filter that wil be applied after cache.
- * @return {Array} the objects returned in an array.
- */
-RoomPosition.prototype.findClosestByRangePropertyFilter = RoomPosition.wrapFindMethod('findClosestByRange', 0);
-
-/**
- *
- * @param {Number|RoomObject[]}  findTarget One of the FIND constant. e.g. [FIND_MY_STRUCTURES] or array of RoomObject to apply filters
- * @param {String}  property The property to filter on. e.g. 'structureType' or 'memory.role'
- * @param {Array}  properties The properties to filter. e.g. [STRUCTURE_ROAD, STRUCTURE_RAMPART]
- * @param {Boolean} [without=false] Exclude or include the properties to find.
- * @param {object} [opts={}] Additional options.
- * @param {function} [opts.filter] Additional filter that wil be applied after cache.
- * @return {Array} the objects returned in an array.
- */
-RoomPosition.prototype.findClosestByPathPropertyFilter = RoomPosition.wrapFindMethod('findClosestByPath', 0);
 
 /**
  * Restore RoomPosition object after JSON serialisation.

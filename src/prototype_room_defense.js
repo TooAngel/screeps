@@ -51,7 +51,8 @@ Room.prototype.handleNukeAttack = function() {
   };
 
   for (const nuke of nukes) {
-    const structures = nuke.pos.findInRangePropertyFilter(FIND_MY_STRUCTURES, 4, 'structureType', [STRUCTURE_ROAD, STRUCTURE_RAMPART, STRUCTURE_WALL], {inverse: true});
+    const structures = nuke.pos.findInRangeBuildings(4);
+
     this.log('Nuke attack !!!!!');
     for (const structure of structures) {
       const lookConstructionSites = structure.pos.lookFor(LOOK_CONSTRUCTION_SITES);
@@ -70,34 +71,65 @@ Room.prototype.handleNukeAttack = function() {
   return true;
 };
 
+Room.prototype.handleTowerWithEnemies = function(hostileCreeps, towers) {
+  let tower;
+  const hostileOffset = {};
+  const sortHostiles = function(object) {
+    return tower.pos.getRangeTo(object) + (hostileOffset[object.id] || 0);
+  };
+
+  const towersAttacking = _.sortBy(towers, (object) => {
+    const hostile = object.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    return object.pos.getRangeTo(hostile);
+  });
+
+  for (tower of towersAttacking) {
+    const hostilesSorted = _.sortBy(hostileCreeps, sortHostiles);
+    tower.attack(hostilesSorted[0]);
+    hostileOffset[hostilesSorted[0].id] = 100;
+  }
+  return true;
+};
+
+/**
+ * letTowersRepairStructures
+ *
+ * @param {object} room
+ * @param {array} towers
+ */
+function letTowersRepairStructures(room, towers) {
+  for (const tower of towers) {
+    if (tower.energy === 0) {
+      continue;
+    }
+    if (!room.executeEveryTicks(10)) {
+      if (tower.energy < tower.energyCapacity / 2 || room.memory.repair_min > 1000000) {
+        continue;
+      }
+    }
+
+    const lowRampart = tower.pos.findClosestByRangeLowHitRamparts();
+
+    let repair = lowRampart;
+    if (lowRampart === null) {
+      repair = tower.pos.findClosestByRangeLowHitStructures();
+    }
+    tower.repair(repair);
+  }
+}
+
 Room.prototype.handleTower = function() {
-  const towers = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_TOWER]);
+  const towers = this.findTowers();
   if (towers.length === 0) {
     return false;
   }
-  const hostileCreeps = this.findEnemys();
+  const hostileCreeps = this.findEnemies();
   if (hostileCreeps.length > 0) {
-    let tower;
-    const hostileOffset = {};
-    const sortHostiles = function(object) {
-      return tower.pos.getRangeTo(object) + (hostileOffset[object.id] || 0);
-    };
-
-    const towersAttacking = _.sortBy(towers, (object) => {
-      const hostile = object.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-      return object.pos.getRangeTo(hostile);
-    });
-
-    for (tower of towersAttacking) {
-      const hostilesSorted = _.sortBy(hostileCreeps, sortHostiles);
-      tower.attack(hostilesSorted[0]);
-      hostileOffset[hostilesSorted[0].id] = 100;
-    }
-    return true;
+    return this.handleTowerWithEnemies(hostileCreeps, towers);
   }
 
   if (config.tower.healMyCreeps) {
-    const myCreeps = this.findMyHealableCreeps();
+    const myCreeps = this.findMyCreepsToHeal();
     if (myCreeps.length > 0) {
       for (const tower of towers) {
         tower.heal(myCreeps[0]);
@@ -118,30 +150,7 @@ Room.prototype.handleTower = function() {
     this.memory.repair_min = 0;
   }
 
-  const repairableStructures = (object) => object.hits < object.hitsMax / 2;
+  letTowersRepairStructures(this, towers);
 
-  for (const tower of towers) {
-    if (tower.energy === 0) {
-      continue;
-    }
-    if (!this.executeEveryTicks(10)) {
-      if (tower.energy < tower.energyCapacity / 2 || this.memory.repair_min > 1000000) {
-        continue;
-      }
-    }
-
-    const lowRampart = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART], {
-      filter: (rampart) => rampart.hits < 10000,
-    });
-
-    let repair = lowRampart;
-    if (lowRampart === null) {
-      repair = tower.pos.findClosestByRangePropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_WALL, STRUCTURE_RAMPART], {
-        inverse: true,
-        filter: repairableStructures,
-      });
-      tower.repair(repair);
-    }
-  }
   return true;
 };

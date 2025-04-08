@@ -10,7 +10,7 @@ roles.attackunreserve = {};
 roles.attackunreserve.boostActions = ['rangedAttack', 'heal'];
 
 roles.attackunreserve.settings = {
-  prefixString: 'MMMRHH',
+  prefixString: 'MMMMRRHH',
   layoutString: 'AM',
 };
 
@@ -31,15 +31,11 @@ roles.attackunreserve.preMove = function(creep) {
   }
   creep.selfHeal();
   if (!creep.inMyRoom()) {
-    let targets = creep.pos.findInRangeStructures(FIND_HOSTILE_STRUCTURES);
+    let targets = creep.pos.findHostileStructuresInRangedAttackRange();
     if (targets.length === 0) {
       targets = creep.pos.findInRangeStructures(FIND_STRUCTURES, 1, [STRUCTURE_WALL, STRUCTURE_RAMPART]);
     }
-    if (targets.length > 0) {
-      if (!creep.room.controller || !creep.room.controller.my) {
-        creep.rangedAttack(targets[0]);
-      }
-    }
+    creep.rangeAttackOutsideOfMyRooms(targets);
   }
 };
 
@@ -65,7 +61,7 @@ function getFilterForBodyPart(bodyPart) {
  *
  * @param {object} creep - The attacker
  * @param {object} target - The target
- * @return {bool} - Returns true :-)
+ * @return {boolean} - Returns true :-)
  **/
 function attack(creep, target) {
   // TODO needs to be changed to some of our moveTo methods, preventing from
@@ -79,6 +75,7 @@ function attack(creep, target) {
 }
 
 roles.attackunreserve.action = function(creep) {
+  creep.notifyWhenAttacked(false);
   creep.selfHeal();
 
   const inRange = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 3);

@@ -1,0 +1,49 @@
+version: '3.7'
+
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    command: redis-server --loglevel warning
+  mongo:
+    image: mongo
+    volumes:
+      - ./tmp-test-server-database/:/data/db
+    ports:
+      - 27017:27017
+    command: mongod --quiet --logpath /dev/null 
+  server:
+    image: node:12
+    working_dir: /mnt
+    volumes:
+      - ./:/mnt
+    command: ./utils/setupDockerComposeContainer.sh
+    environment:
+      - STEAM_API_KEY
+      - STEAM_ID
+      - MONGO_HOST=mongo
+      - REDIS_HOST=redis
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - mongo
+    #network_mode: "host"
+    ports:
+      - 21025:21025
+      - 21026:21026
+  logs:
+    image: node:12
+    working_dir: /mnt
+    volumes:
+      - ./:/mnt
+    command: node utils/followLogs.js localhost true
+    environment:
+      - STEAM_API_KEY
+      - STEAM_ID
+    depends_on:
+      - server
+    network_mode: "host"
+    profiles:
+      - donotstart

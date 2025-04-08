@@ -20,18 +20,42 @@ roles.squadsiege.dismantleSurroundingStructures = function(creep, directions) {
   }
   const posForward = creep.pos.getAdjacentPosition(directions.forwardDirection);
   const structures = posForward.lookFor(LOOK_STRUCTURES);
+  const ramparts = [];
+  const walls = [];
   for (const structure of structures) {
-    if (structure.structureType === STRUCTURE_ROAD) {
+    if (structure.my) {
       continue;
     }
-    if (structure.structureType === STRUCTURE_RAMPART && structure.my) {
+    switch (structure.structureType) {
+    case STRUCTURE_ROAD:
+    case STRUCTURE_CONTROLLER:
+    case STRUCTURE_KEEPER_LAIR:
       continue;
+    case STRUCTURE_RAMPART:
+      ramparts.push(structure);
+      continue;
+    case STRUCTURE_WALL:
+      walls.push(structure);
+      continue;
+    default:
+      // do nothing
     }
-
     creep.dismantle(structure);
-    creep.say('dismantle');
-    break;
+    creep.say('dismantle : ' + structure.id);
+    return true;
   }
+  // if no any other better structures to dismantle, we can only go for rampart and wall...
+  if (ramparts.length) {
+    creep.dismantle(ramparts[0]);
+    creep.say('dismantle : ' + ramparts[0].id);
+    return true;
+  }
+  if (walls.length) {
+    creep.dismantle(walls[0]);
+    creep.say('dismantle : ' + walls[0].id);
+    return true;
+  }
+  return false;
 };
 
 roles.squadsiege.preMove = function(creep, directions) {
@@ -42,6 +66,15 @@ roles.squadsiege.preMove = function(creep, directions) {
   roles.squadsiege.dismantleSurroundingStructures(creep, directions);
   if (creep.memory.squad) {
     if (!creep.memory.initialized) {
+      if (!Memory.squads) {
+        Memory.squads = {};
+      }
+      if (!Memory.squads[creep.memory.squad]) {
+        Memory.squads[creep.memory.squad] = {};
+      }
+      if (!Memory.squads[creep.memory.squad.siege]) {
+        Memory.squads[creep.memory.squad].siege = {};
+      }
       Memory.squads[creep.memory.squad].siege[creep.id] = {};
       creep.memory.initialized = true;
     }

@@ -17,7 +17,7 @@ roles.reserver.settings = {
   maxLayoutAmount: 1,
 };
 roles.reserver.updateSettings = function(room, creep) {
-  room.debugLog('reserver', `role_reserver.updateSettings; targetRoom: ${creep.routing.targetRoom}`);
+  // room.debugLog('reserver', `role_reserver.updateSettings; targetRoom: ${creep.routing.targetRoom}`);
   const targetRoom = Game.rooms[creep.routing.targetRoom];
   if (targetRoom) {
     const reservation = targetRoom.controller.reservation;
@@ -33,25 +33,137 @@ roles.reserver.updateSettings = function(room, creep) {
       };
     }
   }
-  room.debugLog('reserver', `role_reserver.updateSettings - Can not access targetRoom`);
+  // room.debugLog('reserver', `role_reserver.updateSettings - Can not access targetRoom ${targetRoom}`);
   return {
     maxLayoutAmount: 1,
   };
 };
 
-roles.reserver.action = function(creep) {
-  creep.mySignController();
-  if (!creep.memory.routing.targetId) {
-    // TODO check when this happens and fix it
-    creep.log('creep_reserver.action No targetId !!!!!!!!!!!');
-    if (creep.room.name === creep.memory.routing.targetRoom) {
-      creep.memory.routing.targetId = creep.room.controller.id;
-    }
+/**
+ * callCleaner
+ *
+ * @param {object} creep
+ * @return {boolean}
+ */
+function callCleaner(creep) {
+  if (creep.inBase()) {
+    return false;
   }
 
-  // TODO this should be enabled, because the reserver should flee without being attacked
-  creep.notifyWhenAttacked(false);
+  if (!Game.rooms[creep.memory.base].storage) {
+    return false;
+  }
 
-  creep.handleReserver();
+  if (!creep.room.executeEveryTicks(1000)) {
+    return false;
+  }
+
+  if (config.creep.structurer) {
+    callStructurer(creep);
+  }
+}
+
+/**
+ * callStructurer
+ *
+ * @param {object} creep
+ */
+function callStructurer(creep) {
+  if (creep.room.isMy()) {
+    creep.log(`Calling structurer with my room`);
+    return;
+  }
+  const resourceStructures = creep.room.findDestructibleStructures();
+  if (resourceStructures.length > 0) {
+    creep.log('Call structurer from ' + creep.memory.base + ' because of ' + resourceStructures[0].structureType);
+    Game.rooms[creep.memory.base].checkRoleToSpawn('structurer', 1, undefined, creep.room.name);
+  }
+}
+
+/**
+ * interactWithControllerSuccess
+ *
+ * @param {object} creep
+ */
+function interactWithControllerSuccess(creep) {
+  if (creep.room.controller.reservation) {
+    creep.room.data.reservation = {
+      base: creep.memory.base,
+      tick: Game.time,
+      ticksToLive: creep.ticksToLive,
+      ticksToEnd: creep.room.controller.reservation.ticksToEnd,
+    };
+  }
+}
+
+/**
+ * interactWithController
+ *
+ * @param {object} creep
+ * @return {boolean}
+ */
+function interactWithController(creep) {
+  let returnCode;
+  if (creep.room.controller.owner && creep.room.controller.owner.username !== Memory.username) {
+    creep.say('attack');
+    returnCode = creep.attackController(creep.room.controller);
+  } else if (creep.room.controller.reservation && creep.room.controller.reservation.username !== Memory.username) {
+    creep.say('unreserve');
+    returnCode = creep.attackController(creep.room.controller);
+  } else {
+    returnCode = creep.reserveController(creep.room.controller);
+  }
+
+  if (returnCode === OK || returnCode === ERR_NO_BODYPART) {
+    interactWithControllerSuccess(creep);
+    return true;
+  }
+  if (returnCode === ERR_NOT_IN_RANGE) {
+    return true;
+  }
+  if (returnCode === ERR_INVALID_TARGET) {
+    return true;
+  }
+
+  creep.log('reserver: ' + returnCode);
+}
+
+/**
+ * callDefender
+ *
+ * @param {object} creep
+ */
+function callDefender(creep) {
+  const hostiles = creep.room.findEnemies();
+  const invaderCores = creep.room.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_INVADER_CORE}});
+  if (hostiles.length > 0 || invaderCores.length > 0) {
+    // this.log('Reserver under attack');
+    if (!creep.memory.defender_called) {
+      Game.rooms[creep.memory.base].memory.queue.push({
+        role: 'defender',
+        routing: {
+          targetRoom: creep.room.name,
+        },
+      });
+      creep.memory.defender_called = true;
+    }
+  }
+}
+
+
+roles.reserver.action = function(creep) {
+  creep.mySignController();
+  creep.setNextSpawn();
+  if (creep.room.data.state !== 'Controlled') {
+    creep.spawnReplacement();
+  }
+
+  callCleaner(creep);
+
+  if (config.creep.reserverDefender) {
+    callDefender(creep);
+  }
+
+  interactWithController(creep);
   return true;
 };

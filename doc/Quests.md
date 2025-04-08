@@ -16,39 +16,22 @@ The reputation weights other players, e.g. players with high
 reputation can pass through reserved or controlled rooms without punishment.
 Other players can send quests to the TooAngel AI, which they solved.
 
-## Communication
-
-Quests locations are controller signs, in the following example in room `W2N7`.
-
-    {"type": "Quest", "id": 0.3451, "origin": "W1N7", info: "http://tooangel.github.io/screeps/doc/Quests.html"}
-
-To apply for the Quest, send a message via Terminal transfer to the `origin` room.
-
-   {"type": "Quest", "id": 0.3451, "room": "W2N7"}
-
- - `room` quest location
-
-On acceptance of the application, a response is send via terminal transfer.
-
-   {"type": "Quest", "id": 0.3451, "room": "W3N8", "quest": "buildcs", "end": 12345653}
-
-  - `room` the room to solve quest
-  - `type` quest type
-  - `end` the end time of the quest
-
-On successful finishing a quest a terminal transfer is send
-
-  {"type": "Quest", "id": 0.3451, "reputation": "100", "result": "won"}
-
- - `reputation` the current reputation of the player
+For communication see: [API](API.md)
 
 
 Quests can be:
  - `buildcs` Build all construction sites in the given room
- - **tbd** Write your (or my) name with roads (or walls) in a specific room
+ - **tbd** Write your (or my) name with roads (or walls or creeps) in a specific room
+ - **tbd** Bring `resource` to room
+ - **tbd** Send `resource` via terminal to room
+ - **tbd** Get `resource` via creep from room
  - **tbd** Defend specific room for some time
  - **tbd** Defend your room
  - **tbd** Attack my (or someone else) room
+ - **tbd** Sign controller in room with `[username] smells funny`
+ - **tbd** Dismantle structure `id` in room
+ - **tbd** Solving math problems: Send a creep to a room and `say` math problems and the other creep need to `say` the solution
+ - **tbd** Send a creep with random `BODYPARTS` to a room
  - ...
 
 If necessary the `Quester` creep will watch the progress and needs to stay alive.

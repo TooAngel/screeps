@@ -1,5 +1,8 @@
 'use strict';
 
+
+const {isFriend} = require('./brain_squadmanager');
+
 /*
  * nextroomer is used to build up rooms
  *
@@ -11,7 +14,7 @@
  */
 
 roles.nextroomer = {};
-
+roles.builder.boostActions = ['build', 'capacity'];
 roles.nextroomer.settings = {
   layoutString: 'MWC',
   amount: [6, 3, 3],
@@ -45,7 +48,8 @@ roles.nextroomer.buildRamparts = function(creep) {
     linkPosMem = room.memory.position.structure.link[2];
   }
 
-  const links = creep.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_LINK]);
+  const links = creep.pos.findInRangeLinks(1);
+
   if (links.length) {
     creep.say('dismantle');
     creep.dismantle(links[0]);
@@ -68,17 +72,16 @@ roles.nextroomer.buildRamparts = function(creep) {
   return false;
 };
 
+
 roles.nextroomer.defendTower = function(creep) {
   const room = Game.rooms[creep.room.name];
   const constructionSites = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 1);
   if (constructionSites.length > 0) {
-    for (const constructionSiteId of Object.keys(constructionSites)) {
-      creep.build(constructionSites[constructionSiteId]);
-    }
+    creep.build(constructionSites[0]);
     return true;
   }
 
-  const towers = creep.pos.findInRangePropertyFilter(FIND_STRUCTURES, 1, 'structureType', [STRUCTURE_TOWER]);
+  const towers = creep.pos.findInRangeTowers(1);
 
   if (towers.length > 0) {
     if (roles.nextroomer.buildRamparts(creep)) {
@@ -126,7 +129,7 @@ roles.nextroomer.stayAtSource = function(creep, source) {
     const returnCode = creep.harvest(source);
     if (returnCode === OK) {
       if (creep.carry.energy >= 0) {
-        const creepWithoutEnergy = creep.pos.findClosestByRangePropertyFilter(FIND_MY_CREEPS, 'carry.energy', [0]);
+        const creepWithoutEnergy = creep.pos.findClosestByRangeCreepWithoutEnergy();
         const range = creep.pos.getRangeTo(creepWithoutEnergy);
 
         if (range === 1) {
@@ -140,9 +143,8 @@ roles.nextroomer.stayAtSource = function(creep, source) {
 };
 
 roles.nextroomer.underSiege = function(creep) {
-  const room = Game.rooms[creep.room.name];
   if (creep.memory.targetId) {
-    const sourcerPosMem = room.memory.position.creep[creep.memory.targetId];
+    const sourcerPosMem = creep.room.data.positions.creep[creep.memory.targetId][0];
     const source = Game.getObjectById(creep.memory.targetId);
     if (creep.pos.isEqualTo(sourcerPosMem.x, sourcerPosMem.y)) {
       return roles.nextroomer.stayAtSource(creep, source);
@@ -150,12 +152,11 @@ roles.nextroomer.underSiege = function(creep) {
       delete creep.memory.targetId;
     }
   }
-  const sources = room.findSources();
-  for (const sourceId of Object.keys(sources)) {
-    const source = sources[sourceId];
-    const sourcerPosMem = room.memory.position.creep[source.id];
+  const sources = creep.room.findSources();
+  console.log(sources);
+  for (const source of sources) {
+    const sourcerPosMem = creep.room.data.positions.creep[source.id][0];
     const sourcerPos = new RoomPosition(sourcerPosMem.x, sourcerPosMem.y, creep.room.name);
-
     if (creep.pos.isEqualTo(sourcerPos)) {
       creep.memory.targetId = source.id;
       return roles.nextroomer.stayAtSource(creep, source);
@@ -163,7 +164,7 @@ roles.nextroomer.underSiege = function(creep) {
 
     const creeps = sourcerPos.lookFor('creep');
     if (creeps.length === 0) {
-      creep.moveTo(sourcerPos.x, sourcerPos.y);
+      creep.moveTo(sourcerPos);
       return true;
     }
   }
@@ -171,6 +172,10 @@ roles.nextroomer.underSiege = function(creep) {
 };
 
 const getMethods = function(creep) {
+  if (creep.store.getFreeCapacity() === 0 && creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
+    const resourceToDrop = Object.keys(creep.store)[0];
+    creep.drop(resourceToDrop, creep.store[resourceToDrop]);
+  }
   const methods = [Creep.getEnergy];
   if (creep.room.controller.ticksToDowngrade < 1500 || creep.room.controller.progress > creep.room.controller.progressTotal) {
     methods.push(Creep.upgradeControllerTask);
@@ -206,22 +211,40 @@ const handleTower = function(creep) {
   }
 };
 
+
+/**
+ * handleHostile
+ *
+ * @param {object} creep
+ * @param {object} room
+ * @return {boolean}
+ */
+function handleHostile(creep, room) {
+  const hostileCreeps = room.find(FIND_HOSTILE_CREEPS, {
+    filter: (creep) => (!room.controller.safeMode || creep.ticksToLive > room.controller.safeMode) && !isFriend(creep.owner.username),
+  });
+  if (!hostileCreeps.length) {
+    return;
+  }
+  room.memory.underSiege = true;
+  if (creep.room.controller.level === 1 ||
+    creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 ||
+    (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] && creep.pos.getRangeTo(creep.room.controller.pos) <= 3)
+  ) {
+    const methods = [Creep.getEnergy, Creep.upgradeControllerTask];
+    return Creep.execute(creep, methods);
+  }
+}
+
 roles.nextroomer.settle = function(creep) {
   creep.creepLog('settle');
   const room = Game.rooms[creep.room.name];
-  const hostileCreeps = room.find(FIND_HOSTILE_CREEPS, {
-    filter: (creep) => (!room.controller.safeMode || creep.ticksToLive > room.controller.safeMode) && !brain.isFriend(creep.owner.username),
-  });
-  if (hostileCreeps.length) {
-    room.memory.underSiege = true;
-    if (creep.room.controller.level === 1 ||
-        creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] / 10 ||
-        (creep.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller.level] && creep.pos.getRangeTo(creep.room.controller.pos) <= 3)
-    ) {
-      const methods = [Creep.getEnergy, Creep.upgradeControllerTask];
-      return Creep.execute(creep, methods);
-    }
+
+  const handledHostiles = handleHostile(creep, room);
+  if (handledHostiles) {
+    return handledHostiles;
   }
+
   room.memory.wayBlocked = false;
   if (room.memory.underSiege && room.controller && room.controller.level >= 3) {
     creep.log('underSiege: ' + room.memory.attackTimer);

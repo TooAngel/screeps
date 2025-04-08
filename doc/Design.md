@@ -17,9 +17,9 @@ are places. Links are triggered to transfer energy to link near the storage.
 Towers attack incoming creeps or heal my creeps. If no spawn is available
 `nextroomer` from other rooms are called, to build up the room.
 
-The basic creep is the `harvester` which can make sure, that enough energy
+The basic creep is the `universal` which can make sure, that enough energy
 will be available to build the rest of the creeps. For this we check if
-a `harvester` is within the room, otherwise spawn it. For the rest a priority
+a `universal` is within the room, otherwise spawn it. For the rest a priority
 queue is used.
 
 
@@ -49,11 +49,12 @@ queue is used.
       - structurer: if the enrgy pile is over a certain threshold
       - rooms: if the storage is below a certain threshold to get energy from another room
  - `scout` Breadth-first search based room exploring.
- - `harvester` moves on the harvester path, and transfers energy to free structures
-   on the path. On low energy in storage, the `harvester` falls back to the
+ - `universal` moves on the universal path, and transfers energy to free structures
+   on the path. On low energy in storage, the `universal` falls back to the
    start up phase without relying on anything (storage, links, other creeps).
  - `nextroomer` moves to target room and builds up that room.
  - `repairer` build walls and ramparts.
+ - `builder` Builds construction sites
 
 
 ## Routing

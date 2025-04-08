@@ -46,7 +46,7 @@ roles.powertransporter.moveToBankOrResource = function(creep) {
     }
     return false;
   }
-  const resource = creep.pos.findClosestByRangePropertyFilter(FIND_DROPPED_RESOURCES, 'resourceType', [RESOURCE_POWER]);
+  const resource = creep.pos.findClosestByRangeDroppedPower();
   if (resource === null) {
     if (creep.carry.power > 0) {
       return false;

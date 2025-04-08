@@ -1,31 +1,39 @@
 'use strict';
 
+const {checkPlayers} = require('./diplomacy');
+const {handleQuests} = require('./quests_host');
+const {prepareMemory} = require('./brain_memory');
+const {handleSquadManager} = require('./brain_squadmanager');
+
 global.cpuUsed = 0;
 
-brain.main.roomExecution = function() {
-  Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
-};
+/**
+ * leftPadRound
+ *
+ * String with fixed width for rounded number
+ * @param {number} nr
+ * @param {number} lpad
+ * @param {number} digest
+ * @return {string}
+ */
+function leftPadRound(nr, lpad, digest) {
+  return nr.toFixed(digest).padStart(lpad + digest + 1);
+}
 
-brain.main.cleanUpDyingCreep = function(name) {
-  console.log('--->', name, 'Died naturally?');
+/**
+ * executeRooms
+ *
+ * Executes all rooms and stores controlled rooms in `Memory.myRooms'
+ */
+function executeRooms() {
+  Memory.myRooms = _(Game.rooms).filter((r) => r.execute()).map((r) => r.name).value();
+}
+
+module.exports.cleanUpDyingCreep = function(name) {
   delete Memory.creeps[name];
 };
 
-brain.main.roomFilter = (r) => {
-  global.tickLimit = global.cpuLimit();
-  if (Game.cpu.getUsed() < Game.cpu.limit) {
-    r.execute();
-    if (config.debug.cpu) {
-      r.log(`Before: ${global.cpuUsed} After: ${Game.cpu.getUsed()} Diff: ${Game.cpu.getUsed() - global.cpuUsed} limit: ${Game.cpu.limit} tickLimit: ${Game.cpu.tickLimit}`);
-    }
-  } else {
-    Memory.skippedRooms.push(r.name);
-  }
-  global.cpuUsed = Game.cpu.getUsed();
-  return Memory.myRooms.indexOf(r.name) !== -1;
-};
-
-brain.main.profilerInit = function() {
+module.exports.initProfiler = function() {
   if (config.profiler.enabled) {
     try {
       global.profiler = require('screeps-profiler'); // eslint-disable-line global-require
@@ -41,10 +49,15 @@ brain.main.profilerInit = function() {
   }
 };
 
-brain.main.visualizeRooms = function() {
+/**
+ * visualizeRooms
+ *
+ * Renders the visualizer
+ */
+function visualizeRooms() {
   if (config.visualizer.enabled) {
     try {
-      Memory.myRooms.forEach(visualizer.myRoomDatasDraw);
+      Memory.myRooms.forEach(visualizer.myRoomDataDraw);
     } catch (e) {
       console.log(`Visualizer Draw Exception exception: ${e} stack ${e.stack}`);
     }
@@ -54,12 +67,17 @@ brain.main.visualizeRooms = function() {
       console.log('Visualizer Render Exception', e, e.stack);
     }
   }
-};
+}
 
-brain.main.updateSkippedRoomsLog = function() {
+/**
+ * updateSkippedRoomsLog
+ *
+ * Logs and stores skipped rooms
+ */
+function updateSkippedRoomsLog() {
   Memory.skippedRoomsLog = Memory.skippedRoomsLog || {};
   if (_.size(Memory.skippedRooms) > 0) {
-    console.log(`${Game.time} cpu.getUsed: ${_.round(Game.cpu.getUsed())} ticklimit: ${Game.cpu.tickLimit} Bucket: ${Game.cpu.bucket} skippedRooms ${Memory.skippedRooms}`);
+    console.log(`${Game.time} cpu.getUsed: ${_.round(Game.cpu.getUsed())} tickLimit: ${Game.cpu.tickLimit} Bucket: ${Game.cpu.bucket} skippedRooms ${Memory.skippedRooms}`);
     Memory.skippedRoomsLog[Game.time] = Memory.skippedRooms;
   }
   if (Game.time % 100 === 0) {
@@ -70,43 +88,41 @@ brain.main.updateSkippedRoomsLog = function() {
     }
     Memory.skippedRoomsLog = {};
   }
-};
+}
 
-brain.main.execute = function() {
+module.exports.execute = function() {
   if (Game.time > 1000 && Game.cpu.bucket < 1.5 * Game.cpu.tickLimit && Game.cpu.bucket < Game.cpu.limit * 10) {
     console.log(`${Game.time} Skipping tick CPU Bucket too low. bucket: ${Game.cpu.bucket} tickLimit: ${Game.cpu.tickLimit} limit: ${Game.cpu.limit}`);
     return;
   }
   Memory.time = Game.time;
   try {
-    brain.prepareMemory();
+    prepareMemory();
     brain.buyPower();
-    brain.handleNextroom();
-    brain.handleSquadmanager();
+    brain.handleNextroomer();
+    handleSquadManager();
     brain.handleIncomingTransactions();
-    brain.handleQuests();
+    handleQuests();
+    checkPlayers();
   } catch (e) {
     console.log('Brain Exception', e.stack);
   }
 
   brain.stats.addRoot();
-  brain.main.roomExecution();
-  if (config.memory.segmentsEnabled) {
-    brain.saveMemorySegments();
-  }
-  brain.main.visualizeRooms();
-  brain.main.updateSkippedRoomsLog();
+  executeRooms();
+  visualizeRooms();
+  updateSkippedRoomsLog();
   brain.stats.add(['cpu'], {
     used: Game.cpu.getUsed(),
   });
 
-  if (global.config.ticksummary.gcl) {
-    console.log(`${Game.time} GCL ${Game.gcl.level}: ${global.utils.lpadround(Game.gcl.progress/Game.gcl.progressTotal*100, 3, 5)} %  ${Math.round(Game.gcl.progress)}/${Math.round(Game.gcl.progressTotal)}`);
+  if (global.config.tickSummary.gcl) {
+    console.log(`${Game.time} GCL ${Game.gcl.level}: ${leftPadRound(Game.gcl.progress / Game.gcl.progressTotal * 100, 3, 5)} %  ${Math.round(Game.gcl.progress)}/${Math.round(Game.gcl.progressTotal)}`);
   }
-  if (global.config.ticksummary.bucket) {
+  if (global.config.tickSummary.bucket) {
     console.log(`${Game.time} Bucket: ${Game.cpu.bucket}`);
   }
-  if (global.config.ticksummary.seperator) {
+  if (global.config.tickSummary.separator) {
     console.log(Game.time, '-----------');
   }
 };

@@ -50,6 +50,16 @@ Room.prototype.destroyStructureWall = function(structure) {
         }
       }
     }
+    const flags = this.find(FIND_FLAGS, {
+      filter: function(flag) {
+        return flag.name.startsWith('allowWall');
+      },
+    });
+    for (const flag of flags) {
+      if (structure.pos.isEqualTo(flag.pos)) {
+        return false;
+      }
+    }
   }
   structure.destroy();
   return true;
@@ -63,13 +73,23 @@ Room.prototype.destroyStructureRoad = function(structure) {
       }
     }
   }
+  const flags = this.find(FIND_FLAGS, {
+    filter: function(flag) {
+      return flag.name.startsWith('allowRoad');
+    },
+  });
+  for (const flag of flags) {
+    if (structure.pos.isEqualTo(flag.pos)) {
+      return false;
+    }
+  }
   structure.destroy();
   return true;
 };
 
 Room.prototype.buildRampartsAroundSpawns = function() {
   // Build ramparts around the spawn if wallThickness > 1
-  // TODO this is not jused for a long time and the spawn positions should
+  // TODO this is not used for a long time and the spawn positions should
   // be taken from `memory.positions.spawn`
   if (config.layout.wallThickness > 1) {
     const costMatrixBase = this.getMemoryCostMatrix();
@@ -82,7 +102,8 @@ Room.prototype.buildRampartsAroundSpawns = function() {
             const pos = new RoomPosition(spawn.pos.x + x, spawn.pos.y + y, spawn.pos.roomName);
             this.memory.walls.ramparts.push(pos);
             costMatrixBase.set(pos.x, pos.y, 0);
-            const walls = pos.findInRangePropertyFilter(FIND_STRUCTURES, 0, 'structureType', [STRUCTURE_WALL]);
+
+            const walls = pos.findInRangeWall(0);
             for (const wall of walls) {
               wall.destroy();
             }
@@ -94,6 +115,43 @@ Room.prototype.buildRampartsAroundSpawns = function() {
   }
 };
 
+/**
+ * destroyStructureSpawn
+ *
+ * @param {object} room
+ * @param {object} structure
+ * @return {boolean}
+ */
+function destroyStructureSpawn(room, structure) {
+  const spawnsCount = room.findMySpawns().length;
+  if (room.memory.misplacedSpawn) {
+    if (spawnsCount < config.myRoom.leastSpawnsToRebuildStructureSpawn) {
+      room.memory.misplacedSpawn = false;
+      return false;
+    }
+    if (room.storage && room.storage.store.energy > 20000) {
+      const builders = room.findMyCreepsOfRole('builder');
+      if (builders.length > 3) {
+        room.log('Destroying to rebuild spawn: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
+        room.log('-----------------------------------------');
+        room.log('ATTENTION: The last spawn is destroyed, a new one will be build automatically, DO NOT RESPAWN');
+        room.log('-----------------------------------------');
+        structure.destroy();
+        delete room.memory.misplacedSpawn;
+        room.memory.controllerLevel.checkWrongStructureInterval = 1;
+        delete room.memory.walls;
+        return true;
+      }
+    }
+    return false;
+  }
+  room.log(`Spawn [${structure.pos.x}, ${structure.pos.y}] is misplaced, not in positions (prototype_room_basebuilder.destroyStructure), spawnsCount be ${spawnsCount}`); // eslint-disable-line max-len
+  room.memory.misplacedSpawn = spawnsCount > config.myRoom.leastSpawnsToRebuildStructureSpawn;
+
+  room.buildRampartsAroundSpawns();
+  return false;
+}
+
 Room.prototype.destroyStructure = function(structure) {
   if (structure.structureType === STRUCTURE_WALL) {
     return this.destroyStructureWall(structure);
@@ -104,8 +162,10 @@ Room.prototype.destroyStructure = function(structure) {
   if (structure.structureType === STRUCTURE_RAMPART) {
     return false;
   }
-
-  if (posIsIn(structure.pos, this.memory.position.structure[structure.structureType])) {
+  if (structure.structureType === STRUCTURE_CONTAINER) {
+    return false;
+  }
+  if (posIsIn(structure.pos, this.data.positions.structure[structure.structureType])) {
     return false;
   }
 
@@ -120,35 +180,14 @@ Room.prototype.destroyStructure = function(structure) {
     return true;
   }
   if (structure.structureType === STRUCTURE_SPAWN) {
-    if (this.memory.misplacedSpawn) {
-      if (this.storage && this.storage.store.energy > 20000) {
-        const planers = this.findMyCreepsOfRole('planer');
-        if (planers.length > 3) {
-          this.log('Destroying to rebuild spawn: ' + structure.structureType + ' ' + JSON.stringify(structure.pos));
-          this.log('-----------------------------------------');
-          this.log('ATTENTION: The last spawn is destroyed, a new one will be build automatically, DO NOT RESPAWN');
-          this.log('-----------------------------------------');
-          structure.destroy();
-          delete this.memory.misplacedSpawn;
-          this.memory.controllerLevel.checkWrongStructureInterval = 1;
-          delete this.memory.walls;
-          return true;
-        }
-      }
-      return false;
-    }
-    this.log(`Spawn [${structure.pos.x}, ${structure.pos.y}] is misplaced, not in positions (prototype_room_basebuilder.destroyStructure)`); // eslint-disable-line max-len
-    this.memory.misplacedSpawn = true;
-
-    this.buildRampartsAroundSpawns();
+    return destroyStructureSpawn(this, structure);
   }
   return false;
 };
 
 Room.prototype.checkPath = function() {
   //  this.log('checkPath: ' + this.memory.controllerLevel.checkPathInterval);
-
-  const path = this.getMemoryPath('pathStart-harvester');
+  const path = this.getMemoryPath('pathStart-universal');
   if (!path) {
     this.log('Skipping checkPath, routing not initialized, try remove memory');
     this.clearMemory();
@@ -192,7 +231,7 @@ Room.prototype.checkWrongStructure = function() {
   //  this.log('checkWrongStructure: controller.level < 6');
   //  return false;
   // }
-  const structures = this.findPropertyFilter(FIND_STRUCTURES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_CONTROLLER], {inverse: true});
+  const structures = this.findStructuresToDestroy();
   for (const structure of structures) {
     if (this.destroyStructure(structure)) {
       return true;
@@ -214,7 +253,7 @@ Room.prototype.clearPosition = function(pos, structure) {
     }
     if (posStructure.structureType === structure) {
       returnValue = {
-        destoyed: false,
+        destroyed: false,
       };
       continue;
     }
@@ -223,31 +262,43 @@ Room.prototype.clearPosition = function(pos, structure) {
   return returnValue;
 };
 
-Room.prototype.setupStructure = function(structure) {
-  const structures = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [structure]);
-  const constructionsites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [structure]);
+/**
+ * setupStructureFinishPriorityStructures
+ *
+ * @param {object} structure
+ * @param {array} constructionSites
+ * @return {boolean}
+ */
+function setupStructureFinishPriorityStructures(structure, constructionSites) {
   // Only build one spawn at a time, especially for reviving
   if (structure === STRUCTURE_SPAWN) {
-    if (constructionsites.length > 0) {
+    if (constructionSites.length > 0) {
       return true;
     }
   }
 
-  // Complete storage before building something else - 2016-10-16
+  // Complete storage before building something else
   if (structure === STRUCTURE_STORAGE) {
-    if (constructionsites.length > 0) {
+    if (constructionSites.length > 0) {
       return true;
     }
   }
+}
 
+Room.prototype.setupStructure = function(structure) {
+  const constructionSites = this.find(FIND_CONSTRUCTION_SITES, {filter: (object) => object.structureType === structure});
+  if (setupStructureFinishPriorityStructures(structure, constructionSites)) {
+    return true;
+  }
+
+  const structures = this.find(FIND_MY_STRUCTURES, {filter: (object) => object.structureType === structure});
   const diff = CONTROLLER_STRUCTURES[structure][this.controller.level] -
-    (structures.length + constructionsites.length);
+    (structures.length + constructionSites.length);
   if (diff <= 0) {
     return false;
   }
-
-  for (const pos of (this.memory.position.structure[structure] || [])) {
-    // TODO special case e.g. when powerSpawn can't be set on costmatrix.setup - need to be fixed there
+  for (const pos of (this.data.positions.structure[structure] || [])) {
+    // TODO special case e.g. when powerSpawn can't be set on CostMatrix.setup - need to be fixed there
     if (!pos) {
       continue;
     }
@@ -255,7 +306,7 @@ Room.prototype.setupStructure = function(structure) {
 
     const clear = this.clearPosition(posObject, structure);
     if (clear) {
-      if (clear.destoyed) {
+      if (clear.destroyed) {
         return true;
       } else {
         continue;
@@ -267,7 +318,7 @@ Room.prototype.setupStructure = function(structure) {
       return true;
     }
     if (returnCode === ERR_FULL) {
-      this.debugLog('baseBuilding', 'setup createConstrustionSite too many constructionSites');
+      this.debugLog('baseBuilding', 'setup createConstructionSite too many constructionSites');
       return true;
     }
     if (returnCode === ERR_INVALID_TARGET) {
@@ -275,22 +326,22 @@ Room.prototype.setupStructure = function(structure) {
     }
     if (returnCode === ERR_RCL_NOT_ENOUGH) {
       this.debugLog('baseBuilding', structure + ' ' + this.controller.level + ' ' + CONTROLLER_STRUCTURES[structure][this.controller.level]);
-      this.debugLog('baseBuilding', 'setup createConstrustionSite ERR_RCL_NOT_ENOUGH structure: ' + structure + ' ' + CONTROLLER_STRUCTURES[structure][this.controller.level] + ' ' + structures.length + ' ' + constructionsites.length);
+      this.debugLog('baseBuilding', 'setup createConstructionSite ERR_RCL_NOT_ENOUGH structure: ' + structure + ' ' + CONTROLLER_STRUCTURES[structure][this.controller.level] + ' ' + structures.length + ' ' + constructionSites.length);
     }
 
-    this.debugLog('baseBuilding', 'setup createConstrustionSite returnCode: ' + returnCode + ' structure: ' + structure);
+    this.debugLog('baseBuilding', 'setup createConstructionSite returnCode: ' + returnCode + ' structure: ' + structure);
   }
   return false;
 };
 
 Room.prototype.checkBuildStructureValidity = function() {
-  if (!this.memory.position) {
+  if (!this.data.positions) {
     this.log('No position buildStructures');
     this.setup();
     return false;
   }
 
-  if (!this.memory.position.structure) {
+  if (!this.data.positions.structure) {
     return false;
   }
 
@@ -310,56 +361,28 @@ Room.prototype.buildStructures = function() {
     return false;
   }
 
-  const constructionSites = this.findPropertyFilter(FIND_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_RAMPART, STRUCTURE_WALL, STRUCTURE_ROAD], {inverse: true});
+  const constructionSites = this.findBuildingConstructionSites();
   if (constructionSites.length > 0) {
-    //    this.log('basebuilder.setup: Too many construction sites');
+    //    this.log('baseBuilder.setup: Too many construction sites');
     return true;
   }
 
-  if (this.setupStructure('spawn')) {
-    return true;
-  }
-  if (this.setupStructure(STRUCTURE_TOWER)) {
-    return true;
-  }
-
-  if (this.setupStructure(STRUCTURE_STORAGE)) {
-    return true;
+  const beforeStorage = [STRUCTURE_SPAWN, STRUCTURE_TOWER, STRUCTURE_STORAGE, STRUCTURE_LINK, STRUCTURE_EXTENSION];
+  for (const structure of beforeStorage) {
+    if (this.setupStructure(structure)) {
+      return true;
+    }
   }
 
-  if (this.setupStructure(STRUCTURE_LINK)) {
-    return true;
-  }
-
-  if (this.setupStructure(STRUCTURE_EXTENSION)) {
-    return true;
-  }
-
-  if (!this.storage || this.findPropertyFilter(FIND_MY_CONSTRUCTION_SITES, 'structureType', [STRUCTURE_LINK]).length > 0) {
+  if (!this.storage || this.findConstructionSiteLink().length > 0) {
     return false;
   }
-  if (this.setupStructure(STRUCTURE_POWER_SPAWN)) {
-    return true;
-  }
 
-  if (this.setupStructure(STRUCTURE_EXTRACTOR)) {
-    return true;
-  }
-
-  if (this.setupStructure(STRUCTURE_OBSERVER)) {
-    return true;
-  }
-
-  if (this.setupStructure(STRUCTURE_TERMINAL)) {
-    return true;
-  }
-
-  if (this.setupStructure(STRUCTURE_LAB)) {
-    return true;
-  }
-
-  if (this.setupStructure(STRUCTURE_NUKER)) {
-    return true;
+  const afterStorage = [STRUCTURE_POWER_SPAWN, STRUCTURE_EXTRACTOR, STRUCTURE_OBSERVER, STRUCTURE_TERMINAL, STRUCTURE_LAB, STRUCTURE_NUKER];
+  for (const structure of afterStorage) {
+    if (this.setupStructure(structure)) {
+      return true;
+    }
   }
 
   return false;
