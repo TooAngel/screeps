@@ -22,7 +22,7 @@
     "request-promise-native": "1.0.9",
     "rimraf": "3.0.2",
     "screeps": "4.2.14",
-    "screeps-api": "1.16.0",
+    "screeps-api": "1.16.1",
     "screeps-profiler": "2.0.1",
     "screepsmod-admin-utils": "1.29.0",
     "screepsmod-auth": "2.7.1",
