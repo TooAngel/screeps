@@ -26,7 +26,7 @@ Creep.prototype.getCloseByLink = function() {
   }
   if (!this.data.link) {
     const structures = this.pos.findInRange(FIND_MY_STRUCTURES, 1, {filter: {structureType: STRUCTURE_LINK}});
-    if (structures.length === 0) {
+    if (!structures.length) {
       return;
     }
     this.data.link = structures[0].id;

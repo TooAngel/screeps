@@ -139,8 +139,6 @@ global.config = {
   carryHelpers: {
     ticksUntilHelpCheck: 400,
     maxHelpersAmount: 5,
-    helpThreshold: 1500, // todo not used?
-    needThreshold: 750, // todo not used?
     maxDistance: 7,
     factor: 0.2,
   },
@@ -181,7 +179,6 @@ global.config = {
   path: {
     refresh: 2000000,
     allowRoutingThroughFriendRooms: false,
-    pathFindIncomplete: true, // todo not used ?
   },
 
   external: {
