@@ -4,7 +4,7 @@ Room.prototype.buildBlockers = function() {
   this.debugLog('baseBuilding', 'buildBlockers: ' + this.memory.controllerLevel.buildBlockersInterval);
 
   const spawns = this.findPropertyFilter(FIND_MY_STRUCTURES, 'structureType', [STRUCTURE_SPAWN]);
-  if (spawns.length === 0) {
+  if (!spawns.length) {
     return false;
   }
 

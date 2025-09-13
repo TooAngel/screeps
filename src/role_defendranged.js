@@ -20,7 +20,7 @@ roles.defendranged.settings = {
 //  creep.memory.countdown = creep.memory.countdown || 100;
 //
 //  let hostiles = creep.room.findEnemies();
-//  if (hostiles.length === 0) {
+//  if (!hostiles.length) {
 //    if (recycleCreep(creep)) {
 //      return true;
 //    }
@@ -60,7 +60,7 @@ const action = function(creep) {
   };
 
   let hostiles = creep.room.findEnemies();
-  if (hostiles.length === 0) {
+  if (!hostiles.length) {
     if (recycleCreep(creep)) {
       return true;
     }

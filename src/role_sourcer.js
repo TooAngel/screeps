@@ -150,7 +150,7 @@ function transferToLink(creep) {
 function getContainer(creep) {
   if (!creep.data.container) {
     const structures = creep.pos.findInRange(FIND_STRUCTURES, 0, {filter: {structureType: STRUCTURE_CONTAINER}});
-    if (structures.length === 0) {
+    if (!structures.length) {
       return;
     }
     creep.data.container = structures[0].id;
