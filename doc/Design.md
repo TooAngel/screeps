@@ -8,6 +8,34 @@ auto attacks. Minerals are fetched from the extractor and transported to the
 terminal. Reactions are basically implemented. Depending on a threshold minerals
 are sold on the market.
 
+## Trapped Detection System
+
+The AI includes a trapped scenario detection system that identifies when the bot is imprisoned by hostile players and unable to expand naturally.
+
+### Detection Logic
+
+- **Qualification**: GCL ≥ 3 and only one controlled room
+- **Stagnation Threshold**: 50,000 ticks (~7 days) of single-room state
+- **Hostile Analysis**: Checks adjacent rooms for enemy control/reservation
+- **Resource Validation**: Excludes legitimate CPU/heap/memory constraints
+
+### Configuration
+
+All settings are configurable via `config.trapped` in `src/config.js`:
+- `enabled`: Enable/disable the system
+- `minimumGCL`: Minimum GCL required for detection
+- `stagnationThreshold`: Ticks before considering trapped
+- `checkInterval`: Analysis frequency (performance optimization)
+- `logInterval`: Status logging frequency
+- `debugLogging`: Enable debug output
+
+### Integration
+
+The system sets `global.data.isTrapped` flag for other systems to use and provides:
+- `Memory.trapped.isTrapped`: Boolean trapped state
+- Regular console logging for recognition
+- Automatic state clearing when conditions change
+
 ## [Base building](BaseBuilding.md)
 
 ### Logic
