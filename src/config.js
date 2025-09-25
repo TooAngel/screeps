@@ -111,6 +111,15 @@ global.config = {
     nextroomerInterval: 400,
   },
 
+  trapped: {
+    enabled: true,
+    minimumGCL: 3,
+    stagnationThreshold: 50000, // 50k ticks = ~7 days
+    checkInterval: 1500, // Analysis frequency (same as expansion checks)
+    logInterval: 1000, // Status logging frequency
+    debugLogging: true,
+  },
+
   nextRoom: {
     scoutMinControllerLevel: 4,
     intervalToCheck: CREEP_CLAIM_LIFE_TIME,
