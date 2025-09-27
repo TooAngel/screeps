@@ -1,37 +1,106 @@
-# Manual Play
+# Manual Commands
 
-## Attacking a room with a single creep:
+The TooAngel bot provides various manual commands for administrative control and debugging. These commands are useful for testing specific behaviors, emergency interventions, or overriding automated decisions.
 
-    Game.rooms.W81N49.memory.queue.push({role: 'autoattackmelee', routing: {targetRoom: 'W82N48'}})
+## Combat Operations
 
-`Game.rooms.W81N49.memory.queue.push` is where the creeps is build.
-`role`: is the role the creep will be, you can change this to any available role.
-`targetRoom`: is the creeps target room.
+### Attacking a room with a single creep:
 
-## Sending a Reserver to reserve a rooms controller: (This will also trigger Remote Mining in the room)
+```javascript
+Game.rooms.W81N49.memory.queue.push({
+    role: 'autoattackmelee',
+    routing: {targetRoom: 'W82N48'}
+})
+```
 
-    Game.rooms.W81N49.memory.queue.push({role: 'reserver', routing: {targetRoom: 'W82N48', targetId: '5873bc0e11e3e4361b4d6fc3'}})
+**Usage Notes:**
+- `Game.rooms.W81N49.memory.queue.push` - Queues creep spawning in the specified room
+- `role` - Specifies the creep role (can be any available role from the bot's role system)
+- `targetRoom` - Destination room for the creep's mission
+- Use this for targeted attacks or testing combat scenarios
 
-`targetId`: Is in this case the ID of the controller in the target room.
+## Territory Management
 
-## Sending a Signer to leave a message on room's controller
+### Reserve a room's controller:
 
-Default one
+```javascript
+Game.rooms.W81N49.memory.queue.push({
+    role: 'reserver',
+    routing: {
+        targetRoom: 'W82N48',
+        targetId: '5873bc0e11e3e4361b4d6fc3'
+    }
+})
+```
 
-    Memory.rooms.E19N7.queue.push({role:'signer', routing: {targetRoom:'E18N9', targetId:'5982ff1bb097071b4adc218c'}}) // config.info.signText will be used
-    
-Provide extra message
-    
-    Memory.rooms.E19N7.queue.push({role:'signer', routing: {targetRoom:'E18N9', targetId:'5982ff1bb097071b4adc218c'}, signText: 'I\'m going to claim this room, please stay away'})
+**Usage Notes:**
+- `targetId` - The controller ID in the target room
+- This automatically triggers remote mining operations in the reserved room
+- Essential for expanding resource collection beyond controlled rooms
 
-## Claiming the Controller (You need a nearby creep with Claim Part/s)
+## Controller Signing
 
-    Game.getObjectById('TheCreepsIdHere').claimController(Game.rooms.RoomNameHere.controller)
+### Sign controller with default message:
 
-## Assigning Text to the Controller (readable from Worldmap mouseover, you need a nearby creep)
+```javascript
+Memory.rooms.E19N7.queue.push({
+    role: 'signer',
+    routing: {
+        targetRoom: 'E18N9',
+        targetId: '5982ff1bb097071b4adc218c'
+    }
+})
+```
 
-    Game.getObjectById('TheCreepsIdHere').signController(Game.rooms.RoomNameHere.controller, "YourTextHere");
+### Sign controller with custom message:
 
-• Using the commands above you can also send sourcer, carry, defender etc. to certain rooms/targets.
+```javascript
+Memory.rooms.E19N7.queue.push({
+    role: 'signer',
+    routing: {
+        targetRoom: 'E18N9',
+        targetId: '5982ff1bb097071b4adc218c'
+    },
+    signText: 'Custom message here'
+})
+```
 
-Soon there will be Squad attacks the Commands for those are: (somotaw/master)
+**Usage Notes:**
+- Default uses `config.info.signText` from configuration
+- Custom messages useful for diplomacy or territorial claims
+- Signs are visible on world map when hovering over controllers
+
+## Direct Controller Operations
+
+### Claim a controller:
+
+```javascript
+Game.getObjectById('CreepId').claimController(Game.rooms.RoomName.controller)
+```
+
+### Sign a controller directly:
+
+```javascript
+Game.getObjectById('CreepId').signController(
+    Game.rooms.RoomName.controller,
+    "Your message here"
+)
+```
+
+**Requirements:**
+- Creep must be adjacent to the controller
+- Claiming requires creep with CLAIM body parts
+- Signing can be done by any creep
+
+## General Usage
+
+**Role Flexibility:**
+You can use the queue system to send any available creep role to specific targets:
+- `sourcer` - Energy harvesting operations
+- `carry` - Resource transportation
+- `defender` - Defensive operations
+- `builder` - Construction tasks
+- `repairer` - Maintenance operations
+
+**Future Features:**
+Squad-based attacks and coordinated operations are planned for future releases.
