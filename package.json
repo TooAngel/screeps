@@ -1,6 +1,6 @@
 {
   "name": "screeps-bot-tooangel",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "TooAngel NPC / bot / source code for screeps",
   "main": "src/main.js",
   "screeps_bot": true,
