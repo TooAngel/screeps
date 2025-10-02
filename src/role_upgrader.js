@@ -23,12 +23,18 @@ roles.upgrader.settings = {
 /**
  * updateSettings
  *
- * One work part one energy per tick multiplied by config value with  lifetime
+ * For RCL < 8:
+ * One work part one energy per tick multiplied by config value with lifetime
  * So have at least a specific amount of energy in storage that the upgrader
  * can use.
  * Example with upgraderStorageFactor 2:
  * 6453 energy in storage are 2 workParts
  * 3000 energy will be put in the controller
+ *
+ * For RCL 8:
+ * Linear scaling based on storage energy:
+ * 10k storage → 1 WORK part (1 energy/tick)
+ * 800k storage → 15 WORK parts (15 energy/tick, max)
  *
  * @param {object} room
  * @return {boolean|{maxLayoutAmount: number}}
@@ -38,10 +44,27 @@ roles.upgrader.updateSettings = function(room) {
     return false;
   }
 
-  let workParts = Math.floor((room.storage.store.energy + 1) / (CREEP_LIFE_TIME * config.room.upgraderStorageFactor));
+  let workParts;
+
   if (room.controller.level === 8) {
-    workParts = Math.min(workParts, CONTROLLER_MAX_UPGRADE_PER_TICK);
+    // Linear scaling for RCL 8: uses config.room.upgraderRcl8MinStorage → 1 WORK, config.room.upgraderRcl8MaxStorage → 15 WORK
+    const minStorage = config.room.upgraderRcl8MinStorage;
+    const maxStorage = config.room.upgraderRcl8MaxStorage;
+    const minParts = 1;
+    const maxParts = CONTROLLER_MAX_UPGRADE_PER_TICK;
+
+    if (room.storage.store.energy <= minStorage) {
+      workParts = minParts;
+    } else if (room.storage.store.energy >= maxStorage) {
+      workParts = maxParts;
+    } else {
+      workParts = minParts + Math.floor((room.storage.store.energy - minStorage) / (maxStorage - minStorage) * (maxParts - minParts));
+    }
+  } else {
+    // Keep existing formula for RCL < 8
+    workParts = Math.floor((room.storage.store.energy + 1) / (CREEP_LIFE_TIME * config.room.upgraderStorageFactor));
   }
+
   const maxLayoutAmount = Math.max(0, workParts - 1);
   if (config.debug.upgrader) {
     room.log(`upgrader updateSettings - storage.energy: ${room.storage.store.energy} upgraderStorageFactor: ${config.room.upgraderStorageFactor} workParts: ${workParts} maxLayoutAmount: ${maxLayoutAmount}`);
