@@ -151,21 +151,6 @@ describe('Room', () => {
       assert.deepEqual(config.body, upgraderConfig.parts, upgraderConfig.energy);
     }
 
-    const roomLevel8 = new Room('W1N1', 5000);
-    roomLevel8.storage = {
-      my: true,
-      store: {
-        energy: 1000,
-      },
-      memory: {
-        misplacedSpawn: false,
-      },
-    };
-    roomLevel8.controller.level = 8;
-    roomLevel8.storage.store.energy = 48000;
-    config = roomLevel8.getCreepConfig(creep);
-    assert.deepEqual(config.body, ['work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'carry', 'work', 'move']);
-
     const roomLowEnergy = new Room('W1N1', 500);
     roomLowEnergy.storage = {
       my: true,
@@ -179,5 +164,39 @@ describe('Room', () => {
     roomLowEnergy.storage.store.energy = 48000;
     config = roomLowEnergy.getCreepConfig(creep);
     assert.deepEqual(config.body, ['work', 'work', 'work', 'carry', 'work', 'move']);
+  });
+
+  it('Upgrader RCL 8 linear scaling', () => {
+    const roomLevel8 = new Room('W1N1', 5000);
+    roomLevel8.storage = {
+      my: true,
+      store: {
+        energy: 1000,
+      },
+      memory: {
+        misplacedSpawn: false,
+      },
+    };
+    roomLevel8.controller.level = 8;
+
+    const creep = new Creep('upgrader');
+    let config;
+
+    // Test RCL 8 linear scaling: 10k storage → 1 WORK, 800k storage → 15 WORK
+    roomLevel8.storage.store.energy = 10000;
+    config = roomLevel8.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['carry', 'work', 'move']);
+
+    roomLevel8.storage.store.energy = 48000;
+    config = roomLevel8.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['carry', 'work', 'move']);
+
+    roomLevel8.storage.store.energy = 405000; // Mid-point, should give ~8 work parts
+    config = roomLevel8.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['work', 'work', 'work', 'work', 'work', 'work', 'work', 'carry', 'work', 'move']);
+
+    roomLevel8.storage.store.energy = 800000;
+    config = roomLevel8.getCreepConfig(creep);
+    assert.deepEqual(config.body, ['work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'carry', 'work', 'move']);
   });
 });
