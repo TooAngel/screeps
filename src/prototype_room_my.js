@@ -172,7 +172,9 @@ Room.prototype.handlePowerSpawn = function() {
     const powerSpawn = powerSpawns[0];
     this.savePowerSpawnId(powerSpawn);
 
-    if (powerSpawn.power > 0) {
+    // Only process power when storage is healthy (config.room.isHealthyStorageThreshold)
+    // Power processing costs 50 energy per operation
+    if (powerSpawn.power > 0 && this.storage && this.storage.store.energy >= config.room.isHealthyStorageThreshold) {
       powerSpawn.processPower();
     }
   }
@@ -252,6 +254,13 @@ Room.prototype.handleScout = function() {
 /**
  * determine how many universal to spawn
  *
+ * For RCL 8: Scale based on storage energy (config.room.universalRcl8MinStorageForTwo)
+ * - < threshold → 1 universal
+ * - >= threshold → 2 universals
+ *
+ * For RCL 7: 2 universals if storage > 2k and multiple spawns
+ * For RCL < 7: 1-3 universals depending on conditions
+ *
  * @return {number}
  */
 Room.prototype.getUniversalAmount = function() {
@@ -267,6 +276,15 @@ Room.prototype.getUniversalAmount = function() {
   if (!this.data.mySpawns || this.executeEveryTicks(3000)) {
     this.data.mySpawns = this.findMySpawns();
   }
+
+  // RCL 8: Scale universals based on storage energy
+  if (this.controller.level === 8 && this.data.mySpawns.length > 1) {
+    if (this.storage.store.energy >= config.room.universalRcl8MinStorageForTwo) {
+      return 2;
+    }
+    return 1;
+  }
+
   if (this.controller.level >= 7 && !this.storage.isLow() && this.data.mySpawns.length > 1) {
     return 2;
   }

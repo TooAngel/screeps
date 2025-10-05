@@ -242,6 +242,11 @@ global.config = {
     scout: true,
     upgraderMinStorage: 0,
     upgraderStorageFactor: 2,
+    // RCL 8 upgrader scaling thresholds
+    upgraderRcl8MinStorage: 10000,
+    upgraderRcl8MaxStorage: 800000,
+    // RCL 8 universal scaling threshold
+    universalRcl8MinStorageForTwo: 500000,
     lastSeenThreshold: 100000,
     notify: false,
     observerRange: 5, // Reduced to save memory OBSERVER_RANGE, // between 1 and 10:OBSERVER_RANGE
