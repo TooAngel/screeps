@@ -78,6 +78,10 @@ roles.upgrader.killPrevious = true;
 roles.upgrader.boostActions = ['upgradeController'];
 
 roles.upgrader.action = function(creep) {
+  // Stop upgrading when trapped - let controller die
+  if (Memory.trapped && Memory.trapped.isTrapped) {
+    return true;
+  }
   creep.mySignController();
   creep.spawnReplacement(1);
   if (!creep.room.controller.isAboutToDowngrade()) {

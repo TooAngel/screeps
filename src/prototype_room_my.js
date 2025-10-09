@@ -591,7 +591,9 @@ Room.prototype.executeRoomCheckBasicCreeps = function() {
     this.checkRoleToSpawn('storagefiller', 1, 'filler');
   }
   if (this.storage && this.storage.my && this.storage.store.energy > config.room.upgraderMinStorage && !this.memory.misplacedSpawn) {
-    this.checkRoleToSpawn('upgrader', 1, this.controller.id);
+    if (!Memory.trapped || !Memory.trapped.isTrapped) {
+      this.checkRoleToSpawn('upgrader', 1, this.controller.id);
+    }
   }
 };
 

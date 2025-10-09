@@ -164,6 +164,10 @@ function pickupNearbyEnergyAtController(creep) {
  */
 Creep.upgradeControllerTask = function(creep) {
   creep.creepLog('upgradeControllerTask');
+  // Stop all controller upgrades when trapped - let controller die
+  if (Memory.trapped && Memory.trapped.isTrapped) {
+    return false;
+  }
   if (creep.carry.energy === 0) {
     return false;
   }
