@@ -3,6 +3,41 @@ const {getMyRoomWithinRange} = require('./helper_findMyRooms');
 const {startSquad, startMeleeSquad} = require('./brain_squadmanager');
 
 /**
+ * isFriend
+ *
+ * Checks if a player is considered a friend based on:
+ * - Global friends list
+ * - Positive reputation
+ * - Not in malicious NPC list
+ *
+ * @param {string} name - Player username
+ * @return {boolean} - True if player is friendly
+ */
+function isFriend(name) {
+  if (!Memory.players) {
+    Memory.players = {};
+  }
+
+  if (global.config.maliciousNpcUsernames.includes(name)) {
+    return false;
+  }
+  if (friends.indexOf(name) > -1) {
+    return true;
+  }
+  if (!Memory.players[name]) {
+    return true;
+  }
+  if (Memory.players[name].reputation > 0) {
+    return true;
+  }
+  if (name === 'Source Keeper') {
+    return true;
+  }
+  return false;
+}
+module.exports.isFriend = isFriend;
+
+/**
  * checkPlayers
  *
  * - checks the room list of the player

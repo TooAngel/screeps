@@ -3,6 +3,7 @@
 const {getMyRoomWithinRange, findMyRoomsSortByDistance} = require('./helper_findMyRooms');
 const {addToReputation, initPlayer, addRoomToPlayer} = require('./diplomacy');
 const {haveActiveQuest} = require('./quests_player');
+const {startMeleeSquad} = require('./brain_squadmanager');
 
 Room.prototype.checkBlocked = function() {
   const exits = Game.map.describeExits(this.name);
@@ -428,6 +429,89 @@ Room.prototype.handleOccupiedRoom = function() {
 
   this.data.safeMode = this.controller.safeMode;
   this.data.spawns = this.findHostileSpawn();
+
+  // Trigger defensive perimeter response
+  this.handleHostileOccupiedRoom();
+};
+
+/**
+ * handleHostileOccupiedRoom
+ *
+ * Launches military response against enemy-controlled rooms adjacent (range 1) to our rooms.
+ * Pattern mirrors handleHostileReservedRoom but for stronger threats.
+ * @return {boolean} False if attack not launched
+ */
+Room.prototype.handleHostileOccupiedRoom = function() {
+  // Initialize tracking
+  if (!this.data.lastBreakOccupiedAttempt) {
+    this.data.lastBreakOccupiedAttempt = Game.time;
+    return false;
+  }
+
+  // Throttle attacks (same pattern as reserved)
+  if (Game.time - this.data.lastBreakOccupiedAttempt < config.autoAttack.occupiedRoomInterval) {
+    return false;
+  }
+
+  this.debugLog('attack', `room.handleHostileOccupiedRoom ${this.name}`);
+
+  // Find nearby room (RCL 6+, range 1 - immediate adjacency only)
+  const nearMyRoomName = getMyRoomWithinRange(
+    this.name,
+    config.autoAttack.occupiedRoomInRange,
+    config.autoAttack.occupiedRoomMinMyRCL,
+  );
+
+  if (!nearMyRoomName) {
+    this.data.lastBreakOccupiedAttempt = Game.time;
+    return false;
+  }
+
+  // Get spawning room and check energy availability
+  const spawnRoom = Game.rooms[nearMyRoomName];
+  if (!spawnRoom || !spawnRoom.storage) {
+    this.data.lastBreakOccupiedAttempt = Game.time;
+    return false;
+  }
+
+  const availableEnergy = spawnRoom.storage.store.energy;
+
+  // Scale squad composition based on available energy
+  let breakthroughSpawns;
+  let squadSize;
+  if (availableEnergy < 15000) {
+    // Insufficient energy for even minimal squad
+    this.debugLog('attack', `Insufficient energy for breakthrough squad: ${availableEnergy} < 15000`);
+    return false;
+  } else if (availableEnergy < 30000) {
+    // Minimal: 1 siege + 1 heal (~6k energy)
+    breakthroughSpawns = [
+      {creeps: 1, role: 'squadsiege'},
+      {creeps: 1, role: 'squadheal'},
+    ];
+    squadSize = 'small';
+  } else if (availableEnergy < 60000) {
+    // Balanced: 2 siege + 2 heal (~12k energy)
+    breakthroughSpawns = [
+      {creeps: 2, role: 'squadsiege'},
+      {creeps: 2, role: 'squadheal'},
+    ];
+    squadSize = 'medium';
+  } else {
+    // Aggressive: 3 siege + 3 heal (~18k energy)
+    breakthroughSpawns = [
+      {creeps: 3, role: 'squadsiege'},
+      {creeps: 3, role: 'squadheal'},
+    ];
+    squadSize = 'large';
+  }
+
+  this.data.lastBreakOccupiedAttempt = Game.time;
+
+  // Log squad launch
+  this.debugLog('attack', `🎯 Launching ${squadSize} breakthrough squad from ${nearMyRoomName} to ${this.name} (energy: ${availableEnergy}, player: ${this.data.player})`);
+
+  startMeleeSquad(nearMyRoomName, this.name, breakthroughSpawns);
 };
 
 Room.prototype.checkBlockedPath = function() {

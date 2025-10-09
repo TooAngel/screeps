@@ -1,7 +1,7 @@
 'use strict';
 
 
-const {isFriend} = require('./brain_squadmanager');
+const {isFriend} = require('./diplomacy');
 
 /*
  * nextroomer is used to build up rooms

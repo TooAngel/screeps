@@ -1,8 +1,7 @@
 'use strict';
 
 const {findMyRoomsSortByDistance} = require('./helper_findMyRooms');
-const {addToReputation} = require('./diplomacy');
-const {isFriend} = require('./brain_squadmanager');
+const {addToReputation, isFriend} = require('./diplomacy');
 
 /**
  * killCreeps

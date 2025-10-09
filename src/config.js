@@ -104,6 +104,9 @@ global.config = {
     noReservedRoomMinMyRCL: 5,
     noReservedRoomInRange: 1,
     noReservedRoomInterval: 1600,
+    occupiedRoomMinMyRCL: 6,
+    occupiedRoomInRange: 1,
+    occupiedRoomInterval: 1600,
   },
 
   revive: {
