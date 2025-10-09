@@ -1,4 +1,4 @@
-const {isFriend} = require('./brain_squadmanager');
+const {isFriend} = require('./diplomacy');
 
 
 Room.prototype.findStructuresWithUsableEnergy = function() {
