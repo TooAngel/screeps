@@ -135,7 +135,8 @@ roles.universal.preMove = function(creep, directions) {
   let reverse = creep.carry.energy === 0;
 
   creep.setNextSpawn();
-  creep.spawnReplacement(1);
+  const configuredAmount = creep.room.getUniversalAmount();
+  creep.spawnReplacement(configuredAmount);
 
   const transferred = creep.transferToStructures();
   if (transferred) {
