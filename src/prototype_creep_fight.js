@@ -1,6 +1,6 @@
 'use strict';
 
-const {isFriend} = require('./brain_squadmanager');
+const {isFriend} = require('./diplomacy');
 
 Creep.prototype.rangeAttackOutsideOfMyRooms = function(targets) {
   if (targets.length > 0) {
