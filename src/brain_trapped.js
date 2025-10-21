@@ -39,9 +39,64 @@ function hasBeenStagnantLongEnough() {
 }
 
 /**
+ * countWallsOnExitEdge
+ *
+ * Counts wall tiles along a specific exit edge
+ * @param {object} terrain - Room terrain object
+ * @param {number} direction - Exit direction constant
+ * @return {number} Number of wall tiles
+ */
+function countWallsOnExitEdge(terrain, direction) {
+  let wallCount = 0;
+
+  if (direction === TOP) {
+    for (let x = 0; x < 50; x++) {
+      if (terrain.get(x, 0) === TERRAIN_MASK_WALL) wallCount++;
+    }
+  } else if (direction === BOTTOM) {
+    for (let x = 0; x < 50; x++) {
+      if (terrain.get(x, 49) === TERRAIN_MASK_WALL) wallCount++;
+    }
+  } else if (direction === LEFT) {
+    for (let y = 0; y < 50; y++) {
+      if (terrain.get(0, y) === TERRAIN_MASK_WALL) wallCount++;
+    }
+  } else if (direction === RIGHT) {
+    for (let y = 0; y < 50; y++) {
+      if (terrain.get(49, y) === TERRAIN_MASK_WALL) wallCount++;
+    }
+  }
+
+  return wallCount;
+}
+
+/**
+ * analyzeExitTerrainWalls
+ *
+ * Checks if an exit is completely blocked by permanent terrain walls
+ * @param {string} roomName - The room to check exits from
+ * @param {string} direction - Exit direction (1=TOP, 3=RIGHT, 5=BOTTOM, 7=LEFT)
+ * @return {boolean} True if exit is 100% blocked by walls
+ */
+function analyzeExitTerrainWalls(roomName, direction) {
+  const terrain = Game.map.getRoomTerrain(roomName);
+  const directionNum = parseInt(direction, 10);
+  const wallCount = countWallsOnExitEdge(terrain, directionNum);
+  const totalTiles = 50;
+  const isFullyBlocked = wallCount === totalTiles;
+
+  if (isFullyBlocked) {
+    const wallPercentage = (wallCount / totalTiles * 100).toFixed(1);
+    debugLog('trapped', `Exit ${direction} has ${wallCount}/${totalTiles} walls (${wallPercentage}%) - FULLY BLOCKED BY TERRAIN`);
+  }
+
+  return isFullyBlocked;
+}
+
+/**
  * analyzeHostilePresence
  *
- * Analyzes adjacent rooms for hostile control that prevents expansion
+ * Analyzes adjacent rooms for hostile control and terrain walls that prevent expansion
  * @param {string} roomName - The trapped room name
  * @return {object} Analysis result with blocked exits and hostile rooms
  */
@@ -49,8 +104,18 @@ function analyzeHostilePresence(roomName) {
   const exits = Game.map.describeExits(roomName);
   const blockedExits = [];
   const hostileRooms = [];
+  const terrainBlockedExits = [];
 
   for (const [direction, exitRoomName] of Object.entries(exits)) {
+    // First check if exit is physically blocked by permanent terrain walls
+    const terrainBlocked = analyzeExitTerrainWalls(roomName, direction);
+    if (terrainBlocked) {
+      blockedExits.push(direction);
+      terrainBlockedExits.push(direction);
+      debugLog('trapped', `Exit ${direction} -> ${exitRoomName} is TERRAIN BLOCKED (permanent walls)`);
+      continue; // No need to check hostile presence if physically impassable
+    }
+
     const exitData = global.data.rooms[exitRoomName];
 
     if (!exitData) {
@@ -59,7 +124,7 @@ function analyzeHostilePresence(roomName) {
     }
 
     // Enemy controlled room
-    if (exitData.state === 'Controlled' && exitData.owner !== Memory.username) {
+    if (exitData.state === 'Occupied' && exitData.player !== Memory.username) {
       blockedExits.push(direction);
       hostileRooms.push(exitRoomName);
       debugLog('trapped', `Exit ${direction} -> ${exitRoomName} is enemy controlled`);
@@ -80,6 +145,7 @@ function analyzeHostilePresence(roomName) {
     isTrapped,
     blockedExits,
     hostileRooms,
+    terrainBlockedExits,
     totalExits,
     blockedCount: blockedExits.length,
   };
@@ -132,7 +198,8 @@ function logTrappedStatus() {
 
     console.log(`🚨 TRAPPED STATE ACTIVE - Day ${daysSince}, Hour ${hoursSince}`);
     console.log(`   Room: ${Memory.myRooms[0]}, GCL: ${Game.gcl.level}`);
-    console.log(`   Hostile exits: ${(Memory.trapped.blockedExits || []).length || 0}/${Memory.trapped.totalExits || 0}`);
+    console.log(`   Blocked exits: ${(Memory.trapped.blockedExits || []).length || 0}/${Memory.trapped.totalExits || 0}`);
+    console.log(`   Terrain blocked: ${(Memory.trapped.terrainBlockedExits || []).length} exits (permanent walls)`);
     console.log(`   Hostile rooms: ${JSON.stringify(Memory.trapped.hostileRooms || [])}`);
     console.log(`   Since: ${Memory.trapped.detectedAt}, Duration: ${duration} ticks`);
   }
@@ -176,6 +243,7 @@ function setTrappedState(roomName, analysis) {
     roomName: roomName,
     blockedExits: analysis.blockedExits,
     hostileRooms: analysis.hostileRooms,
+    terrainBlockedExits: analysis.terrainBlockedExits,
     totalExits: analysis.totalExits,
     analysis: analysis,
   };
@@ -190,6 +258,7 @@ function setTrappedState(roomName, analysis) {
   console.log(`   Room: ${roomName}, GCL: ${Game.gcl.level}`);
   console.log(`   Stagnant since: ${Memory.trapped.stagnantSince} (${Game.time - Memory.trapped.stagnantSince} ticks)`);
   console.log(`   Blocked exits: ${analysis.blockedCount}/${analysis.totalExits}`);
+  console.log(`   Terrain blocked: ${(analysis.terrainBlockedExits || []).length} exits (permanent walls)`);
   console.log(`   Hostile rooms: ${JSON.stringify(analysis.hostileRooms)}`);
 }
 

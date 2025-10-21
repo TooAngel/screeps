@@ -446,6 +446,58 @@ function setState(creep) {
 }
 
 /**
+ * handleTransferToTarget
+ *
+ * @param {object} creep
+ * @return {bool}
+ */
+function handleTransferToTarget(creep) {
+  const target = Game.getObjectById(creep.data.state.target);
+  if (!target) {
+    creep.log(`Target ${creep.data.state.target} not found, clearing state`);
+    delete creep.data.state;
+    return true;
+  }
+  creep.moveToMy(target.pos);
+  const response = creep.transfer(target, Object.keys(creep.store)[0]);
+  if (response === OK) {
+    delete creep.data.state;
+  } else if (response !== ERR_NOT_IN_RANGE && response !== ERR_BUSY) {
+    creep.log(`Transfer to ${target} failed: ${response}, clearing state`);
+    delete creep.data.state;
+  }
+  return true;
+}
+
+/**
+ * handleWithdrawFromSource
+ *
+ * @param {object} creep
+ * @return {bool}
+ */
+function handleWithdrawFromSource(creep) {
+  const source = Game.getObjectById(creep.data.state.source);
+  if (!source) {
+    creep.log(`Source ${creep.data.state.source} not found, clearing state`);
+    delete creep.data.state;
+    return true;
+  }
+  creep.moveToMy(source.pos);
+  const resource = creep.data.state.getResource(source);
+  if (!resource) {
+    creep.log(`No resource available from ${source}, clearing state`);
+    delete creep.data.state;
+    return true;
+  }
+  const response = creep.withdraw(source, resource);
+  if (response !== OK && response !== ERR_NOT_IN_RANGE && response !== ERR_BUSY) {
+    creep.log(`Withdraw from ${source} resource ${resource} failed: ${response}, clearing state`);
+    delete creep.data.state;
+  }
+  return true;
+}
+
+/**
  * handleState
  *
  * @param {object} creep
@@ -466,18 +518,9 @@ function handleState(creep) {
     }
   } else if (creep.data.state.action === 'transfer') {
     if (creep.store.getUsedCapacity() > 0) {
-      const target = Game.getObjectById(creep.data.state.target);
-      creep.moveToMy(target.pos);
-      const response = creep.transfer(target, Object.keys(creep.store)[0]);
-      if (response === OK) {
-        delete creep.data.state;
-      }
-    } else {
-      const source = Game.getObjectById(creep.data.state.source);
-      creep.moveToMy(source.pos);
-      const resource = creep.data.state.getResource(source);
-      creep.withdraw(source, resource);
+      return handleTransferToTarget(creep);
     }
+    return handleWithdrawFromSource(creep);
   }
   creep.say('new state');
   return true;
