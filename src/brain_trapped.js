@@ -124,7 +124,7 @@ function analyzeHostilePresence(roomName) {
     }
 
     // Enemy controlled room
-    if (exitData.state === 'Controlled' && exitData.owner !== Memory.username) {
+    if (exitData.state === 'Occupied' && exitData.player !== Memory.username) {
       blockedExits.push(direction);
       hostileRooms.push(exitRoomName);
       debugLog('trapped', `Exit ${direction} -> ${exitRoomName} is enemy controlled`);
