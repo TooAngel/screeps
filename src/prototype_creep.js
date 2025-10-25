@@ -437,7 +437,7 @@ Creep.prototype.spawnReplacement = function(maxOfRole) {
     if (this.ticksToLive === this.memory.nextSpawn) {
       if (maxOfRole) {
         const creepOfRole = this.room.findCreep(this.memory.role);
-        if (creepOfRole.length > maxOfRole) {
+        if (creepOfRole.length >= maxOfRole) {
           return false;
         }
       }

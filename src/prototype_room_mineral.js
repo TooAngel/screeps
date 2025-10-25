@@ -82,6 +82,19 @@ Room.prototype.reactions = function() {
     delete this.memory.reaction;
     return;
   }
+
+  // Check if source minerals still available in terminal
+  if (!this.terminal.store[reaction.result.first] ||
+      this.terminal.store[reaction.result.first] < LAB_REACTION_AMOUNT ||
+      !this.terminal.store[reaction.result.second] ||
+      this.terminal.store[reaction.result.second] < LAB_REACTION_AMOUNT) {
+    const firstAmount = this.terminal.store[reaction.result.first] || 0;
+    const secondAmount = this.terminal.store[reaction.result.second] || 0;
+    this.debugLog('mineral', `Reaction cancelled - insufficient source minerals (${reaction.result.first}: ${firstAmount}, ${reaction.result.second}: ${secondAmount})`);
+    delete this.memory.reaction;
+    return;
+  }
+
   if (lab0.cooldown) {
     return;
   }
