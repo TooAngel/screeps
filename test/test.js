@@ -467,6 +467,74 @@ describe('Mineral System', () => {
     // With the fix, state should be set because terminal has the resource
     // (This test will pass after we implement the fix)
   });
+
+  it('mineral creep does not set state when terminal has insufficient resources (1-4 units)', () => {
+    const room = new Room('W1N1', 5000);
+    room.terminal = {
+      id: 'terminal-id',
+      store: {
+        [RESOURCE_HYDROGEN]: 3, // Insufficient (< LAB_REACTION_AMOUNT of 5)
+        [RESOURCE_OXYGEN]: 100,
+      },
+    };
+    room.storage = {
+      id: 'storage-id',
+      store: {
+        energy: 10000,
+      },
+    };
+    room.memory.reaction = {
+      result: {
+        result: RESOURCE_HYDROXIDE,
+        first: RESOURCE_HYDROGEN,
+        second: RESOURCE_OXYGEN,
+      },
+      labs: ['lab0-id', 'lab1-id', 'lab2-id'],
+    };
+
+    const creep = {
+      name: 'mineral1',
+      role: 'mineral',
+      room: room,
+      data: {},
+      store: {
+        getUsedCapacity: () => 0,
+        getCapacity: () => 50,
+      },
+      carry: {},
+      say: () => {},
+      log: () => {},
+      moveRandom: () => {},
+    };
+
+    // Mock labs with lab1 needing hydrogen
+    global.Game.getObjectById = (id) => {
+      if (id === 'lab1-id') {
+        return {
+          id: 'lab1-id',
+          store: {
+            [RESOURCE_HYDROGEN]: 0, // Empty, needs refill
+            getCapacity: () => 3000,
+          },
+        };
+      }
+      if (id === 'lab2-id') {
+        return {
+          id: 'lab2-id',
+          store: {
+            [RESOURCE_OXYGEN]: 1500,
+            getCapacity: () => 3000,
+          },
+        };
+      }
+      return null;
+    };
+
+    roles.mineral.action(creep);
+
+    // State should NOT be set because terminal has insufficient resources (< LAB_REACTION_AMOUNT)
+    assert.equal(creep.data.state, undefined);
+  });
 });
 
 describe('Creep Spawning', () => {
@@ -678,5 +746,217 @@ describe('Trapped Detection', () => {
     const isTrapped = brain.detectTrappedScenario();
 
     assert.equal(isTrapped, false, 'Should not count no-data as blocked when recently stagnant');
+  });
+});
+
+describe('Squad Roles', () => {
+  beforeEach(() => {
+    // Setup Memory.squads for tests
+    global.Memory.squads = {};
+  });
+
+  it('squadsiege does not delete routing.reached when at border position', () => {
+    const room = new Room('W1N1', 5000);
+
+    const creep = {
+      name: 'squadsiege-1',
+      memory: {
+        role: 'squadsiege',
+        routing: {
+          targetRoom: 'W1N2',
+          reached: true,
+        },
+      },
+      room: room,
+      pos: {
+        x: 0, // Border position
+        y: 25,
+        roomName: 'W1N1',
+        isBorder: () => true, // At border
+      },
+      hits: 1000,
+      hitsMax: 1000,
+      say: () => {},
+      moveRandom: () => {},
+      siege: () => true,
+    };
+
+    roles.squadsiege.action(creep);
+
+    // routing.reached should still be true because at border
+    assert.equal(creep.memory.routing.reached, true);
+  });
+
+  it('squadsiege deletes routing.reached when not in target room and not at border', () => {
+    const room = new Room('W1N1', 5000);
+
+    const creep = {
+      name: 'squadsiege-1',
+      memory: {
+        role: 'squadsiege',
+        routing: {
+          targetRoom: 'W1N2',
+          reached: true,
+        },
+      },
+      room: room,
+      pos: {
+        x: 25, // Not border position
+        y: 25,
+        roomName: 'W1N1',
+        isBorder: () => false, // Not at border
+      },
+      hits: 1000,
+      hitsMax: 1000,
+      say: () => {},
+      moveRandom: () => {},
+      siege: () => true,
+    };
+
+    roles.squadsiege.action(creep);
+
+    // routing.reached should be deleted because not at border and not in target room
+    assert.equal(creep.memory.routing.reached, undefined);
+  });
+
+  it('squadsiege does not call siege() when not in target room', () => {
+    const room = new Room('W1N1', 5000);
+    let siegeCalled = false;
+
+    const creep = {
+      name: 'squadsiege-1',
+      memory: {
+        role: 'squadsiege',
+        routing: {
+          targetRoom: 'W1N2',
+        },
+      },
+      room: room,
+      pos: {
+        x: 25,
+        y: 25,
+        roomName: 'W1N1',
+        isBorder: () => false,
+      },
+      hits: 1000,
+      hitsMax: 1000,
+      say: () => {},
+      moveRandom: () => {},
+      siege: () => {
+        siegeCalled = true;
+        return true;
+      },
+    };
+
+    roles.squadsiege.action(creep);
+
+    // siege() should NOT be called when traveling (not in target room)
+    assert.equal(siegeCalled, false);
+  });
+
+  it('squadsiege calls siege() when in target room', () => {
+    const room = new Room('W1N1', 5000);
+    let siegeCalled = false;
+
+    const creep = {
+      name: 'squadsiege-1',
+      memory: {
+        role: 'squadsiege',
+        routing: {
+          targetRoom: 'W1N1', // Same as current room
+        },
+      },
+      room: room,
+      pos: {
+        x: 25,
+        y: 25,
+        roomName: 'W1N1',
+        isBorder: () => false,
+      },
+      hits: 1000,
+      hitsMax: 1000,
+      say: () => {},
+      siege: () => {
+        siegeCalled = true;
+        return true;
+      },
+    };
+
+    roles.squadsiege.action(creep);
+
+    // siege() SHOULD be called when in target room
+    assert.equal(siegeCalled, true);
+  });
+
+  it('squadheal does not delete routing.reached when at border position', () => {
+    const room = new Room('W1N1', 5000);
+
+    const creep = {
+      name: 'squadheal-1',
+      memory: {
+        role: 'squadheal',
+        routing: {
+          targetRoom: 'W1N2',
+          reached: true,
+        },
+      },
+      room: room,
+      pos: {
+        x: 0, // Border position
+        y: 25,
+        roomName: 'W1N1',
+        isBorder: () => true, // At border
+        findClosestByRange: () => null,
+      },
+      hits: 1000,
+      hitsMax: 1000,
+      selfHeal: () => {},
+      say: () => {},
+      moveRandom: () => {},
+      moveTo: () => {},
+      squadHeal: () => {},
+      creepLog: () => {},
+    };
+
+    roles.squadheal.action(creep);
+
+    // routing.reached should still be true because at border
+    assert.equal(creep.memory.routing.reached, true);
+  });
+
+  it('squadheal deletes routing.reached when not in target room and not at border', () => {
+    const room = new Room('W1N1', 5000);
+
+    const creep = {
+      name: 'squadheal-1',
+      memory: {
+        role: 'squadheal',
+        routing: {
+          targetRoom: 'W1N2',
+          reached: true,
+        },
+      },
+      room: room,
+      pos: {
+        x: 25, // Not border position
+        y: 25,
+        roomName: 'W1N1',
+        isBorder: () => false, // Not at border
+        findClosestByRange: () => null,
+      },
+      hits: 1000,
+      hitsMax: 1000,
+      selfHeal: () => {},
+      say: () => {},
+      moveRandom: () => {},
+      moveTo: () => {},
+      squadHeal: () => {},
+      creepLog: () => {},
+    };
+
+    roles.squadheal.action(creep);
+
+    // routing.reached should be deleted because not at border and not in target room
+    assert.equal(creep.memory.routing.reached, undefined);
   });
 });
