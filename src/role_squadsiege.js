@@ -76,15 +76,20 @@ roles.squadsiege.preMove = function(creep, directions) {
   return false;
 };
 
-// TODO need to check if it works
 roles.squadsiege.action = function(creep) {
   creep.say('action');
+
   if (creep.room.name !== creep.memory.routing.targetRoom) {
+    // Not in target room yet - traveling
     if (creep.hits < creep.hitsMax) {
       creep.moveRandom();
-    } else {
+    } else if (!creep.pos.isBorder(-1)) {
+      // Only reset routing if not at border to prevent bouncing
       delete creep.memory.routing.reached;
     }
+    return true; // Don't execute siege when traveling
   }
+
+  // In target room - execute siege action
   return creep.siege();
 };
