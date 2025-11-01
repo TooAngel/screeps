@@ -347,6 +347,10 @@ function setStatePrepareReactionLab1WithResource(creep) {
   if (lab.store[reaction.result.first] > lab.store.getCapacity(reaction.result.first) / 2) {
     return false;
   }
+  // Check if terminal actually has the required resource
+  if (!creep.room.terminal || !creep.room.terminal.store[reaction.result.first] || creep.room.terminal.store[reaction.result.first] === 0) {
+    return false;
+  }
   creep.data.state = {
     getResource: (object) => Object.keys(object.store).find((resource) => resource === reaction.result.first),
     source: creep.room.terminal.id,
@@ -371,6 +375,10 @@ function setStatePrepareReactionLab2WithResource(creep) {
   }
   const lab = Game.getObjectById(reaction.labs[2]);
   if (lab.store[reaction.result.second] > lab.store.getCapacity(reaction.result.second) / 2) {
+    return false;
+  }
+  // Check if terminal actually has the required resource
+  if (!creep.room.terminal || !creep.room.terminal.store[reaction.result.second] || creep.room.terminal.store[reaction.result.second] === 0) {
     return false;
   }
   creep.data.state = {
