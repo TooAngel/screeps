@@ -47,15 +47,14 @@ roles.squadheal.preMove = function(creep, directions) {
   }
 };
 
-// TODO need to check if it works
 roles.squadheal.action = function(creep) {
   creep.selfHeal();
   if (creep.room.name !== creep.memory.routing.targetRoom) {
-    // creep.log('Not in room');
+    // Not in target room yet - traveling
     if (creep.hits < creep.hitsMax) {
       creep.moveRandom();
-    } else {
-      // creep.log('delete?');
+    } else if (!creep.pos.isBorder(-1)) {
+      // Only reset routing if not at border to prevent bouncing
       delete creep.memory.routing.reached;
     }
     return true;

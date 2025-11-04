@@ -348,7 +348,7 @@ function setStatePrepareReactionLab1WithResource(creep) {
     return false;
   }
   // Check if terminal actually has the required resource
-  if (!creep.room.terminal || !creep.room.terminal.store[reaction.result.first] || creep.room.terminal.store[reaction.result.first] === 0) {
+  if (!creep.room.terminal || !creep.room.terminal.store[reaction.result.first] || creep.room.terminal.store[reaction.result.first] < LAB_REACTION_AMOUNT) {
     return false;
   }
   creep.data.state = {
@@ -378,7 +378,7 @@ function setStatePrepareReactionLab2WithResource(creep) {
     return false;
   }
   // Check if terminal actually has the required resource
-  if (!creep.room.terminal || !creep.room.terminal.store[reaction.result.second] || creep.room.terminal.store[reaction.result.second] === 0) {
+  if (!creep.room.terminal || !creep.room.terminal.store[reaction.result.second] || creep.room.terminal.store[reaction.result.second] < LAB_REACTION_AMOUNT) {
     return false;
   }
   creep.data.state = {
@@ -492,9 +492,13 @@ function handleWithdrawFromSource(creep) {
   }
   creep.moveToMy(source.pos);
   const resource = creep.data.state.getResource(source);
-  if (!resource) {
-    creep.log(`No resource available from ${source}, clearing state`);
+  if (!resource || !source.store[resource] || source.store[resource] < LAB_REACTION_AMOUNT) {
+    creep.log(`No sufficient resource available from ${source}, clearing state and reaction`);
     delete creep.data.state;
+    // Also clear the room's reaction to prevent immediate re-setting
+    if (creep.room.memory.reaction) {
+      delete creep.room.memory.reaction;
+    }
     return true;
   }
   const response = creep.withdraw(source, resource);
