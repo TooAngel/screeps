@@ -62,7 +62,7 @@ Room.prototype.findMinerals = function() {
 
 Room.prototype.findSpawnsNotSpawning = function() {
   return this.find(FIND_MY_SPAWNS, {
-    filter: (spawn) => !spawn.spawning,
+    filter: (spawn) => !spawn.spawning && spawn.isActive(),
   });
 };
 
