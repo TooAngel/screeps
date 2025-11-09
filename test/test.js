@@ -201,6 +201,54 @@ describe('Room', () => {
     config = roomLevel8.getCreepConfig(creep);
     assert.deepEqual(config.body, ['work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'work', 'carry', 'work', 'move']);
   });
+
+  it('findSpawnsNotSpawning filters inactive spawns (downgraded RCL)', () => {
+    const room = new Room('W1N1', 500);
+
+    // Create mock spawns: 3 total (as if built at RCL 8)
+    const activeSpawn1 = {
+      id: 'spawn1',
+      spawning: false,
+      isActive: () => true, // Active spawn
+    };
+
+    const activeSpawn2 = {
+      id: 'spawn2',
+      spawning: false,
+      isActive: () => true, // Active spawn
+    };
+
+    const inactiveSpawn = {
+      id: 'spawn3',
+      spawning: false,
+      isActive: () => false, // Inactive due to low RCL
+    };
+
+    const spawningSpawn = {
+      id: 'spawn4',
+      spawning: {name: 'creep-123'}, // Currently spawning
+      isActive: () => true,
+    };
+
+    // Mock find method to return all spawns and apply filter
+    room.find = (findConstant, opts) => {
+      if (findConstant === FIND_MY_SPAWNS) {
+        const allSpawns = [activeSpawn1, activeSpawn2, inactiveSpawn, spawningSpawn];
+        if (opts && opts.filter) {
+          return allSpawns.filter(opts.filter);
+        }
+        return allSpawns;
+      }
+      return [];
+    };
+
+    const availableSpawns = room.findSpawnsNotSpawning();
+
+    // Should only return active spawns that are not spawning
+    assert.equal(availableSpawns.length, 2, 'Should return only active, non-spawning spawns');
+    assert.equal(availableSpawns[0].id, 'spawn1', 'First spawn should be spawn1');
+    assert.equal(availableSpawns[1].id, 'spawn2', 'Second spawn should be spawn2');
+  });
 });
 
 describe('Mineral System', () => {
