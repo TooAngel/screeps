@@ -32,9 +32,33 @@ brain.stats.init();
 initProfiler();
 
 /**
+ * Get cached isActive() result for a structure to reduce CPU usage
+ * Cache persists across ticks and is cleared only when RCL changes
+ *
+ * @param {Structure} structure - Any structure object
+ * @return {boolean} Whether the structure is active
+ */
+global.getCachedIsActive = function(structure) {
+  if (!global.isActiveCache) {
+    global.isActiveCache = {};
+  }
+  const roomName = structure.room.name;
+  if (!global.isActiveCache[roomName]) {
+    global.isActiveCache[roomName] = {};
+  }
+  if (global.isActiveCache[roomName][structure.id] === undefined) {
+    global.isActiveCache[roomName][structure.id] = structure.isActive();
+  }
+  return global.isActiveCache[roomName][structure.id];
+};
+
+/**
  * Main game loop - executed every tick
  */
 module.exports.loop = function() {
+  // Initialize global cache for isActive() calls (persists across ticks)
+  global.isActiveCache = global.isActiveCache || {};
+
   try {
     runMainLogic();
   } catch (error) {
