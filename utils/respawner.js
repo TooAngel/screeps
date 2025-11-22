@@ -174,7 +174,9 @@ function placeSpawn(room, shard) {
       });
 
       resp.on('end', () => {
-        resolve(JSON.parse(data));
+        const parsed = JSON.parse(data);
+        console.log(`Response: ${data}`);
+        resolve(parsed);
       });
     }).on('error', (err) => {
       console.log('Error: ' + err.message);
@@ -203,12 +205,17 @@ async function findRoomAndSpawn(shardsReduced) {
           const room = `${result[1]}${xValue}${result[3]}${yValue}`;
           const response = await placeSpawn(room, shard.name);
           if (!response.error) {
-            return;
+            console.log(`✓ Successfully placed spawn in ${room} on ${shard.name}`);
+            return true;
+          } else {
+            console.log(`✗ Failed to place spawn in ${room}: ${response.error}`);
           }
         }
       }
     }
   }
+  console.log('✗ Failed to place spawn in any available room');
+  return false;
 }
 
 /**
@@ -237,7 +244,13 @@ async function main() {
     };
   });
   shardsReduced.sort((a, b) => b.value - a.value);
-  findRoomAndSpawn(shardsReduced);
+  const success = await findRoomAndSpawn(shardsReduced);
+
+  if (!success) {
+    throw new Error('Respawner failed to place spawn');
+  }
+
+  console.log('✓ Respawner completed successfully');
 }
 
 main();
