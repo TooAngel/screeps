@@ -75,7 +75,8 @@
       "visualizer": "writable",
       "PIXEL_CPU_COST": "writable",
       "describe": "writable",
-      "it": "writable"
+      "it": "writable",
+      "getCachedIsActive": "readonly"
     },
     "ignorePatterns": [
       "dist/",

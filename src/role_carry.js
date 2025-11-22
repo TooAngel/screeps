@@ -76,7 +76,7 @@ function checkHelperEmptyStorage(creep) {
  */
 function checkForUniversalSpawn(creep) {
   const storage = creep.room.storage;
-  if (!(storage && storage.my && storage.isActive())) {
+  if (!(storage && storage.my && getCachedIsActive(storage))) {
     let resourceAtPosition = 0;
     const resources = creep.pos.lookFor(LOOK_RESOURCES);
     for (const resource of resources) {

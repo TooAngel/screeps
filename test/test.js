@@ -208,24 +208,28 @@ describe('Room', () => {
     // Create mock spawns: 3 total (as if built at RCL 8)
     const activeSpawn1 = {
       id: 'spawn1',
+      room: room,
       spawning: false,
       isActive: () => true, // Active spawn
     };
 
     const activeSpawn2 = {
       id: 'spawn2',
+      room: room,
       spawning: false,
       isActive: () => true, // Active spawn
     };
 
     const inactiveSpawn = {
       id: 'spawn3',
+      room: room,
       spawning: false,
       isActive: () => false, // Inactive due to low RCL
     };
 
     const spawningSpawn = {
       id: 'spawn4',
+      room: room,
       spawning: {name: 'creep-123'}, // Currently spawning
       isActive: () => true,
     };
@@ -1006,5 +1010,159 @@ describe('Squad Roles', () => {
 
     // routing.reached should be deleted because not at border and not in target room
     assert.equal(creep.memory.routing.reached, undefined);
+  });
+});
+
+describe('Structure isActive Caching', () => {
+  beforeEach(() => {
+    // Reset cache before each test
+    global.isActiveCache = {};
+  });
+
+  it('getCachedIsActive returns cached value on second call', () => {
+    let callCount = 0;
+    const mockSpawn = {
+      id: 'spawn1',
+      room: {name: 'W1N1'},
+      isActive: () => {
+        callCount++;
+        return true;
+      },
+    };
+
+    // First call should invoke isActive()
+    const result1 = getCachedIsActive(mockSpawn);
+    assert.equal(result1, true, 'First call should return true');
+    assert.equal(callCount, 1, 'isActive() should be called once');
+
+    // Second call should use cache
+    const result2 = getCachedIsActive(mockSpawn);
+    assert.equal(result2, true, 'Second call should return true');
+    assert.equal(callCount, 1, 'isActive() should still be called only once (cached)');
+  });
+
+  it('getCachedIsActive caches different structures separately', () => {
+    const mockSpawn1 = {
+      id: 'spawn1',
+      room: {name: 'W1N1'},
+      isActive: () => true,
+    };
+    const mockSpawn2 = {
+      id: 'spawn2',
+      room: {name: 'W1N1'},
+      isActive: () => false,
+    };
+
+    const result1 = getCachedIsActive(mockSpawn1);
+    const result2 = getCachedIsActive(mockSpawn2);
+
+    assert.equal(result1, true, 'Spawn1 should be active');
+    assert.equal(result2, false, 'Spawn2 should be inactive');
+  });
+
+  it('getCachedIsActive handles inactive structures correctly', () => {
+    let callCount = 0;
+    const mockInactiveSpawn = {
+      id: 'spawn3',
+      room: {name: 'W1N1'},
+      isActive: () => {
+        callCount++;
+        return false;
+      },
+    };
+
+    const result1 = getCachedIsActive(mockInactiveSpawn);
+    const result2 = getCachedIsActive(mockInactiveSpawn);
+
+    assert.equal(result1, false, 'Should return false for inactive spawn');
+    assert.equal(result2, false, 'Should return false for inactive spawn (cached)');
+    assert.equal(callCount, 1, 'isActive() should only be called once');
+  });
+
+  it('findSpawnsNotSpawning uses cached isActive', () => {
+    const room = new Room('W1N1', 500);
+    let isActiveCallCount = 0;
+
+    const activeSpawn = {
+      id: 'spawn1',
+      room: room,
+      spawning: false,
+      isActive: () => {
+        isActiveCallCount++;
+        return true;
+      },
+    };
+
+    const inactiveSpawn = {
+      id: 'spawn2',
+      room: room,
+      spawning: false,
+      isActive: () => {
+        isActiveCallCount++;
+        return false;
+      },
+    };
+
+    // Mock find method
+    room.find = (findConstant, opts) => {
+      if (findConstant === FIND_MY_SPAWNS) {
+        const allSpawns = [activeSpawn, inactiveSpawn];
+        if (opts && opts.filter) {
+          return allSpawns.filter(opts.filter);
+        }
+        return allSpawns;
+      }
+      return [];
+    };
+
+    // First call to findSpawnsNotSpawning
+    const result1 = room.findSpawnsNotSpawning();
+    assert.equal(result1.length, 1, 'Should return only active spawn');
+    assert.equal(result1[0].id, 'spawn1', 'Should return spawn1');
+    assert.equal(isActiveCallCount, 2, 'isActive() called twice (once per spawn)');
+
+    // Second call should use cache
+    const result2 = room.findSpawnsNotSpawning();
+    assert.equal(result2.length, 1, 'Should still return only active spawn');
+    assert.equal(isActiveCallCount, 2, 'isActive() should still be 2 (cached)');
+  });
+
+  it('getCachedIsActive initializes cache if not exists', () => {
+    // Clear the cache completely
+    delete global.isActiveCache;
+
+    const mockSpawn = {
+      id: 'spawn1',
+      room: {name: 'W1N1'},
+      isActive: () => true,
+    };
+
+    const result = getCachedIsActive(mockSpawn);
+    assert.equal(result, true, 'Should return true');
+    assert.notEqual(global.isActiveCache, undefined, 'Cache should be initialized');
+    assert.notEqual(global.isActiveCache['W1N1'], undefined, 'Room cache should be initialized');
+  });
+
+  it('getCachedIsActive caches across ticks (persists in global)', () => {
+    let callCount = 0;
+    const mockSpawn = {
+      id: 'spawn1',
+      room: {name: 'W1N1'},
+      isActive: () => {
+        callCount++;
+        return true;
+      },
+    };
+
+    // First tick
+    const result1 = getCachedIsActive(mockSpawn);
+    assert.equal(result1, true, 'First call should return true');
+    assert.equal(callCount, 1, 'isActive() should be called once');
+
+    // Simulate new tick (global persists, Game would reset)
+    // Cache should still exist since it's in global, not Game
+    const result2 = getCachedIsActive(mockSpawn);
+    assert.equal(result2, true, 'Second call should return true');
+    assert.equal(callCount, 1, 'isActive() should NOT be called again (persisted across ticks)');
   });
 });

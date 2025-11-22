@@ -21,6 +21,13 @@ Room.prototype.buildBaseUnseenControllerLevel = function() {
     // TODO I don't think we need this here, after change to heap
     this.updateCostMatrix();
     resetCounters(this);
+
+    // Clear isActive cache when RCL changes
+    if (global.isActiveCache && global.isActiveCache[this.name]) {
+      delete global.isActiveCache[this.name];
+      this.debugLog('baseBuilding', `Cleared isActive cache for ${this.name} at RCL ${this.controller.level}`);
+    }
+
     this.memory.controllerLevel['setup_level_' + this.controller.level] = Game.time;
   }
 };
