@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
   redis:
     image: redis:latest
@@ -14,7 +12,7 @@ services:
       - 27017:27017
     command: mongod --quiet --logpath /dev/null 
   server:
-    image: node:12
+    image: node:20
     working_dir: /mnt
     volumes:
       - ./:/mnt
