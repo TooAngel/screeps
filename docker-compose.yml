@@ -4,6 +4,12 @@ services:
     ports:
       - 6379:6379
     command: redis-server --loglevel warning
+    # Enable memory overcommit to prevent save/replication failures
+    # If this doesn't work, run: sudo sysctl vm.overcommit_memory=1
+    sysctls:
+      - net.core.somaxconn=511
+    # Uncomment if you have permission issues with sysctls:
+    # privileged: true
   mongo:
     image: mongo
     volumes:
