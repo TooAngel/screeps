@@ -260,6 +260,75 @@ function updateStatus(event) {
 }
 
 /**
+ * Print milestone progress summary
+ *
+ * @param {number} gameTime
+ */
+function printMilestoneProgress(gameTime) {
+  const requiredMilestones = milestones.filter((m) => m.required);
+  const passedRequired = requiredMilestones.filter((m) => m.success);
+  const failedRequired = requiredMilestones.filter((m) => m.tick < gameTime && !m.success);
+  const pendingRequired = requiredMilestones.filter((m) => m.tick >= gameTime && !m.success);
+
+  console.log(`[${gameTime}] MILESTONE PROGRESS: ${passedRequired.length}/${requiredMilestones.length} required passed, ${failedRequired.length} failed, ${pendingRequired.length} pending`);
+
+  // Show next upcoming milestone
+  const nextMilestone = milestones.find((m) => m.tick >= gameTime && !m.success);
+  if (nextMilestone) {
+    const ticksRemaining = nextMilestone.tick - gameTime;
+    console.log(`[${gameTime}] NEXT MILESTONE: tick ${nextMilestone.tick} (in ${ticksRemaining} ticks) - ${JSON.stringify(nextMilestone.check)} ${nextMilestone.required ? '[REQUIRED]' : '[optional]'}`);
+  }
+
+  // Show recent failures
+  if (failedRequired.length > 0) {
+    console.log(`[${gameTime}] FAILED MILESTONES:`);
+    failedRequired.forEach((m) => {
+      const rooms = m.failedRooms && m.failedRooms.length > 0 ? m.failedRooms.join(', ') : 'unknown';
+      console.log(`  - tick ${m.tick}: ${JSON.stringify(m.check)} (failed rooms: ${rooms})`);
+    });
+  }
+}
+
+/**
+ * checkFailFast - Exit immediately if a required milestone fails
+ *
+ * @param {object} milestone
+ * @param {number} gameTime
+ */
+function checkFailFast(milestone, gameTime) {
+  if (milestone.required) {
+    console.log(`${gameTime} FAIL FAST: Required milestone failed, exiting immediately`);
+    console.log('Status:');
+    console.log(JSON.stringify(status, null, 2));
+    console.log('Milestones:');
+    console.log(JSON.stringify(milestones, null, 2));
+    /* eslint no-process-exit: "off" */
+    process.exit(1);
+  }
+}
+
+/**
+ * checkEarlySuccess - Exit early if all required milestones passed
+ *
+ * @param {number} gameTime
+ */
+function checkEarlySuccess(gameTime) {
+  const requiredMilestones = milestones.filter((m) => m.required);
+  const passedRequired = requiredMilestones.filter((m) => m.success);
+  if (passedRequired.length === requiredMilestones.length && requiredMilestones.length > 0) {
+    console.log('===============================');
+    console.log(`${gameTime} EARLY SUCCESS: All ${requiredMilestones.length} required milestones passed!`);
+    console.log('Status:');
+    console.log(JSON.stringify(status, null, 2));
+    console.log('Milestones:');
+    console.log(JSON.stringify(milestones, null, 2));
+    console.log(`${gameTime} Status check: passed`);
+    /* eslint no-process-exit: "off" */
+    process.exit(0);
+  }
+}
+
+/**
  * updates the stauts object
  *
  * @param {object} event
@@ -269,6 +338,7 @@ function statusUpdater(event) {
     lastTick = event.data.gameTime;
     if (event.data.gameTime % 300 === 0) {
       printCurrentStatus(event.data.gameTime);
+      printMilestoneProgress(event.data.gameTime);
     }
     for (const milestone of milestones) {
       const failedRooms = checkMilestone(event, milestone);
@@ -281,9 +351,11 @@ function statusUpdater(event) {
         milestone.failedRooms = failedRooms;
         console.log('===============================');
         console.log(`${event.data.gameTime} Milestone: Failed ${JSON.stringify(milestone)} status: ${JSON.stringify(status)}`);
+        checkFailFast(milestone, event.data.gameTime);
         continue;
       }
     }
+    checkEarlySuccess(event.data.gameTime);
   }
   updateStatus(event);
 }
