@@ -1,11 +1,15 @@
-version: '3.7'
-
 services:
   redis:
     image: redis:latest
     ports:
       - 6379:6379
     command: redis-server --loglevel warning
+    # Enable memory overcommit to prevent save/replication failures
+    # If this doesn't work, run: sudo sysctl vm.overcommit_memory=1
+    sysctls:
+      - net.core.somaxconn=511
+    # Uncomment if you have permission issues with sysctls:
+    # privileged: true
   mongo:
     image: mongo
     volumes:
@@ -14,7 +18,7 @@ services:
       - 27017:27017
     command: mongod --quiet --logpath /dev/null 
   server:
-    image: node:12
+    image: node:20
     working_dir: /mnt
     volumes:
       - ./:/mnt
@@ -34,7 +38,7 @@ services:
       - 21025:21025
       - 21026:21026
   logs:
-    image: node:12
+    image: node:20
     working_dir: /mnt
     volumes:
       - ./:/mnt

@@ -260,7 +260,10 @@ Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, l
         }
       }
     } catch (e) {
-      console.log(`prototype_room_creepbuild.checkRoleToSpawn exception: ${e}`);
+      // Suppress "No runtime status data" error on private servers during early ticks
+      if (!e.message || !e.message.includes('No runtime status data')) {
+        console.log(`prototype_room_creepbuild.checkRoleToSpawn exception: ${e}`);
+      }
     }
   }
   return this.memory.queue.push(creepMemory);
