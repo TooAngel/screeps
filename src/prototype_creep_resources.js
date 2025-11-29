@@ -14,8 +14,18 @@ Creep.prototype.universalBeforeStorage = function() {
 
   methods.push(Creep.getEnergy);
 
-  if (this.room.controller && (this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / 10 || this.room.controller.level === 1)) {
-    methods.push(Creep.upgradeControllerTask);
+  // Use hysteresis to prevent ping-pong:
+  // - Enter emergency mode at downgrade/10 (strict threshold)
+  // - Stay in emergency mode at downgrade/9 (lenient threshold) if already at controller
+  // This prevents oscillation when upgrading pushes controller just above threshold
+  if (this.room.controller) {
+    const isAtController = this.pos.inRangeTo(this.room.controller, 3);
+    const emergencyThreshold = isAtController ? 9 : 10;
+    const isEmergencyDowngrade = this.room.controller.ticksToDowngrade < CONTROLLER_DOWNGRADE[this.room.controller.level] / emergencyThreshold || this.room.controller.level === 1;
+
+    if (isEmergencyDowngrade) {
+      methods.push(Creep.upgradeControllerTask);
+    }
   }
   if (!this.room.isConstructingSpawnEmergency()) {
     const universals = this.room.findCreep('universal').map((creep) => creep.name);
