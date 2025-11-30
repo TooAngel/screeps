@@ -174,7 +174,7 @@ RoomPosition.prototype.findClosestByRangeStandardConstructionSites = function() 
 
 RoomPosition.prototype.findClosestByRangeBlockerConstructionSite = function() {
   return this.findClosestByRange(FIND_CONSTRUCTION_SITES, {
-    filter: (object) => [STRUCTURE_RAMPART, STRUCTURE_WALL].includes(object.structureType) && !!object.hitsMax,
+    filter: (object) => [STRUCTURE_RAMPART, STRUCTURE_WALL].includes(object.structureType) && (object.hitsMax === undefined || object.hitsMax > 0),
   });
 };
 
