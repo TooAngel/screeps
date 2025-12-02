@@ -8,7 +8,7 @@ Room.prototype.findHostileStructureWithEnergy = function() {
 
 Room.prototype.findCreep = function(role) {
   return this.find(FIND_MY_CREEPS, {
-    filter: (object) => object.role === role,
+    filter: (object) => object.memory && object.memory.role === role,
   });
 };
 
