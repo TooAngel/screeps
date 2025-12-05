@@ -80,9 +80,13 @@ function getNextRoom(creep) {
     const roomLastSeen = (global.data.rooms[room.name] || {}).lastSeen;
 
     const exitPositions = creep.room.find(room.direction);
-    const indestructableWall = creep.room.lookForAt(LOOK_STRUCTURES, exitPositions[0]);
-    if (indestructableWall.length && indestructableWall.find((object) => object.structureType === STRUCTURE_WALL && !object.hitsMax)) {
-      creep.log(`Found indestructable walls`);
+    // Check if exit is blocked by indestructible walls (newbie zone walls)
+    const isExitBlocked = exitPositions.every((exitPos) => {
+      const structures = creep.room.lookForAt(LOOK_STRUCTURES, exitPos);
+      return structures.some((s) => s.structureType === STRUCTURE_WALL && !s.hitsMax);
+    });
+    if (isExitBlocked) {
+      creep.log(`Exit blocked by indestructable walls`);
       continue;
     }
     const roomCallback = (roomName) => {
@@ -95,7 +99,7 @@ function getNextRoom(creep) {
       return costMatrix;
     };
     const search = PathFinder.search(creep.pos, exitPositions[0], {
-      maxRooms: 0,
+      maxRooms: 1,
       roomCallback: roomCallback,
     });
     if (search.incomplete) {
