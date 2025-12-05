@@ -80,10 +80,11 @@ function getNextRoom(creep) {
     const roomLastSeen = (global.data.rooms[room.name] || {}).lastSeen;
 
     const exitPositions = creep.room.find(room.direction);
-    // Check if exit is blocked by indestructible walls (newbie zone walls)
+    // Check if exit is blocked by indestructible walls
+    // Newbie/novice zone walls have a decayTime property and hitsMax, but cannot be passed
     const isExitBlocked = exitPositions.every((exitPos) => {
       const structures = creep.room.lookForAt(LOOK_STRUCTURES, exitPos);
-      return structures.some((s) => s.structureType === STRUCTURE_WALL && !s.hitsMax);
+      return structures.some((s) => s.structureType === STRUCTURE_WALL && (!s.hitsMax || s.decayTime));
     });
     if (isExitBlocked) {
       creep.log(`Exit blocked by indestructable walls`);
