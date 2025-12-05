@@ -163,6 +163,14 @@ function cleanRooms() {
   if (Game.time % 300 === 0) {
     for (const name of Object.keys(Memory.rooms)) {
       // TODO lastSeen moved to global.data - so we should check this, also Memory.rooms should only exist for myRooms
+
+      // Empty memory objects appear for external rooms - likely created automatically
+      // by Screeps server when room.memory is accessed on any visible room
+      if (Object.keys(Memory.rooms[name]).length === 0) {
+        delete Memory.rooms[name];
+        continue;
+      }
+
       if (!Memory.rooms[name].lastSeen && Object.keys(Memory.rooms[name]).length > 0) {
         debugLog('memory', `Deleting ${name} from memory no 'lastSeen' value, keys: ${JSON.stringify(Object.keys(Memory.rooms[name]))}`);
         delete Memory.rooms[name];
