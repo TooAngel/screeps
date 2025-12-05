@@ -153,7 +153,7 @@ Room.prototype.findDestructibleStructures = function() {
       if (!structure.hitsMax) {
         return false;
       }
-      return;
+      return true;
     },
   });
 };
