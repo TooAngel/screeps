@@ -449,6 +449,10 @@ Creep.prototype.repairStructureGetTarget = function() {
  * @return {boolean}
  */
 function isStructureWithinRepairStepRange(structure, step) {
+  // Skip structures without hits (e.g., newbie zone walls with decayTime)
+  if (structure.hits === undefined) {
+    return false;
+  }
   if (structure.hits >= structure.hitsMax) {
     return false;
   }
