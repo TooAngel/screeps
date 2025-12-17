@@ -258,10 +258,23 @@ Room.prototype.handleScout = function() {
  * - >= threshold → 2 universals
  *
  * For RCL 7: 2 universals if storage > 2k and multiple spawns
- * For RCL < 7: 1-3 universals depending on conditions
+ * For RCL < 5 with misplacedSpawn and full storage: 2 universals to drain energy
+ * For RCL < 5 with low storage: 3 universals
+ * Otherwise: 1 universal
  *
  * @return {number}
  */
+Room.prototype.getUniversalAmountLowRcl = function() {
+  if (this.storage.isLow()) {
+    return 3;
+  }
+  // Misplaced spawn with full storage needs extra universals to drain energy into upgrades
+  if (this.memory.misplacedSpawn) {
+    return 2;
+  }
+  return null;
+};
+
 Room.prototype.getUniversalAmount = function() {
   if (!this.storage) {
     return 2;
@@ -269,22 +282,25 @@ Room.prototype.getUniversalAmount = function() {
   if (!this.storage.my) {
     return 10;
   }
-  if (this.controller.level < 5 && this.storage.isLow()) {
-    return 3;
+  if (this.controller.level < 5) {
+    const lowRclAmount = this.getUniversalAmountLowRcl();
+    if (lowRclAmount) {
+      return lowRclAmount;
+    }
   }
   if (!this.data.mySpawns || this.executeEveryTicks(3000)) {
     this.data.mySpawns = this.findMySpawns();
   }
 
+  const hasMultipleSpawns = this.data.mySpawns.length > 1;
+
   // RCL 8: Scale universals based on storage energy
-  if (this.controller.level === 8 && this.data.mySpawns.length > 1) {
-    if (this.storage.store.energy >= config.room.universalRcl8MinStorageForTwo) {
-      return 2;
-    }
-    return 1;
+  if (this.controller.level === 8 && hasMultipleSpawns) {
+    return this.storage.store.energy >= config.room.universalRcl8MinStorageForTwo ? 2 : 1;
   }
 
-  if (this.controller.level >= 7 && !this.storage.isLow() && this.data.mySpawns.length > 1) {
+  // RCL 7+: 2 universals if storage not low and multiple spawns
+  if (this.controller.level >= 7 && !this.storage.isLow() && hasMultipleSpawns) {
     return 2;
   }
   return 1;
