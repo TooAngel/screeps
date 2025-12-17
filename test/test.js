@@ -1,47 +1,4 @@
-const variables = require('@screeps/common/lib/constants');
-
-for (const variableName of Object.keys(variables)) {
-  global[variableName] = variables[variableName];
-}
-
-global.Room = function(name, energyAvailable) {
-  this.name = name;
-  this.energyAvailable = energyAvailable;
-  this.memory = {
-    energyStats: {},
-  };
-  this.controller = {
-    level: 1,
-  };
-  this.debugLog = () => {}; // Mock debug logging
-  this.find = () => []; // Mock find method
-};
-global.RoomObject = function() {};
-global.RoomPosition = function(x, y, roomName) {
-  this.x = x;
-  this.y = y;
-  this.roomName = roomName;
-};
-global.Creep = function(role) {
-  this.role = role;
-};
-global.Structure = function() {};
-global.StructureController = function() {};
-global.StructureStorage = function() {};
-global._ = require('lodash');
-global.Game = new function() {
-  this.time = 1;
-  this.cpu = {
-    getUsed: () => {},
-  };
-  this.gcl = {
-    level: 10,
-  };
-};
-global.Memory = new function() {};
-
-require('../src/main');
-
+require('./test_setup');
 const assert = require('assert');
 describe('Room', () => {
   it('getCreepConfig downgraded rooms does not break universal config (issue #585)', () => {

@@ -332,11 +332,20 @@ Creep.prototype.getEnergyFromStorage = function() {
     return false;
   }
 
+  // TODO: Refactor isRampingUp/isStruggling to handle misplacedSpawn with sufficient energy.
+  // Currently isStruggling() returns true when misplacedSpawn is set (via isRampingUp),
+  // but if we have enough energy to rebuild the spawn, we should allow storage access.
   if (this.room.memory.misplacedSpawn) {
-    return false;
-  }
-
-  if (this.room.isStruggling()) {
+    const spawnCost = CONSTRUCTION_COST[STRUCTURE_SPAWN];
+    if (this.room.storage.store.energy <= spawnCost * 3) {
+      return false;
+    }
+    // Has enough energy for spawn rebuild.
+    // Still check other isStruggling conditions (excluding isRampingUp/misplacedSpawn):
+    if (!this.room.memory.active || this.room.storage.isLow()) {
+      return false;
+    }
+  } else if (this.room.isStruggling()) {
     return false;
   }
 
