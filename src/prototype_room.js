@@ -48,10 +48,54 @@ Room.prototype.executeEveryTicks = function(ticks) {
 };
 
 /**
+ * Direction constants to string mapping for blocked exit detection
+ */
+const EXIT_DIRECTION_MAP = {
+  1: 'top', // FIND_EXIT_TOP
+  3: 'right', // FIND_EXIT_RIGHT
+  5: 'bottom', // FIND_EXIT_BOTTOM
+  7: 'left', // FIND_EXIT_LEFT
+};
+
+/**
+ * checkBlockedExits - Check all exits for newbie walls and store in room data
+ * Called periodically to update blocked exit information for routing
+ *
+ * @param {Room} room - The room to check
+ */
+function checkBlockedExits(room) {
+  const blockedExits = {};
+  const exits = Game.map.describeExits(room.name);
+
+  for (const direction in exits) {
+    if (!Object.prototype.hasOwnProperty.call(exits, direction)) continue;
+    const exitPositions = room.find(parseInt(direction, 10));
+    if (exitPositions.length === 0) continue;
+
+    // Check if ALL exit tiles are blocked by newbie/respawn walls
+    const isBlocked = exitPositions.every((exitPos) => {
+      const structures = room.lookForAt(LOOK_STRUCTURES, exitPos);
+      // Newbie walls have decayTime property, or no hitsMax
+      return structures.some((s) => s.structureType === STRUCTURE_WALL && (!s.hitsMax || s.decayTime));
+    });
+
+    if (isBlocked) {
+      const dirName = EXIT_DIRECTION_MAP[direction];
+      if (dirName) {
+        blockedExits[dirName] = true;
+      }
+    }
+  }
+
+  room.data.blockedExits = blockedExits;
+}
+
+/**
  * updateBasicData - Updates basic room data
  * - Sets the number of sources
  * - Sets the controller id
  * - Sets the hostile count
+ * - Checks for blocked exits (newbie walls)
  *
  * @param {object} room - The room to init
  * @return {void}
@@ -71,6 +115,11 @@ function updateBasicData(room) {
     }
   }
   room.data.hostileCreepCount = room.find(FIND_HOSTILE_CREEPS).length;
+
+  // Check blocked exits periodically (every 100 ticks) for routing
+  if (room.data.blockedExits === undefined || room.executeEveryTicks(100)) {
+    checkBlockedExits(room);
+  }
 }
 
 Room.prototype.isMy = function() {

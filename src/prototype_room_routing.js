@@ -28,14 +28,86 @@ function routeCallbackRoomHandle(roomName) {
 }
 
 /**
+ * isExitBlocked - Check if exits between two adjacent rooms are blocked by newbie walls
+ * Uses data stored in global.data.rooms[].blockedExits by scouts
+ *
+ * @param {string} fromRoom - Room we're coming from
+ * @param {string} toRoom - Room we want to enter
+ * @return {boolean} - True if exit is blocked
+ */
+function isExitBlocked(fromRoom, toRoom) {
+  // Check if we have blocked exit data for the source room
+  const fromData = global.data && global.data.rooms && global.data.rooms[fromRoom];
+  if (fromData && fromData.blockedExits) {
+    const exitDir = getExitDirection(fromRoom, toRoom);
+    if (exitDir && fromData.blockedExits[exitDir]) {
+      return true;
+    }
+  }
+
+  // Also check the reverse - if target room has blocked exit back to us
+  const toData = global.data && global.data.rooms && global.data.rooms[toRoom];
+  if (toData && toData.blockedExits) {
+    const reverseDir = getExitDirection(toRoom, fromRoom);
+    if (reverseDir && toData.blockedExits[reverseDir]) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * getExitDirection - Get the exit direction from one room to an adjacent room
+ *
+ * @param {string} fromRoom - Source room name
+ * @param {string} toRoom - Target room name
+ * @return {string|null} - 'top', 'right', 'bottom', 'left', or null if not adjacent
+ */
+function getExitDirection(fromRoom, toRoom) {
+  const fromSplit = splitRoomName(fromRoom);
+  const toSplit = splitRoomName(toRoom);
+
+  // Parse coordinates (W/S are negative)
+  const fromX = fromSplit[1] === 'W' ? -fromSplit[2] : fromSplit[2];
+  const fromY = fromSplit[3] === 'S' ? -fromSplit[4] : fromSplit[4];
+  const toX = toSplit[1] === 'W' ? -toSplit[2] : toSplit[2];
+  const toY = toSplit[3] === 'S' ? -toSplit[4] : toSplit[4];
+
+  const dx = toX - fromX;
+  const dy = toY - fromY;
+
+  if (dx === 1 && dy === 0) return 'right';
+  if (dx === -1 && dy === 0) return 'left';
+  if (dx === 0 && dy === 1) return 'top';
+  if (dx === 0 && dy === -1) return 'bottom';
+
+  return null; // Not adjacent
+}
+
+/**
  * routeCallback
  *
- * @param {string} to
+ * @param {string} from - Origin room name
+ * @param {string} to - Destination room name
  * @param {boolean} useHighWay
- * @return {number}
+ * @return {function} - Callback function for Game.map.findRoute
  */
-function routeCallback(to, useHighWay) {
-  return function(roomName) {
+function routeCallback(from, to, useHighWay) {
+  // Track the previous room in the route to check exit blocking
+  let previousRoom = from;
+
+  return function(roomName, fromRoomName) {
+    // fromRoomName is provided by Game.map.findRoute callback
+    const sourceRoom = fromRoomName || previousRoom;
+
+    // Check for blocked exits (newbie walls)
+    if (isExitBlocked(sourceRoom, roomName)) {
+      return Infinity;
+    }
+
+    previousRoom = roomName;
+
     let returnValue = Infinity;
     if (roomName === to) {
       returnValue = 1;
@@ -115,7 +187,7 @@ Room.prototype.getCreepPositionForId = function(to) {
 Room.prototype.findRoute = function(from, to, useHighWay) {
   useHighWay = useHighWay || false;
   return Game.map.findRoute(from, to, {
-    routeCallback: routeCallback(to, useHighWay),
+    routeCallback: routeCallback(from, to, useHighWay),
   });
 };
 
