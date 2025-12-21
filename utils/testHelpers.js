@@ -126,7 +126,16 @@ module.exports.sleep = sleep;
  */
 async function initServer() {
   if (fs.existsSync(dir)) {
-    rimraf.sync(dir);
+    try {
+      rimraf.sync(dir);
+    } catch (err) {
+      if (err.code === 'EACCES') {
+        console.error(`Cannot remove ${dir} - permission denied (may have been created by Docker with root).`);
+        console.error('Please manually remove with: sudo rm -rf ' + dir);
+        throw new Error(`Permission denied removing ${dir}. Run: sudo rm -rf ${dir}`);
+      }
+      throw err;
+    }
   }
   fs.mkdirSync(dir, '0744');
   await new Promise(((resolve) => {
