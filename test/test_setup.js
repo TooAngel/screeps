@@ -39,6 +39,38 @@ if (!global._testSetupComplete) {
   global.StructureController = function() {};
   global.StructureStorage = function() {};
   global._ = require('lodash'); // eslint-disable-line global-require
+
+  // Mock PathFinder.CostMatrix
+  global.PathFinder = {
+    CostMatrix: function() {
+      this._data = new Uint8Array(2500); // 50x50 room
+    },
+    search: function() {
+      return {path: [], ops: 0, cost: 0, incomplete: false};
+    },
+  };
+  PathFinder.CostMatrix.prototype.get = function(x, y) {
+    return this._data[y * 50 + x];
+  };
+  PathFinder.CostMatrix.prototype.set = function(x, y, value) {
+    this._data[y * 50 + x] = value;
+  };
+  PathFinder.CostMatrix.prototype.clone = function() {
+    const copy = new PathFinder.CostMatrix();
+    copy._data = new Uint8Array(this._data);
+    return copy;
+  };
+  PathFinder.CostMatrix.prototype.serialize = function() {
+    return Array.from(this._data);
+  };
+  PathFinder.CostMatrix.deserialize = function(data) {
+    const cm = new PathFinder.CostMatrix();
+    if (data && Array.isArray(data)) {
+      cm._data = new Uint8Array(data);
+    }
+    return cm;
+  };
+
   global.Game = new function() {
     this.time = 1;
     this.cpu = {

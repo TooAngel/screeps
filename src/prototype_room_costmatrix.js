@@ -102,9 +102,9 @@ Room.prototype.getBasicCostMatrixCallback = function(withinRoom = false) {
     }
     if (!room.data.costMatrix) {
       room.debugLog('routing', `getBasicCostMatrixCallback - no CostMatrix`);
-      room.updatePosition();
-      // I think updatePosition sets the correct CostMatrix
-      // room.updateCostMatrix();
+      // Use updateCostMatrix to regenerate from existing positions (loaded from memory)
+      // NOT updatePosition which clears positions and regenerates from scratch
+      room.updateCostMatrix();
     }
 
     if (withinRoom) {
@@ -175,7 +175,9 @@ Room.prototype.getCostMatrixCallback = function(end, excludeStructures, oneRoom,
     }
     if (!room.data.costMatrix) {
       room.debugLog('routing', `getCostMatrixCallback - no CostMatrix`);
-      room.updatePosition();
+      // Use updateCostMatrix to regenerate from existing positions (loaded from memory)
+      // NOT updatePosition which clears positions and regenerates from scratch
+      room.updateCostMatrix();
     }
     const costMatrix = room.data.costMatrix.clone();
     // TODO the ramparts could be within existing walls (at least when converging to the new move sim
