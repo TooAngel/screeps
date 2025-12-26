@@ -1,30 +1,7 @@
 /**
- * printRoomCostMatrix - prints the room.data.costMatrix
+ * printCostMatrix - prints a cost matrix as a grid
  *
- * @param {object} room
- * @return {void}
- */
-function printRoomCostMatrix(room) {
-  let line = '    ';
-  for (let x = 0; x < 50; x++) {
-    line += x.toString().padStart(3, ' ');
-  }
-  console.log(line);
-  for (let y = 0; y < 50; y++) {
-    let line = `${y.toString().padStart(3, ' ')} `;
-    for (let x = 0; x < 50; x++) {
-      line += room.data.costMatrix.get(x, y).toString().padStart(3, ' ');
-    }
-    console.log(line);
-  }
-}
-
-module.exports.printRoomCostMatrix = printRoomCostMatrix;
-
-/**
- * printCostMatrix - prints the room.data.costMatrix
- *
- * @param {object} costMatrix
+ * @param {object} costMatrix - a PathFinder.CostMatrix or compatible object with get(x, y)
  * @return {void}
  */
 function printCostMatrix(costMatrix) {
@@ -43,3 +20,15 @@ function printCostMatrix(costMatrix) {
 }
 
 module.exports.printCostMatrix = printCostMatrix;
+
+/**
+ * printRoomCostMatrix - prints the room.data.costMatrix
+ *
+ * @param {object} room
+ * @return {void}
+ */
+function printRoomCostMatrix(room) {
+  printCostMatrix(room.data.costMatrix);
+}
+
+module.exports.printRoomCostMatrix = printRoomCostMatrix;
