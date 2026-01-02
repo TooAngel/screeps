@@ -219,6 +219,16 @@ async function findRoomAndSpawn(shardsReduced) {
 }
 
 /**
+ * sleep
+ *
+ * @param {number} ms
+ * @return {Promise}
+ */
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
  * main
  *
  * @return {void}
@@ -232,6 +242,12 @@ async function main() {
   console.log(worldStatus);
   const response = await respawn();
   console.log(response);
+
+  // Wait 185 seconds for the respawn cooldown (180s + 5s buffer)
+  console.log('Waiting 185 seconds for respawn cooldown...');
+  await sleep(185000);
+  console.log('Cooldown complete, attempting to place spawn...');
+
   const shardsInfo = await getShards();
   const shards = shardsInfo.shards.filter((shard) => shard.cpuLimit === 0);
   const shardsReduced = shards.map((shard) => {
