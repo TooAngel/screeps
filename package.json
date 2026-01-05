@@ -24,9 +24,9 @@
     "screeps": "4.2.14",
     "screeps-api": "1.16.1",
     "screeps-profiler": "2.0.1",
-    "screepsmod-admin-utils": "1.29.0",
-    "screepsmod-auth": "2.7.1",
-    "screepsmod-mongo": "2.10.4",
+    "screepsmod-admin-utils": "1.35.1",
+    "screepsmod-auth": "2.8.2",
+    "screepsmod-mongo": "2.12.1",
     "uglify-js-harmony": "2.7.7"
   },
   "repository": {
