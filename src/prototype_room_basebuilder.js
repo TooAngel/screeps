@@ -35,6 +35,15 @@ Room.prototype.destroyStructureWall = function(structure) {
   if (!structure.hits) {
     return false;
   }
+
+  // At low RCL (before RCL 3), destroy walls blocking controller access
+  // This handles respawn scenarios where inherited walls block the controller
+  if (this.controller && this.controller.level < 3 && structure.pos.inRangeTo(this.controller.pos, 4)) {
+    this.log(`Destroying wall at ${structure.pos.x},${structure.pos.y} blocking controller access`);
+    structure.destroy();
+    return true;
+  }
+
   if (!this.memory.walls) {
     return false;
   }

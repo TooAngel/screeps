@@ -63,7 +63,13 @@ function checkWrongStructures(room) {
   if (!room.memory.controllerLevel.checkWrongStructureInterval) {
     room.memory.controllerLevel.checkWrongStructureInterval = 1;
   }
-  if (room.memory.walls && room.memory.walls.finished && room.executeEveryTicks(room.memory.controllerLevel.checkWrongStructureInterval)) {
+
+  // At low RCL (before RCL 3), also check for blocking walls even if wall layout isn't finished
+  // This handles respawn scenarios where inherited walls block the controller
+  const isLowRcl = room.controller && room.controller.level < 3;
+  const shouldCheck = (room.memory.walls && room.memory.walls.finished) || isLowRcl;
+
+  if (shouldCheck && room.executeEveryTicks(room.memory.controllerLevel.checkWrongStructureInterval)) {
     if (room.checkWrongStructure(room)) {
       resetCounters(room);
     } else {
