@@ -229,6 +229,19 @@ Room.prototype.checkWrongStructure = function() {
     return false;
   }
 
+  // At low RCL, prioritize destroying walls blocking controller access
+  // This must run BEFORE the misplacedSpawn check to handle respawn scenarios
+  if (this.controller && this.controller.level < 3) {
+    const walls = this.find(FIND_STRUCTURES, {
+      filter: (s) => s.structureType === STRUCTURE_WALL && s.hits && s.pos.inRangeTo(this.controller.pos, 4),
+    });
+    for (const wall of walls) {
+      this.log(`Destroying wall at ${wall.pos.x},${wall.pos.y} blocking controller access`);
+      wall.destroy();
+      return true;
+    }
+  }
+
   // destroyStructure resets misplacedSpawn, so make sure we reach that point with the storage check
   if (this.memory.misplacedSpawn && (!this.storage || this.storage.store.energy < 20000)) {
     this.debugLog('baseBuilding', 'checkWrongStructures skipped - misplacedSpawn');
