@@ -1,6 +1,37 @@
 const https = require('https');
 
 /**
+ * getUserInfo
+ *
+ * @return {object}
+ */
+function getUserInfo() {
+  return new Promise((resolve) => {
+    const options = {
+      hostname: 'screeps.com',
+      port: 443,
+      path: '/api/auth/me',
+      method: 'GET',
+      headers: {
+        'X-Token': process.env.token,
+        'X-Username': process.env.token,
+      },
+    };
+    https.get(options, (resp) => {
+      let data = '';
+      resp.on('data', (chunk) => {
+        data += chunk;
+      });
+      resp.on('end', () => {
+        resolve(JSON.parse(data));
+      });
+    }).on('error', (err) => {
+      console.log('Error: ' + err.message);
+    });
+  });
+}
+
+/**
  * getWorldStatus
  *
  * @return {object}
@@ -187,10 +218,59 @@ function placeSpawn(room, shard) {
 }
 
 /**
+ * setShardLimits
+ *
+ * @param {string} shardName
+ * @param {number} cpuLimit
+ * @return {object}
+ */
+function setShardLimits(shardName, cpuLimit) {
+  return new Promise((resolve) => {
+    const expression = `Game.cpu.setShardLimits({${shardName}: ${cpuLimit}})`;
+    const dataObject = {
+      expression: expression,
+      shard: shardName,
+    };
+    console.log(`Setting shard limits: ${expression}`);
+    const data = JSON.stringify(dataObject);
+    const options = {
+      hostname: 'screeps.com',
+      port: 443,
+      path: '/api/user/console',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': data.length,
+        'X-Token': process.env.token,
+        'X-Username': process.env.token,
+      },
+    };
+    const req = https.request(options, (resp) => {
+      console.log(`STATUS: ${resp.statusCode}`);
+      let data = '';
+
+      resp.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      resp.on('end', () => {
+        const parsed = JSON.parse(data);
+        console.log(`Response: ${data}`);
+        resolve(parsed);
+      });
+    }).on('error', (err) => {
+      console.log('Error: ' + err.message);
+    });
+    req.write(data);
+    req.end();
+  });
+}
+
+/**
  * findRoomAndSpawn
  *
  * @param {list} shardsReduced
- * @return {void}
+ * @return {object} - Returns {success: boolean, shardName: string} or {success: false}
  */
 async function findRoomAndSpawn(shardsReduced) {
   for (const shard of shardsReduced) {
@@ -206,7 +286,7 @@ async function findRoomAndSpawn(shardsReduced) {
           const response = await placeSpawn(room, shard.name);
           if (!response.error) {
             console.log(`✓ Successfully placed spawn in ${room} on ${shard.name}`);
-            return true;
+            return {success: true, shardName: shard.name};
           } else {
             console.log(`✗ Failed to place spawn in ${room}: ${response.error}`);
           }
@@ -215,7 +295,7 @@ async function findRoomAndSpawn(shardsReduced) {
     }
   }
   console.log('✗ Failed to place spawn in any available room');
-  return false;
+  return {success: false};
 }
 
 /**
@@ -248,9 +328,14 @@ async function main() {
   await sleep(185000);
   console.log('Cooldown complete, attempting to place spawn...');
 
+  // Get user info to determine total CPU available
+  const userInfo = await getUserInfo();
+  const totalCpu = userInfo.cpu;
+  console.log(`User has ${totalCpu} total CPU available`);
+
   const shardsInfo = await getShards();
-  const shards = shardsInfo.shards.filter((shard) => shard.cpuLimit === 0);
-  const shardsReduced = shards.map((shard) => {
+  // Use all shards - we can spawn on any shard and then allocate CPU to it
+  const shardsReduced = shardsInfo.shards.map((shard) => {
     return {
       name: shard.name,
       rooms: shard.rooms,
@@ -260,10 +345,21 @@ async function main() {
     };
   });
   shardsReduced.sort((a, b) => b.value - a.value);
-  const success = await findRoomAndSpawn(shardsReduced);
+  console.log(`Shards ranked by value: ${shardsReduced.map((s) => s.name).join(', ')}`);
 
-  if (!success) {
+  const result = await findRoomAndSpawn(shardsReduced);
+
+  if (!result.success) {
     throw new Error('Respawner failed to place spawn');
+  }
+
+  // Allocate all CPU to the shard where we spawned
+  console.log(`Allocating ${totalCpu} CPU to ${result.shardName}...`);
+  const shardLimitResult = await setShardLimits(result.shardName, totalCpu);
+  if (shardLimitResult.error) {
+    console.log(`⚠ Warning: Failed to set shard limits: ${shardLimitResult.error}`);
+  } else {
+    console.log(`✓ Successfully allocated CPU to ${result.shardName}`);
   }
 
   console.log('✓ Respawner completed successfully');
