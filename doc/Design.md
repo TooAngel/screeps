@@ -36,6 +36,8 @@ The system sets `global.data.isTrapped` flag for other systems to use and provid
 - Regular console logging for recognition
 - Automatic state clearing when conditions change
 
+## [Respawn](Respawn.md)
+
 ## [Base building](BaseBuilding.md)
 
 ### Logic
