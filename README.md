@@ -15,7 +15,7 @@ Pull Requests are automatically merged ([World Driven](https://www.worlddriven.o
 
 ## Use cases
 
-There are different occasions where you get into contact with the TooAngel NPC / bot / source code.
+There are different ways to interact with the TooAngel NPC / bot / source code.
 
 - [As NPC on the public server](doc/NPC.md)
 - [Deployed as bot on a private server](doc/Bot.md)
