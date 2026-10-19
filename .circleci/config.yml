@@ -1,8 +1,8 @@
-version: 2
+version: 2.1
 jobs:
     deploy:
       docker:
-        - image: node:12
+        - image: node:24
       steps:
       - checkout
       - run: npm install
@@ -12,8 +12,8 @@ jobs:
       - run: npm run respawner
     test:
       docker:
-        - image: node:12
-        - image: mongo:latest
+        - image: node:24
+        - image: mongo:7.0
         - image: redis:latest
       steps:
       - checkout
@@ -22,7 +22,6 @@ jobs:
           command: npm run test
           no_output_timeout: 2h
 workflows:
-  version: 2
   test_and_deploy:
     jobs:
       - test

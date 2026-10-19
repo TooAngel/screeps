@@ -1,9 +1,33 @@
 'use strict';
 
-const rp = require('request-promise-native');
 const fs = require('fs');
 
 const token = process.env.grafana_tooangel_token;
+
+/**
+ * request
+ *
+ * @param {string} url
+ * @param {object} [body] - JSON body, sends a POST request if set
+ * @return {object}
+ */
+async function request(url, body) {
+  const options = {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  };
+  if (body) {
+    options.method = 'POST';
+    options.headers['Content-Type'] = 'application/json';
+    options.body = JSON.stringify(body);
+  }
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw Error(`${options.method || 'GET'} ${url} failed: ${response.status} ${await response.text()}`);
+  }
+  return response.json();
+}
 
 /**
  * getDashboard
@@ -13,13 +37,7 @@ const token = process.env.grafana_tooangel_token;
  */
 async function getDashboard(name) {
   const url = 'https://screepspl.us/grafana/api/dashboards/' + name;
-  const dashboard = await rp.get({
-    uri: url,
-    auth: {
-      'bearer': token,
-    },
-    json: true,
-  });
+  const dashboard = await request(url);
   return dashboard;
 }
 
@@ -29,13 +47,7 @@ async function getDashboard(name) {
  */
 async function getDashboardList() {
   const url = 'https://screepspl.us/grafana/api/search';
-  const list = await rp.get({
-    uri: url,
-    auth: {
-      'bearer': token,
-    },
-    json: true,
-  });
+  const list = await request(url);
   return list;
 }
 
@@ -76,16 +88,7 @@ async function updateDashboard(path) {
   url = 'https://screepspl.us/grafana/api/dashboards/db';
   console.log(url);
 
-  const options = {
-    uri: url,
-    method: 'POST',
-    json: obj,
-    auth: {
-      bearer: token,
-    },
-  };
-
-  const response = await rp(options);
+  const response = await request(url, obj);
   console.log(response);
 }
 

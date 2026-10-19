@@ -15,7 +15,7 @@ clone:
 
 steps:
   - name: test
-    image: node:12
+    image: node:24
     pull: always
     commands:
       - git --version
