@@ -3,6 +3,9 @@
   "version": "1.5.2",
   "description": "TooAngel NPC / bot / source code for screeps",
   "main": "src/main.js",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "screeps_bot": true,
   "devDependencies": {
     "chai": "4.3.7",
@@ -18,15 +21,13 @@
     "grunt-screeps": "1.5.0",
     "grunt-sync": "0.8.2",
     "mocha": "10.8.2",
-    "request": "2.88.2",
-    "request-promise-native": "1.0.9",
     "rimraf": "3.0.2",
-    "screeps": "4.2.14",
+    "screeps": "4.3.0",
     "screeps-api": "1.16.1",
     "screeps-profiler": "2.0.1",
-    "screepsmod-admin-utils": "1.35.1",
-    "screepsmod-auth": "2.8.2",
-    "screepsmod-mongo": "2.12.1",
+    "screepsmod-admin-utils": "1.37.1",
+    "screepsmod-auth": "2.10.1",
+    "screepsmod-mongo": "2.13.3",
     "uglify-js-harmony": "2.7.7"
   },
   "repository": {
@@ -44,7 +45,7 @@
     "deploy": "grunt deploy",
     "lint": "eslint .",
     "run-test": "git checkout test-server/db.json && node utils/test_on_server.js",
-    "setupTestServer": "docker compose -f docker-compose-setup.yml up",
+    "setupTestServer": "${CONTAINER_ENGINE:-docker} compose -f docker-compose-setup.yml up",
     "followLogs": "node utils/followLogs localhost true",
     "deployLocal": "screeps-api upload src/*",
     "respawner": "node utils/respawner"
@@ -166,5 +167,14 @@
         }
       ]
     }
+  },
+  "allowScripts": {
+    "@screeps/driver": true,
+    "bufferutil": true,
+    "github:laverdet/isolated-vm#cb93efcc1881c826ee98ad34e66955c08713acb2": true,
+    "screeps": true,
+    "utf-8-validate": true,
+    "es5-ext": false,
+    "uglifyjs-webpack-plugin": false
   }
 }

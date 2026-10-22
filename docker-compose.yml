@@ -1,6 +1,6 @@
 services:
   redis:
-    image: redis:latest
+    image: docker.io/library/redis:latest
     ports:
       - 6379:6379
     command: redis-server --loglevel warning
@@ -11,17 +11,19 @@ services:
     # Uncomment if you have permission issues with sysctls:
     # privileged: true
   mongo:
-    image: mongo
+    image: docker.io/library/mongo:7.0
     volumes:
       - ./tmp-test-server-database/:/data/db
     ports:
       - 27017:27017
     command: mongod --quiet --logpath /dev/null 
   server:
-    image: node:20
+    image: docker.io/library/node:24
     working_dir: /mnt
     volumes:
       - ./:/mnt
+      # Native modules are built for the container, keep them separate from the host node_modules
+      - node_modules:/mnt/node_modules
     command: ./utils/continueTestServer.sh
     environment:
       - STEAM_API_KEY
@@ -37,3 +39,6 @@ services:
     ports:
       - 21025:21025
       - 21026:21026
+
+volumes:
+  node_modules:

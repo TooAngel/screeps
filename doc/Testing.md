@@ -2,6 +2,8 @@
 
 ## Local Testing Environment
 
+See [CodeBase.md](CodeBase.md#requirements) for the required Node.js version and tools.
+
 To test the bot in a local environment:
 - Create a `.env` file in the project root (see `.env.example` for reference)
 - This enables local development and testing without affecting the live bot
@@ -26,7 +28,7 @@ The following tests are automatically executed on new PRs and commits to master:
 npm run setupTestServer
 
 # Resume existing test environment
-docker compose up
+docker compose up   # or: podman compose up
 
 # Run local deployment
 npm run deployLocal

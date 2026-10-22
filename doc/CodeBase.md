@@ -1,5 +1,28 @@
 # Code base
 
+## Requirements
+
+- Node.js 24 (see `.nvmrc`). Node 26 is not supported yet, `isolated-vm`
+  (used by the screeps server) does not build against it.
+- Build tools for the native modules (`isolated-vm`, screeps driver):
+  `python3`, `make` and `g++` (Debian/Ubuntu: `apt install python3 build-essential`)
+- Docker or Podman with compose support for the test server (MongoDB, Redis)
+
+If the system Node.js has a different version, use a version manager which
+reads `.nvmrc`, e.g. [fnm](https://github.com/Schniz/fnm):
+
+```bash
+curl -fsSL https://fnm.vercel.app/install | bash
+fnm install   # installs the version from .nvmrc
+fnm use
+npm install
+```
+
+npm only runs install scripts of packages listed in `allowScripts` in
+`package.json`. When a dependency with install scripts is added or its git
+source changes, review it with `npm install-scripts ls` and approve it with
+`npm install-scripts approve <pkg>`.
+
 ## Developing on test server
 
 To setup a test server with multiple bots. This will prepare the server and start everyting in a docker compose environment and can be stopped with CTRL-C
@@ -9,6 +32,16 @@ To setup a test server with multiple bots. This will prepare the server and star
 It can be resumed via
 
 `docker compose up`
+
+### Podman
+
+The compose files also work with Podman (`apt install podman podman-compose`):
+
+- `CONTAINER_ENGINE=podman npm run setupTestServer`
+- `podman compose up` to resume
+
+With rootless Podman the MongoDB data in `tmp-test-server-database/` is owned
+by a mapped user id, remove it with `podman unshare rm -rf tmp-test-server-database`.
 
 To deploy create a `.screeps.yaml`:
 ```
