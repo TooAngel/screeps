@@ -156,6 +156,10 @@
         "error",
         2
       ],
+      "max-depth": [
+        "error",
+        5
+      ],
       "require-jsdoc": [
         "error",
         {
