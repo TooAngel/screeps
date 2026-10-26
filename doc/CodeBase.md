@@ -110,21 +110,16 @@ To deploy to the live server provide the credentials.
 
 And deploy to the server:
 
-    grunt
+    npm run deploy
+
+To the season server, with `token` in the environment or in
+`account.screeps.com.js`:
+
+    node utils/deploy.js season
 
 ### to private server
-Create a `.localSync.js` file with content:
-```
-module.exports = [{
-  cwd: 'src',
-  src: [
-    '*.js'
-  ],
-  dest: '$HOME/.config/Screeps/scripts/SERVER/default',
-}];
-```
 
-    grunt local
+See [Developing on test server](#developing-on-test-server): `npm run deployLocal`.
 
 ## Release
 
