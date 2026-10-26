@@ -96,6 +96,28 @@ Room.prototype.destroyStructureRoad = function(structure) {
   return true;
 };
 
+/**
+ * buildSpawnRampartPosition
+ *
+ * @param {object} room
+ * @param {object} costMatrix
+ * @param {object} spawn
+ * @param {number} x
+ * @param {number} y
+ */
+function buildSpawnRampartPosition(room, costMatrix, spawn, x, y) {
+  if (spawn.pos.x + x < 0 || spawn.pos.y + y < 0 || spawn.pos.x + x >= 50 || spawn.pos.y + y >= 50) {
+    return;
+  }
+  const pos = new RoomPosition(spawn.pos.x + x, spawn.pos.y + y, spawn.pos.roomName);
+  room.memory.walls.ramparts.push(pos);
+  costMatrix.set(pos.x, pos.y, 0);
+  const walls = pos.findInRangeWall(0);
+  for (const wall of walls) {
+    wall.destroy();
+  }
+}
+
 Room.prototype.buildRampartsAroundSpawns = function() {
   // Build ramparts around the spawn if wallThickness > 1
   // TODO this is not used for a long time and the spawn positions should
@@ -107,16 +129,7 @@ Room.prototype.buildRampartsAroundSpawns = function() {
     for (const spawn of spawns) {
       for (let x = -1; x < 2; x++) {
         for (let y = -1; y < 2; y++) {
-          if (spawn.pos.x + x >= 0 && spawn.pos.y + y >= 0 && spawn.pos.x + x < 50 && spawn.pos.y + y < 50) {
-            const pos = new RoomPosition(spawn.pos.x + x, spawn.pos.y + y, spawn.pos.roomName);
-            this.memory.walls.ramparts.push(pos);
-            costMatrixBase.set(pos.x, pos.y, 0);
-
-            const walls = pos.findInRangeWall(0);
-            for (const wall of walls) {
-              wall.destroy();
-            }
-          }
+          buildSpawnRampartPosition(this, costMatrixBase, spawn, x, y);
         }
       }
     }
