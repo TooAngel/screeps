@@ -435,6 +435,42 @@ Room.prototype.handleOccupiedRoom = function() {
 };
 
 /**
+ * getBreakthroughSquadComposition
+ *
+ * @param {number} availableEnergy
+ * @return {{breakthroughSpawns: Array, squadSize: string}|null}
+ */
+function getBreakthroughSquadComposition(availableEnergy) {
+  if (availableEnergy < 15000) {
+    return null;
+  } else if (availableEnergy < 30000) {
+    return {
+      breakthroughSpawns: [
+        {creeps: 1, role: 'squadsiege'},
+        {creeps: 1, role: 'squadheal'},
+      ],
+      squadSize: 'small',
+    };
+  } else if (availableEnergy < 60000) {
+    return {
+      breakthroughSpawns: [
+        {creeps: 2, role: 'squadsiege'},
+        {creeps: 2, role: 'squadheal'},
+      ],
+      squadSize: 'medium',
+    };
+  } else {
+    return {
+      breakthroughSpawns: [
+        {creeps: 3, role: 'squadsiege'},
+        {creeps: 3, role: 'squadheal'},
+      ],
+      squadSize: 'large',
+    };
+  }
+}
+
+/**
  * handleHostileOccupiedRoom
  *
  * Launches military response against enemy-controlled rooms adjacent (range 1) to our rooms.
@@ -477,34 +513,13 @@ Room.prototype.handleHostileOccupiedRoom = function() {
   const availableEnergy = spawnRoom.storage.store.energy;
 
   // Scale squad composition based on available energy
-  let breakthroughSpawns;
-  let squadSize;
-  if (availableEnergy < 15000) {
-    // Insufficient energy for even minimal squad
+  const composition = getBreakthroughSquadComposition(availableEnergy);
+  if (!composition) {
     this.debugLog('attack', `Insufficient energy for breakthrough squad: ${availableEnergy} < 15000`);
     return false;
-  } else if (availableEnergy < 30000) {
-    // Minimal: 1 siege + 1 heal (~6k energy)
-    breakthroughSpawns = [
-      {creeps: 1, role: 'squadsiege'},
-      {creeps: 1, role: 'squadheal'},
-    ];
-    squadSize = 'small';
-  } else if (availableEnergy < 60000) {
-    // Balanced: 2 siege + 2 heal (~12k energy)
-    breakthroughSpawns = [
-      {creeps: 2, role: 'squadsiege'},
-      {creeps: 2, role: 'squadheal'},
-    ];
-    squadSize = 'medium';
-  } else {
-    // Aggressive: 3 siege + 3 heal (~18k energy)
-    breakthroughSpawns = [
-      {creeps: 3, role: 'squadsiege'},
-      {creeps: 3, role: 'squadheal'},
-    ];
-    squadSize = 'large';
   }
+
+  const {breakthroughSpawns, squadSize} = composition;
 
   this.data.lastBreakOccupiedAttempt = Game.time;
 
