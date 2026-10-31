@@ -54,15 +54,26 @@ function stringToParts(stringParts) {
 }
 
 
-Room.prototype.creepMem = function(role, targetId, targetRoom, level, base) {
+/**
+ * Create creep memory object with routing configuration.
+ *
+ * @param {string} role - The creep role
+ * @param {object} options - Additional options
+ * @param {string} [options.targetId] - Target ID
+ * @param {string} [options.targetRoom] - Target room (defaults to this room name)
+ * @param {number} [options.level] - Creep level
+ * @param {string} [options.base] - Base room
+ * @return {object} The creep memory object
+ */
+Room.prototype.creepMem = function(role, options = {}) {
   return {
     role: role,
     routing: {
-      targetRoom: targetRoom || this.name,
-      targetId: targetId,
+      targetRoom: options.targetRoom || this.name,
+      targetId: options.targetId,
     },
-    level: level,
-    base: base,
+    level: options.level,
+    base: options.base,
     time: Game.time,
   };
 };
@@ -242,7 +253,7 @@ Room.prototype.inRoom = function(creepMemory, amount = 1) {
  * @return {number|boolean}             if the spawn is not allow, it will return false.
  */
 Room.prototype.checkRoleToSpawn = function(role, amount, targetId, targetRoom, level, base, additionalMemory = {}) {
-  const creepMemory = this.creepMem(role, targetId, targetRoom, level, base);
+  const creepMemory = this.creepMem(role, {targetId, targetRoom, level, base});
   Object.assign(creepMemory, additionalMemory);
   if (this.inQueue(creepMemory) || this.inRoom(creepMemory, amount)) {
     return false;
