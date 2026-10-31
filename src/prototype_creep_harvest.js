@@ -7,7 +7,7 @@ Creep.prototype.spawnCarry = function() {
   }
 
   const baseRoom = Game.rooms[this.memory.base];
-  const creepMemory = baseRoom.creepMem('carry', this.memory.routing.targetId, this.memory.routing.targetRoom);
+  const creepMemory = baseRoom.creepMem('carry', {targetId: this.memory.routing.targetId, targetRoom: this.memory.routing.targetRoom});
   const carrySettings = baseRoom.getSettings(creepMemory);
   const parts = {
     sourcerWork: this.body.filter((part) => part.type === WORK).length,
