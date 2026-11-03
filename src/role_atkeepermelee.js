@@ -15,6 +15,59 @@ roles.atkeepermelee.settings = {
   maxLayoutAmount: 1,
 };
 
+/**
+ * Move the creep to the center of the target room.
+ * @param {Creep} creep
+ * @return {number}
+ */
+function moveToCenter(creep) {
+  const center = new RoomPosition(25, 25, creep.memory.routing.targetRoom);
+  return creep.moveTo(center, {ignoreCreeps: false, reusePath: 2});
+}
+
+/**
+ * Move the creep towards a target and self-heal if near a keeper lair.
+ * @param {Creep} creep
+ * @param {GameObject} target
+ */
+function healMove(creep, target) {
+  const range = creep.pos.getRangeTo(target.pos);
+  if (range > 5) {
+    creep.moveToMy(target.pos);
+  } else if (range > 2) {
+    creep.moveTo(target.pos, {ignoreCreeps: false, reusePath: 2});
+  } else {
+    creep.moveRandomWithin(target.pos, 1);
+    if (target.structureType === 'keeperLair') {
+      creep.selfHeal();
+    }
+  }
+}
+
+/**
+ * Attack the closest source keeper.
+ * @param {Creep} creep
+ * @return {boolean}
+ */
+function attackAction(creep) {
+  creep.say('attack');
+  const lastTarget = Game.getObjectById(creep.room.memory.lastTarget);
+  let target = (lastTarget && lastTarget.hits && lastTarget.hitsMax) ? lastTarget : creep.findClosestSourceKeeper();
+  if (target === null) {
+    target = creep.findClosestEnemy() || creep.room.getNextSourceKeeperLair();
+    creep.room.memory.lastTarget = target.id;
+  }
+  if (target) {
+    creep.room.memory.lastTarget = target.id;
+  }
+  healMove(creep, target);
+  const returnValue = creep.attack(target);
+  if (returnValue !== OK) {
+    creep.selfHeal();
+  }
+  return true;
+}
+
 roles.atkeepermelee.preMove = function(creep) {
   creep.checkForRoutingReached();
   if (creep.memory.canHeal && creep.isDamaged() < 1) {
@@ -32,48 +85,9 @@ roles.atkeepermelee.action = function(creep) {
     creep.memory.damaged = false;
   }
 
-  const moveToCenter = function(creep) {
-    const center = new RoomPosition(25, 25, creep.memory.routing.targetRoom);
-    return creep.moveTo(center, {ignoreCreeps: false, reusePath: 2});
-  };
-
   if (creep.getActiveBodyparts(ATTACK) === 0) {
     creep.memory.damaged = true;
   }
-
-  const healMove = function(creep, target) {
-    const range = creep.pos.getRangeTo(target.pos);
-    if (range > 5) {
-      creep.moveToMy(target.pos);
-    } else if (range > 2) {
-      creep.moveTo(target.pos, {ignoreCreeps: false, reusePath: 2});
-    } else {
-      creep.moveRandomWithin(target.pos, 1);
-      if (target.structureType === 'keeperLair') {
-        creep.selfHeal();
-      }
-    }
-  };
-
-  const attack = function(creep) {
-    creep.say('attack');
-    // todo-msc cache target
-    const lastTarget = Game.getObjectById(creep.room.memory.lastTarget);
-    let target = (lastTarget && lastTarget.hits && lastTarget.hitsMax) ? lastTarget : creep.findClosestSourceKeeper();
-    if (target === null) {
-      target = creep.findClosestEnemy() || creep.room.getNextSourceKeeperLair();
-      creep.room.memory.lastTarget = target.id;
-    }
-    if (target) {
-      creep.room.memory.lastTarget = target.id;
-    }
-    healMove(creep, target);
-    const returnValue = creep.attack(target);
-    if (returnValue !== OK) {
-      creep.selfHeal();
-    }
-    return true;
-  };
 
   if (creep.room.name === creep.memory.routing.targetRoom) {
     if (creep.memory.damaged || creep.isDamaged() < 0.4 || (creep.getActiveBodyparts(ATTACK) === 0)) {
@@ -85,7 +99,7 @@ roles.atkeepermelee.action = function(creep) {
       return moveToCenter(creep);
     }
     if (creep.room.keeperTeamReady()) {
-      if (attack(creep)) {
+      if (attackAction(creep)) {
         return true;
       }
       if (creep.isDamaged() <= 1 && creep.memory.canHeal) {
