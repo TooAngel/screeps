@@ -70,7 +70,7 @@ Room.prototype.spawnKeepers = function() {
         }
         const returnValue = (role.size < amount) ? baseRoom.checkRoleToSpawn(role.role, amount, keeper.posId, room.name, undefined, room.memory.base) : false;
         if (!returnValue && (role.size < amount)) {
-          const creepMemory = baseRoom.creepMem(role.role, keeper.posId, room.name, undefined, this.data.base);
+          const creepMemory = baseRoom.creepMem(role.role, {targetId: keeper.posId, targetRoom: room.name, level: undefined, base: this.data.base});
           const inQueue = baseRoom.inQueue(creepMemory);
           const inRoom = baseRoom.inRoom(creepMemory, amount);
           room.log('checkRoleToSpawn', returnValue,
