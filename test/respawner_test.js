@@ -86,6 +86,12 @@ describe('Respawner', () => {
       assert.equal(room, 'W8N21', 'Room offset should be calculated correctly');
     });
   });
+});
+
+describe('Respawner', () => {
+  beforeEach(() => {
+    process.env.token = 'test-token';
+  });
 
   describe('setShardLimits expression', () => {
     it('should generate correct Game.cpu.setShardLimits expression', () => {
