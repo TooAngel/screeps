@@ -46,14 +46,16 @@ module.exports.handleSquadManager = function() {
  * TODO atm addToQueue is only for squad creation usable
  * TODO check for queue.length split queue creation to all unused (or less than closestSpawn.memory.queue.length) spawns in range (e.g. under 6 rooms, move '6' to config or room.memory)
  *
- * @param {Array} spawns  Array of Objects like {creeps: 1, role: 'squadsiege'}
  * @param {String} roomNameFrom  pushing to Game.rooms[roomNameFrom].memory.queue
  * @param {String} roomNameTarget routing target
  * @param {String} squadName
- * @param {Number} [queueLimit] don't push if queueLimit is reached
+ * @param {Object} options options object
+ * @param {Array} options.spawns Array of Objects like {creeps: 1, role: 'squadsiege'}
+ * @param {Number} [options.queueLimit] don't push if queueLimit is reached
  * @return {void}
  */
-function addToQueue(spawns, roomNameFrom, roomNameTarget, squadName, queueLimit) {
+function addToQueue(roomNameFrom, roomNameTarget, squadName, options) {
+  const {spawns, queueLimit} = options;
   for (const spawn of spawns) {
     _.times(spawn.creeps, () => {
       // Check queue limit if specified
@@ -78,17 +80,19 @@ function addToQueue(spawns, roomNameFrom, roomNameTarget, squadName, queueLimit)
  * @param {String} type - Squad type prefix for naming (e.g., 'siege', 'melee')
  * @param {String} roomNameFrom - Room to spawn creeps from
  * @param {String} roomNameAttack - Target room to attack
- * @param {Array} spawns - Array of spawn definitions {creeps: number, role: string}
- * @param {Object} squadTypes - Object with squad role types as keys (e.g., {siege: {}, heal: {}})
+ * @param {Object} options - Options object
+ * @param {Array} options.spawns - Array of spawn definitions {creeps: number, role: string}
+ * @param {Object} options.squadTypes - Object with squad role types as keys (e.g., {siege: {}, heal: {}})
  * @return {String} Squad name
  */
-function createSquad(type, roomNameFrom, roomNameAttack, spawns, squadTypes) {
+function createSquad(type, roomNameFrom, roomNameAttack, options) {
+  const {spawns, squadTypes} = options;
   const name = `${type}-${roomNameFrom}-${roomNameAttack}-${Game.time}`;
   const route = Game.map.findRoute(roomNameFrom, roomNameAttack);
   const target = route.length > 1 ? route[route.length - 2].room : roomNameFrom;
 
   Memory.squads = Memory.squads || {};
-  addToQueue(spawns, roomNameFrom, roomNameAttack, name);
+  addToQueue(roomNameFrom, roomNameAttack, name, {spawns});
 
   Memory.squads[name] = {
     born: Game.time,
@@ -119,9 +123,12 @@ function startSquad(roomNameFrom, roomNameAttack) {
     role: 'squadheal',
   }];
 
-  return createSquad('siege', roomNameFrom, roomNameAttack, siegeSpawns, {
-    siege: {},
-    heal: {},
+  return createSquad('siege', roomNameFrom, roomNameAttack, {
+    spawns: siegeSpawns,
+    squadTypes: {
+      siege: {},
+      heal: {},
+    },
   });
 }
 module.exports.startSquad = startSquad;
@@ -150,9 +157,12 @@ function startMeleeSquad(roomNameFrom, roomNameAttack, spawns) {
     role: 'squadheal',
   }];
 
-  return createSquad('melee', roomNameFrom, roomNameAttack, spawns || defaultSpawns, {
-    autoattackmelee: {},
-    heal: {},
+  return createSquad('melee', roomNameFrom, roomNameAttack, {
+    spawns: spawns || defaultSpawns,
+    squadTypes: {
+      autoattackmelee: {},
+      heal: {},
+    },
   });
 }
 module.exports.startMeleeSquad = startMeleeSquad;
