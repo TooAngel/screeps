@@ -97,14 +97,16 @@ function analyzeExitTerrainWalls(roomName, direction) {
  * checkExitBlocked
  *
  * Check if a single exit is blocked by terrain, hostile, or missing data
- * @param {string} roomName - The room to check from
- * @param {string} direction - Exit direction
- * @param {string} exitRoomName - The exit room name
- * @param {boolean} longTermStagnant - Whether we've been stagnant long-term
- * @param {number} stagnationDuration - How long stagnant
+ * @param {object} context - Context object
+ * @param {string} context.roomName - The room to check from
+ * @param {string} context.direction - Exit direction
+ * @param {string} context.exitRoomName - The exit room name
+ * @param {boolean} context.longTermStagnant - Whether we've been stagnant long-term
+ * @param {number} context.stagnationDuration - How long stagnant
  * @param {object} result - Result object to mutate
  */
-function checkExitBlocked(roomName, direction, exitRoomName, longTermStagnant, stagnationDuration, result) {
+function checkExitBlocked(context, result) {
+  const {roomName, direction, exitRoomName, longTermStagnant, stagnationDuration} = context;
   // First check if exit is physically blocked by permanent terrain walls
   const terrainBlocked = analyzeExitTerrainWalls(roomName, direction);
   if (terrainBlocked) {
@@ -168,7 +170,7 @@ function analyzeHostilePresence(roomName) {
   const longTermStagnant = stagnationDuration > config.trapped.stagnationThreshold * 2;
 
   for (const [direction, exitRoomName] of Object.entries(exits)) {
-    checkExitBlocked(roomName, direction, exitRoomName, longTermStagnant, stagnationDuration, result);
+    checkExitBlocked({roomName, direction, exitRoomName, longTermStagnant, stagnationDuration}, result);
   }
 
   const totalExits = Object.keys(exits).length;
