@@ -13,7 +13,7 @@
     "eslint-config-google": "0.14.0",
     "eslint-plugin-screeps": "2.1.0",
     "mocha": "10.8.2",
-    "screeps": "4.3.0",
+    "screeps": "4.3.3",
     "screeps-api": "1.16.1",
     "screeps-profiler": "2.0.1",
     "screepsmod-admin-utils": "1.37.1",
